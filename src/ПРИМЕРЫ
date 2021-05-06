@@ -1,0 +1,172 @@
+178.0.0.0/8, тогда забанит все 178.*
+8 - первый октет слева - сеть, остальное - хосты,
+/16 - первые два октета слева - сеть, остальное - хосты.
+/24 - первые три октета слева - сеть, остальное - хосты.
+
++(ApiOstrov.isFemale(p.getName())?" §fразрешила ":" §fразрешил ") +(ApiOstrov.isFemale(player.getName())?"вошла":"вошел")
+Bukkit.isPrimaryThread()
+
+--- mysql ---
+поиск с учетом регистра   SELECT `name`,`server` FROM `ostrov77`.`user` WHERE BINARY `name` =
+проверка и добавка поля
+if (!ApiOstrov.getLocalConnection().getMetaData().getColumns(null, null, "hideandseek", "trail").next()) {
+     statement.executeUpdate("ALTER TABLE `hideandseek` ADD COLUMN trail int");
+}
+
+Tag.LEAVES.isTagged(block.getType()) - проверить на тиб блока
+private Queue<> = new ArrayDeque<>();  .poll() - для перебора 
+
+
+
+
+--- тонкости https://habr.com/ru/post/267389/ ---
+EnumSet и EnumMap - для енум
+processList(list.subList(from, to)); subList — полнофункциональный список, он работает и на запись   list.subList(from, to).clear();
+PriorityQueue - сортировка и выборка
+Set.add(E) и Set.remove(E) - Set возвращает true, если добавление(удадение) успешно (то есть элемента не было) и false, если такой элемент уже был (не было)
+Map.put(K, V), Map.remove(K), List.set(idx, E), List.remove(idx) возвращают предыдущий элемент
+getRandomFromHashSet() {return players.stream().skip((int) (players.size() * Math.random())).findFirst().get();
+сортировка result.sort(Comparator.comparing(Template::getSize).reversed());
+
+
+
+подборка символов https://www.utf8icons.com/ http://www.xdigest.ru/2015/09/specialnye-simvoly.html
+// +"❤ "  + "☣" ☯  ✁ ✂ ✃ ✄ ✆ ✇ ✈ ✉ ✌ ✍ ✎ ✏ ✐ ✑ ✒ ✓ ✔ ✕ ✖ ✗ ✘ ✙ ✚ ✛ ✜ ✝ 
+//✞ ✟ ✠ ✡ ✢ ✣ ✤ ✥ ✦ ✧ ✩ ✪ ✫ ✬ ✭ ✮ ✯ ✰ ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ 
+    //❋ ❍ ❏ ❐ ❑ ❒ ❖ ❡ ❢ ❣ ❤ ❥ ❦ ❧ ☡ 〄  ❛ ❜ ❝ ❞ † ‡ ⊲ ⊳ ⊴ ⊵⚠ ♮ ♯  ٩(͡๏̯͡๏)۶ Ƹ̴Ӂ̴Ʒ ۩ ۞ ©
+//☀ ☁ ☂ ☃ ☄ ★ ☆ ☇ ☈ ☉ ☊ ☋ ☌ ☍ ☎ ☏ ☐ ☑ ☒ ☓ ☖ ☗ ☚ ☛ ☜ ☝ ☞ ☟ ☠ ☡ ☢ ☣ ☤ ☥ ☦ ☧ ☨ ☩ ☪ ☫ ☬ ☭ ☮ ☢ ☯ █
+1\u00ba 2\u00ba 3\u00ba место из ББ  pr= "§6★ "
+"&7*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*"
+
+координаты блока в чанке из локации
+int relX = block.getX() & 0xF; // keep the 4 least significant bits, range 0-15
+int relY = block.getY() & 0xFF; // and 8 least significant, range 0-255
+int relZ = block.getZ() & 0xF;
+
+проверка слота 
+if (event.getInventory().getType()!=InventoryType.CHEST || event.getSlot() <0 || event.getSlot() > 53 || event.getCurrentItem()== null) return;
+if(e.getRawSlot()==e.getSlot()) {  //действия в сундуке
+
+
+p.sendMessage("§a☆ "+killer.getName()+" §2(+20) §e->  §c☠ "+target.getName() + " §4(-250) ");
+p.sendMessage("§aПобедитель: §f" + winner.getName() + "§6, награда: §b" + ((Ostrov.HasGroup(p.getName(), "gamer" ))? "500 §a+ 500 ✔§8(игроман)":"500 §4+ 0 ✖§8(игроман)" ) );
+
+!!векторный угол
+        double theta = Math.atan2(-stored_vector.getX(), stored_vector.getZ());
+        float angle = (float)Math.toDegrees((theta + 6.283185307179586D) % 6.283185307179586D);//main_loc.getYaw();
+System.out.println("angle="+angle );     
+
+
+    protected static boolean checkNumbers(final String... array) {
+        try {
+            for (int length = array.length, i = 0; i < length; ++i) {
+                Integer.parseInt(array[i]);
+            }
+        }
+        catch (NumberFormatException ex) {
+            return false;
+        }
+        return true;
+    }
+    
+
+
+
+
+if (lowerCase.equals("holograms")) {
+                if (!checkSender(commandSender, true, "skywars.holograms")) {
+                    return true;
+                }
+                final String lowerCase6;
+                final String lowerCase7;
+                if (array.length < 3 || (!(lowerCase6 = array[1].toLowerCase()).equals("set") && !lowerCase6.equals("remove")) || (!(lowerCase7 = array[2].toLowerCase()).equals("stats") && !lowerCase7.equals("leaderboard"))) {
+                    sendCommandUsage(commandSender, "Holograms", "Set/Remove Stats", new String[0]);
+                    return true;
+                }
+                if (hologramsManager == null) {
+                    commandSender.sendMessage(String.valueOf(customization.prefix) + "HolographicDisplays doesn't seem to be loaded!");
+                    return true;
+                }
+                final Player player10 = (Player)commandSender;
+                if (lowerCase6.equals("set")) {
+                    final Location location = player10.getLocation();
+                    if (lowerCase7.equals("stats")) {
+                        location.add(0.0, 4.0, 0.0);
+                        hologramsManager.setStats(location);
+                        getConfig().set("Holographic-Stats", getStringFromLocation(location, false));
+                        player10.sendMessage(String.valueOf(customization.prefix) + "You have set the holographic stats location!");
+                    }
+                }
+                else if (lowerCase7.equals("stats")) {
+                    hologramsManager.setStats(null);
+                    getConfig().set("Holographic-Stats", null);
+                    player10.sendMessage(String.valueOf(customization.prefix) + "You have removed the holographic stats location!");
+                }
+                saveConfig();
+                return true;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+функция callback
+
+public class SQLQuery {
+    JavaPlugin plugin;
+    public void doAsyncQuery(int parameter, final Callback<String> callback) {
+        //run async query
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                //do query here
+                final String result = null;
+                //return value to main thread
+                Bukkit.getScheduler().runTask(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onSuccess(result);
+                    }
+                });
+            }
+        });
+    }
+    public interface Callback<T> {
+        void onSuccess(T done);
+        void onFailure(Throwable cause);
+    }
+}
+
+
+query = new SQLQuery();
+        query.doAsyncQuery(5, new Callback<String>() {
+            @Override
+            public void onSuccess(String done) {
+                //our result back in the main thread
+            }
+            @Override
+            public void onFailure(Throwable cause) {
+                //some error
+            }
+        });

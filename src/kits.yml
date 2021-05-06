@@ -1,0 +1,172 @@
+# +----------------------------------------------------+
+# <                                                    >
+# <                 Ostrov77 kits file                 >
+# <                                                    >
+# +----------------------------------------------------+
+
+# perm_name - request permissions ostrov.kits.<perm_name>,
+# empty for no perm
+# acces_price = price for buy to acces to kit, -1 for free
+# give_price = price for give kit, -1 for free
+# delay_min - interval betveen give kit in min.
+# first item - demo for gui-menu
+# id<>ammount<>name<>lore<>enchant<>color<>end
+# lore:&fline1:&bline2:...
+# set durability or color- id:0-15<>ammount<>...
+# enchant you can use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/enchantments/Enchantment.html
+# color- BLACK, AQUA, BLUE, FUCHSIA, GRAY, GREEN, LIME, MAROON,
+# NAVY, OLIVE, ORANGE, PURPLE, RED, SILVER, TEAL, WHITE, YELLOW
+# effect:TYPE:duration:amplifier
+# all potionEffect https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/potion/PotionEffectType.html
+# egg:TYPE  all eggtype https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+
+kits:
+  start:
+    perm_name: ''
+    acces_price: -1
+    give_price: 100
+    delay_min: 86400
+    items:
+    - 268<>1<>name:&2Стартовый<>lore:&7Набор, доступный всем:&7Получить можно:&7один раз в сутки.<>end
+    - 17:1<>64<>end
+    - 274<>1<>end
+    - 272<>1<>end
+    - 264<>1<>end
+    - 364<>20<>end
+    - 360<>3<>end
+  sedna:
+    perm_name: sedna
+    acces_price: -1
+    give_price: 100
+    delay_min: 86400
+    items:
+    - 268<>1<>name:&2Стартовый для Седны<>lore:&7Набор, доступный всем:&7Получить можно:&7один раз в сутки.<>end
+    - 276<>1<>name:&eСудья<>enchant:KNOCKBACK:2<>enchant:DAMAGE_UNDEAD:3<>lore:&6Стартовый предмет<>end
+    - 306<>1<>enchant:DURABILITY:3<>enchant:PROTECTION_ENVIRONMENTAL:1<>lore:&6Стартовый предмет<>end
+    - 307<>1<>enchant:DURABILITY:3<>enchant:PROTECTION_PROJECTILE:1<>lore:&6Стартовый предмет<>end
+    - 308<>1<>enchant:DURABILITY:3<>enchant:PROTECTION_ENVIRONMENTAL:1<>lore:&6Стартовый предмет<>end
+    - 309<>1<>enchant:DURABILITY:3<>enchant:PROTECTION_ENVIRONMENTAL:1<>lore:&6Стартовый предмет<>end
+    - 257<>1<>name:&eКирка шахтёра<>enchant:DURABILITY:3<>enchant:LUCK:1<>end
+    - 17:1<>64<>end
+    - 264<>5<>end
+    - 364<>20<>end
+    - 360<>3<>end
+  food:
+    perm_name: ''
+    acces_price: 10000
+    give_price: 1000
+    delay_min: 3600
+    items:
+    - 260<>1<>name:&5Обед с курицей<>lore:&7Набор еды:&7Интервал - час.<>end
+    - 282:1<>64<>end
+    - 297<>1<>end
+    - 366<>1<>end
+    - 391<>1<>end
+    - 354<>1<>end
+    - 260<>2<>end
+  vip:
+    perm_name: vip
+    acces_price: -1
+    give_price: 1000
+    delay_min: 86400
+    items:
+    - 265<>1<>name:&6Вип<>lore:&7Вип-Набор:&7Получить можно:&7один раз в сутки.<>enchant:ARROW_DAMAGE:1<>end
+    - 264<>5<>end
+    - 322<>1<>end
+    - 388<>3<>end
+    - 278<>1<>end
+    - 266<>7<>end
+  viparmor:
+    perm_name: vip
+    acces_price: -1
+    give_price: 1000
+    delay_min: 604800
+    items:
+    - 311<>1<>name:&6Вип-броня<>lore:&7Вип-Набор брони:&7Получить можно:&7один раз в неделю.<>enchant:ARROW_DAMAGE:1<>end
+    - 310<>1<>enchant:PROTECTION_ENVIRONMENTAL:1<>end
+    - 311<>1<>enchant:PROTECTION_PROJECTILE:1<>end
+    - 312<>1<>enchant:PROTECTION_ENVIRONMENTAL:1<>end
+    - 313<>1<>enchant:PROTECTION_ENVIRONMENTAL:1<>end
+  viptools:
+    perm_name: vip
+    acces_price: -1
+    give_price: 1000
+    delay_min: 604800
+    items:
+    - 276<>1<>name:&6Вип-инструменты<>lore:&7Вип-Набор инструментов:&7Получить можно:&7один раз в неделю.<>enchant:ARROW_DAMAGE:1<>end
+    - 276<>1<>enchant:DURABILITY:3<>end
+    - 277<>1<>enchant:DURABILITY:3<>end
+    - 278<>1<>enchant:DURABILITY:3<>end
+    - 279<>1<>enchant:DURABILITY:3<>end
+    - 293<>1<>enchant:DURABILITY:3<>end
+  premium:
+    perm_name: premium
+    acces_price: -1
+    give_price: 1000
+    delay_min: 86400
+    items:
+    - 266<>1<>name:&6Премиум<>lore:&7Премиум-Набор:&7Получить можно:&7один раз в сутки.<>enchant:ARROW_DAMAGE:1<>end
+    - 264<>10<>end
+    - 388<>7<>end
+    - 322<>5<>end
+    - 265<>20<>end
+    - 266<>20<>end
+    - 293<>1<>end
+  char:
+    perm_name: premium
+    acces_price: -1
+    give_price: 1000
+    delay_min: 604800
+    items:
+    - 403<>1<>name:&6Зачарованные<>lore:&7Набор зачарованных предм.:&7Получить можно:&7один раз в неделю.<>enchant:ARROW_DAMAGE:1<>end
+    - 277<>1<>name:&bКрот<>lore:&5Дача:&5Огород:&5Овощи<>enchant:DIG_SPEED:3<>end
+    - 278<>1<>name:&bЯмобур<>lore:&5Мечта шахтёра<>enchant:DURABILITY:3<>enchant:LUCK:3<>enchant:SILK_TOUCH:1<>end
+    - 279<>1<>name:&bСекирБашка<>lore:&5Голову с плеч!<>enchant:DAMAGE_ALL:2<>enchant:KNOCKBACK:1<>end
+    - 403<>2<>enchant:DURABILITY:3<>end
+    - 403<>2<>enchant:LUCK:3<>end
+    - 403<>1<>enchant:ARROW_FIRE:1<>end
+    - 403<>1<>enchant:DAMAGE_ALL:3<>end
+    - 403<>1<>enchant:SILK_TOUCH:3<>end
+    - 403<>1<>enchant:KNOCKBACK:3<>end
+  egg:
+    perm_name: premium
+    acces_price: -1
+    give_price: 1000
+    delay_min: 604800
+    items:
+    - 383<>1<>name:&6Яички<>lore:&7Набор яичек:&7Получить можно:&7один раз в неделю.<>enchant:ARROW_DAMAGE:1<>end
+    - 383<>10<>egg:SHEEP<>name:&bОвечка<>end
+    - 383<>5<>egg:HORSE<>name:&bЛошадка<>end
+    - 383<>5<>egg:COW<>name:&bКоровка<>end
+    - 383<>10<>egg:PIG<>name:&bСвинюшка<>end
+    - 383<>5<>egg:OCELOT<>name:&bКотик<>end
+    - 383<>5<>egg:RABBIT<>name:&bКролик<>end
+    - 383<>5<>egg:SLIME<>name:&bСлизняк<>end
+    - 383<>5<>egg:WOLF<>name:&bСобачка<>end
+  potion:
+    perm_name: premium
+    acces_price: -1
+    give_price: 1000
+    delay_min: 86400
+    items:
+    - 373<>1<>name:&6Зельки<>lore:&7Набор зельев:&7Получить можно:&7один раз в сутки.<>enchant:ARROW_DAMAGE:1<>end
+    - 373<>10<>name:&6Лечилка<>effect:HEAL:1:1<>end
+    - 373<>10<>name:&6Регенерация<>effect:REGENERATION:20:2<>end
+    - 373<>10<>name:&6Поглощение<>effect:ABSORPTION:20:2<>end
+  zabor:
+    perm_name: ''
+    acces_price: -1
+    give_price: 1000
+    delay_min: 604800
+    items:
+    - 85<>1<>name:&6Изгородь<>lore:&7Для ограды привата:&7Получить можно:&7один раз в неделю.<>end
+    - 85<>192<>end
+  admin:
+    perm_name: admin
+    acces_price: -1
+    give_price: -1
+    delay_min: 5
+    items:
+    - 7<>1<>name:&6Админ-набор<>end
+    - 271<>1<>end
+    - 280<>1<>end

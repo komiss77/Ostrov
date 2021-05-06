@@ -1,0 +1,218 @@
+# +----------------------------------------------------+
+# <                                                    >
+# <                Ostrov77 config file                >
+# <                                                    >
+# +----------------------------------------------------+
+
+# '---------'
+# player settings
+# '---------'
+# gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR
+# walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable
+# item_lobby_mode - cancel move,drop,drag gived item
+player:
+  teleport_on_first_join: true
+  change_gamemode_on_join: true
+  gamemode_set_to: ADVENTURE
+  walkspeed_on_join: 0.3F
+  clear_stats: false
+  keep_inventory: true
+  disable_void: false
+  disable_damage: true
+  disable_hungry: true
+  disable_break_place: true
+  item_lobby_mode: false
+  block_fly_pvp: true
+  give_pipboy: true
+  give_bow_teleport: false
+  give_cosmetics: false
+
+# '---------'
+# modules manager
+# '---------'
+modules:
+  enable_jump_plate: false
+  teleport_gui: false
+  chat_inspector: true
+  score_board: false
+  block_commands:
+    enable: true
+    except:
+    - menu
+    - snake
+  nbt_checker: false
+
+# '---------'
+# world managment
+# '---------'
+world:
+  spawn:
+    set_spawn_point_world0: false
+    set_spawn_point:
+      x: -15
+      y: 197
+      z: 0
+  block_nether_portal: true
+  block_ender_portal: true
+  block_day_night_change: true
+  set_time_to: 1000
+  disable_weather: true
+  disable_blockspread: true
+  disable_ice_melt: true
+
+# '---------'
+# system settings
+# '---------'
+system:
+  ping_responce_for_bungeeAuth: false
+  autorestart:
+    use: true
+    time: 05:00
+  pipboy_rigth_click_command: cc open menu
+  pipboy_left_click_command: menu
+  pipboy_name: §a§lМеню сервера - нажми ПКМ!
+  cosmetic_name: §6§lПримочки
+  friends_name: §5Друзья
+
+# '---------'
+# local storage
+# '---------'
+storage:
+  player_data_reques_delay: 10
+  perms:
+    add_perm_attacment: true
+    mysql_load_perm: true
+    mysql_perms_autoupdate: false
+    perms_autoupdate_interval_min: 30
+    mysql_host: jdbc:mysql://149.202.87.53/pex
+    mysql_user: pex
+    mysql_passw: MtMLYS3F99MjH0f0sqy8
+  minigames_vip_groups:
+  - premium
+  - vip
+  - gamer
+  prefix:
+    use: true
+    prefix_name_space: '§2 '
+    name_suffix_space: '§7 '
+    suffix_message_space: §7§o≫ §7
+
+# '---------'
+# mob / entoty limiter
+# '---------'
+mob_limiter:
+  enable: false
+  check_chunk_onload: false
+  check_chunk_unload: false
+  block_all_spawn: false
+  watch_creature_spawns: false
+  notify_players: false
+  spawn_reasons:
+    NATURAL: true
+    JOCKEY: true
+    CHUNK_GEN: true
+    SPAWNER: true
+    EGG: true
+    SPAWNER_EGG: true
+    LIGHTNING: true
+    BED: true
+    BUILD_SNOWMAN: true
+    BUILD_IRONGOLEM: true
+    BUILD_WITHER: true
+    VILLAGE_DEFENSE: true
+    VILLAGE_INVASION: true
+    BREEDING: true
+    SLIME_SPLIT: true
+    REINFORCEMENTS: true
+    NETHER_PORTAL: true
+    DISPENSE_EGG: true
+    INFECTION: true
+    CURED: true
+    OCELOT_BABY: true
+    SILVERFISH_BLOCK: true
+    MOUNT: true
+    TRAP: true
+    CUSTOM: true
+    DEFAULT: true
+    ENDER_PEARL: true
+  limits:
+    groups:
+      ANIMAL: 25
+      MONSTER: 25
+      NPC: 10
+      OTHER: 10
+    type:
+      DROPPED_ITEM: -1
+      EXPERIENCE_ORB: -1
+      LEASH_HITCH: -1
+      PAINTING: -1
+      ARROW: -1
+      SNOWBALL: -1
+      FIREBALL: -1
+      SMALL_FIREBALL: -1
+      ENDER_PEARL: -1
+      ENDER_SIGNAL: -1
+      THROWN_EXP_BOTTLE: -1
+      ITEM_FRAME: -1
+      WITHER_SKULL: -1
+      PRIMED_TNT: -1
+      FALLING_BLOCK: -1
+      FIREWORK: -1
+      TIPPED_ARROW: -1
+      SPECTRAL_ARROW: -1
+      SHULKER_BULLET: -1
+      DRAGON_FIREBALL: -1
+      ARMOR_STAND: -1
+      MINECART_COMMAND: -1
+      BOAT: -1
+      MINECART: -1
+      MINECART_CHEST: -1
+      MINECART_FURNACE: -1
+      MINECART_TNT: -1
+      MINECART_HOPPER: -1
+      MINECART_MOB_SPAWNER: -1
+      CREEPER: -1
+      SKELETON: -1
+      SPIDER: -1
+      GIANT: -1
+      ZOMBIE: -1
+      SLIME: -1
+      GHAST: -1
+      PIG_ZOMBIE: -1
+      ENDERMAN: -1
+      CAVE_SPIDER: -1
+      SILVERFISH: -1
+      BLAZE: -1
+      MAGMA_CUBE: -1
+      ENDER_DRAGON: -1
+      WITHER: -1
+      BAT: -1
+      WITCH: -1
+      ENDERMITE: -1
+      GUARDIAN: -1
+      SHULKER: -1
+      PIG: -1
+      SHEEP: -1
+      COW: -1
+      CHICKEN: -1
+      SQUID: -1
+      WOLF: -1
+      MUSHROOM_COW: -1
+      SNOWMAN: -1
+      OCELOT: -1
+      IRON_GOLEM: -1
+      HORSE: -1
+      RABBIT: -1
+      POLAR_BEAR: -1
+      VILLAGER: -1
+      ENDER_CRYSTAL: -1
+      SPLASH_POTION: -1
+      LINGERING_POTION: -1
+      AREA_EFFECT_CLOUD: -1
+      EGG: -1
+      FISHING_HOOK: -1
+      LIGHTNING: -1
+      WEATHER: -1
+      PLAYER: -1
+      COMPLEX_PART: -1
+      UNKNOWN: -1

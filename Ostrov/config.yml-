@@ -1,0 +1,185 @@
+# SURVIVAL ADVENTURE CREATIVE SPECTATOR
+teleport_on_first_join: true
+change_gamemode_on_join: true
+# SURVIVAL ADVENTURE CREATIVE SPECTATOR
+gamemode_set_to: ADVENTURE
+# from 0.1F to 0.9F ; -1 to disable
+walkspeed_on_join: 0.3F
+# FireTicks,Flying,FoodLevel,Health,clearInv,potion Effects
+clear_stats: false
+keep_inventory: true
+disable_void: false
+disable_damage: true
+disable_hungry: true
+disable_break_place: true
+enable_jump_plate: false
+# cancel move,drop,drag pipboy,cosmetics and friends
+item_lobby_mode: false
+block_fly_pvp: true
+# give
+give_pipboy: true
+give_bow_teleport: false
+give_cosmetics: false
+teleport_gui: false
+chat_inspector: true
+score_board: false
+# -------------------- server settings ------------------------
+uskyblock_menu_mode: false
+# spawn
+set_spawn_point:
+  use: true
+  x: -15
+  y: 197
+  z: 0
+block_nether_portal: true
+block_ender_portal: true
+nbt_checker: false
+# ---------------------- world managment ----------------------
+day_night_cikle: false
+set_time_to: 1000
+disable_weather: true
+disable_blockspread: true
+disable_ice_melt: true
+# commands
+block_commands:
+  enable: true
+  except:
+  - menu
+  - snake
+# restart
+autorestart:
+  use: true
+  time: '05'
+# economy, permissions
+mysql:
+  perms:
+    use: true
+    perms_autoupdate: true
+    perms_put_to_bukkit: true
+    host: jdbc:mysql://149.202.87.53/pex
+    user: pex
+    passw: MtMLYS3F99MjH0f0sqy8
+# prefix
+prefix:
+  use: true
+  prefix_name_space: '§2 '
+  name_suffix_space: '§7 '
+  suffix_message_space: §7§o≫ §7
+# entity limiter
+mob_limiter:
+  enable: false
+  block_all_spawn: false
+  check_chunk_onload: true
+  check_chunk_unload: true
+  watch_creature_spawns: true
+  notify_players: true
+  spawn_reasons:
+    NATURAL: true
+    JOCKEY: true
+    CHUNK_GEN: true
+    SPAWNER: true
+    EGG: true
+    SPAWNER_EGG: true
+    LIGHTNING: true
+    BED: true
+    BUILD_SNOWMAN: true
+    BUILD_IRONGOLEM: true
+    BUILD_WITHER: true
+    VILLAGE_DEFENSE: true
+    VILLAGE_INVASION: true
+    BREEDING: true
+    SLIME_SPLIT: true
+    REINFORCEMENTS: true
+    CUSTOM: true
+    DEFAULT: true
+    NETHER_PORTAL: true
+    DISPENSE_EGG: true
+    INFECTION: true
+    CURED: true
+    OCELOT_BABY: true
+    SILVERFISH_BLOCK: true
+    MOUNT: true
+    TRAP: true
+    ENDER_PEARL: true
+  limits:
+    groups:
+      ANIMAL: 25
+      MONSTER: 25
+      NPC: 10
+      OTHER: 15
+    type:
+      DROPPED_ITEM: -1
+      EXPERIENCE_ORB: -1
+      LEASH_HITCH: -1
+      PAINTING: 30
+      ARROW: 30
+      SNOWBALL: -1
+      FIREBALL: -1
+      SMALL_FIREBALL: -1
+      ENDER_PEARL: -1
+      ENDER_SIGNAL: -1
+      THROWN_EXP_BOTTLE: -1
+      ITEM_FRAME: -1
+      WITHER_SKULL: -1
+      PRIMED_TNT: -1
+      FALLING_BLOCK: -1
+      FIREWORK: -1
+      TIPPED_ARROW: -1
+      SPECTRAL_ARROW: -1
+      SHULKER_BULLET: -1
+      DRAGON_FIREBALL: -1
+      ARMOR_STAND: 10
+      MINECART_COMMAND: -1
+      BOAT: 3
+      MINECART: 10
+      MINECART_CHEST: 5
+      MINECART_FURNACE: 5
+      MINECART_TNT: 5
+      MINECART_HOPPER: 5
+      MINECART_MOB_SPAWNER: 5
+      CREEPER: -1
+      SKELETON: -1
+      SPIDER: -1
+      GIANT: 3
+      ZOMBIE: -1
+      SLIME: -1
+      GHAST: -1
+      PIG_ZOMBIE: -1
+      ENDERMAN: -1
+      CAVE_SPIDER: -1
+      SILVERFISH: -1
+      BLAZE: -1
+      MAGMA_CUBE: -1
+      ENDER_DRAGON: 1
+      WITHER: 3
+      BAT: -1
+      WITCH: 3
+      ENDERMITE: -1
+      GUARDIAN: -1
+      SHULKER: 0
+      PIG: -1
+      SHEEP: -1
+      COW: -1
+      CHICKEN: -1
+      SQUID: -1
+      WOLF: -1
+      MUSHROOM_COW: -1
+      SNOWMAN: -1
+      OCELOT: -1
+      IRON_GOLEM: -1
+      HORSE: -1
+      RABBIT: -1
+      POLAR_BEAR: -1
+      VILLAGER: -1
+      ENDER_CRYSTAL: -1
+      SPLASH_POTION: -1
+      LINGERING_POTION: -1
+      AREA_EFFECT_CLOUD: -1
+      EGG: -1
+      FISHING_HOOK: -1
+      LIGHTNING: -1
+      WEATHER: -1
+      PLAYER: -1
+      COMPLEX_PART: -1
+      UNKNOWN: -1
+player_data_reques_delay: 10

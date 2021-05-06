@@ -1,0 +1,41 @@
+package ru.komiss77.Enums;
+
+
+
+
+public enum Table {
+    
+    NONE("", ""),
+    BUNGEE_SERVERS("`bungee_servers`", ""),
+    GAMES_MAIN("`gamesmain`", ""),
+    GAMES_ARENAS("`gamesarenas`", ""),
+    
+    USER("`user`", "`id`"),
+    STAT("`stat`", "`name`"),
+    HISTORY("`history`", ""),
+    JUDGEMENT("`judgement`", "`name`"),
+    DAILY("`daily`", "`name`"),
+    ANTICHEAT("`anticheat`", "`name`"),
+    
+    PEX_BUNGEE_STAFF("`bungeestaff`", "`name`"),  //таблица администрации, загружаются в auth_bungee
+    PEX_BUNGEE_PERMS("`bungeeperms`", ""), //права групп для банжи, загружаются в auth_bungee
+    PEX_GROUPS("`groups`", ""),  //группы м описанием 
+    PEX_GROUP_PERMS("`groupperms`", ""),  //права групп для спигота, загружаются в острове
+    PEX_USER_GROUPS("`usergroups`", "`name`"),  //группы игроков, загружаются в auth_spigot
+    PEX_USER_PERMS("`userperms`", "`name`"),  //личные права игроков, загружаются в auth_spigot
+    
+    FRIEND_FRIENDS("`fr_friends`", "`name`"),
+    FRIEND_SETTINGS("`fr_settings`", "`name`"),
+    
+    PAYMENTS("`payments`", "`name`"),
+    ;
+    
+    
+    public String table_name;
+    public String id_column;
+    
+    private Table (String table_name, String id_column) {
+        this.table_name=table_name;
+        this.id_column=id_column;
+    }
+}

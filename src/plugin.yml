@@ -1,0 +1,155 @@
+api-version: 1.15
+name: Ostrov
+main: ru.komiss77.Ostrov
+version: 2.0
+load: STARTUP
+author: Komiss77
+
+depend: []
+
+permissions:
+  ostrov.moder:
+    description: moder
+    children:
+      ostrov.chatinspector.ignore: true
+      ostrov.ignorecmdblock: true
+      ostrov.pinfo: true
+      ostrov.invsee: true
+      ostrov.invsee.edit: true
+      ostrov.get: true
+      ostrov.tpo: true
+      ostrov.tppos: true
+      ostrov.tphere: true
+      ostrov.gm: true
+      ostrov.setswarp: true
+      ostrov.spy: true
+      
+  ostrov.premium:
+    description: premium
+    children:
+      ostrov.fly: true
+      ostrov.speed: true
+      ostrov.flyspeed: true
+      ostrov.walkspeed: true
+      ostrov.pweather: true
+      ostrov.ptime: true
+      ostrov.setwarp: true
+      ostrov.heal: true
+      ostrov.repair: true
+      
+  ostrov.default:
+    description: default
+    children:
+      ostrov.tpr: true
+      ostrov.world: true
+      ostrov.back: true
+      ostrov.warp: true
+
+
+
+
+commands:
+  sound:
+    description: звуки
+  ohelp:
+    description: Помощь постранично
+  menu:
+    description: Открыть главное меню
+  serv:
+    description: Меню выбора сервера
+  profile:
+    description: Открыть профиль
+  settings:
+    description: Открыть меню личных настроек
+  spawn:
+    description: Телепорт в начальную локацию
+  givemenu:
+    description: Получить часики
+  home:
+    description: Домой
+  sethome:
+    description: Установить точку дома
+  delhome:
+    description: Удалить точку дома
+  tpr:
+    description: Телепорт в случайное место
+  world:
+    description: Меню выбора мира
+  tpa:
+    description: Отправить запрос на телепорт
+  tpaccept:
+    description: Принять запрос на телепорт
+  pvp:
+    description: Управление режимом ПВП
+  warp:
+    description: Варпы
+  setwarp:
+    description: Установить варп
+  setswarp:
+    description: Установить серверный варп
+  top:
+    description: Переместиться в высшую над вами точку
+  kit:
+    description: Получить набор
+  shop:
+    description: Магазин
+  rp:
+    description: Получить серверный ресурс-пак
+  seen:
+    description: Информация об игроке
+  passport:
+    description: Просмотр паспорта игрока
+    
+    
+  back:
+    description: Вернуться на место гибели <vip>
+  suffix:
+    description: Установить префикс <vip>
+  prefix:
+    description: Установить суффикс <vip>
+  fly:
+    description: Режим полёта <vip>
+  get:
+    description: Получить предмет <moder>
+  tpo:
+    description: Телепорт к игроку <moder>
+  tppos:
+    description: Телепорт по координатам <moder>
+  tphere:
+    description: Телепорт игрока к себе <moder>
+  gm:
+    description: Управление игровым режимом <moder>
+  invsee:
+    description: Просмотр инвентаря. /invsee <ник> [armor/ender] <moder>
+  spy:
+    description: Режим шпиона <moder>
+    
+    
+  nbtfind:
+    description: Просканировать инвентарь игроков на нбт-тэги <moder>
+    usage: '/nbtfind [material] (all-любой)'
+  nbtcheck:
+    description: Просканировать предмет на нбт-тэги <moder>
+    usage: '/nbtcheck'
+  oreload:
+    description: Перезагрузить конфиг <moder>
+  biome:
+    description: Узнать биом
+  entity:
+    description: Управление сущностями <moder>
+  blockstate:
+    description: Подсчитать blockstate <moder>
+  operm:
+    description: Список пермишенов <moder>
+  wm:
+    description: Менеджер миров
+
+  reward:
+    description: награда от консоли и плагинов
+  statadd:
+    description: начисление статистики
+  bossbar:
+    description: панель дракона
+
+
+
