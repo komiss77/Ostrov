@@ -86,7 +86,7 @@ public static void Load_warp( String name, String type, String owner, String des
 }
 public static void Create_warp( Player p, String name, String type, String desc, boolean need_perm, int use_cost ) {
 
-    Warp warp = new Warp ( name, type, p.getName(), desc, p.getLocation(), true, need_perm, use_cost, 0, Timer.Единое_время()/1000 );
+    Warp warp = new Warp ( name, type, p.getName(), desc, p.getLocation(), true, need_perm, use_cost, 0, Timer.currentTimeSec() );
     warps.put(name, warp);
 
     if (type.equals("server")) swarp.add(name);

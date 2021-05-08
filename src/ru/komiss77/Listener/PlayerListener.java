@@ -20,13 +20,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -34,7 +32,6 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -396,12 +393,12 @@ public class PlayerListener implements Listener {
     public void onPlayerPortalEvent(PlayerPortalEvent e) {
 //System.out.println("onPlayerPortalEvent cause="+e.getCause()+" getCreationRadius="+e.getCreationRadius()+" getSearchRadius="+e.getSearchRadius()+" canceled?"+e.isCancelled());
         //final Player p = e.getPlayer();
-        if (Timer.has(e.getPlayer(), "portal")) {
-            ApiOstrov.sendActionBarDirect(e.getPlayer(), "§e*Подождите "+Timer.getLeft(e.getPlayer(), "portal")+"сек. до следующего использования портала! ");
-            e.setCancelled(true);//e.setTo(e.getFrom());
-            return;
-        }
-        Timer.add(e.getPlayer(), "portal", 15);
+        //if (Timer.has(e.getPlayer(), "portal")) {
+        //    ApiOstrov.sendActionBarDirect(e.getPlayer(), "§e*Подождите "+Timer.getLeft(e.getPlayer(), "portal")+"сек. до следующего использования портала! ");
+        //    e.setCancelled(true);//e.setTo(e.getFrom());
+        //    return;
+        //}
+        //Timer.add(e.getPlayer(), "portal", 15);
     }
     /*
     

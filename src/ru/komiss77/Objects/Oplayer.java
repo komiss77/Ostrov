@@ -59,7 +59,7 @@ public class Oplayer {
     private final Map<Integer,String>stat=new ConcurrentHashMap<>();
     private final CaseInsensitiveMap <Location> homes=new CaseInsensitiveMap<>();
     private final Map <String, Location> world_positions=new ConcurrentHashMap<>();
-    private final CaseInsensitiveMap <Long> kits_use_timestamp=new CaseInsensitiveMap<>();
+    private final CaseInsensitiveMap <Integer> kits_use_timestamp=new CaseInsensitiveMap<>();
     public TreeSet <Integer> achiv = new TreeSet();
     public CaseInsensitiveLinkedTreeSet groups = new CaseInsensitiveLinkedTreeSet();
     public CaseInsensitiveLinkedTreeSet user_perms = new CaseInsensitiveLinkedTreeSet();
@@ -76,7 +76,7 @@ public class Oplayer {
     public String party_leader="",chat_group=" ---- ",aac_last_pos="",tab_list_name_prefix="§7",tab_list_name_color="§7", tab_list_name_siffix="";
     
     private float fly_speed=0.1F,walk_speed=0.1F;
-    private final int login_time = (int) (Timer.Единое_время()/1000);;
+    private final int login_time = Timer.currentTimeSec();
     public int pvp_time, no_damage, bplace, bbreak, mobkill, monsterkill, pkill, dead, aac_violations,bow_teleport_cooldown=4;     
     
     public boolean mysqldata_loaded=false,allow_fly=false,in_fly=false,resourcepack_locked=true,pvp_allow=true;
@@ -441,10 +441,10 @@ public class Oplayer {
             
             switch (e_data) {
                 case DAY_PLAY_TIME: 
-                    value+=(int)(Timer.Единое_время()/1000)-login_time;
+                    value+=Timer.currentTimeSec()-login_time;
                     break;
                 case PLAY_TIME: 
-                    value+=((int)(Timer.Единое_время()/1000/60) - (int)(login_time/60));
+                    value+=((int)(Timer.currentTimeSec()/60) - (int)(login_time/60));
                     break;
                 //case РЕПУТАЦИЯ: 
 //System.out.println("get РЕПУТАЦИЯ get="+value+"  base = "+getBungeeIntData(Data.РЕПУТАЦИЯ_БАЗА)+" calc="+getBungeeIntData(Data.РЕПУТАЦИЯ_РАСЧЁТ) );                    
@@ -509,7 +509,7 @@ public class Oplayer {
         }
         if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
         
-        if (bungeeData.isEmpty() && Timer.Единое_время()-login_time > 1000) {
+        if (bungeeData.isEmpty() && Timer.currentTimeSec()-login_time > 1) {
             SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_RESEND_PLAYER_RAW_DATA, "");
         }
         if (PM.ostrovStatScore && seconds%10==0) {
@@ -652,7 +652,7 @@ public int Getbdead() { return this.dead; }
         return kits_use_timestamp.containsKey(kitName);
     }
     public void Add_kit_acces(final String kitName) {
-        kits_use_timestamp.put( kitName, (long) 0 );
+        kits_use_timestamp.put( kitName, 0 );
     }
     public void Remove_kit_acces(final String kitName) {
         if (kits_use_timestamp.containsKey(kitName)) kits_use_timestamp.remove(kitName);
@@ -664,7 +664,7 @@ public int Getbdead() { return this.dead; }
         else return 0;
     }
     public void Kit_recieved(final String kitName) {
-        kits_use_timestamp.put( kitName, Timer.Единое_время()/1000 );
+        kits_use_timestamp.put( kitName, Timer.currentTimeSec());
     }
    // public Map <String, Long> GetKitsData() {
    //     return kits_use_timestamp;
@@ -741,7 +741,7 @@ public int Getbdead() { return this.dead; }
                                 if ( rs.getString("kits").length()>5 && rs.getString("kits").contains("<:>")) {
                                     split = rs.getString("kits").split("<:>");
                                         for (String s : split) {
-                                            kits_use_timestamp.put(s.split("<>")[0], Long.valueOf(s.split("<>")[1]));
+                                            kits_use_timestamp.put(s.split("<>")[0], Integer.valueOf(s.split("<>")[1]));
                                         }
                                 }
                                 pvp_allow = rs.getBoolean("pvp");

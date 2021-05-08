@@ -237,7 +237,7 @@ public class MysqlLocal {
                                     pst.setBoolean(7, w.Need_perm() );
                                     pst.setInt(8, w.Get_cost() );
                                     pst.setInt(9, w.Get_counter() );
-                                    pst.setLong(10, Timer.Единое_время()/1000 );
+                                    pst.setInt(10, Timer.currentTimeSec() );
 
                             int res = pst.executeUpdate();
                             if (notify) {

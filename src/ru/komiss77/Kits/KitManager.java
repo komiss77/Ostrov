@@ -278,7 +278,7 @@ public final class KitManager extends Initiable {
     public static int getMinLetf(final Player player, final Kit kit) {
 //System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) )+
         //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) ))) ); 
-        return (int) (kit.delayMin - Math.ceil( (Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) )/60 )   );
+        return (int) (kit.delayMin - Math.ceil( (Timer.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name) )/60 )   );
     }
 
     public static void giveKit( final Player p, final String kitName, final boolean equipArmor ) {

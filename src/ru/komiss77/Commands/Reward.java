@@ -1,25 +1,102 @@
 package ru.komiss77.Commands;
 
 
+import java.io.Console;
+import java.util.ArrayList;
+import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.RewardType;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
+import ru.komiss77.Objects.Group;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.OstrovDB;
 
 
 
 
 
-public class Reward implements Listener,CommandExecutor {
+public class Reward implements CommandExecutor, TabCompleter {
     
+
+    
+    
+    @Override
+    public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] strings) {
+        final List <String> sugg = new ArrayList<>();
+//System.out.println("l="+strings.length+" 0="+strings[0]);
+        switch (strings.length) {
+            
+            case 1:
+                //0- пустой (то,что уже введено)
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p.getName().startsWith(strings[0])) sugg.add(p.getName());
+                }
+                break;
+
+            case 2:
+                //1-то,что вводится (обновляется после каждой буквы
+//System.out.println("l="+strings.length+" 0="+strings[0]+" 1="+strings[1]);
+                //if (strings[0].equalsIgnoreCase("build") || strings[0].equalsIgnoreCase("destroy") ) {
+                    sugg.add("money");
+                    sugg.add("permission");
+                    sugg.add("group");
+                    sugg.add("exp");
+                    sugg.add("reputation");
+                //}
+                break;
+                
+            case 3:
+                //1-то,что вводится (обновляется после каждой буквы
+//System.out.println("l="+strings.length+" 0="+strings[0]+" 1="+strings[1]);
+                if (strings[1].equalsIgnoreCase("group") ) {
+                    for (final Group g:OstrovDB.groups.values()) {
+                        if (!g.isStaff() && g.name.startsWith(strings[2])) sugg.add(g.name);
+                    }
+                    //sugg.addAll(OstrovDB.groups.keySet());
+                } else if (strings[1].equalsIgnoreCase("money") || strings[1].equalsIgnoreCase("exp") || strings[1].equalsIgnoreCase("reputation"))  {
+                    sugg.add("add");
+                    sugg.add("get");
+                } else if (strings[1].equalsIgnoreCase("permission") ) {
+                    sugg.add("ostrov.perm");
+                    sugg.add(Bukkit.getServer().getMotd()+".builder");
+                }
+                break;
+
+            case 4:
+                //1-то,что вводится (обновляется после каждой буквы
+//System.out.println("l="+strings.length+" 0="+strings[0]+" 1="+strings[1]);
+                //if (strings[0].equalsIgnoreCase("build") || strings[0].equalsIgnoreCase("destroy") ) {
+                if (strings[1].equalsIgnoreCase("group") ||strings[1].equalsIgnoreCase("permission")  ) {
+                    sugg.add("1h");
+                    sugg.add("10h");
+                    sugg.add("1d");
+                    sugg.add("7d");
+                    sugg.add("30d");
+                    sugg.add("forever");
+                } else if (strings[1].equalsIgnoreCase("money") || strings[1].equalsIgnoreCase("exp") || strings[1].equalsIgnoreCase("reputation"))  {
+                    sugg.add("10");
+                    sugg.add("100");
+                    sugg.add("1000");
+                    sugg.add("rnd:0:100");
+                }
+                //}
+                break;
+        }
+        
+       return sugg;
+    }    
+    
+
+
 
     public Reward() {
         //init();
@@ -27,17 +104,17 @@ public class Reward implements Listener,CommandExecutor {
     
     private void help (final CommandSender cs) {
         cs.sendMessage("");
-        cs.sendMessage("§3/"+this.getClass().getSimpleName()+" reward <ник> <тип_награды> <параметр> <колл-во> <источник>");
+        cs.sendMessage("§3/"+this.getClass().getSimpleName()+" reward <ник> <тип_награды> <параметр> <колл-во> <причина>");
         cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
         cs.sendMessage("§fПримеры:");
-        cs.sendMessage("§a/reward komiss77 money add 1000 ostrov");
-        cs.sendMessage("§a/reward komiss77 money get rnd:0:100 plugin");
-        cs.sendMessage("§a/reward komiss77 permission serwer.world.perm.aaa 100 ostrov");
-        cs.sendMessage("§a/reward komiss77 permission perm.aaa forever ostrov");
-        cs.sendMessage("§a/reward komiss77 group vip 10 ostrov");
-        cs.sendMessage("§a/reward komiss77 group vip forever ostrov");
-        cs.sendMessage("§a/reward komiss77 exp add rnd:500:10000 ostrov");
-        cs.sendMessage("§a/reward komiss77 reputation get rnd:-5:5 ostrov");
+        cs.sendMessage("§a/reward komiss77 money add 1000");
+        cs.sendMessage("§a/reward komiss77 money get rnd:0:100");
+        cs.sendMessage("§a/reward komiss77 permission serwer.world.perm.aaa 1h");
+        cs.sendMessage("§a/reward komiss77 permission perm.aaa forever");
+        cs.sendMessage("§a/reward komiss77 group vip 10d");
+        cs.sendMessage("§a/reward komiss77 group vip forever");
+        cs.sendMessage("§a/reward komiss77 exp add rnd:500:10000");
+        cs.sendMessage("§a/reward komiss77 reputation get rnd:-5:5");
         cs.sendMessage("§a");
     }
 
@@ -54,9 +131,9 @@ public class Reward implements Listener,CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
         
-        if ( cs instanceof Player && !cs.isOp() ) {
+        if ( cs instanceof Player && !ApiOstrov.hasGroup(cs.getName(), "supermoder") ) {
             cs.sendMessage("");
-            cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
+            cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/supermoder!");
             cs.sendMessage("");
             return false;
         }
@@ -64,7 +141,7 @@ public class Reward implements Listener,CommandExecutor {
         
 //System.out.print("Eco cs="+cs);
 
-        if (arg.length!=5) {
+        if (arg.length<4) {
             help(cs);
             return false;
         }
@@ -83,6 +160,15 @@ public class Reward implements Listener,CommandExecutor {
         
         //обработка колличества
         String amm = arg[3];
+        
+        if (amm.endsWith("h")) {
+            amm = amm.replaceFirst("h","");
+        } else if (amm.endsWith("d")) {
+            amm = amm.replaceFirst("d","");
+             if (ApiOstrov.isInteger(amm)) {
+                 amm = String.valueOf(Integer.valueOf(amm)*24);
+             }
+        }
         int ammount=0;
         boolean forever = false;
         
@@ -91,7 +177,6 @@ public class Reward implements Listener,CommandExecutor {
             ammount = Integer.valueOf(amm);
             
         } else {
-            
             if (amm.startsWith("rnd:")) {
                 
                 String[] split = amm.split(":");
@@ -126,7 +211,7 @@ public class Reward implements Listener,CommandExecutor {
                 return false;
             }
             if (param.equals("add")) {
-                ammount = ammount;
+                //ammount = ammount;
             } else if (param.equals("get")) {
                 ammount = -(ammount);
             } else {
@@ -136,11 +221,16 @@ public class Reward implements Listener,CommandExecutor {
         }
         
         
-        String sender = arg[4];
-        sender = SM.this_server_name+"."+sender;
-        if (sender.length()>16) {
-            sender = sender.substring(0, 15);
-            cs.sendMessage("§eПревышена длина источника, обрезано до "+sender);
+        String cause = SM.this_server_name+".";
+        if (cs instanceof Player) {
+            cause = cause+cs.getName();
+        } else if (arg.length>=5) {
+            cause = cause+arg[4];
+        }
+        //cause = SM.this_server_name+"."+cause;
+        if (cause.length()>16) {
+            cause = cause.substring(0, 15);
+            cs.sendMessage("§eПревышена длина источника, обрезано до "+cause);
         }
         
         final String for_name = arg[0];
@@ -149,7 +239,7 @@ public class Reward implements Listener,CommandExecutor {
             //return false;
         }
         
-System.out.println(Action.OSTROV_REWARD+", "+for_name+", "+type.toString()+", "+param+", "+(forever?true:ammount)+", "+sender);
+System.out.println(Action.OSTROV_REWARD+", "+for_name+", "+type.toString()+", "+param+", "+(forever?true:ammount)+", "+cause);
     
         //обработчик часть тут, чать на банжи
         switch (type) {
@@ -186,7 +276,7 @@ System.out.println(Action.OSTROV_REWARD+", "+for_name+", "+type.toString()+", "+
         }
 
         
-        ApiOstrov.sendMessage(sender, Action.OSTROV_REWARD, for_name+":"+type.toString()+":"+param+":"+(forever?"forever":ammount));
+        ApiOstrov.sendMessage(cause, Action.OSTROV_REWARD, for_name+":"+type.toString()+":"+param+":"+(forever?"forever":ammount));
         
         return true;
 

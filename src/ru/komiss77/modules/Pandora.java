@@ -55,7 +55,7 @@ public final class Pandora extends Initiable implements Listener {
     private static Inventory confirm_inv;
     private static HashMap<String,ArmorStand>pandoras;
     private static BukkitTask tick_=null;
-    private static long last_cmd;
+    private static int last_cmd;
     private static Set<String>clicked;
     private static Set<Location>music;
     public static boolean effect;
@@ -85,7 +85,7 @@ public final class Pandora extends Initiable implements Listener {
     
     public Pandora(Ostrov instance) {
         pandoras=new HashMap<>();
-        last_cmd=Timer.Единое_время();
+        last_cmd=Timer.currentTimeSec();
         clicked=new HashSet<>();
         music=new HashSet<>();
         pandaName = "Шкатулка Пандоры";
@@ -210,9 +210,9 @@ public final class Pandora extends Initiable implements Listener {
     public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
 //System.out.println("------------> Command "+e.getMessage()+ " block_commands:"+Conf.block_commands+ " list:"+Conf.block_commands_except.toString());
 //System.out.println("cmd 11111"+e.getMessage());
-        if ( e.getPlayer().isOp() && e.getMessage().equals("/pandora++") && (Timer.Единое_время()-last_cmd >20)) {
+        if ( e.getPlayer().isOp() && e.getMessage().equals("/pandora++") && (Timer.currentTimeSec()-last_cmd >10)) {
 //System.out.println("cmd 222");
-            last_cmd=Timer.Единое_время();
+            last_cmd=Timer.currentTimeSec();
             //pandora_loc.add(p.getLocation());
             final String loc_string=LocationUtil.StringFromLoc(e.getPlayer().getLocation());
             CreatePandora(loc_string);

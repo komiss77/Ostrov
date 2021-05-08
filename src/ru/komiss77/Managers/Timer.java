@@ -28,23 +28,24 @@ import ru.komiss77.utils.ntptime.TimeInfo;
 
 public class Timer {
     
-private static BukkitTask timer=null;
+    private static BukkitTask timer=null;
 
-private static boolean auto_restart;
-private static String restart_time;
-private static int rs;
+    private static boolean auto_restart;
+    private static String restart_time;
+    private static int rs;
 
-private static boolean perms_autoupdate;
-private static int rp_int;
+    private static boolean perms_autoupdate;
+    private static int rp_int;
 
-private static ConcurrentHashMap <Integer, Integer> cd;
-public static ConcurrentHashMap <String, DelayActionBar> delay_actionbars;
-public static ConcurrentHashMap <String, DelayTitle> delay_titles;
-public static ConcurrentHashMap <String, DelayBossBar> delay_bossbars;
-public static Set <Integer> timer_keyset;
+    private static ConcurrentHashMap <Integer, Integer> cd;
+    public static ConcurrentHashMap <String, DelayActionBar> delay_actionbars;
+    public static ConcurrentHashMap <String, DelayTitle> delay_titles;
+    public static ConcurrentHashMap <String, DelayBossBar> delay_bossbars;
+    public static Set <Integer> timer_keyset;
 
-private static int time_delta;
-
+    private static int time_delta;
+    private static int currentTime = (int) (System.currentTimeMillis()/1000);
+    
 
 public static void LoadVars() {
     auto_restart = Cfg.GetCongig().getBoolean("system.autorestart.use");
@@ -97,13 +98,13 @@ public static void LoadVars() {
         LoadVars();
     }
     
-
+    @Deprecated
     public static long Единое_время() {
         return System.currentTimeMillis()-time_delta;
     }
     
     public static int currentTimeSec() {
-        return (int) ((System.currentTimeMillis()-time_delta)/1000);
+        return currentTime;
     }
 
 
@@ -121,7 +122,9 @@ public static void LoadVars() {
                 int server_update=0;
                 
                     @Override
-                    public void run() { 
+                    public void run() {
+                        
+                        currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
 
                         if (auto_restart) {
     //System.out.println("рестарт: "+rs+" конфиг: "+restart_time+" время: "+Current_time()+" equals:"+(restart_time.equals(Current_time()) ));
@@ -249,14 +252,14 @@ public static void LoadVars() {
     }
     
     public static void add ( final Player p, final String type, final int seconds ) { //getEntityId - нельзя, после перезахода другой!!
-System.out.println("++++Timer.add() "+(p.getName().hashCode()^type.hashCode())+"    "+seconds);
+//System.out.println("++++Timer.add() "+(p.getName().hashCode()^type.hashCode())+"    "+seconds);
         cd.put(p.getName().hashCode()^type.hashCode(), seconds);//cd.put(nik+"<>"+type, seconds);
     }
     public static void del ( final Player p, final String type ) {
         if (cd.containsKey(p.getName().hashCode()^type.hashCode())) cd.remove(p.getName().hashCode()^type.hashCode());//if (cd.containsKey(nik+"<>"+type)) cd.remove(nik+"<>"+type);
     }
     public static boolean has ( final Player p, final String type ) {
-System.out.println("++++Timer.has() "+(p.getName().hashCode()^type.hashCode())+"    ?"+(cd.containsKey(p.getName().hashCode()^type.hashCode())));
+//System.out.println("++++Timer.has() "+(p.getName().hashCode()^type.hashCode())+"    ?"+(cd.containsKey(p.getName().hashCode()^type.hashCode())));
         return cd.containsKey(p.getName().hashCode()^type.hashCode());//return cd.containsKey(nik+"<>"+type);
     }
     public static int getLeft ( final Player p, final String type ) {
@@ -315,7 +318,7 @@ System.out.println("++++Timer.has() "+(p.getName().hashCode()^type.hashCode())+"
  private static String Current_time () {
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 //System.out.println("4444 ");
-        return sdf.format(Timer.Единое_время());
+        return sdf.format(Timer.currentTimeSec());
 }
 
 

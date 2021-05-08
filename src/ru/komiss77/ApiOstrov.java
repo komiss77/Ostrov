@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -776,17 +777,31 @@ public class ApiOstrov {
     }
     
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
-        if ( cs!=null && (cs.hasPermission("ostrov.builder")||hasGroup(cs.getName(), "builder")) ) {
-            if (cs instanceof ConsoleCommandSender) return true;
-            if ( (cs instanceof Player) && ((Player)cs).getGameMode()==GameMode.CREATIVE ) return true;
-            else if (message) {
-                final TextComponent msg = new TextComponent("§e * Перейдите в режим Креатив для активации Строителя" );
-                msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Клик - ГМ1").create()));
-                msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gm 1"));
-                ((Player)cs).spigot().sendMessage(msg);
-                //p.sendMessage("§e* Перейдите в режим Креатив для активации режима Строителя");
+        //if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
+       // if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
+            if (cs==null) {
+                return false;
+            } else if (cs instanceof ConsoleCommandSender) {
+                return true;
+            } else if (cs instanceof Player) {
+                final Player p = (Player) cs;
+                if (p.isOp() || p.hasPermission("builder") || hasGroup(p.getName(), "supermoder")) { //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
+                     //!! фиксить права в CDM case "gm", или не даст перейти в гм1
+                    if (p.getGameMode()==GameMode.CREATIVE || p.getGameMode()==GameMode.SPECTATOR) {
+                        return true;
+                    } else if (message) {
+                        final TextComponent msg = new TextComponent("§e*Клик на это сообшение - §aвключить gm1 и режим Строителя" );
+                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§7Клик - ГМ1")));
+                        msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gm 1"));
+                        p.spigot().sendMessage(msg);
+                    }
+                }
             }
-        }
+            //if ( (cs instanceof Player) && ((Player)cs).getGameMode()==GameMode.CREATIVE ) return true;
+            //else if (message) {
+                //p.sendMessage("§e* Перейдите в режим Креатив для активации режима Строителя");
+          //  }
+       // }
         return false;
         //return p.hasPermission("ostrov.builder") && p.getGameMode()==GameMode.CREATIVE;
     }

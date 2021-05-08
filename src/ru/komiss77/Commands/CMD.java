@@ -543,7 +543,7 @@ switch (label) {
      case "gm":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
             //if ( gm_command ){
-                if ( (gm_command && p.hasPermission("ostrov.gm")) || (p.hasPermission("ostrov.builder")||ApiOstrov.hasGroup(p.getName(), "builder")) ) {
+                if ( (gm_command && p.hasPermission("ostrov.gm")) || (p.hasPermission("builder") || ApiOstrov.hasGroup(p.getName(), "supermoder")) ) {
                     if (arg.length == 1) {
                             switch (arg[0]) {
                                 case "0":
