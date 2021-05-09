@@ -49,6 +49,8 @@ permissions:
 
 
 commands:
+  builder:
+    description: режим строителя
   sound:
     description: звуки
   ohelp:

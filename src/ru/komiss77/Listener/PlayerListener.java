@@ -1,16 +1,30 @@
 package ru.komiss77.Listener;
 
 
+import com.boydti.fawe.bukkit.util.ItemUtil;
+import com.google.common.collect.HashBiMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.Tag;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -25,6 +39,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -32,6 +47,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -44,6 +60,10 @@ import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.Ostrov;
+import ru.komiss77.menu.SignEditSelectLine;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.VM;
 
 
@@ -62,10 +82,26 @@ public class PlayerListener implements Listener {
     public static boolean disable_break_place;
     public static boolean disable_lava;
     public static int test;
+    
+    public static ItemStack signEdit;
+    public static Map<String,String[]> signCache;
 
     
     public static void GetVar () {
-
+        
+        signEdit = new ItemBuilder(Material.WARPED_SIGN)
+                .name("§fПомошник по табличкам")
+                .lore("")
+                .lore("§7Клик по табличке.")
+                .lore("")
+                .lore("§7ЛКМ - редактировать")
+                .lore("§7Шифт+ЛКМ - сменить тип")
+                .lore("")
+                .lore("§7ПКМ - скопировать")
+                .lore("§7Шифт+ПКМ - вставить")
+                .lore("")
+                .build();
+        signCache = new HashMap<>();
         set_gm = Cfg.GetCongig().getBoolean("player.change_gamemode_on_join");
         gm_on_join = GameMode.valueOf( Cfg.GetCongig().getString("player.gamemode_set_to") );
         tp_on_join = Cfg.GetCongig().getBoolean("player.teleport_on_first_join");
@@ -158,65 +194,137 @@ public class PlayerListener implements Listener {
 
     
     
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void lavaPlace(PlayerInteractEvent e) {
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void Interact (PlayerInteractEvent e) {
 //System.out.println("Sign_click 111");
-        if ( e.getAction()==Action.PHYSICAL || e.getClickedBlock()==null || e.getItem()==null || e.getItem().getType()==null ) return;
+        if ( e.getAction()==Action.PHYSICAL ) return;
         //if (e.getClickedBlock().getType()==Material.SIGN || e.getClickedBlock().getType()==Material.SIGN_POST || e.getClickedBlock().getType()==Material.WALL_SIGN ) {
         
-        if (disable_lava) {
-            if (e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getItem().getType().toString().contains("LAVA")) {
+            
+        if (ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
+            if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType()) && ItemUtils.compareItem(signEdit, e.getItem(), false)) {
                 e.setCancelled(true);
-                e.getPlayer().sendMessage("§cЛава запрещена на этом сервере!");
+                final Sign sign = (Sign)e.getClickedBlock().getState();
+                final Player p = e.getPlayer();
+                if (e.getAction()==Action.LEFT_CLICK_BLOCK) {
+                    if (p.isSneaking()) {
+                        final List<Material> types = new ArrayList<>( Tag.WALL_SIGNS.getValues());
+                        int order = types.indexOf(e.getClickedBlock().getType());
+//System.out.println("type="+e.getClickedBlock().getType()+"   order="+order+ "   types="+Arrays.toString(types.toArray()));
+                        order++;
+                        if (order>=types.size()) order=0;
+                        final BlockData bd = e.getClickedBlock().getBlockData().clone();
+                        e.getClickedBlock().setType(types.get(order));
+                        
+                        //sign.update();
+//System.out.println("order="+order+" new="+types.get(order));
+                        //p.sendMessage("смена типа");
+                    } else {
+                        SmartInventory.builder()
+                            .type(InventoryType.HOPPER)
+                            .id("SignEditSelectLine"+p.getName()) 
+                            .provider(new SignEditSelectLine(sign))
+                            .title("§fВыберите строку")
+                            .build()
+                            .open(p);
+                            //p.sendMessage("редактор");
+                    }
+                } else if (e.getAction()==Action.RIGHT_CLICK_BLOCK) {
+                    if (p.isSneaking()) {
+                        if (signCache.containsKey(p.getName())) {
+                            sign.setLine(0, signCache.get(p.getName())[0]);
+                            sign.setLine(1, signCache.get(p.getName())[1]);
+                            sign.setLine(2, signCache.get(p.getName())[2]);
+                            sign.setLine(3, signCache.get(p.getName())[3]);
+                            sign.update();
+                        } else {
+                            p.sendMessage("В буфере нет скопированной таблички.");
+                        }
+                    } else {
+                        if (!signCache.containsKey(p.getName())) {
+                            signCache.put(p.getName(), new String[4]);
+                        }
+                        signCache.get(p.getName())[0] = sign.getLine(0);
+                        signCache.get(p.getName())[1] = sign.getLine(1);
+                        signCache.get(p.getName())[2] = sign.getLine(2);
+                        signCache.get(p.getName())[3] = sign.getLine(3);
+                        p.sendMessage("Содержимое таблички скопировано в буфер. Шифт+ПКМ на другую - вставить.");
+                    }
+                }
+                return;
             }
         }
+        
+        
+        if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {
+            
+            if (disable_lava && e.getItem()==null && e.getItem().getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
+                e.setUseItemInHand(Event.Result.DENY);
+                ApiOstrov.sendActionBarDirect(e.getPlayer(), "§cЛава запрещена на этом сервере!");
+                return;
+            }
+
+            if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType())) {
+                final Sign sign = (Sign)e.getClickedBlock().getState();
+                final String line0=ChatColor.stripColor( sign.getLine(0).toLowerCase());
+                final String line1=ChatColor.stripColor( sign.getLine(1));
+                if (line0.isEmpty() || line1.isEmpty()) return;
+    //System.out.println("Sign_click 222 "+line0);
+                switch (line0) {
+                    case "[ostrov]":
+                        if (ServerListener.checkCommand(e.getPlayer(), line1.toLowerCase())) return;
+                        e.getPlayer().performCommand(line1.toLowerCase());
+                        return;
+
+                    case "[warp]":
+                        e.getPlayer().performCommand("warp "+line1.toLowerCase());
+                        return;
+                    //case"[money]":
+                    //    if (e.getPlayer().isOp() && Ostrov.isInteger(line1)) Ostrov.moneyChange(e.getPlayer(), Integer.valueOf(line1), Ostrov.prefix+":"+line1);
+                    //     e.getPlayer().sendMessage( "local balance="+Ostrov.moneyGetBalance(e.getPlayer()) );
+                    //    break;
+                    //case"[stat]":
+                    //     if (e.getPlayer().isOp()) ApiOstrov.addIntStat(e.getPlayer(), E_Stat.valueOf(line1));
+                    //    break;
+                    default:
+                        break;
+
+                }
+            }
+        }
+        
+
+        
+        
     }
     
     
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void Sign_click(PlayerInteractEvent e) {
-//System.out.println("Sign_click 111");
-        if (e.getAction()==Action.PHYSICAL || e.getClickedBlock()==null)return;
-        //if (e.getClickedBlock().getType()==Material.SIGN || e.getClickedBlock().getType()==Material.SIGN_POST || e.getClickedBlock().getType()==Material.WALL_SIGN ) {
-        
-        if (disable_lava) {
-            if (e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getItem()!=null && e.getItem().getType().toString().contains("LAVA")) {
-                e.setCancelled(true);
-                e.getPlayer().sendMessage("§cЛава запрещена на этом сервере!");
-            }
-        }
-        
-        
-        if (ApiOstrov.isSign(e.getClickedBlock().getType())) {
-            final String line0=ChatColor.stripColor( ((Sign)e.getClickedBlock().getState()).getLine(0).toLowerCase());
-            final String line1=ChatColor.stripColor( ((Sign)e.getClickedBlock().getState()).getLine(1));
-            if (line0.isEmpty() || line1.isEmpty()) return;
-//System.out.println("Sign_click 222 "+line0);
-            switch (line0) {
-                case "[ostrov]":
-                    if (ServerListener.checkCommand(e.getPlayer(), line1.toLowerCase())) return;
-                    e.getPlayer().performCommand(line1.toLowerCase());
-                    break;
-                    
-                case "[warp]":
-                    e.getPlayer().performCommand("warp "+line1.toLowerCase());
-                    break;
-                //case"[money]":
-                //    if (e.getPlayer().isOp() && Ostrov.isInteger(line1)) Ostrov.moneyChange(e.getPlayer(), Integer.valueOf(line1), Ostrov.prefix+":"+line1);
-                //     e.getPlayer().sendMessage( "local balance="+Ostrov.moneyGetBalance(e.getPlayer()) );
-                //    break;
-                //case"[stat]":
-                //     if (e.getPlayer().isOp()) ApiOstrov.addIntStat(e.getPlayer(), E_Stat.valueOf(line1));
-                //    break;
-                
-                
-            }
-        }
-    }    
 
 
 
 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     @EventHandler(priority = EventPriority.HIGHEST) 
     public void onPlayerJoin(PlayerJoinEvent e) {
@@ -258,7 +366,19 @@ public class PlayerListener implements Listener {
     
     @EventHandler( priority = EventPriority.HIGHEST )
     public void onBungeeDataRecieved (BungeeDataRecieved e) {
-        if (PM.exist(e.getPlayer().getName())) PM.getOplayer(e.getPlayer().getName()).loadLocalData();
+        if (PM.exist(e.getPlayer().getName())) {
+            PM.getOplayer(e.getPlayer().getName()).loadLocalData();
+        }
+        if (e.getPlayer().hasPermission("builder") || ApiOstrov.hasGroup(e.getPlayer().getName(), "supermoder")) {
+            final Player p = e.getPlayer();
+            p.sendMessage("§f* У Вас есть право §eСтроителя §fна этом сервере.");
+            TextComponent msg = new TextComponent( "§a>>>> §fклик сюда - выполнить команду /builder §a<<<<" );
+            HoverEvent he = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aвключить гм1 и открыть меню строителя"));
+            ClickEvent ce = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/builder");
+            msg.setHoverEvent( he );
+            msg.setClickEvent( ce );
+            p.spigot().sendMessage(msg);
+        }
     }   
     
     
@@ -281,23 +401,23 @@ public class PlayerListener implements Listener {
         
  // ----------------------------- ACTION ----------------------
             
-@EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
-	public void onPlace(BlockPlaceEvent e) {
-            //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
-            if ( disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
-            else if (!clear_stats) PM.Addbplace(e.getPlayer().getName());
-        }
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
+    public void onPlace(BlockPlaceEvent e) {
+        //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
+        if ( disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
+        else if (!clear_stats) PM.Addbplace(e.getPlayer().getName());
+    }
     
-@EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
-	public void onBreak(BlockBreakEvent e) {
-          //  PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
-            if ( disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
-            else if (!clear_stats) PM.Addbbreak(e.getPlayer().getName());
-        }
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
+    public void onBreak(BlockBreakEvent e) {
+      //  PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
+        if ( disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
+        else if (!clear_stats) PM.Addbbreak(e.getPlayer().getName());
+    }
  
         
         
-@EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent e) {
         if ( e.getRemover().getType()==EntityType.PLAYER && !Ostrov.isCitizen(e.getEntity()) ) {
                 if ( disable_break_place &&  !ApiOstrov.isLocalBuilder((Player) e.getRemover()) ) e.setCancelled(true);
@@ -305,7 +425,7 @@ public class PlayerListener implements Listener {
 
     }
        
-@EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onHangingBreakEvent(HangingBreakEvent e) {
         if ( e.getEntity() instanceof Player) {
                 if ( disable_break_place &&   !ApiOstrov.isLocalBuilder((Player) e.getEntity()) ) e.setCancelled(true);
@@ -330,7 +450,7 @@ public class PlayerListener implements Listener {
         
         
 // ----------------------------------- MOVE --------------------------------
-@EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onPlayerMove (PlayerMoveEvent e) { 
     if (!PlayerListener.enable_jump_plate) return;
     if (e.getFrom().getBlockX()==e.getTo().getBlockX() && e.getFrom().getBlockY()==e.getTo().getBlockY() && e.getFrom().getBlockZ()==e.getTo().getBlockZ()  ) return;
@@ -368,7 +488,7 @@ public class PlayerListener implements Listener {
 
 
         
-@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         if (Ostrov.isCitizen(e.getPlayer())) return;
             //if (give_pipboy ) ItemUtils.Add_to_inv(e.getPlayer(), give_pipboy_slot, ItemUtils.pipboy, false, false);
@@ -495,7 +615,7 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
     
 
     
-@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void EntityBowShoot(EntityShootBowEvent e) {
         if (e.getEntityType()==EntityType.PLAYER && !Ostrov.isCitizen(e.getEntity())) {
 
@@ -534,7 +654,7 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
     }    
   
     
-@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void ProjectileHitEvent(final ProjectileHitEvent e) {
         
         if (Ostrov.lobby_items.hasItem("tpbow") && e.getEntity().getShooter() instanceof Player && e.getEntity().hasMetadata("bowteleport")) {
@@ -570,7 +690,7 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
     
     
 // ---------------------------- Режимы битвы ---------------------------------
-@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent e) { 
         if ( e.getEntityType()==EntityType.PLAYER && !Ostrov.isCitizen(e.getEntity()) ) {
                     
@@ -608,7 +728,7 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
    
     
 
-@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void EntityDeath (EntityDeathEvent e) {
         if (!clear_stats && e.getEntity().getKiller()!=null && e.getEntity().getKiller().getType()==EntityType.PLAYER && !Ostrov.isCitizen(e.getEntity().getKiller())) {
             
@@ -643,13 +763,15 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
 
     
     
-@EventHandler(ignoreCancelled = true)
-        public void onPlayerLoseFood(FoodLevelChangeEvent e) { 
-            if ( disable_hungry ) {
-                e.setCancelled(true);
-                ((Player)e.getEntity()).setFoodLevel(20);
-            }
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerLoseFood(FoodLevelChangeEvent e) { 
+        if ( disable_hungry ) {
+            e.setCancelled(true);
+            ((Player)e.getEntity()).setFoodLevel(20);
         }
+    }
+
+
         
         
         

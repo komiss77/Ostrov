@@ -28,6 +28,7 @@ public class RegisterCommands {
         plugin.getCommand("spy").setExecutor(new Spy());
         plugin.getCommand("bossbar").setExecutor(new OpAsBossBar());
         plugin.getCommand("oreload").setExecutor(new Oreload());
+        plugin.getCommand("builder").setExecutor(new Builder());
         //plugin.getCommand("sound").setExecutor(new Oreload());
         
     }
