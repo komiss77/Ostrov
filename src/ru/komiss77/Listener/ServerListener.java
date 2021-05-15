@@ -2,8 +2,6 @@
 package ru.komiss77.Listener;
 
 import java.util.UnknownFormatConversionException;
-import me.clip.deluxechat.DeluxeChat;
-import net.citizensnpcs.Citizens;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -25,12 +23,18 @@ import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
+import me.clip.deluxechat.DeluxeChat;
+import net.citizensnpcs.Citizens;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.EntityDeathEvent;
+import ru.komiss77.ApiOstrov;
+import ru.ostrov77.factions.ApiFactions;
 import ru.komiss77.Cfg;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Pvp;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Ostrov;
-import ru.komiss77.version.VM;
 
 
 
@@ -63,6 +67,14 @@ public static void ReloadVars () {
 
 
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onDragonDeath (final EntityDeathEvent e) {
+        if (e.getEntityType()==EntityType.ENDER_DRAGON && e.getEntity().getWorld().getEnvironment()==World.Environment.THE_END) {
+            ApiOstrov.makeWorldEndToWipe(3*24*60*60);
+            Bukkit.broadcastMessage("§bДракон побеждён, и край будет воссоздан через 3 дня!");
+        }
+    }
+    
 
 
 /*
@@ -147,12 +159,12 @@ System.out.println("------------> GroupChangeEvent ");
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginEnable(PluginEnableEvent e) {
 
-        if (e.getPlugin().getDescription().getCommands()!=null) {
+        //if (e.getPlugin().getDescription().getCommands()!=null) {
             e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
                 CMD.all_server_commands.add(command);
 //System.out.println("------------> Command add "+command); 
             });
-        }
+        //}
             
         switch ( e.getPlugin().getName() ) {
 
@@ -196,22 +208,27 @@ System.out.println("------------> GroupChangeEvent ");
                 Ostrov.log_ok ("§2Найдены паркуры! Режим паркуры!");
                 break;
             
-             case "uSkyBlock":
-                Ostrov.uskyblock= true;
-                Ostrov.log_ok ("§2Найден uSkyBlock!");
-                break;
+             //case "uSkyBlock":
+            //    Ostrov.uskyblock= true;
+             //   Ostrov.log_ok ("§2Найден uSkyBlock!");
+            //    break;
             
-             case "WorldGuard":
+            case "WorldGuard":
                 Ostrov.WorldGuard_get();
                 Ostrov.log_ok ("§2Найден WorldGuard!");
                 break;
                 
-             case "DeluxeChat":
+            case "DeluxeChat":
                 Ostrov.deluxechatPlugin = (DeluxeChat) Bukkit.getPluginManager().getPlugin("DeluxeChat");
                 Ostrov.log_ok ("§2Найден DeluxeChat!");
                 break;
                 
-             case "PowerNBT":
+            case "Factions":
+                Ostrov.apiFactions = new ApiFactions();//(Factions) Bukkit.getPluginManager().getPlugin("Factions");
+                Ostrov.log_ok ("§2Найден DeluxeChat!");
+                break;
+                
+            case "PowerNBT":
                 Ostrov.powerNBT= true;
                 Ostrov.log_ok ("§2Найден PowerNBT!");
                 break;
@@ -235,18 +252,39 @@ System.out.println("------------> GroupChangeEvent ");
 
 
     
-    
-    
-    
-    
-    
-    
-    
-    
- @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWorldLoaded(final WorldLoadEvent event) {
+  /*  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldUnloaded(final WorldUnloadEvent e) {
+        
+        if (e.getWorld().getName().equals("world_the_end")) {
+            for (final Entity entity : e.getWorld().getEntities()) {
+    System.out.println(entity.getType());
+                if (entity.getType()==EntityType.ENDER_DRAGON) {
+    System.out.println("+++++++++++++++++++++++++++++++++++");
+                }
+            }
+        }
+    }*/
 
-    final World bukkitWorld = event.getWorld();
+    
+    
+    
+    
+    
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldLoaded(final WorldLoadEvent e) {
+
+    final World bukkitWorld = e.getWorld();
+    
+    
+    if (bukkitWorld.getName().equals("world_the_end")) {
+        for (final Entity entity : bukkitWorld.getEntities()) {
+            if (entity.getType()==EntityType.ENDER_DRAGON) {
+System.out.println("+++++++++++++++++++++++++++++++++++");
+            }
+        }
+    }
+    
     //final String level_name=VM.getNmsServer().getlevelName(bukkitWorld); //только для мира 0
        // if (bukkitWorld.getName().equals(level_name) ) {
 
@@ -307,6 +345,9 @@ System.out.println("------------> GroupChangeEvent ");
 
             Ostrov.log_ok("Настройки мира "+ bukkitWorld.getName() +" инициализированы для лобби или миниигры");
         }
+        
+        
+        
         //if (Ostrov.pandora!=null) Ostrov.pandora.Load();
     }
 

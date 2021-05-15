@@ -2,20 +2,18 @@ package ru.komiss77.Managers;
 
 
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 
 import ru.komiss77.Cfg;
 import ru.komiss77.Objects.Warp;
+import ru.komiss77.utils.LocationUtil;
 
 
 
@@ -75,9 +73,9 @@ public static void ReLoadVars() {
 
 
 // -----------------------------  получение данных с мускула ---------------------
-public static void Load_warp( String name, String type, String owner, String desc, String loc, boolean open, boolean need_perm, int use_cost, int counter, long create_time ) {
+public static void Load_warp( String name, String type, String owner, String desc, String loc, boolean open, boolean need_perm, int use_cost, int counter, int create_time ) {
 
-    Warp warp = new Warp ( name, type, owner, desc, String_to_Loc(loc), open, need_perm, use_cost, counter, create_time );
+    Warp warp = new Warp ( name, type, owner, desc, LocationUtil.LocFromString(loc), open, need_perm, use_cost, counter, create_time );
     warps.put(name, warp);
 
     if (type.equals("server")) swarp.add(name);
@@ -185,8 +183,8 @@ public static List<String> Get_Uset_warps (String nik) {
         return warps.get(name).Get_counter();
     }
  
-    public static String Get_createtime(String name) {
-        return Long_to_date( warps.get(name).Get_createtime() );
+    public static int Get_createStamp(String name) {
+        return  warps.get(name).Get_createtime();
     }
 
 
@@ -230,17 +228,9 @@ public static List<String> Get_Uset_warps (String nik) {
 
 
 
-public static String IntToTime(int min) {
-    int h = (min / (60));
-    int m = (int) ((min - (h * 60)) );
-      if (h==0) {
-          if (m==0)return  "меньше минуты";
-          else return  String.format("%02d", m ).replaceFirst("0", "")+" мин.";
-      }
-      else return  h + " ч. " + String.format("%02d", (int) m  ).replaceFirst("0", "")+" мин.";
-    }
 
 
+/*
 
 public static String Loc_to_String ( Location loc) {
         return loc.getWorld().getName()+":"+loc.getBlockX()+":"+loc.getBlockY()+":"+loc.getBlockZ()+":"+(int)loc.getYaw()+":"+(int)loc.getPitch();
@@ -266,7 +256,7 @@ public static String Long_to_date (long sec) {
                     Date resultdate = new Date(sec*1000);
                     return sdf.format(resultdate);
 }
-
+*/
 
    public static boolean checkString ( String message) {
       for(int i = 0; i < message.length(); ++i) {

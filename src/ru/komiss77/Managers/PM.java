@@ -198,18 +198,7 @@ public class PM {
     //System.out.println(" ???? inBattle "+nik+"  time:"+CMD.pvp_battle_time+" -> "+Timer.CD_has(nik, "pvp") );
         return oplayers.containsKey(nik)? getOplayer(nik).pvp_time : 0;
     }
-    public static void dropInv(Player p) {
-    //System.out.println("dropInv>>");
-        for (ItemStack item : p.getInventory().getContents()) {
-            if (item != null) {
-                p.getWorld().dropItemNaturally(p.getLocation(), item);
-                p.getInventory().remove(item);
-            }
-        }
-        p.getInventory().clear();
-        p.updateInventory();
-        p.sendMessage("§cВаши вещи достались победителю!");
-    }
+
 //------------------------------------------------------------------------------
 
 

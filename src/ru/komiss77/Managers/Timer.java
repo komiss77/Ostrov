@@ -102,7 +102,7 @@ public static void LoadVars() {
     public static long Единое_время() {
         return System.currentTimeMillis()-time_delta;
     }
-    
+    @Deprecated
     public static int currentTimeSec() {
         return currentTime;
     }
@@ -314,7 +314,7 @@ public static void LoadVars() {
 
 
 
-    
+   @Deprecated
  private static String Current_time () {
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 //System.out.println("4444 ");

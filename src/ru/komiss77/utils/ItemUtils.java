@@ -276,7 +276,48 @@ public class ItemUtils {
         }
     }    
 
+    public static boolean Add_to_inv (Player p, final ItemStack item, int position) {  //просто выдать в нужный слот
 
+        PlayerInventory inv = p.getInventory();
+
+//System.out.println("Выдаём "+item.getType()+" contains:"+inv.contains(item)+" duplicate:"+duplicate+"  >>> "+(inv.contains(item) && !duplicate));   
+
+        boolean found = false;
+        int empty_pos;
+
+        if (inv.getItem(position) == null) {                                        //если требуемая позиция пустая, 
+    //System.out.println("22 "+position+"  "+item);
+            inv.setItem(position, item);                                            //ставим предмет и возврат
+            p.updateInventory();
+            return true;
+        } else {                                                                    //если не пустая, поиск свободного слота
+            for (empty_pos = 0; empty_pos < 36; ++empty_pos) {          
+                if (inv.getItem(empty_pos) == null) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    //System.out.println("2222");
+        //if (!found && !anycase) return false;                                       //если не найден и не принудительно, отказ
+        //ItemStack current = inv.getItem(position);                                  //берём предмет с требуемой позиции
+        if (found) {                                                                //если место было найдено,
+    //System.out.println("444 "+position+"  "+item);
+            //inv.setItem(empty_pos, inv.getItem(position));                                        //переносим 
+            inv.setItem(empty_pos, item);                                            //в нужный слот ставим предмет
+            p.updateInventory();
+            return true;                                                            //дело сделано
+        } else {                                                                    //если пустое место не найдено
+            p.getWorld().dropItemNaturally(p.getLocation(), item.clone());      //кидаем предмет рядом
+            //p.sendMessage("§4В Вашем инвентаре не было места, Дух Острова бросил выдаваемый предмет рядом!");
+            return false;                                                       //если не принудительно, отказ
+            
+
+        }
+    }    
+    
+    
+    
     @SuppressWarnings("deprecation")
     public static boolean get_Items (Player player, int count, Material mat) {
         Map<Integer, ? extends ItemStack> ammo = player.getInventory().all(mat);

@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import ru.komiss77.ApiOstrov;
 
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Managers.Warps;
@@ -124,7 +125,7 @@ public class ChatMsgUtil {
                                     "\n§5Владелец: §b"+Warps.Get_owner(name)+
                                     "\n§5Описание: §6"+Warps.Get_desc(name)+
                                     "\n§5Посещений: §7"+Warps.Get_counter(name)+
-                                    "\n§5Создан: §7"+Warps.Get_createtime(name)+
+                                    "\n§5Создан: §7"+ApiOstrov.dateFromStamp(Warps.Get_createStamp(name))+
                                     " \n ").create());
                     msg.setHoverEvent( he );
                     msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp "+name ) );
@@ -144,7 +145,7 @@ public class ChatMsgUtil {
                                    "\n§5Владелец: §b"+Warps.Get_owner(name)+
                                    "\n§5Описание: §6"+Warps.Get_desc(name)+
                                    "\n§5Посещений: §7"+Warps.Get_counter(name)+
-                                   "\n§5Создан: §7"+Warps.Get_createtime(name)+
+                                   "\n§5Создан: §7"+ApiOstrov.dateFromStamp(Warps.Get_createStamp(name))+
                                    " \n ").create());
                    msg.setHoverEvent( he );
                    msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp "+name ) );

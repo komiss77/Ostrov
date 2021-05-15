@@ -1,6 +1,7 @@
 package ru.komiss77.Commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,6 +9,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Managers.Warps;
+import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.utils.ChatMsgUtil;
 
 
@@ -29,7 +31,8 @@ public class Warp implements CommandExecutor {
                     final Player target = Bukkit.getPlayer(a[1]);
                     if (target!=null) {
                         target.sendMessage( "§6Перемещаемся на "+a[0]+"..." );
-                        ApiOstrov.teleportSave(target, Warps.Get_loc(a[0]));
+                        DelayTeleport.tp(target, Warps.Get_loc(a[0]), 5, "§6Перемещение на "+a[0]+" прошло удачно.", true, true, DyeColor.YELLOW);
+                        //ApiOstrov.teleportSave(target, Warps.Get_loc(a[0]));
                         return true;
                     } else {
                         se.sendMessage( "§cНе найден игрок "+a[1] );
@@ -174,7 +177,8 @@ public class Warp implements CommandExecutor {
                                     p.sendMessage( "§6Перемещаемся на "+a[0]+"..." );
                                     if (cost>0) ApiOstrov.moneyChange(p, -cost, "warp");
                                     Warps.Add_count(p, a[0]);
-                                    ApiOstrov.teleportSave(p, Warps.Get_loc(a[0]));
+                                    DelayTeleport.tp(p, Warps.Get_loc(a[0]), 5, "§6Перемещение на "+a[0]+" прошло удачно.", true, true, DyeColor.YELLOW);
+                                    //ApiOstrov.teleportSave(p, Warps.Get_loc(a[0]));
                                 } else p.sendMessage( "§cУ Вас недостаточно денег для посещения! Нужно: "+cost+" p." );
                             } else p.sendMessage( "§cЛокация варпа недоступна: "+a[0] );
                         } else p.sendMessage( "§cДля посещения данного варпа требуется право ostrov.warp."+a[0] );

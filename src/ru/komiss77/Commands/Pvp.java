@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.GameRule;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,6 +27,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
@@ -32,6 +35,7 @@ import ru.komiss77.Events.BattleModeEvent;
 import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Listener.PlayerListener;
 import ru.komiss77.Managers.PM;
+import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.Ostrov;
 import ru.komiss77.version.IEntityGroup.EntityGroup;
 import ru.komiss77.version.VM;
@@ -172,24 +176,35 @@ public class Pvp implements Listener, CommandExecutor {
     
     
     
-@EventHandler(priority = EventPriority.MONITOR) 
+    @EventHandler(priority = EventPriority.MONITOR) 
     public void onDataRecieved (BungeeDataRecieved e) {
            
         if (pvp_antirelog && anti_quiter.contains(e.getPlayer().getName())) {
-            anti_quiter.remove(e.getPlayer().getName());
-            e.getPlayer().sendMessage("§4Вы пытались избежать смерти, но у Вас не получилось..");
-            e.getPlayer().setHealth(0);
+            final Player p = e.getPlayer();
+            anti_quiter.remove(p.getName());
+            p.sendMessage("§4Вы пытались избежать смерти, но у Вас не получилось..");
+            //if (Pvp.pvp_antirelog) {
+            p.getInventory().clear(); //просто очищаем, т.к. при ВЫХОДЕ инвентарь дропнулся, и может выйти дюп при втором дропе - гибели
+            p.updateInventory();
+            //}
+            p.setHealth(0);
         }
         
     }
     
     
-@EventHandler(priority = EventPriority.MONITOR) 
+    @EventHandler(priority = EventPriority.MONITOR) 
     public void onQuit (PlayerQuitEvent e) {
-           
-        if (Pvp.pvp_antirelog && PM.inBattle(e.getPlayer().getName())) {      //если удрал во время боя
+        final Player p = e.getPlayer();
+        if (Pvp.pvp_antirelog && PM.inBattle(p.getName())) {      //если удрал во время боя
             anti_quiter.add(e.getPlayer().getName());                       //при входе будет убит
-            if (Pvp.pvp_drop_inv_inbattle) PM.dropInv (e.getPlayer());                                 //дроп инвентаря
+            if (Pvp.pvp_drop_inv_inbattle) {
+                for (ItemStack item : p.getInventory().getContents()) {
+                    if (item != null) {
+                        p.getWorld().dropItemNaturally(p.getLocation(), item);
+                    }
+                }
+            }
             Bukkit.getOnlinePlayers().stream().forEach((pl) -> {
                 pl.sendMessage("§f"+e.getPlayer().getName()+" §4пытался сбежать во время боя, и будет наказан!");
             });
@@ -201,7 +216,7 @@ public class Pvp implements Listener, CommandExecutor {
 
 
 
-@EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST )
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST )
     public void EntityDamageByEntityEvent (EntityDamageByEntityEvent e){
         if (!e.getEntityType().isAlive() || e.getEntityType()==EntityType.ARMOR_STAND) return;   //не обрабатывать урон рамкам, опыту и провее
         
@@ -221,7 +236,7 @@ public class Pvp implements Listener, CommandExecutor {
 
     
     
-@EventHandler(ignoreCancelled = true,priority = EventPriority.HIGH)
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.HIGH)
     public void PlayerToggleFlightEvent (PlayerToggleFlightEvent e) {
       // if ( e.getPlayer().isOp() ) return;
 //System.err.println(">>>>>>>>>>> 2");       
@@ -237,7 +252,7 @@ public class Pvp implements Listener, CommandExecutor {
     }
     
 
-@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public static void BattleModeEvent( BattleModeEvent e) {
 //System.out.println("333333333333 canceled?"+e.Is_canceled());                
         if (!e.Is_canceled()) {
@@ -262,15 +277,79 @@ public class Pvp implements Listener, CommandExecutor {
     
     
     
-@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void PlayerDeath (PlayerDeathEvent e) {
         if ( e.getEntity().getType()!=EntityType.PLAYER || Ostrov.isCitizen(e.getEntity())) return;
-        PM.OP_Set_back_location(e.getEntity().getName(), e.getEntity().getLocation());
-        if (PM.inBattle(e.getEntity().getName()) && pvp_drop_inv_inbattle) {            //дроп инвентаря
-            PM.dropInv (e.getEntity());
-        }     
-        if (!PlayerListener.clear_stats) PM.Addbdead(e.getEntity().getName());
-        PM.getOplayer(e.getEntity().getName()).pvpBattleModeEnd();
+        final Player p = e.getEntity();
+        PM.OP_Set_back_location(p.getName(), p.getLocation());
+        if (PM.inBattle(p.getName()) && pvp_drop_inv_inbattle) {            //дроп инвентаря
+            
+            /*
+            Лут образуется только когда в настройках мира KeepInventory off !!
+            вот код сервера:
+                boolean keepInventory;
+                ArrayList<Object> loot = new ArrayList<Object>(this.inventory.getSize());
+                boolean bl = keepInventory = this.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) || this.isSpectator();
+                if (!keepInventory) {
+                    for (ItemStack item : this.inventory.getContents()) {
+                        if (item.isEmpty() || EnchantmentManager.shouldNotDrop(item)) continue;
+                        loot.add((Object)CraftItemStack.asCraftMirror((ItemStack)item));
+                    }
+                }
+                for (ItemStack item : this.drops) {
+                    loot.add(item);
+                }
+                this.drops.clear();
+                PlayerDeathEvent event = CraftEventFactory.callPlayerDeathEvent((EntityPlayer)this, loot, (String)deathmessage, (boolean)keepInventory);
+            */
+            
+            //System.out.println("dropInv>>");
+            //for (ItemStack item : p.getInventory().getContents()) {
+            //    if (item != null) {
+            //        p.getWorld().dropItemNaturally(p.getLocation(), item);
+            //    }
+           // }
+            //p.getInventory().clear();
+            //p.updateInventory();
+            
+            if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
+//System.out.println("Death KEEP_INVENTORY=true drop"+e.getDrops());
+                for (ItemStack is : p.getInventory().getContents()) {
+                    if (is != null && is.getType()!=Material.AIR) {
+//System.out.println("drop si ? "+Ostrov.lobby_items.isSpecItem(is));
+                        if (Ostrov.lobby_items.isSpecItem(is)) {//не лутать менюшки!
+//System.out.println("пропускаем si");
+                            continue;
+                        }
+                        p.getWorld().dropItemNaturally(p.getLocation(), is);
+                    }
+                }
+                p.getInventory().clear();
+                p.updateInventory();
+
+            } else {
+                
+//System.out.println("Death drop"+e.getDrops());
+                for (int i=e.getDrops().size()-1; i>=0; i--) {
+//System.out.println("drop si ? "+Ostrov.lobby_items.isSpecItem(e.getDrops().get(i)));
+                     if (Ostrov.lobby_items.isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек
+                         e.getDrops().remove(i);
+                     }
+                }
+//System.out.println("Death drop2"+e.getDrops());
+//System.out.println("Death KEEP_INVENTORY=false drop"+e.getDrops());
+                //ничего не надо, выпадет само!
+            }
+            
+            p.sendMessage("§cВаши вещи достались победителю!");
+            ///e.setKeepInventory(false);
+//System.out.println("Death "+e.getDrops());
+            
+        } else {
+            //e.setKeepInventory(true);//в остальных случаях по настройкам мира
+        }
+        if (!PlayerListener.clear_stats) PM.Addbdead(p.getName());
+        PM.getOplayer(p.getName()).pvpBattleModeEnd();
         //PM.getOplayer(e.getEntity().getName()).pvp_time=0;
         //Bukkit.getPluginManager().callEvent(new BattleModeEndEvent ( e.getEntity() ) );
     }
@@ -278,7 +357,7 @@ public class Pvp implements Listener, CommandExecutor {
     
 
     
-@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public static void onPotionSplash( PotionSplashEvent e) {
             if (e.getAffectedEntities().isEmpty() || !(e.getPotion().getShooter() instanceof Player)) return;
 

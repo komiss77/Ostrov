@@ -1,8 +1,6 @@
 package ru.komiss77.version.v1_16_R3;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,7 +26,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
@@ -38,7 +35,6 @@ import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftMetaBook;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Managers.Cuboid;
 import ru.komiss77.Ostrov;
@@ -206,7 +202,7 @@ public class Server implements IServer {
                     player.sendTitle("", "§7Шифт - остановить показ", 0, 30, 0);
                 }
             }
-        }.runTaskTimer(Ostrov.instance, 5, 11);
+        }.runTaskTimer(Ostrov.instance, 20, 11);
     }
 
     @Override

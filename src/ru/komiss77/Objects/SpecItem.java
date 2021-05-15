@@ -22,12 +22,18 @@ public class SpecItem {
         this.item=VM.getNmsNbtUtil().addString(is, "ostrovItem", name);
 //System.out.println("================ SpecItem name="+name);
     }
-
+    
+    public ItemStack getItem() {
+        return item;
+    }
+    
+    @Deprecated
     public boolean give(final Player p) {
 //System.out.println("================ SpecItem give name="+name);
-        return ItemUtils.Add_to_inv(p, slot, item.clone(), anycase, duplicate);
+        return ItemUtils.Add_to_inv(p, slot, item.clone(), anycase, false); //менюшки нокогда не дублируем!!
     }
 
+    @Deprecated
     public boolean isSpecItem(final ItemStack is) {
 //System.out.println("----isSpecItem type==?"+(is.getType()==item.getType())+" hasString?"+VM.getNmsNbtUtil().hasString(is, "ostrovItem")+" tag="+VM.getNmsNbtUtil().getString(is, "ostrovItem")+" name="+name);
         return is!=null && is.getType()==item.getType() && VM.getNmsNbtUtil().hasString(is, "ostrovItem") && VM.getNmsNbtUtil().getString(is, "ostrovItem").equalsIgnoreCase(name);

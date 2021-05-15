@@ -54,6 +54,11 @@ public class SignEditSelectLine implements InventoryProvider {
                 .lore("§7цветовые коды с §f&")
                 .lore("§7ЛКМ - изменить")
                 .lore("§7")
+                .lore("§7Тэги для 1 строки:")
+                .lore("[Место] §7- варп; стока 2 - название")
+                .lore("[Команда] §7- варп; стока 2 - команда")
+                .lore("§7")
+                .lore("§7")
                 .build(),  ChatColor.translateAlternateColorCodes('§', sign.getLine(0)), msg -> {
                     //msg = msg.replaceAll("&k", "").replaceAll("&", "§");
                     

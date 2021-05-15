@@ -7,6 +7,7 @@ import java.util.List;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -14,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import ru.komiss77.ApiOstrov;
 
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
@@ -75,14 +77,14 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
         init();
     }
     
-    private void help(final Player p) {
+   /* private void help(final Player p) {
         p.spigot().sendMessage(
             new ComponentBuilder("§3/"+this.getClass().getSimpleName()+" <ник> - §7  §8<<клик")
             .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§aКлик-набрать").create()))
             .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ "))
             .create()
         );
-    }
+    }*/
 
     
     
@@ -100,6 +102,12 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
         //    p.sendMessage( "");
         //    return true;
         //}
+        if (!p.hasPermission("builder") && !ApiOstrov.hasGroup(p.getName(), "supermoder")) {
+            p.sendMessage( "§сНужно право §e"+Bukkit.getServer().getMotd()+".builder"+" §cили группа §esupermoder");
+            return true;
+        }
+        
+        
         if (p.getGameMode()==GameMode.SURVIVAL || p.getGameMode()==GameMode.ADVENTURE) {
             p.performCommand("gm 1");
         }
@@ -121,7 +129,7 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
                 break;
         }
 
-        help(p);
+       // help(p);
         return true;
     }
     

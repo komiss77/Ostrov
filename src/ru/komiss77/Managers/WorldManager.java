@@ -137,7 +137,9 @@ public class WorldManager {
         final long currentTimeMillis5 = System.currentTimeMillis();
 
         final WorldCreator wc = new WorldCreator(world_name)
-        .environment(environment);
+        .environment(environment)
+        .seed(Ostrov.random.nextLong())
+        ;
         
         applyGenerator(wc, generator);
         

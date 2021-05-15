@@ -186,7 +186,12 @@ public class ApiOstrov {
     
 
     
-    
+    /**
+     * 
+     * @return
+     * после рестарта определить, настал новый день 
+     * или тот же
+     */
     public static boolean isNewDay() {
         return Ostrov.новый_день;
     }
@@ -550,9 +555,9 @@ public class ApiOstrov {
         final int hour = min / 60;
         if (day>0) {
             if (hour==0) {
-                return  day+"дн. ";
+                return  day+"д. ";
             } else { //в масштабах дня минуты не считаем!
-                return  day+"дн. "+ ( hour>9 ? String.format("%02d",hour) : hour )+"ч ";
+                return  day+"д. "+ ( hour>9 ? String.format("%02d",hour) : hour )+"ч ";
             }
         }
         min -= hour*60;
@@ -825,8 +830,12 @@ public class ApiOstrov {
 
 
 
-
-
+    public static int currentTimeSec() {
+        return Timer.currentTimeSec();
+    }
+    public static void makeWorldEndToWipe(final int afterSecond) {
+        Ostrov.makeWorldEndToWipe(afterSecond);
+    }
 
 
 

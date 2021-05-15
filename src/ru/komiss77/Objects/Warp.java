@@ -13,9 +13,9 @@ public class Warp {
     boolean need_perm;
     int cost;
     int counter;
-    long created;
+    int created;
 
-    public Warp(String name, String type, String owner, String desc, Location loc, boolean open, boolean need_perm, int use_cost, int counter, long create_time) {
+    public Warp(String name, String type, String owner, String desc, Location loc, boolean open, boolean need_perm, int use_cost, int counter, int create_time) {
 
         this.type = type;
         this.owner = owner;
@@ -61,7 +61,7 @@ public class Warp {
         return this.counter;
     }
  
-    public long Get_createtime() {
+    public int Get_createtime() {
         return this.created;
     }
 

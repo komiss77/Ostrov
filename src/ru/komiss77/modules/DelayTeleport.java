@@ -56,27 +56,27 @@ public class DelayTeleport {
                 final String name = p.getName();
                 @Override
                 public void run() {
-                    final Player pl = Bukkit.getPlayer(name);
-                    if (pl==null) {
+                    //final Player pl = Bukkit.getPlayer(name);
+                    if (p==null || !p.isOnline() || p.isDead()) {
                         this.cancel();
                         tpData.remove(name);
                         return;
                     }
-                    if (pl.getLocation().getBlockX()!=x || pl.getLocation().getBlockY()!=y || pl.getLocation().getBlockZ()!=z) {
+                    if (p.getLocation().getBlockX()!=x || p.getLocation().getBlockY()!=y || p.getLocation().getBlockZ()!=z) {
                         this.cancel();
-                        ApiOstrov.sendActionBarDirect(pl, "§cТП отменяется!");
+                        ApiOstrov.sendActionBarDirect(p, "§cТП отменяется!");
                         tpData.remove(name);
                         return;
                     }
                     sec --;
                     if (sec==0) {
                         this.cancel();
-                        ApiOstrov.teleportSave(pl, toLoc, true);
+                        ApiOstrov.teleportSave(p, toLoc, true);
                         if (toEffect) playTpEffect(toLoc, color);
-                        pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2, 2), true);
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2, 2), true);
                         //pl.setVelocity(pl.getVelocity().setY(0.2));
-                        if (!doneMsg.isEmpty()) pl.sendMessage(doneMsg);
-                        pl.playSound(pl.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
+                        if (!doneMsg.isEmpty()) p.sendMessage(doneMsg);
+                        p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
                         tpData.remove(name);
                     } else {
                         ApiOstrov.sendActionBarDirect(p, "§eСохраняйте неподвижность : §b"+sec);

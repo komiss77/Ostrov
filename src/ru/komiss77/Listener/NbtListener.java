@@ -11,21 +11,15 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -60,7 +54,7 @@ public class NbtListener implements Listener {
     
 
 
-
+/*
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onChange(final PlayerChangedWorldEvent e) {
@@ -100,7 +94,7 @@ public class NbtListener implements Listener {
                // }
             }
         }
-    }
+    }*/
 
 
 
@@ -179,7 +173,7 @@ public class NbtListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerPickupItemEvent(EntityPickupItemEvent e) {
 //System.out.println("NbtListener:PlayerPickupItemEvent");
-        if (e.getItem()==null || e.getEntityType()!=EntityType.PLAYER || !needCheck(e.getItem().getItemStack()) ) return;
+        if (e.getEntityType()!=EntityType.PLAYER || !needCheck(e.getItem().getItemStack()) ) return;
         final Player p = (Player) e.getEntity();
         if (invalidStackSize(p, e.getItem().getItemStack())) e.getItem().getItemStack().setAmount(e.getItem().getItemStack().getMaxStackSize());
         if (Invalid_name_lenght(p, e.getItem().getItemStack())) e.getItem().getItemStack().getItemMeta().setDisplayName(e.getItem().getItemStack().getItemMeta().getDisplayName().substring(0,28));

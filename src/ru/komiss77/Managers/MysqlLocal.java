@@ -169,7 +169,7 @@ public class MysqlLocal {
         boolean need_perm = false;
         int use_cost = 0;
         int use_counter = 0;
-        long create_time = 0;
+        int create_time = 0;
 
         int c=0;
 
@@ -188,8 +188,13 @@ public class MysqlLocal {
                                     need_perm = rs.getBoolean("need_perm");
                                     use_cost = rs.getInt("use_cost");
                                     use_counter = rs.getInt("use_counter");
-                                    create_time = rs.getLong("create_time");
-                                        c++;
+                                    if (rs.getString("create_time").length()>11) {
+                                        create_time = (int) (rs.getLong("create_time")/1000);
+                                    } else {
+                                        create_time = rs.getInt("create_time");
+                                    }
+                                    
+                                    c++;
 
                                     Warps.Load_warp( name, type, owner, desc, loc, open, need_perm, use_cost, use_counter, create_time );
                                 }
@@ -232,7 +237,7 @@ public class MysqlLocal {
                                     pst.setString(2, w.Get_type() );
                                     pst.setString(3, w.Get_owner() );
                                     pst.setString(4, w.Get_desc() );
-                                    pst.setString(5, Warps.Loc_to_String(w.Get_loc() ) );
+                                    pst.setString(5, LocationUtil.StringFromLoc(w.Get_loc() ) );
                                     pst.setBoolean(6, w.Is_open() );
                                     pst.setBoolean(7, w.Need_perm() );
                                     pst.setInt(8, w.Get_cost() );

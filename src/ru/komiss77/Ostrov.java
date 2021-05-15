@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
+import java.io.File;
 import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
 import org.bukkit.Sound;
@@ -25,7 +26,7 @@ import ru.komiss77.Commands.RegisterCommands;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Nbtcheck;
 import ru.komiss77.Commands.Nbtfind;
-import ru.komiss77.Commands.Tpr;
+import ru.komiss77.Commands.WorldManagerCommand;
 import ru.komiss77.Kits.KitManager;
 import ru.komiss77.Listener.ArmorEquipListener;
 import ru.komiss77.Listener.InvSeeListener;
@@ -57,6 +58,7 @@ import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.InventoryAPI;
 import ru.komiss77.version.VM;
+import ru.ostrov77.factions.ApiFactions;
 import ru.ostrov77.friends.ApiFriends;
 
 
@@ -69,6 +71,7 @@ public class Ostrov extends JavaPlugin {
     public static Random random;
     //public static EffectManager effect_manager=null;
     public static ApiFriends api_friends=null;
+    public static ApiFactions apiFactions=null;
     
     public static CaseInsensitiveMap <Initiable> modules;
     
@@ -83,7 +86,8 @@ public class Ostrov extends JavaPlugin {
     
     public static String prefix = "§2[§aОстров§2] §f";;
     public static int server_id=-1;
-    public static boolean use_vault,powerNBT,langUtils,aac,новый_день,uskyblock,sedna,parkur;
+    public static boolean use_vault,powerNBT,langUtils,aac,uskyblock,sedna,parkur;
+    public static boolean новый_день;
     public static boolean first_start=true;
     private static Date date;
     private static SimpleDateFormat full_sdf;
@@ -128,10 +132,22 @@ public class Ostrov extends JavaPlugin {
 
 
         новый_день=Cfg.GetVariable().getInt("last_day")!=Cfg.Get_day();
-            if (новый_день) {
-                Cfg.GetVariable().set("last_day", Cfg.Get_day());
-                Cfg.GetVariable().saveConfig();
-            }
+        if (новый_день) {
+            Cfg.GetVariable().set("last_day", Cfg.Get_day());
+            Cfg.GetVariable().saveConfig();
+        }
+
+        final int worldEndWipeAt = Cfg.GetVariable().getInt("worldEndMarkToWipe", 0);
+        if (worldEndWipeAt>0 && worldEndWipeAt<ApiOstrov.currentTimeSec()) {
+            Cfg.GetVariable().set("worldEndMarkToWipe",0);
+            Cfg.GetVariable().saveConfig();
+            
+            final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath()+"/world_the_end");
+            WorldManagerCommand.deleteFile(endWorldFolder);
+            //seed ??
+            
+            log_warn("Край обнулён.");
+        }
 
         RegisterCommands.register(this);
         
@@ -175,7 +191,7 @@ public class Ostrov extends JavaPlugin {
         PlayerListener.Init();
         MenuListener.Init();
         TPAListener.Init();
-        Tpr.Init();
+        //Tpr tpr = new Tpr();
         PM.Init();
         MysqlLocal.Init();
         Warps.Init();
@@ -292,7 +308,12 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-
+    protected static void makeWorldEndToWipe(final int afterSecond) {
+        //WorldManager.
+        Cfg.GetVariable().set("worldEndMarkToWipe", ApiOstrov.currentTimeSec()+afterSecond);
+        Cfg.GetVariable().saveConfig();
+        log_warn("Край помечен на вайп через "+ApiOstrov.IntToTime(afterSecond/60));
+    }
 
 
 

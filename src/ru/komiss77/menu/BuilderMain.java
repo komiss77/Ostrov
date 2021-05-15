@@ -174,7 +174,7 @@ public class BuilderMain implements InventoryProvider {
             }));
 
                 
-        contents.set(4,1, ClickableItem.of(new ItemBuilder(Material.ACACIA_SIGN)
+        contents.set(4,1, ClickableItem.of(new ItemBuilder(Material.WARPED_SIGN)
             .name("§7Таблички")
             .lore("")
             .lore("§7Получить предмет")

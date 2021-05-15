@@ -1,10 +1,7 @@
 package ru.komiss77.Listener;
 
 
-import com.boydti.fawe.bukkit.util.ItemUtil;
-import com.google.common.collect.HashBiMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +16,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -43,7 +44,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -57,7 +57,6 @@ import ru.komiss77.Commands.CMD;
 import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
 import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.Timer;
 import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.Ostrov;
 import ru.komiss77.menu.SignEditSelectLine;
@@ -161,7 +160,28 @@ public class PlayerListener implements Listener {
       //  }
     }*/
 
-    
+/*
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onChange(final PlayerChangedWorldEvent e) {
+        final Player p = e.getPlayer();
+        if (p.isInsideVehicle()) {
+            final Entity ent = p.getVehicle();
+            if (ent.getType()==EntityType.DONKEY || ent.getType()==EntityType.HORSE || ent.getType()==EntityType.MULE || ent.getType()==EntityType.LLAMA) {
+                final ChestedHorse chest = (ChestedHorse)ent;
+                final Inventory inv = (Inventory)chest.getInventory();
+                //try {
+                    for (final HumanEntity p2 : inv.getViewers()) {
+                        ((Player)p2).closeInventory();
+                    }
+               // }
+                //catch (ConcurrentModificationException ex) {
+               //     this.getServer().getConsoleSender().sendMessage("ConcurrentModificationException encountered!");
+               // }
+            }
+        }
+    }*/
+
+
     
     
     @EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -176,7 +196,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void Sign_create(SignChangeEvent e) {
 
-        if ( ChatColor.stripColor(e.getLine(0)).equalsIgnoreCase("[ostrov]") || ChatColor.stripColor(e.getLine(0)).equalsIgnoreCase("[warp]")) {
+        if ( ChatColor.stripColor(e.getLine(0)).equalsIgnoreCase("[Команда]") || ChatColor.stripColor(e.getLine(0)).equalsIgnoreCase("[Место]")) {
             if (ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
                 e.setLine(0, "§8"+e.getLine(0));
             } else {
@@ -202,23 +222,38 @@ public class PlayerListener implements Listener {
         
             
         if (ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
-            if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType()) && ItemUtils.compareItem(signEdit, e.getItem(), false)) {
-                e.setCancelled(true);
-                final Sign sign = (Sign)e.getClickedBlock().getState();
+            if ( (Tag.SIGNS.isTagged(e.getClickedBlock().getType()) || Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType())) && ItemUtils.compareItem(signEdit, e.getItem(), false)) {
                 final Player p = e.getPlayer();
+                e.setCancelled(true);
+                
+                Sign sign = (Sign)e.getClickedBlock().getState();
                 if (e.getAction()==Action.LEFT_CLICK_BLOCK) {
                     if (p.isSneaking()) {
+                        final Block b = e.getClickedBlock();
                         final List<Material> types = new ArrayList<>( Tag.WALL_SIGNS.getValues());
-                        int order = types.indexOf(e.getClickedBlock().getType());
-//System.out.println("type="+e.getClickedBlock().getType()+"   order="+order+ "   types="+Arrays.toString(types.toArray()));
+                        int order = types.indexOf(b.getType());
                         order++;
                         if (order>=types.size()) order=0;
-                        final BlockData bd = e.getClickedBlock().getBlockData().clone();
-                        e.getClickedBlock().setType(types.get(order));
+                        final String[] lns = sign.getLines();
+                         
+                        if (Tag.WALL_SIGNS.isTagged(b.getType())) {
+                            final WallSign ws = (WallSign) types.get(order).createBlockData();//org.bukkit.block.data.type.WallSign
+                            ws.setFacing(((Directional)b.getBlockData()).getFacing());
+                            ws.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
+                            b.setBlockData(ws);
+                        } else if (Tag.SIGNS.isTagged(b.getType())) {
+                            final org.bukkit.block.data.type.Sign sn = (org.bukkit.block.data.type.Sign) types.get(order).createBlockData();//org.bukkit.block.data.type.Sign
+                            sn.setRotation(((Rotatable) b.getBlockData()).getRotation());
+                            sn.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
+                            b.setBlockData(sn);
+                        }
                         
-                        //sign.update();
-//System.out.println("order="+order+" new="+types.get(order));
-                        //p.sendMessage("смена типа");
+                        sign = (Sign)b.getState();
+                        for (byte i = 0; i < 4; i++) {
+                            sign.setLine(i, lns[i]);
+                        }
+                        sign.update();
+                        
                     } else {
                         SmartInventory.builder()
                             .type(InventoryType.HOPPER)
@@ -227,7 +262,6 @@ public class PlayerListener implements Listener {
                             .title("§fВыберите строку")
                             .build()
                             .open(p);
-                            //p.sendMessage("редактор");
                     }
                 } else if (e.getAction()==Action.RIGHT_CLICK_BLOCK) {
                     if (p.isSneaking()) {
@@ -271,13 +305,13 @@ public class PlayerListener implements Listener {
                 if (line0.isEmpty() || line1.isEmpty()) return;
     //System.out.println("Sign_click 222 "+line0);
                 switch (line0) {
-                    case "[ostrov]":
+                    case "[команда]":
                         if (ServerListener.checkCommand(e.getPlayer(), line1.toLowerCase())) return;
                         e.getPlayer().performCommand(line1.toLowerCase());
                         return;
 
-                    case "[warp]":
-                        e.getPlayer().performCommand("warp "+line1.toLowerCase());
+                    case "[место]":
+                        e.getPlayer().performCommand( "warp "+ChatColor.stripColor(line1.toLowerCase()) );
                         return;
                     //case"[money]":
                     //    if (e.getPlayer().isOp() && Ostrov.isInteger(line1)) Ostrov.moneyChange(e.getPlayer(), Integer.valueOf(line1), Ostrov.prefix+":"+line1);
@@ -389,6 +423,21 @@ public class PlayerListener implements Listener {
         e.setQuitMessage(null);
         PM.onExit(e.getPlayer());
         if (PM.nameTagManager!=null) PM.nameTagManager.reset(e.getPlayer().getName());
+            
+       /* if (e.getPlayer().isInsideVehicle()) {
+            final Entity ent = e.getPlayer().getVehicle();
+            if (ent.getType()==EntityType.DONKEY || ent.getType()==EntityType.HORSE || ent.getType()==EntityType.MULE || ent.getType()==EntityType.LLAMA) {
+                final ChestedHorse chest = (ChestedHorse)ent;
+                final Inventory inv = (Inventory)chest.getInventory();
+                for (final HumanEntity p2 : inv.getViewers()) {
+        Caused by: java.util.ConcurrentModificationException
+        at java.util.ArrayList$Itr.checkForComodification(Unknown Source) ~[?:1.8.0_251]
+        at java.util.ArrayList$Itr.next(Unknown Source) ~[?:1.8.0_251]
+        at ru.komiss77.Listener.PlayerListener.PlayerQuit(PlayerListener.java:438) ~[?:?]
+                    ((Player)p2).closeInventory();
+                }
+            }
+        }*/
     }
   
     
@@ -509,8 +558,8 @@ public class PlayerListener implements Listener {
     }
     */
     
-    @EventHandler(  priority = EventPriority.HIGH, ignoreCancelled = true) 
-    public void onPlayerPortalEvent(PlayerPortalEvent e) {
+ //   @EventHandler(  priority = EventPriority.HIGH, ignoreCancelled = true) 
+//    public void onPlayerPortalEvent(PlayerPortalEvent e) {
 //System.out.println("onPlayerPortalEvent cause="+e.getCause()+" getCreationRadius="+e.getCreationRadius()+" getSearchRadius="+e.getSearchRadius()+" canceled?"+e.isCancelled());
         //final Player p = e.getPlayer();
         //if (Timer.has(e.getPlayer(), "portal")) {
@@ -519,7 +568,7 @@ public class PlayerListener implements Listener {
         //    return;
         //}
         //Timer.add(e.getPlayer(), "portal", 15);
-    }
+   // }
     /*
     
     @EventHandler(  priority = EventPriority.MONITOR, ignoreCancelled = false) 

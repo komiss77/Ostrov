@@ -56,12 +56,14 @@ public class WorldSettings implements InventoryProvider {
                         contents.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule,on))
                             .name(rule.getName())
                             .lore("")
+                            .lore(on ? "§7сейчас §aвключено" : "§7сейчас §cвыключено")
+                            .lore("")
                             .lore(on ? "§7ПКМ - §4выкл." : "§7ЛКМ - §2вкл.")
                             .lore("")
                             .build(), e-> {
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        if (on) {
+                                        if (!on) {
                                             world.setGameRule(rule, true);
                                             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
                                             reopen(p, contents);

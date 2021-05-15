@@ -1,7 +1,9 @@
 package ru.komiss77.modules;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -33,6 +35,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.ProfileMenu.PassportHandler;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.version.VM;
 
 
 
@@ -124,14 +128,19 @@ public final class LobbyItems extends Initiable implements Listener {
         return items.containsKey(item_name) && items.get(item_name).give(p);
     }
     
-    public SpecItem fromItemStack(ItemStack is) {
-        for (SpecItem si:items.values()) {
+    public SpecItem fromItemStack(final ItemStack is) {
+        if (is!=null && is.getType()!=Material.AIR && VM.getNmsNbtUtil().hasString(is, "ostrovItem")) return items.get(VM.getNmsNbtUtil().getString(is, "ostrovItem"));
+        //for (SpecItem si:items.values()) {
 //System.out.println("--fromItemStack si="+si+" is dcec?"+si.isSpecItem(is));
-            if (si.isSpecItem(is)) return si;
-        }
+        //    if (si.isSpecItem(is)) return si;
+        //}
         return null;
     }
     
+    public boolean isSpecItem(final ItemStack is) {
+        return is!=null && is.getType()!=Material.AIR && VM.getNmsNbtUtil().hasString(is, "ostrovItem") && items.containsKey(VM.getNmsNbtUtil().getString(is, "ostrovItem"));
+//System.out.println("--fromItemStack si="+si+" is dcec?"+si.isSpecItem(is));
+    }
     
     
     
@@ -249,25 +258,53 @@ System.out.println("ru.komiss77.Listener.MenuListener.PlayerAnimationEvent() typ
     @EventHandler( priority = EventPriority.MONITOR )
     public void onBungeeDataRecieved (final BungeeDataRecieved e) {
 //System.out.println("ru.komiss77.modules.LobbyItems.onBungeeDataRecieved()");
-        items.values().stream().filter((si) -> (si.give_on_join)).forEachOrdered((si) -> {
-            si.give(e.getPlayer());
+        final Set<String> has = new HashSet<>();  //создадим список, что итак есть в инвентаре
+        for (final ItemStack is : e.getPlayer().getInventory().getContents()) {
+            if (isSpecItem(is)) {
+                has.add(VM.getNmsNbtUtil().getString(is, "ostrovItem"));
+            }
+        }
+//System.out.println("BungeeDataRecieved has="+has.toString());
+        items.values().stream().filter( (si) -> (si.give_on_join && !has.contains(si.name)) ).forEachOrdered( (si) -> {
+            ItemUtils.Add_to_inv(e.getPlayer(), si.getItem(), si.slot);//give(e.getPlayer() );
         });
+        //items.values().stream().filter((si) -> (si.give_on_join)).forEachOrdered((si) -> {
+        //    give(e.getPlayer());
+        //});
         if (item_lobby_mode) PassportHandler.givePassport(e.getPlayer(), 3);
     }   
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onPlayerRespawn(final PlayerRespawnEvent e) {
         if (Ostrov.isCitizen(e.getPlayer())) return;
-            items.values().stream().filter((si) -> (si.give_on_respavn)).forEachOrdered((si) -> {
-                si.give(e.getPlayer());
-            });
+        final Set<String> has = new HashSet<>();  //создадим список, что итак есть в инвентаре
+        for (final ItemStack is : e.getPlayer().getInventory().getContents()) {
+//System.out.println("Respawn is=="+is+" spec?"+isSpecItem(is));
+            if (isSpecItem(is)) {
+                has.add(VM.getNmsNbtUtil().getString(is, "ostrovItem"));
+            }
+        }
+//System.out.println("Respawn has="+has.toString());
+        items.values().stream().filter( (si) -> (si.give_on_respavn && !has.contains(si.name)) ).forEachOrdered( (si) -> {
+            ItemUtils.Add_to_inv(e.getPlayer(), si.getItem(), si.slot);//give(e.getPlayer() );
+        });
     }   
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCompleteWorldChange(PlayerChangedWorldEvent  e) {
-        items.values().stream().filter((si) -> (si.give_on_world_change)).forEachOrdered((si) -> {
-            si.give(e.getPlayer());
+        final Set<String> has = new HashSet<>();  //создадим список, что итак есть в инвентаре
+        for (final ItemStack is : e.getPlayer().getInventory().getContents()) {
+            if (isSpecItem(is)) {
+                has.add(VM.getNmsNbtUtil().getString(is, "ostrovItem"));
+            }
+        }
+//System.out.println("ChangedWorld has="+has.toString());
+        items.values().stream().filter( (si) -> (si.give_on_world_change && !has.contains(si.name)) ).forEachOrdered( (si) -> {
+            ItemUtils.Add_to_inv(e.getPlayer(), si.getItem(), si.slot);//give(e.getPlayer() );
         });
+        //items.values().stream().filter((si) -> (si.give_on_world_change)).forEachOrdered((si) -> {
+        //    give(e.getPlayer());
+       // });
     }      
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -300,7 +337,7 @@ System.out.println("ru.komiss77.Listener.MenuListener.PlayerAnimationEvent() typ
     
     
     
-    
+ 
     
     
     

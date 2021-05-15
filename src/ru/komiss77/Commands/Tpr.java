@@ -1,76 +1,201 @@
 package ru.komiss77.Commands;
 
-import java.util.Random;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import org.bukkit.Bukkit;
 
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
 
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.WGutils;
-import ru.komiss77.version.VM;
+import ru.ostrov77.factions.ApiFactions;
 
 
 
 public class Tpr {
 	
-    public static Set playerlock;
-    public static Random random;
+    private static final HashMap<String,BukkitTask> tpData = new HashMap<>();
+    
+    //private final int center_x,center_z;
+    //public static Random random;
     //static int minRange;
     //static int maxRange;
+    //public Tpr() {
+  //      center_x
+   // }
 
-    public static void Init() {
-        playerlock = new HashSet();
-        random = new Random();
+   // public static void Init() {
+        //playerlock = new HashSet();
+        //random = new Random();
         //minRange = 100;
         //maxRange = ((DedicatedServer)((CraftWorld)world).getHandle().getMinecraftServer()).propertyManager.getInt("max-world-size", 500);
         //maxRange = (int) ((CraftWorld)world).getWorldBorder().getSize();
         //if (minRange>maxRange) minRange=maxRange;
-    }
+   // }
     
     
     
-    public static void runCommand(final Player player){
-            
-            if ( !player.hasPermission("ostrov.tpr.free")) {
-                if (ApiOstrov.moneyGetBalance(player.getName())<100) {
-                    player.sendMessage("§cНедостаточно денег для перемещения! Стоимость: 100 лони");
-                    return;
-                }
-            }
-        
-        
-            if (player.getWorld().getEnvironment() == World.Environment.NETHER ) {
-                player.sendMessage( "§cТелепорт не работает в аду!");
-            } else if (playerlock.contains(player.getName())) {
-                player.sendMessage( "§cДля Вас уже ищется место для телепорта!");
-            }  else {
-                playerlock.add(player.getName());
-                player.sendMessage("§bТелепортер ищет безопасное место для Вас...");
+    public static void runCommand(final Player p){
 
-                final int center_x=player.getWorld().getWorldBorder().getCenter().getBlockX();
-                final int center_z=player.getWorld().getWorldBorder().getCenter().getBlockZ();
-            
-                final int max_size = VM.getNmsServer().getMaxWorldSize(player.getWorld());//propertyManager.getInt("max-world-size", 500);
-                final int max_wb = (int) player.getWorld().getWorldBorder().getSize();
-                final int maxRange;
-                if (max_size<max_wb) maxRange=max_size;
-                else maxRange = max_wb;
-                
-                
-                final int minRange;
-                if (maxRange<100) minRange=maxRange;
-                else minRange = 100;
-//System.out.println("maxRange="+maxRange);
+        //if ( !p.hasPermission("ostrov.tpr.free")) {
+        //    if (ApiOstrov.moneyGetBalance(p.getName())<100) {
+        //        p.sendMessage("§cНедостаточно денег для перемещения! Стоимость: 100 лони");
+        //        return;
+        //    }
+        //}
+
+
+        if (p.getWorld().getEnvironment() != World.Environment.NORMAL ) {
+            p.sendMessage( "§cТелепорт работает только в обычном мире!");
+            return;
+        } 
+        if (tpData.containsKey(p.getName())) {
+            p.sendMessage( "§cДля Вас уже ищется место для телепорта!");
+        }
+
+        //p.sendMessage("§bТелепортер ищет безопасное место для Вас...");
+
+        final int center_x=p.getWorld().getWorldBorder().getCenter().getBlockX();
+        final int center_z=p.getWorld().getWorldBorder().getCenter().getBlockZ();
         
-                new BukkitRunnable() {
+        //вычисляем максимум +/- для x,z - РАДИУС!!! 
+        final int worldSize = (int) p.getWorld().getWorldBorder().getSize() > Bukkit.getServer().getMaxWorldSize() ? Bukkit.getServer().getMaxWorldSize() : ((int) p.getWorld().getWorldBorder().getSize());//VM.getNmsServer().getMaxWorldSize(p.getWorld());//propertyManager.getInt("max-world-size", 500);
+        //final int max_wb = (int) p.getWorld().getWorldBorder().getSize();
+        //final int maxRange;
+        //if (max_size<max_wb) maxRange=max_size;
+        //else maxRange = max_wb;
+
+        //вычисляем минимум +/- для x,z
+        final int minRange = worldSize/50; //при мире 5к даст для поиска - дельтф будет +/- ( рандом от min до max)100, при 500 даст 10
+        final int maxRange = worldSize - minRange;  //для поиска - дельтф будет +/- ( рандом от min до max)
+        
+        //maxRange = maxRange - minRange; //готовим переменные 
+        
+        
+        //if (maxRange<100) minRange=maxRange;
+        //else minRange = 100;
+//System.out.println("maxRange="+maxRange);
+
+
+        final int x = p.getLocation().getBlockX();
+        final int y = p.getLocation().getBlockY();
+        final int z = p.getLocation().getBlockZ();
+        
+        
+        tpData.put( p.getName(), new BukkitRunnable() {
+            
+            final String name = p.getName();
+            int find_try=100; //5 секунд
+            int lps = 10; //10 локаций в тик
+            int find_x, find_z;
+            Location loc;
+            
+                @Override
+                public void run() {
+                    
+                    if (p==null || !p.isOnline() || p.isDead()) {
+                        this.cancel();
+                        tpData.remove(name);
+                        return;
+                    }
+                    
+                    if (find_try==0) {
+                        p.sendMessage("§bТелепортер не смог найти подходящее место! Попробуйте позже..");
+                        this.cancel();
+                        tpData.remove(name);
+                    }
+                    
+                    if (p.getLocation().getBlockX()!=x || p.getLocation().getBlockY()!=y || p.getLocation().getBlockZ()!=z) {
+                        ApiOstrov.sendActionBarDirect(p, "§cТП отменяется!");
+                        this.cancel();
+                        tpData.remove(name);
+                        return;
+                    }
+                    
+                    
+                    lps=10;
+                    while(lps>0) {
+                        
+                        find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x+minRange, maxRange) : - ApiOstrov.randInt(center_x-minRange, maxRange);
+                        find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z+minRange, maxRange) : - ApiOstrov.randInt(center_z-minRange, maxRange);
+System.out.println("-TPR find "+find_try+" lps="+lps+"  maxRange="+maxRange+"  find_x="+find_x+"   find_z="+find_z);
+                        
+                        loc=p.getWorld().getBlockAt(Ostrov.random.nextBoolean()? x + ApiOstrov.randInt(minRange, maxRange): x, 65, find_z).getLocation();
+                        
+                        
+                        
+                        //if (Ostrov.random.nextBoolean()) find_x=0-find_x;
+                        //if (Ostrov.random.nextBoolean()) find_z=0-find_z;
+                        //find_x=find_x+center_x;
+                        //find_z=find_z+center_z;
+
+                        loc=p.getWorld().getBlockAt(find_x, 65, find_z).getLocation();
+                        
+                        if (Ostrov.getWorldGuard()!=null) {
+                            if (!WGutils.canBuild(p, loc)) {
+                                lps--;
+                                continue;
+                            }
+                        }
+                        
+                        if (Ostrov.apiFactions!=null) {
+                            if (ApiFactions.geFaction(loc)!=null) {
+                                lps--;
+                                continue;
+                            }
+                        }
+                        
+                        
+                        switch (loc.getBlock().getBiome()) {
+                            case OCEAN:
+                            case FROZEN_OCEAN:
+                            case DEEP_OCEAN:
+                            case WARM_OCEAN:
+                            case LUKEWARM_OCEAN:
+                            case COLD_OCEAN:
+                            case DEEP_WARM_OCEAN:
+                            case DEEP_LUKEWARM_OCEAN:
+                            case DEEP_COLD_OCEAN:
+                            case DEEP_FROZEN_OCEAN:
+                                lps--;
+                                continue;
+                            default:
+                                break;
+                        }
+                        
+                        loc.setY(p.getWorld().getHighestBlockYAt(loc));
+
+                        if (!loc.getChunk().isLoaded()) loc.getChunk().load();
+                        
+                        this.cancel();
+                        tpData.remove(name);
+                        ApiOstrov.teleportSave(p, loc, true);
+                        p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
+                        break;
+                    }
+                    
+                    ApiOstrov.sendActionBarDirect(p, "§eСохраняйте неподвижность, ищем! §b"+100);
+
+                }
+            }.runTaskTimer(Ostrov.instance, 1, 1)
+        );
+
+
+
+
+
+
+
+
+
+
+          /*      new BukkitRunnable() {
                     int find_try=0;
                     int find_x, find_z;
                     Location find_loc;
@@ -118,8 +243,20 @@ System.out.println("-TPR find "+find_try+"  maxRange="+maxRange+"  find_x="+find
                         }
                     }
                 }.runTaskTimer(Ostrov.instance, 1, 1);
+                
+                */
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
 
-            }
+            
 
 /*
 
@@ -346,6 +483,7 @@ private static boolean checkforRegion(Player player, Location location, Boolean 
         }
     }       
    */     
+
         
 
 }
