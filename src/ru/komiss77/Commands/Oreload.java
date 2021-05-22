@@ -16,9 +16,7 @@ import org.bukkit.command.TabCompleter;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
-import ru.komiss77.Listener.LimiterListener;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.OstrovDB;
 
 
@@ -43,8 +41,8 @@ public class Oreload implements Listener, CommandExecutor, TabCompleter {
                     for (final String s : subCommands) {
                         if (s.startsWith(args[0])) sugg.add(s);
                     }
-                    for (final String s : Ostrov.modules.keySet()) {
-                        if (s.toLowerCase().startsWith(args[0].toLowerCase())) sugg.add(s);
+                    for (final Ostrov.Module m : Ostrov.Module.values()) {
+                        if (m.name().toLowerCase().startsWith(args[0].toLowerCase())) sugg.add(m.name());
                     }
                 }
                 break;
@@ -86,8 +84,15 @@ public class Oreload implements Listener, CommandExecutor, TabCompleter {
                     
                     
                 case 1:
-                    if (Ostrov.modules.containsKey(arg[0])) {
-                        Ostrov.modules.get(arg[0]).reload();
+                    Ostrov.Module module = null;
+                    for (final Ostrov.Module m : Ostrov.Module.values()) {
+                        if (m.name().equalsIgnoreCase(arg[0])) {
+                            module = m;
+                            break;
+                        };
+                    }
+                    if (module!=null) {
+                        ((Initiable)Ostrov.modules.get(module)).reload();
                         cs.sendMessage("§aМодуль §f"+arg[0]+" §aперезагружен!");
                         return true;
                     }
@@ -95,7 +100,7 @@ public class Oreload implements Listener, CommandExecutor, TabCompleter {
                         case "all":
                             Cfg.ReLoadAllConfig();
                             Ostrov.modules.values().forEach( (initiable) -> {
-                                initiable.reload();
+                                ((Initiable)initiable).reload();
                             });
                             break;
                         //case "limiter":

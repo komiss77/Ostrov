@@ -13,14 +13,14 @@ import ru.komiss77.Enums.Action;
 /**
  * 
  */
-
+@Deprecated
 public class OstrovBungeeChanelEvent extends Event
 {
 
    //public final MsgSenderType senderType;
     public final String from;
     public final Action action;
-    public final String bungee_raw_data;
+    public String bungee_raw_data;
 
     public OstrovBungeeChanelEvent( String from, Action action, String bungee_raw_data)
     {

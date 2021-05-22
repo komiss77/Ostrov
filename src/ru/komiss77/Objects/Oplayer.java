@@ -25,7 +25,6 @@ import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Pvp;
 import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
-import ru.komiss77.Events.BattleModeEndEvent;
 import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Events.BungeeStatRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
@@ -81,7 +80,7 @@ public class Oplayer {
     
     public boolean mysqldata_loaded=false,allow_fly=false,in_fly=false,resourcepack_locked=true,pvp_allow=true;
        
-    
+    public boolean isStaff;
     
     
     
@@ -251,6 +250,7 @@ public class Oplayer {
 
     
     public void calculatePerms(final boolean notify){
+        isStaff = false;
         
         final Player p = getPlayer();
         try {
@@ -280,6 +280,7 @@ public class Oplayer {
                             //if (SM.this_server_name.length()!=4) { //на играх не ставим!
                                 if (OstrovDB.groups.get(group_name).isStaff()) {
                                     tab_list_name_siffix = "§7(§e"+OstrovDB.groups.get(group_name).chat_name+"§7)";
+                                    isStaff = true;
                                 } else {
                                     tab_list_name_prefix = "§6✪ §f";
                                     //tab_list_name_color = "§f";
@@ -499,9 +500,10 @@ public class Oplayer {
 
 
     public void Tick_every_second(final int seconds) {
+//System.out.println("tick pvp_time="+pvp_time);
         if (pvp_time>0) {
-            if (pvp_time==1) pvpBattleModeEnd();    //не переставлять!!
             pvp_time--;
+            if (pvp_time==0) pvpBattleModeEnd();    //не переставлять!!
         }
         if (no_damage>0) {
             no_damage--;
@@ -509,7 +511,7 @@ public class Oplayer {
         }
         if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
         
-        if (bungeeData.isEmpty() && Timer.currentTimeSec()-login_time > 1) {
+        if (bungeeData.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1) {
             SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_RESEND_PLAYER_RAW_DATA, "");
         }
         if (PM.ostrovStatScore && seconds%10==0) {
@@ -1016,18 +1018,22 @@ public int Getbdead() { return this.dead; }
     
     
     public void pvpBattleModeBegin(final int battle_time) { //эвент вызывается в Pvp.Проверка_режима_пвп()
-        if (pvp_time==0) ApiOstrov.sendActionBar(nik, "§cРежим боя "+battle_time+" сек.!");
+//System.out.println("pvpBattleModeBegin "+battle_time);
+        //if (pvp_time==0) ApiOstrov.sendActionBar(nik, "§cРежим боя "+battle_time+" сек.!");
+        if (pvp_time==0) {
+            ApiOstrov.sendActionBar(nik, "§cРежим боя "+battle_time+" сек.!");
+            fly_speed=getPlayer().getFlySpeed();
+            walk_speed=getPlayer().getWalkSpeed();
+            allow_fly = getPlayer().getAllowFlight();
+            in_fly = getPlayer().isFlying();
+            if (getPlayer().getAllowFlight() && getPlayer().isFlying()) {
+                    getPlayer().setFlying(false);
+                    getPlayer().setAllowFlight(false);
+            }
+            getPlayer().setFlySpeed(0.1F);
+            getPlayer().setWalkSpeed(0.2F);
+        } 
         pvp_time=battle_time;
-        fly_speed=getPlayer().getFlySpeed();
-        walk_speed=getPlayer().getWalkSpeed();
-        allow_fly = getPlayer().getAllowFlight();
-        in_fly = getPlayer().isFlying();
-        if (getPlayer().getAllowFlight() && getPlayer().isFlying()) {
-                getPlayer().setFlying(false);
-                getPlayer().setAllowFlight(false);
-        }
-        getPlayer().setFlySpeed(0.1F);
-        getPlayer().setWalkSpeed(0.2F);
         
         if (Pvp.display_pvp_tag) {
             //score.removeBelow(); //NullPointerException если scoreboard выключен!!
@@ -1035,7 +1041,6 @@ public int Getbdead() { return this.dead; }
             //ChatMsgUtil.sendNameTag(nik, "§4", "");       //в бою
             //nametag.sendNameTag("§4", "");
             //getPlayer().setPlayerListName("§4⚔");
-//System.out.println("pvpBattleModeBegin");
             //score.setPrefix("§4⚔ ");
             if (PM.nameTagManager!=null) PM.nameTagManager.setNametag(nik, "§4⚔ ", "");
             //if (PM.boardManager!=null) PM.boardManager.setPrefix(getPlayer(), "§4⚔ ");
@@ -1045,12 +1050,12 @@ public int Getbdead() { return this.dead; }
     }
 
     public void pvpBattleModeEnd() {
-        if (pvp_time==0) return;
+        //if (pvp_time==0) return;
         getPlayer().setFlySpeed(fly_speed);
         getPlayer().setWalkSpeed(walk_speed);
         getPlayer().setAllowFlight(allow_fly);
         getPlayer().setFlying(in_fly);
-        pvp_time=0;
+        //pvp_time=0;
         if (Pvp.display_pvp_tag) {
             //score.removeBelow();//NullPointerException если scoreboard выключен!!
             //NmsUtils.sendNameTag(nik, "§f", ""); //нейтральный
@@ -1062,7 +1067,7 @@ public int Getbdead() { return this.dead; }
             //if (PM.boardManager!=null) PM.boardManager.setPrefix(getPlayer(), "");
             tab_list_name_color = "";
         }
-        if (Bukkit.getPlayer(nik)!=null) Bukkit.getPluginManager().callEvent(new BattleModeEndEvent ( Bukkit.getPlayer(nik) ) );
+        //if (Bukkit.getPlayer(nik)!=null) Bukkit.getPluginManager().callEvent(new BattleModeEndEvent ( Bukkit.getPlayer(nik) ) );
     }
 
     public void pvpOff () {

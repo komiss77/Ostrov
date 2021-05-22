@@ -102,7 +102,7 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
         //    p.sendMessage( "");
         //    return true;
         //}
-        if (!p.hasPermission("builder") && !ApiOstrov.hasGroup(p.getName(), "supermoder")) {
+        if (!ApiOstrov.canBeBuilder(cs)) {
             p.sendMessage( "§сНужно право §e"+Bukkit.getServer().getMotd()+".builder"+" §cили группа §esupermoder");
             return true;
         }

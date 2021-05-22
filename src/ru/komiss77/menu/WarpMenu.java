@@ -1,0 +1,435 @@
+package ru.komiss77.menu;
+
+
+import java.util.ArrayList;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.ItemStack;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Managers.MysqlLocal;
+import ru.komiss77.Managers.PM;
+import ru.komiss77.Managers.Warps;
+import ru.komiss77.Objects.Warp;
+import ru.komiss77.Ostrov;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.ConfirmationGUI;
+import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.Pagination;
+import ru.komiss77.utils.inventory.SlotIterator;
+import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.SmartInventory;
+
+
+
+
+public class WarpMenu implements InventoryProvider {
+    
+    
+
+    public WarpMenu() {
+    }
+    
+    private static final ItemStack fill = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§8.").build();;
+    private boolean hidePrivate;
+    private boolean hidePaid;
+    private boolean hideClosed;
+    
+    //отдельный файл настроек ?
+    //настройка сonsoleOnlyUse - разрешить игрокам команду warp
+    //настройка по группам
+    //меню настройки
+    
+    @Override
+    public void init(final Player p, final InventoryContent contents) {
+
+        contents.fillRect(0,0, 4,8, ClickableItem.empty(fill));
+        
+        final Pagination pagination = contents.pagination();
+        final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
+        
+        
+        final Warps wm = Ostrov.getWarpManager();
+        
+        boolean hasPerm;
+        int count = 0;
+        
+        for (final String warpName : wm.getWarpNames()) {
+            
+            final Warp w = wm.getWarp(warpName);
+            
+            if (!w.system && hidePrivate) continue;
+            if (!w.open && hideClosed) continue;
+            if (w.use_cost>0 && hidePaid) continue;
+            
+            hasPerm = !w.need_perm || ApiOstrov.isLocalBuilder(p, false) || w.isOwner(p) || p.hasPermission("warp.use."+warpName);
+            
+            if (ApiOstrov.isLocalBuilder(p, false) || w.isOwner(p)) {
+                
+                if (w.isOwner(p)) count++; //счётчик варпов владельца, нужно ниже
+                
+                menuEntry.add( ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
+                    .name("§f"+warpName)
+                    .lore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец "+w.owner)
+                    .lore(w.descr)
+                    .lore("§7Создан "+ApiOstrov.dateFromStamp(w.create_time))
+                    .lore("")
+                    .lore( w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен" )
+                    .lore("§7Посещений: §b"+w.use_counter)
+                    .lore(w.isPaid() && !ApiOstrov.isLocalBuilder(p, false) && !w.isOwner(p) ? "§7Плата за посещение: "+w.use_cost+" лони" : "")
+                    .lore( hasPerm ? "" : "§cнет права warp.use."+warpName)
+                    .lore("")
+                    .lore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
+                    .lore("§7ПКМ - настройки")
+                    .lore(w.open ? "§7Шифт+ПКМ - §4закрыть" : "§7Шифт+ПКМ - §2открыть")
+                    .lore("§7Клав. Q - §cудалить")
+                    .lore("")
+                    .build(), e -> {
+                        switch (e.getClick()) {
+                            
+                            case LEFT:
+                                wm.tryWarp(p, warpName);
+                                return;
+                                
+                            case RIGHT:
+                                SmartInventory.builder()
+                                    .type(InventoryType.HOPPER)
+                                    .id("WarpSettings"+p.getName()) 
+                                    .provider(new WarpSettings(w))
+                                    .title("§fНастройки "+warpName)
+                                    .build()
+                                    .open(p);
+                                return;
+                                
+                            case SHIFT_RIGHT:
+                                if (!MysqlLocal.useLocalData) {
+                                    p.sendMessage("§eЛокальная БД отключена, действие невозможно.");
+                                    return;
+                                }
+                                wm.changeOpen(warpName);
+                                reopen(p, contents);
+                                return;
+                                
+                            case DROP:
+                                if (!MysqlLocal.useLocalData) {
+                                    p.sendMessage("§eЛокальная БД отключена, действие невозможно.");
+                                    return;
+                                }
+                                ConfirmationGUI.open( p, "§cУдалить место "+warpName+"?", result -> {
+                                    if (result) {
+                                        wm.delWarp(p, warpName);
+                                    }
+                                    reopen(p, contents);
+                                });
+                                return;
+                        }
+
+                    }));  
+                
+            } else {
+
+                menuEntry.add( ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
+                    .name("§f"+warpName)
+                    .lore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец "+w.owner)
+                    .lore(w.descr)
+                    .lore("§7Создан "+ApiOstrov.dateFromStamp(w.create_time))
+                    .lore("")
+                    .lore( w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен" )
+                    .lore("§7Посещений: §b"+w.use_counter)
+                    .lore(w.isPaid() ? "§7Плата за посещение: "+w.use_cost+" лони" : "")
+                    .lore( hasPerm ? "" : "§cнет права warp.use."+warpName)
+                    .lore("")
+                    .lore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
+                    .lore("")
+                    .build(), e -> {
+                        if (e.isLeftClick()) {
+                            wm.tryWarp(p, warpName);
+                        }
+
+                    }));  
+
+                
+            }
+            
+            
+        }
+        
+        
+        
+        
+        
+        if (menuEntry.isEmpty()) {
+            contents.set(2,4, ClickableItem.empty(new ItemBuilder( Material.GLASS_BOTTLE)
+                 .name("§7Доступных мест не найдено!")
+                 .build()));  
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        if (!MysqlLocal.useLocalData) {
+            
+            contents.set( 5, 2,  ClickableItem.empty(new ItemBuilder(Material.HOPPER)
+                .name("§eДобавить серверное место")
+                .lore("§cЛокальная БД отключена,")
+                .lore("§cдобавить новое место")
+                .lore("§сневозможно.")
+                .build()
+            ));
+            
+        } else if (ApiOstrov.isLocalBuilder(p, false)) {
+            
+            contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.HOPPER)
+                .name("§eДобавить серверное место")
+                .lore("§7")
+                .lore("§7Создать общедоступное")
+                .lore("§7место в точке, где вы стоите.")
+                .lore("§7")
+                .lore("§7ЛКМ - создать")
+                .lore("§7")
+                .build(),  "название", msg -> {
+                    final String strip = ChatColor.stripColor(msg);
+                    
+                    if(strip.length()>24 ) {
+                        p.sendMessage("§cЛимит 24 символа!");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    
+                    if (wm.getWarpNames().contains(strip)) {
+                        p.sendMessage("§cМесто с таким названием уже есть!");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    
+                    final Warp warp = new Warp(strip, "ostrov", ApiOstrov.currentTimeSec());
+                    warp.descr = "";
+                    warp.loc = p.getLocation();
+                    warp.system = true;
+                    
+                    wm.saveWarp(p, warp);
+
+                    reopen(p, contents);
+                }));    
+            
+
+        }  else {
+            
+            
+            
+            
+          /*  if (limit==0) {
+                
+                contents.set( 5, 2,  ClickableItem.empty(new ItemBuilder(Material.HOPPER)
+                    .name("§eДобавить серверное место")
+                    .lore("§cДля вышей группы")
+                    .lore("§cне предусмотрена")
+                    .lore("§сустановка мест.")
+                    .build()
+                ));
+                
+            } else if (count>=limit) {
+                
+                contents.set( 5, 2,  ClickableItem.empty(new ItemBuilder(Material.HOPPER)
+                    .name("§eДобавить серверное место")
+                    .lore("§cВы уже создали мест: "+count)
+                    .lore("§cЛимит вашей группы: "+limit)
+                    .lore("§сДобавить невозможно.")
+                    .build()
+                ));
+                
+            } else {*/
+            final int count_ = count;
+            contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.HOPPER)
+                .name("§eДобавить место")
+                .lore("§7")
+                .lore("§cВы уже создали мест: "+count)
+                .lore("§7")
+                .lore("§7Создать частное")
+                .lore("§7место в точке, где вы стоите.")
+                .lore("§7")
+                .lore("§7ЛКМ - создать")
+                .lore("§7")
+                .build(),  "название", msg -> {
+                    
+                    int  limit =  PM.getOplayer(p).getBigestPermValue("warp.set");
+                    if (limit==0) {
+                        p.sendMessage("§cДля вышей группы не предусмотрена установка мест.");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    if (count_>=limit) {
+                        p.sendMessage("§cВы уже создали мест: "+count_+" Лимит вашей группы: "+limit+"§сДобавить невозможно.");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    
+                    final String strip = ChatColor.stripColor(msg);
+                    
+                    if(strip.length()>24 ) {
+                        p.sendMessage("§cЛимит 24 символа!");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    
+                    if (wm.getWarpNames().contains(strip)) {
+                        p.sendMessage("§cМесто с таким названием уже есть!");
+                        Ostrov.soundDeny(p);
+                        return;
+                    }
+                    
+                    final Warp warp = new Warp(strip, p.getName(), ApiOstrov.currentTimeSec());
+                    warp.descr = "";
+                    warp.loc = p.getLocation();
+                    
+                    wm.saveWarp(p, warp);
+
+                    reopen(p, contents);
+                }));                 
+            }
+            
+       // }
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        contents.set( 5, 4,  ClickableItem.of(new ItemBuilder(hideClosed ? Material.LEVER :  Material.REDSTONE_TORCH )
+            .name(hideClosed ? "§eПоказывать выключенные" : "§eСкрыть выключенные")
+            .build(), e -> {
+                if (e.isLeftClick()) {
+                    hideClosed = !hideClosed;
+                    reopen(p, contents);
+                }
+            }));
+
+        contents.set( 5, 5,  ClickableItem.of(new ItemBuilder(hidePaid ? Material.LEVER :  Material.REDSTONE_TORCH)
+            .name(hidePaid ? "§eПоказывать платные" : "§eСкрыть платные")
+            .build(), e -> {
+                if (e.isLeftClick()) {
+                    hidePaid = !hidePaid;
+                    reopen(p, contents);
+                }
+            }));
+
+        contents.set( 5, 6,  ClickableItem.of(new ItemBuilder(hidePrivate ? Material.LEVER : Material.REDSTONE_TORCH)
+            .name(hidePrivate ? "§eПоказывать с правом" : "§eСкрыть с правом")
+            .build(), e -> {
+                if (e.isLeftClick()) {
+                    hidePrivate = !hidePrivate;
+                    reopen(p, contents);
+                }
+            }));
+            
+            
+            
+                
+        
+                
+           /*     
+            case 2:
+                if (Warps.Warp_exist(a[0])) {
+                    if ( ApiOstrov.isLocalBuilder(p, true) || Warps.Get_owner(a[0]).equals(p.getName()) ) {
+                       /* switch (a[1]) {
+                            case "on":
+                            case "off":
+                                boolean on = true;
+                                if (a[1].equals("off")) on = false;
+                                
+                                Warps.Set_open (p, a[0], on);
+                                if (on) p.sendMessage( "§aВы открыли доступ к варпу!" );
+                                else p.sendMessage( "§4Вы закрыли доступ к варпу!" );
+                                return true;
+                            case "del":
+                                Warps.Del_warp(p, a[0]);
+                                p.sendMessage( "§aВы удалили варп "+a[0] );
+                                return true;
+                            default:
+                                p.sendMessage( "§con - открыт, off - заблокировать." );
+                                break;
+                        }
+                    } else p.sendMessage( "§cВы не владелец данного варпа!" );
+                } else p.sendMessage( "§cТакого варпа не существует!" );
+                break;
+              
+                
+                
+                
+           /* case 3:
+                if ( ApiOstrov.isLocalBuilder(p, true) || p.hasPermission("ostrov.setswarp")) {
+                    if (Warps.Warp_exist(a[0])) {
+                        if ( Warps.Get_type(a[0]).equals("server") ) {
+                            if (a[1].equals("cost") ) {
+                                int cost = 0;
+                                if ( CMD.isNumber(a[2]) ) cost = Integer.valueOf( a[2]);
+                                if (cost <0 || cost > 100000) {  p.sendMessage( "§cЦена от 0 до 100000" ); return false; }
+
+                                Warps.Set_cost (p, a[0], cost);
+                                p.sendMessage( "§aДля варпа "+a[0]+" Вы установили плату за посещение "+cost );
+
+                            } else p.sendMessage( "§c/warp <название> cost сумма - установить плату за посещение!" );
+                        } else p.sendMessage( "§cЦену можно установить только для серверных варпов!" );
+                    } else p.sendMessage( "§cТакого варпа не существует!" );
+                } else p.sendMessage("§cУ Вас нет права управлять серверными варпами!");
+                break;*/        
+        
+        
+        
+        
+        
+        
+        
+
+        
+        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        pagination.setItemsPerPage(21);
+        
+        contents.set( 5, 7, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e -> 
+           p.closeInventory()
+        ));
+        
+
+        
+        if (!pagination.isLast()) {
+            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e 
+                    -> contents.getHost().open(p, pagination.next().getPage()) )
+            );
+        }
+
+        if (!pagination.isFirst()) {
+            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e 
+                    -> contents.getHost().open(p, pagination.previous().getPage()) )
+            );
+        }
+        
+        pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
+        
+
+        
+        
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}

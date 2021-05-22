@@ -5,17 +5,17 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 
-
+@Deprecated
 public class BattleModeEndEvent extends Event{
     
     private static HandlerList handlers = new HandlerList();
     private Player player;
-
+@Deprecated
     public BattleModeEndEvent(Player player) {
         this.player = player;
     }
 
-
+@Deprecated
     public Player Get_player() {
         return this.player;
     }   

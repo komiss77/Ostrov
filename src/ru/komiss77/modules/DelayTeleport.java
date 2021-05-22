@@ -64,7 +64,7 @@ public class DelayTeleport {
                     }
                     if (p.getLocation().getBlockX()!=x || p.getLocation().getBlockY()!=y || p.getLocation().getBlockZ()!=z) {
                         this.cancel();
-                        ApiOstrov.sendActionBarDirect(p, "§cТП отменяется!");
+                        ApiOstrov.sendActionBarDirect(p, "§cПеремещение отменяется!");
                         tpData.remove(name);
                         return;
                     }

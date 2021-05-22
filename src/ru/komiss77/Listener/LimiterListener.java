@@ -72,7 +72,7 @@ public final class LimiterListener extends Initiable implements Listener {
 
     
     
-    public LimiterListener(final Ostrov plugin) {
+    public LimiterListener() {
         limiter = this;
         ml_reasons = new ArrayList<>();
         limit_groups = new HashMap<>();

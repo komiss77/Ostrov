@@ -18,6 +18,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.event.inventory.InventoryType;
 import ru.komiss77.ApiOstrov;
@@ -588,22 +593,22 @@ public static void ReloadVars () {
                                 case RED_BED:
                                     if ( !itemname.isEmpty() && PM.OP_GetHomeList(p.getName()).contains(itemname) ) {
                                         p.closeInventory();
-                                    ChatMsgUtil.Send_TextComponent_onclick_run(p, "§e -------->>> Клик сюда, чтобы удалить дом §b"+itemname+" §e<<<-------- ", "§5Клик, чтобы удалить", "/delhome "+itemname );
-                                //TextComponent temp = new TextComponent("§e -------->>> Клик сюда, чтобы удалить дом §b"+itemname+" §e<<<-------- " );
-                                //        temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§5Клик, чтобы удалить").create() ) );
-                                //        temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/delhome "+itemname) );
-                                //        p.spigot().sendMessage( temp);    
+                                    //ChatMsgUtil.Send_TextComponent_onclick_run(p, "§e -------->>> Клик сюда, чтобы удалить дом §b"+itemname+" §e<<<-------- ", "§5Клик, чтобы удалить", "/delhome "+itemname );
+                                        TextComponent temp = new TextComponent("§e -------->>> Клик сюда, чтобы удалить дом §b"+itemname+" §e<<<-------- " );
+                                        temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text("§5Клик, чтобы удалить") ) );
+                                        temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/delhome "+itemname) );
+                                        p.spigot().sendMessage( temp);    
                                     }
                                     break;
                                     
                                 case OAK_FENCE:
                                     if ( !itemname.isEmpty() && !itemname.equals("§5Информация") ) {
                                         p.closeInventory();
-                                        ChatMsgUtil.Send_TextComponent_onclick_run(p, "§e -------->>> Клик сюда, чтобы удалить приват §b"+itemname+" §e<<<-------- ", "§5Клик, чтобы удалить", "/region delete "+itemname );
-                                        //TextComponent temp = new TextComponent("§e -------->>> Клик сюда, чтобы удалить приват §b"+itemname+" §e<<<-------- " );
-                                        //temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§5Клик, чтобы удалить").create() ) );
-                                       // temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/region delete "+itemname) );
-                                       // p.spigot().sendMessage( temp);    
+                                        //ChatMsgUtil.Send_TextComponent_onclick_run(p, "§e -------->>> Клик сюда, чтобы удалить приват §b"+itemname+" §e<<<-------- ", "§5Клик, чтобы удалить", "/region delete "+itemname );
+                                        TextComponent temp = new TextComponent("§e -------->>> Клик сюда, чтобы удалить приват §b"+itemname+" §e<<<-------- " );
+                                        temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text("§5Клик, чтобы удалить") ) );
+                                        temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/region delete "+itemname) );
+                                        p.spigot().sendMessage( temp);    
                                     }
                                     break;
                                     

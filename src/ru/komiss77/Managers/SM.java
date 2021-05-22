@@ -35,7 +35,6 @@ import ru.komiss77.Objects.Arena;
 import ru.komiss77.Objects.CaseInsensitiveMap;
 import ru.komiss77.Objects.S_info;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.version.VM;
 
@@ -62,7 +61,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     public static int bungee_online=0;
     public static boolean send_data, write_server_state_to_bungee_table;
 
-    public SM(Ostrov aThis) {
+    public SM() {
         servers=new CaseInsensitiveMap<>();
         allBungeeServersName=new HashSet<>();
         main_inv=Bukkit.createInventory(null, 54, main_inv_name);
@@ -166,7 +165,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
             PreparedStatement pst = null;
             try {
 //System.out.println("query="+"UPDATE  SET `online`='"+Bukkit.getOnlinePlayers().size()+"',`tps`='"+(int) MinecraftServer.getServer().recentTps[0]+"',`memory`='"+(int)(Runtime.getRuntime().maxMemory()/1024/1024 )+"',`memory_max`='"+(int)(Runtime.getRuntime().totalMemory()/1024/1024)+"',`stamp`='"+Main.Единое_время()+"' WHERE UPPER `id`='"+Main.id+"' ");                
-                pst = OstrovDB.GetConnection().prepareStatement("UPDATE "+Table.BUNGEE_SERVERS.table_name+" SET "
+                pst = ApiOstrov.getOstrovConnection().prepareStatement("UPDATE "+Table.BUNGEE_SERVERS.table_name+" SET "
                         + "`online`='"+Bukkit.getOnlinePlayers().size()+"',"
                         + "`online_max`='"+Bukkit.getMaxPlayers()+"',"
                         //+ "`tps`='"+NmsUtils.getTps()+"',"
@@ -400,10 +399,10 @@ public final class SM extends Initiable implements Listener {   //не пере�
 
 
 
-@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public static void onInventoryClick(InventoryClickEvent e) {
         if (e.getInventory().getType()!=InventoryType.CHEST  || e.getSlot() <0 || e.getSlot() > 53 ) return;
-        if (e.getView().getTitle()==null || !e.getView().getTitle().startsWith(main_inv_name)) return;
+        if (!e.getView().getTitle().startsWith(main_inv_name)) return;
         e.setCancelled(true);
 //System.out.println("1 Click "+main_inv_name);
         if (e.getCurrentItem()==null || e.getCurrentItem().getType()==Material.AIR) return;
@@ -438,9 +437,9 @@ public final class SM extends Initiable implements Listener {   //не пере�
                         
                         if(e.isLeftClick()) {
                             
-                            if (Warps.use && Warps.Warp_exist(si.server)) {
+                            if (Ostrov.getWarpManager().exist(si.server)) {
                                 p.closeInventory();
-                                p.teleport(Warps.Get_loc(si.server));
+                                ApiOstrov.teleportSave(p, Ostrov.getWarpManager().getWarp(si.server).loc, false);
                                 p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 2);
                             } else {
 //System.out.println("openInventory "+si.server);
@@ -498,7 +497,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
                     Statement stmt=null;
                     ResultSet rs = null;
                     try {
-                            stmt = OstrovDB.GetConnection().createStatement(); 
+                            stmt = ApiOstrov.getOstrovConnection().createStatement(); 
                             //S_info s_info;
 //System.out.println(" SELECT `сервер`,`игроки`  FROM "+Table.GAMES_MAIN.table_name+" WHERE `тип` LIKE '"+S_type.SINGLE.toString()+"' AND `штамп` > "+last_check);
                             rs = stmt.executeQuery( " SELECT `сервер`,`игроки`  FROM "+Table.GAMES_MAIN.table_name+" WHERE `тип` LIKE '"+S_type.SINGLE.toString()+"' AND `штамп` > "+last_check ); 
@@ -567,96 +566,85 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
 
     
-    public void on_shut_down() {
-         if (send_data) write(-1, false);
-    }
+    //public void on_shut_down() {
+    //     if (send_data) write(-1);
+    //}
     
     public void on_start() {
-         if (send_data) write(0, true);
+         if (send_data) write(0);
     }
 
-@EventHandler(priority = EventPriority.MONITOR)    
+    @EventHandler(priority = EventPriority.MONITOR)    
     public static void join (PlayerJoinEvent e) {
         if (send_data) {
-            write(PM.getOnlineCount(), true);
+            write(PM.getOnlineCount());
         }
     }
 
-@EventHandler(priority = EventPriority.HIGHEST)    
+    @EventHandler(priority = EventPriority.HIGHEST)    
     public static void leave (PlayerQuitEvent e) {
         if (send_data) {
-            write(PM.getOnlineCount()-1, true); //Oplayer удаляется позже как монитор
+            write(PM.getOnlineCount()-1); //Oplayer удаляется позже как монитор
         }
     }
     
     
 
-    private static void write (final int count, boolean async) {
-        if (async) {
-            new BukkitRunnable(){ 
-            @Override
-            public void run() {
-                write(count);
-            }}.runTaskAsynchronously( Ostrov.GetInstance() );  
-        } else {
-            write(count);
-        }
-    }
     
     //только для SINGLE
     private static void write (final int count ) {
-        
-        if (ApiOstrov.getOstrovConnection()== null) return;
-//System.out.println(" --- write online="+count+" type = "+this_server_type);
-        if (this_server_type==S_type.SINGLE) { //не пишем в GAMES_MAIN, там не будет сервера с таким именем (MULTIPLE - две буквы от названия игры) !
-            
-            try ( 
-                PreparedStatement prepStmt = ApiOstrov.getOstrovConnection().prepareStatement("UPDATE "+Table.GAMES_MAIN.table_name+" SET `игроки` = '"+count+"',`штамп` = '"+Timer.currentTimeSec()+"' WHERE "+Table.GAMES_MAIN.table_name+".`сервер` LIKE '"+this_server_name+"' " )
-                )
-            {
-                prepStmt.executeUpdate();
-                prepStmt.close();
+        Ostrov.async(()-> {
+            //if (ApiOstrov.getOstrovConnection()== null) return;
+    //System.out.println(" --- write online="+count+" type = "+this_server_type);
+            if (this_server_type==S_type.SINGLE) { //не пишем в GAMES_MAIN, там не будет сервера с таким именем (MULTIPLE - две буквы от названия игры) !
 
-            } catch (SQLException e) {
-                Ostrov.log_err("§сSign write - "+e.getMessage());
-                //e.printStackTrace();
+                try ( 
+                    PreparedStatement prepStmt = ApiOstrov.getOstrovConnection().prepareStatement("UPDATE "+Table.GAMES_MAIN.table_name+" SET `игроки` = '"+count+"',`штамп` = '"+Timer.currentTimeSec()+"' WHERE "+Table.GAMES_MAIN.table_name+".`сервер` LIKE '"+this_server_name+"' " )
+                    )
+                {
+                    prepStmt.executeUpdate();
+                    prepStmt.close();
+
+                } catch (SQLException e) {
+                    Ostrov.log_err("§сSign write - "+e.getMessage());
+                    //e.printStackTrace();
+                }
+
+            } else if (this_server_name.startsWith("lobby")) { //для лобби!
+                writeArenaStateToMySql(this_server_name+"<:>any", count, this_server_bungee_description, UniversalArenaState.РАБОТАЕТ);
+               /* try ( 
+                    PreparedStatement prepStmt = ApiOstrov.getOstrovConnection().prepareStatement("INSERT INTO "+Table.GAMES_ARENAS.table_name+" ( "
+                            + "`арена`, "
+                            + "`состояние`, "
+                            + "`игроки`, "
+                            + "`данные`, "
+                            + "`штамп` ) VALUES "
+                            + " ( ?, ?, ?, ?, ? ) "+
+                            "ON DUPLICATE KEY UPDATE "
+                            + "игроки=VALUES(игроки), "
+                            + "данные=VALUES(данные), "
+                            + "состояние=VALUES(состояние), "
+                            + "штамп=VALUES(штамп)" )
+                    )
+                {
+                    prepStmt.setString(1, this_server_name+"<:>any<:>");
+                    prepStmt.setInt(2, count);
+                    prepStmt.setString(3, this_server_bungee_description);
+                    prepStmt.setInt(4, 15);
+                    prepStmt.setLong(5, Timer.Единое_время()+249 ); //для  надёжности, пусть прогрузит 2 раза
+
+                    prepStmt.executeUpdate();
+                    prepStmt.close();
+
+
+
+                } catch (SQLException e) {
+                    Ostrov.log_err("§сSaveNew error - "+e.getMessage());
+                    //e.printStackTrace();
+                }*/
+
             }
-            
-        } else if (this_server_name.startsWith("lobby")) { //для лобби!
-            writeArenaStateToMySql(this_server_name+"<:>any", count, this_server_bungee_description, UniversalArenaState.РАБОТАЕТ);
-           /* try ( 
-                PreparedStatement prepStmt = ApiOstrov.getOstrovConnection().prepareStatement("INSERT INTO "+Table.GAMES_ARENAS.table_name+" ( "
-                        + "`арена`, "
-                        + "`состояние`, "
-                        + "`игроки`, "
-                        + "`данные`, "
-                        + "`штамп` ) VALUES "
-                        + " ( ?, ?, ?, ?, ? ) "+
-                        "ON DUPLICATE KEY UPDATE "
-                        + "игроки=VALUES(игроки), "
-                        + "данные=VALUES(данные), "
-                        + "состояние=VALUES(состояние), "
-                        + "штамп=VALUES(штамп)" )
-                )
-            {
-                prepStmt.setString(1, this_server_name+"<:>any<:>");
-                prepStmt.setInt(2, count);
-                prepStmt.setString(3, this_server_bungee_description);
-                prepStmt.setInt(4, 15);
-                prepStmt.setLong(5, Timer.Единое_время()+249 ); //для  надёжности, пусть прогрузит 2 раза
-
-                prepStmt.executeUpdate();
-                prepStmt.close();
-
-
-
-            } catch (SQLException e) {
-                Ostrov.log_err("§сSaveNew error - "+e.getMessage());
-                //e.printStackTrace();
-            }*/
-
-        }
-        
+        },0 );  
     }
     
     
@@ -669,153 +657,134 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
  public static void loadServersAndArenas() {
 
-    if (ApiOstrov.getOstrovConnection()== null) return;
-    
-    new BukkitRunnable(){ 
-      @Override
-        public void run() {
+    Ostrov.async(()-> {
+            
         Statement stmt = null;
         ResultSet rs = null;
-                try {
-                    stmt =OstrovDB.GetConnection().createStatement();
-                        
-/*                    rs = stmt.executeQuery( "SELECT `id`, `motd`, `type`, `logo` FROM "+Table.BUNGEE_SERVERS.table_name+" WHERE  `name`='"+this_server_name+"' AND `type` NOT LIKE 'NONE'" );
-                    if (rs.next()) {
-                        Ostrov.server_id = rs.getInt("id");
-                        this_server_bungee_description = rs.getString("motd");
-                        this_server_bungee_logo = rs.getString("logo");
-System.out.print(" ----- this_server_bungee_description="+this_server_bungee_description+" this_server_bungee_logo="+this_server_bungee_logo);
-                        if (rs.getString("motd").equalsIgnoreCase("LOBBY")) this_server_type=S_type.LOBBY;
-                        Ostrov.log_ok("§bИД сервера = "+Ostrov.server_id+". Запись состояния в таблицу каждые 10 секунд.");
-                    } else Ostrov.log_ok("§eИД сервера для имени "+this_server_name+" не получен, состояние сервера в таблицу писаться не будет.");
- */                   
-                    
-                    
-                        S_info s_info;
-                        rs = stmt.executeQuery( " SELECT *  FROM "+Table.GAMES_MAIN.table_name ); 
-                            while (rs.next()) {
-                                //if (!rs.getString("сервер").isEmpty()) разделы.put(rs.getString("сервер"), rs.getString("раздел")); //для быстрого обновления по event
-                                s_info=new S_info(
-                                    S_type.valueOf(rs.getString("тип")),
-                                    rs.getString("сервер"),
-                                    rs.getString("уровень"),
-                                    rs.getString("имя").replaceAll("&", "§"),
-                                    rs.getString("описание").replaceAll("&", "§"),
-                                    rs.getInt("позиция"),
-                                    rs.getString("предмет"),
-                                    rs.getInt("игроки")
-                                );
-                                servers.put(rs.getString("сервер"), s_info);
-                                
-                                if (rs.getString("сервер").equalsIgnoreCase(this_server_name)) { //определяем тип, если мотд совпадает с назв.игры
-                                    this_server_type=S_type.SINGLE;
-                                } 
-                                
-                                if (rs.getString("тип").equalsIgnoreCase(S_type.SINGLE.toString())) allBungeeServersName.add(rs.getString("сервер"));
-                            }
-                        rs.close();
-                        
-                        rs = stmt.executeQuery( " SELECT *  FROM "+Table.GAMES_ARENAS.table_name+" " ); 
-                        
-                        Arena arena;
-                        String arena_name;
-                        
-                            while (rs.next()) {
-                                for (String si:servers.keySet()) {
-                                    if (servers.get(si).type==S_type.MULTIPLE && rs.getString("арена").startsWith(servers.get(si).server)) {
+        try {
+            stmt =ApiOstrov.getOstrovConnection().createStatement();
+            S_info s_info;
+            rs = stmt.executeQuery( " SELECT *  FROM "+Table.GAMES_MAIN.table_name ); 
+            while (rs.next()) {
+                //if (!rs.getString("сервер").isEmpty()) разделы.put(rs.getString("сервер"), rs.getString("раздел")); //для быстрого обновления по event
+                s_info=new S_info(
+                    S_type.valueOf(rs.getString("тип")),
+                    rs.getString("сервер"),
+                    rs.getString("уровень"),
+                    rs.getString("имя").replaceAll("&", "§"),
+                    rs.getString("описание").replaceAll("&", "§"),
+                    rs.getInt("позиция"),
+                    rs.getString("предмет"),
+                    rs.getInt("игроки")
+                );
+                servers.put(rs.getString("сервер"), s_info);
+
+                if (rs.getString("сервер").equalsIgnoreCase(this_server_name)) { //определяем тип, если мотд совпадает с назв.игры
+                    this_server_type=S_type.SINGLE;
+                } 
+
+                if (rs.getString("тип").equalsIgnoreCase(S_type.SINGLE.toString())) allBungeeServersName.add(rs.getString("сервер"));
+            }
+            rs.close();
+
+            rs = stmt.executeQuery( " SELECT *  FROM "+Table.GAMES_ARENAS.table_name+" " ); 
+
+            Arena arena;
+            String arena_name;
+
+            while (rs.next()) {
+                for (String si:servers.keySet()) {
+                    if (servers.get(si).type==S_type.MULTIPLE && rs.getString("арена").startsWith(servers.get(si).server)) {
 //System.out.println("load si="+si+" rs.getString(арена)= "+rs.getString("арена")+" arenas="+servers.get(si).arenas);
-                                        arena_name=rs.getString("арена").split("<:>")[1];
-                                        if (arena_name.isEmpty()) arena_name="any";
-                                        
-                                        arena = new Arena(
-                                            servers.get(si),
-                                            servers.get(si).getArenaCount(),
-                                            rs.getString("арена").split("<:>")[0], //server
-                                            arena_name,
-                                            UniversalArenaState.fromString(rs.getString("состояние")),    
-                                            rs.getInt("игроки"),
-                                            rs.getString("данные").replaceAll("&", "§"),
-                                            rs.getString("требования"),
-                                            rs.getString("предмет")
-                                        );
-                                        servers.get(si).addArena(arena_name, arena);
-                                        allBungeeServersName.add(rs.getString("арена").split("<:>")[0]);
-                                        
-                                        //if (arena.server.equalsIgnoreCase(this_server_name)) { //прилепил для лобби
-                                       //     this_server_type=S_type.MULTIPLE;
-                                        //    this_server_lines = rs.getString("строки").replaceAll("&", "§");
-                                       // } 
-                                        break;
-                                    }
-                                }
-                                
-                            }
-                            
-                        rs.close();
-                        stmt.close();
-                
-                        Ostrov.log_ok("§2Таблица серверов загружена! Запуск таймера.");
-                        startSinfoTimers();
-                        
-                    } catch (SQLException ex) { 
-                        Ostrov.log_err("§4Не удалось загрузить таблицу серверов! "+ex.getMessage());
-                    } finally {
-                        try{
-                            if (rs!=null) rs.close();
-                            if (stmt!=null) stmt.close();
-                        } catch (SQLException ex) {
-                            Ostrov.log_err("§c Load_servers close err ex="+ex.getMessage());
-                        }
+                        arena_name=rs.getString("арена").split("<:>")[1];
+                        if (arena_name.isEmpty()) arena_name="any";
+
+                        arena = new Arena(
+                            servers.get(si),
+                            servers.get(si).getArenaCount(),
+                            rs.getString("арена").split("<:>")[0], //server
+                            arena_name,
+                            UniversalArenaState.fromString(rs.getString("состояние")),    
+                            rs.getInt("игроки"),
+                            rs.getString("данные").replaceAll("&", "§"),
+                            rs.getString("требования"),
+                            rs.getString("предмет")
+                        );
+                        servers.get(si).addArena(arena_name, arena);
+                        allBungeeServersName.add(rs.getString("арена").split("<:>")[0]);
+
+                        //if (arena.server.equalsIgnoreCase(this_server_name)) { //прилепил для лобби
+                       //     this_server_type=S_type.MULTIPLE;
+                        //    this_server_lines = rs.getString("строки").replaceAll("&", "§");
+                       // } 
+                        break;
                     }
-    
+                }
+
+            }
+
+            rs.close();
+            stmt.close();
+
+            Ostrov.log_ok("§2Таблица серверов загружена! Запуск таймера.");
+            startSinfoTimers();
+
+        } catch (SQLException ex) { 
+            Ostrov.log_err("§4Не удалось загрузить таблицу серверов! "+ex.getMessage());
+        } finally {
+            try{
+                if (rs!=null) rs.close();
+                if (stmt!=null) stmt.close();
+            } catch (SQLException ex) {
+                Ostrov.log_err("§c Load_servers close err ex="+ex.getMessage());
+            }
+        }
+
                 
-        }}.runTaskAsynchronously( Ostrov.instance );   
+        }, 0);
     
     }
     
     
  public static void getBungeeServerInfo() {
 
-    if (ApiOstrov.getOstrovConnection()== null) return;
-    
-    new BukkitRunnable(){
-      @Override
-        public void run() {
+    Ostrov.async(()-> {
+            
         Statement stmt = null;
         ResultSet rs = null;
-                try {
-                    stmt =OstrovDB.GetConnection().createStatement();
-                        
-                    rs = stmt.executeQuery( "SELECT `id`, `motd`, `type`, `logo` FROM "+Table.BUNGEE_SERVERS.table_name+" WHERE  `name`='"+this_server_name+"' AND `type` NOT LIKE 'NONE'" );
-                    if (rs.next()) {
-                        Ostrov.server_id = rs.getInt("id");
-                        this_server_bungee_description = rs.getString("motd");
-                        this_server_bungee_logo = rs.getString("logo");
-//System.out.print(" ----- this_server_bungee_description="+this_server_bungee_description+" this_server_bungee_logo="+this_server_bungee_logo);
-                        if (rs.getString("motd").equalsIgnoreCase("LOBBY")) this_server_type=S_type.LOBBY;
-                        Ostrov.log_ok("§bИД сервера = "+Ostrov.server_id+". Запись состояния в таблицу каждые 10 секунд.");
-                    } else Ostrov.log_ok("§eИД сервера для имени "+this_server_name+" не получен, состояние сервера в таблицу писаться не будет.");
-                    
-                    
+        try {
+            stmt =ApiOstrov.getOstrovConnection().createStatement();
 
-                            
-                        rs.close();
-                        stmt.close();
-                
-                        
-                    } catch (SQLException ex) { 
-                        Ostrov.log_err("§4Не удалось загрузить BungeeServerInfo! "+ex.getMessage());
-                    } finally {
-                        try{
-                            if (rs!=null) rs.close();
-                            if (stmt!=null) stmt.close();
-                        } catch (SQLException ex) {
-                            Ostrov.log_err("§c BungeeServerInfo close err ex="+ex.getMessage());
-                        }
-                    }
+            rs = stmt.executeQuery( "SELECT `id`, `motd`, `type`, `logo` FROM "+Table.BUNGEE_SERVERS.table_name+" WHERE  `name`='"+this_server_name+"' AND `type` NOT LIKE 'NONE'" );
+            if (rs.next()) {
+                Ostrov.server_id = rs.getInt("id");
+                this_server_bungee_description = rs.getString("motd");
+                this_server_bungee_logo = rs.getString("logo");
+//System.out.print(" ----- this_server_bungee_description="+this_server_bungee_description+" this_server_bungee_logo="+this_server_bungee_logo);
+                if (rs.getString("motd").equalsIgnoreCase("LOBBY")) this_server_type=S_type.LOBBY;
+                Ostrov.log_ok("§bИД сервера = "+Ostrov.server_id+". Запись состояния в таблицу каждые 10 секунд.");
+            } else Ostrov.log_ok("§eИД сервера для имени "+this_server_name+" не получен, состояние сервера в таблицу писаться не будет.");
+
+
+
+
+                rs.close();
+                stmt.close();
+
+
+            } catch (SQLException ex) { 
+                Ostrov.log_err("§4Не удалось загрузить BungeeServerInfo! "+ex.getMessage());
+            } finally {
+                try{
+                    if (rs!=null) rs.close();
+                    if (stmt!=null) stmt.close();
+                } catch (SQLException ex) {
+                    Ostrov.log_err("§c BungeeServerInfo close err ex="+ex.getMessage());
+                }
+            }
     
                 
-        }}.runTaskAsynchronously( Ostrov.instance );   
+        }, 0);
     
     }
     

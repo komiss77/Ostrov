@@ -41,6 +41,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -400,11 +402,11 @@ public class PlayerListener implements Listener {
     
     @EventHandler( priority = EventPriority.HIGHEST )
     public void onBungeeDataRecieved (BungeeDataRecieved e) {
-        if (PM.exist(e.getPlayer().getName())) {
-            PM.getOplayer(e.getPlayer().getName()).loadLocalData();
+        final Player p = e.getPlayer();
+        if (PM.exist(p.getName())) {
+            PM.getOplayer(p.getName()).loadLocalData();
         }
-        if (e.getPlayer().hasPermission("builder") || ApiOstrov.hasGroup(e.getPlayer().getName(), "supermoder")) {
-            final Player p = e.getPlayer();
+        if (ApiOstrov.canBeBuilder(p)) {
             p.sendMessage("§f* У Вас есть право §eСтроителя §fна этом сервере.");
             TextComponent msg = new TextComponent( "§a>>>> §fклик сюда - выполнить команду /builder §a<<<<" );
             HoverEvent he = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§aвключить гм1 и открыть меню строителя"));
@@ -481,7 +483,20 @@ public class PlayerListener implements Listener {
         } 
     }
     
-    
+    @EventHandler(ignoreCancelled = true,priority=EventPriority.LOWEST)
+    public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent e)
+    {
+        if( PlayerListener.disable_break_place && e.getRightClicked().getType() ==EntityType.ARMOR_STAND && !e.getPlayer().isOp() ) e.setCancelled(true);
+    }
+
+
+   
+
+    @EventHandler(ignoreCancelled = true,priority=EventPriority.LOWEST)
+    public void PlayerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e){
+        if ( PlayerListener.disable_break_place && !e.getPlayer().isOp()) e.setCancelled(true);
+    }    
+        
     
 //---------------------------------------------------
        

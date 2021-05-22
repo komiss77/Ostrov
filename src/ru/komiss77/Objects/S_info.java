@@ -76,9 +76,10 @@ public class S_info {
         
         lore.set(0,"§7Игроки: "+players);
         
-        if (type==S_type.SINGLE) lore.set(2,"§a⊳ Клик - перейти на сервер"); //line 1-4+разделитель
-        else {
-            if (Warps.use && Warps.Warp_exist(server)) {
+        if (type==S_type.SINGLE) {
+            lore.set(2,"§a⊳ Клик - перейти на сервер");//line 1-4+разделитель
+        } else {
+            if (Ostrov.getWarpManager().exist(server)) {
                 lore.set(1,"§a  Лев.клик - к табличкам");
                 lore.set(2,"§a⊳ Прав.клик - выбрать арену"); //line 1-4+разделитель
             } else {

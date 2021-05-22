@@ -142,17 +142,17 @@ public static void LoadVars() {
 
     
     
-public static void Init() {
-    homes_per_group = new HashMap<String, Integer>() {} ;
-    LoadVars();
-    
-}
-
-public static void ReLoadVars() {
-    homes_per_group.clear();
+    public static void Init() {
+        homes_per_group = new HashMap<String, Integer>() {} ;
         LoadVars();
+
     }
-    
+
+    public static void ReLoadVars() {
+        homes_per_group.clear();
+        LoadVars();
+        }
+
  
 
 
@@ -478,8 +478,8 @@ switch (label) {
     case "spawn":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
             if ( spawn_command ){
-                if (Warps.Warp_exist("spawn")) {
-                    ApiOstrov.teleportSave(p, Warps.Get_loc("spawn"), true);
+                if (Ostrov.getWarpManager().exist("spawn")) {
+                    ApiOstrov.teleportSave(p, Ostrov.getWarpManager().getWarp("spawn").loc, true);
                 //p.performCommand("warp spawn");
             } else {
                 ApiOstrov.teleportSave(p, Bukkit.getWorlds().get(0).getSpawnLocation(), true);
@@ -539,7 +539,7 @@ switch (label) {
      case "gm":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
             //if ( gm_command ){
-                if ( (gm_command && p.hasPermission("ostrov.gm")) || (p.hasPermission("builder") || ApiOstrov.hasGroup(p.getName(), "supermoder")) ) {
+                if ( (gm_command && p.hasPermission("ostrov.gm")) || ApiOstrov.canBeBuilder(p) )  {
                     if (arg.length == 1) {
                             switch (arg[0]) {
                                 case "0":

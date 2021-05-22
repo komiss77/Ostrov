@@ -46,7 +46,7 @@ public final class LobbyItems extends Initiable implements Listener {
     private final Map<String,SpecItem>items;
     public boolean item_lobby_mode;
     
-    public LobbyItems(Ostrov plugin) {
+    public LobbyItems() {
         items = new HashMap<>();
         reload();
     }

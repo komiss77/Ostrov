@@ -1,89 +1,45 @@
 package ru.komiss77.Objects;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 
 public class Warp {
     
-    String type;
-    String owner;
-    String desc;
-    Location loc;
-    boolean open;
-    boolean need_perm;
-    int cost;
-    int counter;
-    int created;
+    public final String warpName;
+    public final String owner;
+    public Material dispalyMat = Material.ENDER_PEARL;
+    public String descr;
+    public Location loc;
+    public boolean system = false;
+    public boolean open = true;
+    public boolean need_perm = false;
+    public int use_cost = 0;
+    public int use_counter = 0;
+    public final int create_time;
 
-    public Warp(String name, String type, String owner, String desc, Location loc, boolean open, boolean need_perm, int use_cost, int counter, int create_time) {
-
-        this.type = type;
+    
+    public Warp(final String warpName, final String owner, final int create_time) {
+        this.warpName = warpName;
         this.owner = owner;
-        this.desc = desc;
-        this.loc = loc;
-        this.open = open;
-        this.need_perm = need_perm;
-        this.cost = use_cost;
-        this.counter = counter;
-        this.created = create_time;
-                
+        this.create_time = create_time;
     }
 
-    public String Get_type() {
-        return this.type;
+
+
+    public boolean isOwner(final Player p) {
+        return owner.equalsIgnoreCase(p.getName());
     }
 
-    public String Get_owner() {
-        return this.owner;
+    public boolean isPaid() {
+        return use_cost>0;
     }
 
-    public String Get_desc() {
-        return this.desc;
-    }
-
-    public Location Get_loc() {
-        return this.loc;
-    }
-
-    public boolean Is_open() {
-        return this.open;
-    }
-
-    public boolean Need_perm() {
-        return this.need_perm;
-    }
-
-    public int Get_cost() {
-        return this.cost;
-    }
-
-    public int Get_counter() {
-        return this.counter;
-    }
- 
-    public int Get_createtime() {
-        return this.created;
-    }
 
     
     
-    
-    
-    public void Set_open(boolean on) {
-        this.open = on;
-    }
 
-    public void Set_cost(int cost) {
-        this.cost = cost;
-    }
-
-    public void Add_count() {
-        this.counter++;
-    }
- 
-    
-    
-    
     
     
     

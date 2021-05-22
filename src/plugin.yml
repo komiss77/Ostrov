@@ -49,10 +49,6 @@ permissions:
 
 
 commands:
-  builder:
-    description: режим строителя
-  sound:
-    description: звуки
   ohelp:
     description: Помощь постранично
   menu:
@@ -84,11 +80,7 @@ commands:
   pvp:
     description: Управление режимом ПВП
   warp:
-    description: Варпы
-  setwarp:
-    description: Установить варп
-  setswarp:
-    description: Установить серверный варп
+    description: Места. warp.set.x - разрешает установку х точек.
   top:
     description: Переместиться в высшую над вами точку
   kit:
@@ -101,6 +93,8 @@ commands:
     description: Информация об игроке
   passport:
     description: Просмотр паспорта игрока
+  report:
+    description: Заявить о нарушении
     
     
   back:
@@ -121,12 +115,16 @@ commands:
     description: Телепорт игрока к себе <moder>
   gm:
     description: Управление игровым режимом <moder>
+    
+    
   invsee:
     description: Просмотр инвентаря. /invsee <ник> [armor/ender] <moder>
   spy:
     description: Режим шпиона <moder>
-    
-    
+  builder:
+    description: режим строителя
+  sound:
+    description: звуки
   nbtfind:
     description: Просканировать инвентарь игроков на нбт-тэги <moder>
     usage: '/nbtfind [material] (all-любой)'

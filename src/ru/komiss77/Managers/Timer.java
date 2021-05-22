@@ -29,6 +29,7 @@ import ru.komiss77.utils.ntptime.TimeInfo;
 public class Timer {
     
     private static BukkitTask timer=null;
+    private long counter;
 
     private static boolean auto_restart;
     private static String restart_time;
@@ -38,10 +39,10 @@ public class Timer {
     private static int rp_int;
 
     private static ConcurrentHashMap <Integer, Integer> cd;
+    public static Set <Integer> timer_keyset;
     public static ConcurrentHashMap <String, DelayActionBar> delay_actionbars;
     public static ConcurrentHashMap <String, DelayTitle> delay_titles;
     public static ConcurrentHashMap <String, DelayBossBar> delay_bossbars;
-    public static Set <Integer> timer_keyset;
 
     private static int time_delta;
     private static int currentTime = (int) (System.currentTimeMillis()/1000);
@@ -114,121 +115,121 @@ public static void LoadVars() {
 
         if (timer != null) timer.cancel();
 
-            timer =  new BukkitRunnable() {
+        timer =  new BukkitRunnable() {
 
-                int i = rp_int*60;
-                boolean to_restart = false;
-                int time_left = 300;
-                int server_update=0;
-                
-                    @Override
-                    public void run() {
-                        
-                        currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
+            int i = rp_int*60;
+            boolean to_restart = false;
+            int time_left = 300;
+            int server_update=0;
 
-                        if (auto_restart) {
-    //System.out.println("рестарт: "+rs+" конфиг: "+restart_time+" время: "+Current_time()+" equals:"+(restart_time.equals(Current_time()) ));
-                            if (rs == 60) {
-                                rs=0;
-                                if (restart_time.equals(Current_time())) {
-                                    to_restart=true;
-                                    auto_restart = false;
-                                    
+                @Override
+                public void run() {
 
-                                }
-                            }
-                            rs+=1;
-                        } 
-                        if (to_restart) {
-                            if (time_left==300) {
-                                Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
-                            }
-                            if (time_left==300 || time_left==180 || time_left==120 || time_left==60) Bukkit.broadcastMessage("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!");
-                            if (time_left==0) Bukkit.shutdown();
-                            time_left-=1;
-                        }
+                    currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
+
+                    if (auto_restart) {
+//System.out.println("рестарт: "+rs+" конфиг: "+restart_time+" время: "+Current_time()+" equals:"+(restart_time.equals(Current_time()) ));
+                        if (rs == 60) {
+                            rs=0;
+                            if (restart_time.equals(Current_time())) {
+                                to_restart=true;
+                                auto_restart = false;
 
 
-
-                        if (perms_autoupdate) {
-                            i--;
-    //System.out.println("rp " +i);
-                            if (i == 0) {
-                                i=rp_int*60;
-                                try {
-                                    OstrovDB.loadGroups();
-                                } catch (Exception ex) {
-                                    Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
-                                }
                             }
                         }
-
-                        
-                        try {
-                            if (!delay_actionbars.isEmpty()) {
-                                delay_actionbars.values().stream().forEach((ab) -> {
-                                    ab.DoTick();
-                                });
-                            }
-                            if (!delay_titles.isEmpty()) {
-                                delay_titles.values().stream().forEach((ti) -> {
-                                    ti.DoTick();
-                                });
-                            }
-                            if (!delay_bossbars.isEmpty()) {
-                                delay_bossbars.values().stream().forEach((bb) -> {
-                                    bb.DoTick();
-                                });
-                            }
-                        } catch (Exception ex) {
-                            Ostrov.log_err("Timer delay action/title/bossbar : "+ex.getMessage());
+                        rs+=1;
+                    } 
+                    if (to_restart) {
+                        if (time_left==300) {
+                            Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
+                        if (time_left==300 || time_left==180 || time_left==120 || time_left==60) Bukkit.broadcastMessage("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!");
+                        if (time_left==0) Bukkit.shutdown();
+                        time_left-=1;
+                    }
 
-                        try {
-                            timer_keyset.clear();
-                            timer_keyset.addAll(cd.keySet());
-                            timer_keyset.stream().forEach( (key) -> {
-                                int sec_left = cd.get(key);
-                                sec_left--;
-                                if (sec_left<=0) cd.remove(key);
-                                else cd.put(key, sec_left);
+
+
+                    if (perms_autoupdate) {
+                        i--;
+//System.out.println("rp " +i);
+                        if (i == 0) {
+                            i=rp_int*60;
+                            try {
+                                OstrovDB.loadGroups();
+                            } catch (Exception ex) {
+                                Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
+                            }
+                        }
+                    }
+
+
+                    try {
+                        if (!delay_actionbars.isEmpty()) {
+                            delay_actionbars.values().stream().forEach((ab) -> {
+                                ab.DoTick();
                             });
-                        } catch (Exception ex) {
-                            Ostrov.log_err("Timer timer_keyset : "+ex.getMessage());
                         }
-     //System.out.println("cd: "+cd);                    
-    //System.out.println("delay_actionbars : " +delay_actionbars.keySet());
-    //System.out.println("delay_titles : " +delay_titles);
-    //System.out.println("delay_bossbar : " +delay_bossbars);
-                        try {
-                            PM.tickOplayers();
-                        } catch (Exception ex) {
-                            Ostrov.log_err("Timer tickOplayers : "+ex.getMessage());
+                        if (!delay_titles.isEmpty()) {
+                            delay_titles.values().stream().forEach((ti) -> {
+                                ti.DoTick();
+                            });
                         }
-                        
+                        if (!delay_bossbars.isEmpty()) {
+                            delay_bossbars.values().stream().forEach((bb) -> {
+                                bb.DoTick();
+                            });
+                        }
+                    } catch (Exception ex) {
+                        Ostrov.log_err("Timer delay action/title/bossbar : "+ex.getMessage());
+                    }
 
-                        if (SM.write_server_state_to_bungee_table) {
-                            server_update++;
-                            if (server_update==5) {
-                                server_update=0;
-                                    try {
-                                        SM.writeThisServerStateToOstrovDB();
-                                    } catch (Exception ex) {
-                                        Ostrov.log_err("Timer updServerState : "+ex.getMessage());
-                                    }
+                    try {
+                        timer_keyset.clear();
+                        timer_keyset.addAll(cd.keySet());
+                        timer_keyset.stream().forEach( (key) -> {
+                            int sec_left = cd.get(key);
+                            sec_left--;
+                            if (sec_left<=0) cd.remove(key);
+                            else cd.put(key, sec_left);
+                        });
+                    } catch (Exception ex) {
+                        Ostrov.log_err("Timer timer_keyset : "+ex.getMessage());
+                    }
+ //System.out.println("cd: "+cd);                    
+//System.out.println("delay_actionbars : " +delay_actionbars.keySet());
+//System.out.println("delay_titles : " +delay_titles);
+//System.out.println("delay_bossbar : " +delay_bossbars);
+                    try {
+                        PM.tickOplayers();
+                    } catch (Exception ex) {
+                        Ostrov.log_err("Timer tickOplayers : "+ex.getMessage());
+                    }
+
+
+                    if (SM.write_server_state_to_bungee_table) {
+                        server_update++;
+                        if (server_update==5) {
+                            server_update=0;
+                                try {
+                                    SM.writeThisServerStateToOstrovDB();
+                                } catch (Exception ex) {
+                                    Ostrov.log_err("Timer updServerState : "+ex.getMessage());
                                 }
-                        }
-                            
-                            
-                        try {
-                            Informator.tick();
-                        } catch (Exception ex) {
-                            Ostrov.log_err("Timer Informator.tick : "+ex.getMessage());
-                        }
-                        
+                            }
+                    }
 
 
-                    }}.runTaskTimer(Ostrov.instance, 20, 20);
+                    try {
+                        Informator.tick();
+                    } catch (Exception ex) {
+                        Ostrov.log_err("Timer Informator.tick : "+ex.getMessage());
+                    }
+
+
+
+                }}.runTaskTimer(Ostrov.instance, 20, 20);
 
         }
 

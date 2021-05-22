@@ -83,7 +83,7 @@ public final class Pandora extends Initiable implements Listener {
     
     
     
-    public Pandora(Ostrov instance) {
+    public Pandora() {
         pandoras=new HashMap<>();
         last_cmd=Timer.currentTimeSec();
         clicked=new HashSet<>();

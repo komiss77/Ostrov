@@ -31,11 +31,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
-import ru.komiss77.Events.BattleModeEvent;
 import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Listener.PlayerListener;
 import ru.komiss77.Managers.PM;
-import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.Ostrov;
 import ru.komiss77.version.IEntityGroup.EntityGroup;
 import ru.komiss77.version.VM;
@@ -217,20 +215,34 @@ public class Pvp implements Listener, CommandExecutor {
 
 
     @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST )
-    public void EntityDamageByEntityEvent (EntityDamageByEntityEvent e){
+    public void EntityDamageByEntityEvent (EntityDamageByEntityEvent e) {
         if (!e.getEntityType().isAlive() || e.getEntityType()==EntityType.ARMOR_STAND) return;   //не обрабатывать урон рамкам, опыту и провее
-        
-        //if ( Type.valueOf(e.getEntityType().toString()).getMeta()==NMSUtils.MobMeta.UNDEFINED ) return; //не обрабатывать урон рамкам, опыту и провее
-        
-        if (PlayerListener.disable_damage){
-            e.setCancelled(true);
-            return;
-        }
+//System.out.println("EDBE: cause="+e.getCause()+" entity="+e.getEntity()+" damager="+e.getDamager());
 
-        boolean cancel=Проверка_режима_пвп(e.getDamager(), e.getEntity(), e.getCause());
-        if (cancel) {
-            e.setCancelled(true);
-        } 
+        switch (e.getCause()) {
+            case DRAGON_BREATH:
+            case ENTITY_ATTACK:
+            case ENTITY_EXPLOSION:
+            case MAGIC:
+            case PROJECTILE:
+            case WITHER:
+                break;
+            default:
+                return;
+        }
+        //if ( Type.valueOf(e.getEntityType().toString()).getMeta()==NMSUtils.MobMeta.UNDEFINED ) return; //не обрабатывать урон рамкам, опыту и провее
+        //if ( e.getEntityType()==EntityType.PLAYER || e.getDamager().getType()==EntityType.PLAYER) {
+            if (PlayerListener.disable_damage){
+                e.setCancelled(true);
+                return;
+            }
+
+            boolean cancel=Проверка_режима_пвп(e.getDamager(), e.getEntity(), e.getCause());
+            if (cancel) {
+                e.setCancelled(true);
+            } 
+        //}
+
     }        
 
 
@@ -251,7 +263,7 @@ public class Pvp implements Listener, CommandExecutor {
         
     }
     
-
+/*
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public static void BattleModeEvent( BattleModeEvent e) {
 //System.out.println("333333333333 canceled?"+e.Is_canceled());                
@@ -272,7 +284,7 @@ public class Pvp implements Listener, CommandExecutor {
                 //if (PM.pvp_tag) PM.OP_pvp_display_tag(e.Get_target_entity().getName(), 3);     //pvp mode
             }
         }
-    }
+    }*/
     
     
     
@@ -283,9 +295,7 @@ public class Pvp implements Listener, CommandExecutor {
         final Player p = e.getEntity();
         PM.OP_Set_back_location(p.getName(), p.getLocation());
         if (PM.inBattle(p.getName()) && pvp_drop_inv_inbattle) {            //дроп инвентаря
-            
-            /*
-            Лут образуется только когда в настройках мира KeepInventory off !!
+        /* Лут образуется только когда в настройках мира KeepInventory off !!
             вот код сервера:
                 boolean keepInventory;
                 ArrayList<Object> loot = new ArrayList<Object>(this.inventory.getSize());
@@ -302,16 +312,6 @@ public class Pvp implements Listener, CommandExecutor {
                 this.drops.clear();
                 PlayerDeathEvent event = CraftEventFactory.callPlayerDeathEvent((EntityPlayer)this, loot, (String)deathmessage, (boolean)keepInventory);
             */
-            
-            //System.out.println("dropInv>>");
-            //for (ItemStack item : p.getInventory().getContents()) {
-            //    if (item != null) {
-            //        p.getWorld().dropItemNaturally(p.getLocation(), item);
-            //    }
-           // }
-            //p.getInventory().clear();
-            //p.updateInventory();
-            
             if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
 //System.out.println("Death KEEP_INVENTORY=true drop"+e.getDrops());
                 for (ItemStack is : p.getInventory().getContents()) {
@@ -328,7 +328,6 @@ public class Pvp implements Listener, CommandExecutor {
                 p.updateInventory();
 
             } else {
-                
 //System.out.println("Death drop"+e.getDrops());
                 for (int i=e.getDrops().size()-1; i>=0; i--) {
 //System.out.println("drop si ? "+Ostrov.lobby_items.isSpecItem(e.getDrops().get(i)));
@@ -337,14 +336,11 @@ public class Pvp implements Listener, CommandExecutor {
                      }
                 }
 //System.out.println("Death drop2"+e.getDrops());
-//System.out.println("Death KEEP_INVENTORY=false drop"+e.getDrops());
                 //ничего не надо, выпадет само!
             }
             
             p.sendMessage("§cВаши вещи достались победителю!");
-            ///e.setKeepInventory(false);
 //System.out.println("Death "+e.getDrops());
-            
         } else {
             //e.setKeepInventory(true);//в остальных случаях по настройкам мира
         }
@@ -386,71 +382,84 @@ public class Pvp implements Listener, CommandExecutor {
     
      
     
-    private static boolean Проверка_режима_пвп(final Entity attack_entity, final Entity target_entity, final EntityDamageEvent.DamageCause cause) {
+    private static boolean Проверка_режима_пвп(Entity attack_entity, final Entity target_entity, final EntityDamageEvent.DamageCause cause) {
 //System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");        
         
-        Player attack = null;
+        Player damager = null;
         Player target = null;
 
-        if (target_entity.getType()==EntityType.PLAYER && !Ostrov.isCitizen(target_entity))  target = (Player) target_entity; 
-//System.out.println("target_entity type="+target_entity.getType()+"  citizens?"+Ostrov.isCitizen(target_entity)+" target="+target);        
-        if (attack_entity.getType()==EntityType.PLAYER) {
-            //attack =  (Player) attack_entity;
-            if (!Ostrov.isCitizen(attack_entity)) attack = (Player) attack_entity;
-        } else if (attack_entity instanceof Projectile ) {
-            if( ((Projectile) attack_entity).getShooter() != null && ((Projectile) attack_entity).getShooter() instanceof Player) {         //если стрелял игрок
-                if (!Ostrov.isCitizen((Entity) ((Projectile) attack_entity).getShooter())) attack = (Player) ((Projectile) attack_entity).getShooter(); 
+        if (attack_entity instanceof Projectile ) { //при попадании стрелы принимаем атакующего за стреляющего
+            if( ((Projectile) attack_entity).getShooter() != null) {
+                attack_entity = (Entity) ((Projectile) attack_entity).getShooter(); 
             }
         }
+        
+        if (attack_entity.getType()==EntityType.PLAYER && !Ostrov.isCitizen(attack_entity))  damager = (Player) attack_entity; 
+        if (target_entity.getType()==EntityType.PLAYER && !Ostrov.isCitizen(target_entity))  target = (Player) target_entity; 
+//System.out.println("target_entity type="+target_entity.getType()+"  citizens?"+Ostrov.isCitizen(target_entity)+" target="+target);  
+
+
+
+        //if (attack_entity.getType()==EntityType.PLAYER) {
+            //attack =  (Player) attack_entity;
+           // if (!Ostrov.isCitizen(attack_entity)) attack = (Player) attack_entity;
+        //} else 
+        //if (damager == null && attack_entity instanceof Projectile ) {
+        //    if( ((Projectile) attack_entity).getShooter() != null && ((Projectile) attack_entity).getShooter() instanceof Player) {         //если стрелял игрок
+        //        if (!Ostrov.isCitizen((Entity) ((Projectile) attack_entity).getShooter())) damager = (Player) ((Projectile) attack_entity).getShooter(); 
+        //    }
+        //}
 //System.out.println("attack_entity type="+attack_entity.getType()+"  citizens?"+Ostrov.isCitizen(attack_entity)+" attack="+attack);        
         
 
-        if (attack==null && target==null) return false; //если ни один не игрок, пропускаем
+        if (damager==null && target==null) return false; //если ни один не игрок, пропускаем
         
         if (target != null && PM.exist(target.getName()) && PM.getOplayer(target.getName()).no_damage>0 ) {           //если у жертвы иммунитет, отмана
-                ApiOstrov.sendActionBarDirect(target, "§aИммунитет к повреждениям  - осталось §f"+PM.getOplayer(target.getName()).no_damage+" §a сек.!");
-                if (attack!=null) ApiOstrov.sendActionBarDirect(attack, "§aУ "+target.getName()+" иммунитет к повреждениям  - осталось §f"+PM.getOplayer(target.getName()).no_damage+" §a сек.!");
-                target.playSound(target.getLocation(), Sound.valueOf("BLOCK_ANVIL_HIT"), 1, 1);
-                return true;
+            ApiOstrov.sendActionBarDirect(target, "§aИммунитет к повреждениям  - осталось §f"+PM.getOplayer(target.getName()).no_damage+" §a сек.!");
+            if (damager!=null) ApiOstrov.sendActionBarDirect(damager, "§aУ "+target.getName()+" иммунитет к повреждениям  - осталось §f"+PM.getOplayer(target.getName()).no_damage+" §a сек.!");
+            target.playSound(target.getLocation(), Sound.BLOCK_ANVIL_HIT, 1, 1);
+            return true;
         } 
-        if (attack != null && PM.exist(attack.getName()) && PM.getOplayer(attack.getName()).no_damage>0 ) {
-                ApiOstrov.sendActionBarDirect(attack, "§aУ Вас иммунитет к повреждениям и атакам - осталось §f"+PM.getOplayer(attack.getName()).no_damage+" §a сек.!");
-                return true;
+        
+        if (damager != null && PM.exist(damager.getName()) && PM.getOplayer(damager.getName()).no_damage>0 ) {
+            ApiOstrov.sendActionBarDirect(damager, "§aУ Вас иммунитет к повреждениям и атакам - осталось §f"+PM.getOplayer(damager.getName()).no_damage+" §a сек.!");
+            return true;
         }    
 
-        if ( attack != null && target != null ) {                               //если обаигроки
+        if ( damager != null && target != null ) {                               //если обаигроки
             if ( !PM.getOplayer(target.getName()).pvp_allow ) {                         //если у жертвы выкл пвп
-                ApiOstrov.sendActionBarDirect(attack, "§2У цели выключен режим ПВП!");
+                ApiOstrov.sendActionBarDirect(damager, "§2У цели выключен режим ПВП!");
                 ApiOstrov.sendActionBarDirect(target, "§2У Вас выключен режим ПВП!");
                 return true;
             }
-            if ( !PM.getOplayer(attack.getName()).pvp_allow ) {                         //если у атакующего выкл пвп
+            if ( !PM.getOplayer(damager.getName()).pvp_allow ) {                         //если у атакующего выкл пвп
                 ApiOstrov.sendActionBarDirect(target, "§2У нападающего выключен режим ПВП!");
-                ApiOstrov.sendActionBarDirect(attack, "§2У Вас выключен режим ПВП!");
+                ApiOstrov.sendActionBarDirect(damager, "§2У Вас выключен режим ПВП!");
                 return true;
             }
         }    
                  
                 
-        if ( attack != null) { 
+        if ( damager != null) { //атакует игрок 
 //System.out.println("111 attack="+attack+"  fly_off_on_damage?"+CMD.fly_off_on_damage+"  attack.isFlying()?"+attack.isFlying());        
-            if ( attack.getGameMode()==GameMode.CREATIVE && !attack.isOp() ) {
+            if ( damager.getGameMode()==GameMode.CREATIVE && !damager.isOp() ) {
                 if (target != null && PM.exist(target.getName()) && disable_creative_attack_to_player) {
-                    ApiOstrov.sendActionBarDirect(attack, "§cАтака на игрока в креативе невозможна!");
+                    ApiOstrov.sendActionBarDirect(damager, "§cАтака на игрока в креативе невозможна!");
                     return true;
                 } else if (disable_creative_attack_to_mobs) {
                     final EntityGroup group = VM.getNmsEntitygroup().getEntytyType(target_entity);
                     if (group!=EntityGroup.UNDEFINED) {
-                        ApiOstrov.sendActionBarDirect(attack, "§cАтака на моба в креативе невозможна!");
+                        ApiOstrov.sendActionBarDirect(damager, "§cАтака на моба в креативе невозможна!");
                         return true;
                     }
                 }
             }
-            if (CMD.fly_block_atack_on_fly && attack.isFlying() && !attack.isOp() ) {
-                ApiOstrov.sendActionBarDirect(attack, "§cАтака в полёте невозможна!");
+            if (CMD.fly_block_atack_on_fly && damager.isFlying() && !damager.isOp() ) {
+                ApiOstrov.sendActionBarDirect(damager, "§cАтака в полёте невозможна!");
                 return true;
             }
         }
+        
         if (target != null && CMD.fly_off_on_damage &&  target.isFlying() ) {
 //System.out.println("222 target="+target+"  fly_off_on_damage?"+CMD.fly_off_on_damage+"  target.isFlying()?"+target.isFlying());        
             target.setFlying(false);
@@ -460,26 +469,30 @@ public class Pvp implements Listener, CommandExecutor {
             ApiOstrov.sendActionBarDirect(target, "§cКажется, Вам прострелили крыло :(");
         }
         
-        if (pvp_battle_time > 1 && (attack!=null || target!=null) ) {       //если активен режима боя и хотя бы один игрок
+        if (pvp_battle_time > 1 && (damager!=null || target!=null) ) {       //если активен режима боя и хотя бы один игрок
             
             //if ( attack != null && target_entity instanceof Monster ) {         //нападает игрок жертва монстр 
-            if ( attack != null && VM.getNmsEntitygroup().getEntytyType(target_entity)==EntityGroup.MONSTER ) {         //нападает игрок жертва монстр 
-//System.out.println("11111111111111111  "+Type.valueOf(target_entity.getType().toString()).getMeta());    
+            if ( damager != null && VM.getNmsEntitygroup().getEntytyType(target_entity)==EntityGroup.MONSTER ) {         //нападает игрок жертва монстр 
+//System.out.println("11111111111111111 нападает игрок жертва монстр  ");
+                PM.getOplayer(damager.getName()).pvpBattleModeBegin(pvp_battle_time);
                 //PM.getOplayer(attack.getName()).pvpBattleModeBegin(pvp_battle_time, pvp_tag);
-                Bukkit.getPluginManager().callEvent(new BattleModeEvent ( attack, target_entity, cause ) );
+                //Bukkit.getPluginManager().callEvent(new BattleModeEvent ( damager, target_entity, cause ) );
                 return false;  
                 
             //} else if ( target != null && attack_entity instanceof Monster )   {       //жертва игрок нападает монстр
             } else if ( target != null && VM.getNmsEntitygroup().getEntytyType(attack_entity)==EntityGroup.MONSTER )   {       //жертва игрок нападает монстр
-//System.out.println("2222222222222 "+Type.valueOf(attack_entity.getType().toString()).getMeta());                
+//System.out.println("2222222222222 жертва игрок нападает монстр");                
                 //PM.getOplayer(target.getName()).pvpBattleModeBegin(pvp_battle_time, pvp_tag);
-                Bukkit.getPluginManager().callEvent(new BattleModeEvent ( attack_entity, target, cause ) );
+                PM.getOplayer(target.getName()).pvpBattleModeBegin(pvp_battle_time);
+                //Bukkit.getPluginManager().callEvent(new BattleModeEvent ( attack_entity, target, cause ) );
                 return false;  
                 
-            } else if (  attack != null && target != null )   {                         //дерутся два игрока
+            } else if (  damager != null && target != null )   {                         //дерутся два игрока
+                PM.getOplayer(damager.getName()).pvpBattleModeBegin(pvp_battle_time);
+                PM.getOplayer(target.getName()).pvpBattleModeBegin(pvp_battle_time);
                 //PM.getOplayer(attack.getName()).pvpBattleModeBegin(pvp_battle_time, pvp_tag);
                 //PM.getOplayer(target.getName()).pvpBattleModeBegin(pvp_battle_time, pvp_tag);
-                Bukkit.getPluginManager().callEvent(new BattleModeEvent ( attack, target, cause ) );
+                //Bukkit.getPluginManager().callEvent(new BattleModeEvent ( damager, target, cause ) );
                 return false;            
             }
             

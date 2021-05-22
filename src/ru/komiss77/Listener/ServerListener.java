@@ -27,6 +27,7 @@ import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import ru.komiss77.ApiOstrov;
 import ru.ostrov77.factions.ApiFactions;
@@ -76,7 +77,15 @@ public static void ReloadVars () {
     }
     
 
-
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
+    public void onEntityDamageEvent ( EntityDamageEvent  e ) {
+        if (e.getEntity().getType()==EntityType.PLAYER) return;
+        if ( e.getCause()==EntityDamageEvent.DamageCause.VOID) {
+            e.getEntity().remove();
+            Ostrov.log_warn("Удалена бесконечно падающая в бездну сущность "+ e.getEntity());
+        }
+ 
+    }
 /*
     @EventHandler
     public void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent e) {
@@ -239,12 +248,12 @@ System.out.println("------------> GroupChangeEvent ");
                 Ostrov.log_ok ("§2Найден LangUtils!");
                 break;
                 
-            case "AAC":
-                Ostrov.aac= true;
-                Ostrov.log_ok ("§2Найден Advanced Anti Cheat!");
-                Bukkit.getPluginManager().registerEvents(new AAC_listener(), Ostrov.instance);
-                AAC_listener.Init();
-                break;
+            //case "AAC":
+            //    Ostrov.aac= true;
+            //    Ostrov.log_ok ("§2Найден Advanced Anti Cheat!");
+            //    Bukkit.getPluginManager().registerEvents(new AAC_listener(), Ostrov.instance);
+            //    AAC_listener.Init();
+            //    break;
         }
         
     }

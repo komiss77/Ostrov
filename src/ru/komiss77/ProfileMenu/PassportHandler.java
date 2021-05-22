@@ -25,7 +25,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -36,7 +35,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.version.VM;
 
 
 
@@ -73,7 +71,7 @@ public class PassportHandler implements Listener {
     
     
     
-    @EventHandler( priority = EventPriority.MONITOR, ignoreCancelled = false)
+    @EventHandler( priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent e) {
 //System.out.println("ru.komiss77.Listener.MenuListener.onInteract() "+e.getItem());        
         if ( e.getAction()!=Action.PHYSICAL && ItemUtils.compareItem(e.getItem(), passport, true)) {
@@ -109,7 +107,7 @@ public class PassportHandler implements Listener {
     
 
     
-@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent e) {
         if ( ItemUtils.compareItem(e.getItemDrop().getItemStack(), passport, true)) {
                 //event.setCancelled(true);

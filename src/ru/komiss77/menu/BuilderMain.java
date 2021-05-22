@@ -32,7 +32,7 @@ public class BuilderMain implements InventoryProvider {
     @Override
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-        contents.fillRect(0,0,  2,8, ClickableItem.empty(fill));
+        contents.fillRect(0,0,  5,8, ClickableItem.empty(fill));
         
         
         
@@ -67,8 +67,9 @@ public class BuilderMain implements InventoryProvider {
 
 
 
-        contents.set(0,0, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
+        contents.set(1,1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
             .name("§7Миры")
+            .lore("§7Управление")
             .lore("")
             .lore("§7- перемещение в миры")
             .lore("§7- настройки миров")
@@ -80,10 +81,24 @@ public class BuilderMain implements InventoryProvider {
             }));
 
 
+        contents.set(1,2, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
+            .name("§7места")
+            .lore("§7Управление")
+            .lore("")
+            .lore("§7Настройка варпов")
+            .lore("")
+            .lore( "§7ЛКМ - открыть" )
+            .lore("")
+            .build(), e-> {
+                p.performCommand("warp");
+            }));
 
 
-        contents.set(0,1, ClickableItem.of(new ItemBuilder(Material.COW_SPAWN_EGG)
+
+
+        contents.set(1,3, ClickableItem.of(new ItemBuilder(Material.COW_SPAWN_EGG)
             .name("§7Сущности")
+            .lore("§7Управление")
             .lore("")
             .lore("§7поиск, просмотр и удаление")
             .lore("§7сущностей")
@@ -95,6 +110,18 @@ public class BuilderMain implements InventoryProvider {
             }));
 
 
+        contents.set(1,4, ClickableItem.of(new ItemBuilder(Material.ARMOR_STAND)
+            .name("§7Фигуры")
+            .lore("§7Управление")
+            .lore("")
+            .lore("§7Открыть главное")
+            .lore("§7меню фигур")
+            .lore("")
+            .lore("§7ЛКМ - получить")
+            .lore("")
+            .build(), e-> {
+                p.performCommand("figure");
+            }));
 
 
 
@@ -122,10 +149,23 @@ public class BuilderMain implements InventoryProvider {
         
         
         
+        contents.set(2,1, ClickableItem.of(new ItemBuilder(Material.PAPER)
+            .name("§6Репорты")
+            .lore("§7Модерация")
+            .lore("")
+            .lore("§7Просмотр репортов")
+            .lore("")
+            .lore("§7ЛКМ - открыть")
+            .lore("")
+            .build(), e-> {
+                p.performCommand("report");
+            }));
 
 
-        contents.set(1,0, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+
+        contents.set(2,2, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
             .name("§7шпионаж")
+            .lore("§7Модерация")
             .lore("")
             .lore("§7Скрытый контроль")
             .lore("§7действий игроков.")
@@ -137,6 +177,7 @@ public class BuilderMain implements InventoryProvider {
             }));
 
 
+
         
         
         
@@ -164,8 +205,9 @@ public class BuilderMain implements InventoryProvider {
 
         
 
-        contents.set(4,0, ClickableItem.of(new ItemBuilder(Material.NOTE_BLOCK)
+        contents.set(4,1, ClickableItem.of(new ItemBuilder(Material.NOTE_BLOCK)
             .name("§7Прослушивание звуков")
+            .lore("§7Утилита")
             .lore("")
             .lore("§7ЛКМ - открыть")
             .lore("")
@@ -174,8 +216,9 @@ public class BuilderMain implements InventoryProvider {
             }));
 
                 
-        contents.set(4,1, ClickableItem.of(new ItemBuilder(Material.WARPED_SIGN)
+        contents.set(4,2, ClickableItem.of(new ItemBuilder(Material.WARPED_SIGN)
             .name("§7Таблички")
+            .lore("§7Утилита")
             .lore("")
             .lore("§7Получить предмет")
             .lore("§7помогающий в работе")
@@ -188,17 +231,6 @@ public class BuilderMain implements InventoryProvider {
             }));
 
                 
-        contents.set(4,2, ClickableItem.of(new ItemBuilder(Material.ARMOR_STAND)
-            .name("§7Фигуры")
-            .lore("")
-            .lore("§7Открыть главное")
-            .lore("§7меню фигур")
-            .lore("")
-            .lore("§7ЛКМ - получить")
-            .lore("")
-            .build(), e-> {
-                p.performCommand("figure");
-            }));
 
 
                 

@@ -11,9 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.bukkit.scheduler.BukkitRunnable;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
-import static ru.komiss77.Cfg.manager;
 import ru.komiss77.Enums.Table;
 import ru.komiss77.Objects.CaseInsensitiveMap;
 import ru.komiss77.Objects.Group;
@@ -38,7 +37,7 @@ public class OstrovDB {
         groups = new CaseInsensitiveMap();
         default_permissions = new HashSet<>();
         
-        default_perms = manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию для всех игроков на этом сервере", ""} );
+        default_perms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию для всех игроков на этом сервере", ""} );
         default_perms.addDefault("default_permissions", Arrays.asList( "deluxechat.utf","deluxechat.pm", "deluxechat.bungee.chat", "deluxechat.bungee.toggle",
             "chestcommands.command.open", "chestcommands.open.menu.yml") );
         default_perms.saveConfig();
@@ -105,19 +104,14 @@ public class OstrovDB {
     
     public static void loadGroups () {
         if (!useOstrovData) return;
-        if (GetConnection() == null) return;
 
-        new BukkitRunnable(){ 
-          @Override
-            public void run() {
-                
-                
-                
-            
+        Ostrov.async(()-> {
+            //if (GetConnection() == null) return;
             Statement stmt = null;
             ResultSet rs = null;
+            
             try {
-                stmt = GetConnection().createStatement();
+                stmt = ApiOstrov.getOstrovConnection().createStatement();
                 
                 rs = stmt.executeQuery( "SELECT * FROM  "+Table.PEX_GROUPS.table_name ); //кинуло на home1 attempted  duplicate class definition
                     while (rs.next()) {
@@ -167,7 +161,7 @@ public class OstrovDB {
                 Ostrov.log_ok("Database: Загружены группы+права групп! ("+groups.size()+"групп)");
             }
                 
-        }}.runTaskAsynchronously( Ostrov.instance );   
+        }, 0);
     
     }
     

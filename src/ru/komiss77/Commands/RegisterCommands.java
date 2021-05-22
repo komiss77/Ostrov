@@ -16,9 +16,7 @@ public class RegisterCommands {
         plugin.getCommand("profile").setExecutor(new Profile());
         plugin.getCommand("invsee").setExecutor(new Invsee());
         plugin.getCommand("seen").setExecutor(new Seen());
-        plugin.getCommand("warp").setExecutor(new Warp());
-        plugin.getCommand("setwarp").setExecutor(new Setwarp());
-        plugin.getCommand("setswarp").setExecutor(new Setswarp());
+        plugin.getCommand("warp").setExecutor(new WarpCmd());
         plugin.getCommand("kit").setExecutor(new KitCmd());
         plugin.getCommand("pvp").setExecutor(new Pvp());
         plugin.getCommand("passport").setExecutor(new Passport());
@@ -29,8 +27,9 @@ public class RegisterCommands {
         plugin.getCommand("bossbar").setExecutor(new OpAsBossBar());
         plugin.getCommand("oreload").setExecutor(new Oreload());
         plugin.getCommand("builder").setExecutor(new Builder());
-        //plugin.getCommand("sound").setExecutor(new Oreload());
-        
+        plugin.getCommand("report").setExecutor(new Report());
+        plugin.getCommand("nbtfind").setExecutor(new Nbtfind(plugin));
+        plugin.getCommand("nbtcheck").setExecutor(new Nbtcheck(plugin));
     }
     
 }

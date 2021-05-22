@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -138,8 +142,11 @@ public static void ReloadVars () {
 
                                 p.sendMessage("§a"+target.getName()+" отправлен запрос на телепорт. Оплата после выполнения.");
                                 
-                                ChatMsgUtil.Send_TextComponent_onclick_run(target,  "§f§k111§f Запрос на телепорт от §a"+p.getName()+"§f <- Клик на сообщение, чтобы открыть меню §k111", "", "/tpaccept");
-
+                                //ChatMsgUtil.Send_TextComponent_onclick_run(target,  "§f§k111§f Запрос на телепорт от §a"+p.getName()+"§f <- Клик на сообщение, чтобы открыть меню §k111", "", "/tpaccept");
+                                 TextComponent temp = new TextComponent("§f§k111§f Запрос на телепорт от §a"+p.getName()+"§f <- Клик на сообщение, чтобы открыть меню §k111" );
+                                //temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text("§5Клик, чтобы удалить") ) );
+                                temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept") );
+                                p.spigot().sendMessage( temp);
                                 request.put( target.getName(), p.getName() );
                             }  
                     }

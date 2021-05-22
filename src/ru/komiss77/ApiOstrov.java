@@ -517,9 +517,16 @@ public class ApiOstrov {
     public static boolean randBoolean() {
         return Ostrov.random.nextBoolean();
     }
-    
+    @Deprecated
     public static boolean isInteger(final String int_as_string) {
         return Ostrov.isInteger(int_as_string);
+    }
+    public static int getInteger(final String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ex) {
+            return Integer.MIN_VALUE;
+        }
     }
     
     public static String IntToTime(int min) { //c днями и нед!
@@ -780,7 +787,9 @@ public class ApiOstrov {
     public static boolean isLocalBuilder(final Player p) {
         return isLocalBuilder(p, false);
     }
-    
+    public static boolean canBeBuilder(final CommandSender cs) {
+        return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
+    }    
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
         //if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
        // if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
@@ -790,7 +799,7 @@ public class ApiOstrov {
                 return true;
             } else if (cs instanceof Player) {
                 final Player p = (Player) cs;
-                if (p.isOp() || p.hasPermission("builder") || hasGroup(p.getName(), "supermoder")) { //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
+                if (canBeBuilder(p)) { //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
                      //!! фиксить права в CDM case "gm", или не даст перейти в гм1
                     if (p.getGameMode()==GameMode.CREATIVE || p.getGameMode()==GameMode.SPECTATOR) {
                         return true;

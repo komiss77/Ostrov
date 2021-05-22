@@ -44,7 +44,7 @@ public final class KitManager extends Initiable {
     private static OstrovConfig kitsConfig;
     public static CaseInsensitiveMap <Kit> kits;
 
-    public KitManager(final Ostrov plugin) {
+    public KitManager() {
         kits = new CaseInsensitiveMap<>();
         reload();
     }

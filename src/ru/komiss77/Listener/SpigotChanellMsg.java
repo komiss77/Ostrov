@@ -63,7 +63,7 @@ public class SpigotChanellMsg implements PluginMessageListener {
 
         try {
             out.writeUTF(from);
-            out.writeUTF(String.valueOf(action.tag));
+            out.writeUTF(String.valueOf(action.ordinal()));
             out.writeUTF(raw);
             Bukkit.getOnlinePlayers().stream().findAny().get().sendPluginMessage(Ostrov.instance, Cfg.chanelName, stream.toByteArray());
             return true;
@@ -81,7 +81,7 @@ public class SpigotChanellMsg implements PluginMessageListener {
 
         try {
             out.writeUTF(p.getName());
-            out.writeUTF(String.valueOf(action.tag));
+            out.writeUTF(String.valueOf(action.ordinal()));
             out.writeUTF(raw);
             p.sendPluginMessage(Ostrov.instance, Cfg.chanelName, stream.toByteArray());
             return true;

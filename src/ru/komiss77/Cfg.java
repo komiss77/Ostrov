@@ -93,6 +93,12 @@ public static void LoadConfigs () {
     config.removeKey("modules.block_commands.enable");
     config.removeKey("modules.block_commands.except" );
     config.removeKey("modules.command.pvp");
+    config.removeKey("player.keep_inventory");
+    config.removeKey("modules.command.warp");
+    config.removeKey("modules.command.shop");
+    config.removeKey("world.spawn");
+    //config.removeKey("");
+
 
     
     
@@ -108,7 +114,7 @@ public static void LoadConfigs () {
     config.addDefault("player.gamemode_set_to", "ADVENTURE" );
     config.addDefault("player.walkspeed_on_join", "0.1F");
     config.addDefault("player.clear_stats", false);
-    config.addDefault("player.keep_inventory", false);
+    //config.addDefault("player.keep_inventory", false);
     config.addDefault("player.disable_void", false);
     config.addDefault("player.disable_damage", false);
     config.addDefault("player.disable_hungry", false);
@@ -165,11 +171,11 @@ public static void LoadConfigs () {
     config.addDefault("modules.command.pweather", false);
     config.addDefault("modules.command.ptime", false);
 
-    config.addDefault("modules.command.warp.use", false);
-    config.addDefault("modules.command.warp.сonsoleOnlyUse", false);
-    config.addDefault("modules.command.warp.amount_per_group.default", 0);
-    config.addDefault("modules.command.warp.amount_per_group.premium", 3);
-    config.addDefault("modules.command.warp.amount_per_group.supermoder", 10);
+    //config.addDefault("modules.command.warp.use", false);
+    //config.addDefault("modules.command.warp.сonsoleOnlyUse", false);
+    //config.addDefault("modules.command.warp.amount_per_group.default", 0);
+    //config.addDefault("modules.command.warp.amount_per_group.premium", 3);
+    //config.addDefault("modules.command.warp.amount_per_group.supermoder", 10);
 
     config.addDefault("modules.command.heal", false);
     config.addDefault("modules.command.repair", false);
@@ -178,20 +184,20 @@ public static void LoadConfigs () {
     config.addDefault("modules.teleport_to_region_in_settings_menu", false);
 
     config.addDefault("modules.command.kit", false);
-    config.addDefault("modules.command.shop", false);
+    //config.addDefault("modules.command.shop", false);
     config.addDefault("modules.command.menu", "serv");
 
     
     String[] c2 = {"---------", "world managment", "---------"}; 
-    config.addDefault("world.spawn.set_spawn_point_world0", false, c2);
+    //config.addDefault("world.spawn.set_spawn_point_world0", false, c2);
     //config.addDefault("world.spawn.set_spawn_point_for_world", "world");
-    config.addDefault("world.spawn.set_spawn_point.x", 0);
-    config.addDefault("world.spawn.set_spawn_point.y", 65);
-    config.addDefault("world.spawn.set_spawn_point.z", 0);
-    config.addDefault("world.spawn.set_spawn_point.y", 0);
-    config.addDefault("world.spawn.set_spawn_point.p", 0);
-    config.addDefault("world.block_nether_portal", false);
-    config.addDefault("world.block_ender_portal", false);
+    //config.addDefault("world.spawn.set_spawn_point.x", 0);
+    //config.addDefault("world.spawn.set_spawn_point.y", 65);
+    //config.addDefault("world.spawn.set_spawn_point.z", 0);
+    //config.addDefault("world.spawn.set_spawn_point.y", 0);
+    //config.addDefault("world.spawn.set_spawn_point.p", 0);
+    //config.addDefault("world.block_nether_portal", false);
+    //config.addDefault("world.block_ender_portal", false);
     config.addDefault("world.block_day_night_change", false);
     config.addDefault("world.set_time_to", 1000);
     config.addDefault("world.disable_weather", false);
@@ -430,7 +436,7 @@ public static void LoadConfigs () {
 
         PM.ReLoadVars();
         MysqlLocal.ReloadVars();
-        Warps.ReLoadVars();
+        //Warps.ReLoadVars();
         
 
         Timer.ReLoadVars();

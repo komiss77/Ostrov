@@ -32,7 +32,7 @@ public class LocationUtil {
     }
     public static Location LocFromString (final String loc_string, final boolean autoLoadWorld) {
 //System.out.println("-----LocFromString "+loc_string);
-        if (loc_string==null) return null;
+        if (loc_string==null || loc_string.isEmpty()) return null;
         
         final String separator;
         if (loc_string.contains("<>")) separator = "<>"; 
@@ -93,13 +93,13 @@ public class LocationUtil {
 
 
     public static String StringFromLoc (final Location loc) {
-        if (loc==null) return "<><><>";
-        return loc.getWorld().getName()+"<>"+loc.getBlockX()+ "<>" + loc.getBlockY()+ "<>" + loc.getBlockZ();
+        if (loc==null) return ":::";
+        return loc.getWorld().getName()+":"+loc.getBlockX()+ ":" + loc.getBlockY()+ ":" + loc.getBlockZ();
     }      
 
     public static String StringFromLocWithYawPitch (final Location loc) {
-        if (loc==null) return "<><><><><>";
-        return loc.getWorld().getName()+"<>"+loc.getBlockX()+ "<>" + loc.getBlockY()+ "<>" + loc.getBlockZ()+ "<>" + (int)loc.getYaw()+ "<>" + (int)loc.getPitch();
+        if (loc==null) return ":::::";
+        return loc.getWorld().getName()+":"+loc.getBlockX()+ ":" + loc.getBlockY()+ ":" + loc.getBlockZ()+ ":" + (int)loc.getYaw()+ ":" + (int)loc.getPitch();
     }      
 
     
