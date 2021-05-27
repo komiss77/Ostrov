@@ -287,7 +287,7 @@ public class Oplayer {
                                 }
                             //}
                         } else {
-                            Ostrov.log_err("У игрока "+nik+" есть группа "+group_name+", но её нет в базе групп!" );
+                            if (OstrovDB.useOstrovData) Ostrov.log_err("У игрока "+nik+" есть группа "+group_name+", но её нет в базе групп!" );
                         }
                     }
                     chat_group=chat_group.replaceFirst(", ", "");

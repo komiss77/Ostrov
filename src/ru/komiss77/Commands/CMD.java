@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -166,8 +167,8 @@ public static void LoadVars() {
     if (Bukkit.getMotd().length()==3) return false;
     
 
-        Player p= null;
-        if(sender instanceof Player ) p=(Player) sender;
+        Player p = null;
+        if(sender instanceof Player ) p =(Player) sender;
         
         String home;
         int limit;
@@ -383,7 +384,7 @@ switch (label) {
                     } else p.sendMessage("§cСписок забаненых игроков пуст.");
                 } else {
                     if (!Timer.CD_has( p.getName(), "tpa_command" ) ) {
-                         Timer.CD_add( p.getName(), "tpa_command", tpr_command);
+                         Timer.CD_add( p.getName(), "tpa_command", tpa_command);
                          TPAListener.openTPmenu(p, 0, false);
                     } else p.sendMessage("§8Телепортер перезаряжается! Осталось: "+Timer.CD_left(p.getName(), "tpa_command")+" сек.!");
                 }
@@ -415,16 +416,32 @@ switch (label) {
                break;
         
     case "tpr":
-        if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
-            if ( tpr_command > 1 ){
-                // if (p.isOp() || p.hasPermission("ostrov.tpr")){
-                     if (!Timer.CD_has( p.getName(), "tpr_command" ) ) {
-                         Timer.CD_add( p.getName(), "tpr_command", tpr_command);
-                         Tpr.runCommand(p);
-                    } else p.sendMessage("§8Телепортер перезаряжается! Осталось: "+Timer.CD_left(p.getName(), "tpr_command")+" сек.!");
-               // } else p.sendMessage("§cУ Вас нет пава ostrov.tpr !");
-            }else p.sendMessage( "§cТелепорт в случайное место отключён на этом сервере!");
-            break;
+        int delay = tpr_command;
+        if ( delay < 1 && sender instanceof Player) {
+            p.sendMessage( "§cТелепорт в случайное место командой отключён на этом сервере!");
+            return true;
+        }
+        if (sender instanceof ConsoleCommandSender) {
+            if (arg.length==1) {
+                p = Bukkit.getPlayer(arg[0]);
+                if (p==null) {
+                    sender.sendMessage("§cИгрок "+arg[0]+" не найден!");
+                    return true;
+                }
+                delay = 5;
+            } else {
+                sender.sendMessage("§ctpr <ник>");
+                return true;
+            }
+        }
+        
+        if (!Timer.has(p, "tpr_command" ) ) {
+            Timer.add(p, "tpr_command", delay);
+            Tpr.runCommand(p);
+        } else {
+            sender.sendMessage("§8Телепортер перезаряжается! Осталось: "+Timer.getLeft(p, "tpr_command")+" сек.!");
+        }
+        break;
         
     case "top":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}

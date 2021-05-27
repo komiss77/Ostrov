@@ -48,6 +48,7 @@ import ru.komiss77.Managers.EmptyChunkGenerator;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Managers.WE;
 import ru.komiss77.Managers.Warps;
+import ru.komiss77.Managers.WorldManager;
 import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.LobbyItems;
 import ru.komiss77.modules.OstrovDB;
@@ -211,7 +212,6 @@ public class Ostrov extends JavaPlugin {
         servers =(SM) modules.get(Module.serverManager);//servers.on_start();
         lobby_items = (LobbyItems) modules.get(Module.lobbyItems);
         kitManager = (KitManager) modules.get(Module.kits);
-        
         playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
         inventoryAPI = new InventoryAPI(this, false);
         
@@ -233,6 +233,7 @@ public class Ostrov extends JavaPlugin {
         pandora (Pandora.class),
         informator (Informator.class),
         warps (Warps.class),
+        worldManager (WorldManager.class),
         ;
         
         public Class clazz;
@@ -259,6 +260,7 @@ public class Ostrov extends JavaPlugin {
         OstrovDB.Disconnect();
         MysqlLocal.Disconnect();
 
+        modules.values().stream().forEach( (module)->((Initiable)module).onDisable());
         
         log_ok("§4Остров выгружен!");
     }  
@@ -295,11 +297,12 @@ public class Ostrov extends JavaPlugin {
      
     public static void log_ok(String s) {   Bukkit.getConsoleSender().sendMessage(prefix +"§2"+ s); }
     public static void log_warn(String s) {   Bukkit.getConsoleSender().sendMessage(prefix +"§6"+ s); }
-    public static void log_err(String s) { 
+    public static void log_err(String s) {
         Bukkit.getConsoleSender().sendMessage(prefix +"§c"+ s);
-        if (MysqlLocal.useLocalData) {
+        if (MysqlLocal.useLocalData && MysqlLocal.ready) {
+            final Connection connection = ApiOstrov.getLocalConnection();
+            if (connection==null) return;
             try {
-                final Connection connection = ApiOstrov.getLocalConnection();
                 final PreparedStatement pst1 = connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);");
     //System.out.println("1");
                 pst1.setString(1, s);

@@ -61,34 +61,48 @@ public class Tpr {
 
         //p.sendMessage("§bТелепортер ищет безопасное место для Вас...");
 
-        final int center_x=p.getWorld().getWorldBorder().getCenter().getBlockX();
-        final int center_z=p.getWorld().getWorldBorder().getCenter().getBlockZ();
-        
+
+/*
+    Это устанавливает максимально возможный размер в блоках, выраженный в радиусе, который может получить мировая граница.
+        Установка большей границы мира приводит к успешному выполнению команд, 
+        но фактическая граница не выходит за пределы этого ограничения блока.
+        Установка max-world-size выше значения по умолчанию, похоже, ничего не дает.
+     Установка max-world-size на 1000 позволяет игроку иметь границу мира 2000 × 2000.
+     Установка max-world-size на 4000 дает игроку границу мира 8000 × 8000. 
+        https://minecraft.fandom.com/wiki/World_border
+        */
+
         //вычисляем максимум +/- для x,z - РАДИУС!!! 
-        final int worldSize = (int) p.getWorld().getWorldBorder().getSize() > Bukkit.getServer().getMaxWorldSize() ? Bukkit.getServer().getMaxWorldSize() : ((int) p.getWorld().getWorldBorder().getSize());//VM.getNmsServer().getMaxWorldSize(p.getWorld());//propertyManager.getInt("max-world-size", 500);
-        //final int max_wb = (int) p.getWorld().getWorldBorder().getSize();
-        //final int maxRange;
-        //if (max_size<max_wb) maxRange=max_size;
-        //else maxRange = max_wb;
-
-        //вычисляем минимум +/- для x,z
-        final int minRange = worldSize/50; //при мире 5к даст для поиска - дельтф будет +/- ( рандом от min до max)100, при 500 даст 10
-        final int maxRange = worldSize - minRange;  //для поиска - дельтф будет +/- ( рандом от min до max)
         
-        //maxRange = maxRange - minRange; //готовим переменные 
-        
-        
-        //if (maxRange<100) minRange=maxRange;
-        //else minRange = 100;
-//System.out.println("maxRange="+maxRange);
-
-
-        final int x = p.getLocation().getBlockX();
-        final int y = p.getLocation().getBlockY();
-        final int z = p.getLocation().getBlockZ();
-        
+        //для каждой команды все параметры внутри, или могут запускать в разных мирах и подменятся параметры!
         
         tpData.put( p.getName(), new BukkitRunnable() {
+            
+            final int center_x=p.getWorld().getWorldBorder().getCenter().getBlockX();
+            final int center_z=p.getWorld().getWorldBorder().getCenter().getBlockZ();
+            
+            final int worldDiameter = (int) p.getWorld().getWorldBorder().getSize() < Bukkit.getServer().getMaxWorldSize() ? ((int) p.getWorld().getWorldBorder().getSize()) : Bukkit.getServer().getMaxWorldSize() ;//VM.getNmsServer().getMaxWorldSize(p.getWorld());//propertyManager.getInt("max-world-size", 500);
+            //final int max_wb = (int) p.getWorld().getWorldBorder().getSize();
+//System.out.println("getWorldBorder="+ p.getWorld().getWorldBorder().getSize()+ " getMaxWorldSize="+Bukkit.getServer().getMaxWorldSize());        
+            //final int maxRange;
+            //if (max_size<max_wb) maxRange=max_size;
+            //else maxRange = max_wb;
+
+            //вычисляем минимум +/- для x,z
+            final int minFindRadius = (worldDiameter/2)/50; //при мире 5к даст для поиска - дельтф будет +/- ( рандом от min до max)100, при 500 даст 10
+            final int maxFindRadius = worldDiameter/2 - minFindRadius;  // - minFindRadius чтобы нге прижимало к границе
+
+//System.out.println("worldDiameter="+ worldDiameter+" minFindRadius="+ minFindRadius+" maxFindRadius="+ maxFindRadius);        
+
+            final int xMax = center_x+maxFindRadius;
+            final int xMin = center_x-maxFindRadius;
+            final int zMax = center_z+maxFindRadius;
+            final int zMin = center_z-maxFindRadius;
+
+//System.out.println("xMax="+ xMax+" xMin="+ xMin+" zMax="+ zMax+" zMin="+ zMin);        
+            final int x = p.getLocation().getBlockX();
+            final int y = p.getLocation().getBlockY();
+            final int z = p.getLocation().getBlockZ();
             
             final String name = p.getName();
             int find_try=100; //5 секунд
@@ -96,9 +110,15 @@ public class Tpr {
             int find_x, find_z;
             Location loc;
             
+            
                 @Override
                 public void run() {
-                    
+     System.out.println("");                
+//System.out.println("getWorldBorder="+ p.getWorld().getWorldBorder().getSize()+ " getMaxWorldSize="+Bukkit.getServer().getMaxWorldSize());        
+//System.out.println("worldDiameter="+ worldDiameter+" minFindRadius="+ minFindRadius+" maxFindRadius="+ maxFindRadius);        
+//System.out.println("center_x="+ center_x+" center_z="+ center_z); 
+//System.out.println("xMax="+ xMax+" xMin="+ xMin+" zMax="+ zMax+" zMin="+ zMin); 
+    
                     if (p==null || !p.isOnline() || p.isDead()) {
                         this.cancel();
                         tpData.remove(name);
@@ -122,11 +142,13 @@ public class Tpr {
                     lps=10;
                     while(lps>0) {
                         
-                        find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x+minRange, maxRange) : - ApiOstrov.randInt(center_x-minRange, maxRange);
-                        find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z+minRange, maxRange) : - ApiOstrov.randInt(center_z-minRange, maxRange);
-System.out.println("-TPR find "+find_try+" lps="+lps+"  maxRange="+maxRange+"  find_x="+find_x+"   find_z="+find_z);
+                        //find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x+minRange, center_x+maxRange) : - ApiOstrov.randInt(center_x+minRange, maxRange-center_x);
+                        //find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z+minRange, center_z+maxRange) : - ApiOstrov.randInt(center_z+minRange, maxRange-center_z);
+                        find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x+minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x-minFindRadius );
+                        find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z+minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z-minFindRadius );
+//System.out.println("-TPR find "+find_try+" lps="+lps+"  maxFindRadius="+maxFindRadius+"  find_x="+find_x+"   find_z="+find_z);
                         
-                        loc=p.getWorld().getBlockAt(Ostrov.random.nextBoolean()? x + ApiOstrov.randInt(minRange, maxRange): x, 65, find_z).getLocation();
+                        //loc=p.getWorld().getBlockAt(find_x, 65, find_z).getLocation();
                         
                         
                         

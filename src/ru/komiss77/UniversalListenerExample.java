@@ -538,7 +538,8 @@ public class UniversalListenerExample implements Listener  {
             e.setDamage(0);
             if (e.getCause()==EntityDamageEvent.DamageCause.VOID || e.getCause()==EntityDamageEvent.DamageCause.LAVA) {
                 p.setFallDistance(0);
-                p.teleport(Bukkit.getServer().getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND); //от PLUGIN блокируются
+                //p.teleport(Bukkit.getServer().getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND); //от PLUGIN блокируются
+                Ostrov.sync(() -> p.teleport(Bukkit.getWorld("lobby").getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND), 0);
                 return;
             }
             e.setCancelled(true);

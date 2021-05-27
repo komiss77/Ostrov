@@ -346,6 +346,7 @@ public class OstrovConfigManager {
     * @param file - Config file
     */
     public void saveConfig(String configString, File file) {
+//System.out.println("saveConfig configString="+configString);
         String configuration = this.prepareConfigString(configString);
  
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {

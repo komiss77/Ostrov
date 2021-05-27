@@ -18,7 +18,7 @@ import ru.komiss77.utils.OstrovConfig;
 
 
 
-public final class Informator extends Initiable{
+public final class Informator extends Initiable {
  
     private static OstrovConfig inform;
     private static List <TextComponent> messages;

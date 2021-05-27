@@ -19,7 +19,8 @@ import ru.komiss77.utils.LocationUtil;
 
 public class MysqlLocal {
 
-    public static boolean useLocalData=false;
+    public static boolean useLocalData = false;
+    public static boolean ready = false;
     private static String host = "";
     private static String user = "";
     private static String passw = "";
@@ -199,7 +200,7 @@ public class MysqlLocal {
             try {
                 GetConnection().createStatement().executeUpdate(
                     " CREATE TABLE IF NOT EXISTS `warps` ( " +
-                    "  `id` int NOT NULL, " +
+                    "  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "  `name` varchar(16) NOT NULL, " +
                     "  `dispalyMat` varchar(32) NOT NULL DEFAULT '', " +
                     "  `owner` varchar(16) NOT NULL DEFAULT '', " +
@@ -220,7 +221,7 @@ public class MysqlLocal {
             try {
                 GetConnection().createStatement().executeUpdate(
                     " CREATE TABLE IF NOT EXISTS `errors` ( " +
-                    "`id` int NOT NULL," +
+                    "`id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                     "`msg` varchar(512) NOT NULL," +
                     "`stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP " +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
@@ -229,10 +230,21 @@ public class MysqlLocal {
                 Ostrov.log_err("§4Не удалось создать таблицу errors -> "+e.getMessage());
             }
 
+//фикс!! потом убрать
+//ALTER TABLE `errors` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT; 
+//ALTER TABLE `errors` ADD PRIMARY KEY (`id`) AUTO_INCREMENT;
+
+//try {  
+ //   GetConnection().createStatement().executeUpdate(
+ //       " ALTER TABLE `errors` CHANGE `id` `id` INT(11) NOT NULL  PRIMARY KEY AUTO_INCREMENT; ");
+//} catch (SQLException e) {
+ //   Ostrov.log_err("§4ALTER TABLE `errors` ADD PRIMARY KEY (`id`) -> "+e.getMessage());
+//}
+
             try {
                 GetConnection().createStatement().executeUpdate(
                     " CREATE TABLE IF NOT EXISTS `moneyOffline` ( " +
-                    " `id` int NOT NULL," +
+                    " `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                     "  `name` varchar(16) NOT NULL," +
                     "  `value` int NOT NULL," +
                     "  `who` varchar(256) NOT NULL" +
@@ -241,6 +253,13 @@ public class MysqlLocal {
             } catch (SQLException e) {
                 Ostrov.log_err("§4Не удалось создать таблицу moneyOffline -> "+e.getMessage());
             }
+//фикс!! потом убрать
+//try {
+ //   GetConnection().createStatement().executeUpdate(
+  //      " ALTER TABLE `moneyOffline` CHANGE `id` `id` INT NOT NULL  PRIMARY KEY AUTO_INCREMENT; ");
+//} catch (SQLException e) {
+ //   Ostrov.log_err("§4ALTER TABLE `moneyOffline` ADD PRIMARY KEY (`id`) -> "+e.getMessage());
+//}
 
         }
 
@@ -249,9 +268,11 @@ public class MysqlLocal {
         try {
             Disconnect();
             Class.forName("com.mysql.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(url);
         } catch (SQLException | ClassNotFoundException e) {
-            Ostrov.log_err("§4MySql: соединение с базой данных сервера не удалось !"+e.getMessage());
+            ready = false;
+            Ostrov.log_warn("§4MySql: соединение с локальной БД не удалось !"+e.getMessage()); //не ставить log_err, или зацикливает!!!
             return null;
         }
     }
@@ -262,13 +283,16 @@ public class MysqlLocal {
         try {
 //System.out.println( "GetConnection null?" + (connection == null)+" valid?"+(connection != null && connection.isValid(1)));
             if ( connection != null && connection.isValid(1)) {
+                ready = true;
                 return connection;
             } else {
-                Ostrov.log_ok("§6MySQL - создаём local подключение...");
+                ready = false;
+                Ostrov.log_warn("§6MySQL - создаём local подключение..."); //не ставить log_err, или зацикливает!!!
                 //return CreateConn();
             }
         } catch (SQLException e) {
-            Ostrov.log_err("§4MySql: соединение local сломалось !"+e.getMessage());
+            ready = false;
+            Ostrov.log_warn("§4MySql: соединение local сломалось !"+e.getMessage());   //не ставить log_err, или зацикливает!!!
         }
         
         return connection = CreateConn();
@@ -279,8 +303,10 @@ public class MysqlLocal {
         if (!useLocalData) return;
         try {
             if (connection != null) connection.close();
+            ready = false;
         } catch (SQLException e) {
-            Ostrov.log_err("§4MySql: Disconnect local не удалось !"+e.getMessage());
+            ready = false;
+            Ostrov.log_warn("§4MySql: Disconnect local не удалось !"+e.getMessage());
         }
     }
 

@@ -25,19 +25,18 @@ import ru.komiss77.Managers.WorldManager;
 import ru.komiss77.Managers.WorldManager.Generator;
 import ru.komiss77.Ostrov;
 import ru.komiss77.menu.Worlds;
-import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 
 
 
 //public class WorldManagerCommand implements CommandExecutor{
-public class WorldManagerCommand implements CommandExecutor,TabCompleter{
+public class WorldManagerCommand implements CommandExecutor, TabCompleter{
 
-    public static List<String> commands = Arrays.asList( "list", "info", "tp", "create", "load", "import", "save", "unload", "setwordspawn", "delete", "backup", "restore", "gamerule");
+    public static List<String> commands = Arrays.asList( "list", "tp", "create", "load", "import", "save", "unload", "setwordspawn", "delete", "backup", "restore");
 
 
-    
+     
     
  // !!!!!!!!!!!!!!!!!!  Не перемещать! ссылаются плагины!!
    
@@ -72,8 +71,8 @@ public class WorldManagerCommand implements CommandExecutor,TabCompleter{
                         strings[0].equalsIgnoreCase("unload") ||
                         strings[0].equalsIgnoreCase("delete") ||
                         strings[0].equalsIgnoreCase("save") ||
-                        strings[0].equalsIgnoreCase("info") ||
-                        strings[0].equalsIgnoreCase("gamerule") ||
+                        strings[0].equalsIgnoreCase("fill") ||
+                        strings[0].equalsIgnoreCase("trim") ||
                         strings[0].equalsIgnoreCase("backup") 
                         ) {
                     for (World w : Bukkit.getWorlds()) {
@@ -274,12 +273,20 @@ public class WorldManagerCommand implements CommandExecutor,TabCompleter{
             
             
             
+        /*    
             
-            
-        } else if (sub_command.equals("gamerule")) {
-            if (p==null) {
-                sender.sendMessage(Ostrov.prefix+" §cэто не консольная команда!");
-            } else {
+        } else if (sub_command.equals("fill")) {
+            World world = p.getWorld();
+            if (arg.length == 2) {
+                world = Bukkit.getWorld(arg[1]);
+            }
+            if (world == null) {
+                sender.sendMessage(Ostrov.prefix+"Загруженный мир с таким названием не найден!");
+                return true;
+            }
+            //if (p==null) {
+            //    sender.sendMessage(Ostrov.prefix+" §cэто не консольная команда!");
+            //} else {
                 //World world = p.getWorld();
                // if (arg.length == 2) {
                //     world = Bukkit.getWorld(arg[1]);
@@ -289,10 +296,10 @@ public class WorldManagerCommand implements CommandExecutor,TabCompleter{
               //      return true;
               //  }
                 
-                WorldManagerCommand.openWorldMenu(p);
+                //WorldManagerCommand.openWorldMenu(p);
 
                 
-            }
+            //}
             return true;
             
             
@@ -304,31 +311,21 @@ public class WorldManagerCommand implements CommandExecutor,TabCompleter{
             
             
             
-        } else if (sub_command.equals("info")) {
-            if (p==null) {
-                sender.sendMessage(Ostrov.prefix+" §cэто не консольная команда!");
-            } else {
-                World world = p.getWorld();
-                if (arg.length == 2) {
-                    world = Bukkit.getWorld(arg[1]);
-                }
-                if (world == null) {
-                    sender.sendMessage(Ostrov.prefix+"Загруженный мир с таким названием не найден!");
-                    return true;
-                }
-                sender.sendMessage(Ostrov.prefix+" §fВы в мире §e"+world.getName()+
-                        "§f, провайдер: §e"+world.getEnvironment().toString()+
-                        "§f, генератор: §e"+( world.getGenerator()==null ? "null" :    (world.getGenerator().getClass().getName().contains(".") ? world.getGenerator().getClass().getName().substring(world.getGenerator().getClass().getName().lastIndexOf(".")+1) : world.getGenerator().getClass().getName() )   )+
-                        "§f, размер мира : §e"+world.getWorldBorder().getSize()+
-                        "§f, чанков загружено: §e"+world.getLoadedChunks().length+
-                        "§f, мобов загружено: §e"+world.getLivingEntities().size()
-                );
+        } else if (sub_command.equals("trim")) {
+            World world = p.getWorld();
+            if (arg.length == 2) {
+                world = Bukkit.getWorld(arg[1]);
             }
+            if (world == null) {
+                sender.sendMessage(Ostrov.prefix+"Загруженный мир с таким названием не найден!");
+                return true;
+            }
+            
             return true;
             
             
             
-            
+            */
             
             
             

@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Table;
 import ru.komiss77.Objects.CaseInsensitiveMap;
@@ -111,7 +110,7 @@ public class OstrovDB {
             ResultSet rs = null;
             
             try {
-                stmt = ApiOstrov.getOstrovConnection().createStatement();
+                stmt = GetConnection().createStatement();
                 
                 rs = stmt.executeQuery( "SELECT * FROM  "+Table.PEX_GROUPS.table_name ); //кинуло на home1 attempted  duplicate class definition
                     while (rs.next()) {
@@ -202,6 +201,7 @@ public class OstrovDB {
         try {
             Disconnect();
             Class.forName("com.mysql.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url);
             return connection;
         } catch (SQLException | ClassNotFoundException e) {

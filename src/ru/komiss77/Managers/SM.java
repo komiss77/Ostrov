@@ -1,5 +1,6 @@
 package ru.komiss77.Managers;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,6 +36,7 @@ import ru.komiss77.Objects.Arena;
 import ru.komiss77.Objects.CaseInsensitiveMap;
 import ru.komiss77.Objects.S_info;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.version.VM;
 
@@ -158,6 +160,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
     
     public static void writeThisServerStateToOstrovDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
+        if (!OstrovDB.useOstrovData) return;
         new BukkitRunnable(){
             @Override     
             public void run() {
@@ -286,7 +289,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
   
 
     private static void writeArenaStateToMySql (final String serv_arena, final int players, final String raw, final UniversalArenaState state ) {
-        if (ApiOstrov.getOstrovConnection()== null) return;
+        if (!OstrovDB.useOstrovData) return;
 //System.out.println("bsign.spigot.Bsign.write()");        
         try ( 
                 
@@ -473,7 +476,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
 
     private static void startSinfoTimers() {   //запускается после загрузки в loadServersAndArenas
         
-        tick_timer=new BukkitRunnable() {
+     /*   tick_timer=new BukkitRunnable() {
             @Override
             public void run() {
 //Bukkit.broadcastMessage("last_check="+last_check/1000);
@@ -485,7 +488,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
                 }
                 
             }
-        }.runTaskTimerAsynchronously(Ostrov.instance, 11, 11);
+        }.runTaskTimerAsynchronously(Ostrov.instance, 11, 11);*/
 
         
         load_timer=new BukkitRunnable() {
@@ -493,7 +496,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
             public void run() {
 //Bukkit.broadcastMessage("last_check="+last_check/1000);
                 
-                if (Bukkit.getOnlinePlayers().size()>0) {
+                if (OstrovDB.useOstrovData && Bukkit.getOnlinePlayers().size()>0) {
                     Statement stmt=null;
                     ResultSet rs = null;
                     try {
@@ -541,7 +544,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
                             last_check=Timer.currentTimeSec();
                             
                             servers.values().stream().forEach((si) -> {
-                                si.do_Tick();
+                                si.update();
                             });
                             //main_inv.getViewers().stream().forEach( p -> {((Player)p).updateInventory();} );
                         //Ostrov.log_ok("§2Данные серверов загружена! Запуск таймера.");
@@ -593,6 +596,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
     //только для SINGLE
     private static void write (final int count ) {
+        if (!OstrovDB.useOstrovData) return;
         Ostrov.async(()-> {
             //if (ApiOstrov.getOstrovConnection()== null) return;
     //System.out.println(" --- write online="+count+" type = "+this_server_type);
@@ -656,7 +660,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
     
  public static void loadServersAndArenas() {
-
+    if (!OstrovDB.useOstrovData) return;
     Ostrov.async(()-> {
             
         Statement stmt = null;
@@ -747,7 +751,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
     
  public static void getBungeeServerInfo() {
-
+    if (!OstrovDB.useOstrovData) return;
     Ostrov.async(()-> {
             
         Statement stmt = null;
@@ -772,7 +776,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
                 stmt.close();
 
 
-            } catch (SQLException ex) { 
+            } catch (SQLException | NullPointerException ex) { 
                 Ostrov.log_err("§4Не удалось загрузить BungeeServerInfo! "+ex.getMessage());
             } finally {
                 try{
@@ -784,7 +788,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
             }
     
                 
-        }, 0);
+        }, 40);
     
     }
     

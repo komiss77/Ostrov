@@ -2,25 +2,27 @@ package ru.komiss77.utils;
 
     import java.io.File;
     import java.io.InputStream;
-import java.util.Collection;
+    import java.util.Collection;
     import java.util.List;
     import java.util.Set;
-     
     import org.bukkit.configuration.ConfigurationSection;
     import org.bukkit.configuration.file.FileConfiguration;
     import org.bukkit.configuration.file.YamlConfiguration;
     import org.bukkit.plugin.java.JavaPlugin; 
+    import ru.komiss77.Cfg;
      
+
+
     public class OstrovConfig {
         private int comments;
-        private final OstrovConfigManager manager;
+        //private final OstrovConfigManager manager;
      
         private final File file;
         private FileConfiguration config;
      
         public OstrovConfig(InputStream configStream, File configFile, int comments, JavaPlugin plugin) {
             this.comments = comments;
-            this.manager = new OstrovConfigManager(plugin);
+            //this.manager = new OstrovConfigManager(plugin);
      
             this.file = configFile;
             //this.config = YamlConfiguration.loadConfiguration(configStream);
@@ -115,7 +117,7 @@ import java.util.Collection;
         
         public void set(String path, Object value, String comment) {
             if(!this.config.contains(path)) {
-                this.config.set(manager.getPluginName() + "_COMMENT_" + comments, " " + comment);
+                this.config.set(Cfg.manager.getPluginName() + "_COMMENT_" + comments, " " + comment);
                 comments++;
             }
      
@@ -128,7 +130,7 @@ import java.util.Collection;
             for(String comm : comment) {
      
                 if(!this.config.contains(path)) {
-                    this.config.set(manager.getPluginName() + "_COMMENT_" + comments, " " + comm);
+                    this.config.set(Cfg.manager.getPluginName() + "_COMMENT_" + comments, " " + comm);
                     comments++;
                 }
      
@@ -139,7 +141,7 @@ import java.util.Collection;
         }
      
         public void setHeader(String[] header) {
-            manager.setHeader(this.file, header);
+            Cfg.manager.setHeader(this.file, header);
             this.comments = header.length + 2;
             this.reloadConfig();
         }
@@ -151,7 +153,7 @@ import java.util.Collection;
      
         public void saveConfig() {
             String cfg = this.config.saveToString();
-            manager.saveConfig(cfg, this.file);
+            Cfg.manager.saveConfig(cfg, this.file);
      
         }
      

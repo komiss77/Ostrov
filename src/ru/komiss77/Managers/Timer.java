@@ -2,7 +2,6 @@
 package ru.komiss77.Managers;
 
 import java.net.InetAddress;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,12 +30,12 @@ public class Timer {
     private static BukkitTask timer=null;
     private long counter;
 
-    private static boolean auto_restart;
+    private static boolean auto_restart = false;
     private static String restart_time;
-    private static int rs;
+    private static int rs = 0;
 
-    private static boolean perms_autoupdate;
-    private static int rp_int;
+    private static boolean perms_autoupdate = false;
+    private static int rp_int = 0;
 
     private static ConcurrentHashMap <Integer, Integer> cd;
     public static Set <Integer> timer_keyset;
@@ -44,47 +43,43 @@ public class Timer {
     public static ConcurrentHashMap <String, DelayTitle> delay_titles;
     public static ConcurrentHashMap <String, DelayBossBar> delay_bossbars;
 
-    private static int time_delta;
+    private static int time_delta = 0;
     private static int currentTime = (int) (System.currentTimeMillis()/1000);
-    
 
-public static void LoadVars() {
-    auto_restart = Cfg.GetCongig().getBoolean("system.autorestart.use");
-    restart_time = Cfg.GetCongig().getString("system.autorestart.time");
-    if (auto_restart) Ostrov.log_ok ("§6автоперезапуск будет выполняться примерно в:"+restart_time);
-
-    perms_autoupdate = Cfg.GetCongig().getBoolean("ostrov_database.auto_reload_permissions");
-    rp_int = Cfg.GetCongig().getInt("ostrov_database.auto_reload_permissions_interval_min");
-    if (perms_autoupdate) Ostrov.log_ok ("§5Автообновление прав каждые "+rp_int+" мин.!!");
     
-    new BukkitRunnable() {
-        @Override
-        public void run() {
-            try {
-                NTPUDPClient timeClient = new NTPUDPClient();
-                InetAddress inetAddress = InetAddress.getByName("ntp.ubuntu.com");
-                TimeInfo timeInfo = timeClient.getTime(inetAddress);
-                long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
-                time_delta=(int)(System.currentTimeMillis()-returnTime);
-                Ostrov.log_ok("время NTP:"+returnTime+", Время системное:"+System.currentTimeMillis()+", разница:"+time_delta);
-            } catch (Exception ex) {
-                Ostrov.log_err("Не удалось получить NTP time "+ex.getMessage());
+    public static void LoadVars() {
+        auto_restart = Cfg.GetCongig().getBoolean("system.autorestart.use");
+        int rstHour =  Cfg.GetCongig().getInt("system.autorestart.hour", 3);
+        if (rstHour<0 || rstHour>23) rstHour = 3;
+        int rstMin =  Cfg.GetCongig().getInt("system.autorestart.min", 30);
+        if (rstMin<0 || rstMin>59) rstHour = 30;
+        restart_time = (rstHour<=9?"0"+rstHour:""+rstHour) + ":" + (rstMin<=9?"0"+rstMin:""+rstMin);
+        if (auto_restart) Ostrov.log_ok ("§6Установлено время авторестарта :"+restart_time);
+
+        perms_autoupdate = Cfg.GetCongig().getBoolean("ostrov_database.auto_reload_permissions");
+        rp_int = Cfg.GetCongig().getInt("ostrov_database.auto_reload_permissions_interval_min");
+        if (perms_autoupdate) Ostrov.log_ok ("§5Автообновление прав каждые "+rp_int+" мин.!!");
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    final NTPUDPClient timeClient = new NTPUDPClient();
+                    final InetAddress inetAddress = InetAddress.getByName("ntp.ubuntu.com");
+                    final TimeInfo timeInfo = timeClient.getTime(inetAddress);
+                    final long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
+                    time_delta=(int)(System.currentTimeMillis()-returnTime);
+                    Ostrov.log_ok("время NTP:"+returnTime+", Время системное:"+System.currentTimeMillis()+", разница:"+time_delta);
+                } catch (Exception ex) {
+                    Ostrov.log_err("Не удалось получить NTP time "+ex.getMessage());
+                }
             }
-        }
-    }.runTaskAsynchronously(Ostrov.instance);
-    
-}
+        }.runTaskAsynchronously(Ostrov.instance);
+
+    }
 
 
     public static void Init() {
-        time_delta=0;
-
-        auto_restart=false;
-        rs = 0;
-
-        perms_autoupdate = false;
-        rp_int = 0;
-
         cd = new ConcurrentHashMap<>();
         delay_actionbars = new ConcurrentHashMap<>();
         delay_titles = new ConcurrentHashMap<>();
@@ -98,16 +93,6 @@ public static void LoadVars() {
     public static void ReLoadVars() {
         LoadVars();
     }
-    
-    @Deprecated
-    public static long Единое_время() {
-        return System.currentTimeMillis()-time_delta;
-    }
-    @Deprecated
-    public static int currentTimeSec() {
-        return currentTime;
-    }
-
 
 
 
@@ -128,10 +113,10 @@ public static void LoadVars() {
                     currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
 
                     if (auto_restart) {
-//System.out.println("рестарт: "+rs+" конфиг: "+restart_time+" время: "+Current_time()+" equals:"+(restart_time.equals(Current_time()) ));
+//System.out.println("time_delta="+time_delta+" currentTime="+currentTime+" rs="+rs+" restart_time="+restart_time+" время="+Ostrov.getCurrentHourMin()+" equals?"+(restart_time.equals(Ostrov.getCurrentHourMin()) ));
                         if (rs == 60) {
                             rs=0;
-                            if (restart_time.equals(Current_time())) {
+                            if (restart_time.equals(Ostrov.getCurrentHourMin())) {
                                 to_restart=true;
                                 auto_restart = false;
 
@@ -144,8 +129,14 @@ public static void LoadVars() {
                         if (time_left==300) {
                             Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
-                        if (time_left==300 || time_left==180 || time_left==120 || time_left==60) Bukkit.broadcastMessage("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!");
-                        if (time_left==0) Bukkit.shutdown();
+                        if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
+                            Bukkit.broadcastMessage("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!");
+                        }
+                        if (time_left==0) {
+                            this.cancel();
+                            Bukkit.shutdown();
+                            return;
+                        }
                         time_left-=1;
                     }
 
@@ -315,12 +306,21 @@ public static void LoadVars() {
 
 
 
-   @Deprecated
- private static String Current_time () {
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    
+  //  public static String getTimeHourMin () {
 //System.out.println("4444 ");
-        return sdf.format(Timer.currentTimeSec());
-}
+   //     return sdf.format(currentTime*1000);
+  //  }
+
+    
+    @Deprecated
+    public static long Единое_время() {
+        return System.currentTimeMillis()-time_delta;
+    }
+    @Deprecated
+    public static int currentTimeSec() {
+        return currentTime;
+    }
 
 
     

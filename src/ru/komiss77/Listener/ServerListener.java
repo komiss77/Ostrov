@@ -35,6 +35,7 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Pvp;
 import ru.komiss77.Managers.PM;
+import ru.komiss77.Managers.WorldManager;
 import ru.komiss77.Ostrov;
 
 
@@ -285,14 +286,16 @@ System.out.println("------------> GroupChangeEvent ");
 
     final World bukkitWorld = e.getWorld();
     
+    WorldManager.tryRestoreFill(bukkitWorld.getName());
     
-    if (bukkitWorld.getName().equals("world_the_end")) {
-        for (final Entity entity : bukkitWorld.getEntities()) {
-            if (entity.getType()==EntityType.ENDER_DRAGON) {
-System.out.println("+++++++++++++++++++++++++++++++++++");
-            }
-        }
-    }
+
+   // if (bukkitWorld.getName().equals("world_the_end")) {
+    //    for (final Entity entity : bukkitWorld.getEntities()) {
+     //       if (entity.getType()==EntityType.ENDER_DRAGON) {
+//System.out.println("+++++++++++++++++++++++++++++++++++");
+        //    }
+       // }
+   // }
     
     //final String level_name=VM.getNmsServer().getlevelName(bukkitWorld); //только для мира 0
        // if (bukkitWorld.getName().equals(level_name) ) {

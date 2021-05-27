@@ -11,20 +11,156 @@ import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import ru.komiss77.Cfg;
 import ru.komiss77.Commands.WorldManagerCommand;
+import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.wordBorder.DynMapFeatures;
+import ru.komiss77.modules.wordBorder.WorldFillTask;
+import ru.komiss77.modules.wordBorder.WorldTrimTask;
+import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.TransLiter;
 
 
-public class WorldManager {
+public class WorldManager extends Initiable {
+    
+    
+    public static volatile WorldFillTask fillTask = null;
+    public static volatile WorldTrimTask trimTask = null;   
+
+    public static OstrovConfig config;
+    public static boolean shapeRound = true;
+    public static boolean dynmapEnable = true;
+    public static String dynmapMessage;
+    private static int remountDelayTicks = 0;
+    public static int fillAutosaveFrequency = 30;
+    public static int fillMemoryTolerance = 500;
+    private static Runtime rt;
+
+    
+    
+    
+    public static void tryRestoreFill(final String worldName) {
+        if (fillTask==null) {
+            if (config.getConfigurationSection("fillTask")!=null && WorldManager.config.getString("fillTask.world").equals(worldName)) {
+               //String worldName = config.getString("fillTask.world");
+                int fillDistance = config.getInt("fillTask.fillDistance", 176);
+                int chunksPerRun = config.getInt("fillTask.chunksPerRun", 5);
+                int tickFrequency = config.getInt("fillTask.tickFrequency", 20);
+                int fillX = config.getInt("fillTask.x", 0);
+                int fillZ = config.getInt("fillTask.z", 0);
+                int fillLength = config.getInt("fillTask.length", 0);
+                int fillTotal = config.getInt("fillTask.total", 0);
+                boolean forceLoad = config.getBoolean("fillTask.forceLoad", false);
+                RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal, forceLoad);
+            }
+        } 
+    }
+    
+    
+    
+    
+    
+    public WorldManager () {
+        
+        rt = Runtime.getRuntime();
+        
+        config = Cfg.manager.getNewConfig("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""} );
+        config.addDefault("roundBorder", false);
+        config.addDefault("remountDelayTicks", 0);
+        config.addDefault("dynmapBorderEnabled", false);
+        config.addDefault("dynmapBorderMessage", "Граница мира.");
+        config.addDefault("fillAutosaveFrequency", 30);
+        config.addDefault("fillMemoryTolerance", 500);
+        config.saveConfig();
+        
+        shapeRound = config.getBoolean("roundBorder", true);
+        remountDelayTicks = config.getInt("remountDelayTicks", 0);
+        dynmapEnable = config.getBoolean("dynmapBorderEnabled", true);
+        dynmapMessage = config.getString("dynmapBorderMessage", "Граница мира.");
+        fillAutosaveFrequency = config.getInt("fillAutosaveFrequency", 30);
+        fillMemoryTolerance = config.getInt("fillMemoryTolerance", 500);
+        
+//System.out.println("----------------- "+config.getConfigurationSection("fillTask"));
+        
+        DynMapFeatures.setup();
+    }
+    
+    
+    
     
     
     
     
 
+    public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total, boolean forceLoad) {
+        fillTask = new WorldFillTask(world);
+//System.out.println("===========RestoreFillTask valid?"+fillTask.valid());
+        if (fillTask.valid()) {
+            fillTask.continueProgress(x, z, length, total);
+            int task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Ostrov.instance, fillTask, 20, tickFrequency);
+            fillTask.setTaskID(task);
+        }
+    }
 
+    public static void StopTrimTask() {
+        if (trimTask != null && trimTask.valid()) trimTask.cancel();
+    }
+        
+        
 
+    public static void save(boolean storeFillTask) {	// save config to file
+        if (config == null) return;
 
+        config.set("roundBorder", shapeRound);
+        config.set("remountDelayTicks", remountDelayTicks);
+        config.set("dynmapBorderEnabled", dynmapEnable);
+        config.set("dynmapBorderMessage", dynmapMessage);
+        config.set("fillAutosaveFrequency", fillAutosaveFrequency);
+        config.set("fillMemoryTolerance", fillMemoryTolerance);
+
+        if (storeFillTask && fillTask != null && fillTask.valid()) {
+            config.set("fillTask.world", fillTask.refWorld());
+            config.set("fillTask.fillDistance", fillTask.refFillDistance());
+            config.set("fillTask.chunksPerRun", fillTask.refChunksPerRun());
+            config.set("fillTask.tickFrequency", fillTask.refTickFrequency());
+            config.set("fillTask.x", fillTask.refX());
+            config.set("fillTask.z", fillTask.refZ());
+            config.set("fillTask.length", fillTask.refLength());
+            config.set("fillTask.total", fillTask.refTotal());
+            config.set("fillTask.forceLoad", fillTask.refForceLoad());
+        } else {
+            config.set("fillTask", fillMemoryTolerance);
+        }
+
+        config.saveConfig();
+
+    }
+        
+	public static void StoreFillTask() {
+		save(true);
+	}
+	public static void UnStoreFillTask() {
+		save(false);
+	}    
+	public static int AvailableMemory() {
+		return (int)((rt.maxMemory() - rt.totalMemory() + rt.freeMemory()) / 1048576);  // 1024*1024 = 1048576 (bytes in 1 MB)
+	}
+
+	public static boolean AvailableMemoryTooLow() {
+		return AvailableMemory() < fillMemoryTolerance;
+	}    
+    
+        
+        
+        
+        
+    @Override
+    public void onDisable() {
+        DynMapFeatures.removeAllBorders();
+        StoreFillTask();
+        if (fillTask != null && fillTask.valid()) fillTask.cancel();
+    }
 
 // !!!!!!!!!!!!!!!!!!  Не перемещать! ссылаются плагины!!
 
@@ -537,6 +673,10 @@ public class WorldManager {
     
 
 
+    
+    
+    
+    
     
 }
 

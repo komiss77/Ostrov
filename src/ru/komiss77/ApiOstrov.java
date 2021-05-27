@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -511,8 +512,19 @@ public class ApiOstrov {
     
 
     //    числа
-    public static int randInt(int min, int max) {
-        return Ostrov.random.nextInt((max - min) + 1) + min;
+    public static int randInt(int num1, int num2) {
+       // int d;
+       // if (num1>num2) {
+       //     d = num2;
+        //    num2 = num1;
+        //    num1 = d;
+        //}
+        //d = Math.abs(num2 - num1);
+//System.out.println("randInt() num1="+num1+" num2="+num2+" d="+d);
+        if (num1==num2) return num1;
+        return ((num1<num2) ? num1 : num2)  + Ostrov.random.nextInt(Math.abs(num2 - num1));
+        //return Ostrov.random.nextInt((max - min) + 1) + min;
+        //return -num1 + (int) (Math.random() * ((num2 - (-num1)) + 1));
     }
     public static boolean randBoolean() {
         return Ostrov.random.nextBoolean();

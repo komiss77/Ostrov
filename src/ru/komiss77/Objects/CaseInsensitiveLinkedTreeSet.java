@@ -16,8 +16,8 @@ import java.util.TreeSet;
  * incompatible with the notions of lists and sets combined, or I got lazy.
  */
 public class CaseInsensitiveLinkedTreeSet
-implements List<String>
-{
+implements List<String> {
+    
     LinkedList<String>        linkedList = new LinkedList<>();
     TreeSet<String>           treeSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
  
@@ -183,7 +183,7 @@ implements List<String>
      
     //----------------------------------------------------------------------
     // very basic test
-    public static void main( String[] args )
+   /* public static void main( String[] args )
     {
         String startingString = "Hello hello Ab aB";
         List<String> caseSensitiveList = Arrays.asList(startingString.split("\\s"));
@@ -193,5 +193,5 @@ implements List<String>
         for (String s: caseInsensitiveSet) {
             System.out.println(s);
         }
-    }
+    }*/
 }

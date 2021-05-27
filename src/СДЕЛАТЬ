@@ -1,16 +1,16 @@
-api-version: 1.16
-outdated-client: §eДля §eчестного §eи §eдинамичного §eбоя, §eсервер §eтребует §eверсию §eклиента §eне §eменее §b§l{0}
 
-пробовать paperMC
-обнова жава https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot
-настройки под майн https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/
+
+
+
+проблема с ААС Failed to initialize pool: Public Key Retrieval is not allowed aac?allowPublicKeyRetrieval=true&useSSL=false - не работает
 
 топ - переделать на меню и таблички или голограмы
 косметика - не видит свою маскировку 03.05.21
 
-стата - убрать из банжи
+авторестарт на минииграх вроде не работает ???
 
-остров - если пропадает соединение с БД, потом не пересоединяется!
+стата - убрать из банжи
+репорт НА игрока: игроки в час?
 
 
 !!!! режим турнир - зайти сами не могут, добавляет и запускает ведущий

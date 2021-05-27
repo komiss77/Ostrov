@@ -25,6 +25,7 @@ import ru.komiss77.Enums.Action;
 import ru.komiss77.Listener.SpigotChanellMsg;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 
@@ -120,13 +121,18 @@ public class Report implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
         
-        if (ApiOstrov.getOstrovConnection()==null) {
+        if ( !OstrovDB.useOstrovData ) {
+            cs.sendMessage("§cСоединение с БД Острова отключено в конфиге!");
+            return true;
+        }
+        
+        if ( ApiOstrov.getOstrovConnection()==null) {
             cs.sendMessage("§cНет соединения с БД Острова!");
             return true;
         }
         
         if (arg.length==0 && cs instanceof Player) {
-            if (ApiOstrov.isLocalBuilder(cs, false)) {
+            if (ApiOstrov.isLocalBuilder(cs, false) || ApiOstrov.hasGroup(cs.getName(), "moder")) {
                 openReportMenu( (Player)cs, 0 );
             } else {
                 openPlayerReports( (Player)cs, cs.getName(), 0 );
@@ -717,7 +723,7 @@ p.sendMessage("jump не доделан");
 
             if (reports.size()>=36) {
                 contents.set( 5, 8, ClickableItem.of(ItemUtils.nextPage, e -> {
-                    if (ApiOstrov.isLocalBuilder(p, false)) {
+                    if (ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.getName(), "moder")) {
                         openPlayerReports(p,  toName, page+1);
                     } else {
                         p.closeInventory();

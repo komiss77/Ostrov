@@ -171,26 +171,36 @@ public class S_info {
         return null;
     }
     
-    public void do_Tick() {
+    public void update() {
 //System.out.println("do_Tick server="+this.server+" wiew="+this.arena_inv.getViewers());        
 //this.update(Ostrov.randInt(0, 100));
         ItemMeta meta=item.getItemMeta();
         if (this.players>=0) {
-            if (flash) {
-                flash=false;
-                lore.set(1,lore.get(1).replaceFirst("§a⊳", "§a ") );
-                lore.set(2,lore.get(2).replaceFirst("§a ", "§a⊳") );
+           // if (flash) {
+            //    flash=false;
+            if (type==S_type.SINGLE) {
+                lore.set(2,"§a⊳ Клик - перейти на сервер");//line 1-4+разделитель
             } else {
-                flash=true;
-                lore.set(1,lore.get(1).replaceFirst("§a ", "§a⊳") );
-                lore.set(2,lore.get(2).replaceFirst("§a⊳", "§a ") );
+                if (Ostrov.getWarpManager().exist(server)) {
+                    lore.set(1,"§a  Лев.клик - к табличкам");
+                    lore.set(2,"§a⊳ Прав.клик - выбрать арену"); //line 1-4+разделитель
+                } else {
+                    lore.set(2,"§a⊳ Клик - выбрать арену");
+                }
             }
+               // lore.set(1,lore.get(1).replaceFirst("§a⊳", "§a ") );
+              //  lore.set(2,lore.get(2).replaceFirst("§a ", "§a⊳") );
+          //  } else {
+          //      flash=true;
+           //     lore.set(1,lore.get(1).replaceFirst("§a ", "§a⊳") );
+            //    lore.set(2,lore.get(2).replaceFirst("§a⊳", "§a ") );
+          //  }
             //if (SM.colorable.contains(item.getType())) item.setDurability((short) Ostrov.randInt(0, 15)); 1.12
-           if (ApiOstrov.canChangeColor(item.getType())) ColorUtils.changeColor(item, (short) ApiOstrov.randInt(0, 15));
+          // if (ApiOstrov.canChangeColor(item.getType())) ColorUtils.changeColor(item, (short) ApiOstrov.randInt(0, 15));
         } else if (type==S_type.SINGLE) {
             lore.set(2,"§4Сервер выключен" );
             //if (SM.colorable.contains(item.getType())) item.setDurability((short)0); 1.12
-           if (ApiOstrov.canChangeColor(item.getType())) ColorUtils.changeColor(item, (short) 0);
+        //   if (ApiOstrov.canChangeColor(item.getType())) ColorUtils.changeColor(item, (short) 0);
         }
         meta.setLore(lore); //1 ArrayIndexOutOfBoundsException: 7
         item.setItemMeta(meta);  //2 Null string not allowed
