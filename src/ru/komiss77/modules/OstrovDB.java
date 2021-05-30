@@ -1,5 +1,6 @@
 package ru.komiss77.modules;
 
+import com.google.common.collect.HashBiMap;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.Set;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Table;
 import ru.komiss77.Objects.CaseInsensitiveMap;
+import ru.komiss77.Objects.CaseInsensitiveSet;
 import ru.komiss77.Objects.Group;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.OstrovConfig;
@@ -26,20 +29,23 @@ public class OstrovDB {
     public static boolean useOstrovData=false;
     private static Connection connection;
     private static String url;
-    public static OstrovConfig default_perms;
+    public static OstrovConfig localPerms;
     
     
     public static Map <String,Group> groups;
-    public static Set <String> default_permissions;
+    //public static Map <String, List<String>> localGroupPermissions;
+    public static Set<String> defaultPerms;
     
     public static void init () {
         groups = new CaseInsensitiveMap();
-        default_permissions = new HashSet<>();
+        //localGroupPermissions = new HashMap<>();
+        defaultPerms = new HashSet<>();
         
-        default_perms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию для всех игроков на этом сервере", ""} );
-        default_perms.addDefault("default_permissions", Arrays.asList( "deluxechat.utf","deluxechat.pm", "deluxechat.bungee.chat", "deluxechat.bungee.toggle",
+        localPerms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"} );
+        localPerms.addDefault("default", Arrays.asList( "deluxechat.utf","deluxechat.pm", "deluxechat.bungee.chat", "deluxechat.bungee.toggle",
             "chestcommands.command.open", "chestcommands.open.menu.yml") );
-        default_perms.saveConfig();
+        localPerms.set ("default_permissions", null);
+        localPerms.saveConfig();
         
         
         url = Cfg.GetCongig().getString("ostrov_database.mysql_host")
@@ -50,16 +56,32 @@ public class OstrovDB {
 
         useOstrovData = Cfg.GetCongig().getBoolean("ostrov_database.connect");
 //System.out.println("---------- OstrovDB useOstrovData="+useOstrovData);
+
+
+        for (String group : localPerms.getKeys() ) { //дфолтные права будут всегда! загрузать до мускул, или может concurrent!
+            if (group.equals("default")) {
+                defaultPerms.addAll(localPerms.getStringList(group));
+            }// else {
+            //    if (groups.containsKey(group)) {
+            //        groups.get(group).permissions.addAll(localPerms.getStringList(group));
+           //     }
+            //}
+            //localGroupPermissions.put(group, new ArrayList<>(localPerms.getStringList(group)));
+//System.out.println("group="+group+" : "+Arrays.toString(localGroupPermissions.get(group).toArray()));
+        }
+        
+
         if (useOstrovData) {
             SetupTable();
             loadGroups();
         }
         
-        for (String perm : default_perms.getStringList("default_permissions") ) {
-            default_permissions.add(perm);
-        }
         
-        Ostrov.log_ok("Загружено прав по умолчанию: §a"+default_permissions.size());
+        //for (String perm : default_perms.getStringList("default_permissions") ) {
+        //    default_permissions.add(perm);
+        //}
+        
+        //Ostrov.log_ok("Загружены локальные права для групп : §a"+localGroupPermissions.keySet());
         
         
         //for (Oplayer op:PM.getOplayers()) {
@@ -71,19 +93,6 @@ public class OstrovDB {
     
     public static void reload () {
         init();
-      /*  default_permissions.clear();
-        
-        url = Conf.GetCongig().getString("ostrov_database.mysql_host")
-                + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=" 
-                + Conf.GetCongig().getString("ostrov_database.mysql_user") 
-                + "&password=" 
-                + Conf.GetCongig().getString("ostrov_database.mysql_passw");
-
-        if (Conf.GetCongig().getBoolean("ostrov_database.connect")) loadGroups();
-        
-        for (Oplayer op:PM.getOplayers()) {
-            op.calculatePerms(false);
-        }*/
     }
 
 
@@ -146,6 +155,22 @@ public class OstrovDB {
                 final List<String> gr_names = new ArrayList<>();
                 gr_names.addAll(groups.keySet());
                 
+                //подгрузка из файла
+                for (String group : localPerms.getKeys() ) { //после загрузки с мускул!
+                    if (group.equals("default")) {
+                        continue; //defaultPerms.addAll(localPerms.getStringList(group));
+                    } else {
+                        if (groups.containsKey(group)) {
+ //System.out.println("++++++++++group="+group+" : "+Arrays.toString(localPerms.getStringList(group).toArray()));
+                            groups.get(group).permissions.addAll(localPerms.getStringList(group));
+                        }
+                    }
+                    //localGroupPermissions.put(group, new ArrayList<>(localPerms.getStringList(group)));
+        //System.out.println("group="+group+" : "+Arrays.toString(localGroupPermissions.get(group).toArray()));
+                }
+        
+
+                //пересчёт наследования
                 Group current_group;
                 for (String g : gr_names) {
                     current_group=groups.get(g);

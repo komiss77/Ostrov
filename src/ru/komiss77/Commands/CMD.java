@@ -35,6 +35,7 @@ import ru.komiss77.Managers.Timer;
 import ru.komiss77.Managers.Warps;
 import ru.komiss77.Ostrov;
 import ru.komiss77.menu.Sounds;
+import ru.komiss77.menu.ViewPerm;
 import ru.komiss77.utils.ChatMsgUtil;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -632,32 +633,46 @@ switch (label) {
 
 
     case "operm":
-        if (arg.length==0) { //админ - права других
-            sender.sendMessage("§c/operm <ник> [право]");
+        if (arg.length==0 || (arg.length==1 && arg[0].equalsIgnoreCase(sender.getName()))) { //админ - права других
+            SmartInventory.builder()
+                .id("Права "+sender.getName())
+                .provider(new ViewPerm((Player) sender))
+                .size(6, 9)
+                .title("Ваши права")
+                .build()
+                .open(p);
+            //sender.sendMessage("§c/operm <ник> [право]");
             return false;
         }
         
-            if(!ApiOstrov.isLocalBuilder(sender, true) && !arg[0].equals(sender.getName())) {
-                arg[0] = sender.getName();
-                sender.sendMessage("§cВы можете посмтотреть только свои права!");
-            }
-            if (Bukkit.getPlayer( arg[0] )==null) {
-                sender.sendMessage("§cИгрок не найден!");
-                return false;
-            }
-            sender.sendMessage("");
-            sender.sendMessage("");
-            
-        if (arg.length==1) { 
-            
-            sender.sendMessage("§fПрава "+arg[0]+", §atrue §7/ §cfalse");
+        if(!ApiOstrov.isLocalBuilder(sender, true) && !arg[0].equals(sender.getName())) {
+            arg[0] = sender.getName();
+            sender.sendMessage("§cВы можете посмтотреть только свои права!");
+        }
+        if (Bukkit.getPlayer( arg[0] )==null) {
+            sender.sendMessage("§cИгрок не найден!");
+            return false;
+        }
+        //sender.sendMessage("");
+       // sender.sendMessage("");
 
-            for (PermissionAttachmentInfo  attacement_info : Bukkit.getPlayer(arg[0]).getEffectivePermissions()) {
-                sender.sendMessage( (attacement_info.getValue()?"§a":"§c")+attacement_info.getPermission() );
-            }
-            
+        if (arg.length==1) {
+
+            SmartInventory.builder()
+                .id("Права "+arg[0])
+                .provider(new ViewPerm(Bukkit.getPlayer( arg[0] )))
+                .size(6, 9)
+                .title("Права "+arg[0])
+                .build()
+                .open(p);
+            //sender.sendMessage("§fПрава "+arg[0]+", §atrue §7/ §cfalse");
+
+           // for (PermissionAttachmentInfo  attacement_info : Bukkit.getPlayer(arg[0]).getEffectivePermissions()) {
+          //      sender.sendMessage( (attacement_info.getValue()?"§a":"§c")+attacement_info.getPermission() );
+          //  }
+
         } else if (arg.length==2) {
-            
+
             sender.sendMessage("§f"+arg[0]+" §7право "+arg[1]+" : "+ (Bukkit.getPlayer(arg[0]).hasPermission(arg[1])? "§aДа" : "§4Нет") );
 
         }

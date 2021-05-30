@@ -1,16 +1,19 @@
 package ru.komiss77.menu;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Listener.PlayerListener;
+import ru.komiss77.menu.ViewPerm.SelectPlayer;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 
 
@@ -74,7 +77,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("§7- перемещение в миры")
             .lore("§7- настройки миров")
             .lore("")
-            .lore("§7ЛКМ - открыть")
+            //.lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("world");
@@ -87,7 +90,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .lore("§7Настройка варпов")
             .lore("")
-            .lore( "§7ЛКМ - открыть" )
+            //.lore( "§7ЛКМ - открыть" )
             .lore("")
             .build(), e-> {
                 p.performCommand("warp");
@@ -103,7 +106,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("§7поиск, просмотр и удаление")
             .lore("§7сущностей")
             .lore("")
-            .lore("§7ЛКМ - открыть")
+            //.lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("entity");
@@ -155,7 +158,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .lore("§7Просмотр репортов")
             .lore("")
-            .lore("§7ЛКМ - открыть")
+            //.lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("report");
@@ -174,6 +177,24 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .build(), e-> {
                 p.performCommand("spy");
+            }));
+
+
+        contents.set(2,3, ClickableItem.of(new ItemBuilder(Material.LIME_DYE)
+            .name("§7Проверить права")
+            .lore("§7Показать загруженные")
+            .lore("§7пермишены для")
+            .lore("§7этого сервера")
+            //.lore("§7ЛКМ - открыть")
+            .lore("")
+            .build(), e-> {
+                 SmartInventory.builder()
+                .id("Чьи права показать")
+                .provider(new SelectPlayer())
+                .size(6, 9)
+                .title("Чьи права показать?")
+                .build()
+                .open(p);
             }));
 
 

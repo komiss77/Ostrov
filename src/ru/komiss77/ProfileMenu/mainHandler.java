@@ -34,8 +34,8 @@ public class mainHandler {
     final Player p=(Player) e.getWhoClicked();
     final Oplayer op = PM.getOplayer(p.getName());
 
-    if (ru.komiss77.ProfileMenu.E_Prof.isProfileIcon(e.getSlot())) { //если кликают по нижним иконкам
-        ru.komiss77.ProfileMenu.E_Prof new_prof=ru.komiss77.ProfileMenu.E_Prof.profileBySlot(e.getSlot());
+    if (E_Prof.isProfileIcon(e.getSlot())) { //если кликают по нижним иконкам
+        E_Prof new_prof=E_Prof.profileBySlot(e.getSlot());
     
         setcolorGlassLine(e.getInventory(), new_prof.mat); //при каждом нажатии восстанавливает полоску
         op.e_profile=new_prof;

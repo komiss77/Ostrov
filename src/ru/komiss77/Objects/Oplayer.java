@@ -49,7 +49,7 @@ import ru.komiss77.utils.LocationUtil;
 
 
 
-public class Oplayer {
+public final class Oplayer {
   
     public String nik;
     private final WeakReference<Player> player_link;    
@@ -146,17 +146,6 @@ public class Oplayer {
         score.getSideBar().updateLine(10, " лони: "+getBungeeData(Data.MONEY));
         score.getSideBar().updateLine(9, " рил: "+getBungeeData(Data.MONEY_REAL));
         score.getSideBar().updateLine(1, "§a-----------------");
-        /*
-        board.setTitle("§7Общий онлайн: §f§l"+SM.bungee_online);//"§a-----------------"
-        board.updateLine(15, "§a-----------------");
-        board.updateLine(14, " уровень : "+getBungeeData(Data.УРОВЕНЬ));
-        board.updateLine(13, " опыт : "+getBungeeData(Data.ОПЫТ));
-        board.updateLine(12, " репутация: "+(getBungeeIntData(Data.РЕПУТАЦИЯ)>=0?"§2":"§4")+getBungeeData(Data.РЕПУТАЦИЯ));
-        board.updateLine(11, " карма: "+(getBungeeIntData(Data.КАРМА)>=0?"§2":"§4")+getBungeeIntData(Data.КАРМА));
-        board.updateLine(10, " лони: "+getBungeeData(Data.MONEY));
-        board.updateLine(9, " рил: "+getBungeeData(Data.MONEY_REAL));
-        board.updateLine(1, "§a-----------------");
-        */
     }
     
 
@@ -260,11 +249,12 @@ public class Oplayer {
 //System.out.println("-calculatePerms notify="+notify); 
             
             //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //делать до удаления permissionAttachmen!
-            for (String perm : OstrovDB.default_permissions) {  //закидываем дефолтные из файлика permissions.yml
-//System.out.println("+"+ai.getPermission());        
-                user_perms.add(perm);
-            }
-            
+            //for (String perm : OstrovDB.default_permissions) {  //закидываем дефолтные из файлика permissions.yml
+//System.out.println("+"+ai.getPermission());
+            //if (OstrovDB.localGroupPermissions.containsKey("default")) {
+            //    user_perms.addAll(OstrovDB.localGroupPermissions.get("default"));
+           // }
+            user_perms.addAll(OstrovDB.defaultPerms);
 //System.out.println("--calculatePerms 2");        
 //дефолтные слетают. сделать нах файлик в острове!
             //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //закидываем дефолтные из файлика permissions.yml
@@ -302,6 +292,10 @@ public class Oplayer {
 //System.out.println("----setPermission "+perm);   
                         //permissionAttachmen.setPermission(perm, true);
                         user_perms.add(perm);
+                        //if (OstrovDB.localGroupPermissions.containsKey(group_name)) {
+                        //    user_perms.addAll(OstrovDB.localGroupPermissions.get(group_name));
+                            
+                        //}
                     }
                 }
             }

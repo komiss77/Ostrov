@@ -63,9 +63,10 @@ public class ArmorEquipListener implements Listener {
                     if (e.getSlotType()==SlotType.ARMOR) { //в креативе - одевание с шифтом
                         newArmorType = ArmorType.matchType(e.getRawSlot());
                         armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.CREATIVE, newArmorType, null, e.getCursor());
-                    } else {
+                    } else if (e.getSlotType()==SlotType.CONTAINER) {
                         newArmorType = ArmorType.matchType(e.getCurrentItem());
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.CREATIVE, newArmorType, e.getCurrentItem(), null);
+                        //if (newArmorType!=null) 
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.CREATIVE, newArmorType, e.getCurrentItem(), null);
                     }   
                     break;
                     
@@ -78,7 +79,7 @@ public class ArmorEquipListener implements Listener {
                     if (e.getSlotType()==SlotType.ARMOR ) { //снять с шифтом
                         newArmorType = ArmorType.matchType(e.getRawSlot());
                         armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.SHIFT_CLICK, newArmorType, e.getCurrentItem(), null);
-                    } else {  //одеть с шифтом
+                    } else if (e.getSlotType()==SlotType.CONTAINER) {  //одеть с шифтом
                         newArmorType = ArmorType.matchType(e.getCurrentItem());
                         armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.SHIFT_CLICK, newArmorType, null, e.getCurrentItem());
                     }   
@@ -93,13 +94,15 @@ public class ArmorEquipListener implements Listener {
             //заменить ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 0} action=HOTBAR_SWAP click=NUMBER_KEY slottype=ARMOR rawslot=6 slot=38
             //снять    ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 0} action=HOTBAR_SWAP click=NUMBER_KEY slottype=ARMOR rawslot=6 slot=38
                 case NUMBER_KEY:
-                    newArmorType = ArmorType.matchType(e.getRawSlot());
-                    final ItemStack hotbarItem = e.getClickedInventory().getItem(e.getHotbarButton());
-                    if (isAirOrNull(hotbarItem)) { //снятие
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.HOTBAR_SWAP, newArmorType, e.getCurrentItem(), null);
-                    } else { //одевание/замена
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.HOTBAR_SWAP, newArmorType, e.getCurrentItem(), hotbarItem);
-                    }   
+                    if (e.getSlotType()==SlotType.ARMOR) {
+                        newArmorType = ArmorType.matchType(e.getRawSlot());
+                        final ItemStack hotbarItem = e.getClickedInventory().getItem(e.getHotbarButton());
+                        if (isAirOrNull(hotbarItem)) { //снятие
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.HOTBAR_SWAP, newArmorType, e.getCurrentItem(), null);
+                        } else { //одевание/замена
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.HOTBAR_SWAP, newArmorType, e.getCurrentItem(), hotbarItem);
+                        }
+                    }
                     break;
                     
             //простое одевание взял-положил, работает так же на RIGHT
@@ -111,20 +114,23 @@ public class ArmorEquipListener implements Listener {
             //ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{NETHERITE_CHESTPLATE x 1} action=SWAP_WITH_CURSOR click=LEFT slottype=ARMOR rawslot=6 slot=38    
                 case LEFT:
                 case RIGHT:
-                    newArmorType = ArmorType.matchType(e.getRawSlot());
-                    if (e.getAction()==InventoryAction.PLACE_ALL && e.getSlotType()==SlotType.ARMOR ) { //одеть
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, null, e.getCursor());
-                    } else if (e.getAction()==InventoryAction.PICKUP_ALL && e.getSlotType()==SlotType.ARMOR ) { //снять
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, e.getCurrentItem(), null);
-                    } else if (e.getAction()==InventoryAction.SWAP_WITH_CURSOR ) { //поменять
-                        armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, e.getCursor(), e.getCurrentItem());
-                    }   
+                    if (e.getSlotType()==SlotType.ARMOR) {
+                        newArmorType = ArmorType.matchType(e.getRawSlot());
+                        if (e.getAction()==InventoryAction.PLACE_ALL && e.getSlotType()==SlotType.ARMOR ) { //одеть
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, null, e.getCursor());
+                        } else if (e.getAction()==InventoryAction.PICKUP_ALL && e.getSlotType()==SlotType.ARMOR ) { //снять
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, e.getCurrentItem(), null);
+                        } else if (e.getAction()==InventoryAction.SWAP_WITH_CURSOR ) { //поменять
+                            armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.PICK_DROP, newArmorType, e.getCursor(), e.getCurrentItem());
+                        }   
+                    }
                     break;
             }
                 
             
             if (armorEquipEvent!=null) {
                 Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
+System.out.println("ArmorEquipListener canceled?"+armorEquipEvent.isCancelled());
                 e.setCancelled(armorEquipEvent.isCancelled());
             }
             
@@ -264,6 +270,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
 		if(type != null && type.getSlot() == e.getRawSlots().stream().findFirst().orElse(0)){
 			ArmorEquipEvent armorEquipEvent = new ArmorEquipEvent((Player) e.getWhoClicked(), EquipMethod.DRAG, type, null, e.getOldCursor());
 			Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
+//System.out.println("ArmorEquipEvent InventoryDragEvent: " );
 			if(armorEquipEvent.isCancelled()){
 				e.setResult(Result.DENY);
 				e.setCancelled(true);

@@ -1,4 +1,4 @@
-
+ 
 package ru.komiss77.Listener;
 
 import java.util.UnknownFormatConversionException;
@@ -311,48 +311,23 @@ System.out.println("------------> GroupChangeEvent ");
         
             bukkitWorld.setKeepSpawnInMemory(true);
 
-          //  if (Cfg.GetCongig().getBoolean("player.keep_inventory")) {
-             //   bukkitWorld.setGameRule(GameRule.KEEP_INVENTORY, true);
-           // } else {
-                bukkitWorld.setGameRule(GameRule.KEEP_INVENTORY, false);
-          //  }
-    //System.out.println("block_day_night_change ? "+Conf.GetCongig().getBoolean("world.block_day_night_change"));
-           // if (Cfg.GetCongig().getBoolean("world.block_day_night_change")) {
-                bukkitWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-    //System.out.println("set_time_to = "+Conf.GetCongig().getInt("world.set_time_to"));
-           //     bukkitWorld.setTime(Cfg.GetCongig().getInt("world.set_time_to")); 
-           // } else {
-          //      bukkitWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
-          //  }
 
-            //if (Cfg.GetCongig().getBoolean("world.disable_moob_griefing")) {
-                bukkitWorld.setGameRule(GameRule.MOB_GRIEFING, false);
-            //} else {
-            //    bukkitWorld.setGameRule(GameRule.MOB_GRIEFING, true);
-            //}
-
-           // if (Cfg.GetCongig().getBoolean("world.disable_moob_loot")) {
-                bukkitWorld.setGameRule(GameRule.DO_MOB_LOOT, false);
-            //} else {
-           //     bukkitWorld.setGameRule(GameRule.DO_MOB_LOOT, true);
-           // }
-
-          //  if (Cfg.GetCongig().getBoolean("world.disable_entity_drops")) {
-                bukkitWorld.setGameRule(GameRule.DO_ENTITY_DROPS, false);
-           // } else {
-           //     bukkitWorld.setGameRule(GameRule.DO_ENTITY_DROPS, true);
-            //}
-
-         //  if (disable_weather) {
-                bukkitWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-           // } else {
-          //      bukkitWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, true);
-           // }
-
+            bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);                                                                    
             bukkitWorld.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, true);                                                                    
+            bukkitWorld.setGameRule(GameRule.DISABLE_RAIDS, true);                                                                    
+            bukkitWorld.setGameRule(GameRule.KEEP_INVENTORY, false);
+            bukkitWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            bukkitWorld.setGameRule(GameRule.DO_ENTITY_DROPS, false);
+            bukkitWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true); //- сразу респавн, возможен косяк с spigot.respawn?
+            bukkitWorld.setGameRule(GameRule.DO_INSOMNIA, false);
+            bukkitWorld.setGameRule(GameRule.DO_MOB_LOOT, false);
+            bukkitWorld.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            bukkitWorld.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+            bukkitWorld.setGameRule(GameRule.FORGIVE_DEAD_PLAYERS, true);
+            bukkitWorld.setGameRule(GameRule.MOB_GRIEFING, false);
+            bukkitWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
             bukkitWorld.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);                                                                    
             bukkitWorld.setGameRule(GameRule.SPAWN_RADIUS, 0);                                                                    
-            bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);                                                                    
             bukkitWorld.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);                                                                    
 
             Ostrov.log_ok("Настройки мира "+ bukkitWorld.getName() +" инициализированы для лобби или миниигры");

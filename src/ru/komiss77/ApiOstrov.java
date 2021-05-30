@@ -28,6 +28,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.komiss77.Commands.Spy;
 import ru.komiss77.Enums.Action;
@@ -856,6 +857,14 @@ public class ApiOstrov {
     }
     public static void makeWorldEndToWipe(final int afterSecond) {
         Ostrov.makeWorldEndToWipe(afterSecond);
+    }
+
+    public static void moveDeny(final PlayerMoveEvent e) {
+        if (e.getTo().getY()<e.getFrom().getY()) {
+            e.setTo( e.getFrom().add(0, 2, 0) );
+        } else {
+            e.setTo(e.getFrom());
+        }
     }
 
 

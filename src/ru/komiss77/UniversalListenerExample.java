@@ -47,18 +47,18 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Data;
-import ru.komiss77.Enums.UniversalArenaState;
 import ru.komiss77.Events.BsignLocalArenaClick;
 import ru.komiss77.Events.BungeeStatRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
 import ru.komiss77.Events.SignUpdateEvent;
 import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.SM;
-import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 
 
@@ -289,10 +289,20 @@ public class UniversalListenerExample implements Listener  {
     @EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = false) 
     public static void onInteract(PlayerInteractEvent e) {
         
-        if ( e.getPlayer().getGameMode()==GameMode.SPECTATOR && (e.getAction()==Action.LEFT_CLICK_AIR || e.getAction()==Action.LEFT_CLICK_BLOCK) ) {
-            e.getPlayer().openInventory(spectatorMenu);
+        final Player p = e.getPlayer();
+        
+        if ( p.getGameMode()==GameMode.SPECTATOR && (e.getAction()==Action.LEFT_CLICK_AIR || e.getAction()==Action.LEFT_CLICK_BLOCK) ) {
+            if (p.getOpenInventory().getType()!=InventoryType.CHEST) {
+                SmartInventory.builder()
+                    .type(InventoryType.HOPPER)
+                    .id("spectator") 
+                    .provider(new SpectatorMenu())
+                    .title("§fМеню зрителя")
+                    .build()
+                    .open(p);
+            }
             return;
-        }
+        }       
         
         if (e.getAction() == Action.PHYSICAL || e.getItem()==null) return;
         
@@ -538,6 +548,7 @@ public class UniversalListenerExample implements Listener  {
             e.setDamage(0);
             if (e.getCause()==EntityDamageEvent.DamageCause.VOID || e.getCause()==EntityDamageEvent.DamageCause.LAVA) {
                 p.setFallDistance(0);
+                p.setFireTicks(0);
                 //p.teleport(Bukkit.getServer().getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND); //от PLUGIN блокируются
                 Ostrov.sync(() -> p.teleport(Bukkit.getWorld("lobby").getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND), 0);
                 return;
@@ -678,5 +689,93 @@ public class UniversalListenerExample implements Listener  {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    public static class SpectatorMenu implements InventoryProvider {
+
+        public SpectatorMenu() {
+        }
+
+        @Override
+        public void init(final Player p, final InventoryContent contents) {
+            //p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
+            //contents.fillRect(0,0, 2,3, ClickableItem.empty(fill1));
+            p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, .5f, 1);
+
+
+
+
+            contents.set( 0, ClickableItem.of(mapSelector, e -> {
+                    if (e.isLeftClick()) {
+                        //p.closeInventory();
+                        if (p.getGameMode()==GameMode.SPECTATOR) {
+                            //
+                        } else {
+                            p.closeInventory();
+                        }
+                    }
+                }));        
+
+
+            contents.set( 2, ClickableItem.of(music, e -> {
+                    if (e.isLeftClick()) {
+                        if (p.getGameMode()==GameMode.SPECTATOR) {
+                            //Bukkit.getServer().dispatchCommand(p, "music");   
+                        } else {
+                            p.closeInventory();
+                        }
+                    }
+                }));        
+
+
+            contents.set( 4, ClickableItem.of(leaveArena, e -> {
+                    if (e.isLeftClick()) {
+                        p.closeInventory();
+                        if (p.getGameMode()==GameMode.SPECTATOR) {
+                            //PM.toLobby(p, true);
+                        } else {
+                            p.closeInventory();
+                        }
+                    }
+                }));        
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+    }    
     
 }
