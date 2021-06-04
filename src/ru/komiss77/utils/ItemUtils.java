@@ -1002,9 +1002,10 @@ public class ItemUtils {
         else return getItemStackFromString(item_as_string, " : ");
     }
     
-    public static ItemStack getItemStackFromString ( final String item_as_string, final String paramSplitter) {
+    public static ItemStack getItemStackFromString ( final String item_as_string, String paramSplitter) {
         
         //grass:1<>name:nnn<>lore:sdsds:sdsd<>enchant:ARROW_DAMAGE:1<>dye:RED<>end
+        if (paramSplitter.equals(":")) paramSplitter = " : ";
         
         ItemBuilder builder = new ItemBuilder(Material.BEDROCK);
         

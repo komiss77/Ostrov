@@ -41,12 +41,14 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRecipeDiscoverEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -127,9 +129,20 @@ public class PlayerListener implements Listener {
         //anti_quiter.clear();
         GetVar ();
     }
+    
  
     //перевод вагонеток,кристалы,стойка
-
+    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void recipeDiscover (PlayerRecipeDiscoverEvent e) {
+        if (Bukkit.getServer().getMotd().length()==4 || Bukkit.getServer().getMotd().startsWith("lobby")) {
+            e.setCancelled(true);
+        }
+    }
+    public void advancementDone (PlayerAdvancementDoneEvent e) {
+        if (Bukkit.getServer().getMotd().length()==4 || Bukkit.getServer().getMotd().startsWith("lobby")) {
+            e.getPlayer().sendMessage("aaa "+e.getAdvancement());
+        }
+    }
    /* @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         if (e.getItem()==null) return;
@@ -237,17 +250,18 @@ public class PlayerListener implements Listener {
                         order++;
                         if (order>=types.size()) order=0;
                         final String[] lns = sign.getLines();
+//System.out.println("Sign_click "+b.getType());
                          
                         if (Tag.WALL_SIGNS.isTagged(b.getType())) {
-                            final WallSign ws = (WallSign) types.get(order).createBlockData();//org.bukkit.block.data.type.WallSign
-                            ws.setFacing(((Directional)b.getBlockData()).getFacing());
-                            ws.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
-                            b.setBlockData(ws);
+                            final WallSign wsData = (WallSign) types.get(order).createBlockData();//org.bukkit.block.data.type.WallSign
+                            wsData.setFacing(((Directional)b.getBlockData()).getFacing());
+                            wsData.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
+                            b.setBlockData(wsData);
                         } else if (Tag.SIGNS.isTagged(b.getType())) {
-                            final org.bukkit.block.data.type.Sign sn = (org.bukkit.block.data.type.Sign) types.get(order).createBlockData();//org.bukkit.block.data.type.Sign
-                            sn.setRotation(((Rotatable) b.getBlockData()).getRotation());
-                            sn.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
-                            b.setBlockData(sn);
+                            final org.bukkit.block.data.type.Sign snData = (org.bukkit.block.data.type.Sign) types.get(order).createBlockData();//org.bukkit.block.data.type.Sign
+                            snData.setRotation(((Rotatable) b.getBlockData()).getRotation());
+                            snData.setWaterlogged(((Waterlogged) b.getBlockData()).isWaterlogged());
+                            b.setBlockData(snData);
                         }
                         
                         sign = (Sign)b.getState();
@@ -294,7 +308,7 @@ public class PlayerListener implements Listener {
         
         if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {
             
-            if (disable_lava && e.getItem()==null && e.getItem().getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
+            if (disable_lava && e.getItem()!=null && e.getItem().getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
                 e.setUseItemInHand(Event.Result.DENY);
                 ApiOstrov.sendActionBarDirect(e.getPlayer(), "§cЛава запрещена на этом сервере!");
                 return;

@@ -36,7 +36,7 @@ public class ArmorEquipListener implements Listener {
 	}
 	//Event Priority is highest because other plugins might cancel the events before we check.
 
-	@EventHandler(priority =  EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
 	public final void inventoryClick(final InventoryClickEvent e){
 //System.out.println("ICE current="+e.getCurrentItem()+" cursor="+e.getCursor()+" action="+e.getAction()+" click="+e.getClick()+" slottype="+e.getSlotType()+" rawslot="+e.getRawSlot()+" slot="+e.getSlot());
             if(e.getAction() == InventoryAction.NOTHING) return;// Why does this get called if nothing happens??
@@ -130,7 +130,7 @@ public class ArmorEquipListener implements Listener {
             
             if (armorEquipEvent!=null) {
                 Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
-System.out.println("ArmorEquipListener canceled?"+armorEquipEvent.isCancelled());
+//System.out.println("ArmorEquipListener canceled?"+armorEquipEvent.isCancelled());
                 e.setCancelled(armorEquipEvent.isCancelled());
             }
             
@@ -222,7 +222,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
 	
         
         
-	@EventHandler(priority =  EventPriority.LOW) //ignoreCancelled не ставить!!! или пропускает ПКМ на воздух!!!
+	@EventHandler(priority =  EventPriority.HIGH) //ignoreCancelled не ставить!!! или пропускает ПКМ на воздух!!!
 	public void playerInteractEvent(PlayerInteractEvent e){
 //System.out.println("playerInteractEvent e.useItemInHand()="+e.useItemInHand()+" action="+e.getAction()+" canceled="+e.isCancelled());
 		if( e.useItemInHand()==Result.DENY) return;
@@ -259,7 +259,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
         
         
         
-	@EventHandler(priority =  EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
 	public void inventoryDrag(InventoryDragEvent e){
 		// getType() seems to always be even.
 		// Old Cursor gives the item you are equipping
@@ -290,7 +290,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
 
         
         
-	@EventHandler(priority =  EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
 	public void itemBreakEvent(PlayerItemBreakEvent e){
 		ArmorType type = ArmorType.matchType(e.getBrokenItem());
 		if(type != null){
@@ -319,7 +319,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
             }
 	}
 
-	@EventHandler(priority =  EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
 	public void playerDeathEvent(PlayerDeathEvent e){
 		if(e.getKeepInventory()) return;
 		final Player p = e.getEntity();
@@ -332,7 +332,7 @@ System.out.println("armorEquipEvent.isCancelled 2");
 	}
         
         
-	@EventHandler(priority =  EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
 	public void dispenseArmorEvent(BlockDispenseArmorEvent e){
             if (e.getTargetEntity().getType()!=EntityType.PLAYER) return;
             ArmorType type = ArmorType.matchType(e.getItem());

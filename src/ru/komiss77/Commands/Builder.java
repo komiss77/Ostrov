@@ -4,31 +4,33 @@ package ru.komiss77.Commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.event.HandlerList;
 import ru.komiss77.ApiOstrov;
-
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
-import ru.komiss77.menu.BuilderMain;
-import ru.komiss77.menu.EntityByWorld;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.Listener.PlayerListener;
+import ru.komiss77.Managers.PM;
+import ru.komiss77.utils.ItemUtils;
+import builder.SetupMode;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import ru.komiss77.utils.ItemBuilder;
 
 
 
 
-public class Builder implements Listener, CommandExecutor, TabCompleter {
+public class Builder implements CommandExecutor, TabCompleter {
     
-    public static List<String> subCommands = Arrays.asList( "help");
+    public static List<String> subCommands = Arrays.asList( "end");
+    public static ItemStack openBuildMenu = new ItemBuilder(Material.MAP).name("§aМеню настройки SkyBlock").build();;
+    public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();;
     
     @Override
     public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] args) {
@@ -108,24 +110,32 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
         }
         
         
-        if (p.getGameMode()==GameMode.SURVIVAL || p.getGameMode()==GameMode.ADVENTURE) {
-            p.performCommand("gm 1");
-        }
+        
         
         switch (arg.length) {
 
             case 0:
-                SmartInventory.builder()
-                    .id("Builder"+p.getName())
-                    .provider(new BuilderMain())
-                    .size(6, 9)
-                    .title("§2Меню Строителя")
-                    .build()
-                    .open(p);
+                Ostrov.sync( ()-> {
+                    if (p.getGameMode()==GameMode.SURVIVAL || p.getGameMode()==GameMode.ADVENTURE) {
+                        p.performCommand("gm 1");
+                        p.setAllowFlight(true);
+                        p.setFlying(true);
+                    }
+                    p.getInventory().setItem(0, openBuildMenu.clone());
+                    p.updateInventory();
+                    if (PM.getOplayer(p).setup==null) {
+                        final SetupMode sm = new SetupMode(p);
+                        PM.getOplayer(p).setup = sm;
+                        Bukkit.getPluginManager().registerEvents(sm, Ostrov.GetInstance());
+                    }
+                    PM.getOplayer(p).setup.openMainSetupMenu(p);
+                }, 10);
                 break;
 
             case 1:
-
+                if (arg[0].equalsIgnoreCase("end")) {
+                    end(p.getName());
+                }
                 break;
         }
 
@@ -191,6 +201,20 @@ public class Builder implements Listener, CommandExecutor, TabCompleter {
         
     }
 */
+
+    public static void end(final String name) {
+        final Player p = Bukkit.getPlayer(name);
+        if (p!=null && p.isOnline()) {
+            p.setGameMode(GameMode.SURVIVAL);
+            p.closeInventory();
+            ItemUtils.substractAllItems(p, openBuildMenu.getType());
+        }
+        PlayerListener.signCache.remove(name);
+        if (PM.getOplayer(name).setup!=null) {
+            HandlerList.unregisterAll(PM.getOplayer(name).setup);
+            PM.getOplayer(name).setup = null;
+        }
+    }
 
     
     

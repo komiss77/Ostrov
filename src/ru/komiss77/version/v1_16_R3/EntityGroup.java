@@ -1,7 +1,6 @@
 package ru.komiss77.version.v1_16_R3;
 
 
-import ru.komiss77.version.v1_16_R2.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import ru.komiss77.version.IEntityGroup;

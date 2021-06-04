@@ -161,9 +161,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
     
     public static void writeThisServerStateToOstrovDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
         if (!OstrovDB.useOstrovData) return;
-        new BukkitRunnable(){
-            @Override     
-            public void run() {
+        Ostrov.async( () -> {
 
             PreparedStatement pst = null;
             try {
@@ -189,7 +187,7 @@ public final class SM extends Initiable implements Listener {   //не пере�
                     Ostrov.log_err("§c updServerState close err ex="+ex.getMessage());
                 }
             }
-        }}.runTaskAsynchronously( Ostrov.instance ); 
+        }, 0);
         
     }
 

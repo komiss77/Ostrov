@@ -1,13 +1,12 @@
-package ru.komiss77.menu;
+package builder.menu;
 
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Listener.PlayerListener;
+import ru.komiss77.Managers.PM;
 import ru.komiss77.menu.ViewPerm.SelectPlayer;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -77,7 +76,10 @@ public class BuilderMain implements InventoryProvider {
             .lore("§7- перемещение в миры")
             .lore("§7- настройки миров")
             .lore("")
-            //.lore("§7ЛКМ - открыть")
+            .lore("§6Вы находитесь в биоме:")
+            .lore("§e"+p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))
+            .lore("")
+            .lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("world");
@@ -90,7 +92,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .lore("§7Настройка варпов")
             .lore("")
-            //.lore( "§7ЛКМ - открыть" )
+            .lore( "§7ЛКМ - открыть" )
             .lore("")
             .build(), e-> {
                 p.performCommand("warp");
@@ -106,7 +108,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("§7поиск, просмотр и удаление")
             .lore("§7сущностей")
             .lore("")
-            //.lore("§7ЛКМ - открыть")
+            .lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("entity");
@@ -124,6 +126,18 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .build(), e-> {
                 p.performCommand("figure");
+            }));
+
+        contents.set(1,5, ClickableItem.of(new ItemBuilder(Material.CARTOGRAPHY_TABLE)
+            .name("§7Схематики")
+            .lore("")
+            .lore("§7Создание/редактирование/удаление")
+            .lore("§7схематиков")
+            .lore("")
+            .lore("§7ЛКМ - открыть")
+            .lore("")
+            .build(), e-> {
+                PM.getOplayer(p).setup.openSchemMainMenu(p);
             }));
 
 
@@ -158,7 +172,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .lore("§7Просмотр репортов")
             .lore("")
-            //.lore("§7ЛКМ - открыть")
+            .lore("§7ЛКМ - открыть")
             .lore("")
             .build(), e-> {
                 p.performCommand("report");
@@ -276,9 +290,7 @@ public class BuilderMain implements InventoryProvider {
         
         contents.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.CRIMSON_FENCE).name("Закрыть режим строителя").build(), e -> 
         {
-            p.setGameMode(GameMode.SURVIVAL);
-            p.closeInventory();
-            PlayerListener.signCache.remove(p.getName());
+            p.performCommand("builder end");
         }
         ));
         

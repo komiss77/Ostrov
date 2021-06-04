@@ -1,6 +1,6 @@
 package ru.komiss77.Objects;
 
-import java.lang.ref.WeakReference;
+import builder.SetupMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,7 +52,8 @@ import ru.komiss77.utils.LocationUtil;
 public final class Oplayer {
   
     public String nik;
-    private final WeakReference<Player> player_link;    
+    public SetupMode setup;
+    //private final WeakReference<Player> player_link;    
     
     private final Map<Data,String>bungeeData=new ConcurrentHashMap<>();
     private final Map<Integer,String>stat=new ConcurrentHashMap<>();
@@ -87,7 +88,7 @@ public final class Oplayer {
     
     public Oplayer (final Player p) {
         nik=p.getName();
-        player_link=new WeakReference<>(p);
+        //player_link=new WeakReference<>(p);
         profile=Bukkit.createInventory( p, 54,  ItemUtils.profile_master_inv_name );
         profile.setContents(ItemUtils.profile_master.getContents());
         
@@ -104,9 +105,52 @@ public final class Oplayer {
         }
     }    
 
+    
+    
+    
+    public void Tick_every_second(final Player p, final int serverSecCounter) {
+//System.out.println("tick pvp_time="+pvp_time);
+        if (pvp_time>0) {
+            pvp_time--;
+            if (pvp_time==0) pvpBattleModeEnd();    //не переставлять!!
+        }
+        if (no_damage>0) {
+            no_damage--;
+            if (no_damage==0) ApiOstrov.sendActionBar(nik, "§4Время неуязвимости закончилось!");
+        }
+        if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
+        
+        if (bungeeData.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1 ) {
+            SpigotChanellMsg.sendMessage(p, Action.OSTROV_RESEND_PLAYER_RAW_DATA, "");
+        }
+        if (PM.ostrovStatScore && serverSecCounter%10==0) {
+            updScore();
+        }
+        
+        if (PM.tablist_header_footer) { //if (SM.this_server_name.length()>4) {
+            ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+SM.this_server_bungee_description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
+            p.setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix);
+        }
+
+        //if (SM.this_server_name.length()!=4) {
+        //}
+//getPlayer().setPlayerListName(nik);
+//System.out.println("-passport=="+(passport==null?"null":passport));
+    }
+
+    public void tickAsync(final Player p, int counter) {
+        if (setup!=null && counter%2==0) {
+            setup.updateAsync(p);
+        }
+    }
+
+
+
+
+
     public void setNoDamage(final int seconds, final boolean actionBar) {
         no_damage+=seconds;
-        if (actionBar) ApiOstrov.sendActionBar(player_link.get(), "§aВам дарована неуязвимость на "+no_damage+" сек!");
+        if (actionBar) ApiOstrov.sendActionBar(Bukkit.getPlayer(nik), "§aВам дарована неуязвимость на "+no_damage+" сек!");
     }
     
     
@@ -151,7 +195,7 @@ public final class Oplayer {
 
 
     
-    public void bungeeDataInject(final String raw) {
+    public void bungeeDataInject(final Player p, final String raw) {
         try {
             bungeeData.put(Data.NAME, nik);
             String[]split;
@@ -165,7 +209,7 @@ public final class Oplayer {
 //System.out.println("bungeeDataInject() PARTY_MEBRERS = "+bungeeData.get(Data.PARTY_MEBRERS));
                 onPartyRecieved(bungeeData.get(Data.PARTY_MEBRERS), false);
             }
-            calculatePerms(false); 
+            calculatePerms(p, false); 
             StatManager.calculateReputationBase(this);
             
             if (bungeeData.containsKey(Data.ДОСТИЖЕНИЯ) && !bungeeData.get(Data.ДОСТИЖЕНИЯ).isEmpty()) {
@@ -238,10 +282,10 @@ public final class Oplayer {
     }
 
     
-    public void calculatePerms(final boolean notify){
+    public void calculatePerms(final Player p, final boolean notify){
         isStaff = false;
         
-        final Player p = getPlayer();
+        //final Player p = getPlayer();
         try {
             groups.clear();
             user_perms.clear();
@@ -383,7 +427,7 @@ public final class Oplayer {
     
     
     
-    public void updateDataFromBungee(final Data e_data, final String value) {
+    public void updateDataFromBungee(final Player p, final Data e_data, final String value) {
 //System.out.println("-updateDataFromBungee e_data="+e_data.toString()+" value="+value);
         final boolean change = !bungeeData.containsKey(e_data) || (bungeeData.containsKey(e_data) && !bungeeData.get(e_data).equals(value));
         bungeeData.put(e_data, value);
@@ -392,11 +436,11 @@ public final class Oplayer {
         if (change) {
             switch (e_data) {
                 case USER_GROUPS: 
-                    calculatePerms(true); 
+                    calculatePerms(p, true); 
                     StatManager.calculateReputationBase(this);
                     break;
                 case USER_PERMS: 
-                    calculatePerms(false); 
+                    calculatePerms(p, false); 
                     break;
                 case ИМЯ_ФАМИЛИЯ: break;
             }
@@ -491,36 +535,6 @@ public final class Oplayer {
 
 
 
-
-
-    public void Tick_every_second(final int seconds) {
-//System.out.println("tick pvp_time="+pvp_time);
-        if (pvp_time>0) {
-            pvp_time--;
-            if (pvp_time==0) pvpBattleModeEnd();    //не переставлять!!
-        }
-        if (no_damage>0) {
-            no_damage--;
-            if (no_damage==0) ApiOstrov.sendActionBar(nik, "§4Время неуязвимости закончилось!");
-        }
-        if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
-        
-        if (bungeeData.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1) {
-            SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_RESEND_PLAYER_RAW_DATA, "");
-        }
-        if (PM.ostrovStatScore && seconds%10==0) {
-            updScore();
-        }
-        
-        if (PM.tablist_header_footer) { //if (SM.this_server_name.length()>4) {
-            ApiOstrov.sendTabList(getPlayer(),  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+SM.this_server_bungee_description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
-            getPlayer().setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix);
-        } 
-        //if (SM.this_server_name.length()!=4) {
-        //}
-//getPlayer().setPlayerListName(nik);
-//System.out.println("-passport=="+(passport==null?"null":passport));
-    }
 
 
 
@@ -624,11 +638,11 @@ public final class Oplayer {
 
 
 // ---------------------- Счетчики ---------------------------------------------
-public void Addbplace() { if (player_link.get().getGameMode()==GameMode.SURVIVAL) this.bplace++; }
-public void Addbbreak() { if (player_link.get().getGameMode()==GameMode.SURVIVAL) this.bbreak++; }
-public void Addmobkill() { if (player_link.get().getGameMode()==GameMode.SURVIVAL) this.mobkill++; }
-public void Addmonsterkill() { if (player_link.get().getGameMode()==GameMode.SURVIVAL) this.monsterkill++; }
-public void Addpkill() { if (player_link.get().getGameMode()==GameMode.SURVIVAL) this.pkill++; }
+public void Addbplace() { if (getPlayer().getGameMode()==GameMode.SURVIVAL) this.bplace++; }
+public void Addbbreak() { if (getPlayer().getGameMode()==GameMode.SURVIVAL) this.bbreak++; }
+public void Addmobkill() { if (getPlayer().getGameMode()==GameMode.SURVIVAL) this.mobkill++; }
+public void Addmonsterkill() { if (getPlayer().getGameMode()==GameMode.SURVIVAL) this.monsterkill++; }
+public void Addpkill() { if (getPlayer().getGameMode()==GameMode.SURVIVAL) this.pkill++; }
 public void Addbdead() { this.dead++; }
 
 public int Getbplace() { return this.bplace; }
@@ -669,9 +683,9 @@ public int Getbdead() { return this.dead; }
 
 
     public Player getPlayer(){
-//System.out.println("getPlayer nik="+nik+" p="+Bukkit.getPlayer(nik)+" link="+player_link.get());
+//System.out.println("getPlayer nik="+nik+" p="+Bukkit.getPlayer(nik));
         //return Bukkit.getPlayer(nik);
-        return  player_link.get();
+        return  Bukkit.getPlayer(nik);
     }
 
     public boolean bungeeDataRecieved() {
@@ -698,22 +712,35 @@ public int Getbdead() { return this.dead; }
                            
                             if (rs.next()) {
                                 String[] split;
+                                String[] split2;
                                 
-                                if ( rs.getString("homes").length()>10 && rs.getString("homes").contains("<:>")) {
-                                    split = rs.getString("homes").split("<:>");
+                                //if ( rs.getString("homes").length()>10 && rs.getString("homes").contains("<:>")) {
+                                if ( rs.getString("homes").length()>10 ) {
+                                    split = rs.getString("homes").split("<:>"); //массив дом+коорд
                                     String homeName;
                                         for (String homeAndLocationAsString : split) {
-                                            if (homeAndLocationAsString.split("<>").length==5) {
-                                                homeName = homeAndLocationAsString.split("<>")[0];
-                                                try {
-                                                    Location loc = LocationUtil.LocFromString(homeAndLocationAsString.replaceFirst(homeName+"<>", ""));
-//System.out.println("homes "+nik+" raw="+homeAndLocationAsString+" home="+homeName+" loc="+loc);
-                                                    //if (loc!=null) homes.put(s.split("<>")[0], s.split("<>")[1]);
-                                                    if (loc!=null) homes.put(homeName, loc ); //название дома, локация
-                                                } catch (Exception ex) {
-                                                   Ostrov.log_err("Загрузка точки дома "+homeAndLocationAsString+" для "+nik+":"+ex.getMessage());
+                                            split2 = homeAndLocationAsString.split("<>");
+                                            if (split2.length==5) { //старый тип координат
+                                                homeName = split2[0];
+                                                if (!homeName.isEmpty()) {
+                                                    final Location loc = LocationUtil.LocFromString(homeAndLocationAsString.replaceFirst(homeName+"<>", ""));
+                                                    if (loc!=null) homes.put(homeName, loc );
+                                                }
+                                            } else if (split2.length==2) { //новый тип координат
+                                                homeName = split2[0];
+                                                if (!homeName.isEmpty()) {
+                                                    final Location loc = LocationUtil.LocFromString(split2[1]);
+                                                    if (loc!=null) homes.put(homeName, loc );
                                                 }
                                             }
+                                                //try {
+                                                   // Location loc = LocationUtil.LocFromString(homeAndLocationAsString.replaceFirst(homeName+"<>", ""));
+//System.out.println("homes "+nik+" raw="+homeAndLocationAsString+" home="+homeName+" loc="+loc);
+                                                    //if (loc!=null) homes.put(s.split("<>")[0], s.split("<>")[1]);
+                                                  //  if (loc!=null) homes.put(homeName, loc ); //название дома, локация
+                                                //} catch (Exception ex) {
+                                                //   Ostrov.log_err("Загрузка точки дома "+homeAndLocationAsString+" для "+nik+":"+ex.getMessage());
+                                                //}
                                             //homes.put(s.split("<>")[0], s.split("<>")[1]);
                                         }
                                 }
@@ -1045,10 +1072,13 @@ public int Getbdead() { return this.dead; }
 
     public void pvpBattleModeEnd() {
         //if (pvp_time==0) return;
-        getPlayer().setFlySpeed(fly_speed);
-        getPlayer().setWalkSpeed(walk_speed);
-        getPlayer().setAllowFlight(allow_fly);
-        getPlayer().setFlying(in_fly);
+        final Player p = getPlayer();
+        if (p!=null) {
+            p.setFlySpeed(fly_speed);
+            p.setWalkSpeed(walk_speed);
+            p.setAllowFlight(allow_fly);
+            p.setFlying(in_fly);
+        }
         //pvp_time=0;
         if (Pvp.display_pvp_tag) {
             //score.removeBelow();//NullPointerException если scoreboard выключен!!
@@ -1218,6 +1248,7 @@ public int Getbdead() { return this.dead; }
         return has;
 
     }
+
 
     
 }

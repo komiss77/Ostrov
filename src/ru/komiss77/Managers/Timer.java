@@ -10,8 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import ru.komiss77.ApiOstrov;
 
 import ru.komiss77.Cfg;
+import ru.komiss77.Enums.Action;
 import ru.komiss77.Events.RestartWarningEvent;
 import ru.komiss77.Objects.DelayActionBar;
 import ru.komiss77.Objects.DelayBossBar;
@@ -28,14 +30,15 @@ import ru.komiss77.utils.ntptime.TimeInfo;
 public class Timer {
     
     private static BukkitTask timer=null;
-    private long counter;
+    private static BukkitTask timerAsync=null;
+    private static int counter;
 
     private static boolean auto_restart = false;
     private static String restart_time;
     private static int rs = 0;
 
     private static boolean perms_autoupdate = false;
-    private static int rp_int = 0;
+    private static int reloadPermIntervalSec = 0;
 
     private static ConcurrentHashMap <Integer, Integer> cd;
     public static Set <Integer> timer_keyset;
@@ -57,8 +60,9 @@ public class Timer {
         if (auto_restart) Ostrov.log_ok ("§6Установлено время авторестарта :"+restart_time);
 
         perms_autoupdate = Cfg.GetCongig().getBoolean("ostrov_database.auto_reload_permissions");
-        rp_int = Cfg.GetCongig().getInt("ostrov_database.auto_reload_permissions_interval_min");
-        if (perms_autoupdate) Ostrov.log_ok ("§5Автообновление прав каждые "+rp_int+" мин.!!");
+        reloadPermIntervalSec = Cfg.GetCongig().getInt("ostrov_database.auto_reload_permissions_interval_min")*60;
+        if (reloadPermIntervalSec<10 || reloadPermIntervalSec > 10800) reloadPermIntervalSec = 600;
+        if (perms_autoupdate) Ostrov.log_ok ("§5Автообновление прав каждые "+reloadPermIntervalSec/60+" мин.!!");
 
         new BukkitRunnable() {
             @Override
@@ -99,10 +103,11 @@ public class Timer {
     public static void StartTimer () {
 
         if (timer != null) timer.cancel();
+        if (timerAsync != null) timerAsync.cancel();
 
         timer =  new BukkitRunnable() {
 
-            int i = rp_int*60;
+            //int i = rp_int*60;
             boolean to_restart = false;
             int time_left = 300;
             int server_update=0;
@@ -142,17 +147,17 @@ public class Timer {
 
 
 
-                    if (perms_autoupdate) {
-                        i--;
+                    if (perms_autoupdate && !to_restart && currentTime%reloadPermIntervalSec==0) {
+                        //i--;
 //System.out.println("rp " +i);
-                        if (i == 0) {
-                            i=rp_int*60;
-                            try {
+                        //if (i == 0) {
+                           // i=rp_int*60;
+                            //try {
                                 OstrovDB.loadGroups();
-                            } catch (Exception ex) {
-                                Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
-                            }
-                        }
+                            //} catch (Exception ex) {
+                           //     Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
+                          //  }
+                       // }
                     }
 
 
@@ -176,51 +181,92 @@ public class Timer {
                         Ostrov.log_err("Timer delay action/title/bossbar : "+ex.getMessage());
                     }
 
-                    try {
+                    //try {
                         timer_keyset.clear();
                         timer_keyset.addAll(cd.keySet());
                         timer_keyset.stream().forEach( (key) -> {
                             int sec_left = cd.get(key);
                             sec_left--;
-                            if (sec_left<=0) cd.remove(key);
-                            else cd.put(key, sec_left);
+                            if (sec_left<=0) {
+                                cd.remove(key);
+                            } else {
+                                cd.put(key, sec_left);
+                            }
                         });
-                    } catch (Exception ex) {
-                        Ostrov.log_err("Timer timer_keyset : "+ex.getMessage());
-                    }
+                    //} catch (Exception ex) {
+                    //    Ostrov.log_err("Timer timer_keyset : "+ex.getMessage());
+                    //}
  //System.out.println("cd: "+cd);                    
 //System.out.println("delay_actionbars : " +delay_actionbars.keySet());
 //System.out.println("delay_titles : " +delay_titles);
 //System.out.println("delay_bossbar : " +delay_bossbars);
-                    try {
-                        PM.tickOplayers();
-                    } catch (Exception ex) {
-                        Ostrov.log_err("Timer tickOplayers : "+ex.getMessage());
-                    }
+                    //try {
+                    //    PM.tickOplayers();
+                   // } catch (Exception ex) {
+                    //    Ostrov.log_err("Timer tickOplayers : "+ex.getMessage());
+                   // }
 
 
-                    if (SM.write_server_state_to_bungee_table) {
-                        server_update++;
-                        if (server_update==5) {
-                            server_update=0;
-                                try {
+                    if (SM.write_server_state_to_bungee_table && currentTime%5==0) {
+                        //server_update++;
+                       // if (server_update==5) {
+                           // server_update=0;
+                               // try {
                                     SM.writeThisServerStateToOstrovDB();
-                                } catch (Exception ex) {
-                                    Ostrov.log_err("Timer updServerState : "+ex.getMessage());
-                                }
-                            }
+                               // } catch (Exception ex) {
+                                //    Ostrov.log_err("Timer updServerState : "+ex.getMessage());
+                                //}
+                           // }
                     }
+                    
+                    
+                    
+                    //PM.getOplayers().stream().forEach( (op) -> {
+                    Bukkit.getOnlinePlayers().stream().forEach( (p) -> {
+                            PM.getOplayer(p).Tick_every_second(p, counter);
+                        }
+                    );
+                    
+                    //if (PM.ostrovStatScore && counter%10==0 && PM.hasOplayers()) {
+                    //    ApiOstrov.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Action.GET_BUNGEE_ONLINE, "");
+                    //}
+                    
+                    //try {
+                       // Informator.tick();
+                    ////} catch (Exception ex) {
+                    //    Ostrov.log_err("Timer Informator.tick : "+ex.getMessage());
+                    //}
 
-
-                    try {
-                        Informator.tick();
-                    } catch (Exception ex) {
-                        Ostrov.log_err("Timer Informator.tick : "+ex.getMessage());
-                    }
-
-
+                    counter++;
 
                 }}.runTaskTimer(Ostrov.instance, 20, 20);
+
+                    
+                    
+                    
+                    
+                    
+            timerAsync =  new BukkitRunnable() {
+                @Override
+                public void run() {
+
+
+                    Bukkit.getOnlinePlayers().stream().forEach( (p) -> {
+                            PM.getOplayer(p).tickAsync(p, counter);
+                        }
+                    );
+                    //PM.getOplayers().stream().forEach( (op) -> {
+                    //        op.tickAsync(counter);
+                    //    }
+                    //);
+                    
+                    if (PM.ostrovStatScore && counter%10==0 && PM.hasOplayers()) {
+                        ApiOstrov.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Action.GET_BUNGEE_ONLINE, "");
+                    }
+                    
+                    Informator.tick();
+
+                }}.runTaskTimerAsynchronously(Ostrov.instance, 21, 20);
 
         }
 

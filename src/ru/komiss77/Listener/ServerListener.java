@@ -25,10 +25,10 @@ import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.spigotmc.SpigotConfig;
 import ru.komiss77.ApiOstrov;
 import ru.ostrov77.factions.ApiFactions;
 import ru.komiss77.Cfg;
@@ -292,7 +292,7 @@ System.out.println("------------> GroupChangeEvent ");
    // if (bukkitWorld.getName().equals("world_the_end")) {
     //    for (final Entity entity : bukkitWorld.getEntities()) {
      //       if (entity.getType()==EntityType.ENDER_DRAGON) {
-//System.out.println("+++++++++++++++++++++++++++++++++++");
+//System.out.println("+++++++++++++++++++++++++++++++++++ SpigotConfig.disabledAdvancements="+SpigotConfig.disabledAdvancements);
         //    }
        // }
    // }
@@ -311,7 +311,7 @@ System.out.println("------------> GroupChangeEvent ");
         
             bukkitWorld.setKeepSpawnInMemory(true);
 
-
+            if (!SpigotConfig.disabledAdvancements.contains("*")) SpigotConfig.disabledAdvancements.add("*");
             bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);                                                                    
             bukkitWorld.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, true);                                                                    
             bukkitWorld.setGameRule(GameRule.DISABLE_RAIDS, true);                                                                    
@@ -332,6 +332,7 @@ System.out.println("------------> GroupChangeEvent ");
 
             Ostrov.log_ok("Настройки мира "+ bukkitWorld.getName() +" инициализированы для лобби или миниигры");
         }
+//System.out.println("SpigotConfig.disabledAdvancements="+SpigotConfig.disabledAdvancements);
         
         
         

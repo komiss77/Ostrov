@@ -95,7 +95,7 @@ public static void ReloadVars () {
 
     
     
- @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public static void onClick(InventoryClickEvent e) {
 
         if (CMD.tpa_command <1) return;
@@ -146,7 +146,7 @@ public static void ReloadVars () {
                                  TextComponent temp = new TextComponent("§f§k111§f Запрос на телепорт от §a"+p.getName()+"§f <- Клик на сообщение, чтобы открыть меню §k111" );
                                 //temp.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text("§5Клик, чтобы удалить") ) );
                                 temp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept") );
-                                p.spigot().sendMessage( temp);
+                                target.spigot().sendMessage( temp);
                                 request.put( target.getName(), p.getName() );
                             }  
                     }
@@ -317,7 +317,7 @@ public static void ReloadVars () {
                 //meta.setLore(Arrays.asList( "§5"+all.get(n) ));
                 skull.setItemMeta(meta);
                 SkullMeta metah = (SkullMeta) skull.getItemMeta();
-                metah.setOwner(all.get(n));
+                //metah.setOwner(all.get(n));
 
                 
                 if (Bukkit.getPlayer(all.get(n))!=null) {
@@ -331,7 +331,7 @@ public static void ReloadVars () {
                 else metah.setLore(Arrays.asList("§fСтоимость телепорта: §e~"+((int)price/100)+" сотни лони"));
 
                 skull.setItemMeta(metah);
-                inv.addItem(new ItemStack[] { skull});
+                inv.addItem( skull);
         }
 
             ItemStack nav = new ItemStack(Material.RED_MUSHROOM, 1);
@@ -410,7 +410,7 @@ public static void ReloadVars () {
                 meta.setDisplayName("§a" + s );
                 skull.setItemMeta(meta);
                 SkullMeta metah = (SkullMeta) skull.getItemMeta();
-                metah.setOwner(s);
+                //metah.setOwner(s);
                 skull.setItemMeta(metah);
                 unban.addItem(new ItemStack[] { skull});
                 

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -101,16 +102,19 @@ public class PM {
     public static int getOnlineCount() {
         return oplayers.size();
     }
+    public static boolean hasOplayers() {
+        return !oplayers.isEmpty();
+    }
 
     public static void onDisable() {
         oplayers.clear();
     }
 
-    public static void tickOplayers() { //каждую секунду
-        oplayers.values().stream().forEach((op) -> {
-            op.Tick_every_second(sec);
-        });
-        sec++;
+    public static void tickOplayers1() { //каждую секунду
+        //oplayers.values().stream().forEach((op) -> {
+       //     op.Tick_every_second(sec);
+       // });
+       // sec++;
         if (sec>60) sec=0;
         if (ostrovStatScore && sec%10==0 && !oplayers.isEmpty()) {
             ApiOstrov.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Action.GET_BUNGEE_ONLINE, "");
@@ -341,6 +345,9 @@ public static int Getbdead(String nik) { return oplayers.get(nik).Getbdead(); }
 
 
 
+   public static void soundDeny(final Player p) {
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+    }
 
 
 

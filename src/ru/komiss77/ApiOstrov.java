@@ -801,7 +801,8 @@ public class ApiOstrov {
         return isLocalBuilder(p, false);
     }
     public static boolean canBeBuilder(final CommandSender cs) {
-        return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
+        //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
+        return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder") || hasGroup(cs.getName(), "supermoder");
     }    
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
         //if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {

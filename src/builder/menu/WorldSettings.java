@@ -1,4 +1,4 @@
-package ru.komiss77.menu;
+package builder.menu;
 
 
 import org.bukkit.GameRule;

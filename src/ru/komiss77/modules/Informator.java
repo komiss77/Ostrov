@@ -65,7 +65,7 @@ public final class Informator extends Initiable {
     
     
     public static void tick() {
-        if (!use || messages.isEmpty() || PM.getOnlineCount()==0) return;
+        if (!use || messages.isEmpty() || PM.hasOplayers()) return;
 //System.out.println("Informator.tick() sec="+sec+" interval="+interval);        
         sec++;
         if (sec>=interval) {

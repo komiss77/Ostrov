@@ -1,6 +1,5 @@
 package ru.komiss77.modules;
 
-import com.google.common.collect.HashBiMap;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,6 @@ import java.util.Set;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Table;
 import ru.komiss77.Objects.CaseInsensitiveMap;
-import ru.komiss77.Objects.CaseInsensitiveSet;
 import ru.komiss77.Objects.Group;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.OstrovConfig;
@@ -42,8 +39,18 @@ public class OstrovDB {
         defaultPerms = new HashSet<>();
         
         localPerms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"} );
-        localPerms.addDefault("default", Arrays.asList( "deluxechat.utf","deluxechat.pm", "deluxechat.bungee.chat", "deluxechat.bungee.toggle",
-            "chestcommands.command.open", "chestcommands.open.menu.yml") );
+        
+        localPerms.addDefault("default", Arrays.asList( 
+                "deluxechat.utf",
+                "deluxechat.pm", 
+                "deluxechat.bungee.chat", 
+                "deluxechat.bungee.toggle",
+                "chatformat.default"
+                //"chestcommands.command.open", 
+                //"chestcommands.open.menu.yml"
+            ) 
+        );
+        
         localPerms.set ("default_permissions", null);
         localPerms.saveConfig();
         

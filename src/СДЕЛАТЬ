@@ -1,6 +1,26 @@
 
 
 
+сохранять блокдату и сундуки (меню - что сохранять?)
+
+донаты ??
+
+долго нет соединения - не может записать состояние в остров, но ошибок нет
+public static boolean isDbConnected() {
+    final String CHECK_SQL_QUERY = "SELECT 1";
+    boolean isConnected = false;
+    try {
+        final PreparedStatement statement = db.prepareStatement(CHECK_SQL_QUERY);
+        isConnected = true;
+    } catch (SQLException | NullPointerException e) {
+        // handle SQL error here!
+    }
+    return isConnected;
+}
+
+избавиться от getPlayer и все загрузки в статику!
+
+лезут ачивки (клиентские??)
 armorEquipEvent баганый!
 проблема с ААС Failed to initialize pool: Public Key Retrieval is not allowed aac?allowPublicKeyRetrieval=true&useSSL=false - не работает
 
@@ -8,8 +28,7 @@ armorEquipEvent баганый!
 косметика - не видит свою маскировку 03.05.21
 
 стата - убрать из банжи
-
-права группы в файлик, чтобы не грузить через банжи  как default_perms.yml
+редактор локальных прав ГУИ
 
 !!!! режим турнир - зайти сами не могут, добавляет и запускает ведущий
 асинхронный лимитер для редстоуновых механизмов.
@@ -46,7 +65,6 @@ public static ItemBuilder buildEntityIcon - юра делает иконки
 
 *** Проверить ***
 удаление привата - очистить энтити
-+Билдера только для ОДНОГО сервера!!
 
 
 

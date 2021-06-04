@@ -26,7 +26,7 @@ public class OstrovChanelListener implements Listener {
             break;
 
         case OSTROV_PLAYER_RAW_DATA:
-            if(PM.exist(e.from)) PM.getOplayer(e.from).bungeeDataInject(e.bungee_raw_data);
+            if(PM.exist(e.from) && Bukkit.getPlayer(e.from)!=null) PM.getOplayer(e.from).bungeeDataInject(Bukkit.getPlayer(e.from), e.bungee_raw_data);
             break;
 
         case OSTROV_STAT_DATA:
@@ -34,11 +34,11 @@ public class OstrovChanelListener implements Listener {
             break;
 
         case OSTROV_UPDATE_DATA: //при обновлении на острове - только отправка в банжи, и ожидание обновы с банжи
-            if(PM.exist(e.from)) PM.getOplayer(e.from).updateDataFromBungee(Data.byTag(Integer.valueOf(e.bungee_raw_data.split("<>")[0])), e.bungee_raw_data.split("<>")[1]);
+            if(PM.exist(e.from) && Bukkit.getPlayer(e.from)!=null) PM.getOplayer(e.from).updateDataFromBungee(Bukkit.getPlayer(e.from), Data.byTag(Integer.valueOf(e.bungee_raw_data.split("<>")[0])), e.bungee_raw_data.split("<>")[1]);
             break;
 
         case OSTROV_PANDORA_CHECK:
-            if(PM.exist(e.from)) Pandora.bungee_result_pandora_check(Bukkit.getPlayer(e.from),e.bungee_raw_data);
+            if(PM.exist(e.from) && Bukkit.getPlayer(e.from)!=null) Pandora.bungee_result_pandora_check(Bukkit.getPlayer(e.from),e.bungee_raw_data);
             break;
 
         case OSTROV_PANDORA_RESULT:

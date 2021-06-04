@@ -2,7 +2,6 @@ package ru.komiss77.Managers;
 
 import org.bukkit.block.Block;
 import java.util.Iterator;
-import java.util.Random;
 import org.bukkit.World;
 import org.bukkit.Location;
 import ru.komiss77.Ostrov;
@@ -152,10 +151,18 @@ public class Cuboid {
     }
     
     public Location getRandomLocation(final World world) {
-        //final World world = Bukkit.getWorld(worldName);
-        //final Random random = new Random();
-        final Location location = new Location(world, (double)(x1 + Ostrov.random.nextInt(x2 - x1 + 1)), (double)(y1 + Ostrov.random.nextInt(y2 - y1 + 1)), (double)(z1 + Ostrov.random.nextInt(z2 - z1 + 1)));
+        final Location location = world.getBlockAt( (x1 + Ostrov.random.nextInt(x2 - x1 + 1)), (y1 + Ostrov.random.nextInt(y2 - y1 + 1)), (z1 + Ostrov.random.nextInt(z2 - z1 + 1)) ).getLocation();
         return location.getBlock().getType().isAir() ? location : world.getHighestBlockAt(location).getLocation();
+    }
+    
+    public Location getLowerLocation(final World world) {
+//System.out.println("getLowerLocation x1="+x1+" y1="+y1+" z1="+z1);
+        return world.getBlockAt( x1, y1, z1).getLocation();
+    }
+    
+    public Location getHightesLocation(final World world) {
+//System.out.println("getHightesLocation x2="+x2+" y2="+y2+" z2="+z2);
+        return world.getBlockAt( x2, y2, z2).getLocation();
     }
     
     
