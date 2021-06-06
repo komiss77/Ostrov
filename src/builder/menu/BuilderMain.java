@@ -226,6 +226,22 @@ public class BuilderMain implements InventoryProvider {
         
         
         
+       
+        contents.set(3,1, ClickableItem.of(new ItemBuilder(Material.GOLDEN_SWORD)
+            .name("§6Наборы")
+            .lore("§7Настройки")
+            .lore("")
+            .lore("§7ЛКМ - получение")
+            .lore("§7ПКМ - редактировать")
+            .lore("")
+            .build(), e-> {
+                if (e.isLeftClick()) {
+                    p.performCommand("kit");
+                } else if (e.isRightClick()) {
+                    p.performCommand("kit admin");
+                }
+            }));
+
         
         
         

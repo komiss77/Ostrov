@@ -6,7 +6,6 @@ import builder.SetupMode;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -89,7 +88,9 @@ public class SchemMain implements InventoryProvider {
     //System.out.println("Schematic size="+schem.sizeX+" "+schem.sizeY+" "+schem.sizeZ);
                         //WE.paste(p, p.getLocation(), schem, true);
                         sm.setCuboid(p, new Cuboid (  p.getLocation(), schem.sizeX, schem.sizeY, schem.sizeZ ));
-                        sm.openSchemEditMenu(p, schem.name);
+                        sm.openSchemEditMenu(p, schem.getName());
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, .5f, 2);
+                        return;
                     }
                     
                 }  else if (e.getClick()==ClickType.DROP) {
@@ -180,7 +181,7 @@ public class SchemMain implements InventoryProvider {
             .name("§fCоздать схематик")
             .build(), "название", newName -> {
 
-                if(newName.length()>16 || !ApiOstrov.checkString(newName,true,true) ) {
+                if(newName.isEmpty() || newName.length()>16 || !ApiOstrov.checkString(newName,true,true) ) {
                     p.sendMessage("§cНедопустимое название!");
                     PM.soundDeny(p);
                     return;

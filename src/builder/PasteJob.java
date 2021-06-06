@@ -140,9 +140,9 @@ public class PasteJob  implements Runnable {
         if (ticks%5 == 0 && cs!=null) {
             percent = (int)((double)checked / cuboidSize * 100.0D);
             if ( cs instanceof Player) {
-                ApiOstrov.sendActionBarDirect(Bukkit.getPlayer(cs.getName()), "§eвставка "+schem.name+": §f"+percent+"%");
+                ApiOstrov.sendActionBarDirect(Bukkit.getPlayer(cs.getName()), "§eвставка "+schem.getName()+": §f"+percent+"%");
             } else {
-                if (ticks%20 == 0) cs.sendMessage( "§eвставка "+schem.name+": §f"+percent+"%");
+                if (ticks%20 == 0) cs.sendMessage( "§eвставка "+schem.getName()+": §f"+percent+"%");
             }
             //ticks = 0;
         }
@@ -188,7 +188,7 @@ public class PasteJob  implements Runnable {
     }
 
     public String getSchemName() {
-        return schem.name;
+        return schem.getName();
     }
     
 

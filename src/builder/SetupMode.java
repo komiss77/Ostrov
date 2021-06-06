@@ -353,12 +353,12 @@ public class SetupMode implements Listener{
         }    
     }
     */
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(final PlayerQuitEvent e) {
         if(e.getPlayer().getName().equals(name))  Builder.end(name);
     }
     
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerKick(final PlayerKickEvent e) {
         if(e.getPlayer().getName().equals(name))  Builder.end(name);
     }

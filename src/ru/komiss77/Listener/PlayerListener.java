@@ -418,7 +418,7 @@ public class PlayerListener implements Listener {
     public void onBungeeDataRecieved (BungeeDataRecieved e) {
         final Player p = e.getPlayer();
         if (PM.exist(p.getName())) {
-            PM.getOplayer(p.getName()).loadLocalData();
+            PM.getOplayer(p.getName()).loadLocalData(p);
         }
         if (ApiOstrov.canBeBuilder(p)) {
             p.sendMessage("§f* У Вас есть право §eСтроителя §fна этом сервере.");
@@ -434,7 +434,7 @@ public class PlayerListener implements Listener {
     
     
     
-    @EventHandler(priority = EventPriority.MONITOR) 
+    @EventHandler(priority = EventPriority.HIGHEST) 
     public void PlayerQuit(PlayerQuitEvent e) {
         e.setQuitMessage(null);
         PM.onExit(e.getPlayer());

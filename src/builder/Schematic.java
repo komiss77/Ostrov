@@ -15,6 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World.Environment;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -32,7 +34,7 @@ import ru.komiss77.utils.ItemUtils;
 
 public class Schematic {
     
-    public String name = "";
+    private final String name;
     public int sizeX;
     public int sizeY;
     public int sizeZ;
@@ -41,7 +43,8 @@ public class Schematic {
     public HashMap<Integer, String> blockStates = new HashMap<>();
     //private List<String> raw;
     public boolean ready; //флаг для вставки - пока false вставлять не начнёт
-    
+    private Environment createdEnvironment = Environment.NORMAL;
+    private Biome createdBiome = Biome.DEEP_OCEAN;
     //private boolean s;
     //private File regionDataFile;
     //private CommandSender cs;
@@ -53,17 +56,22 @@ public class Schematic {
     }*/
     public Schematic(final CommandSender cs, final String name, final Location loc1, final Location loc2, final boolean save ) {
         this.name = name;
+        createdEnvironment = loc1.getWorld().getEnvironment();
+        createdBiome = loc1.getBlock().getBiome();
         create (cs, name, loc1, loc2, save, Ostrov.instance.getDataFolder() + "/schematics", ".schem", null);
     }
     public Schematic(final CommandSender cs, final String name, final Location loc1, final Location loc2, final boolean save, final String folderPath, final String extension, final List<Material> scipOnScan) {
         this.name = name;
+        createdEnvironment = loc1.getWorld().getEnvironment();
+        createdBiome = loc1.getBlock().getBiome();
         create (cs, name, loc1, loc2, save, folderPath, extension, scipOnScan);
     }
     
     
     //создание с местности - 
     private void create(final CommandSender cs, final String name, final Location loc1, final Location loc2, final boolean save, final String folderPath, final String extension, final List<Material> scipOnScan) {
-        this.name = name;
+        //this.name = name;
+        
             
         final Cuboid cuboid = new Cuboid(loc1, loc2);
 
@@ -184,10 +192,18 @@ public class Schematic {
                         sizeX = Integer.parseInt(lines.get(1));
                         sizeY = Integer.parseInt(lines.get(2));
                         sizeZ = Integer.parseInt(lines.get(3));
+
+                        createdEnvironment = Environment.valueOf(lines.get(4));
+                        
+                        for (Biome b : Biome.values()) {
+                            if (String.valueOf(b).equalsIgnoreCase(lines.get(5))) {
+                                createdBiome = b;
+                            }
+                        }
                         
                         //String[] split;
                         int xyz;
-                        for (int i = 4; i<lines.size(); i+=4) {
+                        for (int i = 6; i<lines.size(); i+=4) {
                             mat = Material.matchMaterial(lines.get(i+1));
                             if (mat!=null) {
                                 xyz = Integer.parseInt(lines.get(i));
@@ -265,6 +281,9 @@ public class Schematic {
         lines.add(String.valueOf(sizeY));
         lines.add(String.valueOf(sizeZ));
         
+        lines.add (String.valueOf(createdEnvironment));
+        lines.add (String.valueOf(createdBiome));
+        
         for (int xyz:blocks.keySet()) {
             lines.add(String.valueOf(xyz));
             lines.add(String.valueOf(blocks.get(xyz)));
@@ -272,13 +291,17 @@ public class Schematic {
             lines.add(blockStates.containsKey(xyz) ? blockStates.get(xyz) : "");
         }
         
-        final File regionDataFile = new File( (folderPath==null || folderPath.isEmpty()) ? Ostrov.instance.getDataFolder() + "/schematics" : folderPath, name + ((extension==null || extension.isEmpty())? ".schem" : extension));
+        final File schemFolder = new File( (folderPath==null || folderPath.isEmpty()) ? Ostrov.instance.getDataFolder() + "/schematics" : folderPath);
+        if (!schemFolder.exists() || !schemFolder.isDirectory()) {
+            schemFolder.mkdir();
+        }
+        final File schemFile = new File( (folderPath==null || folderPath.isEmpty()) ? Ostrov.instance.getDataFolder() + "/schematics" : folderPath, name + ((extension==null || extension.isEmpty())? ".schem" : extension));
         
         try {
-            if (regionDataFile.delete()){
-                regionDataFile.createNewFile();
+            if (schemFile.delete()){
+                schemFile.createNewFile();
             }
-            Files.write(regionDataFile.toPath(), lines);
+            Files.write(schemFile.toPath(), lines);
 
             if (cs!=null) cs.sendMessage("§aСхематик "+name+" сохранён.");
 
@@ -341,6 +364,18 @@ System.out.println("bd = "+bd);
         //String bds = bs.toString();
         //bds = bds.substring(bds.indexOf("[")+1).replaceFirst("]", "");
         return "";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Biome getCreatedBiome() {
+        return createdBiome;
+    }
+
+    public Environment getCreatedEnvironment() {
+        return createdEnvironment;
     }
 
 

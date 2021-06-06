@@ -207,7 +207,7 @@ public final class Oplayer {
             }
             if (bungeeData.containsKey(Data.PARTY_MEBRERS) && !bungeeData.get(Data.PARTY_MEBRERS).isEmpty()) { //пати в виде списка, лидер - первый
 //System.out.println("bungeeDataInject() PARTY_MEBRERS = "+bungeeData.get(Data.PARTY_MEBRERS));
-                onPartyRecieved(bungeeData.get(Data.PARTY_MEBRERS), false);
+                onPartyRecieved(p, bungeeData.get(Data.PARTY_MEBRERS), false);
             }
             calculatePerms(p, false); 
             StatManager.calculateReputationBase(this);
@@ -227,16 +227,16 @@ public final class Oplayer {
         
         } catch (NumberFormatException | IllegalStateException | ArrayIndexOutOfBoundsException | NullPointerException ex) {
             Ostrov.log_err("bungeeDataInject "+raw+" : "+ex.getMessage());
-            getPlayer().sendMessage("§cОШИБКА в получении данных, сообщите Администрации! "+ex.getMessage());
+            p.sendMessage("§cОШИБКА в получении данных, сообщите Администрации! "+ex.getMessage());
         } finally {
             updScore();
-            Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( getPlayer(), getBungeeIntData(Data.MONEY) ) );
+            Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, getBungeeIntData(Data.MONEY) ) );
         }
         
 //System.out.println("-Данные с банжи получены! data="+bungeeData); 
     }
     
-    public void onPartyRecieved(final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
+    public void onPartyRecieved(final Player p, final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
         party_members.clear();
         boolean first=true;
         if(!raw.isEmpty()) {
@@ -258,7 +258,7 @@ public final class Oplayer {
 //System.out.println("---onPartyRecieved() party_leader="+party_leader+"  party_members="+party_members);
             //party_members.addAll(Arrays.asList(raw.split(",")));
         }
-        Bukkit.getPluginManager().callEvent(new PartyUpdateEvent(getPlayer(), party_leader, getPartyMembers()));
+        Bukkit.getPluginManager().callEvent(new PartyUpdateEvent(p, party_leader, getPartyMembers()));
     }
 
     public void bungeeStatInject(final String raw_stat) {
@@ -383,7 +383,7 @@ public final class Oplayer {
                     }
             }
             
-            if (permissionAttachmen != null) getPlayer().removeAttachment(permissionAttachmen); //permissionAttachmen пришлось оставить, без него не работает DeluxeChat!!
+            if (permissionAttachmen != null) p.removeAttachment(permissionAttachmen); //permissionAttachmen пришлось оставить, без него не работает DeluxeChat!!
             permissionAttachmen = p.addAttachment(Ostrov.instance);
             
             
@@ -392,7 +392,7 @@ public final class Oplayer {
                 permissionAttachmen.setPermission(perm, true);
             }
             
-            getPlayer().recalculatePermissions();
+            p.recalculatePermissions();
             
             
 //System.out.println("");
@@ -402,7 +402,7 @@ public final class Oplayer {
             p.sendMessage(Ostrov.prefix+" §c Ошибка calculatePermissions, сообщите администрации! : "+ex.getMessage());
         }
         
-        Bukkit.getPluginManager().callEvent(new GroupChangeEvent ( getPlayer(), groups.treeSet ) );
+        Bukkit.getPluginManager().callEvent(new GroupChangeEvent ( p, groups.treeSet ) );
 
         if (notify) p.sendMessage(Ostrov.prefix+"Ваши группы обновились: §e"+chat_group);
 
@@ -448,6 +448,7 @@ public final class Oplayer {
     }
     
     public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
+        //if (getPlayer()==null) return false;
         if ( SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_SET_BUNGEE_DATA, e_data.tag+"<>"+value) ) {
             bungeeData.put(e_data, value);
             return true;
@@ -697,8 +698,8 @@ public int Getbdead() { return this.dead; }
     
     
 
-    public void loadLocalData() { //вызывается после получения данных с банжи
-        if (!MysqlLocal.useLocalData || getPlayer()==null) return;
+    public void loadLocalData(final Player p) { //вызывается после получения данных с банжи
+        if (!MysqlLocal.useLocalData || p==null) return;
         
         Ostrov.async( () -> {
                 
@@ -782,11 +783,11 @@ public int Getbdead() { return this.dead; }
                                 final boolean rtime = rs.getBoolean("rtime");
                                 final int ptime = rs.getInt("ptime");
                                 
-                                Ostrov.sync( () ->  applyLocalSettings(fly, flyspeed,  walkspeed, pweather, rtime, ptime), 0);
+                                Ostrov.sync( () ->  applyLocalSettings(p, fly, flyspeed,  walkspeed, pweather, rtime, ptime), 0);
                                     
                             } else {
                                 
-                                Ostrov.sync( () -> applyLocalSettings(false, -1,  -1, -1, true, -1), 0);
+                                Ostrov.sync( () -> applyLocalSettings(p, false, -1,  -1, -1, true, -1), 0);
 
                             }
                             
@@ -808,7 +809,7 @@ public int Getbdead() { return this.dead; }
                                 } else {
                                     offlinePaySub += rs.getInt("value");
                                 }
-                                ApiOstrov.moneyChange(getPlayer(), rs.getInt("value"), "§5оффлайн платёж §f-> "+rs.getString("who"));
+                                ApiOstrov.moneyChange(p, rs.getInt("value"), "§5оффлайн платёж §f-> "+rs.getString("who"));
                             }
                             rs.close();
                             
@@ -816,7 +817,7 @@ public int Getbdead() { return this.dead; }
                                 
                                 stmt.executeUpdate( "DELETE FROM `moneyOffline` WHERE `name` LIKE '"+nik+"'" );
                                 
-                                getPlayer().sendMessage( (offlinePayAdd!=0 ? "§fВам поступили оффлайн-платежи на §a"+offlinePayAdd+" §fлони" : "") +
+                                p.sendMessage( (offlinePayAdd!=0 ? "§fВам поступили оффлайн-платежи на §a"+offlinePayAdd+" §fлони" : "") +
                                         (offlinePayAdd!=0 && offlinePaySub!=0 ? "§f, и оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
                                         (offlinePayAdd==0 && offlinePaySub!=0 ? "§fВам доставлены оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
                                         "."
@@ -844,11 +845,11 @@ public int Getbdead() { return this.dead; }
     }
     
     
-    private void applyLocalSettings(final boolean fly, final int flyspeed, final int walkspeed, final int pweather, final boolean rtime, final int ptime) {
-        final Player p = getPlayer();
+    private void applyLocalSettings(final Player p, final boolean fly, final int flyspeed, final int walkspeed, final int pweather, final boolean rtime, final int ptime) {
+       // final Player p = getPlayer();
         if (p==null || !p.isOnline()) return;
         
-        MysqlDataLoaded event = new MysqlDataLoaded ( getPlayer() );
+        MysqlDataLoaded event = new MysqlDataLoaded ( p );
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
         

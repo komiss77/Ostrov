@@ -202,18 +202,20 @@ public class WE implements Listener {
     */
     
     
-    
-    
-    public static Schematic getSchematic(final CommandSender cs, final String schemName) {
+    public static Schematic getSchematic(final CommandSender cs, final String schemName, final boolean deleteFile) {
         if (schematics.containsKey(schemName)) return schematics.get(schemName);
         final File file = new File(Ostrov.instance.getDataFolder() + "/schematics" , schemName+".schem");
         if (!file.exists()) {
             if (cs!=null) cs.sendMessage("§cНет файла схематика "+schemName);
             return null;
         }        
-        Schematic sh = new Schematic(cs, file, false);
-        schematics.put(sh.name, sh);
+        Schematic sh = new Schematic(cs, file, deleteFile);
+        schematics.put(sh.getName(), sh);
         return sh;
+    }    
+    
+    public static Schematic getSchematic(final CommandSender cs, final String schemName) {
+        return getSchematic(cs, schemName, false);
     }
     
     
@@ -234,7 +236,7 @@ public class WE implements Listener {
     
     public static void save (final CommandSender cs, final Location loc1,  final Location loc2, final String schemName) {
         Schematic sh = new Schematic(cs, schemName, loc1, loc2, true);
-        schematics.put(sh.name, sh);
+        schematics.put(sh.getName(), sh);
     }
     
     
@@ -244,7 +246,7 @@ public class WE implements Listener {
     public static void save (final CommandSender cs, final Location loc1,  final Location loc2, final String folderPath, final String fileName, final boolean notify) {
         if ( loc1==null || loc2==null || fileName==null || fileName.isEmpty() ) return;
         Schematic sh = new Schematic(cs, fileName, loc1, loc2, true, folderPath, ".region", scipOnPasteDefault);
-        schematics.put(sh.name, sh);        
+        schematics.put(sh.getName(), sh);        
 
     }   
 

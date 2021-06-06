@@ -29,7 +29,7 @@ public class StatManager {
             int v=Integer.valueOf(value);
             v++;
             PM.getOplayer(p.getName()).setStat(e_stat, String.valueOf(v));
-            if (e_stat.exp_per_point != 0) onStatChange (op, e_stat, v);
+            if (e_stat.exp_per_point != 0) onStatChange (p, op, e_stat, v);
         }
     }
 
@@ -46,14 +46,14 @@ public class StatManager {
     
     
     
-    private static void onStatChange(final Oplayer op, final E_Stat e_stat, final int new_value) {//проверка достижений
+    private static void onStatChange(final Player p, final Oplayer op, final E_Stat e_stat, final int new_value) {//проверка достижений
 System.out.println("-onStatChange() stat="+e_stat.toString()+"  value="+new_value);        
         int karma = op.getBungeeIntData(Data.КАРМА);
         if (e_stat.toString().endsWith("_win")) karma++;
         else if (e_stat.toString().endsWith("_loose")) karma--;
         if (karma>100) karma=100;
         else if (karma<-100) karma=-100;
-        op.setData(Data.КАРМА, String.valueOf(karma));
+        op.setData( Data.КАРМА, String.valueOf(karma));
 
         if (e_stat.is_achiv) {
             final int achiv_tag=achivFromStat(op, e_stat, new_value, "");
@@ -61,12 +61,12 @@ System.out.println("-onStatChange() stat="+e_stat.toString()+"  value="+new_valu
                     if (!op.achiv.contains(achiv_tag)) {
 System.out.println("+++ достижение : e_stat="+e_stat.toString()+" achiv_tag="+achiv_tag);   
                         op.achiv.add(achiv_tag);
-                        op.setData(Data.ДОСТИЖЕНИЯ, Joiner.on(',').join(op.achiv) );
+                        op.setData( Data.ДОСТИЖЕНИЯ, Joiner.on(',').join(op.achiv) );
                         
                         final String achiv = descFromAchiv(e_stat, 0);
-                        ApiOstrov.sendBossbar(op.getPlayer(), E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.as_string+new_value, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
-                        ApiOstrov.sendTitle(op.getPlayer(), achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.as_string+new_value, 20, 40, 20);
-                        op.getPlayer().playSound(op.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
+                        ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.as_string+new_value, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
+                        ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.as_string+new_value, 20, 40, 20);
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
                     }
                 }
         }
