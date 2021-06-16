@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Ostrov;
@@ -87,9 +88,9 @@ public class Passport implements Listener,CommandExecutor {
                     
                 case 2:
                     if (arg[0].equals("see")) {
-                        if (arg[0].equals(cs.getName()) || ApiOstrov.hasGroup(cs.getName(), "moder") || ApiOstrov.hasGroup(cs.getName(), "vip") || PM.getOplayer(cs.getName()).getBungeeIntData(Data.PLAY_TIME)>18000) { 
+                        if (arg[0].equals(cs.getName()) || ApiOstrov.hasGroup(cs.getName(), "moder") || ApiOstrov.hasGroup(cs.getName(), "vip") || PM.getOplayer(cs.getName()).GetPlyTime()>18000) { 
                             //PassportHandler.showPasport(p,arg[1]);
-                            ApiOstrov.sendMessage(p, ru.komiss77.Enums.Action.OSTROV_PASSPORT, arg[1]);
+                            ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
                         } else {
                             cs.sendMessage(Ostrov.prefix+"§cПросматривать чужой паспорт могут модераторы,вип,премиум или наигравшие боьльше 300 часов!");
                         }

@@ -21,8 +21,9 @@ import ru.komiss77.Events.OstrovChanelEvent;
 public class SpigotChanellMsg implements PluginMessageListener {
 
 
-
-@Override
+    //SPIGOT!!! 
+    
+    @Override
     public void onPluginMessageReceived(String ch, Player player, byte[] msg) {
 //System.out.println("1 >>>>MessageReceived: "+ch);  
         //if (!Chanell.exist(ch)) return;
@@ -30,24 +31,29 @@ public class SpigotChanellMsg implements PluginMessageListener {
         //if (chanell==Chanell.Undefined) return;
         if ( !(ch.equalsIgnoreCase(Cfg.chanelName)) ) return;
         
-        String from="";
+        String sender = null;
         Action action=Action.NONE;
-        String bungee_raw_data="";
+        int int1 = 0;
+        int int2 = 0;
+        String string1 = null;
+        String string2 = null;
         
         try {    
             final ByteArrayDataInput in = ByteStreams.newDataInput(msg); 
-            from = in.readUTF();
-            action = Action.byTag(in.readUTF());
-            bungee_raw_data = in.readUTF();
+            action = Action.byTag(in.readInt());
+            int1 = in.readInt();
+            int2 = in.readInt();
+            string1 = in.readUTF();
+            string2 = in.readUTF();
 //System.out.println("2 from="+from+"  action="+action.toString()+" raw="+bungee_raw_data);
             if (action==Action.NONE) return;
             
 //System.out.println("3 вызов OstrovChanelEvent from="+from+"  action="+action.toString()+" raw="+bungee_raw_data);
-            Bukkit.getPluginManager().callEvent(new OstrovChanelEvent( from, action, bungee_raw_data ));
+            Bukkit.getPluginManager().callEvent(new OstrovChanelEvent( sender, action, int1, int2, string1, string2));
 //System.out.println("");
 
         }catch (NumberFormatException|NullPointerException|ArrayIndexOutOfBoundsException ex) {
-            Ostrov.log_err("onPluginMessage chanel OSTROV error from="+from+" action="+action.toString()+" raw="+bungee_raw_data+" §eex:"+ex.getMessage());
+            Ostrov.log_err("onPluginMessage chanel OSTROV readbuff error sender="+sender+" action="+action+" int1="+int1+" int2="+int2+" string1="+string1+" string2="+string2+" : "+ ex.getMessage());
         }
             
     }
@@ -55,38 +61,43 @@ public class SpigotChanellMsg implements PluginMessageListener {
     
     
     
-    public static boolean sendMessage(final String from, final Action action, final String raw ) {
-        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+    //от имени любого игрока
+    //public static boolean sendMessage(final Action action, final int value1, final int value2, final String string1, String string2) {
+    //    if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+     //   return sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), action, value1, value2, string1, string2);
 //System.out.println("-SENDMESSAGE: from="+from+" action="+action.toString()+" raw="+raw);    
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final DataOutputStream out = new DataOutputStream(stream);
+       // final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+       // final DataOutputStream out = new DataOutputStream(stream);
 
-        try {
-            out.writeUTF(from);
-            out.writeUTF(String.valueOf(action.ordinal()));
-            out.writeUTF(raw);
-            Bukkit.getOnlinePlayers().stream().findAny().get().sendPluginMessage(Ostrov.instance, Cfg.chanelName, stream.toByteArray());
-            return true;
-        } catch (IOException | NullPointerException ex) {
-            Ostrov.log_err("sendMessage from="+from+" chanell="+Cfg.chanelName+" action="+action+" raw="+raw+" : "+ex.getMessage());
-            return false;
-        }
+      //  try {
+       //     out.writeInt(action.tag);
+       //     out.writeUTF(from);
+       //     out.writeUTF(raw);
+       //     Bukkit.getOnlinePlayers().stream().findAny().get().sendPluginMessage(Ostrov.instance, Cfg.chanelName, stream.toByteArray());
+       //     return true;
+   //     } catch (IOException | NullPointerException ex) {
+    //        Ostrov.log_err("sendMessage from="+from+" chanell="+Cfg.chanelName+" action="+action+" raw="+raw+" : "+ex.getMessage());
+      //      return false;
+      //  }
 
-    }
+   // }
     
-    public static boolean sendMessage(final Player p, final Action action, final String raw ) {
+    
+    public static boolean sendMessage(final Player p, final Action action, final int int1, final int int2, final String string1, String string2) {
 //System.out.println("-SENDMESSAGE: Player="+p.getName()+" action="+action.toString()+" raw="+raw);    
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final DataOutputStream out = new DataOutputStream(stream);
 
         try {
             out.writeUTF(p.getName());
-            out.writeUTF(String.valueOf(action.ordinal()));
-            out.writeUTF(raw);
+            out.writeInt(int1);
+            out.writeInt(int2);
+            out.writeUTF(string1);
+            out.writeUTF(string2);
             p.sendPluginMessage(Ostrov.instance, Cfg.chanelName, stream.toByteArray());
             return true;
         } catch (IOException | NullPointerException ex) {
-            Ostrov.log_err("sendMessage player="+p+" chanell="+Cfg.chanelName+" action="+action+" raw="+raw+" : "+ex.getMessage());
+            Ostrov.log_err("sendMessage player="+p+" action="+action+" int1="+int1+" int2="+int2+" string1="+string1+" string2="+string2+" : "+ ex.getMessage());
             return false;
         }
 

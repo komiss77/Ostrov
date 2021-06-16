@@ -22,8 +22,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Action;
-import ru.komiss77.Listener.SpigotChanellMsg;
-import ru.komiss77.Managers.Timer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
@@ -262,7 +260,13 @@ public class Report implements CommandExecutor, TabCompleter {
             
         }
 
-        SpigotChanellMsg.sendMessage(arg[0], Action.AUTH_NOTYFY_MODER, "§6[§eReport§6] §7от §f"+(p==null ? "консоль" : p.getName())+" §7на §6"+arg[0]+"§7, сервер "+Bukkit.getServer().getMotd()+(target==null? "" : "§7, "+LocationUtil.StringFromLoc(target.getLocation())) );
+        ApiOstrov.sendMessage(
+            Action.AUTH_NOTYFY_MODER,
+            0,
+            0,
+            "§6[§eReport§6] §7от §f"+(p==null ? "консоль" : p.getName())+" §7на §6"+arg[0]+"§7, сервер "+Bukkit.getServer().getMotd()+(target==null? "" : "§7, "+LocationUtil.StringFromLoc(target.getLocation())),
+            ""
+        );
         
         
         
@@ -302,13 +306,12 @@ public class Report implements CommandExecutor, TabCompleter {
             //PM.getOplayer(arg[0]).isStaff
             if (Stage.reachedNext(stage, fromConsole, fromPlayers)) {
                 stage = Stage.getNext(stage);
-                SpigotChanellMsg.sendMessage(
-                    arg[0], 
-                    stage.action, 
-                        (stage.ammount>0?stage.ammount:"") 
-                        + "§6[§eReport§6] §f"
-                        + arg[0] 
-                        + (p==null ? "§7 -> замечаний от консоли : §c"+fromConsole : "§7 -> жалоб от игроков : §4"+fromPlayers)+"§7, \n§e"+stage.msg
+                ApiOstrov.sendMessage(
+                    Action.REPORT,
+                    stage.action.tag,
+                    stage.ammount,
+                    arg[0], //имя на кого
+                    "§6[§eReport§6] §f" + arg[0] + (p==null ? "§7 -> замечаний от консоли : §c"+fromConsole : "§7 -> жалоб от игроков : §4"+fromPlayers)+"§7, \n§e"+stage.msg
                 );
             }
 
@@ -371,10 +374,10 @@ public class Report implements CommandExecutor, TabCompleter {
         
         Нет ( "", 0, 0, Action.NONE, 0),
         Кик ( "выгнан, в следующий раз-бан на час", 3, 12, Action.GKICK, 0),
-        Бан1 ( "бан 1 час, в следующий раз - на день", 6, 24, Action.GBAN, 60),
-        Бан2 ( "бан 1 день, в следующий раз - на неделю", 12, 48, Action.GBAN, 1440),
-        Бан3 ( "бан 1 неделя, в следующий раз - на месяц", 24, 96, Action.GBAN, 10080),
-        Бан4 ( "бан 1 месяц, в следующий раз - на три", 48, 128, Action.GBAN, 43200),
+        Бан1 ( "бан 1 час, в следующий раз - на день", 6, 24, Action.GBAN, 60*60),
+        Бан2 ( "бан 1 день, в следующий раз - на неделю", 12, 48, Action.GBAN, 24*60*60),
+        Бан3 ( "бан 1 неделя, в следующий раз - на месяц", 24, 96, Action.GBAN, 7*24*60*60),
+        Бан4 ( "бан 1 месяц, в следующий раз - на три", 48, 128, Action.GBAN, 30*24*60*60),
         Бан5 ( "бан на три месяца", 96, 256, Action.GBAN, 129600),
         ;
 
@@ -647,7 +650,7 @@ p.sendMessage("jump не доделан");
                             .id("ReportMenuPlayer"+p.getName())
                             .provider(new ReportMenuPlayer(toName, reports, page))
                             .size(6, 9)
-                            .title("§eЗаечания и Жалобы")
+                            .title("§eЗамечания и Жалобы")
                             .build()
                             .open(p);
                     }, 5);

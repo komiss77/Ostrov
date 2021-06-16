@@ -1,16 +1,14 @@
 package ru.komiss77.Objects;
 
-import builder.SetupMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -26,12 +24,9 @@ import ru.komiss77.Commands.Pvp;
 import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
 import ru.komiss77.Events.BungeeDataRecieved;
-import ru.komiss77.Events.BungeeStatRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
-import ru.komiss77.Events.GroupChangeEvent;
 import ru.komiss77.Events.MysqlDataLoaded;
 import ru.komiss77.Events.PartyUpdateEvent;
-import ru.komiss77.Listener.SpigotChanellMsg;
 import ru.komiss77.Managers.MysqlLocal;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
@@ -44,6 +39,8 @@ import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
+import builder.SetupMode;
+import ru.komiss77.Enums.StatFlag;
 
 
 
@@ -53,14 +50,16 @@ public final class Oplayer {
   
     public String nik;
     public SetupMode setup;
-    //private final WeakReference<Player> player_link;    
     
-    private final Map<Data,String>bungeeData=new ConcurrentHashMap<>();
-    private final Map<Integer,String>stat=new ConcurrentHashMap<>();
+    private final EnumMap<Data,String>dataString = new EnumMap(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
+    private final EnumMap<Data,Integer>dataInt = new EnumMap(Data.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    private final EnumMap<E_Stat,Integer> stat = new EnumMap(E_Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    private final EnumMap<E_Stat,Integer>daylyStat = new EnumMap(E_Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    
     private final CaseInsensitiveMap <Location> homes=new CaseInsensitiveMap<>();
     private final Map <String, Location> world_positions=new ConcurrentHashMap<>();
     private final CaseInsensitiveMap <Integer> kits_use_timestamp=new CaseInsensitiveMap<>();
-    public TreeSet <Integer> achiv = new TreeSet();
+
     public CaseInsensitiveLinkedTreeSet groups = new CaseInsensitiveLinkedTreeSet();
     public CaseInsensitiveLinkedTreeSet user_perms = new CaseInsensitiveLinkedTreeSet();
     
@@ -71,35 +70,29 @@ public final class Oplayer {
     Location last_death=Bukkit.getWorlds().get(0).getSpawnLocation();
     
     public CustomScore score;
-    //private PlayerBoard board;
-                                                                                                //  для режима пвп          для модеров
-    public String party_leader="",chat_group=" ---- ",aac_last_pos="",tab_list_name_prefix="§7",tab_list_name_color="§7", tab_list_name_siffix="";
+                                                                                   //  для режима пвп          для модеров
+    public String party_leader="",chat_group=" ---- ",tab_list_name_prefix="§7",tab_list_name_color="§7", tab_list_name_siffix="";
     
     private float fly_speed=0.1F,walk_speed=0.1F;
     private final int login_time = Timer.currentTimeSec();
     public int pvp_time, no_damage, bplace, bbreak, mobkill, monsterkill, pkill, dead, aac_violations,bow_teleport_cooldown=4;     
-    
+    private int resetWantArena;
     public boolean mysqldata_loaded=false,allow_fly=false,in_fly=false,resourcepack_locked=true,pvp_allow=true;
-       
     public boolean isStaff;
     
     
+
+
+
     
     
     public Oplayer (final Player p) {
         nik=p.getName();
-        //player_link=new WeakReference<>(p);
         profile=Bukkit.createInventory( p, 54,  ItemUtils.profile_master_inv_name );
         profile.setContents(ItemUtils.profile_master.getContents());
         
-        //if (PM.score)score=new CustomScore(p);
         score=new CustomScore(p);
-        //if (PM.boardManager!=null) {
-        //    PM.boardManager.addPlayer(p);
-        //    board = PM.boardManager.getBoard(p);
-        //}
-        //nametag = new NameTag(nik);
-        
+
         if (CMD.no_damage_on_tp >0) {
             setNoDamage(CMD.no_damage_on_tp, true);
         }
@@ -120,8 +113,8 @@ public final class Oplayer {
         }
         if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
         
-        if (bungeeData.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1 ) {
-            SpigotChanellMsg.sendMessage(p, Action.OSTROV_RESEND_PLAYER_RAW_DATA, "");
+        if (dataString.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1 ) {
+            ApiOstrov.sendMessage(p, Action.RESEND_RAW_DATA, 0, 0, "", "");
         }
         if (PM.ostrovStatScore && serverSecCounter%10==0) {
             updScore();
@@ -131,7 +124,13 @@ public final class Oplayer {
             ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+SM.this_server_bungee_description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
             p.setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix);
         }
-
+        
+        if (resetWantArena>0) {
+            resetWantArena--;
+            if (resetWantArena==0) {
+                dataString.remove(Data.WANT_ARENA_JOIN);
+            }
+        }
         //if (SM.this_server_name.length()!=4) {
         //}
 //getPlayer().setPlayerListName(nik);
@@ -148,94 +147,240 @@ public final class Oplayer {
 
 
 
-    public void setNoDamage(final int seconds, final boolean actionBar) {
-        no_damage+=seconds;
-        if (actionBar) ApiOstrov.sendActionBar(Bukkit.getPlayer(nik), "§aВам дарована неуязвимость на "+no_damage+" сек!");
+     
+    @Deprecated
+    public Map<Data, String> getBungeeData() { //для паспорта
+        final EnumMap<Data,String>result = new EnumMap(Data.class);
+        for (Data d:dataString.keySet()) {
+            result.put(d, dataString.get(d));
+        }
+        for (Data d:dataInt.keySet()) {
+            result.put(d, String.valueOf(dataInt.get(d)));
+        }
+        return result;
     }
-    
-    
-    public Map<Data, String> getBungeeData() {
-        return bungeeData;
-    }
-
-    public void onExit() {
-        
-    }
-
-    public Set<String> getPartyMembers() {
-        return party_members.keySet();
-    }
-    public HashMap<String,String> getPartyData() {
-        return party_members;
-    }
-    
-    public boolean isPartyLeader() {
-//System.out.println("** isPartyLeader() party_members="+party_members+"  party_leader="+party_leader+" nik="+nik);
-        return !party_members.isEmpty() && !party_leader.isEmpty() && party_leader.equals(nik);
-    }
-    
 
 
     
-    
-    private void updScore() {
-        if (!PM.ostrovStatScore) return;
-        //if (board==null) return;
-        score.getSideBar().setTitle("§7Общий онлайн: §f§l"+SM.bungee_online);//"§a-----------------"
-        score.getSideBar().updateLine(15, "§a-----------------");
-        score.getSideBar().updateLine(14, " уровень : "+getBungeeData(Data.УРОВЕНЬ));
-        score.getSideBar().updateLine(13, " опыт : "+getBungeeData(Data.ОПЫТ));
-        score.getSideBar().updateLine(12, " репутация: "+(getBungeeIntData(Data.РЕПУТАЦИЯ)>=0?"§2":"§4")+getBungeeData(Data.РЕПУТАЦИЯ));
-        score.getSideBar().updateLine(11, " карма: "+(getBungeeIntData(Data.КАРМА)>=0?"§2":"§4")+getBungeeIntData(Data.КАРМА));
-        score.getSideBar().updateLine(10, " лони: "+getBungeeData(Data.MONEY));
-        score.getSideBar().updateLine(9, " рил: "+getBungeeData(Data.MONEY_REAL));
-        score.getSideBar().updateLine(1, "§a-----------------");
-    }
-    
-
 
     
-    public void bungeeDataInject(final Player p, final String raw) {
-        try {
-            bungeeData.put(Data.NAME, nik);
-            String[]split;
-            for (String raw_:raw.split("<:>")) {
-                split=raw_.split("<>");
-                if (split.length==2 && Ostrov.isInteger(split[0]) && Data.exist(Integer.valueOf(split[0])) ) {
-                    bungeeData.put(Data.byTag(Integer.valueOf(split[0])), split[1]);
+    public void bungeeDataInject(final Player p, final String raw) { //всё сразу
+
+        dataString.put(Data.NAME, nik);
+//System.out.println("+++bungeeDataInject raw="+raw);            
+        int enumTag;
+        String value;
+        int v;
+
+        for (String s:raw.split("∫")) {
+            if ( s.length()<4) continue;
+
+            enumTag = ApiOstrov.getInteger(s.substring(0, 3));
+            value = s.substring(3);
+
+            if (enumTag>100 && enumTag<299) {
+                    final Data _data = Data.byTag(enumTag);
+                    if (_data!=null) {
+                        if (_data.is_integer) {
+                            v = ApiOstrov.getInteger(value);
+                            if (v>Integer.MIN_VALUE) dataInt.put (_data, v);
+                        } else {
+                            dataString.put (_data, value);
+                        }
+                    } 
+            } else if (enumTag>300 && enumTag<599) {
+                final E_Stat e_stat = E_Stat.byTag(enumTag);
+                v = ApiOstrov.getInteger(value);
+                if (e_stat!=null && v>Integer.MIN_VALUE) {
+                    stat.put(e_stat, login_time);
+                }
+            } else if (enumTag>600 && enumTag<899) {
+                final E_Stat e_stat = E_Stat.byTag(enumTag-E_Stat.diff);
+                v = ApiOstrov.getInteger(value);
+                if (e_stat!=null && v>Integer.MIN_VALUE) {
+                    daylyStat.put(e_stat, v);
                 }
             }
-            if (bungeeData.containsKey(Data.PARTY_MEBRERS) && !bungeeData.get(Data.PARTY_MEBRERS).isEmpty()) { //пати в виде списка, лидер - первый
+
+        }
+        if (dataString.containsKey(Data.WANT_ARENA_JOIN)) {
+            resetWantArena = 5;
+        }
+
+        if (dataString.containsKey(Data.PARTY_MEBRERS) && !dataString.get(Data.PARTY_MEBRERS).isEmpty()) { //пати в виде списка, лидер - первый
 //System.out.println("bungeeDataInject() PARTY_MEBRERS = "+bungeeData.get(Data.PARTY_MEBRERS));
-                onPartyRecieved(p, bungeeData.get(Data.PARTY_MEBRERS), false);
+            try {
+                onPartyRecieved(p, dataString.get(Data.PARTY_MEBRERS), false);
+            } catch (NumberFormatException | IllegalStateException | ArrayIndexOutOfBoundsException | NullPointerException ex) {
+                Ostrov.log_err("bungeeDataInject : onPartyRecieved "+ex.getMessage());
+                p.sendMessage("§cОШИБКА в onPartyRecieved, сообщите Администрации! "+ex.getMessage());
+
             }
-            calculatePerms(p, false); 
-            StatManager.calculateReputationBase(this);
-            
-            if (bungeeData.containsKey(Data.ДОСТИЖЕНИЯ) && !bungeeData.get(Data.ДОСТИЖЕНИЯ).isEmpty()) {
-                for (String i:getBungeeData(Data.ДОСТИЖЕНИЯ).split(",")) {
-                    try {
-                        achiv.add(Integer.parseInt(i));
-//System.out.println("-bungeeDataInject() achiv="+achiv);                    
-                    } catch (NumberFormatException ex) {
-                        Ostrov.log_err("обработка ачивок-не цифровое значение : "+i);
+        }
+
+        try {
+            PM.calculatePerms(p, this, false); 
+        } catch (NumberFormatException | IllegalStateException | ArrayIndexOutOfBoundsException | NullPointerException ex) {
+            Ostrov.log_err("bungeeDataInject : calculatePerms "+ex.getMessage());
+            p.sendMessage("§cОШИБКА в calculatePerms, сообщите Администрации! "+ex.getMessage());
+
+        }
+
+
+        try {
+             StatManager.calculateReputationBase(this);
+        } catch (NumberFormatException | IllegalStateException | ArrayIndexOutOfBoundsException | NullPointerException ex) {
+            Ostrov.log_err("bungeeDataInject : calculateReputationBase "+ex.getMessage());
+            p.sendMessage("§cОШИБКА в calculateReputationBase, сообщите Администрации! "+ex.getMessage());
+
+        }
+
+        updScore();
+        Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, this ) );
+        //Bukkit.getPluginManager().callEvent(new BungeeStatRecieved (this) );
+
+//System.out.println("-Данные с банжи получены! data="+bungeeData); 
+    }
+    
+    //обнова данных с банжи по SET_DATA_TO_OSTROV - значит на острове уже новое значение
+    //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
+    public void updateDataFromBungee(final Player p, final int enumTag, final int int2, final String string1) {
+//System.out.println("-updateDataFromBungee e_data="+e_data.toString()+" value="+value);
+        if (enumTag>100 && enumTag<299) {
+            final Data d = Data.byTag(enumTag);
+            if (d!=null) {
+                boolean change;
+                if (d.is_integer) {
+                    change = dataInt.put(d, int2)!=int2;//dataInt.put (_data, int2);
+                } else {
+                    change = !dataString.put(d, string1).equals(string1);//dataString.put (d, string1);
+                }
+                if (change) {
+                    switch (d) {
+                        case USER_GROUPS: 
+                            PM.calculatePerms(p, this, true); 
+                            StatManager.calculateReputationBase(this);
+                            break;
+                        case USER_PERMS: 
+                            PM.calculatePerms(p, this, false);
+                            break;
+                        //case ИМЯ_ФАМИЛИЯ: 
+                        //    break;
                     }
                 }
             }
             
-            //Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( getPlayer(), getBungeeIntData(Data.MONEY) ) );
-        
-        } catch (NumberFormatException | IllegalStateException | ArrayIndexOutOfBoundsException | NullPointerException ex) {
-            Ostrov.log_err("bungeeDataInject "+raw+" : "+ex.getMessage());
-            p.sendMessage("§cОШИБКА в получении данных, сообщите Администрации! "+ex.getMessage());
-        } finally {
-            updScore();
-            Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, getBungeeIntData(Data.MONEY) ) );
+        } else if (enumTag>300 && enumTag<599) {
+            final E_Stat e_stat = E_Stat.byTag(enumTag);
+            if (e_stat!=null) {
+                stat.put(e_stat, int2);
+            }
+        } else if (enumTag>600 && enumTag<899) {
+            final E_Stat e_stat = E_Stat.byTag(enumTag-300);
+            if (e_stat!=null) {
+                daylyStat.put(e_stat, int2);
+            }
         }
-        
-//System.out.println("-Данные с банжи получены! data="+bungeeData); 
+
     }
     
+   // public void updateStatFromBungee(final Player p, final E_Stat es, final int value) {
+//System.out.println("-updateDataFromBungee e_data="+e_data.toString()+" value="+value);
+  //      stat.put(es, value);
+ //   }    
+    
+    
+    
+    
+    public String getDataString(final Data e_data) {
+        return dataString.containsKey(e_data) ? dataString.get(e_data) : e_data.def_value;
+    }
+
+    public int getDataInt(final Data e_data) {
+        return dataInt.containsKey(e_data) ? dataInt.get(e_data) : ApiOstrov.getInteger(e_data.def_value);
+    }
+
+    public boolean setData(final Data e_data, final int value) {  //отправляем на банжи, и обнов.локально
+        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, e_data.tag, value, "", "") ) {
+            dataInt.put(e_data, value);
+            return true;
+        } else {
+            getPlayer().sendMessage(Ostrov.prefix+"§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
+            Ostrov.log_err("§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
+            return false;
+        }
+    }
+    public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
+        //if (getPlayer()==null) return false;
+        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, e_data.tag, 0, value, "") ) {
+            dataString.put(e_data, value);
+            return true;
+        } else {
+            getPlayer().sendMessage(Ostrov.prefix+"§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
+            Ostrov.log_err("§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
+            return false;
+        }
+    }
+
+    public int getStat(final E_Stat st) {
+        return stat.containsKey(st) ? stat.get(st) : 0;
+    }
+    
+    public int getDaylyStat(final E_Stat st) {
+        return daylyStat.containsKey(st) ? daylyStat.get(st) : 0;
+    }
+
+    public void addStat(final E_Stat st, final int value) {
+//System.out.println("-setStat e_stat="+e_stat.toString()+" value="+value+" getPlayer()="+getPlayer());
+        stat.put(st, getStat(st)+value);
+        daylyStat.put(st, getDaylyStat(st)+value);
+        ApiOstrov.sendMessage(getPlayer(), Action.ADD_STAT_TO_BUNGEE, st.tag, value, "", "");
+        //ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, st.tag+E_Stat.diff, getDaylyStat(st), "", ""); //надо отдельно, или вычислять старое значение ?
+    }
+
+
+    public boolean hasFlag(final StatFlag flag) {
+        final int value = getStat(E_Stat.FLAGS);
+        return (value & (1 << flag.tag)) == (1 << flag.tag);
+    }
+    
+    public boolean hasDaylyFlag(final StatFlag flag) {
+        final int value = getDaylyStat(E_Stat.FLAGS);
+        return (value & (1 << flag.tag)) == (1 << flag.tag);
+    }
+    
+    //сетит флаг локально и в банжи, ТОЛЬКО В ГЛОБАЛЬНОЙ СТАТЕ! dayly не меняет!
+    public void setFlag(final StatFlag flag, final boolean state) {
+        int value = getStat(E_Stat.FLAGS);
+        value = state ? (value | (1 << flag.tag)) : value & ~(1 << flag.tag);
+        stat.put(E_Stat.FLAGS, value);
+        ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, E_Stat.FLAGS.tag, value, "", "");
+    }
+    
+    //сетит флаг локально и в банжи, ТОЛЬКО В dayly СТАТЕ! стату не меняет!
+    public void setDaylyFlag(final StatFlag flag, final boolean state) {
+        int value = getDaylyStat(E_Stat.FLAGS);
+        value = state ? (value | (1 << flag.tag)) : value & ~(1 << flag.tag);
+        daylyStat.put(E_Stat.FLAGS, value);
+        ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, E_Stat.FLAGS.tag+E_Stat.diff, value, "", "");
+    }
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    @Deprecated //использует пати
+    public void onPartyRecieved(final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
+        onPartyRecieved(getPlayer(), raw, callEvent);
+    }
     public void onPartyRecieved(final Player p, final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
         party_members.clear();
         boolean first=true;
@@ -260,155 +405,16 @@ public final class Oplayer {
         }
         Bukkit.getPluginManager().callEvent(new PartyUpdateEvent(p, party_leader, getPartyMembers()));
     }
-
-    public void bungeeStatInject(final String raw_stat) {
-        String[]split;
-        for (String st_:raw_stat.split("<>")) {
-            split=st_.split(":");
-            if (split.length==2 && Ostrov.isInteger(split[0]) ) {
-                stat.put(Integer.valueOf(split[0]), split[1]);
-            }
-        }
-        Bukkit.getPluginManager().callEvent(new BungeeStatRecieved (this) );
-        
-         new BukkitRunnable() {
-            @Override
-            public void run() {
-                setData(Data.WANT_ARENA_JOIN, ""); //сбрасываем после эвента, а то каждый раз посылает на аренуAM.addPlayer(e.getPlayer(), e.getOplayer().getBungeeData(Data.WANT_ARENA_JOIN));
-            }
-        }.runTaskLater(Ostrov.instance, 40);//такая задержка нужна т.к. переход на арену делается с задержкой
-        
-//System.out.println("-Статистика с банжи получена! stat="+stat); 
+    public Set<String> getPartyMembers() {
+        return party_members.keySet();
     }
-
+    public HashMap<String,String> getPartyData() {
+        return party_members;
+    }
     
-    public void calculatePerms(final Player p, final boolean notify){
-        isStaff = false;
-        
-        //final Player p = getPlayer();
-        try {
-            groups.clear();
-            user_perms.clear();
-            chat_group=" ---- ";
-//System.out.println("-calculatePerms notify="+notify); 
-            
-            //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //делать до удаления permissionAttachmen!
-            //for (String perm : OstrovDB.default_permissions) {  //закидываем дефолтные из файлика permissions.yml
-//System.out.println("+"+ai.getPermission());
-            //if (OstrovDB.localGroupPermissions.containsKey("default")) {
-            //    user_perms.addAll(OstrovDB.localGroupPermissions.get("default"));
-           // }
-            user_perms.addAll(OstrovDB.defaultPerms);
-//System.out.println("--calculatePerms 2");        
-//дефолтные слетают. сделать нах файлик в острове!
-            //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //закидываем дефолтные из файлика permissions.yml
-
-            if ( !getBungeeData(Data.USER_GROUPS).isEmpty() ) {                       //если у игрока есть группы
-                chat_group="";
-//System.out.println("--calculatePerms");        
-                    for (String group_name : getBungeeData(Data.USER_GROUPS).split(",")) {                   //добавляем группы игроку
-//System.out.println("--calculatePerms group_name="+group_name);        
-                        if (OstrovDB.groups.containsKey(group_name)) {   
-                            groups.add(group_name);
-                            chat_group=chat_group+", "+OstrovDB.groups.get(group_name).chat_name;
-                            //if (SM.this_server_name.length()!=4) { //на играх не ставим!
-                                if (OstrovDB.groups.get(group_name).isStaff()) {
-                                    tab_list_name_siffix = "§7(§e"+OstrovDB.groups.get(group_name).chat_name+"§7)";
-                                    isStaff = true;
-                                } else {
-                                    tab_list_name_prefix = "§6✪ §f";
-                                    //tab_list_name_color = "§f";
-                                }
-                            //}
-                        } else {
-                            if (OstrovDB.useOstrovData) Ostrov.log_err("У игрока "+nik+" есть группа "+group_name+", но её нет в базе групп!" );
-                        }
-                    }
-                    chat_group=chat_group.replaceFirst(", ", "");
-            }
-           
-
-            //for (String group_name : getBungeeData(Data.USER_GROUPS).split(",")) {                   //добавляем права групп игроку
-            if (!groups.isEmpty()) {
-                for (String group_name : groups) {                   //добавляем права групп игроку
-                    //OstrovDB.groups.get(group_name).permissions.stream().forEach((perm) -> { //в группах права уже с учётом наследования!
-                    for (String perm : OstrovDB.groups.get(group_name).permissions) { //в группах права уже с учётом наследования!
-//System.out.println("----setPermission "+perm);   
-                        //permissionAttachmen.setPermission(perm, true);
-                        user_perms.add(perm);
-                        //if (OstrovDB.localGroupPermissions.containsKey(group_name)) {
-                        //    user_perms.addAll(OstrovDB.localGroupPermissions.get(group_name));
-                            
-                        //}
-                    }
-                }
-            }
-
-//System.out.println("");
-//System.out.println(" +++++ Группы игрока: " + groups);
-//System.out.println("");
-//System.out.println(" +++++ Права игрока: " + user_perms);
-//System.out.println("");
-
-//System.out.println("--allservers="+SM.allBungeeServersName);        
-
-            if ( !getBungeeData(Data.USER_PERMS).isEmpty() ) {                       //если у игрока есть права
-//System.out.println("--calculatePerms getBungeeData(Data.USER_PERMS)");   
-                String split;
-                    for (String perm : getBungeeData(Data.USER_PERMS).split(",")) {                   //добавляем группы игроку
-                        
-                        //perm=perm;  //отделить сервер
-                        
-                        if (perm.startsWith("allservers.")) {
-                            perm = perm.replaceFirst("allservers.", "");
-                            user_perms.add(perm);
-//System.out.println("++личное право="+perm);        
-                        } else if (perm.startsWith(SM.this_server_name+".")){
-                            perm = perm.replaceFirst(SM.this_server_name+".", "");
-                            user_perms.add(perm);
-//System.out.println("++личное право="+perm);        
-                        } else {
-//System.out.println("1 perm="+perm);
-//System.out.println("2 split="+perm.split("."));
-//System.out.println("3 "+(perm.split("\\."))[0]);
-                            split=(perm.split("\\."))[0];       //желательно проверять- если начинается с имени другого сервера, то пропускать. Но это надо
-                            if (!SM.allBungeeServersName.contains(split)) { //вытаскивать данные из bungee_servers
-                                //permissionAttachmen.setPermission(perm, true);
-                                user_perms.add(perm);   //пока расчёт на то, что с другим сервером в начале право не сработает.
-//System.out.println("++личное право="+perm);        
-                            }
-                        }
-       
-//System.out.println("++личное право="+perm);        
-                    }
-            }
-            
-            if (permissionAttachmen != null) p.removeAttachment(permissionAttachmen); //permissionAttachmen пришлось оставить, без него не работает DeluxeChat!!
-            permissionAttachmen = p.addAttachment(Ostrov.instance);
-            
-            
-            for (String perm : user_perms) {  //закидываем собранные пермы в атачмент
-//System.out.println("+"+ai.getPermission());     
-                permissionAttachmen.setPermission(perm, true);
-            }
-            
-            p.recalculatePermissions();
-            
-            
-//System.out.println("");
-            
-        } catch (Exception ex) {
-            Ostrov.log_err("Ошибка calculatePermissions "+nik+" : "+ex.getMessage());
-            p.sendMessage(Ostrov.prefix+" §c Ошибка calculatePermissions, сообщите администрации! : "+ex.getMessage());
-        }
-        
-        Bukkit.getPluginManager().callEvent(new GroupChangeEvent ( p, groups.treeSet ) );
-
-        if (notify) p.sendMessage(Ostrov.prefix+"Ваши группы обновились: §e"+chat_group);
-
-            
-
-
+    public boolean isPartyLeader() {
+//System.out.println("** isPartyLeader() party_members="+party_members+"  party_leader="+party_leader+" nik="+nik);
+        return !party_members.isEmpty() && !party_leader.isEmpty() && party_leader.equals(nik);
     }
     
 
@@ -423,82 +429,14 @@ public final class Oplayer {
 
 
 
+
+
+
+
+
+
     
     
-    
-    
-    public void updateDataFromBungee(final Player p, final Data e_data, final String value) {
-//System.out.println("-updateDataFromBungee e_data="+e_data.toString()+" value="+value);
-        final boolean change = !bungeeData.containsKey(e_data) || (bungeeData.containsKey(e_data) && !bungeeData.get(e_data).equals(value));
-        bungeeData.put(e_data, value);
-        
-//System.out.println("-updateDataFromBungee "+e_data.toString()+" "+profile.getViewers());
-        if (change) {
-            switch (e_data) {
-                case USER_GROUPS: 
-                    calculatePerms(p, true); 
-                    StatManager.calculateReputationBase(this);
-                    break;
-                case USER_PERMS: 
-                    calculatePerms(p, false); 
-                    break;
-                case ИМЯ_ФАМИЛИЯ: break;
-            }
-        }
-    }
-    
-    public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
-        //if (getPlayer()==null) return false;
-        if ( SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_SET_BUNGEE_DATA, e_data.tag+"<>"+value) ) {
-            bungeeData.put(e_data, value);
-            return true;
-        } else {
-            getPlayer().sendMessage(Ostrov.prefix+"§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
-            Ostrov.log_err("§cОшибка синхронизации данных! e_data="+e_data.toString()+" value="+value);
-            return false;
-        }
-    }
-
-
-
-    public String getBungeeData(final Data e_data) {
-        if (bungeeData.containsKey(e_data)) {
-             return e_data.is_integer ?  String.valueOf(getBungeeIntData(e_data)) : bungeeData.get(e_data);
-        } else {
-             return e_data.def_value;
-        }
-    }
-
-    public int getBungeeIntData(final Data e_data) {
-        int value=0;
-        try {
-            
-            if (bungeeData.containsKey(e_data)) {
-                value = Integer.valueOf(bungeeData.get(e_data)); //берём записанное при входе
-            } else {
-                value=Integer.valueOf(e_data.def_value);
-            }
-            
-            switch (e_data) {
-                case DAY_PLAY_TIME: 
-                    value+=Timer.currentTimeSec()-login_time;
-                    break;
-                case PLAY_TIME: 
-                    value+=((int)(Timer.currentTimeSec()/60) - (int)(login_time/60));
-                    break;
-                //case РЕПУТАЦИЯ: 
-//System.out.println("get РЕПУТАЦИЯ get="+value+"  base = "+getBungeeIntData(Data.РЕПУТАЦИЯ_БАЗА)+" calc="+getBungeeIntData(Data.РЕПУТАЦИЯ_РАСЧЁТ) );                    
-                    //value=getBungeeIntData(Data.РЕПУТАЦИЯ_БАЗА)+getBungeeIntData(Data.РЕПУТАЦИЯ_РАСЧЁТ);
-                    //break;
-            }
-            
-        } catch (NumberFormatException | NullPointerException | ConcurrentModificationException ex) {
-            Ostrov.log_err("Bplayer getBungeeIntData error, e_data="+e_data.toString()+" value="+bungeeData.get(e_data)+ex.getMessage());
-        }
-        return value;
-    }
-
-
     
     
     
@@ -541,11 +479,30 @@ public final class Oplayer {
 
 
 
+    
+    private void updScore() {
+        if (!PM.ostrovStatScore) return;
+        //if (board==null) return;
+        score.getSideBar().setTitle("§7Общий онлайн: §f§l"+SM.bungee_online);//"§a-----------------"
+        score.getSideBar().updateLine(15, "§a-----------------");
+        score.getSideBar().updateLine(14, " уровень : "+getStat(E_Stat.LEVEL));
+        score.getSideBar().updateLine(13, " опыт : "+getStat(E_Stat.EXP));
+        score.getSideBar().updateLine(12, " репутация: "+(getDataInt(Data.РЕПУТАЦИЯ)>=0?"§2":"§4")+getDataInt(Data.РЕПУТАЦИЯ));
+        score.getSideBar().updateLine(11, " карма: "+(getDataInt(Data.КАРМА)>=0?"§2":"§4")+getDataInt(Data.КАРМА));
+        score.getSideBar().updateLine(10, " лони: "+getDataInt(Data.MONEY));
+        score.getSideBar().updateLine(9, " рил: "+getDataInt(Data.MONEY_REAL));
+        score.getSideBar().updateLine(1, "§a-----------------");
+    }
+    
 
 
 
 
 
+   public void setNoDamage(final int seconds, final boolean actionBar) {
+        no_damage+=seconds;
+        if (actionBar) ApiOstrov.sendActionBar(Bukkit.getPlayer(nik), "§aВам дарована неуязвимость на "+no_damage+" сек!");
+    }
 
 
 
@@ -603,26 +560,42 @@ public final class Oplayer {
 
 
     
-    public int GetPlytime() {
-        return getBungeeIntData(Data.PLAY_TIME);
+    public int GetPlyTime() {
+        return getStat(E_Stat.PLAY_TIME) + (ApiOstrov.currentTimeSec() - login_time);//getBungeeIntData(Data.PLAY_TIME);
     }
     
-    public int GetBalance() {
-        return getBungeeIntData(Data.MONEY);
+    public int GetDayPlyTime() {
+        return getDaylyStat(E_Stat.PLAY_TIME) + (ApiOstrov.currentTimeSec() - login_time);//getBungeeIntData(Data.PLAY_TIME);
+    }
+    
+ /*   public int GetBalance() {
+        return getDataInt(Data.MONEY);
     }
 
-    public void moneyChange( int sum, final String add_from) {
-        SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_BUNGEE_MONEY_CHANGE, String.valueOf(sum)+"<>"+add_from);
-        //setData(Data.MONEY, )
+
+    public void moneyChange( int sum) {
+//System.out.println("moneyChange sum="+sum+" Data.MONEY="+getIntData(Data.MONEY)+" curr="+curr);
+        setData(Data.MONEY, dataInt.get(Data.MONEY)+sum);//moneySet(curr+value, send_update);
+//System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));        
+            if (sum>9 || sum<-9) { //по копейкам не уведомляем
+            getPlayer().spigot().sendMessage(new ComponentBuilder(Ostrov.prefix+"§7"+(sum>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(sum>9?"§2":"§4")+sum+" лони §7! §8<клик-баланс")
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§5Клик - сколько стало?") ))
+                .event( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/money balance") )
+                .create());
+            } else if (sum<-9) {
+                
+            }
+        //ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, Data.MONEY.tag, sum, "", "");
+        //setData(Data.MONEY, dataInt.get(Data.MONEY)+sum);
     }
 
     public String GetPrefix() {
-        return getBungeeData(Data.PREFIX);
+        return getDataString(Data.PREFIX);
     }
     public String GetSuffix() {
-        return getBungeeData(Data.SUFFIX);
+        return getDataString(Data.SUFFIX);
     }
-
+*/
 
 
 
@@ -668,7 +641,7 @@ public int Getbdead() { return this.dead; }
     public void Remove_kit_acces(final String kitName) {
         if (kits_use_timestamp.containsKey(kitName)) kits_use_timestamp.remove(kitName);
     }
-    public long Kit_last_acces(final String kitName) {
+    public int Kit_last_acces(final String kitName) {
 //System.out.println("+++++++kit "+kits+"   contains "+kit+"?"+this.kits.containsKey(kit)+" value:"+((this.kits.containsKey(kit))?this.kits.get(kit):"0"));    
         if (kits_use_timestamp.containsKey(kitName)) return kits_use_timestamp.get(kitName);
         //else return Timer.Единое_время()/1000/60;
@@ -690,7 +663,7 @@ public int Getbdead() { return this.dead; }
     }
 
     public boolean bungeeDataRecieved() {
-        return !bungeeData.isEmpty();
+        return !dataString.isEmpty();
     }
 
     
@@ -1006,7 +979,7 @@ public int Getbdead() { return this.dead; }
     }
 
     public boolean hasAnyGroup() {
-        return !getBungeeData(Data.USER_GROUPS).isEmpty();
+        return !getDataString(Data.USER_GROUPS).isEmpty();
     }
 
     public void teleportEvent(final String target_name) {
@@ -1140,19 +1113,14 @@ public int Getbdead() { return this.dead; }
     
     
     
+
     
-    
-    public String getStat(final E_Stat e_stat) {
-        if (stat.containsKey(e_stat.tag)) return stat.get(e_stat.tag);
-        else return e_stat.def_value;
-    }
-    
-    public int getIntStat(final E_Stat e_stat) {
+  /*  public int getIntStat(final E_Stat e_stat) {
         int value=0;
         try {
             
-            if (stat.containsKey(e_stat.tag)) {
-                value = Integer.valueOf(stat.get(e_stat.tag)); //берём записанное при входе
+            if (stat.containsKey(e_stat)) {
+                value = Integer.valueOf(stat.get(e_stat)); //берём записанное при входе
             } else {
                 value=Integer.valueOf(e_stat.def_value);
             }
@@ -1161,14 +1129,9 @@ public int Getbdead() { return this.dead; }
             Ostrov.log_err("Bplayer getIntStat error, e_data="+e_stat.toString());
         }
         return value;
-    }
+    }*/
 
 
-    public void setStat(final E_Stat e_stat, final String value) {
-//System.out.println("-setStat e_stat="+e_stat.toString()+" value="+value+" getPlayer()="+getPlayer());
-        stat.put(e_stat.tag, value);
-        SpigotChanellMsg.sendMessage(getPlayer(), Action.OSTROV_SET_STAT_DATA, e_stat.tag+":"+value);
-    }
 
 
 

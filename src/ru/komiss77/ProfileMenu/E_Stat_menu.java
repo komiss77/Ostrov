@@ -6,6 +6,8 @@ import org.bukkit.Material;
 
 public enum E_Stat_menu {
 
+    GLOBAL (31, Material.NAUTILUS_SHELL, "§eОстров"),
+    
     BW (1, Material.RED_BED, "§eБедВарс"),
     SG (3, Material.APPLE, "§4Голодные Игры"),
     BB (5, Material.NETHER_QUARTZ_ORE, "§aБитва Строителей"),
@@ -17,11 +19,11 @@ public enum E_Stat_menu {
     QU (17, Material.TRIDENT, "§cQuake"),
     SN (19, Material.STRING, "§fЗмейка"),
     
-    SP (21, Material.GOLDEN_SHOVEL, "§6Сплиф"),
-    TR (23, Material.TNT, "§cTNT run"),
-    PA (25, Material.FEATHER, "§fПаркуры"),
+    ZH (21, Material.ZOMBIE_SPAWN_EGG, "§cЗомби"),
+    //TR (23, Material.TNT, "§cTNT run"),
+    PA (23, Material.FEATHER, "§fПаркуры"),
     
-    KB (27, Material.DIAMOND_CHESTPLATE, "§bКит-ПВП"),
+    KB (25, Material.DIAMOND_CHESTPLATE, "§bКит-ПВП"),
     
     ;
 

@@ -24,7 +24,7 @@ public class Kit {
     public int accesBuyPrice = 0;  //цена покупки права
     public int accesSellPrice = 0;  //цена продажи права
     public int getPrice = 0;  //цена получения
-    public int delayMin = 0;  //минуты между выдачами
+    public int delaySec = 0;  //минуты между выдачами
     public ItemStack logoItem;
     public List <ItemStack> items = new ArrayList<>();    
 
@@ -56,7 +56,7 @@ public class Kit {
         kit.accesBuyPrice = accesBuyPrice;
         kit.accesSellPrice = accesSellPrice;
         kit.getPrice = getPrice;
-        kit.delayMin = delayMin;
+        kit.delaySec = delaySec;
         kit.logoItem = new ItemBuilder(logoItem).name("§e§n§l"+newKitName).lore("").build();
         //kit.items = new ArrayList<>();
         kit.items.addAll(items);

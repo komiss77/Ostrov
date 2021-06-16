@@ -21,12 +21,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -37,14 +34,17 @@ import org.bukkit.boss.BarStyle;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Action;
+import ru.komiss77.Enums.StatFlag;
 import ru.komiss77.Initiable;
 import ru.komiss77.Listener.SpigotChanellMsg;
+import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.Timer;
+import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.DonatEffect;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.utils.inventory.ConfirmationGUI;
 
 
 
@@ -52,11 +52,11 @@ import ru.komiss77.utils.OstrovConfig;
 public final class Pandora extends Initiable implements Listener {
     
     private static OstrovConfig config;
-    private static Inventory confirm_inv;
+    //private static Inventory confirm_inv;
     private static HashMap<String,ArmorStand>pandoras;
     private static BukkitTask tick_=null;
     private static int last_cmd;
-    private static Set<String>clicked;
+    //private static Set<String>clicked;
     private static Set<Location>music;
     public static boolean effect;
     private static String pandaName;
@@ -86,7 +86,7 @@ public final class Pandora extends Initiable implements Listener {
     public Pandora() {
         pandoras=new HashMap<>();
         last_cmd=Timer.currentTimeSec();
-        clicked=new HashSet<>();
+        //clicked=new HashSet<>();
         music=new HashSet<>();
         pandaName = "Шкатулка Пандоры";
         
@@ -118,9 +118,9 @@ public final class Pandora extends Initiable implements Listener {
                 });
             }
             
-            confirm_inv=Bukkit.createInventory(null, 27, "§5Пандора - подтверждение");
-            confirm_inv.setItem(11, new ItemBuilder(Material.GREEN_CONCRETE).setName("§2Да").build());
-            confirm_inv.setItem(15, new ItemBuilder(Material.RED_CONCRETE).setName("§4Нет").build());
+            //confirm_inv=Bukkit.createInventory(null, 27, "§5Пандора - подтверждение");
+            //confirm_inv.setItem(11, new ItemBuilder(Material.GREEN_CONCRETE).setName("§2Да").build());
+            //confirm_inv.setItem(15, new ItemBuilder(Material.RED_CONCRETE).setName("§4Нет").build());
             Bukkit.getPluginManager().registerEvents(this, Ostrov.GetInstance());
             start_tick();
             Ostrov.log_ok ("§2Пандора активна!");
@@ -157,7 +157,7 @@ public final class Pandora extends Initiable implements Listener {
                             if (tick%10==0) {
                                 //if (!as.getCustomName().isEmpty()) as.setCustomName(ChatColor.values()[ApiOstrov.randInt(0, 15)]+as.getCustomName().substring(2));
                                 if (!as.getCustomName().isEmpty()) as.setCustomName( ChatColor.values()[ApiOstrov.randInt(0, 15)] + ChatColor.stripColor(as.getCustomName()) );
-                                clicked.clear();
+                                //clicked.clear();
                             }
                             
                             
@@ -227,52 +227,44 @@ public final class Pandora extends Initiable implements Listener {
         }
     }
 
-    
-@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public static void onInventoryClick(InventoryClickEvent e) {
-        if (e.getInventory().getType()!=InventoryType.CHEST  || e.getSlot() <0 || e.getSlot() > 26 ) return;
-        if (!e.getView().getTitle().equals("§5Пандора - подтверждение")) return;
-        if (e.getCurrentItem()==null || e.getCurrentItem().getType()==Material.AIR) return;
-        e.setCancelled(true);
-        
-        final Player p = (Player) e.getWhoClicked();
-        if (e.getSlot()==11) { //да
-            p.closeInventory();
-            if (!clicked.contains(p.getName())) {
-                clicked.add(p.getName());
-                //Ostrov.sendMessage(p, "Bauth_getdata", p.getName()+"<:>ACTION<:>pandora_execute");
-                SpigotChanellMsg.sendMessage(p, Action.OSTROV_PANDORA_EXECUTE, "-");
-                
-                DonatEffect.display(p.getLocation());
-                //if (Ostrov.effect_manager!=null) {
-                   // Effects.play("StarEffect", p.getLocation(), 10*20);
-                    //Effect eff = new StarEffect (Ostrov.effect_manager); 
-                    //eff.setLocation(p.getLocation());
-                    //eff.iterations = 10 * 20;// Bleeding takes 15 seconds
-                    //eff.start();
-               // }
-            } //else Ostrov.sendActionBar(p, "§eБудьте упорнее, шкатулочка с характером!");
-            
-        } else if (e.getSlot()==15) { //нет
-            p.closeInventory();
-            p.getWorld().strikeLightningEffect(p.getEyeLocation());
-            kick(p);
-        }
-
-    }
 
     
 
-@EventHandler(ignoreCancelled = false,priority=EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = false,priority=EventPriority.HIGH)
     public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent e) {
 //System.out.println("PANDORA!!! onPlayerInteractAtEntityEvent 1");
         if(e.getRightClicked().getType() == EntityType.ARMOR_STAND && isPandora(e.getRightClicked())) {
             e.setCancelled(true);
 //System.out.println("PANDORA!!! onPlayerInteractAtEntityEvent 2");
-            if (!clicked.contains(e.getPlayer().getName())) {
-                clicked.add(e.getPlayer().getName());
+            if (!Timer.has(e.getPlayer().getEntityId())) {
+                Timer.add(e.getPlayer().getEntityId(), 3);
+                //clicked.add(e.getPlayer().getName());
                 //Ostrov.sendMessage(e.getPlayer(), "Bauth_getdata", e.getPlayer().getName()+"<:>ACTION<:>pandora_check");
-                SpigotChanellMsg.sendMessage(e.getPlayer(), Action.OSTROV_PANDORA_CHECK, "-");
+                //ApiOstrov.sendMessage(e.getPlayer(), Action.PANDORA_CHECK, 0, 0, "", "");
+                final Player p = e.getPlayer();
+                final Oplayer op = PM.getOplayer(p.getName());
+                if (op.hasFlag(StatFlag.Pandora)) {
+                    e.getPlayer().sendMessage("§6[§eПандора§6] §eСегодня вы уже ловили удачу.. Попробуйте завтра!");
+                    kick(p);
+                } else {
+                    final int sec_left = 7200-op.GetDayPlyTime();
+                    if (sec_left>0) {
+                        p.sendMessage("§6[§eПандора§6] §e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e"+ApiOstrov.secondToTime(sec_left)+".! §e§kXXX" );
+                        kick(p);
+                    } else {
+                        ConfirmationGUI.open( p, "§5Открыть Шкутулку Пандоры?", confirm -> {
+                            if (confirm) {
+                                runPandora(p);//SpigotChanellMsg.sendMessage(p, Action.PANDORA_RUN, 0, 0, "", "");
+                                DonatEffect.display(p.getLocation());
+                            } else {
+                                p.closeInventory();
+                                p.getWorld().strikeLightningEffect(p.getEyeLocation());
+                                kick(p);
+                            }
+                        });
+                        playMusic(p.getLocation());
+                    }
+                }
                 
                // if (Ostrov.effect_manager!=null && !effect) {
                 //    Effects.playCallback(this, "AtomEffect", e.getRightClicked().getLocation(), 5*20);
@@ -281,11 +273,25 @@ public final class Pandora extends Initiable implements Listener {
 //System.out.println("PANDORA!!! onPlayerInteractAtEntityEvent 3");
         }
     }
+    
+ 
+    public static void runPandora (final Player p) {
+        final String msg = "§6[§eПандора§6] §f"+p.getName()+" §b-> "+message;
+//System.out.println("ОтветБанжи "+p+"   ?"+ok);
+        p.getWorld().getPlayers().stream().forEach((p_)-> {
+            ApiOstrov.sendBossbar(p_, msg, 5, BarColor.BLUE, BarStyle.SOLID, false);
+        });
+    }
 
 
-   
+    
+    
+    
+    
+    
+    
 
-@EventHandler(ignoreCancelled = true,priority=EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true,priority=EventPriority.LOWEST)
     public void PlayerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e){
         if(e.getRightClicked().getType() ==EntityType.ARMOR_STAND && isPandora(e.getRightClicked())) {
             e.setCancelled(true);
@@ -297,7 +303,7 @@ public final class Pandora extends Initiable implements Listener {
     
     
     private static void CreatePandora(final String loc_string) {
-System.out.println("CreatePandora() ++++++++++++++");
+//System.out.println("CreatePandora() ++++++++++++++");
         final Location loc=LocationUtil.LocFromString(loc_string);
         if (loc==null || !loc.getChunk().isLoaded()) return;
         //loc.getWorld().getNearbyEntities(loc, 2, 2, 2).stream().forEach((e) -> {
@@ -327,40 +333,19 @@ System.out.println("CreatePandora() ++++++++++++++");
         //loc.getBlock().setType(Material.WHITE_GLAZED_TERRACOTTA);
     }
     
-    public static void bungee_result_pandora_check (final Player p, final String result) {
-        //final Player p = Bukkit.getPlayer(nik);
-        //if (p==null) return;
-//System.out.println("ОтветБанжи "+p+"   ?"+ok);
-        if (result.equals("true")) {
-            p.openInventory(confirm_inv);
-            playMusic(p.getLocation());
-        } else {
-            kick(p);
-        }
-    }
     
-    public static void bungee_pandora_result (final String nik, final String message) {
-        final Player p = Bukkit.getPlayer(nik);
-        if (p==null) return;
-        final String msg = "§6[§eПандора§6] §f"+nik+" §b-> "+message;
-//System.out.println("ОтветБанжи "+p+"   ?"+ok);
-        p.getWorld().getPlayers().stream().forEach((p_)-> {
-            ApiOstrov.sendBossbar(p_, msg, 5, BarColor.BLUE, BarStyle.SOLID, false);
-        });
-    }
 
-   /* public static void result_pandora_check (final String nik, final boolean ok) {
-        final Player p = Bukkit.getPlayer(nik);
-        if (p==null) return;
-//System.out.println("ОтветБанжи "+p+"   ?"+ok);
-        if (ok) {
-            p.openInventory(confirm_inv);
-            playMusic(p.getLocation());
-        } else {
-            kick(p);
-        }
-    }*/
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private static void kick (final Player p) {
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, 1, 1);
         Vector v = p.getLocation().toVector().subtract(p.getLocation().toVector()).multiply(0.5D).add(new Vector(0.5D, 1.5D, 0.5D));

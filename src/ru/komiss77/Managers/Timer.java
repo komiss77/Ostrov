@@ -73,6 +73,7 @@ public class Timer {
                     final TimeInfo timeInfo = timeClient.getTime(inetAddress);
                     final long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
                     time_delta=(int)(System.currentTimeMillis()-returnTime);
+                    Ostrov.calendar.setTimeInMillis(System.currentTimeMillis() - time_delta); 
                     Ostrov.log_ok("время NTP:"+returnTime+", Время системное:"+System.currentTimeMillis()+", разница:"+time_delta);
                 } catch (Exception ex) {
                     Ostrov.log_err("Не удалось получить NTP time "+ex.getMessage());

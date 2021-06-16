@@ -1,6 +1,5 @@
 package ru.komiss77.Managers;
 
-import com.google.common.base.Joiner;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -20,52 +19,87 @@ import ru.komiss77.modules.OstrovDB;
 
 public class StatManager {
 
+    @Deprecated
     public static void addIntStat(final Player p, final E_Stat e_stat) {
 //System.out.println("-addIntStat e_stat="+e_stat.toString());
+        addStat(p, e_stat, 1);
+    }
+    
+    public static void addStat(final Player p, final E_Stat e_stat, final int ammount) {
+System.out.println("-addIntStat e_stat="+e_stat+"+"+ammount);
         final Oplayer op = PM.getOplayer(p.getName());
-        if (op!=null && e_stat.is_integer) {
-            String value = PM.getOplayer(p.getName()).getStat(e_stat);
-            if (!Ostrov.isInteger(value)) value = e_stat.def_value;
-            int v=Integer.valueOf(value);
-            v++;
-            PM.getOplayer(p.getName()).setStat(e_stat, String.valueOf(v));
-            if (e_stat.exp_per_point != 0) onStatChange (p, op, e_stat, v);
-        }
-    }
-
-    public static String getStringStat(final Player p, final E_Stat e_stat) {
-        if (!e_stat.is_integer) return PM.getOplayer(p.getName()).getStat(e_stat);
-        else return e_stat.def_value;
-    }
-
-    
-    public static void setStringStat(final Player p, final E_Stat e_stat, final String new_value) {
-        if (!e_stat.is_integer) PM.getOplayer(p.getName()).setStat(e_stat, new_value);
-    }
-
-    
-    
-    
-    private static void onStatChange(final Player p, final Oplayer op, final E_Stat e_stat, final int new_value) {//проверка достижений
-System.out.println("-onStatChange() stat="+e_stat.toString()+"  value="+new_value);        
-        int karma = op.getBungeeIntData(Data.КАРМА);
+        if (op==null) return;
+        int currentStatValue = op.getStat(e_stat);
+        int newStatValue = currentStatValue + ammount;
+        op.addStat(e_stat, ammount); //делать через адд, чтобы добавило дневную!
+        
+        //**** Изменение кармы ****
+        int karma = op.getDataInt(Data.КАРМА);
         if (e_stat.toString().endsWith("_win")) karma++;
         else if (e_stat.toString().endsWith("_loose")) karma--;
         if (karma>100) karma=100;
         else if (karma<-100) karma=-100;
         op.setData( Data.КАРМА, String.valueOf(karma));
+        //*************************
+        
+        if (e_stat.is_achiv) {
+            final int currentLevel = getLevel(e_stat, currentStatValue);
+            final int newLevel = getLevel(e_stat, newStatValue);
+            if (newLevel>currentLevel) {
+                final String achiv = descFromAchiv(e_stat, 0);
+                ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
+                ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.desc+newStatValue, 20, 40, 20);
+                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
+                if (e_stat.exp_per_point>0) {
+                    AddXP(op,e_stat.exp_per_point);
+                }
+            }
+        }
+        //if (e_stat.exp_per_point != 0) {
+            //onStatChange (p, op, e_stat, currentStatValue);
+        //}
+    }
+    
+    
+    
+    
+    
+    
+    
+    @Deprecated
+    public static String getStringStat(final Player p, final E_Stat e_stat) {
+        //if (!e_stat.is_integer)
+            return ""+PM.getOplayer(p.getName()).getStat(e_stat);
+        //else return e_stat.def_value;
+      //return "";
+    }
+
+    @Deprecated
+    public static void setStringStat(final Player p, final E_Stat e_stat, final String new_value) {
+        //if (!e_stat.is_integer) PM.getOplayer(p.getName()).setStat(e_stat, new_value);
+    }
+
+    
+    
+    /*
+    private static void onStatChange(final Player p, final Oplayer op, final E_Stat e_stat, final int old_value, final int new_value) {//проверка достижений
+System.out.println("-onStatChange() stat="+e_stat.toString()+"  value="+new_value);        
+        
+        
 
         if (e_stat.is_achiv) {
+            final int currentLevel = getLevel(e_stat, op.getStat(e_stat));
+            
             final int achiv_tag=achivFromStat(op, e_stat, new_value, "");
                 if (achiv_tag>0) {
                     if (!op.achiv.contains(achiv_tag)) {
 System.out.println("+++ достижение : e_stat="+e_stat.toString()+" achiv_tag="+achiv_tag);   
                         op.achiv.add(achiv_tag);
-                        op.setData( Data.ДОСТИЖЕНИЯ, Joiner.on(',').join(op.achiv) );
+                        //op.setData( Data.ДОСТИЖЕНИЯ, Joiner.on(',').join(op.achiv) );
                         
                         final String achiv = descFromAchiv(e_stat, 0);
-                        ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.as_string+new_value, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
-                        ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.as_string+new_value, 20, 40, 20);
+                        ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.desc+new_value, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
+                        ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.desc+new_value, 20, 40, 20);
                         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
                     }
                 }
@@ -73,13 +107,14 @@ System.out.println("+++ достижение : e_stat="+e_stat.toString()+" achi
             
         AddXP(op,e_stat.exp_per_point);
         
-    }
+    }*/
 
     
     
     public static void AddXP(final Oplayer op, final int value) {
-        int curr_level = op.getBungeeIntData(Data.УРОВЕНЬ);
-        int curr_exp = op.getBungeeIntData(Data.ОПЫТ);
+        /
+        int curr_level = op.getStat(E_Stat.LEVEL);
+        int curr_exp = op.getStat(E_Stat.EXP);
 System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_exp);        
         if (value>0) {
             curr_exp+=value;
@@ -89,7 +124,7 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
                 curr_level++;
                 ApiOstrov.sendTitle(op.getPlayer(), "§7.", Ostrov.prefix+"Новый уровень : §b"+curr_level, 20, 60, 40);
                 op.getPlayer().playSound(op.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
-                op.setData(Data.УРОВЕНЬ, String.valueOf(curr_level));
+                op.addStat(E_Stat.LEVEL, 1);
             } else {
                 if (value>10) ApiOstrov.sendActionBar(op.nik, Ostrov.prefix+(curr_level*50-curr_exp) +"§7 опыта до следующего уровня");
             }
@@ -103,17 +138,17 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
     
     
     public static void calculateReputationBase(final Oplayer op) { //когда данные с банжи получены или изменили паспорт
-        int current_calc=op.getBungeeIntData(Data.РЕПУТАЦИЯ_РАСЧЁТ);
+        int current_calc=op.getDataInt(Data.РЕПУТАЦИЯ_РАСЧЁТ);
         int new_calc=0;
 
         //!!!!!!!!!!создал клан,остров,выбрал класс - проверять через ачивки
         Data data;
         for (E_Pass e_pass:E_Pass.values()) {
             data = Data.fromName(e_pass.toString());
-            if ( data !=null && !op.getBungeeData(data).isEmpty()) new_calc++;  //проверка заполнения данных в паспорте, +1 за каждые данные
+            if ( data !=null && !op.getDataInt(data).isEmpty()) new_calc++;  //проверка заполнения данных в паспорте, +1 за каждые данные
         }
         
-        new_calc+=(int)(op.GetPlytime()/1000);
+        new_calc+=(int)(op.GetPlyTime()/1000);
         
         Group group;
         for (String group_name:op.groups) {
@@ -154,10 +189,13 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
     
     
     private static int achivFromStat( final Oplayer op, final E_Stat e_stat, final int int_value, final String string_value) {
+        if (!e_stat.is_achiv) return -1;
+        final int level = getLevel(e_stat, int_value);// int_value>=1000 ? 3 : int_value>=100 ? 2 : int_value>=10 ? 1 : -1 ;
+        return e_stat.tag*10+level;
         
-        int int_level=-1;
+       // int int_level=-1;
         
-        switch (e_stat) {
+       /* switch (e_stat) {
             //ПРОПУСКАЕМ
             case BW_death:
             case BW_loose:
@@ -173,18 +211,9 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
             case CS_death:
             case TW_loose:
             case SN_loose:
-            case SP_loose:
-            case TR_loose:
+            case ZH_loose:
                 break;
 
-            //ТЕКСТОВЫЕ
-           /* case SG_kits:
-                if (string_value.isEmpty()) break;
-                else {
-                    int_level=string_value.split(",").length;
-                    if (int_level>3) int_level=3;
-                }
-                break;*/
                 
                 
             //ЧИСЛОВЫЕ  
@@ -227,19 +256,15 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
             case SN_game:
             case SN_gold:
             case SN_win:
-            case SP_game:
-            case SP_win:
-            case TR_game:
-            case TR_win:
+            case ZH_game:
+            case ZH_win:
                 int_level =  int_value>=1000 ? 3 : int_value>=100 ? 2 : int_value>=10 ? 1 : -1 ;
                 break;
-                
-            
-            
-        }
-        
-        if (int_level<0) return -1;
-        else return e_stat.tag*10+int_level;
+        }*/
+        //if (int_level<0) {
+        //    return -1;
+        //} else {
+        //}
         
     }
 
@@ -255,6 +280,11 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
             
             default: return "";
         }
+    }
+
+    public static int getLevel(final E_Stat st, final int value) {
+        //потом доработать в зависимости от типа
+        return value>=1000 ? 3 : value>=100 ? 2 : value>=10 ? 1 : 0 ;
     }
     
     

@@ -3,6 +3,8 @@ package ru.komiss77.Events;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import ru.komiss77.Enums.Data;
+import ru.komiss77.Objects.Oplayer;
 
 
 
@@ -10,28 +12,24 @@ public class BungeeDataRecieved extends Event{
     
     private static HandlerList handlers = new HandlerList();
     private Player p;
-    private int bal;
+    private Oplayer op;
 
-    public BungeeDataRecieved(Player p, int balance) {
+    public BungeeDataRecieved(final Player p, final Oplayer op) {
         this.p = p;
-        this.bal=balance;
+        this.op=op;
     }
 
-@Deprecated
-    public Player Get_player() {
-        return this.p;
-    }   
-
-@Deprecated
-    public int Get_balance() {
-        return this.bal;
-    }   
+  
     public Player getPlayer() {
         return this.p;
     }   
 
+    public Oplayer getOplayer() {
+        return this.op;
+    }   
+
     public int getBalance() {
-        return this.bal;
+        return op.getDataInt(Data.MONEY);
     }   
    
    

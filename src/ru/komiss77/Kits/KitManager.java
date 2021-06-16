@@ -89,7 +89,7 @@ public final class KitManager extends Initiable {
                         kit.accesBuyPrice = kitsConfig.getInt("kits."+kitName+".accesBuyPrice", 0);
                         kit.accesSellPrice = kitsConfig.getInt("kits."+kitName+".accesSellPrice", 0);
                         kit.getPrice = kitsConfig.getInt("kits."+kitName+".getPrice", 0);
-                        kit.delayMin = kitsConfig.getInt("kits."+kitName+".delayMin", 0);
+                        kit.delaySec = kitsConfig.getInt("kits."+kitName+".delayMin", 0) * 60;
                         kit.logoItem = new ItemBuilder( ItemUtils.getItemStackFromString(kitsConfig.getString("kits."+kitName+".logoItem", ""), "<>")).name("§e§n§l"+kitName).build();
                         kit.items.addAll(items);
 
@@ -246,11 +246,11 @@ public final class KitManager extends Initiable {
     //System.out.println("Kit_delay "+(Kit_delay(kit))); 
     //System.out.println("Curr time "+(System.currentTimeMillis()/1000)); 
     //System.out.println("Kit_last_acces "+PM.Kit_last_acces(p.getName(),kit)); 
-        int left = getMinLetf(player, kit);
+        int secondLeft = getSecondLetf(player, kit);
     //System.out.println("left "+left); 
 
-        if ( left>0){
-            player.sendMessage("§4До следующего получения набора нужно подождать "+ApiOstrov.IntToTime(left));
+        if ( secondLeft>0){
+            player.sendMessage("§4До следующего получения набора нужно подождать "+ApiOstrov.secondToTime(secondLeft));
             return false;
         }
 
@@ -275,10 +275,11 @@ public final class KitManager extends Initiable {
 
     }
 
-    public static int getMinLetf(final Player player, final Kit kit) {
+    public static int getSecondLetf(final Player player, final Kit kit) {
 //System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) )+
         //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) ))) ); 
-        return (int) (kit.delayMin - Math.ceil( (Timer.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name) )/60 )   );
+        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name)  ) ;
+        return kit.delaySec - ( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name) )  ;
     }
 
     public static void giveKit( final Player p, final String kitName, final boolean equipArmor ) {
@@ -440,7 +441,7 @@ public final class KitManager extends Initiable {
         kitsConfig.set("kits."+kit.name+".accesBuyPrice", kit.accesBuyPrice);
         kitsConfig.set("kits."+kit.name+".accesSellPrice", kit.accesSellPrice);
         kitsConfig.set("kits."+kit.name+".getPrice", kit.getPrice);
-        kitsConfig.set("kits."+kit.name+".delayMin", kit.delayMin);
+        kitsConfig.set("kits."+kit.name+".delayMin", kit.delaySec/60);
         kitsConfig.set("kits."+kit.name+".logoItem", ItemUtils.itemStackToString( new ItemBuilder(kit.logoItem).name(null).build(), "<>"));
         
         kitsConfig.set("kits."+kit.name+".items", itemsList);

@@ -15,8 +15,12 @@ import org.bukkit.inventory.Inventory;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Action;
+import ru.komiss77.Enums.Data;
+import ru.komiss77.Events.GroupChangeEvent;
 import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
+import ru.komiss77.ProfileMenu.E_Stat;
+import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.scoreboard.NameTag.NametagManager;
 import ru.komiss77.utils.ItemUtils;
 
@@ -126,7 +130,7 @@ public class PM {
         final String name = p.getName();
         if (!oplayers.containsKey(name)) return;
         
-        getOplayer(name).onExit();
+     //   getOplayer(name).onExit();
         
         if (!MysqlLocal.useLocalData) {
             oplayers.remove(name);
@@ -272,7 +276,7 @@ public static void OP_Set_back_location (String nik, Location loc) {
     public static void Kit_recieved(String nik, String kit) {
         oplayers.get(nik).Kit_recieved(kit);
     }
-    public static long Kit_last_acces(String nik, String kit) {
+    public static int Kit_last_acces(String nik, String kit) {
         return oplayers.get(nik).Kit_last_acces(kit);
     }
     //------------------------------------------------------------------------------
@@ -293,7 +297,7 @@ public static void OP_Set_back_location (String nik, Location loc) {
 
 public static String OP_GetPrefix(String nik) {
     try {
-        return oplayers.get(nik).GetPrefix();
+        return oplayers.get(nik).getDataString(Data.PREFIX);
     } catch (NullPointerException ex) {
         Ostrov.log_err("Ошибка префикса для "+nik+" : "+ex.getMessage());
         return "";
@@ -301,18 +305,18 @@ public static String OP_GetPrefix(String nik) {
 }
 public static String OP_GetSuffix(String nik) {
     try {
-        return oplayers.get(nik).GetSuffix();
+        return oplayers.get(nik).getDataString(Data.SUFFIX);
     } catch (NullPointerException ex) {
         Ostrov.log_err("Ошибка суффикса для "+nik+" : "+ex.getMessage());
         return "";
     }
 }
 
-public static int OP_GetPlytime(String nik) {
-    return oplayers.get(nik).GetPlytime();
+public static int getPlytime(String nik) {
+    return oplayers.get(nik).getStat(E_Stat.PLAY_TIME);
 }
-public static String OP_GetPlytime_s ( String nik ) {
-    return ApiOstrov.IntToTime(OP_GetPlytime(nik) );
+public static String getDisplayPlytime ( String nik ) {
+    return ApiOstrov.secondToTime(getPlytime(nik) );
 }  
 // -----------------------------------------------------------------------------
 
@@ -359,6 +363,136 @@ public static int Getbdead(String nik) { return oplayers.get(nik).Getbdead(); }
 
 
 
+    
+    public static void calculatePerms(final Player p, final Oplayer op, final boolean notify){
+        op.isStaff = false;
+        
+        //final Player p = getPlayer();
+        try {
+            op.groups.clear();
+            op.user_perms.clear();
+            op.chat_group=" ---- ";
+//System.out.println("-calculatePerms notify="+notify); 
+            
+            //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //делать до удаления permissionAttachmen!
+            //for (String perm : OstrovDB.default_permissions) {  //закидываем дефолтные из файлика permissions.yml
+//System.out.println("+"+ai.getPermission());
+            //if (OstrovDB.localGroupPermissions.containsKey("default")) {
+            //    user_perms.addAll(OstrovDB.localGroupPermissions.get("default"));
+           // }
+            op.user_perms.addAll(OstrovDB.defaultPerms);
+//System.out.println("--calculatePerms 2");        
+//дефолтные слетают. сделать нах файлик в острове!
+            //for (PermissionAttachmentInfo  ai : getPlayer().getEffectivePermissions()) {  //закидываем дефолтные из файлика permissions.yml
+
+            if ( !op.getDataString(Data.USER_GROUPS).isEmpty() ) {                       //если у игрока есть группы
+                op.chat_group="";
+//System.out.println("--calculatePerms");        
+                    for (String group_name : op.getDataString(Data.USER_GROUPS).split(",")) {                   //добавляем группы игроку
+//System.out.println("--calculatePerms group_name="+group_name);        
+                        if (OstrovDB.groups.containsKey(group_name)) {   
+                            op.groups.add(group_name);
+                            op.chat_group=op.chat_group+", "+OstrovDB.groups.get(group_name).chat_name;
+                            //if (SM.this_server_name.length()!=4) { //на играх не ставим!
+                                if (OstrovDB.groups.get(group_name).isStaff()) {
+                                    op.tab_list_name_siffix = "§7(§e"+OstrovDB.groups.get(group_name).chat_name+"§7)";
+                                    op.isStaff = true;
+                                } else {
+                                    op.tab_list_name_prefix = "§6✪ §f";
+                                    //tab_list_name_color = "§f";
+                                }
+                            //}
+                        } else {
+                            if (OstrovDB.useOstrovData) Ostrov.log_err("У игрока "+op.nik+" есть группа "+group_name+", но её нет в базе групп!" );
+                        }
+                    }
+                    op.chat_group=op.chat_group.replaceFirst(", ", "");
+            }
+           
+
+            //for (String group_name : getBungeeData(Data.USER_GROUPS).split(",")) {                   //добавляем права групп игроку
+            if (!op.groups.isEmpty()) {
+                for (String group_name : op.groups) {                   //добавляем права групп игроку
+                    //OstrovDB.groups.get(group_name).permissions.stream().forEach((perm) -> { //в группах права уже с учётом наследования!
+                    for (String perm : OstrovDB.groups.get(group_name).permissions) { //в группах права уже с учётом наследования!
+//System.out.println("----setPermission "+perm);   
+                        //permissionAttachmen.setPermission(perm, true);
+                        op.user_perms.add(perm);
+                        //if (OstrovDB.localGroupPermissions.containsKey(group_name)) {
+                        //    user_perms.addAll(OstrovDB.localGroupPermissions.get(group_name));
+                            
+                        //}
+                    }
+                }
+            }
+
+//System.out.println("");
+//System.out.println(" +++++ Группы игрока: " + groups);
+//System.out.println("");
+//System.out.println(" +++++ Права игрока: " + user_perms);
+//System.out.println("");
+
+//System.out.println("--allservers="+SM.allBungeeServersName);        
+
+            if ( !op.getDataString(Data.USER_PERMS).isEmpty() ) {                       //если у игрока есть права
+//System.out.println("--calculatePerms getBungeeData(Data.USER_PERMS)");   
+                String split;
+                    for (String perm : op.getDataString(Data.USER_PERMS).split(",")) {                   //добавляем группы игроку
+                        
+                        //perm=perm;  //отделить сервер
+                        
+                        if (perm.startsWith("allservers.")) {
+                            perm = perm.replaceFirst("allservers.", "");
+                            op.user_perms.add(perm);
+//System.out.println("++личное право="+perm);        
+                        } else if (perm.startsWith(SM.this_server_name+".")){
+                            perm = perm.replaceFirst(SM.this_server_name+".", "");
+                            op.user_perms.add(perm);
+//System.out.println("++личное право="+perm);        
+                        } else {
+//System.out.println("1 perm="+perm);
+//System.out.println("2 split="+perm.split("."));
+//System.out.println("3 "+(perm.split("\\."))[0]);
+                            split=(perm.split("\\."))[0];       //желательно проверять- если начинается с имени другого сервера, то пропускать. Но это надо
+                            if (!SM.allBungeeServersName.contains(split)) { //вытаскивать данные из bungee_servers
+                                //permissionAttachmen.setPermission(perm, true);
+                                op.user_perms.add(perm);   //пока расчёт на то, что с другим сервером в начале право не сработает.
+//System.out.println("++личное право="+perm);        
+                            }
+                        }
+       
+//System.out.println("++личное право="+perm);        
+                    }
+            }
+            
+            if (op.permissionAttachmen != null) p.removeAttachment(op.permissionAttachmen); //permissionAttachmen пришлось оставить, без него не работает DeluxeChat!!
+            op.permissionAttachmen = p.addAttachment(Ostrov.instance);
+            
+            
+            for (String perm : op.user_perms) {  //закидываем собранные пермы в атачмент
+//System.out.println("+"+ai.getPermission());     
+                op.permissionAttachmen.setPermission(perm, true);
+            }
+            
+            p.recalculatePermissions();
+            
+            
+//System.out.println("");
+            
+        } catch (Exception ex) {
+            Ostrov.log_err("Ошибка calculatePermissions "+op.nik+" : "+ex.getMessage());
+            p.sendMessage(Ostrov.prefix+" §c Ошибка calculatePermissions, сообщите администрации! : "+ex.getMessage());
+        }
+        
+        Bukkit.getPluginManager().callEvent(new GroupChangeEvent ( p, op.groups.treeSet ) );
+
+        if (notify) p.sendMessage(Ostrov.prefix+"Ваши группы обновились: §e"+op.chat_group);
+
+            
+
+
+    }
+    
 
 
 

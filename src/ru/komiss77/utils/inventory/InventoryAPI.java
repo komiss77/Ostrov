@@ -1,24 +1,19 @@
 package ru.komiss77.utils.inventory;
 
-import org.bukkit.plugin.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.komiss77.Ostrov;
 
-public class InventoryAPI {
+public final class InventoryAPI {
     
     private static InventoryAPI api;
-    private final JavaPlugin host;
     private final InventoryManager manager;
     
-    public InventoryAPI(final JavaPlugin host) {
-        this(host, true);
-    }
     
-    public InventoryAPI(final JavaPlugin host, final boolean useAnvilAPI) {
+    public InventoryAPI() {
         api = this;
-        this.host = host;
-        this.manager = new InventoryManager();
-        Bukkit.getPluginManager().registerEvents(new InventoryAPIListener(this.manager, host), (Plugin)host);
+        manager = new InventoryManager();
+        Bukkit.getPluginManager().registerEvents(new InventoryAPIListener(manager, getHost()), getHost());
         
     }
     
@@ -31,6 +26,6 @@ public class InventoryAPI {
     }
     
     public JavaPlugin getHost() {
-        return this.host;
+        return Ostrov.instance;
     }
 }

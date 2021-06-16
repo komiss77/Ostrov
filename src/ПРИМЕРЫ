@@ -7,6 +7,19 @@
 Bukkit.isPrimaryThread()
 
 
+             //загружаем какой-то схематик 
+            final Schematic schem = WE.getSchematic(Bukkit.getConsoleSender(), "vvvvv");
+            //сделать название схематика из локации вставки 
+            String backupName = LocationUtil.StringFromLoc(ft.getLocation());  
+            //создать снимок местности, где будет вставлен схематик
+            WE.save(Bukkit.getConsoleSender(), ft.getLocation(), ft.getLocation().clone().add(schem.sizeX, schem.sizeZ, schem.sizeZ), backupName);
+            schem.paste(Bukkit.getConsoleSender(),  ft.getLocation(), true); - вставка с воздуход
+            //backupName нужно сохранить куда-нибудь. Когда нужно восстановить местность, сделать так:
+            final Schematic restore = WE.getSchematic(Bukkit.getConsoleSender(), backupName, true); //загрузить и удалить файл, чтобы не мусорить
+            if (restore!=null) {
+                restore.paste(cons, LocationUtil.LocFromString(backupName), canPlc); //вставить на старое место
+            }
+
 
 api-version: 1.16
 outdated-client: §eДля §eчестного §eи §eдинамичного §eбоя, §eсервер §eтребует §eверсию §eклиента §eне §eменее §b§l{0}

@@ -1,62 +1,107 @@
 package ru.komiss77.Enums;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 
 
 public enum Action {
     
-    //НЕ КОМЕНТИТЬ!!! НЕ ПЕРЕСТАВЛЯТЬ!!! НЕ УДАЛЯТЬ!!! ТОЛЬКО ДОБАВЛЯТЬ!!!
     
-    NONE,//(0),
-    //Auth
-    AUTH_NOTYFY_MODER,//(1),
-    AUTH_PLAYER_DATA,//(2),
+    NONE (0),
     
-    //Ostrov
-    OSTROV_PLAYER_RAW_DATA,//(3),
-    OSTROV_UPDATE_DATA,//(4),
-    OSTROV_SET_BUNGEE_DATA,//(5),
-    OSTROV_BUNGEE_CMD,//(6),
-    OSTROV_BUNGEE_MONEY_CHANGE,//(7),
-    OSTROV_PANDORA_CHECK,//(8),
-    OSTROV_PANDORA_RESULT,//(9),
-    OSTROV_PANDORA_EXECUTE,//(10),
-    OSTROV_TELEPORT,//(11),
-    GET_BUNGEE_ONLINE,//(12),
-    OSTROV_RESEND_PLAYER_RAW_DATA,//(13),
-    OSTROV_RUN_SPIGOT_CMD,//(14),
-    BUNGEE_ONLINE,//(15),
-    OSTROV_PASSPORT,//(16),
-    OSTROV_STAT_DATA,//(17),
-    OSTROV_SET_STAT_DATA,//(18),
-    OSTROV_SEND_TO_ARENA,//(19),
-    OSTROV_REWARD,//(20), 
+    //с Auth на банжи
+    AUTH_PLAYER_DATA (1), //присылается с авторизации в банжи
     
-    GKICK,//(21, 
-    GBAN,//(22), 
-    GBANIP,//(23), 
     
-    PF_FRIENDS_ONLINE,//24(40),
-    PF_FRIENDS_OFFLINE,//25(41), 
-    PF_FRIEND_SETTINGS,//26(42), 
-    PF_PARTY_MEMBER,//27(43),
-    PF_PARTY_SETTINGS,//28(44), 
-    PF_CALLBACK_RUN,//29(45), 
+    //на банжи
+    AUTH_NOTYFY_MODER (10), //уведомление модерам
+    RESEND_RAW_DATA (11),
+    GKICK (12), 
+    GBAN (13), 
+    GBANIP (14), 
+    SET_DATA_TO_BUNGEE (15), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
+    ADD_STAT_TO_BUNGEE (16),
+    EXECUTE_BUNGEE_CMD (17),
+    GET_BUNGEE_ONLINE (18),
+    //REPORT(19),  //переделать локально
+    REQUEST_PLAYER_DATA (20), //переделать локально ??
     
-    //30, 31 не передвигать - совместимость со старым енум!
-    ARENA_INFO_FROM_GAME,//30(30), //рассылается серверам по списку лобби, состояние арен, получает и отправляет плагин Bsign
-    ARENA_INFO_TO_LISTENER,//31(31),
+    //на спигот
+    RAW_DATA_TO_OSTROV (30),
+    SET_DATA_TO_OSTROV (31), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
+    ADD_STAT_TO_OSTROV (32),
+    EXECUTE_SPIGOT_CMD (33),
+    //REWARD (34), //переделать локально
+    TELEPORT (35),
+    BUNGEE_ONLINE (36),
+    REQUEST_PLAYER_DATA_RESULT(37), //ответ на REQUEST_PLAYER_DATA  //переделать локально??
+    SEND_TO_ARENA (38),
+    
+    
+    //PANDORA_CHECK (50), //остров-банжи  //переделать локально
+    //PANDORA_CHECK_RESULT (51), //банжи-остров
+    //PANDORA_RUN (52), //остров-банжи
+    //PANDORA_RUN_RESULT (53), //банжи-остров
+    
+    
+    
+    
+    //Друзья
+    PF_FRIENDS_ONLINE (70),
+    PF_FRIENDS_OFFLINE (71), 
+    PF_FRIEND_SETTINGS (72), 
+    PF_PARTY_MEMBER (73),
+    PF_PARTY_SETTINGS (74), 
+    PF_CALLBACK_RUN (75), 
+    
+    ARENA_INFO_FROM_GAME (90), //рассылается серверам по списку лобби, состояние арен, получает и отправляет плагин Bsign
+    ARENA_INFO_TO_LISTENER (91),
     
 
     ;
     
     
-    //public int tag;
+    public final int tag;
 
-    //private Action(int tag){
-    //    this.tag = tag;
-    //}
+    private Action(int tag){
+        this.tag = tag;
+    }
+
+
+
     
+    private static final Map<Integer,Action> intMap;
+    private static final Map<String,Action> stringMap;
+    static {
+        Map<Integer,Action> im = new ConcurrentHashMap<>();
+        Map<String,Action> sm = new ConcurrentHashMap<>();
+        for (Action d : Action.values()) {
+            im.put(d.tag,d);
+            sm.put(d.name(),d);
+        }
+        intMap = Collections.unmodifiableMap(im);
+        stringMap = Collections.unmodifiableMap(sm);
+    }
+    
+    public static Action fromName(String asString) {
+        return stringMap.containsKey(asString) ? stringMap.get(asString) : NONE;
+    }
+
+    public static Action byTag(final int tag){
+        return intMap.containsKey(tag) ? intMap.get(tag) : NONE;
+    }
+
+
+
+
+
+
+
+
+    /*
     public static Action byTag(final String tag_as_string){
         final int order = getInteger(tag_as_string);
         if (order<0 || order>=Action.values().length) return NONE;
@@ -67,7 +112,7 @@ public enum Action {
         //       }
         //}
         //return NONE;
-    }
+    }*/
 
 
     private static int getInteger(final String s) {

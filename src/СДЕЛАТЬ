@@ -1,25 +1,16 @@
 
 
+оповещение - модерам или всем, поприветствуем новичка!
+порталы на сервера
 
-             //загружаем какой-то схематик 
-            final Schematic schem = WE.getSchematic(Bukkit.getConsoleSender(), "vvvvv");
-            
-            //сделать название схематика из локации вставки 
-            String backupName = LocationUtil.StringFromLoc(ft.getLocation());  
-            
-            //создать снимок местности, где будет вставлен схематик
-            WE.save(Bukkit.getConsoleSender(), ft.getLocation(), ft.getLocation().clone().add(schem.sizeX, schem.sizeZ, schem.sizeZ), backupName);
-            
-            schem.paste(Bukkit.getConsoleSender(),  ft.getLocation(), true); - вставка с воздуход
-            
-            
-            //backupName нужно сохранить куда-нибудь. Когда нужно восстановить местность, сделать так:
-            final Schematic restore = WE.getSchematic(Bukkit.getConsoleSender(), backupName, true); //загрузить и удалить файл, чтобы не мусорить
-            if (restore!=null) {
-                restore.paste(cons, LocationUtil.LocFromString(backupName), canPlc); //вставить на старое место
-            }
+стата - переделать на мускул?
+челенджи за рил
+переход на сервера порталами
+предложить заполнить телефон, мыло
 
-донаты ??
+профиль: уровень,опыт,настройки аккаунта (пароль,все данные,блокировка по ип), выевсти инфо о других аккаунтах, сколько еще можно создать
+
+пандору - на фигуру
 
 долго нет соединения - не может записать состояние в остров, но ошибок нет
 public static boolean isDbConnected() {
@@ -43,7 +34,7 @@ armorEquipEvent баганый!
 топ - переделать на меню и таблички или голограмы
 косметика - не видит свою маскировку 03.05.21
 
-стата - убрать из банжи
+
 редактор локальных прав ГУИ
 
 !!!! режим турнир - зайти сами не могут, добавляет и запускает ведущий
@@ -80,7 +71,6 @@ public static ItemBuilder buildEntityIcon - юра делает иконки
 
 
 *** Проверить ***
-удаление привата - очистить энтити
 
 
 

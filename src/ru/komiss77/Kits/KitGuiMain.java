@@ -79,9 +79,9 @@ public class KitGuiMain implements InventoryProvider{
                 
                 //if (PM.Kit_has_acces(player.getName(), kit.name)) {
                     
-                    final int left = KitManager.getMinLetf(player, kit);
-                    if (left>0) {
-                        giveInfo1 = "§cПолучить можно через "+ApiOstrov.IntToTime(left);
+                    final int secondLeft = KitManager.getSecondLetf(player, kit);
+                    if (secondLeft>0) {
+                        giveInfo1 = "§cПолучить можно через "+ApiOstrov.secondToTime(secondLeft);
                     } else {
                         giveInfo1 = "§fЛКМ §e- Получить набор.";
                     }
@@ -98,9 +98,9 @@ public class KitGuiMain implements InventoryProvider{
                 
                 if (PM.Kit_has_acces(player.getName(), kit.name)) {
                     
-                    final int left = KitManager.getMinLetf(player, kit);
-                    if (left>0) {
-                        giveInfo1 = "§cПолучить можно через "+ApiOstrov.IntToTime(left);
+                    final int secondLeft = KitManager.getSecondLetf(player, kit);
+                    if (secondLeft>0) {
+                        giveInfo1 = "§cПолучить можно через "+ApiOstrov.secondToTime(secondLeft);
                     } else {
                         giveInfo1 = "§fЛКМ §e- Получить набор.";
                     }
@@ -127,7 +127,7 @@ public class KitGuiMain implements InventoryProvider{
                     .addLore( "§7цена доступа: "+(kit.accesBuyPrice==0 ? "§8бесплатно" : "§e"+kit.accesBuyPrice+" §7лони") )
                     .addLore( "§7цена получения: "+(kit.getPrice==0 ? "§8бесплатно" : "§e"+kit.getPrice+" §7лони") )
                     .addLore( "§7продажа доступа: "+(kit.accesSellPrice==0 ? "§8никакой выгоды" : "§b"+kit.accesSellPrice+" §7лони") )
-                    .addLore( kit.delayMin == 0 ? "§8интервал получения не установлен" : "§7интервал получения: §6"+ApiOstrov.IntToTime(kit.delayMin) )
+                    .addLore( kit.delaySec == 0 ? "§8интервал получения не установлен" : "§7интервал получения: §6"+ApiOstrov.secondToTime(kit.delaySec) )
                     .addLore( "" )
                     .addLore( "§fПКМ §7- §eпосмотреть состав" )
                     .addLore( giveInfo1 )

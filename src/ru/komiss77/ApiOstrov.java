@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -84,13 +82,13 @@ public class ApiOstrov {
         StatManager.setStringStat (p, e_stat, new_value);
     }
     public static String getPlayTime(final Player player){ 
-        return IntToTime( PM.getOplayer(player.getName()).getBungeeIntData(Data.PLAY_TIME) );
+        return secondToTime( PM.getOplayer(player.getName()).getStat(E_Stat.PLAY_TIME) );
     }
     public static String getPrefix(final Player player){ 
-        return PM.getOplayer(player.getName()).getBungeeData(Data.PREFIX);
+        return PM.getOplayer(player.getName()).getDataString(Data.PREFIX);
     }
     public static String getSuffix(final Player player){ 
-         return PM.getOplayer(player.getName()).getBungeeData(Data.SUFFIX);
+         return PM.getOplayer(player.getName()).getDataString(Data.SUFFIX);
     }
     /**
      * 
@@ -217,11 +215,20 @@ public class ApiOstrov {
         
     
     //   каналы коммуникации
+    @Deprecated
     public static boolean sendMessage (final Player p, final Action action, final String raw_data) {
-        return SpigotChanellMsg.sendMessage(p, action, raw_data);
+        return sendMessage(p, action, 0, 0, raw_data, "");//return SpigotChanellMsg.sendMessage(p, action, raw_data);
     }
+    @Deprecated
     public static boolean sendMessage(final String from, final Action action, final String raw_data) {
-        return SpigotChanellMsg.sendMessage(from, action, raw_data);
+        return sendMessage(action, 0, 0, raw_data, "");//return SpigotChanellMsg.sendMessage(from, action, raw_data);
+    }
+    public static boolean sendMessage (final Player p, final Action action, final int int1, final int int2, final String string1, final String string2) {
+        return SpigotChanellMsg.sendMessage(p, action, int1, int2, string1, string2);
+    }
+    public static boolean sendMessage (final Action action, final int int1, final int int2, final String string1, final String string2) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        return SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), action, int1, int2, string1, string2);
     }
     /**
      * 
@@ -234,7 +241,7 @@ public class ApiOstrov {
         if (server.equalsIgnoreCase(SM.this_server_name)) {
             Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick ( player, arena ) );
         } else {
-            sendMessage(player, Action.OSTROV_SEND_TO_ARENA, server+"<:>"+arena);
+            sendMessage(player, Action.SEND_TO_ARENA, 0, 0, server, arena);
         }
     }        
     
@@ -332,16 +339,27 @@ public class ApiOstrov {
     //   деньги
     /**
      * 
-     * @param p только онлайн игроки!
+     * @param target только онлайн игроки!
      * @param value изменение, если убавить, то с минусом
-     * @param who кто изменяет
+     * @param source источник
      */
-    public static void moneyChange ( final Player p, final int value, final String who ) {
-        try {
-            SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_MONEY_CHANGE, String.valueOf(value)+"<>"+who);
-        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov moneyChange "+ex.getMessage());
-        }    
+    public static void moneyChange ( final Player target, final int value, final String source ) {
+        //PM.getOplayer(p).moneyChange(value, who);
+            PM.getOplayer(target).setData(Data.MONEY, PM.getOplayer(target).getDataInt(Data.MONEY)+value);//moneySet(curr+value, send_update);
+//System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));        
+            if (value>9 || value<-9) { //по копейкам не уведомляем
+                target.spigot().sendMessage(new ComponentBuilder(Ostrov.prefix+"§7"+(value>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(value>9?"§2":"§4")+value+" лони §7! §8<клик-баланс")
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§5Клик - сколько стало?") ))
+                    .event( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/money balance") )
+                    .create());
+            } else if (value<-9) {
+                //?? писать ли что-нибудь??
+            }
+        //try {
+        //    SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_MONEY_CHANGE, String.valueOf(value)+"<>"+who);
+        //} catch (NullPointerException ex) {
+        //    Ostrov.log_err("ApiOstrov moneyChange "+ex.getMessage());
+        //}    
     } 
     /**
      * 
@@ -361,12 +379,12 @@ public class ApiOstrov {
         }
     } 
     public static int moneyGetBalance ( final String name ) {
-        if (PM.exist(name)) return PM.getOplayer(name).getBungeeIntData(Data.MONEY);
+        if (PM.exist(name)) return PM.getOplayer(name).getDataInt(Data.MONEY);
         else return 0;
     }  
     public static String GetBalString ( Player p ) {
         if (PM.exist(p.getName()) ) {
-            final int m = PM.getOplayer(p.getName()).getBungeeIntData(Data.MONEY); 
+            final int m = PM.getOplayer(p.getName()).getDataInt(Data.MONEY); 
             if ( m<=1000 ) return "Нищеброд";
             else if (m>1000 && m<=10000)return "Бедняк";
             else if (m>10000 && m<=100000)return "Малоимущий";
@@ -542,10 +560,11 @@ public class ApiOstrov {
         }
     }
     
-    public static String IntToTime(int min) { //c днями и нед!
-        final int year = min / 3628800;
-        min -= year*3628800;
-        final int month = min / 302400;
+    public static String secondToTime(int second) { //c днями и нед!
+        second = second/60; //приводим к минутам
+        final int year = second / 3628800;
+        second -= year*3628800;
+        final int month = second / 302400;
         if (year>0) {
             if ( month==0) {
                 return  year+"г. ";
@@ -553,8 +572,8 @@ public class ApiOstrov {
                 return  year+"г. "+month+" мес. ";
             }
         }
-        min -= month*302400;
-        final int week = min / 10080;
+        second -= month*302400;
+        final int week = second / 10080;
         if (month>0) {
             if ( week==0) {
                 return  month+" мес. ";
@@ -562,8 +581,8 @@ public class ApiOstrov {
                 return  month+" мес. "+week+"нед. ";
             }
         }
-        min -= week*10080;
-        final int day = min / 1440;
+        second -= week*10080;
+        final int day = second / 1440;
         if (week>0) {
             if (day==0) {
                 return  week+" нед. ";
@@ -571,8 +590,8 @@ public class ApiOstrov {
                 return  week+"нед. "+ day+"дн. ";
             }
         }
-        min -= day*1440;
-        final int hour = min / 60;
+        second -= day*1440;
+        final int hour = second / 60;
         if (day>0) {
             if (hour==0) {
                 return  day+"д. ";
@@ -580,21 +599,22 @@ public class ApiOstrov {
                 return  day+"д. "+ ( hour>9 ? String.format("%02d",hour) : hour )+"ч ";
             }
         }
-        min -= hour*60;
+        second -= hour*60;
         if (hour==0) {
-            if (min==0) {
+            if (second==0) {
                 return  "меньше минуты";
             } else {
-                return  ( min>9 ? String.format("%02d",min) : min )+"мин.";
+                return  ( second>9 ? String.format("%02d",second) : second )+"мин.";
             }
         } else {
-            if (min==0) {
+            if (second==0) {
                 return  hour+"ч";
             } else {
-                return  hour+"ч "+( min>9 ? String.format("%02d",min) : min )+"мин.";
+                return  hour+"ч "+( second>9 ? String.format("%02d",second) : second )+"мин.";
             }
         }
-    }      
+    }        
+
     public static String housrToTime(int hours) {
         final int days = hours / 24;
         hours-=days*24;
@@ -680,7 +700,7 @@ public class ApiOstrov {
     //    пол
     public static String genderEnd_Существительное(final String name) {
         if (PM.exist(name)) {
-            switch (ChatColor.stripColor(PM.getOplayer(name).getBungeeData(Data.ПОЛ)).toLowerCase()) {
+            switch (ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.ПОЛ)).toLowerCase()) {
                 case "девочка": 
                     return "а";
                 case "бесполоe": 
@@ -693,7 +713,7 @@ public class ApiOstrov {
     }
 
     public static boolean isFemale(final String name) {
-        return PM.exist(name) && ChatColor.stripColor(PM.getOplayer(name).getBungeeData(Data.ПОЛ)).equalsIgnoreCase("девочка");
+        return PM.exist(name) && ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.ПОЛ)).equalsIgnoreCase("девочка");
     }
 
 

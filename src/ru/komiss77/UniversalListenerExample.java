@@ -49,7 +49,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Enums.Data;
 import ru.komiss77.Events.BsignLocalArenaClick;
-import ru.komiss77.Events.BungeeStatRecieved;
+import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
 import ru.komiss77.Events.SignUpdateEvent;
 import ru.komiss77.Managers.PM;
@@ -132,7 +132,7 @@ public class UniversalListenerExample implements Listener  {
         
     
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onBungeeStatRecieved(final BungeeStatRecieved e) {  
+    public void onDataRecieved(final BungeeDataRecieved e) {  
 
         //AM.onDataRecieved(e.getPlayer());    //load
 
@@ -149,7 +149,7 @@ public class UniversalListenerExample implements Listener  {
             }
         }
         
-        if (wantArena.isEmpty()) wantArena = ru.komiss77.Managers.PM.getOplayer(e.getPlayer().getName()).getBungeeData(Data.WANT_ARENA_JOIN);
+        if (wantArena.isEmpty()) wantArena =PM.getOplayer(e.getPlayer().getName()).getDataString(Data.WANT_ARENA_JOIN);
        
             
             if (!wantArena.isEmpty()) {

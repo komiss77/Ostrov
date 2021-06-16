@@ -13,6 +13,7 @@ import org.bukkit.command.TabCompleter;
 
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Action;
+import ru.komiss77.Enums.Data;
 import ru.komiss77.Enums.RewardType;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
@@ -146,7 +147,7 @@ public class Reward implements CommandExecutor, TabCompleter {
             return false;
         }
         
-        RewardType type = RewardType.fromString(arg[1]);
+        Data d = Data.fromName(arg[1]);//RewardType type = RewardType.fromString(arg[1]);
         if (type==RewardType.NONE) {
             cs.sendMessage("§cНет награды типа "+arg[1]+". §7Доступные: §a"+RewardType.possibleValues());
             return false;
@@ -239,7 +240,7 @@ public class Reward implements CommandExecutor, TabCompleter {
             //return false;
         }
         
-System.out.println(Action.OSTROV_REWARD+", "+for_name+", "+type.toString()+", "+param+", "+(forever?true:ammount)+", "+cause);
+System.out.println(Action.REWARD+", "+for_name+", "+type.toString()+", "+param+", "+(forever?true:ammount)+", "+cause);
     
         //обработчик часть тут, чать на банжи
         switch (type) {
@@ -276,7 +277,8 @@ System.out.println(Action.OSTROV_REWARD+", "+for_name+", "+type.toString()+", "+
         }
 
         
-        ApiOstrov.sendMessage(cause, Action.OSTROV_REWARD, for_name+":"+type.toString()+":"+param+":"+(forever?"forever":ammount));
+        //ApiOstrov.sendMessage(cause, Action.REWARD, for_name+":"+type.toString()+":"+param+":"+(forever?"forever":ammount));
+        ApiOstrov.sendMessage(cs, Action.REWARD, d.tag, 0, (forever?Integer.MAX_VALUE:ammount), for_name, param );
         
         return true;
 

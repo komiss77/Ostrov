@@ -477,8 +477,8 @@ System.out.println("onPlayerResourcePackStatusEvent "+e.getStatus());
         if (p==null || !p.isOnline()) return;
 //System.out.println("-----ресурспак-set: "+p.getName()+" "+pack+" hash:"+per_world_hash.get(pack)+ " уже стоит?"+PM.getOplayer(p.getName()).Pack_equals(per_world_hash.get(pack)) );
         ResourcePack pack = get_rp(p);
-        if ( anycase || !PM.getOplayer(p.getName()).getBungeeData(Data.RESOURCE_PACK_HASH).equals(pack.hash)) {
-System.out.println("Set_pack url="+pack.url+"  hash="+pack.hash+"  last_hash="+PM.getOplayer(p.getName()).getBungeeData(Data.RESOURCE_PACK_HASH) );
+        if ( anycase || !PM.getOplayer(p.getName()).getDataString(Data.RESOURCE_PACK_HASH).equals(pack.hash)) {
+System.out.println("Set_pack url="+pack.url+"  hash="+pack.hash+"  last_hash="+PM.getOplayer(p.getName()).getDataString(Data.RESOURCE_PACK_HASH) );
             //((CraftPlayer)p).getHandle().setResourcePack( pack.url, pack.hash );
             //p.setResourcePack( pack.url, pack.hash );
             p.setResourcePack( pack.url );

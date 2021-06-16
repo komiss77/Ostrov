@@ -22,6 +22,8 @@ import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.TimeZone;
 import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
 import ru.komiss77.Commands.RegisterCommands;
@@ -93,6 +95,10 @@ public class Ostrov extends JavaPlugin {
     public static boolean use_vault,powerNBT,langUtils,parkur;
     public static boolean новый_день;
     public static boolean first_start=true;
+    
+    
+    private static Calendar calendar;
+    
     private static Date date;
     private static SimpleDateFormat full_sdf;
     private static SimpleDateFormat hour_min_sdf;
@@ -104,9 +110,13 @@ public class Ostrov extends JavaPlugin {
     public void onLoad() {
         instance = this;
         modules = new HashMap<>();//new CaseInsensitiveMap<>();
+        calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+        
         date = new java.util.Date(System.currentTimeMillis());
         full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
         hour_min_sdf = new java.text.SimpleDateFormat("HH:mm");
+        
         VM = new VM(this);
     }
     
@@ -117,21 +127,35 @@ public class Ostrov extends JavaPlugin {
         
         random=new Random();
         
-        try {
+        //try {
             instance.getServer().getMessenger().registerOutgoingPluginChannel(Ostrov.GetInstance(), Cfg.chanelName );
             instance.getServer().getMessenger().registerIncomingPluginChannel(Ostrov.GetInstance(), Cfg.chanelName, new SpigotChanellMsg() );
             log_ok ("§5Регистрация канала BungeeCord");
-        } catch (Exception ex) {
-            log_err("§5Регистрация канала BungeeCord: "+ex.getMessage());
-        }
+       // } catch (Exception ex) {
+       //     log_err("§5Регистрация канала BungeeCord: "+ex.getMessage());
+       // }
+        
+        //до проверки на Режим Auth !
+        playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
+        inventoryAPI = new InventoryAPI();
+        
+        Cfg.Init(); // 1 !
         
         if (Bukkit.getMotd().length()==3) {
             log_warn("§bРежим Auth");
+            OstrovDB.init();
+            Timer.Init();
+            try {
+                servers = (SM) Module.serverManager.clazz.newInstance();
+            } catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
+                log_err("инициализацяя SM : "+ex.getMessage());
+                ex.printStackTrace();
+                Bukkit.shutdown();
+            }
             return;
         }
 
 
-        Cfg.Init(); // 1 !
 
 
         новый_день=Cfg.GetVariable().getInt("last_day")!=Cfg.Get_day();
@@ -190,14 +214,14 @@ public class Ostrov extends JavaPlugin {
         
         ItemUtils.LoadItem();
         CMD.Init();
-        OstrovDB.init();
-        MysqlLocal.Init();
+        OstrovDB.init(); //выше, для auth
+        MysqlLocal.Init();// выше, для auth
         ServerListener.Init();
         PlayerListener.Init();
         MenuListener.Init();
         TPAListener.Init();
         PM.Init();
-        Timer.Init();
+        Timer.Init(); //выше, для auth
         
         for (final Module module : Module.values()) {
 //System.out.println("-------------------- "+module);
@@ -212,8 +236,8 @@ public class Ostrov extends JavaPlugin {
         servers =(SM) modules.get(Module.serverManager);//servers.on_start();
         lobby_items = (LobbyItems) modules.get(Module.lobbyItems);
         kitManager = (KitManager) modules.get(Module.kits);
-        playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
-        inventoryAPI = new InventoryAPI(this, false);
+        //playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
+        //inventoryAPI = new InventoryAPI(this, false);
         
         
         log_ok ("§2Остров готов к работе!");
@@ -357,7 +381,11 @@ public class Ostrov extends JavaPlugin {
         //WorldManager.
         Cfg.GetVariable().set("worldEndMarkToWipe", ApiOstrov.currentTimeSec()+afterSecond);
         Cfg.GetVariable().saveConfig();
-        log_warn("Край помечен на вайп через "+ApiOstrov.IntToTime(afterSecond/60));
+        log_warn("Край помечен на вайп через "+ApiOstrov.secondToTime(afterSecond));
+    }
+
+    public static Calendar getCalendar() {
+        return calendar;
     }
 
 

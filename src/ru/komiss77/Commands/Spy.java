@@ -114,7 +114,12 @@ public class Spy implements Listener, CommandExecutor, TabCompleter {
             switch (arg.length) { 
                 
                 case 0:
-                    SmartInventory.builder().id("SpyMenu"+p.getName()). provider(new SpyMenu()). size(6, 9). title("§1За кем следим?").build() .open(p);
+                    SmartInventory.builder()
+                            .id("SpyMenu"+p.getName())
+                            .provider(new SpyMenu())
+                            .size(6, 9)
+                            .title("§1За кем следим?")
+                            .build().open(p);
                     //меню
                     break;
                     

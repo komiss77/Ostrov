@@ -10,16 +10,16 @@ public enum Table {
     GAMES_MAIN("`gamesmain`", ""),
     GAMES_ARENAS("`gamesarenas`", ""),
     
-    USER("`user`", "`id`"),
-    STAT("`stat`", "`name`"),
-    HISTORY("`history`", ""),
-    JUDGEMENT("`judgement`", "`name`"),
-    DAILY("`daily`", "`name`"),
-    ANTICHEAT("`anticheat`", "`name`"),
+    USER("`userData`", "`userId`"), //при входе ищет по `name` таблица обязательно  utf8_general_ci      ci — case insensitive. 
+    STAT("`stats`", "`userId`"),
+    DAILY("`dailyStats`", "`userId`"),
+    JUDGEMENT("`judgement`", "`name`"), //таблица обязательно  utf8_general_ci      ci — case insensitive. 
+    HISTORY("`history`", "`name`"), //просто кидает по имени
+    //ANTICHEAT("`anticheat`", "`name`"),
     
     PEX_BUNGEE_STAFF("`bungeestaff`", "`name`"),  //таблица администрации, загружаются в auth_bungee
     PEX_BUNGEE_PERMS("`bungeeperms`", ""), //права групп для банжи, загружаются в auth_bungee
-    PEX_GROUPS("`groups`", ""),  //группы м описанием 
+    PEX_GROUPS("`groups`", ""),  //группы с описанием 
     PEX_GROUP_PERMS("`groupperms`", ""),  //права групп для спигота, загружаются в острове
     PEX_USER_GROUPS("`usergroups`", "`name`"),  //группы игроков, загружаются в auth_spigot
     PEX_USER_PERMS("`userperms`", "`name`"),  //личные права игроков, загружаются в auth_spigot

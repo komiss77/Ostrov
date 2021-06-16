@@ -1,19 +1,15 @@
 package ru.komiss77.ProfileMenu;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -205,7 +201,7 @@ public class PassportHandler implements Listener {
         Map<Data,String>pass_data=new HashMap<>();
         for (String raw_:bungee_raw_data.split("<:>")) {
             split=raw_.split("<>");
-            if (split.length==2 && Ostrov.isInteger(split[0]) && Data.exist(Integer.valueOf(split[0])) ) {
+            if (split.length==2 && Ostrov.isInteger(split[0]) && Data.byTag(Integer.valueOf(split[0]))!=null ) {
                 pass_data.put(Data.byTag(Integer.valueOf(split[0])), split[1]);
             }
         }
@@ -285,7 +281,7 @@ public class PassportHandler implements Listener {
                     
                 } else if (pass.slot>=27 && pass.slot<=35) {
                     switch (pass) {
-                        case СКАЙП: 
+                        case DISCORD: 
                         case ТЕЛЕФОН:
                             page4.append(new ComponentBuilder("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n").create());
                             //text= new TextComponent("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n");

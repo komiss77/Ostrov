@@ -19,7 +19,7 @@ public class CaseInsensitiveLinkedTreeSet
 implements List<String> {
     
     LinkedList<String>        linkedList = new LinkedList<>();
-    TreeSet<String>           treeSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    public TreeSet<String>           treeSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
  
     @Override
     public boolean add( String s )
