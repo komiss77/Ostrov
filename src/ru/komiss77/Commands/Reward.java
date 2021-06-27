@@ -1,7 +1,6 @@
 package ru.komiss77.Commands;
 
 
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -13,12 +12,9 @@ import org.bukkit.command.TabCompleter;
 
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Action;
-import ru.komiss77.Enums.Data;
 import ru.komiss77.Enums.RewardType;
-import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
 import ru.komiss77.Objects.Group;
-import ru.komiss77.Ostrov;
 import ru.komiss77.modules.OstrovDB;
 
 
@@ -147,8 +143,10 @@ public class Reward implements CommandExecutor, TabCompleter {
             return false;
         }
         
-        Data d = Data.fromName(arg[1]);//RewardType type = RewardType.fromString(arg[1]);
-        if (type==RewardType.NONE) {
+        final String target = arg[0];
+        
+        RewardType type = RewardType.fromString(arg[1]);//RewardType type = RewardType.fromString(arg[1]);
+        if (type==null) {
             cs.sendMessage("§cНет награды типа "+arg[1]+". §7Доступные: §a"+RewardType.possibleValues());
             return false;
         }
@@ -175,7 +173,7 @@ public class Reward implements CommandExecutor, TabCompleter {
         
         if (ApiOstrov.isInteger(amm)) {
             
-            ammount = Integer.valueOf(amm);
+            ammount = Integer.valueOf(amm) * 60 * 60; //переводим часы в секунды
             
         } else {
             if (amm.startsWith("rnd:")) {
@@ -222,40 +220,61 @@ public class Reward implements CommandExecutor, TabCompleter {
         }
         
         
-        String cause = SM.this_server_name+".";
-        if (cs instanceof Player) {
-            cause = cause+cs.getName();
-        } else if (arg.length>=5) {
-            cause = cause+arg[4];
-        }
+        //String cause = SM.this_server_name+".";
+       // if (cs instanceof Player) {
+       //     cause = cause+cs.getName();
+       // } else if (arg.length>=5) {
+      //      cause = cause+arg[4];
+      //  }
         //cause = SM.this_server_name+"."+cause;
-        if (cause.length()>16) {
-            cause = cause.substring(0, 15);
-            cs.sendMessage("§eПревышена длина источника, обрезано до "+cause);
-        }
+        //if (cause.length()>16) {
+        //    cause = cause.substring(0, 15);
+       //     cs.sendMessage("§eПревышена длина источника, обрезано до "+cause);
+       // }
+       // if (target==null) {
+      //      cs.sendMessage("§cИгрока "+arg[0]+" нет на локальном сервере.");
+      //      return false;
+      //  }
         
-        final String for_name = arg[0];
-        if (!PM.exist(for_name)) {
-            cs.sendMessage("§eИгрока "+for_name+" нет на локальном сервере. Проверим на прокси.");
-            //return false;
-        }
         
-System.out.println(Action.REWARD+", "+for_name+", "+type.toString()+", "+param+", "+(forever?true:ammount)+", "+cause);
-    
+System.out.println(Action.REWARD+", "+target+", type="+type+", param="+param+", "+(forever?"forever":ammount));
+        //param: add, get, группа или право
+        //ApiOstrov.sendMessage(Action.REWARD, type.tag, ammount, cs.getName()+"∫"+target, param);
+        //switch (type) {
+            
+          //  case EXP:
+          //      ApiOstrov.addXP(p, ammount);
+          //      break;
+                
+          //  default:
+        //выполняем на банжи, чтобы кросссерверно!
+        if (cs instanceof Player) {
+            
+            ApiOstrov.sendMessage(((Player)cs), Action.REWARD, SM.this_server_name+":"+cs.getName(), type.tag, ammount, target, param);
+            
+        } else {
+            
+            ApiOstrov.sendMessage( Action.REWARD, SM.this_server_name+":консоль", type.tag, ammount, target, param);
+            
+        }
+           //     break;
+       // }
+        
         //обработчик часть тут, чать на банжи
-        switch (type) {
+      /*  switch (type) {
             
             case MONEY:
-                //банжи, отправка сообщения ниже
+                ApiOstrov.moneyChange(target, ammount, cause);//targetOp.addsetData(Data.MONEY, targetOp.getDataInt(Data.MONEY_REAL)+ammount);
                 break;
                 
             case PERMISSION:
                 //банжи, отправка сообщения ниже
                 if (param.startsWith("bauth") || param.startsWith("staff") || param.startsWith("group") || param.startsWith("money")) {
-                    cs.sendMessage("§eВы не можете награждать административными правами! Запись о попыте сохранена в логе.");
+                    cs.sendMessage("§eВы не можете награждать административными правами! Запись о попытке сохранена в логе.");
                     Ostrov.log_err("попытка выдачи административных прав: "+cs.getName()+" -> "+param);
                     return false;
                 }
+                //
                 break;
                 
             case GROUP:
@@ -263,22 +282,22 @@ System.out.println(Action.REWARD+", "+for_name+", "+type.toString()+", "+param+"
                 break;
                 
             case EXP:
-                ApiOstrov.addXP(PM.getOplayer(for_name).getPlayer(), ammount);
+                StatManager.addXP(targetOp, ammount);
                 return true; //возврат, или зацепит обработчик банжи
                 
             case REPUTATION:
-                //банжи, отправка сообщения ниже
+                StatManager.reputationChange(targetOp, ammount);///банжи, отправка сообщения ниже
                 break;
                 
             case KARMA:
-                //банжи, отправка сообщения ниже
+                StatManager.karmaChange(targetOp, ammount);//банжи, отправка сообщения ниже
                 break;
             
-        }
+        }*/
 
         
         //ApiOstrov.sendMessage(cause, Action.REWARD, for_name+":"+type.toString()+":"+param+":"+(forever?"forever":ammount));
-        ApiOstrov.sendMessage(cs, Action.REWARD, d.tag, 0, (forever?Integer.MAX_VALUE:ammount), for_name, param );
+        //ApiOstrov.sendMessage(cs, Action.REWARD, d.tag, 0, (forever?Integer.MAX_VALUE:ammount), for_name, param );
         
         return true;
 

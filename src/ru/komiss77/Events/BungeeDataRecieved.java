@@ -29,7 +29,7 @@ public class BungeeDataRecieved extends Event{
     }   
 
     public int getBalance() {
-        return op.getDataInt(Data.MONEY);
+        return op.getDataInt(Data.LONI);
     }   
    
    

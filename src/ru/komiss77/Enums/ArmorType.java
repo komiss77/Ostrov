@@ -1,4 +1,4 @@
-package ru.komiss77.Events;
+package ru.komiss77.Enums;
 
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Listener.ArmorEquipListener;

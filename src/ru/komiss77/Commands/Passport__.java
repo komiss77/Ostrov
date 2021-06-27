@@ -1,5 +1,5 @@
 package ru.komiss77.Commands;
-
+/*
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -149,24 +149,7 @@ public class Passport implements Listener,CommandExecutor {
     
     
     
-    
-/*    
-@EventHandler(priority = EventPriority.MONITOR) 
-    public void onDataRecieved (BungeeDataRecieved e) {
-           
-        
-    }
-    
-    
-@EventHandler(priority = EventPriority.MONITOR) 
-    public void onQuit (PlayerQuitEvent e) {
-           
-        
-    }
-*/
-
-    
-    
+  
     
     
     
@@ -178,5 +161,5 @@ public class Passport implements Listener,CommandExecutor {
 
 }
     
-    
+   */ 
  

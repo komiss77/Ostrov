@@ -2,6 +2,7 @@
 package ru.komiss77.Managers;
 
 import java.net.InetAddress;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,7 @@ public class Timer {
     
     private static BukkitTask timer=null;
     private static BukkitTask timerAsync=null;
-    private static int counter;
+    private static int counter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
 
     private static boolean auto_restart = false;
     private static String restart_time;
@@ -84,7 +85,7 @@ public class Timer {
     }
 
 
-    public static void Init() {
+    public static void init(final boolean authMode) {
         cd = new ConcurrentHashMap<>();
         delay_actionbars = new ConcurrentHashMap<>();
         delay_titles = new ConcurrentHashMap<>();
@@ -92,7 +93,11 @@ public class Timer {
         timer_keyset = new HashSet<>();
 
         LoadVars();
-        StartTimer();
+        if (authMode) {
+            startAuthMode();
+        } else {
+            start();
+        }
     }
 
     public static void ReLoadVars() {
@@ -101,11 +106,11 @@ public class Timer {
 
 
 
-    public static void StartTimer () {
+    public static void start () {
 
         if (timer != null) timer.cancel();
         if (timerAsync != null) timerAsync.cancel();
-
+        
         timer =  new BukkitRunnable() {
 
             //int i = rp_int*60;
@@ -117,7 +122,9 @@ public class Timer {
                 public void run() {
 
                     currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
-
+                    Ostrov.calendar.setTimeInMillis(System.currentTimeMillis()-time_delta);
+//System.out.println("currentTime="+currentTime+" dateFromStamp="+Ostrov.dateFromStamp(currentTime)+" hour_min="+Ostrov.getCurrentHourMin());
+                    
                     if (auto_restart) {
 //System.out.println("time_delta="+time_delta+" currentTime="+currentTime+" rs="+rs+" restart_time="+restart_time+" время="+Ostrov.getCurrentHourMin()+" equals?"+(restart_time.equals(Ostrov.getCurrentHourMin()) ));
                         if (rs == 60) {
@@ -148,16 +155,11 @@ public class Timer {
 
 
 
-                    if (perms_autoupdate && !to_restart && currentTime%reloadPermIntervalSec==0) {
-                        //i--;
-//System.out.println("rp " +i);
-                        //if (i == 0) {
-                           // i=rp_int*60;
-                            //try {
-                                OstrovDB.loadGroups();
-                            //} catch (Exception ex) {
-                           //     Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
-                          //  }
+                    if (perms_autoupdate && !to_restart && counter%reloadPermIntervalSec==0) {
+                        //try {
+                            OstrovDB.loadGroups();
+                       // } catch (Exception ex) {
+                       //     Ostrov.log_err("Timer loadGroups : "+ex.getMessage());
                        // }
                     }
 
@@ -208,18 +210,6 @@ public class Timer {
                    // }
 
 
-                    if (SM.write_server_state_to_bungee_table && currentTime%5==0) {
-                        //server_update++;
-                       // if (server_update==5) {
-                           // server_update=0;
-                               // try {
-                                    SM.writeThisServerStateToOstrovDB();
-                               // } catch (Exception ex) {
-                                //    Ostrov.log_err("Timer updServerState : "+ex.getMessage());
-                                //}
-                           // }
-                    }
-                    
                     
                     
                     //PM.getOplayers().stream().forEach( (op) -> {
@@ -256,22 +246,121 @@ public class Timer {
                             PM.getOplayer(p).tickAsync(p, counter);
                         }
                     );
-                    //PM.getOplayers().stream().forEach( (op) -> {
-                    //        op.tickAsync(counter);
-                    //    }
-                    //);
-                    
-                    if (PM.ostrovStatScore && counter%10==0 && PM.hasOplayers()) {
-                        ApiOstrov.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Action.GET_BUNGEE_ONLINE, "");
+
+                    if (counter%10==0 && PM.hasOplayers()) {
+                        ApiOstrov.sendMessage(Action.GET_ONLINE);
                     }
                     
                     Informator.tick();
+                    
+                    SM.tickAsync(counter);
+                    
 
                 }}.runTaskTimerAsynchronously(Ostrov.instance, 21, 20);
 
         }
 
 
+
+    public static void startAuthMode () {
+
+        if (timer != null) timer.cancel();
+        if (timerAsync != null) timerAsync.cancel();
+        
+        timer =  new BukkitRunnable() {
+
+            //int i = rp_int*60;
+            boolean to_restart = false;
+            int time_left = 300;
+            int server_update=0;
+
+                @Override
+                public void run() {
+
+                    currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
+                    Ostrov.calendar.setTimeInMillis(System.currentTimeMillis()-time_delta);
+//System.out.println("currentTime="+currentTime+" dateFromStamp="+Ostrov.dateFromStamp(currentTime)+" hour_min="+Ostrov.getCurrentHourMin());
+                    
+                    if (auto_restart) {
+//System.out.println("time_delta="+time_delta+" currentTime="+currentTime+" rs="+rs+" restart_time="+restart_time+" время="+Ostrov.getCurrentHourMin()+" equals?"+(restart_time.equals(Ostrov.getCurrentHourMin()) ));
+                        if (rs == 60) {
+                            rs=0;
+                            if (restart_time.equals(Ostrov.getCurrentHourMin())) {
+                                to_restart=true;
+                                auto_restart = false;
+
+
+                            }
+                        }
+                        rs+=1;
+                    } 
+                    if (to_restart) {
+                        if (time_left==300) {
+                            Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
+                        }
+                        if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
+                            Bukkit.broadcastMessage("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!");
+                        }
+                        if (time_left==0) {
+                            this.cancel();
+                            Bukkit.shutdown();
+                            return;
+                        }
+                        time_left-=1;
+                    }
+
+                        timer_keyset.clear();
+                        timer_keyset.addAll(cd.keySet());
+                        timer_keyset.stream().forEach( (key) -> {
+                            int sec_left = cd.get(key);
+                            sec_left--;
+                            if (sec_left<=0) {
+                                cd.remove(key);
+                            } else {
+                                cd.put(key, sec_left);
+                            }
+                        });
+
+
+                    counter++;
+
+                }}.runTaskTimer(Ostrov.instance, 20, 20);
+
+                    
+                    
+                    
+                    
+                    
+            timerAsync =  new BukkitRunnable() {
+                @Override
+                public void run() {
+                    
+                    SM.tickAsync(counter);
+
+                }}.runTaskTimerAsynchronously(Ostrov.instance, 21, 20);
+
+        }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     @Deprecated
     public static void CD_add ( final String nik, final String type, final int seconds ) {
         cd.put(nik.hashCode()^type.hashCode(), seconds);//cd.put(nik+"<>"+type, seconds);
@@ -341,33 +430,22 @@ public class Timer {
         else return 0;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-  //  public static String getTimeHourMin () {
-//System.out.println("4444 ");
-   //     return sdf.format(currentTime*1000);
-  //  }
-
-    
-    @Deprecated
-    public static long Единое_время() {
-        return System.currentTimeMillis()-time_delta;
-    }
-    @Deprecated
-    public static int currentTimeSec() {
+    public static int getTime() {
         return currentTime;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     

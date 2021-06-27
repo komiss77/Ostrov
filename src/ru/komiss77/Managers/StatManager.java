@@ -6,12 +6,13 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
 import ru.komiss77.Objects.Group;
 import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.ProfileMenu.E_Pass;
-import ru.komiss77.ProfileMenu.E_Stat;
+import ru.komiss77.Enums.Stat;
 import ru.komiss77.modules.OstrovDB;
 
 
@@ -19,13 +20,8 @@ import ru.komiss77.modules.OstrovDB;
 
 public class StatManager {
 
-    @Deprecated
-    public static void addIntStat(final Player p, final E_Stat e_stat) {
-//System.out.println("-addIntStat e_stat="+e_stat.toString());
-        addStat(p, e_stat, 1);
-    }
-    
-    public static void addStat(final Player p, final E_Stat e_stat, final int ammount) {
+
+    public static void addStat(final Player p, final Stat e_stat, final int ammount) {
 System.out.println("-addIntStat e_stat="+e_stat+"+"+ammount);
         final Oplayer op = PM.getOplayer(p.getName());
         if (op==null) return;
@@ -34,24 +30,24 @@ System.out.println("-addIntStat e_stat="+e_stat+"+"+ammount);
         op.addStat(e_stat, ammount); //делать через адд, чтобы добавило дневную!
         
         //**** Изменение кармы ****
-        int karma = op.getDataInt(Data.КАРМА);
+        int karma = op.getDataInt(Data.KARMA);
         if (e_stat.toString().endsWith("_win")) karma++;
         else if (e_stat.toString().endsWith("_loose")) karma--;
         if (karma>100) karma=100;
         else if (karma<-100) karma=-100;
-        op.setData( Data.КАРМА, String.valueOf(karma));
+        op.setData( Data.KARMA, String.valueOf(karma));
         //*************************
         
-        if (e_stat.is_achiv) {
+        if (e_stat.achiv!=null) {
             final int currentLevel = getLevel(e_stat, currentStatValue);
             final int newLevel = getLevel(e_stat, newStatValue);
             if (newLevel>currentLevel) {
                 final String achiv = descFromAchiv(e_stat, 0);
-                ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
-                ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.desc+newStatValue, 20, 40, 20);
+                ApiOstrov.sendBossbar(p, e_stat.game.displayName+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
+                ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, e_stat.game.displayName+"§7, "+e_stat.desc+newStatValue, 20, 40, 20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
                 if (e_stat.exp_per_point>0) {
-                    AddXP(op,e_stat.exp_per_point);
+                    addXP(op,e_stat.exp_per_point);
                 }
             }
         }
@@ -60,61 +56,11 @@ System.out.println("-addIntStat e_stat="+e_stat+"+"+ammount);
         //}
     }
     
-    
-    
-    
-    
-    
-    
-    @Deprecated
-    public static String getStringStat(final Player p, final E_Stat e_stat) {
-        //if (!e_stat.is_integer)
-            return ""+PM.getOplayer(p.getName()).getStat(e_stat);
-        //else return e_stat.def_value;
-      //return "";
-    }
 
-    @Deprecated
-    public static void setStringStat(final Player p, final E_Stat e_stat, final String new_value) {
-        //if (!e_stat.is_integer) PM.getOplayer(p.getName()).setStat(e_stat, new_value);
-    }
-
-    
-    
-    /*
-    private static void onStatChange(final Player p, final Oplayer op, final E_Stat e_stat, final int old_value, final int new_value) {//проверка достижений
-System.out.println("-onStatChange() stat="+e_stat.toString()+"  value="+new_value);        
-        
-        
-
-        if (e_stat.is_achiv) {
-            final int currentLevel = getLevel(e_stat, op.getStat(e_stat));
-            
-            final int achiv_tag=achivFromStat(op, e_stat, new_value, "");
-                if (achiv_tag>0) {
-                    if (!op.achiv.contains(achiv_tag)) {
-System.out.println("+++ достижение : e_stat="+e_stat.toString()+" achiv_tag="+achiv_tag);   
-                        op.achiv.add(achiv_tag);
-                        //op.setData( Data.ДОСТИЖЕНИЯ, Joiner.on(',').join(op.achiv) );
-                        
-                        final String achiv = descFromAchiv(e_stat, 0);
-                        ApiOstrov.sendBossbar(p, E_Stat.gameNameFromStat(e_stat)+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+e_stat.desc+new_value, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
-                        ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, E_Stat.gameNameFromStat(e_stat)+"§7, "+e_stat.desc+new_value, 20, 40, 20);
-                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
-                    }
-                }
-        }
-            
-        AddXP(op,e_stat.exp_per_point);
-        
-    }*/
-
-    
-    
-    public static void AddXP(final Oplayer op, final int value) {
-        /
-        int curr_level = op.getStat(E_Stat.LEVEL);
-        int curr_exp = op.getStat(E_Stat.EXP);
+    public static void addXP(final Oplayer op, final int value) {
+        /*
+        int curr_level = op.getStat(Stat.LEVEL);
+        int curr_exp = op.getStat(Stat.EXP);
 System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_exp);        
         if (value>0) {
             curr_exp+=value;
@@ -124,7 +70,7 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
                 curr_level++;
                 ApiOstrov.sendTitle(op.getPlayer(), "§7.", Ostrov.prefix+"Новый уровень : §b"+curr_level, 20, 60, 40);
                 op.getPlayer().playSound(op.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
-                op.addStat(E_Stat.LEVEL, 1);
+                op.addStat(Stat.LEVEL, 1);
             } else {
                 if (value>10) ApiOstrov.sendActionBar(op.nik, Ostrov.prefix+(curr_level*50-curr_exp) +"§7 опыта до следующего уровня");
             }
@@ -132,13 +78,43 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
             curr_exp+=value;
             if (curr_exp<0) curr_exp=0;
         }
-        op.setData(Data.ОПЫТ, String.valueOf(curr_exp));
+        op.sets(Stat.EXP, curr_exp);*/
     }
 
+
+
+    public static void karmaChange(final Oplayer op,final int value) {
+        int current_carma = op.getDataInt(Data.KARMA);
+        current_carma+=value;
+        if (current_carma>100) current_carma=100;
+        else if (current_carma<-100) current_carma=-100;
+        op.setData(Data.KARMA, current_carma);
+//System.out.println("-karmaChange() current="+current_carma+" new="+bp.getIntData(Data.КАРМА));        
+    }    
     
+    
+    public static void reputationChange(final Oplayer op, final int value) {  //срабатывает от бан,мут,покупка групп 
+     //   int repBase = op.getDataInt(Data.РЕПУТАЦИЯ_БАЗА) + value;
+     //   final int reputation_calc = op.getDataInt(Data.РЕПУТАЦИЯ_РАСЧЁТ);
+     //   
+       // switch (action) {
+          //  case GMUTE: reputation_bd--; break;
+         //   case GBAN: reputation_bd-=5; break;
+         //   case GBANIP: reputation_bd-=10; break;
+            
+         //   case GROUP_ADD: reputation_bd+=1; break;
+         //   case GROUP_TIME_ADD: reputation_bd+=1; break;
+       // }
+      //  if (repBase+reputation_calc<100 && repBase+reputation_calc>-100) {
+      //      op.setData(Data.РЕПУТАЦИЯ_БАЗА, repBase); //сохран для мускула
+      //      op.setData(Data.РЕПУТАЦИЯ, repBase+reputation_calc); //для острова
+      //  }
+        //if ( reputation_base+reputation<100 && reputation_base+reputation>-100 ) bp.setData(Data.РЕПУТАЦИЯ, String.valueOf(reputation), true);
+//System.out.println("-reputationChange() calc="+reputation_calc+" current="+reputation_bd+" new="+bp.getIntData(Data.РЕПУТАЦИЯ));        
+    }    
     
     public static void calculateReputationBase(final Oplayer op) { //когда данные с банжи получены или изменили паспорт
-        int current_calc=op.getDataInt(Data.РЕПУТАЦИЯ_РАСЧЁТ);
+      /*  int current_calc=op.getDataInt(Data.РЕПУТАЦИЯ_РАСЧЁТ);
         int new_calc=0;
 
         //!!!!!!!!!!создал клан,остров,выбрал класс - проверять через ачивки
@@ -169,16 +145,50 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
         if ( new_calc>100 ) new_calc=100;
         else if ( new_calc<-100 ) new_calc=-100;
 //System.out.println("-----calculateReputationBase() current_base="+current_calc+" new_calc="+new_calc+" send change?"+(current_calc!=new_calc));
-        if (current_calc!=new_calc) op.setData(Data.РЕПУТАЦИЯ_РАСЧЁТ, String.valueOf(new_calc));
-        int rep=new_calc+op.getBungeeIntData(Data.РЕПУТАЦИЯ_БАЗА);
+        if (current_calc!=new_calc) op.setData(Data.РЕПУТАЦИЯ_РАСЧЁТ,new_calc);
+        int rep=new_calc+op.getDataInt(Data.РЕПУТАЦИЯ_БАЗА);
         if (rep>100) rep=100;
         else if (rep<-100) rep=-100;
-        op.setData(Data.РЕПУТАЦИЯ, String.valueOf(rep));
+        op.setData(Data.РЕПУТАЦИЯ, rep);*/
     }
 
     
 
 
+
+    private static String descFromAchiv(final Stat stat, final int level) {
+        switch(stat) {
+            case BW_game: return "Любитель БедВарс";
+            case BW_kill: return "Злой БедВарсер";
+            case BW_win: return "Бедварсер-победитель";
+            case BW_bed: return "Разоритель гнёзд";
+            
+            default: return "";
+        }
+    }
+
+    public static int getLevel(final Stat st, final int value) {
+        //потом доработать в зависимости от типа
+        //return value>=1000 ? 3 : value>=100 ? 2 : value>=10 ? 1 : 0 ;
+        if (st.achiv==null) return 0;
+        if (value>=st.achiv[4]) return 5;
+        if (value>=st.achiv[3]) return 4;
+        if (value>=st.achiv[2]) return 3;
+        if (value>=st.achiv[1]) return 2;
+        if (value>=st.achiv[0]) return 1;
+        return 0;
+    }
+    
+    public static int getLeftToNextLevel(final Stat st, final int value) {
+        if (st.achiv==null) return 0;
+        if (value<st.achiv[0]) return st.achiv[0]-value;
+        if (value<st.achiv[1]) return st.achiv[1]-value;
+        if (value<st.achiv[2]) return st.achiv[2]-value;
+        if (value<st.achiv[3]) return st.achiv[3]-value;
+        if (value<st.achiv[4]) return st.achiv[4]-value;
+        return 0;
+    }
+
     
     
     
@@ -188,10 +198,10 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
     
     
     
-    private static int achivFromStat( final Oplayer op, final E_Stat e_stat, final int int_value, final String string_value) {
-        if (!e_stat.is_achiv) return -1;
-        final int level = getLevel(e_stat, int_value);// int_value>=1000 ? 3 : int_value>=100 ? 2 : int_value>=10 ? 1 : -1 ;
-        return e_stat.tag*10+level;
+  //  private static int achivFromStat( final Oplayer op, final E_Stat e_stat, final int int_value, final String string_value) {
+    //    if (!e_stat.is_achiv) return -1;
+     //   final int level = getLevel(e_stat, int_value);// int_value>=1000 ? 3 : int_value>=100 ? 2 : int_value>=10 ? 1 : -1 ;
+      //  return e_stat.tag*10+level;
         
        // int int_level=-1;
         
@@ -266,27 +276,10 @@ System.out.println("-xpChange() value="+value+" lvl="+curr_level+"  exp="+curr_e
         //} else {
         //}
         
-    }
+   // }
 
 
 
-
-    private static String descFromAchiv(final E_Stat stat, final int level) {
-        switch(stat) {
-            case BW_game: return "Любитель БедВарс";
-            case BW_kill: return "Злой БедВарсер";
-            case BW_win: return "Бедварсер-победитель";
-            case BW_bed: return "Разоритель гнёзд";
-            
-            default: return "";
-        }
-    }
-
-    public static int getLevel(final E_Stat st, final int value) {
-        //потом доработать в зависимости от типа
-        return value>=1000 ? 3 : value>=100 ? 2 : value>=10 ? 1 : 0 ;
-    }
-    
     
     
 }

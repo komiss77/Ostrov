@@ -17,34 +17,36 @@ public enum Action {
     
     
     //на банжи
-    AUTH_NOTYFY_MODER (10), //уведомление модерам
-    RESEND_RAW_DATA (11),
-    GKICK (12), 
-    GBAN (13), 
-    GBANIP (14), 
-    SET_DATA_TO_BUNGEE (15), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
-    ADD_STAT_TO_BUNGEE (16),
-    EXECUTE_BUNGEE_CMD (17),
-    GET_BUNGEE_ONLINE (18),
-    //REPORT(19),  //переделать локально
+    NOTYFY_MODER (10), //уведомление модерам
+    RESEND_RAW_DATA (11),  //Action_Sender_String
+    GKICK (12), //Action_Sender_String
+    GMUTE (13), 
+    GBAN (14), 
+    GBANIP (15), 
+    SET_BUNGEE_DATA (16), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
+    ADD_BUNGEE_STAT (17),
+    EXECUTE_BUNGEE_CMD (18),
+    GET_ONLINE (19),
     REQUEST_PLAYER_DATA (20), //переделать локально ??
+    REWARD (21),
+    GAME_INFO_TO_BUNGEE (22),
+    SEND_TO_ARENA (23),
+    REPORT_SERVER (24),
+    REPORT_PLAYER (25),
+    
+    
     
     //на спигот
-    RAW_DATA_TO_OSTROV (30),
-    SET_DATA_TO_OSTROV (31), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
-    ADD_STAT_TO_OSTROV (32),
-    EXECUTE_SPIGOT_CMD (33),
-    //REWARD (34), //переделать локально
-    TELEPORT (35),
-    BUNGEE_ONLINE (36),
-    REQUEST_PLAYER_DATA_RESULT(37), //ответ на REQUEST_PLAYER_DATA  //переделать локально??
-    SEND_TO_ARENA (38),
-    
-    
-    //PANDORA_CHECK (50), //остров-банжи  //переделать локально
-    //PANDORA_CHECK_RESULT (51), //банжи-остров
-    //PANDORA_RUN (52), //остров-банжи
-    //PANDORA_RUN_RESULT (53), //банжи-остров
+    OSTROV_RAW_DATA (30),
+    SET_OSTROV_DATA (31), //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
+    ADD_OSTROV_STAT (32),
+    EXECUTE_OSTROV_CMD (33),
+    GONLINE (34),
+    PLAYER_DATA_REQUEST_RESULT(35), //ответ на REQUEST_PLAYER_DATA  //переделать локально??
+    ADD_REPUTATION (36), //для пересчёты репутации, чтобы не грузить банжи
+    ADD_EXP (37), //для пересчёта уровня, чтобы не грузить банжи
+    GAME_INFO_TO_OSTROV (38),
+    RESET_DAYLY_STAT (39),
     
     
     
@@ -57,8 +59,6 @@ public enum Action {
     PF_PARTY_SETTINGS (74), 
     PF_CALLBACK_RUN (75), 
     
-    ARENA_INFO_FROM_GAME (90), //рассылается серверам по списку лобби, состояние арен, получает и отправляет плагин Bsign
-    ARENA_INFO_TO_LISTENER (91),
     
 
     ;

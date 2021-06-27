@@ -18,7 +18,7 @@ public enum BungeeCmd {
     PREFIX("prefix", cmdGroup.привилегии, "ru.ostrov77.auth.bungee.commands.Prefix"),
     SUFFIX("suffix", cmdGroup.привилегии, "ru.ostrov77.auth.bungee.commands.Suffix"),
     
-    SEEN("seen", cmdGroup.основные, "ru.ostrov77.auth.bungee.commands.Seen"),
+    //SEEN("seen", cmdGroup.основные, "ru.ostrov77.auth.bungee.commands.Seen"),
     //PINFO("suffix", cmdGroup.настройки, "ru.ostrov77.auth.bungee.commands.Pinfo"),
     //SETPASS("suffix", cmdGroup.настройки, "ru.ostrov77.auth.bungee.commands.SetPass"),
     

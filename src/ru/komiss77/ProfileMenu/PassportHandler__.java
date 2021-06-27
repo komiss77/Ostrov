@@ -25,8 +25,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Enums.Data;
 import ru.komiss77.Managers.PM;
+import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
@@ -34,7 +34,7 @@ import ru.komiss77.utils.ItemUtils;
 
 
 
-public class PassportHandler implements Listener {
+public class PassportHandler__ implements Listener {
 
     public static String pass_prefix="§aПаспорт "; 
     private static ItemStack passport;
@@ -53,9 +53,9 @@ public class PassportHandler implements Listener {
         else p.getInventory().setItemInMainHand(passport.clone());
     }
 
-    public PassportHandler(final Ostrov plugin) {
+    public PassportHandler__(final Ostrov plugin) {
         passport = new ItemBuilder(Material.PAPER)
-            .setName(PassportHandler.pass_prefix)
+            .setName(PassportHandler__.pass_prefix)
             .addFlags(ItemFlag.HIDE_ATTRIBUTES)
             .addFlags(ItemFlag.HIDE_ENCHANTS)
             .addFlags(ItemFlag.HIDE_UNBREAKABLE)
@@ -79,7 +79,7 @@ public class PassportHandler implements Listener {
                 if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK ) {
                     //PassportHandler.showPasport(e.getPlayer(), e.getPlayer().getName());
                     //PassportHandler.showLocal(e.getPlayer(),e.getPlayer().getName());
-                    createBook(e.getPlayer(), PM.getOplayer(e.getPlayer()).getBungeeData());
+                    createBook(e.getPlayer(), PM.getOplayer(e.getPlayer()).getPassportData());
                 } 
         }
     }
@@ -96,7 +96,7 @@ public class PassportHandler implements Listener {
                 e.setCancelled(true);
                 //PassportHandler.showPasport(e.getPlayer(), target.getName());
                 //PassportHandler.showLocal(e.getPlayer(),target.getName());
-                createBook(e.getPlayer(), PM.getOplayer(target).getBungeeData());
+                createBook(e.getPlayer(), PM.getOplayer(target).getPassportData());
             }
         }
     }
@@ -191,20 +191,20 @@ public class PassportHandler implements Listener {
     
     
     public static void showLocal(final Player owner, final Player target) {
-        createBook(owner, PM.getOplayer(target.getName()).getBungeeData());
+        createBook(owner, PM.getOplayer(target.getName()).getPassportData());
     }
 
     
     public static void showGlobal(final Player player, final String bungee_raw_data) {
 //System.out.println("--showPass raw="+bungee_raw_data);
-        String[]split;
-        Map<Data,String>pass_data=new HashMap<>();
-        for (String raw_:bungee_raw_data.split("<:>")) {
-            split=raw_.split("<>");
-            if (split.length==2 && Ostrov.isInteger(split[0]) && Data.byTag(Integer.valueOf(split[0]))!=null ) {
-                pass_data.put(Data.byTag(Integer.valueOf(split[0])), split[1]);
-            }
-        }
+       // String[]split;
+        Map<E_Pass,String>pass_data=new HashMap<>();
+        //for (String raw_:bungee_raw_data.split("<:>")) {
+        //    split=raw_.split("<>");
+       //     if (split.length==2 && Ostrov.isInteger(split[0]) && Data.byTag(Integer.valueOf(split[0]))!=null ) {
+        //        pass_data.put(Data.byTag(Integer.valueOf(split[0])), split[1]);
+        //    }
+       // }
         createBook (player, pass_data);
         player.playSound(player.getEyeLocation(), Sound.BLOCK_SNOW_STEP, 0.5F, 2F);
     }
@@ -212,8 +212,10 @@ public class PassportHandler implements Listener {
     
     
     
-    private static void createBook (Player player, Map<Data, String> pass_data) {
-        
+    
+    
+    
+    private static void createBook (Player player, Map<E_Pass, String> pass_data) {
         
         
         ComponentBuilder page1=new ComponentBuilder("  §4§lПаспорт Островитянина\n");
@@ -223,40 +225,54 @@ public class PassportHandler implements Listener {
         
         TextComponent text;
         String value;
-        int int_value=0;
+        int int_value;
         
-        for (E_Pass pass:E_Pass.values()) {
-            value = pass.default_value;
-            
-                if (pass_data.containsKey(Data.fromName(pass.toString()))) {
-                    value=pass_data.get(Data.fromName(pass.toString()));
-                }
-                if (Ostrov.isInteger(value)) int_value = Integer.valueOf(value);
+        for (E_Pass pass:pass_data.keySet()) {
+            value = pass_data.get(pass);//pass.default_value;
+            int_value=ApiOstrov.getInteger(value);
+                //if (pass_data.containsKey(Data.fromName(pass.toString()))) {
+                //    value=pass_data.get(Data.fromName(pass.toString()));
+                //}
+                //if (Ostrov.isInteger(value)) int_value = Integer.valueOf(value);
                 
                 
                 switch (pass) {
-                    case USER_GROUPS: 
-                        for (String gr_:value.split(",")) {
-                            if (OstrovDB.groups.containsKey(gr_) ) value=value.replace(gr_, " §1"+OstrovDB.groups.get(gr_).chat_name);
+                    
+                    case USER_GROUPS:
+                        final String[] groups = value.split(",");
+                        value = "";
+                        for (String gr_:groups) {
+                            if (OstrovDB.groups.containsKey(gr_) ) {
+                                value=value.replace(gr_, " §1"+OstrovDB.groups.get(gr_).chat_name);
+                            }
                         }                        
                         break;
-                    case REG_TIME: 
+                        
+                    case SIENCE: 
                         value = ApiOstrov.dateFromStamp(int_value);
                         break;
+                        
                     case PLAY_TIME:
-                        value = ApiOstrov.IntToTime(int_value);
+                        value = ApiOstrov.secondToTime(int_value);// + "\n §3("+ApiOstrov.secondToTime(op.);
                         break;
-                    case РЕПУТАЦИЯ:
+                        
+                    case REPUTATION:
                         //int_value = int_value + (pass_data.containsKey(Data.РЕПУТАЦИЯ_БАЗА) ? Integer.valueOf(pass_data.get(Data.РЕПУТАЦИЯ_БАЗА)): 0);
                         value = (int_value<0?"§4":(int_value>0?"§2":"§1"))+int_value;
                         break;
-                    case КАРМА:
+                        
+                    case KARMA:
                         value = (int_value<0?"§4":(int_value>0?"§2":"§1"))+int_value;
                         break;
-                    case РОДИЛСЯ:
+                        
+                    case BIRTH:
                         if (value.length()==10 && Ostrov.isInteger(value.substring(6, 10))) {
                             value = value+" ("+(Calendar.getInstance().get(Calendar.YEAR) - Integer.valueOf(value.substring(6, 10)))+")";
                         }
+                        break;
+                        
+                    case IPPROTECT:
+                        value = int_value==0 ? "§5Нет" : "§bДа";
                         break;
                 }
             
@@ -280,32 +296,35 @@ public class PassportHandler implements Listener {
                     //page3.addExtra(text);
                     
                 } else if (pass.slot>=27 && pass.slot<=35) {
+                    
                     switch (pass) {
+                        
                         case DISCORD: 
-                        case ТЕЛЕФОН:
+                        case PHONE:
                             page4.append(new ComponentBuilder("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n").create());
                             //text= new TextComponent("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n");
                             break;
-                        case МЫЛО: 
+                            
+                        case EMAIL: 
                             page4.append(new ComponentBuilder("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1")+"\n").create());
                             //text= new TextComponent("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1")+"\n");
                             break;
-                        case О_СЕБЕ: 
+                            
+                        case ABOUT: 
                             page4.append(new ComponentBuilder("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1")).create());
                             //text= new TextComponent("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1"));
                             break;
+                            
                         default:
-                        if (value.equals("не указано")) text= new TextComponent("§6"+pass.item_name+": §1"+value+"\n");
-                        else {
-                            page4.append( new ComponentBuilder("§6"+pass.item_name+": §1§nссылка (клик)\n" )
-                                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Клик-открыть")))
-                                    .event(new ClickEvent(ClickEvent.Action.OPEN_URL, value))
-                                    .create());
-                            //text= new TextComponent("§6"+pass.item_name+": §1§nссылка (клик)\n");
-                           // text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Клик-открыть")));
-                           // text.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, value));
-                        }
-                        break;
+                            if (value.equals("не указано")) {
+                                text= new TextComponent("§6"+pass.item_name+": §1"+value+"\n");
+                            } else {
+                                page4.append( new ComponentBuilder("§6"+pass.item_name+": §1§nссылка (клик)\n" )
+                                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Клик-открыть")))
+                                        .event(new ClickEvent(ClickEvent.Action.OPEN_URL, value))
+                                        .create());
+                            }
+                            break;
                     }
                    /* if (pass==E_Pass.СКАЙП)   text= new TextComponent("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n");
                     else if (pass==E_Pass.МЫЛО)   text= new TextComponent("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1")+"\n");

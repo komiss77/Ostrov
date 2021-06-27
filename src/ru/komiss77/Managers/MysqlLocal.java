@@ -276,7 +276,9 @@ public class MysqlLocal {
             return null;
         }
     }
-    
+    public static Connection getConnectionDirect() {
+        return connection;
+    }
     
     public static Connection GetConnection() {
         if (!useLocalData) return null;

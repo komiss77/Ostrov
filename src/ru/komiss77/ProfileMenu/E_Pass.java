@@ -4,31 +4,37 @@ package ru.komiss77.ProfileMenu;
 public enum E_Pass {
     //!!!!!!!!!!!!!  ДОЛНО Быть такое же название в DATA !!!!!!!!!!!!
     //!!! slot должен быть уникальный (используется как tag!)
+    
+    //data
     NAME        (1, "PAINTING", "Ник", "", "", false),
-    ИМЯ_ФАМИЛИЯ (2, "PAPER", "Имя, Фамилия", "", "не указано", true),
-    ПОЛ         (3, "PAPER", "Пол", "Ваш пол", "бесполое", true),
-    РОДИЛСЯ     (4, "PAPER", "Дата Рождения", "", "01.01.1970", true),
-    СТРАНА      (5, "PAPER", "Страна", "", "не указано", true),
-    ГОРОД       (6, "PAPER", "Город", "", "не указано", true),
-    
-    ПАРА        (11, "PAINTING", "Супруг(а) на Острове", "", "холост/не замужем", false),
-    USER_GROUPS (12, "PAINTING", "Группы", "", "нет групп", false),
-    REG_TIME    (13, "PAINTING", "Дата Регистрации", "", "0", false),
-    PLAY_TIME   (14, "PAINTING", "Игровое время", "", "0", false),
-    
-    
-    УРОВЕНЬ     (20, "PAINTING", "Уровень Островитянина", "", "0", false),
-    ОПЫТ        (21, "PAINTING", "Опыт", "", "0", false),
-    РЕПУТАЦИЯ   (22, "PAINTING", "Репутация на сервере", "", "0", false),
-    КАРМА       (23, "PAINTING", "Карма", "", "0", false),
-    
-    ТЕЛЕФОН     (28, "PAPER", "Телефон", "", "(XXX)XXX-XXXX", true),
-    МЫЛО        (29, "PAPER", "эл.почта", "", "не указано", true),
+    FAMILY (2, "PAPER", "Имя, Фамилия", "", "не указано", true),
+    GENDER         (3, "PAPER", "Пол", "Ваш пол", "бесполое", true),
+    BIRTH     (4, "PAPER", "Дата Рождения", "", "01.01.1970", true),
+    LAND      (5, "PAPER", "Страна", "", "не указано", true),
+    CITY       (6, "PAPER", "Город", "", "не указано", true),
+    PHONE     (28, "PAPER", "Телефон", "", "(XXX)XXX-XXXX", true),
+    EMAIL        (29, "PAPER", "эл.почта", "", "не указано", true),
     DISCORD       (30, "PAPER", "Скайп", "", "не указано", true),
-    ВКОНТАКТЕ   (31, "PAPER", "ВК", "", "не указано", true),
-    ЮТУБ        (32, "PAPER", "Ютуб", "", "не указано", true),
-    ТВИЧ        (33, "PAPER", "Твич", "", "не указано", true),
-    О_СЕБЕ      (34, "PAPER", "О себе", "", "нечего сказать", true),
+    VK   (31, "PAPER", "ВКонтакте", "", "не указано", true),
+    YOUTUBE        (32, "PAPER", "Канал Ютуб", "", "не указано", true),
+    ABOUT      (34, "PAPER", "О себе", "", "нечего сказать", true),
+    MARRY        (11, "PAINTING", "Супруг(а) на Острове", "", "холост/не замужем", false),
+    SIENCE    (13, "PAINTING", "Дата Регистрации", "", "0", false),
+    REPUTATION   (22, "PAINTING", "Репутация", "", "0", false),
+    KARMA       (23, "PAINTING", "Карма", "", "0", false),
+    IP       (24, "PAINTING", "Текущий IP", "", "0", false),
+    IPPROTECT       (25, "PAINTING", "Защита по IP", "", "0", false),
+    //KARMA       (23, "PAINTING", "Карма", "", "0", false),
+    
+    //из статы
+    PLAY_TIME   (14, "PAINTING", "Игровое время", "", "0", false),
+    LEVEL     (20, "PAINTING", "Уровень", "", "0", false),
+    EXP        (21, "PAINTING", "Опыт", "", "0", false),
+    
+    //
+    USER_GROUPS (12, "PAINTING", "Группы", "", "нет групп", false),
+    
+    
     
     
     
@@ -53,6 +59,7 @@ public enum E_Pass {
     
     
     public static boolean exist(final String name) {
+//System.out.println("exist? name="+name);
         for (E_Pass current:E_Pass.values()) {
             if (current.toString().equals(name)) return true;
         }

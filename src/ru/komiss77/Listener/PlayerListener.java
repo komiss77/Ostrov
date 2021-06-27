@@ -699,8 +699,8 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
 
             final Player p = (Player) e.getEntity();
             
-            if (Ostrov.lobby_items.hasItem("tpbow")) {//if (give_bow_teleport) {
-                final SpecItem si = Ostrov.lobby_items.fromItemStack(e.getBow());
+            if (ApiOstrov.getMenuItemManager().hasItem("tpbow")) {//if (give_bow_teleport) {
+                final SpecItem si = ApiOstrov.getMenuItemManager().fromItemStack(e.getBow());
 //System.out.println("EntityBowShoot si="+si);        
                 //if ( p.getItemInHand().hasItemMeta() && p.getItemInHand().getItemMeta().hasDisplayName() && p.getItemInHand().getItemMeta().getDisplayName().equals(ItemUtils.tpbow.getItemMeta().getDisplayName()) ) {
                 if (si!=null) {
@@ -735,7 +735,7 @@ System.out.println("EntityPortalEnterEvent cgetLocation="+e.getLocation());
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void ProjectileHitEvent(final ProjectileHitEvent e) {
         
-        if (Ostrov.lobby_items.hasItem("tpbow") && e.getEntity().getShooter() instanceof Player && e.getEntity().hasMetadata("bowteleport")) {
+        if (ApiOstrov.getMenuItemManager().hasItem("tpbow") && e.getEntity().getShooter() instanceof Player && e.getEntity().hasMetadata("bowteleport")) {
             Location destination =  (e.getEntity()).getLocation().clone();
             e.getEntity().remove();
             final Player p = (Player)e.getEntity().getShooter();

@@ -33,7 +33,7 @@ public class Cfg {
     private static OstrovConfig config;
     private static OstrovConfig variable;
     
-    public static String chanelName="ostrov:ostrov"; //не переносить, ругается банжи-часть на букит!! - дубль в OstrovBungee
+   // public static String chanelName="ostrov:ostrov"; //не переносить, ругается банжи-часть на букит!! - дубль в OstrovBungee
     
     
     
@@ -72,15 +72,14 @@ public static void LoadConfigs () {
     
     
     //Remove
-    config.removeKey("system.autorestart.time");
-  //  config.removeKey("modules.block_commands.enable");
-  //  config.removeKey("modules.block_commands.except" );
+    config.removeKey("ostrov_database.write_server_state_to_bungee_table");
+    config.removeKey("ostrov_database.games_info_for_server_menu_load_interval_ticks" );
    // config.removeKey("modules.command.pvp");
     //config.removeKey("player.keep_inventory");
    // config.removeKey("modules.command.warp");
     //config.removeKey("modules.command.shop");
     //config.removeKey("world.spawn");
-    //config.removeKey("");
+    //config.removeKey("");""
 
 
     
@@ -194,12 +193,12 @@ public static void LoadConfigs () {
     config.addDefault("ostrov_database.connect", false);
     config.addDefault("ostrov_database.auto_reload_permissions", false);
     config.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
-    config.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov77");
+    config.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
     config.addDefault("ostrov_database.mysql_user", "user");
     config.addDefault("ostrov_database.mysql_passw", "pass");
-    config.addDefault("ostrov_database.write_server_state_to_bungee_table", false);
+    //config.addDefault("ostrov_database.write_server_state_to_bungee_table", false);
     config.addDefault("ostrov_database.games_info_for_server_menu_load", false);
-    config.addDefault("ostrov_database.games_info_for_server_menu_load_interval_ticks", 20);
+    config.addDefault("ostrov_database.games_info_for_server_menu_load_interval_sec", 3);
     config.addDefault("ostrov_database.games_info_for_server_menu_send", false);
     
     

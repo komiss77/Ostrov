@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Enums.Data;
 import ru.komiss77.Listener.ResourcePacks;
 import ru.komiss77.Listener.TPAListener;
 import ru.komiss77.Managers.PM;
@@ -234,7 +235,7 @@ switch (label) {
                 home = arg[0];
             }
                 limit = 1;
-                if (!PM.getOplayer(p.getName()).hasAnyGroup()) {                             //вычисление лимита
+                if (!PM.getOplayer(p.getName()).getDataString(Data.USER_GROUPS).isEmpty()) {                             //вычисление лимита
                     if (homes_per_group.containsKey("default")) limit = homes_per_group.get("default");
                 } else {
                     for ( String gr : PM.getOplayer(p.getName()).getGroups()) {
@@ -409,8 +410,8 @@ switch (label) {
         
     case "givemenu":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
-        if (Ostrov.lobby_items.hasItem("pipboy")){
-            if (!Ostrov.lobby_items.giveItem(p, "pipboy")) p.sendMessage( "§cУ Вас уже есть часики!");
+        if (ApiOstrov.getMenuItemManager().hasItem("pipboy")){
+            if (!ApiOstrov.getMenuItemManager().giveItem(p, "pipboy")) p.sendMessage( "§cУ Вас уже есть часики!");
         } else p.sendMessage( "§cЧасики отключены на этом сервере!");
                break;
         
@@ -446,7 +447,7 @@ switch (label) {
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
              if ( top_command ){
                  if ( p.hasPermission("ostrov.top")){
-                     ApiOstrov.teleportSave(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation() );
+                     ApiOstrov.teleportSave(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation(), false );
                 } else p.sendMessage("§cУ Вас нет пава ostrov.top !");
             }else p.sendMessage( "§ctop отключёна на этом сервере!");
             break;
@@ -494,8 +495,8 @@ switch (label) {
     case "spawn":
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
             if ( spawn_command ){
-                if (Ostrov.getWarpManager().exist("spawn")) {
-                    ApiOstrov.teleportSave(p, Ostrov.getWarpManager().getWarp("spawn").loc, true);
+                if (ApiOstrov.getWarpManager().exist("spawn")) {
+                    ApiOstrov.teleportSave(p, ApiOstrov.getWarpManager().getWarp("spawn").loc, true);
                 //p.performCommand("warp spawn");
             } else {
                 ApiOstrov.teleportSave(p, Bukkit.getWorlds().get(0).getSpawnLocation(), true);
@@ -526,7 +527,7 @@ switch (label) {
             if ( back_command ){
                 if ( p.hasPermission("ostrov.back") ) {
                     Location b1 = p.getLocation();
-                    if ( ! ApiOstrov.teleportSave(p, PM.OP_Get_back_location(p.getName()) )) {
+                    if ( ! ApiOstrov.teleportSave(p, PM.OP_Get_back_location(p.getName()), false )) {
                         p.sendMessage( "§cТелепорт в место гибели слишком опасен!"); 
                         return false;
                     } else PM.OP_Set_back_location(p.getName(), b1);

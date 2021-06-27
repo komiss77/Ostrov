@@ -6,9 +6,9 @@ package ru.komiss77.Enums;
 public enum Table {
     
     NONE("", ""),
-    BUNGEE_SERVERS("`bungee_servers`", ""),
-    GAMES_MAIN("`gamesmain`", ""),
-    GAMES_ARENAS("`gamesarenas`", ""),
+    BUNGEE_SERVERS("`bungeeServers`", ""),
+    //GAMES("`gamesMain`", ""),
+    ARENAS("`arenasInfo`", ""),
     
     USER("`userData`", "`userId`"), //при входе ищет по `name` таблица обязательно  utf8_general_ci      ci — case insensitive. 
     STAT("`stats`", "`userId`"),

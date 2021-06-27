@@ -120,16 +120,16 @@ public class DchatExpansion extends PlaceholderExpansion {
                 return SM.this_server_name;
                 
             case "serverprefix":      
-                return SM.this_server_bungee_description;
+                return SM.chatLogo;
                 
             case "serverlogo":      
-                return SM.this_server_bungee_logo;
+                return SM.chatLogo;
                 
             case "prefix":      
                 return ApiOstrov.getPrefix(p);
                 
             case "money":       
-                return ApiOstrov.GetBalString(p);
+                return ApiOstrov.getBalanceStatus(p);
                 
             case "groups":     
                 return ApiOstrov.getChatGroups(p.getName());

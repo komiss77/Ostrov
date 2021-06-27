@@ -1,5 +1,6 @@
 package ru.komiss77.Events;
 
+import ru.komiss77.Enums.ArmorType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

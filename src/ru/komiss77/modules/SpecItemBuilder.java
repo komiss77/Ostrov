@@ -1,6 +1,7 @@
 package ru.komiss77.modules;
 
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Objects.SpecItem;
 import ru.komiss77.Ostrov;
 
@@ -85,7 +86,7 @@ public class SpecItemBuilder {
     }
     
     public void add() {
-        Ostrov.lobby_items.addItem(si);
+        ApiOstrov.getMenuItemManager().addItem(si);
     }
     
 }

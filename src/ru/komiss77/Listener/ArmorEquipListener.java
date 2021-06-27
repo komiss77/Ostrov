@@ -22,7 +22,7 @@ import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Events.ArmorEquipEvent;
 import ru.komiss77.Events.ArmorEquipEvent.EquipMethod;
-import ru.komiss77.Events.ArmorType;
+import ru.komiss77.Enums.ArmorType;
 
 
 

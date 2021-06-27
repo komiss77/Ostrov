@@ -33,7 +33,7 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Objects.SpecItem;
-import ru.komiss77.ProfileMenu.PassportHandler;
+import ru.komiss77.ProfileMenu.PassportHandler__;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.version.VM;
@@ -41,12 +41,12 @@ import ru.komiss77.version.VM;
 
 
 
-public final class LobbyItems extends Initiable implements Listener {
+public final class MenuItems extends Initiable implements Listener {
 
     private final Map<String,SpecItem>items;
     public boolean item_lobby_mode;
     
-    public LobbyItems() {
+    public MenuItems() {
         items = new HashMap<>();
         reload();
     }
@@ -104,7 +104,7 @@ public final class LobbyItems extends Initiable implements Listener {
             addItem("tparrow", tparrow);
         }
         
-        Bukkit.getPluginManager().registerEvents(LobbyItems.this, Ostrov.instance);
+        Bukkit.getPluginManager().registerEvents(MenuItems.this, Ostrov.instance);
         
     }
     
@@ -271,7 +271,7 @@ System.out.println("ru.komiss77.Listener.MenuListener.PlayerAnimationEvent() typ
         //items.values().stream().filter((si) -> (si.give_on_join)).forEachOrdered((si) -> {
         //    give(e.getPlayer());
         //});
-        if (item_lobby_mode) PassportHandler.givePassport(e.getPlayer(), 3);
+        if (item_lobby_mode) PassportHandler__.givePassport(e.getPlayer(), 3);
     }   
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)

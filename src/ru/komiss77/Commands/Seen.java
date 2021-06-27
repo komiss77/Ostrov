@@ -1,37 +1,45 @@
 package ru.komiss77.Commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Managers.PM;
-import ru.komiss77.Objects.Oplayer;
-import ru.komiss77.Ostrov;
-import ru.komiss77.version.VM;
+import ru.komiss77.Enums.Action;
 
 
 
 
 public class Seen implements CommandExecutor {
 
+
     
+            //запрос банжи, если есть - разкодировать raw
+            //если пустой - выкачать из снапшота БД
     
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
        // if (sender.hasPermission("ostrov.pinfo")) {
        
+        if ( ! (cs instanceof Player) ) {
+            cs.sendMessage("§cНе консольная команда!");
+            return true;
+        }
+        
+        final Player sender=(Player) cs;       
+        
         if (args.length == 1) {
-            OfflinePlayer offline_player = Bukkit.getOfflinePlayer(args[0]);
+            
+            String targetName = args[0];
+            
+            ApiOstrov.sendMessage( sender, Action.REQUEST_PLAYER_DATA, sender.getName(), targetName);
+                
+            
+            
+            
+            
 
-            if (offline_player == null) {
-                sender.sendMessage("§c"+args[0]+" не найден!");
-                return true;
-            }
-
-            sender.sendMessage( "§6Информация по §b"+offline_player.getName()+" §6от сервера §b"+Bukkit.getMotd() +  ((offline_player.isOnline())? " §2- сейчас на сервере!":" §4- сейчас офф.") );
+        /*    sender.sendMessage( "§6Информация по §b"+offline_player.getName()+" §6от сервера §b"+Bukkit.getMotd() +  ((offline_player.isOnline())? " §2- сейчас на сервере!":" §4- сейчас офф.") );
 
             sender.sendMessage( "§7Первый вход: §f"+ApiOstrov.dateFromStamp(offline_player.getFirstPlayed())+"§7, Последний выход: §f"+( sender.hasPermission("ostrov.seen.full")? ApiOstrov.dateFromStamp(offline_player.getLastPlayed()) : "****" ) );
             
@@ -39,8 +47,8 @@ public class Seen implements CommandExecutor {
                 final Oplayer op = PM.getOplayer(args[0]);
                 sender.sendMessage( "§7Группы: §6"+  op.chat_group );
                 sender.sendMessage ( "§7Режим: §6"+op.getPlayer().getGameMode().toString()+"§5, Здоровье: §3"+((int)op.getPlayer().getHealth())+"§5, Уровень: §3"+((int)op.getPlayer().getLevel())  );             
-                sender.sendMessage ( "§5Блоков поставлено: §6"+op.Getbplace()+ "§5, Блоков сломано: §6"+op.Getbbreak() );
-                sender.sendMessage ( "§5Убил игроков/монстров/мобов: §6"+op.Getpkill()+"/"+op.Getmonsterkill()+"/"+op.Getmobkill()+"§5, Погиб: §6"+op.Getbdead() );
+                //sender.sendMessage ( "§5Блоков поставлено: §6"+op.Getbplace()+ "§5, Блоков сломано: §6"+op.Getbbreak() );
+                //sender.sendMessage ( "§5Убил игроков/монстров/мобов: §6"+op.Getpkill()+"/"+op.Getmonsterkill()+"/"+op.Getmobkill()+"§5, Погиб: §6"+op.Getbdead() );
                
             } else {
 
@@ -65,13 +73,23 @@ public class Seen implements CommandExecutor {
                 } catch (Exception exception) {
                     sender.sendMessage( "§cОшибка! (" + exception + ")");
                     return true;
-                }*/
+                }
                     
 
-            }
+            }*/
             
         }
         return true;
+    }
+    
+
+    
+    public static void onResult(final Player sender, final int status, final String raw) {
+        if (status==1) {
+            sender.sendMessage("получен массив для : "+raw);
+        } else {
+            sender.sendMessage(" оффлайн, выкачать из снапшота БД - недоделано");
+        }
     }
 
     

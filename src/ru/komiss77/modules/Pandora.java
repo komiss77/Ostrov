@@ -6,12 +6,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.command.CommandException;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -34,10 +38,15 @@ import org.bukkit.boss.BarStyle;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Enums.Action;
+import ru.komiss77.Enums.Data;
+import ru.komiss77.Enums.RewardType;
+import ru.komiss77.Enums.Stat;
 import ru.komiss77.Enums.StatFlag;
+import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Initiable;
-import ru.komiss77.Listener.SpigotChanellMsg;
 import ru.komiss77.Managers.PM;
+import ru.komiss77.Managers.SM;
+import ru.komiss77.Managers.StatManager;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
@@ -51,6 +60,7 @@ import ru.komiss77.utils.inventory.ConfirmationGUI;
 
 public final class Pandora extends Initiable implements Listener {
     
+    private static final int DAY_PLAY_TIME_TO_OPEN = 7200;
     private static OstrovConfig config;
     //private static Inventory confirm_inv;
     private static HashMap<String,ArmorStand>pandoras;
@@ -85,7 +95,7 @@ public final class Pandora extends Initiable implements Listener {
     
     public Pandora() {
         pandoras=new HashMap<>();
-        last_cmd=Timer.currentTimeSec();
+        last_cmd=ApiOstrov.currentTimeSec();
         //clicked=new HashSet<>();
         music=new HashSet<>();
         pandaName = "Шкатулка Пандоры";
@@ -200,7 +210,25 @@ public final class Pandora extends Initiable implements Listener {
 
 
 
-
+    @EventHandler ( ignoreCancelled = true, priority = EventPriority.MONITOR )
+    public void onBungeeDataRecieved (final BungeeDataRecieved e) {
+        if (!e.getOplayer().hasDaylyFlag(StatFlag.Pandora) && (DAY_PLAY_TIME_TO_OPEN-e.getOplayer().getDaylyStat(Stat.PLAY_TIME))<0 ) {
+            //e.getPlayer().spigot().sendMessage( new ComponentBuilder("§6[§eПандора§6] §e§kXXX§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e§kXXX")
+            e.getPlayer().spigot().sendMessage( new ComponentBuilder("§e§kXXX§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e§kXXX")
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(
+                              "§7По легенде, сундучки Пандоры были созданы Даарианцами,"
+                            + "\n§7а секреты их эффектов тщательно скрывались."
+                            + "\n§7Считалось, что сундучки Пандоры очень сложно добыть,"
+                            + "\n§7однако с вторжением армии тьмы на Седну, все изменилось."
+                            + "\n§7Монстры приносили с собой сундуки для поддержание сил."
+                            + "\n§7Колдун решил для себя, что некоторые эффекты могут помочь"
+                            + "\n§7жителям справиться со вторжением, и решил наделять ими "
+                            + "\n§7всех желающих. "
+                            + "\n§7За скромную, по его мнению, цену."
+                            + "\n§7Несколько таких сундучков затерялось в царстве миниигр.")) )
+                    .create());
+        }
+    }
 
 
 
@@ -210,9 +238,9 @@ public final class Pandora extends Initiable implements Listener {
     public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
 //System.out.println("------------> Command "+e.getMessage()+ " block_commands:"+Conf.block_commands+ " list:"+Conf.block_commands_except.toString());
 //System.out.println("cmd 11111"+e.getMessage());
-        if ( e.getPlayer().isOp() && e.getMessage().equals("/pandora++") && (Timer.currentTimeSec()-last_cmd >10)) {
+        if ( e.getPlayer().isOp() && e.getMessage().equals("/pandora++") && (ApiOstrov.currentTimeSec()-last_cmd >10)) {
 //System.out.println("cmd 222");
-            last_cmd=Timer.currentTimeSec();
+            last_cmd=ApiOstrov.currentTimeSec();
             //pandora_loc.add(p.getLocation());
             final String loc_string=LocationUtil.StringFromLoc(e.getPlayer().getLocation());
             CreatePandora(loc_string);
@@ -243,18 +271,19 @@ public final class Pandora extends Initiable implements Listener {
                 //ApiOstrov.sendMessage(e.getPlayer(), Action.PANDORA_CHECK, 0, 0, "", "");
                 final Player p = e.getPlayer();
                 final Oplayer op = PM.getOplayer(p.getName());
-                if (op.hasFlag(StatFlag.Pandora)) {
-                    e.getPlayer().sendMessage("§6[§eПандора§6] §eСегодня вы уже ловили удачу.. Попробуйте завтра!");
+                
+                if (op.hasDaylyFlag(StatFlag.Pandora)) {
+                    e.getPlayer().sendMessage("§eСегодня вы уже ловили удачу.. Попробуйте завтра!");
                     kick(p);
                 } else {
-                    final int sec_left = 7200-op.GetDayPlyTime();
+                    final int sec_left = DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME);
                     if (sec_left>0) {
-                        p.sendMessage("§6[§eПандора§6] §e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e"+ApiOstrov.secondToTime(sec_left)+".! §e§kXXX" );
+                        p.sendMessage("§e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e"+ApiOstrov.secondToTime(sec_left)+" онлайна! §e§kXXX" );
                         kick(p);
                     } else {
                         ConfirmationGUI.open( p, "§5Открыть Шкутулку Пандоры?", confirm -> {
                             if (confirm) {
-                                runPandora(p);//SpigotChanellMsg.sendMessage(p, Action.PANDORA_RUN, 0, 0, "", "");
+                                runPandora(p, op);//SpigotChanellMsg.sendMessage(p, Action.PANDORA_RUN, 0, 0, "", "");
                                 DonatEffect.display(p.getLocation());
                             } else {
                                 p.closeInventory();
@@ -274,16 +303,155 @@ public final class Pandora extends Initiable implements Listener {
         }
     }
     
+    
+    
+    
  
-    public static void runPandora (final Player p) {
-        final String msg = "§6[§eПандора§6] §f"+p.getName()+" §b-> "+message;
-//System.out.println("ОтветБанжи "+p+"   ?"+ok);
-        p.getWorld().getPlayers().stream().forEach((p_)-> {
-            ApiOstrov.sendBossbar(p_, msg, 5, BarColor.BLUE, BarStyle.SOLID, false);
-        });
+    public static void runPandora (final Player p, final Oplayer op) {
+
+            op.setDaylyFlag(StatFlag.Pandora, true);
+            
+//System.out.println("pandora priz="+priz+"  PANDORA_USED="+bp.getIntData(Data.PANDORA_USED));
+            switch (Ostrov.random.nextInt(30)) {
+                case 0:
+                    ApiOstrov.sendMessage( p, Action.REWARD, SM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "prefix");
+                    //GroupCommand.checkGroupAndGive(Auth.GetInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, false, null);
+                    //Database.addDonatGroup(Auth.GetInstance().getProxy().getConsole(), "pandora", pp.getName(), Main.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, null);
+                    p.sendTitle("§2Ну хоть что-то..", "§eПрефиксер на день!", 10, 40, 60);
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §eПрефиксер на день!");
+                    break;
+                    
+                case 1:
+                    ApiOstrov.sendMessage(p, Action.REWARD, SM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "fly");
+                    //GroupCommand.checkGroupAndGive(Auth.GetInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("fly"),  24, false, false, null);
+                    p.sendTitle("§2Неплохо!", "§eАнгел на день!", 10, 40, 60);
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §eАнгел на день!");
+                    break;
+                    
+                case 2:
+                    ApiOstrov.sendMessage(p, Action.REWARD, SM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "gamer");
+                    //GroupCommand.checkGroupAndGive(Auth.GetInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("gamer"),  24, false, false, null);
+                    p.sendTitle("§2Пригодится.", "§eИгроман на день!", 10, 40, 60);
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §eИгроман на день!");
+                    break;
+                    
+                case 3:
+                    //GroupCommand.checkGroupAndGive(Auth.GetInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("skills"),  24, false, false, null);
+                    //p.sendTitle("§2Скорее на Седну!", "§eПросвящённый на день!", 10, 40, 60);
+                    //StatManager.karmaChange(op,2);
+                    //broadcastBossBar(p.getWorld(), " §eПросвящённый на день!");
+                    
+                case 4:
+                    p.sendTitle("§2Удача!", "§eКарма +2!", 10, 40, 60);
+                    StatManager.karmaChange(op,2);
+                    broadcastBossBar(p.getWorld(), " §eКарма +2!");
+                    break;
+                    
+                case 5:
+                    p.sendTitle("§2Удача!", "§eКарма +1!", 10, 40, 60);
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §eКарма +1!");
+                    break;
+                    
+                case 6:
+                    p.sendTitle("§4Ооо щит..", "§cБан на 5 минут..", 10, 40, 60);
+                    p.sendMessage("§6[§eПандора§6] §cСейчас прольётся чья-то кровь!");
+                    ApiOstrov.sendMessage(p, Action.GBAN, SM.this_server_name+":pandora",  5*60, 0, p.getName(), "§eШкатулка Пандоры - §cнеудача");
+                    StatManager.karmaChange(op,-3);
+                    broadcastBossBar(p.getWorld(), " §cБан на 5 минут..");
+                    break;
+                    
+                case 7:
+                    p.sendTitle("§4Неудача :(", "§cМолчанка на 15 минут..", 10, 40, 60);
+                    ApiOstrov.sendMessage(p, Action.GMUTE, SM.this_server_name+":pandora",  15*60, 0, p.getName(), "§eШкатулка Пандоры - §cнеудача");
+                    p.sendMessage("§6[§eПандора§6] §cСегодня плохое настроение...");
+                    StatManager.karmaChange(op,-1);
+                    broadcastBossBar(p.getWorld(), " §cМолчанка на 15 минут..");
+                    break;
+                    
+                case 8:
+                case 9:
+                    p.sendTitle("§2В Копилку!", "§e1 рил!", 10, 40, 60);
+                    op.setData(Data.RIL, op.getDataInt(Data.RIL)+1);//PM.moneyRealAdd(pp, 1, "Pandora");
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §21 рил!");
+                    break;
+                    
+                case 10:
+                case 11:
+                    p.sendTitle("§2В Копилку!", "§e3 рил!", 10, 40, 60);
+                    op.setData(Data.RIL, op.getDataInt(Data.RIL)+3);
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §23 рил!");
+                    break;
+                    
+                case 12:
+                case 13:
+                    p.sendTitle("§2В Копилку!", "§e5 рил!", 10, 40, 60);
+                    op.setData(Data.RIL, op.getDataInt(Data.RIL)+5);//BungeePM.moneyRealAdd(pp, 5, "Pandora");
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §25 рил!");
+                    break;
+                    
+                case 14:
+                case 15:
+                case 16:
+                    p.sendTitle("§2На растрату!", "§e50 лони!", 10, 40, 60);
+                    ApiOstrov.moneyChange(p, 500, "Pandora");
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §250 лони!");
+                    break;
+                    
+                case 17:
+                case 18:
+                case 19:
+                    p.sendTitle("§2На растрату!", "§e2100 лони!", 10, 40, 60);
+                    ApiOstrov.moneyChange(p, 1000, "Pandora");
+                    StatManager.karmaChange(op,1);
+                    broadcastBossBar(p.getWorld(), " §2100 лони!");
+                    break;
+                    
+                case 20:
+                case 21:
+                case 22:
+                    p.sendTitle("§4Ворьё!", "§c-50 лони :(", 10, 40, 60);
+                    ApiOstrov.moneyChange(p, -500, "Pandora");
+                    StatManager.karmaChange(op,-1);
+                    broadcastBossBar(p.getWorld(), " §4-50 лони!");
+                    break;
+                    
+                case 23:
+                case 24:
+                case 25:
+                    p.sendTitle("§4Ворьё!", "§c-100 лони 8(", 10, 40, 60);
+                    ApiOstrov.moneyChange(p, -1000, "Pandora");
+                    StatManager.karmaChange(op,-1);
+                    broadcastBossBar(p.getWorld(), " §4-100 лони!");
+                    break;
+                    
+                default:
+                    p.sendTitle("§fДень прожит зря..", "§e..ничего (", 10, 40, 60);
+                    broadcastBossBar(p.getWorld(), "§e..ничего.");
+                    break;
+                    
+                    
+                   
+                    
+            }
+            
+        
+
     }
 
+    private static void broadcastBossBar(final World world, final String msg) {
+        world.getPlayers().stream().forEach( (p_)-> {
+            ApiOstrov.sendBossbar(p_, msg, 5, BarColor.BLUE, BarStyle.SOLID, false);
+        });
 
+    }
     
     
     

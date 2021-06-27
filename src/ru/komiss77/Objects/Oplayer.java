@@ -30,31 +30,66 @@ import ru.komiss77.Events.PartyUpdateEvent;
 import ru.komiss77.Managers.MysqlLocal;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
-import ru.komiss77.Managers.StatManager;
 import ru.komiss77.Managers.Timer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.ProfileMenu.E_Prof;
-import ru.komiss77.ProfileMenu.E_Stat;
+import ru.komiss77.Enums.Stat;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
 import builder.SetupMode;
 import ru.komiss77.Enums.StatFlag;
+import ru.komiss77.Managers.StatManager;
+import ru.komiss77.ProfileMenu.E_Pass;
 
 
 
 
 
 public final class Oplayer {
+    
+    
+
+
+    @Deprecated
+    public Map<E_Pass, String> getPassportData() { //для паспорта
+        final EnumMap<E_Pass,String>result = new EnumMap(E_Pass.class);
+        for (Data d:dataString.keySet()) {
+            if (E_Pass.exist(d.name())) {
+                result.put(E_Pass.valueOf(d.name()), dataString.get(d));
+            }
+        }
+        for (Data d:dataInt.keySet()) {
+            if (E_Pass.exist(d.name())) {
+                result.put(E_Pass.valueOf(d.name()), ""+dataInt.get(d));
+            }
+        }
+        for (Stat st:stat.keySet()) {
+            if (E_Pass.exist(st.name())) {
+                result.put(E_Pass.valueOf(st.name()), ""+stat.get(st));
+            }
+        }
+        for (Stat st:daylyStat.keySet()) {
+            if (E_Pass.exist(st.name())) {
+                result.put(E_Pass.valueOf(st.name()), ""+daylyStat.get(st));
+            }
+        }
+//System.out.println("result="+result);
+        return result;
+    }
+
   
+    
+    
+    
     public String nik;
     public SetupMode setup;
     
     private final EnumMap<Data,String>dataString = new EnumMap(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
     private final EnumMap<Data,Integer>dataInt = new EnumMap(Data.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
-    private final EnumMap<E_Stat,Integer> stat = new EnumMap(E_Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
-    private final EnumMap<E_Stat,Integer>daylyStat = new EnumMap(E_Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    private final EnumMap<Stat,Integer> stat = new EnumMap(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    private final EnumMap<Stat,Integer>daylyStat = new EnumMap(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
     
     private final CaseInsensitiveMap <Location> homes=new CaseInsensitiveMap<>();
     private final Map <String, Location> world_positions=new ConcurrentHashMap<>();
@@ -74,7 +109,8 @@ public final class Oplayer {
     public String party_leader="",chat_group=" ---- ",tab_list_name_prefix="§7",tab_list_name_color="§7", tab_list_name_siffix="";
     
     private float fly_speed=0.1F,walk_speed=0.1F;
-    private final int login_time = Timer.currentTimeSec();
+    private final int loginTime = ApiOstrov.currentTimeSec();
+    private int daylyLoginTime=loginTime;   //время входа для дневной статы, сброс в полночь
     public int pvp_time, no_damage, bplace, bbreak, mobkill, monsterkill, pkill, dead, aac_violations,bow_teleport_cooldown=4;     
     private int resetWantArena;
     public boolean mysqldata_loaded=false,allow_fly=false,in_fly=false,resourcepack_locked=true,pvp_allow=true;
@@ -113,15 +149,15 @@ public final class Oplayer {
         }
         if (bow_teleport_cooldown>0) bow_teleport_cooldown--;
         
-        if (dataString.isEmpty() && ApiOstrov.currentTimeSec()-login_time > 1 ) {
-            ApiOstrov.sendMessage(p, Action.RESEND_RAW_DATA, 0, 0, "", "");
+        if (dataString.isEmpty() && ApiOstrov.currentTimeSec()-loginTime > 1 ) {
+            ApiOstrov.sendMessage(p, Action.RESEND_RAW_DATA, nik);
         }
         if (PM.ostrovStatScore && serverSecCounter%10==0) {
             updScore();
         }
         
         if (PM.tablist_header_footer) { //if (SM.this_server_name.length()>4) {
-            ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+SM.this_server_bungee_description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
+            ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+SM.thisServerGame.description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
             p.setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix);
         }
         
@@ -147,27 +183,13 @@ public final class Oplayer {
 
 
 
-     
-    @Deprecated
-    public Map<Data, String> getBungeeData() { //для паспорта
-        final EnumMap<Data,String>result = new EnumMap(Data.class);
-        for (Data d:dataString.keySet()) {
-            result.put(d, dataString.get(d));
-        }
-        for (Data d:dataInt.keySet()) {
-            result.put(d, String.valueOf(dataInt.get(d)));
-        }
-        return result;
-    }
-
-
     
 
     
     public void bungeeDataInject(final Player p, final String raw) { //всё сразу
 
         dataString.put(Data.NAME, nik);
-//System.out.println("+++bungeeDataInject raw="+raw);            
+System.out.println("+++bungeeDataInject raw="+raw);            
         int enumTag;
         String value;
         int v;
@@ -178,7 +200,7 @@ public final class Oplayer {
             enumTag = ApiOstrov.getInteger(s.substring(0, 3));
             value = s.substring(3);
 
-            if (enumTag>100 && enumTag<299) {
+            if (enumTag>=100 && enumTag<=299) {
                     final Data _data = Data.byTag(enumTag);
                     if (_data!=null) {
                         if (_data.is_integer) {
@@ -188,14 +210,14 @@ public final class Oplayer {
                             dataString.put (_data, value);
                         }
                     } 
-            } else if (enumTag>300 && enumTag<599) {
-                final E_Stat e_stat = E_Stat.byTag(enumTag);
+            } else if (enumTag>=300 && enumTag<=599) {
+                final Stat e_stat = Stat.byTag(enumTag);
                 v = ApiOstrov.getInteger(value);
                 if (e_stat!=null && v>Integer.MIN_VALUE) {
-                    stat.put(e_stat, login_time);
+                    stat.put(e_stat, v);
                 }
-            } else if (enumTag>600 && enumTag<899) {
-                final E_Stat e_stat = E_Stat.byTag(enumTag-E_Stat.diff);
+            } else if (enumTag>=600 && enumTag<=899) {
+                final Stat e_stat = Stat.byTag(enumTag-Stat.diff);
                 v = ApiOstrov.getInteger(value);
                 if (e_stat!=null && v>Integer.MIN_VALUE) {
                     daylyStat.put(e_stat, v);
@@ -206,6 +228,11 @@ public final class Oplayer {
         if (dataString.containsKey(Data.WANT_ARENA_JOIN)) {
             resetWantArena = 5;
         }
+        
+System.out.println("- dataInt="+dataInt);        
+System.out.println("- dataString="+dataString);        
+System.out.println("- stat="+stat);        
+System.out.println("- daylyStat="+daylyStat);
 
         if (dataString.containsKey(Data.PARTY_MEBRERS) && !dataString.get(Data.PARTY_MEBRERS).isEmpty()) { //пати в виде списка, лидер - первый
 //System.out.println("bungeeDataInject() PARTY_MEBRERS = "+bungeeData.get(Data.PARTY_MEBRERS));
@@ -246,7 +273,7 @@ public final class Oplayer {
     //в основном для даты, но можно изменить отдельную стату (например, E_Stat.FLAGS) минуя addStat
     public void updateDataFromBungee(final Player p, final int enumTag, final int int2, final String string1) {
 //System.out.println("-updateDataFromBungee e_data="+e_data.toString()+" value="+value);
-        if (enumTag>100 && enumTag<299) {
+        if (enumTag>=100 && enumTag<=299) {
             final Data d = Data.byTag(enumTag);
             if (d!=null) {
                 boolean change;
@@ -257,9 +284,12 @@ public final class Oplayer {
                 }
                 if (change) {
                     switch (d) {
+                        //case РЕПУТАЦИЯ_БАЗА:
+                        //    StatManager.calculateReputationBase(this);
+                        //    break;
                         case USER_GROUPS: 
                             PM.calculatePerms(p, this, true); 
-                            StatManager.calculateReputationBase(this);
+                            //StatManager.calculateReputationBase(this);
                             break;
                         case USER_PERMS: 
                             PM.calculatePerms(p, this, false);
@@ -270,13 +300,13 @@ public final class Oplayer {
                 }
             }
             
-        } else if (enumTag>300 && enumTag<599) {
-            final E_Stat e_stat = E_Stat.byTag(enumTag);
+        } else if (enumTag>=300 && enumTag<=599) {
+            final Stat e_stat = Stat.byTag(enumTag);
             if (e_stat!=null) {
                 stat.put(e_stat, int2);
             }
-        } else if (enumTag>600 && enumTag<899) {
-            final E_Stat e_stat = E_Stat.byTag(enumTag-300);
+        } else if (enumTag>=600 && enumTag<=899) {
+            final Stat e_stat = Stat.byTag(enumTag-Stat.diff);
             if (e_stat!=null) {
                 daylyStat.put(e_stat, int2);
             }
@@ -301,7 +331,10 @@ public final class Oplayer {
     }
 
     public boolean setData(final Data e_data, final int value) {  //отправляем на банжи, и обнов.локально
-        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, e_data.tag, value, "", "") ) {
+        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_BUNGEE_DATA, nik, e_data.tag, value, "", "") ) {
+            if (e_data==Data.RIL) {
+                Ostrov.log_err("setData RIL name="+nik+" time="+ApiOstrov.currentTimeSec()+" old="+dataInt.get(e_data)+" new="+value);
+            }
             dataInt.put(e_data, value);
             return true;
         } else {
@@ -312,7 +345,7 @@ public final class Oplayer {
     }
     public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
         //if (getPlayer()==null) return false;
-        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, e_data.tag, 0, value, "") ) {
+        if ( ApiOstrov.sendMessage(getPlayer(), Action.SET_BUNGEE_DATA, nik, e_data.tag, 0, value, "") ) {
             dataString.put(e_data, value);
             return true;
         } else {
@@ -322,47 +355,65 @@ public final class Oplayer {
         }
     }
 
-    public int getStat(final E_Stat st) {
-        return stat.containsKey(st) ? stat.get(st) : 0;
+    public int getStat(final Stat st) {
+        int record = stat.containsKey(st) ? stat.get(st)  : 0;
+        switch (st) {
+            case PLAY_TIME:
+                return record + (ApiOstrov.currentTimeSec() - loginTime);
+            default:
+                return record;
+        }
     }
     
-    public int getDaylyStat(final E_Stat st) {
-        return daylyStat.containsKey(st) ? daylyStat.get(st) : 0;
+    public int getDaylyStat(final Stat st) {
+        int record = daylyStat.containsKey(st) ? daylyStat.get(st)  : 0;
+        switch (st) {
+            case PLAY_TIME:
+                return record + (ApiOstrov.currentTimeSec() - daylyLoginTime);
+            default:
+                return record;
+        }
     }
 
-    public void addStat(final E_Stat st, final int value) {
+    public void addStat(final Stat st, final int value) {
 //System.out.println("-setStat e_stat="+e_stat.toString()+" value="+value+" getPlayer()="+getPlayer());
+        if (st==Stat.PLAY_TIME) return;
         stat.put(st, getStat(st)+value);
         daylyStat.put(st, getDaylyStat(st)+value);
-        ApiOstrov.sendMessage(getPlayer(), Action.ADD_STAT_TO_BUNGEE, st.tag, value, "", "");
+        ApiOstrov.sendMessage(getPlayer(), Action.ADD_BUNGEE_STAT, nik, st.tag, value, "", "");
         //ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, st.tag+E_Stat.diff, getDaylyStat(st), "", ""); //надо отдельно, или вычислять старое значение ?
+    }
+    
+    public void resetDaylyStat() {
+        daylyStat.clear();
+        daylyLoginTime = ApiOstrov.currentTimeSec();
     }
 
 
-    public boolean hasFlag(final StatFlag flag) {
-        final int value = getStat(E_Stat.FLAGS);
+    public boolean hasFlag1(final StatFlag flag) {
+        final int value = getStat(Stat.FLAGS);
         return (value & (1 << flag.tag)) == (1 << flag.tag);
     }
     
     public boolean hasDaylyFlag(final StatFlag flag) {
-        final int value = getDaylyStat(E_Stat.FLAGS);
+        final int value = getDaylyStat(Stat.FLAGS);
         return (value & (1 << flag.tag)) == (1 << flag.tag);
     }
     
     //сетит флаг локально и в банжи, ТОЛЬКО В ГЛОБАЛЬНОЙ СТАТЕ! dayly не меняет!
     public void setFlag(final StatFlag flag, final boolean state) {
-        int value = getStat(E_Stat.FLAGS);
+        int value = getStat(Stat.FLAGS);
         value = state ? (value | (1 << flag.tag)) : value & ~(1 << flag.tag);
-        stat.put(E_Stat.FLAGS, value);
-        ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, E_Stat.FLAGS.tag, value, "", "");
+        stat.put(Stat.FLAGS, value);
+        ApiOstrov.sendMessage(getPlayer(), Action.SET_BUNGEE_DATA, nik, Stat.FLAGS.tag, value, "", "");
     }
     
     //сетит флаг локально и в банжи, ТОЛЬКО В dayly СТАТЕ! стату не меняет!
     public void setDaylyFlag(final StatFlag flag, final boolean state) {
-        int value = getDaylyStat(E_Stat.FLAGS);
+        int value = getDaylyStat(Stat.FLAGS);
         value = state ? (value | (1 << flag.tag)) : value & ~(1 << flag.tag);
-        daylyStat.put(E_Stat.FLAGS, value);
-        ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, E_Stat.FLAGS.tag+E_Stat.diff, value, "", "");
+        daylyStat.put(Stat.FLAGS, value);
+        ApiOstrov.sendMessage(getPlayer(), Action.SET_BUNGEE_DATA, nik, Stat.FLAGS.tag+Stat.diff, value, "", "");
     }
 
 
@@ -377,10 +428,10 @@ public final class Oplayer {
     
     
     
-    @Deprecated //использует пати
-    public void onPartyRecieved(final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
-        onPartyRecieved(getPlayer(), raw, callEvent);
-    }
+    //@Deprecated //использует пати
+    //public void onPartyRecieved(final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
+    //    onPartyRecieved(getPlayer(), raw, callEvent);
+   // }
     public void onPartyRecieved(final Player p, final String raw, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
         party_members.clear();
         boolean first=true;
@@ -485,12 +536,12 @@ public final class Oplayer {
         //if (board==null) return;
         score.getSideBar().setTitle("§7Общий онлайн: §f§l"+SM.bungee_online);//"§a-----------------"
         score.getSideBar().updateLine(15, "§a-----------------");
-        score.getSideBar().updateLine(14, " уровень : "+getStat(E_Stat.LEVEL));
-        score.getSideBar().updateLine(13, " опыт : "+getStat(E_Stat.EXP));
-        score.getSideBar().updateLine(12, " репутация: "+(getDataInt(Data.РЕПУТАЦИЯ)>=0?"§2":"§4")+getDataInt(Data.РЕПУТАЦИЯ));
-        score.getSideBar().updateLine(11, " карма: "+(getDataInt(Data.КАРМА)>=0?"§2":"§4")+getDataInt(Data.КАРМА));
-        score.getSideBar().updateLine(10, " лони: "+getDataInt(Data.MONEY));
-        score.getSideBar().updateLine(9, " рил: "+getDataInt(Data.MONEY_REAL));
+        score.getSideBar().updateLine(14, " уровень : "+getStat(Stat.LEVEL));
+        score.getSideBar().updateLine(13, " опыт : "+getStat(Stat.EXP));
+        score.getSideBar().updateLine(12, " репутация: "+(getDataInt(Data.REPUTATION)>=0?"§2":"§4")+getDataInt(Data.REPUTATION));
+        score.getSideBar().updateLine(11, " карма: "+(getDataInt(Data.KARMA)>=0?"§2":"§4")+getDataInt(Data.KARMA));
+        score.getSideBar().updateLine(10, " лони: "+getDataInt(Data.LONI));
+        score.getSideBar().updateLine(9, " рил: "+getDataInt(Data.RIL));
         score.getSideBar().updateLine(1, "§a-----------------");
     }
     
@@ -559,15 +610,7 @@ public final class Oplayer {
 
 
 
-    
-    public int GetPlyTime() {
-        return getStat(E_Stat.PLAY_TIME) + (ApiOstrov.currentTimeSec() - login_time);//getBungeeIntData(Data.PLAY_TIME);
-    }
-    
-    public int GetDayPlyTime() {
-        return getDaylyStat(E_Stat.PLAY_TIME) + (ApiOstrov.currentTimeSec() - login_time);//getBungeeIntData(Data.PLAY_TIME);
-    }
-    
+
  /*   public int GetBalance() {
         return getDataInt(Data.MONEY);
     }
@@ -648,7 +691,7 @@ public int Getbdead() { return this.dead; }
         else return 0;
     }
     public void Kit_recieved(final String kitName) {
-        kits_use_timestamp.put( kitName, Timer.currentTimeSec());
+        kits_use_timestamp.put( kitName, ApiOstrov.currentTimeSec());
     }
    // public Map <String, Long> GetKitsData() {
    //     return kits_use_timestamp;
@@ -978,9 +1021,9 @@ public int Getbdead() { return this.dead; }
         return groups;
     }
 
-    public boolean hasAnyGroup() {
-        return !getDataString(Data.USER_GROUPS).isEmpty();
-    }
+    //public boolean hasAnyGroup() {
+    //    return !getDataString(Data.USER_GROUPS).isEmpty();
+    //}
 
     public void teleportEvent(final String target_name) {
         final Player target=Bukkit.getPlayer(target_name);
@@ -1212,6 +1255,7 @@ public int Getbdead() { return this.dead; }
         return has;
 
     }
+
 
 
     

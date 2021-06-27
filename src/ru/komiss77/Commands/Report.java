@@ -1,7 +1,6 @@
 package ru.komiss77.Commands;
 
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,13 +16,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Enums.Action;
+import ru.komiss77.Enums.ReportStage;
+import ru.komiss77.Managers.SM;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 
@@ -119,15 +118,15 @@ public class Report implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
         
-        if ( !OstrovDB.useOstrovData ) {
-            cs.sendMessage("§cСоединение с БД Острова отключено в конфиге!");
-            return true;
-        }
+        //if ( !OstrovDB.useOstrovData ) {
+        //    cs.sendMessage("§cСоединение с БД Острова отключено в конфиге!");
+        //    return true;
+        //}
         
-        if ( ApiOstrov.getOstrovConnection()==null) {
-            cs.sendMessage("§cНет соединения с БД Острова!");
-            return true;
-        }
+        //if ( ApiOstrov.getOstrovConnection()==null) {
+        //    cs.sendMessage("§cНет соединения с БД Острова!");
+        //    return true;
+        //}
         
         if (arg.length==0 && cs instanceof Player) {
             if (ApiOstrov.isLocalBuilder(cs, false) || ApiOstrov.hasGroup(cs.getName(), "moder")) {
@@ -155,7 +154,7 @@ public class Report implements CommandExecutor, TabCompleter {
         if (text.length()>128) {
             text = text.substring(0, 128);
         }
-        final Player p = cs instanceof Player ? (Player) cs : null;
+        final Player reporter = cs instanceof Player ? (Player) cs : null;
         final Player target = Bukkit.getPlayer(arg[0]);
         
 //cs.sendMessage("жалоба на "+arg[0]+", сервер "+Bukkit.getServer().getMotd()+" : "+text);
@@ -166,10 +165,24 @@ public class Report implements CommandExecutor, TabCompleter {
         int id = 0;
         int time = 0;
         
-        if (cs instanceof Player) {
+        
+        //вычитывать из локальной копии!!
+        if (reporter == null) { //консоль
             
+            if ( consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
+                cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
+                return true;
+            }
+            consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());
+            ApiOstrov.sendMessage( Action.REPORT_SERVER, SM.this_server_name, 0, 0, 0, arg[0], target==null? "" : LocationUtil.StringFromLoc(target.getLocation()), text);
+            
+        } else {
+            
+
+            //    ApiOstrov.sendMessage(((Player)cs), Action.REPORT, cs.getName(), id, 1, 0, arg[0], text, LocationUtil.StringFromLoc(reporter.getLocation()), target==null? "" : LocationUtil.StringFromLoc(target.getLocation()), "");
+            ApiOstrov.sendMessage( Action.REPORT_PLAYER, reporter.getName(), 0, 0, 0, SM.this_server_name, LocationUtil.StringFromLoc(reporter.getLocation()), arg[0], target==null? "" : LocationUtil.StringFromLoc(target.getLocation()), text, "");
             //при жалобе от игрока ищем ИД предыдущей жалобы
-            try {
+           /* try {
 
                 Statement stmt = ApiOstrov.getOstrovConnection().createStatement();
                 //ResultSet rs = stmt.executeQuery( "SELECT `id`, `time` FROM `reports` WHERE `server`='"+Bukkit.getServer().getMotd()+"' AND `fromName`='"+cs.getName()+"' AND `toName`='"+arg[0]+"' LIMIT 1; ");
@@ -191,23 +204,23 @@ public class Report implements CommandExecutor, TabCompleter {
                 Ostrov.log_err("writeReport SELECT error : "+e.getMessage());
                 //e.printStackTrace();
             }
-            
-        } else if (cs instanceof ConsoleCommandSender) {
-            
-            if ( consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
-                cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
-                return true;
-            }
-            consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());
+            */
             
         }
 
         
         
-        if (id==0) { 
+      //  if (id==0) { 
             
             //жалоба на этого игрока ранее не подавалась - создаём новую. Для консоли ИД будет всегда 0 (новая жалоба)
-            
+           // if (reporter == null) { //от имени игрока
+
+
+            //} else { //от сервера
+
+
+           // }
+  /*          
             try {
 
                 PreparedStatement prepStmt = ApiOstrov.getOstrovConnection().prepareStatement("INSERT INTO `reports` ( "
@@ -221,8 +234,8 @@ public class Report implements CommandExecutor, TabCompleter {
                         + " ( ?, ?, ?, ?, ?, ?, ? ) ");
 
                 prepStmt.setString(1, Bukkit.getServer().getMotd());
-                prepStmt.setString(2, p==null ? "консоль" : p.getName());
-                prepStmt.setString(3, p==null ? "" : LocationUtil.StringFromLoc(p.getLocation()));
+                prepStmt.setString(2, reporter==null ? "консоль" : reporter.getName());
+                prepStmt.setString(3, reporter==null ? "" : LocationUtil.StringFromLoc(reporter.getLocation()));
                 prepStmt.setString(4, arg[0]);
                 prepStmt.setString(5, target==null? "" : LocationUtil.StringFromLoc(target.getLocation()));
                 prepStmt.setString(6, text);
@@ -240,7 +253,7 @@ public class Report implements CommandExecutor, TabCompleter {
             }  
 
         } else {
-            
+
             
             //жалоба уже была - обновить
             
@@ -258,16 +271,13 @@ public class Report implements CommandExecutor, TabCompleter {
             }
             
             
-        }
+        }*/
 
-        ApiOstrov.sendMessage(
-            Action.AUTH_NOTYFY_MODER,
-            0,
-            0,
-            "§6[§eReport§6] §7от §f"+(p==null ? "консоль" : p.getName())+" §7на §6"+arg[0]+"§7, сервер "+Bukkit.getServer().getMotd()+(target==null? "" : "§7, "+LocationUtil.StringFromLoc(target.getLocation())),
-            ""
-        );
-        
+       // ApiOstrov.sendMessage(
+        //    Action.NOTYFY_MODER,
+        //    "§6[§eReport§6] §7от §f"+(reporter==null ? "консоль" : p.getName())+" §7на §6"+arg[0]+"§7, сервер "+Bukkit.getServer().getMotd()+(target==null? "" : "§7, "+LocationUtil.StringFromLoc(target.getLocation()))
+        //);
+        /*
         
         
         boolean hasRecord = false;
@@ -359,7 +369,7 @@ public class Report implements CommandExecutor, TabCompleter {
                 //e.printStackTrace();
             }              
         }
-
+*/
 
         return true;
 
@@ -370,49 +380,7 @@ public class Report implements CommandExecutor, TabCompleter {
     
 
     
-    public enum Stage {
-        
-        Нет ( "", 0, 0, Action.NONE, 0),
-        Кик ( "выгнан, в следующий раз-бан на час", 3, 12, Action.GKICK, 0),
-        Бан1 ( "бан 1 час, в следующий раз - на день", 6, 24, Action.GBAN, 60*60),
-        Бан2 ( "бан 1 день, в следующий раз - на неделю", 12, 48, Action.GBAN, 24*60*60),
-        Бан3 ( "бан 1 неделя, в следующий раз - на месяц", 24, 96, Action.GBAN, 7*24*60*60),
-        Бан4 ( "бан 1 месяц, в следующий раз - на три", 48, 128, Action.GBAN, 30*24*60*60),
-        Бан5 ( "бан на три месяца", 96, 256, Action.GBAN, 129600),
-        ;
 
-        
-        public final int fromConsole;
-        public final int fromPlayers;
-        public final String msg;
-        public final Action action;
-        public final int ammount;
-        
-        private Stage (final String msg, final int fromConsole, final int fromPlayers, final Action action, final int ammount ) {
-            this.msg = msg;
-            this.fromConsole = fromConsole;
-            this.fromPlayers = fromPlayers;
-            this.action = action;
-            this.ammount = ammount;
-        }
-        
-        public static Stage get(final int order) {
-            if (order<1 || order>=Stage.values().length) return Нет;
-            return Stage.values()[order];
-        }
-
-        private static boolean reachedNext(final Stage current, final int fromConsole, final int fromPlayers) {
-            final Stage nextStage = getNext(current);
-            if (nextStage==current) return false;
-            return nextStage.fromConsole==fromConsole || nextStage.fromPlayers==fromPlayers;
-        }
-
-        private static Stage getNext(final Stage current) {
-            if (current.ordinal()>=Stage.values().length) return current;
-            return get (current.ordinal()+1);
-        }
-        
-    }
 
     
     
@@ -438,15 +406,15 @@ public class Report implements CommandExecutor, TabCompleter {
                     rs = stmt.executeQuery( "SELECT * FROM `reportsCount` ORDER BY `lastTime` DESC LIMIT "+page*36+",35" ); //ASC
                     
                     List<String>list = new ArrayList<>();
-                    Stage currentStage;
+                    ReportStage currentStage;
                     
                     while (rs.next()) {
                         
-                        currentStage = Stage.get(rs.getInt("stage"));
+                        currentStage = ReportStage.get(rs.getInt("stage"));
                         list.clear();
                         
-                        for (final Stage stage : Stage.values()) {
-                            if (stage==Stage.Нет) continue;
+                        for (final ReportStage stage : ReportStage.values()) {
+                            if (stage==ReportStage.Нет) continue;
                             list.add( currentStage.ordinal()>=stage.ordinal() ? "§e✔ §6"+stage : "§8"+stage+" при §c"+stage.fromConsole+" §8или §4"+stage.fromPlayers );
                         }
                     

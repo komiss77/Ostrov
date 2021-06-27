@@ -2,7 +2,6 @@ package ru.komiss77;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import net.md_5.bungee.api.ChatMessageType;
@@ -31,8 +30,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.komiss77.Commands.Spy;
 import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
-import ru.komiss77.Enums.Table;
-import ru.komiss77.Enums.UniversalArenaState;
+import ru.komiss77.Enums.GameState;
 import ru.komiss77.Events.BsignLocalArenaClick;
 import ru.komiss77.Listener.ResourcePacks;
 import ru.komiss77.Listener.SpigotChanellMsg;
@@ -44,7 +42,13 @@ import ru.komiss77.Managers.Timer;
 import ru.komiss77.Objects.DelayActionBar;
 import ru.komiss77.Objects.DelayBossBar;
 import ru.komiss77.Objects.DelayTitle;
-import ru.komiss77.ProfileMenu.E_Stat;
+import ru.komiss77.Enums.Stat;
+import ru.komiss77.Kits.KitManager;
+import ru.komiss77.Managers.WE;
+import ru.komiss77.Managers.Warps;
+import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.Ostrov.Module;
+import ru.komiss77.modules.MenuItems;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.utils.ColorUtils;
 import ru.komiss77.utils.LocationUtil;
@@ -58,31 +62,51 @@ import ru.ostrov77.friends.ApiFriends;
 
 public class ApiOstrov {
     
+    private static final String  pattern_Eng = "[^A-Za-z]";
+    private static final String  pattern_Eng_Num = "[^A-Za-z0-9]";
+    private static final String  pattern_Eng_Num_Rus = "[^A-Za-z0-9А-Яа-я]";
+    //private static final char[]  allowed_Eng = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
+    //private static final char[] allowed_Num = "_0123456789".toCharArray();
+    //private static final char[] allowed_Rus = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя".toCharArray();
     
+    
+    public static WorldManager getWorldManager() {
+        return Ostrov.worldManager;
+    }
+    public static WE getWorldEditor() {
+        return Ostrov.worldEditor;
+    }
+    public static SM getGameManager() {
+        return Ostrov.gameManager;
+    }
+    public static MenuItems getMenuItemManager() {
+        return Ostrov.menuItems;
+    }
+    public static KitManager getKitManager() {
+        return Ostrov.kitManager;
+    }
+    public static Warps getWarpManager() {
+        return (Warps) Ostrov.getModule(Module.warps);
+    }    
     
     //всё по Оплееру
-    public static void addIntStat(final Player p, final E_Stat e_stat) {
-        try {
-            StatManager.addIntStat (p, e_stat);
-        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov addIntStat: "+ex.getMessage());
-        }    
+    public static void addStat(final Player p, final Stat e_stat) {
+        addStat(p, e_stat, 1);
+    }
+    public static void addStat(final Player p, final Stat e_stat, final int ammount) {
+        StatManager.addStat(p, e_stat, ammount);
     }
     public static void addXP(final Player p, final int ammount) {
-        try {
-            StatManager.AddXP(PM.getOplayer(p), ammount);
-        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov AddXP: "+ex.getMessage());
-        }    
+        StatManager.addXP(PM.getOplayer(p), ammount);
     }
-    public static String getStringStat(final Player p, final E_Stat e_stat) {
-        return StatManager.getStringStat (p, e_stat);
+    public static int getStat(final Player p, final Stat e_stat) {
+        return PM.getOplayer(p.getName()).getStat(e_stat);
     }
-    public static void setStringStat(final Player p, final E_Stat e_stat, final String new_value) {
-        StatManager.setStringStat (p, e_stat, new_value);
-    }
+    //public static void setStat(final Player p, final E_Stat e_stat, final String new_value) {
+    //    StatManager.setStringStat (p, e_stat, new_value);
+    //}
     public static String getPlayTime(final Player player){ 
-        return secondToTime( PM.getOplayer(player.getName()).getStat(E_Stat.PLAY_TIME) );
+        return secondToTime(PM.getOplayer(player.getName()).getStat(Stat.PLAY_TIME) );
     }
     public static String getPrefix(final Player player){ 
         return PM.getOplayer(player.getName()).getDataString(Data.PREFIX);
@@ -100,7 +124,7 @@ public class ApiOstrov {
     }      
         
     public static void giveMenuItem(final Player p) {
-        Ostrov.lobby_items.giveItem(p, "pipboy");//ItemUtils.Add_to_inv(p, 8, ItemUtils.pipboy, true, false);
+        getMenuItemManager().giveItem(p, "pipboy");//ItemUtils.Add_to_inv(p, 8, ItemUtils.pipboy, true, false);
     }
     
     public static boolean hasResourcePack(final Player p) {
@@ -215,33 +239,90 @@ public class ApiOstrov {
         
     
     //   каналы коммуникации
-    @Deprecated
-    public static boolean sendMessage (final Player p, final Action action, final String raw_data) {
-        return sendMessage(p, action, 0, 0, raw_data, "");//return SpigotChanellMsg.sendMessage(p, action, raw_data);
-    }
-    @Deprecated
-    public static boolean sendMessage(final String from, final Action action, final String raw_data) {
-        return sendMessage(action, 0, 0, raw_data, "");//return SpigotChanellMsg.sendMessage(from, action, raw_data);
-    }
-    public static boolean sendMessage (final Player p, final Action action, final int int1, final int int2, final String string1, final String string2) {
-        return SpigotChanellMsg.sendMessage(p, action, int1, int2, string1, string2);
-    }
-    public static boolean sendMessage (final Action action, final int int1, final int int2, final String string1, final String string2) {
+
+
+
+    //без указания передатчика
+    public static boolean sendMessage (final Action action) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
-        return SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), action, int1, int2, string1, string2);
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action);
     }
+    public static boolean sendMessage (final Action action, final String senderInfo) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final int int1) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p,action, senderInfo, int1);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final String string1) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo, string1);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final String string1) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, string1);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final String string1, final String s2) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, s2, s2);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, int3, s1, s2, s3);
+    }
+    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) return false;
+        final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
+        return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, int3, s1, s2, s3, s4, s5, s6);
+    }
+    
+    //с указанием передатчика
+    public static boolean sendMessage (final Player msgTransport, final Action action) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action,senderInfo, int1);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final String string1) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, string1);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final String string1) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, string1);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final String string1, final String s2) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, s2, s2);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, int3, s1, s2, s3);
+    }
+    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, int3, s1, s2, s3, s4, s5, s6);
+    }
+    
+    
     /**
      * 
-     * @param player игрок
+     * @param target игрок
      * @param server название сервера, как в настройках bungeecord
      * @param arena название арены на сервере для вызова ArenaJoinEvent в плагине bsign
      */    
-    public static void sendToServer(final Player player, final String server, String arena) {
-        if (arena.isEmpty()) arena="any";
+    public static void sendToServer(final Player target, final String server, String arena) {
+        //if (arena.isEmpty()) arena="any";
         if (server.equalsIgnoreCase(SM.this_server_name)) {
-            Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick ( player, arena ) );
+            Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick ( target, arena ) );
         } else {
-            sendMessage(player, Action.SEND_TO_ARENA, 0, 0, server, arena);
+            sendMessage(target, Action.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
         }
     }        
     
@@ -279,29 +360,29 @@ public class ApiOstrov {
         //return TeleportLoc.getSafeDestination(loc);
         return TeleportLoc.findNearestSafeLocation(loc, null);
     }
+    
     @Deprecated
-    public static boolean teleportSave (final Player p , final Location loc) {
-        teleportSave(p, loc, false);
-        return true;
+    public static boolean teleportSave(final Player p, final Location loc) {
+        return teleportSave(p, loc, false);
     }
-
-    public static void teleportSave(final Player p, final Location loc, final boolean buildSavePlace) {
+    public static boolean teleportSave(final Player p, final Location loc, final boolean buildSavePlace) {
         if (isLocationSave(p, loc)) {
             if (Bukkit.isPrimaryThread()) {
-                 p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND);
+                p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND);
             } else {
                 Ostrov.sync( ()->p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND), 0);
             }
+            return true;
 //System.out.println("1 loc="+loc);
         } else {
             Location save = ApiOstrov.findNearestSaveLocation(loc);
             if (save != null) {
                 if (Bukkit.isPrimaryThread()) {
                     p.teleport(save, PlayerTeleportEvent.TeleportCause.COMMAND);
-               } else {
+                } else {
                    Ostrov.sync( ()->p.teleport(loc), 0);
-               }
-                //p.teleport(save, PlayerTeleportEvent.TeleportCause.COMMAND);
+                }
+                return true;
 //System.out.println("2 loc="+loc);
             } else if (buildSavePlace) {
 //System.out.println("3 loc="+loc2);
@@ -312,17 +393,19 @@ public class ApiOstrov {
                         loc.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).setType(Material.GLASS);
 //System.out.println("4 loc="+loc2);
                         p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                   } else {
-                       Ostrov.sync( ()->{
+                    } else {
+                        Ostrov.sync( ()->{
                             loc.getBlock().getRelative(BlockFace.DOWN).setType(Material.GLASS);
                             loc.getBlock().setType(Material.AIR);
                             loc.getBlock().getRelative(BlockFace.UP).setType(Material.AIR);
                             loc.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).setType(Material.GLASS);
                             p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                       }, 0);
-                   }
+                        }, 0);
+                    }
+                    return true;
             } else {
                  p.sendMessage("§4Телепорт не удался - указанная локация опасна для жизни!");
+                 return false;
             }
         }    
     }
@@ -345,7 +428,7 @@ public class ApiOstrov {
      */
     public static void moneyChange ( final Player target, final int value, final String source ) {
         //PM.getOplayer(p).moneyChange(value, who);
-            PM.getOplayer(target).setData(Data.MONEY, PM.getOplayer(target).getDataInt(Data.MONEY)+value);//moneySet(curr+value, send_update);
+            PM.getOplayer(target).setData(Data.LONI, PM.getOplayer(target).getDataInt(Data.LONI)+value);//moneySet(curr+value, send_update);
 //System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));        
             if (value>9 || value<-9) { //по копейкам не уведомляем
                 target.spigot().sendMessage(new ComponentBuilder(Ostrov.prefix+"§7"+(value>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(value>9?"§2":"§4")+value+" лони §7! §8<клик-баланс")
@@ -379,12 +462,12 @@ public class ApiOstrov {
         }
     } 
     public static int moneyGetBalance ( final String name ) {
-        if (PM.exist(name)) return PM.getOplayer(name).getDataInt(Data.MONEY);
+        if (PM.exist(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
         else return 0;
     }  
-    public static String GetBalString ( Player p ) {
+    public static String getBalanceStatus ( Player p ) {
         if (PM.exist(p.getName()) ) {
-            final int m = PM.getOplayer(p.getName()).getDataInt(Data.MONEY); 
+            final int m = PM.getOplayer(p.getName()).getDataInt(Data.LONI); 
             if ( m<=1000 ) return "Нищеброд";
             else if (m>1000 && m<=10000)return "Бедняк";
             else if (m>10000 && m<=100000)return "Малоимущий";
@@ -415,13 +498,6 @@ public class ApiOstrov {
     
     
     //  Всякие надписи     
-    public static void sendTitleDirect(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout ) {
-        try {
-            sendTitle(p, title, subtitle, fadein, stay, fadeout);
-        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov sendTitleDirect "+ex.getMessage());
-        }    
-    }
     /**
      * 
      * сообщения сохраняются и выводятся поочерёдно с интервалом 3 сек.
@@ -444,11 +520,15 @@ public class ApiOstrov {
      * @param fadeout исчезание
      */
     public static void sendTitle(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout ) {
-        try {
-            if (Timer.delay_titles.containsKey(p.getName()))  Timer.delay_titles.get(p.getName()).AddTitle(p.getName(), title, subtitle, fadein, stay, fadeout);
-            else Timer.delay_titles.put(p.getName(), new DelayTitle(p.getName(), title, subtitle, fadein, stay, fadeout));        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov sendTitle "+ex.getMessage());
-        }    
+       // try {
+            if (Timer.delay_titles.containsKey(p.getName()))  {
+                Timer.delay_titles.get(p.getName()).AddTitle(p.getName(), title, subtitle, fadein, stay, fadeout);
+            } else {
+                Timer.delay_titles.put(p.getName(), new DelayTitle(p.getName(), title, subtitle, fadein, stay, fadeout));
+            }        
+        //} catch (NullPointerException ex) {
+        //    Ostrov.log_err("ApiOstrov sendTitle "+ex.getMessage());
+        //}    
     }
     /**
      * 
@@ -457,12 +537,16 @@ public class ApiOstrov {
      * @param text сообщение
      */
     public static void sendActionBar(final Player p, final String text) {
-        try {
+        //try {
             //Utils.sendActionBar(p, text);
-            if (Timer.delay_actionbars.containsKey(p.getName())) Timer.delay_actionbars.get(p.getName()).AddMsg(text);
-            else Timer.delay_actionbars.put(p.getName(), new DelayActionBar(p.getName(),text) );} catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov sendActionBar "+ex.getMessage());
-        }    
+            if (Timer.delay_actionbars.containsKey(p.getName())) {
+                Timer.delay_actionbars.get(p.getName()).AddMsg(text);
+            } else{
+                Timer.delay_actionbars.put(p.getName(), new DelayActionBar(p.getName(),text) );
+            }
+    //} catch (NullPointerException ex) {
+     //       Ostrov.log_err("ApiOstrov sendActionBar "+ex.getMessage());
+        //}    
     }
     /**
      * 
@@ -500,13 +584,16 @@ public class ApiOstrov {
      * @param show_progress уменьшать шкалу
      */
     public static void sendBossbar (Player p, String text, int seconds, BarColor bar_color, BarStyle bar_style, boolean show_progress) {
-        try {
+       // try {
             //Utils.sendBossBar(p, text, seconds, bar_color, bar_style, show_progress);
-            if (Timer.delay_bossbars.containsKey(p.getName()))  Timer.delay_bossbars.get(p.getName()).AddBar(p, text, seconds, bar_color, bar_style, show_progress);
-            else Timer.delay_bossbars.put(p.getName(), new DelayBossBar(p, text, seconds, bar_color, bar_style, show_progress));        
-        } catch (NullPointerException ex) {
-            Ostrov.log_err("ApiOstrov sendBossbar "+ex.getMessage());
-        }    
+            if (Timer.delay_bossbars.containsKey(p.getName())) {
+                Timer.delay_bossbars.get(p.getName()).AddBar(p, text, seconds, bar_color, bar_style, show_progress);
+            } else {
+                Timer.delay_bossbars.put(p.getName(), new DelayBossBar(p, text, seconds, bar_color, bar_style, show_progress));
+            }        
+       // } catch (NullPointerException ex) {
+       //     Ostrov.log_err("ApiOstrov sendBossbar "+ex.getMessage());
+       // }    
     } 
     
     
@@ -615,13 +702,13 @@ public class ApiOstrov {
         }
     }        
 
-    public static String housrToTime(int hours) {
-        final int days = hours / 24;
-        hours-=days*24;
-        return  (days==0 ? "" : days+"дн. ") + (hours==0 ? (days==0?"меньше часа":"") : hours+"ч. ");
-    }
+   // public static String housrToTime(int hours) {
+   //     final int days = hours / 24;
+   //     hours-=days*24;
+   //     return  (days==0 ? "" : days+"дн. ") + (hours==0 ? (days==0?"меньше часа":"") : hours+"ч. ");
+   // }
  
-    public static String dateFromStamp(final long stamp_in_second) {
+    public static String dateFromStamp(final int stamp_in_second) {
         return Ostrov.dateFromStamp(stamp_in_second);
         //Date date = new java.util.Date(stamp*1000L); 
         //SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd.MM.yy"); 
@@ -645,28 +732,33 @@ public class ApiOstrov {
     
     
     //   строки
-    @Deprecated
-    public static String listToString(final Collection<String> array) {
-        return listToString(array, ",");
-    }
+    //@Deprecated
+    //public static String listToString(final Collection<String> array) {
+    //    return listToString(array, ",");
+    //}
     
     public static String listToString(final Iterable array, final String splitter) {
         StringBuilder sb=new StringBuilder();
         array.forEach( (s) -> {
             sb.append(String.valueOf(s)).append(splitter);
-            //res=res+splitter+s;
         });
-        //res =  res.replaceFirst(splitter, "");
         return sb.toString();
     }
-    @Deprecated
-    public static String listToString(final List<String> array, final String splitter) {
+    public static String enumSetToString(final EnumSet enumSet) {
         StringBuilder sb=new StringBuilder();
-        array.forEach( (s) -> {
-            sb.append(s).append(splitter);
+        enumSet.forEach((eNum) -> {
+            sb.append(eNum.toString()).append(",");
         });
-        return sb.toString();
-    }/*
+        return sb.toString();//allowRole;
+    }
+   // @Deprecated
+  //  public static String listToString(final List<String> array, final String splitter) {
+    //    StringBuilder sb=new StringBuilder();
+   //     array.forEach( (s) -> {
+   //         sb.append(s).append(splitter);
+   //     });
+    //    return sb.toString();
+   /* }/*
     public static String setToString(final Set array, final String splitter) {
         StringBuilder sb=new StringBuilder();
         array.forEach( (s) -> {
@@ -676,16 +768,6 @@ public class ApiOstrov {
         //res =  res.replaceFirst(splitter, "");
         return sb.toString();
     }*/
-    public static String enumSetToString(final EnumSet enumSet) {
-        //String allowRole="";
-        StringBuilder sb=new StringBuilder();
-        for (final Object eNum : enumSet) {
-            sb.append(eNum.toString()).append(",");
-            //allowRole=allowRole+","+eNum.toString();
-        }
-        // =  allowRole.replaceFirst(",", "");
-        return sb.toString();//allowRole;
-    }
 
     
     
@@ -700,7 +782,7 @@ public class ApiOstrov {
     //    пол
     public static String genderEnd_Существительное(final String name) {
         if (PM.exist(name)) {
-            switch (ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.ПОЛ)).toLowerCase()) {
+            switch (ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.GENDER)).toLowerCase()) {
                 case "девочка": 
                     return "а";
                 case "бесполоe": 
@@ -713,7 +795,7 @@ public class ApiOstrov {
     }
 
     public static boolean isFemale(final String name) {
-        return PM.exist(name) && ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.ПОЛ)).equalsIgnoreCase("девочка");
+        return PM.exist(name) && ChatColor.stripColor(PM.getOplayer(name).getDataString(Data.GENDER)).equalsIgnoreCase("девочка");
     }
 
 
@@ -792,38 +874,40 @@ public class ApiOstrov {
         return b.getRelative(BlockFace.DOWN);
     }      
 
-    public static String getArenasTabbleName() { //для Бсигн, конфликтовали по енум
-        return Table.GAMES_ARENAS.table_name;
+   // public static String getArenasTabbleName() { //для Бсигн, конфликтовали по енум
+   //     return Table.GAMES_ARENAS.table_name;
+   // }
+
+    public static void sendArenaData(final String arenaName, final GameState state, final String line0, final String line1, final String line2, final String line3, final String extra, final int playerInGame) {
+        SM.sendArenaData(arenaName, (state==null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3, extra);
     }
 
-    public static void sendArenaData(final String arena_name, final String line0, final String line1, final String line2, final String line3, final String string, final int players, final UniversalArenaState state, final boolean mysql, final boolean async) {
-        SM.sendArenaData(arena_name, line0, line1, line2, line3, "", players, (state==null ? UniversalArenaState.НЕОПРЕДЕЛЕНО : state), mysql, async);
-    }
 
-
-    @Deprecated
-    public static boolean checkString (final String message) { return checkString(message, true, true); }    
-    public static boolean checkString (final String message, final boolean allowNumbers, final boolean allowRussian) {
+   // @Deprecated
+   // public static boolean checkString (final String message) { return checkString(message, true, true); }    
+    public static boolean checkString (String message, final boolean allowNumbers, final boolean allowRussian) {
         //replaceAll("[^A-Za-z0-9]",""); replace all the characters except alphanumeric 
-      String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-      if (allowNumbers) allowed=allowed+"_0123456789";
-      if (allowRussian) allowed=allowed+"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-      for(int i = 0; i < message.length(); ++i) {
-         if(!allowed.contains(String.valueOf(message.charAt(i)))) {
-            return false;
-         }
-      }
-      return true;
+        //String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        //if (allowNumbers) allowed=allowed+"_0123456789";
+        //if (allowRussian) allowed=allowed+"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        //for(int i = 0; i < message.length(); ++i) {
+        //    if( !allowed_Eng.contains(message.charAt(i))) {
+        //        return false;
+        //    }
+        //}
+        message=message.replaceAll(allowRussian ? pattern_Eng_Num_Rus : allowNumbers ? pattern_Eng_Num : pattern_Eng, "");
+        return !message.isEmpty();
    }    
         
-    @Deprecated
-    public static boolean isLocalBuilder(final Player p) {
-        return isLocalBuilder(p, false);
-    }
+
     public static boolean canBeBuilder(final CommandSender cs) {
         //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
         return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder") || hasGroup(cs.getName(), "supermoder");
-    }    
+    }   
+    @Deprecated
+    public static boolean isLocalBuilder(final CommandSender cs) {
+        return isLocalBuilder(cs, false);
+    }
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
         //if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
        // if ( cs!=null && (cs.hasPermission("ostrov.builder") || hasGroup(cs.getName(), "builder")) ) {
@@ -874,7 +958,7 @@ public class ApiOstrov {
 
 
     public static int currentTimeSec() {
-        return Timer.currentTimeSec();
+        return Timer.getTime();
     }
     public static void makeWorldEndToWipe(final int afterSecond) {
         Ostrov.makeWorldEndToWipe(afterSecond);

@@ -19,17 +19,19 @@ import org.bukkit.inventory.ItemStack;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import ru.komiss77.ApiOstrov;
 
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Pvp;
 import ru.komiss77.Cfg;
+import ru.komiss77.Enums.Stat;
 import ru.komiss77.Kits.KitManager;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.Timer;
@@ -65,7 +67,24 @@ public static void ReloadVars () {
     
     
 
-    
+@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void test (PlayerInteractEvent e) {
+        final Player p = e.getPlayer();
+//System.out.println("test "+e.getItem()+" mat="+e.getMaterial());
+        if (e.getAction()!=Action.RIGHT_CLICK_BLOCK || e.getItem()==null) return;
+        
+        if (ApiOstrov.isLocalBuilder(p, false)) {
+            if (e.getMaterial()==Material.GOLD_INGOT) {
+                if (p.isSneaking()) {
+                    ApiOstrov.addStat(p, Stat.BW_bed, 3);
+                    p.sendMessage("BW_bed+3");
+                } else {
+                    ApiOstrov.addStat(p, Stat.BW_bed, 1);
+                    p.sendMessage("BW_bed+1");
+                }
+            }
+        }
+    }    
     
     
     

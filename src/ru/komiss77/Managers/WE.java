@@ -14,7 +14,7 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Listener;
+import ru.komiss77.Initiable;
 import ru.komiss77.Objects.CaseInsensitiveMap;
 import ru.komiss77.Ostrov;
 
@@ -26,7 +26,7 @@ import ru.komiss77.Ostrov;
 
 //не перемещать!! использует регионГуи
 
-public class WE implements Listener {
+public class WE extends Initiable {
     
     public static Map<Integer,PasteJob> jobs;
     public static int currentTask = -1;
@@ -58,11 +58,23 @@ public class WE implements Listener {
 
 
     
-    public WE(final Ostrov plugin) {
-        //WE.plugin = plugin;
+    
+    
+    public WE() {
         jobs = new HashMap();
     }
 
+    @Override
+    public void onDisable() {
+    }
+    
+
+    
+    
+    
+    
+    
+    
     public static int getBlockPerTick() {
         return 10000;
     }

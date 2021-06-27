@@ -12,12 +12,17 @@ import ru.komiss77.Enums.Action;
 public class OstrovChanelEvent extends Event {
 
     private static HandlerList handlers = new HandlerList();
-    public final String sender;
     public final Action action;
+    public final String senderInfo;
     public final int int1;
     public final int int2;
-    public final String string1; //message2
-    public final String string2; //message2
+    public final int int3;
+    public final String s1; //message2
+    public final String s2; //message2
+    public final String s3; //message2
+    public final String s4; //message2
+    public final String s5; //message2
+    public final String s6; //message2
     
     
     //@Deprecated
@@ -27,13 +32,18 @@ public class OstrovChanelEvent extends Event {
     //    this.bungee_raw_data = bungee_raw_data;
    // }
     
-    public OstrovChanelEvent( final String sender, Action action, final int int1, final int int2, final String string1, final String string2) {
-        this.sender = sender;
+    public OstrovChanelEvent( final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
+        this.senderInfo = senderInfo;
         this.action = action;
         this.int1 = int1;
         this.int2 = int2;
-        this.string1 = string1;
-        this.string2 = string2;
+        this.int3 = int3;
+        this.s1 = s1;
+        this.s2 = s2;
+        this.s3 = s3;
+        this.s4 = s4;
+        this.s5 = s5;
+        this.s6 = s6;
     }
     
     

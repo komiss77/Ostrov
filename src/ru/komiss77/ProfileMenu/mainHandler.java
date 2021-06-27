@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Enums.Action;
-import ru.komiss77.Listener.SpigotChanellMsg;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
 import ru.komiss77.Objects.Group;
@@ -48,7 +47,7 @@ public class mainHandler {
                 case СТАТИСТИКА:
                     if (e.isShiftClick()) {
                         p.closeInventory();
-                        SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_CMD, "journal");
+                        ApiOstrov.sendMessage(p, Action.EXECUTE_BUNGEE_CMD, p.getName(), "journal");
                     } else if (e.isLeftClick()) {
                         statHandler.injectStatItems(op);
                     } else if (e.isRightClick()) {
@@ -82,10 +81,10 @@ public class mainHandler {
                 case ПОМОЩЬ:
                     if (e.isShiftClick()) {
                         p.closeInventory();
-                        SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_CMD, "staff list");
+                        ApiOstrov.sendMessage(p, Action.EXECUTE_BUNGEE_CMD, p.getName(), "staff list");
                     } else if (e.isLeftClick()) {
                         p.closeInventory();
-                        SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_CMD, "help");
+                        ApiOstrov.sendMessage(p, Action.EXECUTE_BUNGEE_CMD, p.getName(), "help");
                     } else if (e.isRightClick()) {
                         p.closeInventory();
                         p.performCommand("ohelp");
@@ -113,7 +112,7 @@ public class mainHandler {
                     } else if (e.isRightClick()) {
                         p.closeInventory();
                         ApiOstrov.sendTitle(p, "§fДля пополнения баланса", "§fклик на сообщения в чате.");
-                        SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_CMD, "money add");
+                        ApiOstrov.sendMessage(p, Action.EXECUTE_BUNGEE_CMD, p.getName(), "money add");
                     }
                     return;
 
@@ -129,7 +128,7 @@ public class mainHandler {
                             p.openInventory(PM.OP_Get_settings(p));
                         }
                     } else if (e.isRightClick()) {
-                        settingsHandler.injectPassportItems(p, op,false);
+                        settingsHandler__.injectPassportItems(p, op,false);
                     }
                     return;
 
@@ -164,7 +163,7 @@ public class mainHandler {
                     if (group==null) return;
                     p.closeInventory();
                     ApiOstrov.sendTitle(p, "§fДля покупки группы", "§fклик на сообщения в чате.");
-                    SpigotChanellMsg.sendMessage(p, Action.OSTROV_BUNGEE_CMD, "group buy "+p.getName()+" "+group.chat_name);
+                    ApiOstrov.sendMessage(p, Action.EXECUTE_BUNGEE_CMD, p.getName(), "group buy "+p.getName()+" "+group.chat_name);
                     return;
 
                 case СТАТИСТИКА:
@@ -172,7 +171,7 @@ public class mainHandler {
                     return;
 
                 case НАСТРОЙКИ:
-                    settingsHandler.onFieldClick(e, p, op);
+                    settingsHandler__.onFieldClick(e, p, op);
                     break;
 
 

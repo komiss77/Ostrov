@@ -31,7 +31,7 @@ public class WarpCmd implements CommandExecutor, TabCompleter {
             
             case 1:
                 //0- пустой (то,что уже введено)
-                for (final String s : Ostrov.getWarpManager().getWarpNames()) {
+                for (final String s : ApiOstrov.getWarpManager().getWarpNames()) {
                     if (s.startsWith(args[0])) sugg.add(s);
                 }
 
@@ -51,11 +51,11 @@ public class WarpCmd implements CommandExecutor, TabCompleter {
         //выполнение от имент консоли - игнор закрытости, права и оплаты
         if ( se instanceof ConsoleCommandSender ) {
             if (a.length==2) {
-                if (Ostrov.getWarpManager().exist(a[0])) {
+                if (ApiOstrov.getWarpManager().exist(a[0])) {
                     final Player target = Bukkit.getPlayer(a[1]);
                     if (target!=null) {
                         target.sendMessage( "§6Перемещаемся на "+a[0]+"..." );
-                        DelayTeleport.tp(target, Ostrov.getWarpManager().getWarp(a[0]).loc, 5, "§6Перемещение на "+a[0]+" прошло удачно.", true, true, DyeColor.YELLOW);
+                        DelayTeleport.tp(target, ApiOstrov.getWarpManager().getWarp(a[0]).loc, 5, "§6Перемещение на "+a[0]+" прошло удачно.", true, true, DyeColor.YELLOW);
                         return true;
                     } else {
                         se.sendMessage( "§cНе найден игрок "+a[1] );
@@ -107,7 +107,7 @@ public class WarpCmd implements CommandExecutor, TabCompleter {
                 
                 
             case 1:
-                Ostrov.getWarpManager().tryWarp(p, a[0]);
+                ApiOstrov.getWarpManager().tryWarp(p, a[0]);
                 break;
                 
                 

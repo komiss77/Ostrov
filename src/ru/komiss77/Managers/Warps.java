@@ -29,7 +29,7 @@ public final class Warps extends Initiable {
     
     @Deprecated
     public static boolean Warp_exist(final String name) {
-       return Ostrov.getWarpManager().exist(name);
+       return ApiOstrov.getWarpManager().exist(name);
     }
 
 

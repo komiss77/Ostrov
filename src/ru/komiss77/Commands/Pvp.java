@@ -317,7 +317,7 @@ public class Pvp implements Listener, CommandExecutor {
                 for (ItemStack is : p.getInventory().getContents()) {
                     if (is != null && is.getType()!=Material.AIR) {
 //System.out.println("drop si ? "+Ostrov.lobby_items.isSpecItem(is));
-                        if (Ostrov.lobby_items.isSpecItem(is)) {//не лутать менюшки!
+                        if (ApiOstrov.getMenuItemManager().isSpecItem(is)) {//не лутать менюшки!
 //System.out.println("пропускаем si");
                             continue;
                         }
@@ -331,7 +331,7 @@ public class Pvp implements Listener, CommandExecutor {
 //System.out.println("Death drop"+e.getDrops());
                 for (int i=e.getDrops().size()-1; i>=0; i--) {
 //System.out.println("drop si ? "+Ostrov.lobby_items.isSpecItem(e.getDrops().get(i)));
-                     if (Ostrov.lobby_items.isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек
+                     if (ApiOstrov.getMenuItemManager().isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек
                          e.getDrops().remove(i);
                      }
                 }

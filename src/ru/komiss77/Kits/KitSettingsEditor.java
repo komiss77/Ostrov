@@ -5,7 +5,6 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -15,7 +14,6 @@ import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.AnvilGUI;
 
 
@@ -329,22 +327,22 @@ public class KitSettingsEditor implements InventoryProvider{
         
         contents.set(SlotPos.of(4, 7), new InputButton(new ItemBuilder(Material.BLACK_BED)
                 .name("§7интервал получения в минутах")
-                .lore("§7Сейчас: §6" + kit.delayMin)
-                .lore("§7(§6" +ApiOstrov.IntToTime(kit.delayMin)+"§7)")
-                .build(), ""+kit.delayMin, newValue -> {
+                .lore("§7Сейчас: §6" + kit.delaySec/60)
+                .lore("§7(§6" +ApiOstrov.secondToTime(kit.delaySec)+"§7)")
+                .build(), ""+kit.delaySec/60, newValue -> {
                     
                     if( !ApiOstrov.isInteger(newValue) ) {
                         player.sendMessage("§cДолжно быть число!");
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                         return;
                     }
-                    final int price = Integer.valueOf(newValue);
-                    if ( price<0 || price>100000 ) {
+                    final int delay = Integer.valueOf(newValue);
+                    if ( delay<0 || delay>100000 ) {
                         player.sendMessage("§cОт 0 до 100000!");
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                     } else {
                         kit.modifyed = true;
-                        kit.delayMin = price;
+                        kit.delaySec = delay*60;
                         reopen(player, contents);
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 2);
                     }

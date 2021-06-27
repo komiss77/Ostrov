@@ -34,8 +34,10 @@ import ru.ostrov77.factions.ApiFactions;
 import ru.komiss77.Cfg;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.Pvp;
+import ru.komiss77.Enums.Data;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
 
 
@@ -213,10 +215,10 @@ System.out.println("------------> GroupChangeEvent ");
             //    Ostrov.log_ok ("§2Найдены скилы! Режим Седны!");
             //    break;
             
-             case "Parkour":
-                Ostrov.parkur= true;
-                Ostrov.log_ok ("§2Найдены паркуры! Режим паркуры!");
-                break;
+            // case "Parkour":
+            //    Ostrov.parkur= true;
+           //     Ostrov.log_ok ("§2Найдены паркуры! Режим паркуры!");
+           //     break;
             
              //case "uSkyBlock":
             //    Ostrov.uskyblock= true;
@@ -416,26 +418,28 @@ System.out.println("------------> GroupChangeEvent ");
     }  
     
     
-@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-	public void onChat(AsyncPlayerChatEvent e) {
-            if (!PM.use_preffix_suffix_wothout_deluxechat) return;
-                String format = 
-                    PM.OP_GetPrefix(e.getPlayer().getName()) + 
-                        PM.prefix_p_n + 
-                            e.getPlayer().getName() + 
-                                PM.prefix_n_s + 
-                                    PM.OP_GetSuffix(e.getPlayer().getName()) + 
-                                        PM.prefix_s_m + 
-                                            e.getMessage().replaceAll("%", "");
-                
-		format = replaceColours(format);
-                try {
-                    e.setFormat(format);
-                } catch (UnknownFormatConversionException ex) {
-                    Ostrov.log_err("AsyncPlayerChatEvent name="+e.getPlayer().getName()+" pref="+PM.OP_GetPrefix(e.getPlayer().getName())+" suff="+PM.OP_GetSuffix(e.getPlayer().getName())+" msg="+e.getMessage());
-                }
-            
-	}
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onChat(AsyncPlayerChatEvent e) {
+        if (!PM.use_preffix_suffix_wothout_deluxechat) return;
+        final Oplayer op = PM.getOplayer(e.getPlayer());
+        if (op==null) return;
+            String format = 
+                op.getDataString(Data.PREFIX)+ 
+                    PM.prefix_p_n + 
+                        e.getPlayer().getName() + 
+                            PM.prefix_n_s + 
+                                op.getDataString(Data.SUFFIX) + 
+                                    PM.prefix_s_m + 
+                                        e.getMessage().replaceAll("%", "");
+
+            format = replaceColours(format);
+            //try {
+                e.setFormat(format);
+            //} catch (UnknownFormatConversionException ex) {
+            //    Ostrov.log_err("AsyncPlayerChatEvent name="+e.getPlayer().getName()+" pref="+PM.OP_GetPrefix(e.getPlayer().getName())+" suff="+PM.OP_GetSuffix(e.getPlayer().getName())+" msg="+e.getMessage());
+            //}
+
+    }
 protected String replaceColours(String message) { return message.replaceAll("(?i)&([a-f0-9])", "\u00A7$1");}
 
 

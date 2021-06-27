@@ -92,14 +92,14 @@ public class Oreload implements Listener, CommandExecutor, TabCompleter {
                         };
                     }
                     if (module!=null) {
-                        ((Initiable)Ostrov.modules.get(module)).reload();
+                        ((Initiable)Ostrov.getModule(module)).reload();
                         cs.sendMessage("§aМодуль §f"+arg[0]+" §aперезагружен!");
                         return true;
                     }
                     switch (arg[0]) {
                         case "all":
                             Cfg.ReLoadAllConfig();
-                            Ostrov.modules.values().forEach( (initiable) -> {
+                            Ostrov.getModules().forEach( (initiable) -> {
                                 ((Initiable)initiable).reload();
                             });
                             break;

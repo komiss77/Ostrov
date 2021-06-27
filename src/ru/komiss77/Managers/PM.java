@@ -14,12 +14,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
-import ru.komiss77.Enums.Action;
 import ru.komiss77.Enums.Data;
 import ru.komiss77.Events.GroupChangeEvent;
 import ru.komiss77.Objects.Oplayer;
 import ru.komiss77.Ostrov;
-import ru.komiss77.ProfileMenu.E_Stat;
+import ru.komiss77.Enums.Stat;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.scoreboard.NameTag.NametagManager;
 import ru.komiss77.utils.ItemUtils;
@@ -38,7 +37,7 @@ public class PM {
     public static String prefix_s_m;   //разделители
     public static boolean ostrovStatScore = false;    
     public static boolean tablist_header_footer = false;    
-    public static int sec = 0;    
+    //public static int sec = 0;    
     public static NametagManager nameTagManager;
     
     public static void Init() {
@@ -114,18 +113,9 @@ public class PM {
         oplayers.clear();
     }
 
-    public static void tickOplayers1() { //каждую секунду
-        //oplayers.values().stream().forEach((op) -> {
-       //     op.Tick_every_second(sec);
-       // });
-       // sec++;
-        if (sec>60) sec=0;
-        if (ostrovStatScore && sec%10==0 && !oplayers.isEmpty()) {
-            ApiOstrov.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Action.GET_BUNGEE_ONLINE, "");
-        }
-    }
-
-
+    
+    
+    
     public static void onExit(final Player p) {                                          //процедура выхода с сервера
         final String name = p.getName();
         if (!oplayers.containsKey(name)) return;
@@ -293,31 +283,14 @@ public static void OP_Set_back_location (String nik, Location loc) {
 
 
 
-// ------------------------- Префикс, Игровое время ----------------------------
+// ------------------------- Игровое время ----------------------------
 
-public static String OP_GetPrefix(String nik) {
-    try {
-        return oplayers.get(nik).getDataString(Data.PREFIX);
-    } catch (NullPointerException ex) {
-        Ostrov.log_err("Ошибка префикса для "+nik+" : "+ex.getMessage());
-        return "";
-    }
-}
-public static String OP_GetSuffix(String nik) {
-    try {
-        return oplayers.get(nik).getDataString(Data.SUFFIX);
-    } catch (NullPointerException ex) {
-        Ostrov.log_err("Ошибка суффикса для "+nik+" : "+ex.getMessage());
-        return "";
-    }
-}
-
-public static int getPlytime(String nik) {
-    return oplayers.get(nik).getStat(E_Stat.PLAY_TIME);
-}
-public static String getDisplayPlytime ( String nik ) {
-    return ApiOstrov.secondToTime(getPlytime(nik) );
-}  
+//public static int getPlytime(String nik) {
+ //   return oplayers.get(nik).getStat(Stat.PLAY_TIME);
+//}
+//public static String getDisplayPlytime ( String nik ) {
+ //   return ApiOstrov.secondToTime(getPlytime(nik) );
+//}  
 // -----------------------------------------------------------------------------
 
 

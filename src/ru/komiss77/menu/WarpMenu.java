@@ -54,7 +54,7 @@ public class WarpMenu implements InventoryProvider {
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
         
         
-        final Warps wm = Ostrov.getWarpManager();
+        final Warps wm = ApiOstrov.getWarpManager();
         
         boolean hasPerm;
         int count = 0;

@@ -8,6 +8,11 @@ import java.util.Random;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.TimeZone;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,23 +24,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.Collection;
 import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
 import ru.komiss77.Commands.RegisterCommands;
 import ru.komiss77.Commands.CMD;
 import ru.komiss77.Commands.WorldManagerCommand;
+import ru.komiss77.Enums.Chanell;
 import ru.komiss77.Kits.KitManager;
 import ru.komiss77.Listener.ArmorEquipListener;
 import ru.komiss77.Listener.InvSeeListener;
 import ru.komiss77.Listener.LimiterListener;
 import ru.komiss77.Listener.MenuListener;
 import ru.komiss77.Listener.NbtListener;
-import ru.komiss77.Listener.OstrovChanelListener;
 import ru.komiss77.Listener.PlayerListener;
 import ru.komiss77.Listener.ResourcePacks;
 import ru.komiss77.Listener.ServerListener;
@@ -44,7 +45,7 @@ import ru.komiss77.Listener.TPAListener;
 import ru.komiss77.Managers.MysqlLocal;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.Managers.SM;
-import ru.komiss77.ProfileMenu.PassportHandler;
+import ru.komiss77.ProfileMenu.PassportHandler__;
 import ru.komiss77.modules.DchatExpansion;
 import ru.komiss77.Managers.EmptyChunkGenerator;
 import ru.komiss77.Managers.Timer;
@@ -52,7 +53,7 @@ import ru.komiss77.Managers.WE;
 import ru.komiss77.Managers.Warps;
 import ru.komiss77.Managers.WorldManager;
 import ru.komiss77.modules.Informator;
-import ru.komiss77.modules.LobbyItems;
+import ru.komiss77.modules.MenuItems;
 import ru.komiss77.modules.OstrovDB;
 import ru.komiss77.modules.Pandora;
 import ru.komiss77.utils.ItemUtils;
@@ -73,18 +74,14 @@ public class Ostrov extends JavaPlugin {
     public static ApiFriends api_friends=null;
     public static ApiFactions apiFactions=null;
     
-    public static Map <Module,Object> modules;
+    private static Map <Module,Object> modules;
+    public static VM VM; //versionManager
+    protected static WE worldEditor;
+    protected static WorldManager worldManager;
+    protected static SM gameManager;
+    protected static MenuItems menuItems;
+    protected static KitManager kitManager;
     
-    public static VM VM;
-    
-    @Deprecated
-    public static WE WE; //сделать приват
-    @Deprecated
-    public static SM servers; //убрать во всех плагинах, сделать приват
-    @Deprecated
-    public static LobbyItems lobby_items;//убрать во всех плагинах!, сделать приват
-    @Deprecated
-    public static KitManager kitManager;//убрать во всех плагинах!, сделать приват
     @Deprecated
     public static InventoryAPI inventoryAPI; //сделать приват
     @Deprecated
@@ -92,12 +89,13 @@ public class Ostrov extends JavaPlugin {
     
     public static String prefix = "§2[§aОстров§2] §f";;
     public static int server_id=-1;
-    public static boolean use_vault,powerNBT,langUtils,parkur;
+    public static boolean use_vault,powerNBT,langUtils;
+    
     public static boolean новый_день;
     public static boolean first_start=true;
     
     
-    private static Calendar calendar;
+    public static Calendar calendar;
     
     private static Date date;
     private static SimpleDateFormat full_sdf;
@@ -109,6 +107,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+        random=new Random();
         modules = new HashMap<>();//new CaseInsensitiveMap<>();
         calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
@@ -125,17 +124,15 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         
-        random=new Random();
         
-        //try {
-            instance.getServer().getMessenger().registerOutgoingPluginChannel(Ostrov.GetInstance(), Cfg.chanelName );
-            instance.getServer().getMessenger().registerIncomingPluginChannel(Ostrov.GetInstance(), Cfg.chanelName, new SpigotChanellMsg() );
-            log_ok ("§5Регистрация канала BungeeCord");
-       // } catch (Exception ex) {
-       //     log_err("§5Регистрация канала BungeeCord: "+ex.getMessage());
-       // }
         
-        //до проверки на Режим Auth !
+        for (final Chanell ch : Chanell.values()) {
+            instance.getServer().getMessenger().registerOutgoingPluginChannel(Ostrov.GetInstance(), ch.name );
+            instance.getServer().getMessenger().registerIncomingPluginChannel(Ostrov.GetInstance(), ch.name, new SpigotChanellMsg() );
+        }
+        log_ok ("§5Регистрация канала BungeeCord");
+        
+         //до проверки на Режим Auth !
         playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
         inventoryAPI = new InventoryAPI();
         
@@ -144,14 +141,15 @@ public class Ostrov extends JavaPlugin {
         if (Bukkit.getMotd().length()==3) {
             log_warn("§bРежим Auth");
             OstrovDB.init();
-            Timer.Init();
+            Timer.init(true);
             try {
-                servers = (SM) Module.serverManager.clazz.newInstance();
+                gameManager = (SM) Module.gameManager.clazz.newInstance();
             } catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
                 log_err("инициализацяя SM : "+ex.getMessage());
                 ex.printStackTrace();
                 Bukkit.shutdown();
             }
+            Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), this);
             return;
         }
 
@@ -181,15 +179,15 @@ public class Ostrov extends JavaPlugin {
         
 
         log_ok ("§5Регистрация слушателей:");
-        Bukkit.getPluginManager().registerEvents(new WE(this), this);
-        Bukkit.getPluginManager().registerEvents(new OstrovChanelListener(), this);
+        //Bukkit.getPluginManager().registerEvents(new WE(this), this);
+        Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), this); //в режиме AUTH инициализация дубль выше
         Bukkit.getPluginManager().registerEvents(new TPAListener(), this);
         Bukkit.getPluginManager().registerEvents(new ServerListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getPluginManager().registerEvents(new MenuListener(), this);
         Bukkit.getPluginManager().registerEvents(new InvSeeListener(), this);
         Bukkit.getPluginManager().registerEvents(new ArmorEquipListener(), this);
-        Bukkit.getPluginManager().registerEvents(new PassportHandler(this), this);
+        Bukkit.getPluginManager().registerEvents(new PassportHandler__(this), this);
 
         if (Cfg.GetCongig().getBoolean("modules.nbt_checker")) {
             Bukkit.getPluginManager().registerEvents(new NbtListener(instance), instance);
@@ -221,7 +219,7 @@ public class Ostrov extends JavaPlugin {
         MenuListener.Init();
         TPAListener.Init();
         PM.Init();
-        Timer.Init(); //выше, для auth
+        Timer.init(false); //выше, для auth
         
         for (final Module module : Module.values()) {
 //System.out.println("-------------------- "+module);
@@ -233,9 +231,11 @@ public class Ostrov extends JavaPlugin {
             }
         }
          
-        servers =(SM) modules.get(Module.serverManager);//servers.on_start();
-        lobby_items = (LobbyItems) modules.get(Module.lobbyItems);
-        kitManager = (KitManager) modules.get(Module.kits);
+        gameManager = (SM) modules.get(Module.gameManager);//servers.on_start();
+        menuItems = (MenuItems) modules.get(Module.menuItems);
+        kitManager = (KitManager) modules.get(Module.kitManager);
+        worldManager = (WorldManager) modules.get(Module.worldManager);//servers.on_start();
+        worldEditor = (WE) modules.get(Module.worldEditor);//servers.on_start();
         //playerChatInput = new PlayerInput(); //регион ГУИ, скайблок
         //inventoryAPI = new InventoryAPI(this, false);
         
@@ -251,13 +251,14 @@ public class Ostrov extends JavaPlugin {
     public enum Module {
         resourcePacks (ResourcePacks.class),
         limiterListener (LimiterListener.class),
-        serverManager (SM.class),
-        lobbyItems (LobbyItems.class),
-        kits (KitManager.class),
+        gameManager (SM.class),
+        menuItems (MenuItems.class),
+        kitManager (KitManager.class),
         pandora (Pandora.class),
         informator (Informator.class),
         warps (Warps.class),
         worldManager (WorldManager.class),
+        worldEditor (WE.class),
         ;
         
         public Class clazz;
@@ -267,9 +268,15 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-    public static Warps getWarpManager() {
-        return (Warps) modules.get(Module.warps);
+
+    public static Collection<Object> getModules() {
+        return modules.values();
     }
+
+    public static Object getModule(final Module mod) {
+        return modules.get(mod);
+    }
+
 
 
     
@@ -323,8 +330,8 @@ public class Ostrov extends JavaPlugin {
     public static void log_warn(String s) {   Bukkit.getConsoleSender().sendMessage(prefix +"§6"+ s); }
     public static void log_err(String s) {
         Bukkit.getConsoleSender().sendMessage(prefix +"§c"+ s);
-        if (MysqlLocal.useLocalData && MysqlLocal.ready) {
-            final Connection connection = ApiOstrov.getLocalConnection();
+        if (MysqlLocal.useLocalData) {
+            final Connection connection = MysqlLocal.getConnectionDirect();
             if (connection==null) return;
             try {
                 final PreparedStatement pst1 = connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);");
@@ -366,14 +373,15 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    public static String dateFromStamp(long stamp_in_second) {
+    public static String dateFromStamp(int stamp_in_second) {
         date.setTime(stamp_in_second*1000L);
         return full_sdf.format(date);
     }
     
     public static String getCurrentHourMin() {
-        date.setTime(System.currentTimeMillis());
-        return hour_min_sdf.format(date);
+        //date.setTime(System.currentTimeMillis());
+        //return hour_min_sdf.format(date);
+        return hour_min_sdf.format(calendar.getTime());
     }
 
 

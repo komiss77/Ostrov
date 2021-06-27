@@ -19,7 +19,7 @@ public class RegisterCommands {
         plugin.getCommand("warp").setExecutor(new WarpCmd());
         plugin.getCommand("kit").setExecutor(new KitCmd());
         plugin.getCommand("pvp").setExecutor(new Pvp());
-        plugin.getCommand("passport").setExecutor(new Passport());
+        //plugin.getCommand("passport").setExecutor(new Passport());
         plugin.getCommand("reward").setExecutor(new Reward());
         plugin.getCommand("statadd").setExecutor(new StatAdd());
         plugin.getCommand("wm").setExecutor(new WorldManagerCommand());

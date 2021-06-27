@@ -1,7 +1,6 @@
 package ru.komiss77.Kits;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.command.CommandSender;
@@ -11,7 +10,6 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.Timer;
 import ru.komiss77.Objects.CaseInsensitiveMap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
@@ -391,7 +389,7 @@ public final class KitManager extends Initiable {
     
 
     public static void openGuiMain(final Player p) {
-        SmartInventory inv = SmartInventory.builder().id("KitGuiMain:"+p.getName()). provider(new KitGuiMain(Ostrov.kitManager)). size(6, 9). title("§2Наборы"). build();
+        SmartInventory inv = SmartInventory.builder().id("KitGuiMain:"+p.getName()). provider(new KitGuiMain(ApiOstrov.getKitManager())). size(6, 9). title("§2Наборы"). build();
         inv.open(p);
     }
     
@@ -401,7 +399,7 @@ public final class KitManager extends Initiable {
     }
 
     public static void openKitEditMain(final Player p) {
-        SmartInventory inv = SmartInventory.builder().id("KitEditMain:"+p.getName()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build();
+        SmartInventory inv = SmartInventory.builder().id("KitEditMain:"+p.getName()). provider(new KitEditMain(ApiOstrov.getKitManager())). size(6, 9). title("§4Администрирование наборов"). build();
         inv.open(p);
     }
 

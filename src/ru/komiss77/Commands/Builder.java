@@ -29,7 +29,7 @@ import ru.komiss77.utils.ItemBuilder;
 public class Builder implements CommandExecutor, TabCompleter {
     
     public static List<String> subCommands = Arrays.asList( "end");
-    public static ItemStack openBuildMenu = new ItemBuilder(Material.MAP).name("§aМеню настройки SkyBlock").build();;
+    public static ItemStack openBuildMenu = new ItemBuilder(Material.MAP).name("§aМеню билдера").build();;
     public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();;
     
     @Override

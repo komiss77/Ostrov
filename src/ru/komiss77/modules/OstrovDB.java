@@ -118,16 +118,16 @@ public class OstrovDB {
 
     
     public static void loadGroups () {
-        if (!useOstrovData) return;
+        if (!useOstrovData || groups==null) return;
 
-        Ostrov.async(()-> {
+        Ostrov.async(   ()-> {
             //if (GetConnection() == null) return;
             Statement stmt = null;
             ResultSet rs = null;
             
             try {
                 stmt = GetConnection().createStatement();
-                
+                //java.lang.NullPointerException в 133
                 rs = stmt.executeQuery( "SELECT * FROM  "+Table.PEX_GROUPS.table_name ); //кинуло на home1 attempted  duplicate class definition
                     while (rs.next()) {
                         groups.put(rs.getString("gr"), new Group (rs.getString("gr"), rs.getString("name"), rs.getString("inh"), rs.getString("type"), rs.getInt("price"), rs.getInt("inv_slot"), rs.getString("mat"), rs.getString("group_desc") ) );

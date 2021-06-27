@@ -51,7 +51,7 @@ import ru.komiss77.Enums.Data;
 import ru.komiss77.Events.BsignLocalArenaClick;
 import ru.komiss77.Events.BungeeDataRecieved;
 import ru.komiss77.Events.FriendTeleportEvent;
-import ru.komiss77.Events.SignUpdateEvent;
+import ru.komiss77.Events.GameInfoUpdateEvent;
 import ru.komiss77.Managers.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
@@ -175,7 +175,7 @@ public class UniversalListenerExample implements Listener  {
             
     
     @EventHandler (priority = EventPriority.MONITOR)
-    public static void SignUpdateEvent (SignUpdateEvent e) {
+    public static void SignUpdateEvent (GameInfoUpdateEvent e) {
 //System.out.println(" ---- SignUpdateEvent 1 --- "+e.server+" "+e.arena+" this="+SM.this_server_name+" exist?"+AM._ARENAS.containsKey(e.arena));
         /*if (e.server.equals(SM.this_server_name) && !e.arena.isEmpty() && !e.arena.equals("any") && AM._ARENAS.containsKey(e.arena)) {
             final Arena arena = AM.getArena(e.arena);
@@ -229,7 +229,7 @@ public class UniversalListenerExample implements Listener  {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (lobbyLocation!=null) ApiOstrov.teleportSave(player, lobbyLocation);
+                if (lobbyLocation!=null) ApiOstrov.teleportSave(player, lobbyLocation, false);
                 //player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation(),PlayerTeleportEvent.TeleportCause.COMMAND);  //зациклило на onPlayerQuitArenaSpectatorEvent
                 player.setGameMode(GameMode.SURVIVAL);
                 player.getInventory().setArmorContents(new ItemStack[4]);
@@ -577,14 +577,14 @@ public class UniversalListenerExample implements Listener  {
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onFly(PlayerToggleFlightEvent e) {
-        e.setCancelled( !ApiOstrov.isLocalBuilder(e.getPlayer()) );
+        e.setCancelled( !ApiOstrov.isLocalBuilder(e.getPlayer(), false) );
     }
 
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPickup(EntityPickupItemEvent e) {
 //System.out.println("PlayerPickupItemEvent "+e.getItem());        
-        if (e.getEntityType()==EntityType.PLAYER && e.getEntity().getWorld().getName().equals("lobby") && !ApiOstrov.isLocalBuilder((Player) e.getEntity())) {
+        if (e.getEntityType()==EntityType.PLAYER && e.getEntity().getWorld().getName().equals("lobby") && !ApiOstrov.isLocalBuilder((Player) e.getEntity(), false)) {
             e.setCancelled(true);
             e.getItem().remove();
         }
@@ -599,7 +599,7 @@ public class UniversalListenerExample implements Listener  {
             e.getItemDrop().remove();
         }
         
-        if (e.getPlayer().getWorld().getName().equals("lobby") && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) {
+        if (e.getPlayer().getWorld().getName().equals("lobby") && !ApiOstrov.isLocalBuilder(e.getPlayer(), false) ) {
             e.setCancelled(true);
             e.getItemDrop().remove();
         }
@@ -614,12 +614,12 @@ public class UniversalListenerExample implements Listener  {
     @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)    
 	public void onPlace(BlockPlaceEvent e) {
             //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
-            if ( !ApiOstrov.isLocalBuilder(e.getPlayer()) && e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
+            if ( !ApiOstrov.isLocalBuilder(e.getPlayer(), false) && e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
         }
     
     @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)    
 	public void onBreak(BlockBreakEvent e) {
-            if ( !ApiOstrov.isLocalBuilder(e.getPlayer()) && e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
+            if ( !ApiOstrov.isLocalBuilder(e.getPlayer(), false) && e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
         }
  
    

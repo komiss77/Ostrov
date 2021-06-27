@@ -44,7 +44,7 @@ public class WarpSettings implements InventoryProvider {
         }
 
         
-        final Warps wm = Ostrov.getWarpManager();
+        final Warps wm = ApiOstrov.getWarpManager();
 
         contents.set( 0, ClickableItem.of(new ItemBuilder(w.dispalyMat)
             .name("§fЛоготип места")

@@ -32,10 +32,11 @@ import ru.komiss77.version.VM;
 
 
 
-class settingsHandler {
+class settingsHandler__ {
         
     
     static void injectPassportItems(final Player p, final Oplayer op, final boolean update_inventory) {
+      /*  
         for (E_Pass pass_icon : E_Pass.values()) {   //обновлять на надо - обновится в mainHandler после возврата
 
             String res=op.getBungeeData(Data.fromName(pass_icon.toString()));
@@ -54,7 +55,7 @@ class settingsHandler {
                         res = ApiOstrov.dateFromStamp(value);
                         break;
                     case PLAY_TIME:
-                        res = ApiOstrov.IntToTime(value);
+                        res = ApiOstrov.secondToTime(value);
                         break;
                     case РЕПУТАЦИЯ:
                         res = (value<0?"§4":(value>0?"§2":"§f"))+res;
@@ -66,7 +67,7 @@ class settingsHandler {
             
             op.profile.setItem(pass_icon.slot, getItem(pass_icon, res, Selection.ПРОСМОТР_ПАСПОРТА.toString()));
         }
-        if(update_inventory) p.updateInventory();
+        if(update_inventory) p.updateInventory();*/
     }
 
 
@@ -79,7 +80,7 @@ class settingsHandler {
         //if (e.isShiftClick()) ;
         //else if (e.isLeftClick()) ;
         //else if (e.isRightClick()) ;
-        if (VM.getNmsNbtUtil().hasString(e.getCurrentItem(), "ostrov_profile_selection")) {
+   /*     if (VM.getNmsNbtUtil().hasString(e.getCurrentItem(), "ostrov_profile_selection")) {
             Selection selection=Selection.fromString(VM.getNmsNbtUtil().getString(e.getCurrentItem(), "ostrov_profile_selection"));
 //System.out.println("onFieldClick ostrov_profile_selection selection="+selection);
             if (selection==null) return;
@@ -122,13 +123,13 @@ System.out.println("-ПРОСМОТР_СТАТИСТИКИ!!");
                         
                          
                 }
-        }
+        }*/
         
      }
 
     
     
-    
+    /*
     
     private static void anvillInput(final Player p,  final Oplayer op, final E_Pass pass_icon, final String current) {
         
@@ -193,7 +194,7 @@ System.out.println("-ПРОСМОТР_СТАТИСТИКИ!!");
             
         });
 
-    }
+    }*/
 
      
  
