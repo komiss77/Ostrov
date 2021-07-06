@@ -35,20 +35,20 @@ public class InventoryContent {
     }
     
     public SmartInventory getHost() {
-        return this.host;
+        return host;
     }
     
     public Pagination pagination() {
-        return this.pagination;
+        return pagination;
     }
     
     public SlotIterator newIterator(final SlotIterator.Type type, final SlotPos startPos) {
-        return this.iterator = new SlotIterator(this, this.host, type, startPos.getRow(), startPos.getColumn());
+        return iterator = new SlotIterator(this, host, type, startPos.getRow(), startPos.getColumn());
     }
     
     public Optional<SlotPos> firstEmpty() {
-        for (int i = 0; i < this.contents[0].length; ++i) {
-            for (int j = 0; j < this.contents.length; ++j) {
+        for (int i = 0; i < contents[0].length; ++i) {
+            for (int j = 0; j < contents.length; ++j) {
                 if (!this.get(j, i).isPresent()) {
                     return Optional.of(new SlotPos(j, i));
                 }
@@ -58,48 +58,51 @@ public class InventoryContent {
     }
     
     public ClickableItem[][] all() {
-        return this.contents;
+        return contents;
     }
     
     public Optional<ClickableItem> get(final int row, final int column) {
-        if (row >= this.contents.length) {
+        if (row >= contents.length) {
             return Optional.empty();
         }
-        if (column >= this.contents[row].length) {
+        if (column >= contents[row].length) {
             return Optional.empty();
         }
-        return Optional.ofNullable(this.contents[row][column]);
+        return Optional.ofNullable(contents[row][column]);
     }
     
     public Optional<ClickableItem> get(final SlotPos slotPos) {
-        return this.get(slotPos.getRow(), slotPos.getColumn());
+        return get(slotPos.getRow(), slotPos.getColumn());
     }
     
     public InventoryContent set(final int row, final int column, final ClickableItem item) {
-        if (row >= this.contents.length) {
+//System.out.println(">>>>>> set "+row+" "+column);
+        if (row >= contents.length) {
             return this;
         }
-        if (column >= this.contents[row].length) {
+//System.out.println("1");
+        if (column >= contents[row].length) {
             return this;
         }
-        this.contents[row][column] = item;
-        this.update(row, column, (item != null) ? item : null);
+//System.out.println("2");
+        contents[row][column] = item;
+        update(row, column, (item != null) ? item : null);
         return this;
     }
     
     public InventoryContent set(final SlotPos slotPos, final ClickableItem item) {
-        return this.set(slotPos.getRow(), slotPos.getColumn(), item);
+        return set(slotPos.getRow(), slotPos.getColumn(), item);
     }
     
     public InventoryContent set(final int slot, final ClickableItem item) {
-        return this.set(SlotPos.of(slot), item);
+        return set(SlotPos.of(slot), item);
     }
     
     public InventoryContent add(final ClickableItem item) {
-        for (int i = 0; i < this.contents.length; ++i) {
-            for (int j = 0; j < this.contents[0].length; ++j) {
+        for (int i = 0; i < contents.length; ++i) {
+            for (int j = 0; j < contents[0].length; ++j) {
                 if (this.contents[i][j] == null) {
-                    this.set(i, j, item);
+                    set(i, j, item);
                     return this;
                 }
             }
@@ -108,33 +111,33 @@ public class InventoryContent {
     }
     
     public InventoryContent fill(final ClickableItem item) {
-        for (int i = 0; i < this.contents.length; ++i) {
-            for (int j = 0; j < this.contents[i].length; ++j) {
-                this.set(i, j, item);
+        for (int i = 0; i < contents.length; ++i) {
+            for (int j = 0; j < contents[i].length; ++j) {
+                set(i, j, item);
             }
         }
         return this;
     }
     
     public InventoryContent fillRow(final int row, final ClickableItem item) {
-        if (row >= this.contents.length) {
+        if (row >= contents.length) {
             return this;
         }
-        for (int i = 0; i < this.contents[row].length; ++i) {
-            this.set(row, i, item);
+        for (int i = 0; i < contents[row].length; ++i) {
+            set(row, i, item);
         }
         return this;
     }
     
     public InventoryContent fillColumn(final int column, final ClickableItem item) {
-        for (int i = 0; i < this.contents.length; ++i) {
-            this.set(i, column, item);
+        for (int i = 0; i < contents.length; ++i) {
+            set(i, column, item);
         }
         return this;
     }
     
     public InventoryContent fillBorders(final ClickableItem item) {
-        this.fillRect(0, 0, this.host.getRows() - 1, this.host.getColumns() - 1, item);
+        fillRect(0, 0, host.getRows() - 1, host.getColumns() - 1, item);
         return this;
     }
     
@@ -150,43 +153,55 @@ public class InventoryContent {
     }
     
     public InventoryContent fillRect(final SlotPos fromPos, final SlotPos toPos, final ClickableItem item) {
-        return this.fillRect(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
+        return fillRect(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
     }
     
     public <T> T property(final String name) {
-        return (T)this.properties.get(name);
+        return (T)properties.get(name);
     }
     
     public <T> T property(final String name, final T def) {
-        return (T)(this.properties.containsKey(name) ? this.properties.get(name) : def);
+        return (T)(properties.containsKey(name) ? properties.get(name) : def);
     }
     
     public Map<String, Object> properties() {
-        return this.properties;
+        return properties;
     }
     
     public InventoryContent setProperty(final String name, final Object value) {
-        this.properties.put(name, value);
+        properties.put(name, value);
         return this;
     }
     
     private void update(final int row, final int column, final ClickableItem item) {
-        if (item == null || item.getItem() != null) {
+//System.out.println(">>>>>> update setItem "+(host.getColumns() * row + column)+" item="+item);
+//System.out.println("is="+item.getItem());
+       // if (item == null || item.getItem() != null) { ?? ошибка ??
+        if (item == null || item.getItem() == null) {
             return;
         }
-        this.inventory.setItem(this.host.getColumns() * row + column, item.getItem());
+        inventory.setItem(host.getColumns() * row + column, item.getItem());
     }
     
     public InventoryContent updateMeta(final SlotPos pos, final ItemMeta meta) {
-        this.inventory.getItem(this.host.getColumns() * pos.getRow() + pos.getColumn()).setItemMeta(meta);
+        inventory.getItem(host.getColumns() * pos.getRow() + pos.getColumn()).setItemMeta(meta);
         return this;
     }
+    /*кинуло размер
+    public InventoryContent setLore (final int row, final int column, final List<String> lore) {
+        final ItemStack is = inventory.getItem(host.getColumns() * row + column);
+        if (is==null || !is.hasItemMeta()) return this;
+        final ItemMeta im = is.getItemMeta();
+        im.setLore(lore);
+        is.setItemMeta(im);
+        return this;
+    }*/
     
     public Player getHolder() {
-        return this.holder;
+        return holder;
     }
     
     public Inventory getInventory() {
-        return this.inventory;
+        return inventory;
     }
 }

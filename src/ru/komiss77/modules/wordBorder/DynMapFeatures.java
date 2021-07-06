@@ -13,7 +13,7 @@ import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.CircleMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
-import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov;
 
 

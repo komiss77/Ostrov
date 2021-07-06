@@ -1,7 +1,7 @@
 package ru.komiss77.menu;
 
 
-import builder.menu.WorldSettings;
+import ru.komiss77.builder.menu.WorldSettings;
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -10,7 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;

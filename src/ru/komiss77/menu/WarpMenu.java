@@ -8,10 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Managers.MysqlLocal;
-import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.Warps;
-import ru.komiss77.Objects.Warp;
+import ru.komiss77.LocalDB;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.warp.WarpManager;
+import ru.komiss77.modules.warp.Warp;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
@@ -54,7 +54,7 @@ public class WarpMenu implements InventoryProvider {
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
         
         
-        final Warps wm = ApiOstrov.getWarpManager();
+        final WarpManager wm = ApiOstrov.getWarpManager();
         
         boolean hasPerm;
         int count = 0;
@@ -73,7 +73,7 @@ public class WarpMenu implements InventoryProvider {
                 
                 if (w.isOwner(p)) count++; //счётчик варпов владельца, нужно ниже
                 
-                menuEntry.add( ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
+                menuEntry.add(ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
                     .name("§f"+warpName)
                     .lore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец "+w.owner)
                     .lore(w.descr)
@@ -107,7 +107,7 @@ public class WarpMenu implements InventoryProvider {
                                 return;
                                 
                             case SHIFT_RIGHT:
-                                if (!MysqlLocal.useLocalData) {
+                                if (!LocalDB.useLocalData) {
                                     p.sendMessage("§eЛокальная БД отключена, действие невозможно.");
                                     return;
                                 }
@@ -116,7 +116,7 @@ public class WarpMenu implements InventoryProvider {
                                 return;
                                 
                             case DROP:
-                                if (!MysqlLocal.useLocalData) {
+                                if (!LocalDB.useLocalData) {
                                     p.sendMessage("§eЛокальная БД отключена, действие невозможно.");
                                     return;
                                 }
@@ -176,7 +176,7 @@ public class WarpMenu implements InventoryProvider {
         
         
         
-        if (!MysqlLocal.useLocalData) {
+        if (!LocalDB.useLocalData) {
             
             contents.set( 5, 2,  ClickableItem.empty(new ItemBuilder(Material.HOPPER)
                 .name("§eДобавить серверное место")

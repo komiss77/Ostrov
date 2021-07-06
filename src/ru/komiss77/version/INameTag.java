@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import org.bukkit.entity.Player;
 
+//https://www.spigotmc.org/resources/nametagedit.3836/
 
 public interface INameTag {
 

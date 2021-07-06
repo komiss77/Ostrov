@@ -7,8 +7,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 
-import ru.komiss77.Commands.CMD;
-import ru.komiss77.Managers.Warps;
+import ru.komiss77.commands.CMD;
+import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.Ostrov;
 
 

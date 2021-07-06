@@ -7,9 +7,9 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Commands.WarpCmd;
-import ru.komiss77.Managers.Warps;
-import ru.komiss77.Objects.Warp;
+import ru.komiss77.commands.WarpCmd;
+import ru.komiss77.modules.warp.WarpManager;
+import ru.komiss77.modules.warp.Warp;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -44,7 +44,7 @@ public class WarpSettings implements InventoryProvider {
         }
 
         
-        final Warps wm = ApiOstrov.getWarpManager();
+        final WarpManager wm = ApiOstrov.getWarpManager();
 
         contents.set( 0, ClickableItem.of(new ItemBuilder(w.dispalyMat)
             .name("§fЛоготип места")

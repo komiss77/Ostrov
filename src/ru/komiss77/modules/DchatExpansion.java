@@ -3,13 +3,15 @@ package ru.komiss77.modules;
 import org.bukkit.entity.Player;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Managers.SM;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.Ostrov;
 
 
 public class DchatExpansion extends PlaceholderExpansion {
     private Ostrov plugin;
 
+    public static String parkArena = "";
+    
     /**
      * Since we register the expansion inside our own plugin, we
      * can simply use this method here to get an instance of our
@@ -117,13 +119,13 @@ public class DchatExpansion extends PlaceholderExpansion {
                 return ApiOstrov.isFemale(p.getName()) ? "а" : "" ;
                 
             case "servername":      
-                return SM.this_server_name;
+                return GM.this_server_name;
                 
             case "serverprefix":      
-                return SM.chatLogo;
+                return GM.chatLogo;
                 
             case "serverlogo":      
-                return SM.chatLogo;
+                return GM.chatLogo;
                 
             case "prefix":      
                 return ApiOstrov.getPrefix(p);
@@ -139,6 +141,9 @@ public class DchatExpansion extends PlaceholderExpansion {
                 
             case "suffix":            
                 return ApiOstrov.getSuffix(p);
+                
+            case "parkArena":            
+                return parkArena;
                 
             default:
                 return "+";

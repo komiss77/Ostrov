@@ -18,7 +18,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import ru.komiss77.Objects.CaseInsensitiveMap;
+import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.version.VM;

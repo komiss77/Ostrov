@@ -31,22 +31,22 @@ java -Xms200M -Xmx6G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMill
 
 
 --- mysql ---
+таблица обязательно  utf8_general_ci      ci — case insensitive. 
 поиск с учетом регистра   SELECT `name`,`server` FROM `ostrov77`.`user` WHERE BINARY `name` =
 проверка и добавка поля
 if (!ApiOstrov.getLocalConnection().getMetaData().getColumns(null, null, "hideandseek", "trail").next()) {
      statement.executeUpdate("ALTER TABLE `hideandseek` ADD COLUMN trail int");
 }
 
-Tag.LEAVES.isTagged(block.getType()) - проверить на тиб блока
+Tag.LEAVES.isTagged(block.getType()) - проверить на тиб блока листва
 private Queue<> = new ArrayDeque<>();  .poll() - для перебора 
-
+PriorityQueue - сортировка и выборка
 
 
 
 --- тонкости https://habr.com/ru/post/267389/ ---
 EnumSet и EnumMap - для енум
 processList(list.subList(from, to)); subList — полнофункциональный список, он работает и на запись   list.subList(from, to).clear();
-PriorityQueue - сортировка и выборка
 Set.add(E) и Set.remove(E) - Set возвращает true, если добавление(удадение) успешно (то есть элемента не было) и false, если такой элемент уже был (не было)
 Map.put(K, V), Map.remove(K), List.set(idx, E), List.remove(idx) возвращают предыдущий элемент
 getRandomFromHashSet() {return players.stream().skip((int) (players.size() * Math.random())).findFirst().get();

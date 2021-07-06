@@ -27,34 +27,31 @@ import com.sk89q.worldguard.internal.platform.WorldGuardPlatform;
 import java.util.Collection;
 import me.clip.deluxechat.DeluxeChat;
 import net.citizensnpcs.Citizens;
-import ru.komiss77.Commands.RegisterCommands;
-import ru.komiss77.Commands.CMD;
-import ru.komiss77.Commands.WorldManagerCommand;
-import ru.komiss77.Enums.Chanell;
-import ru.komiss77.Kits.KitManager;
-import ru.komiss77.Listener.ArmorEquipListener;
-import ru.komiss77.Listener.InvSeeListener;
-import ru.komiss77.Listener.LimiterListener;
-import ru.komiss77.Listener.MenuListener;
-import ru.komiss77.Listener.NbtListener;
-import ru.komiss77.Listener.PlayerListener;
-import ru.komiss77.Listener.ResourcePacks;
-import ru.komiss77.Listener.ServerListener;
-import ru.komiss77.Listener.SpigotChanellMsg;
-import ru.komiss77.Listener.TPAListener;
-import ru.komiss77.Managers.MysqlLocal;
-import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.SM;
-import ru.komiss77.ProfileMenu.PassportHandler__;
+import ru.komiss77.commands.RegisterCommands;
+import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.WorldManagerCmd;
+import ru.komiss77.enums.Chanell;
+import ru.komiss77.modules.kits.KitManager;
+import ru.komiss77.listener.ArmorEquipListener;
+import ru.komiss77.listener.InvSeeListener;
+import ru.komiss77.listener.LimiterListener;
+import ru.komiss77.listener.MenuListener;
+import ru.komiss77.listener.NbtListener;
+import ru.komiss77.listener.PlayerListener;
+import ru.komiss77.listener.ResourcePacks;
+import ru.komiss77.listener.ServerListener;
+import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.listener.TPAListener;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.player.profile.PassportHandler__;
 import ru.komiss77.modules.DchatExpansion;
-import ru.komiss77.Managers.EmptyChunkGenerator;
-import ru.komiss77.Managers.Timer;
-import ru.komiss77.Managers.WE;
-import ru.komiss77.Managers.Warps;
-import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.modules.world.EmptyChunkGenerator;
+import ru.komiss77.modules.world.WE;
+import ru.komiss77.modules.warp.WarpManager;
+import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.modules.Informator;
-import ru.komiss77.modules.MenuItems;
-import ru.komiss77.modules.OstrovDB;
+import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.Pandora;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.PlayerInput;
@@ -78,8 +75,8 @@ public class Ostrov extends JavaPlugin {
     public static VM VM; //versionManager
     protected static WE worldEditor;
     protected static WorldManager worldManager;
-    protected static SM gameManager;
-    protected static MenuItems menuItems;
+    protected static GM gameManager;
+    protected static MenuItemsManager menuItems;
     protected static KitManager kitManager;
     
     @Deprecated
@@ -143,7 +140,7 @@ public class Ostrov extends JavaPlugin {
             OstrovDB.init();
             Timer.init(true);
             try {
-                gameManager = (SM) Module.gameManager.clazz.newInstance();
+                gameManager = (GM) Module.gameManager.clazz.newInstance();
             } catch (InstantiationException | IllegalAccessException | NullPointerException ex) {
                 log_err("инициализацяя SM : "+ex.getMessage());
                 ex.printStackTrace();
@@ -168,7 +165,7 @@ public class Ostrov extends JavaPlugin {
             Cfg.GetVariable().saveConfig();
             
             final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath()+"/world_the_end");
-            WorldManagerCommand.deleteFile(endWorldFolder);
+            WorldManagerCmd.deleteFile(endWorldFolder);
             //seed ??
             
             log_warn("Край обнулён.");
@@ -212,8 +209,8 @@ public class Ostrov extends JavaPlugin {
         
         ItemUtils.LoadItem();
         CMD.Init();
-        OstrovDB.init(); //выше, для auth
-        MysqlLocal.Init();// выше, для auth
+        OstrovDB.init(); //выше есть для auth
+        LocalDB.Init();// выше есть для auth
         ServerListener.Init();
         PlayerListener.Init();
         MenuListener.Init();
@@ -231,8 +228,8 @@ public class Ostrov extends JavaPlugin {
             }
         }
          
-        gameManager = (SM) modules.get(Module.gameManager);//servers.on_start();
-        menuItems = (MenuItems) modules.get(Module.menuItems);
+        gameManager = (GM) modules.get(Module.gameManager);//servers.on_start();
+        menuItems = (MenuItemsManager) modules.get(Module.menuItems);
         kitManager = (KitManager) modules.get(Module.kitManager);
         worldManager = (WorldManager) modules.get(Module.worldManager);//servers.on_start();
         worldEditor = (WE) modules.get(Module.worldEditor);//servers.on_start();
@@ -251,12 +248,12 @@ public class Ostrov extends JavaPlugin {
     public enum Module {
         resourcePacks (ResourcePacks.class),
         limiterListener (LimiterListener.class),
-        gameManager (SM.class),
-        menuItems (MenuItems.class),
+        gameManager (GM.class),
+        menuItems (MenuItemsManager.class),
         kitManager (KitManager.class),
         pandora (Pandora.class),
         informator (Informator.class),
-        warps (Warps.class),
+        warps (WarpManager.class),
         worldManager (WorldManager.class),
         worldEditor (WE.class),
         ;
@@ -289,7 +286,7 @@ public class Ostrov extends JavaPlugin {
         PM.onDisable();
         //servers.on_shut_down();
         OstrovDB.Disconnect();
-        MysqlLocal.Disconnect();
+        LocalDB.Disconnect();
 
         modules.values().stream().forEach( (module)->((Initiable)module).onDisable());
         
@@ -330,8 +327,8 @@ public class Ostrov extends JavaPlugin {
     public static void log_warn(String s) {   Bukkit.getConsoleSender().sendMessage(prefix +"§6"+ s); }
     public static void log_err(String s) {
         Bukkit.getConsoleSender().sendMessage(prefix +"§c"+ s);
-        if (MysqlLocal.useLocalData) {
-            final Connection connection = MysqlLocal.getConnectionDirect();
+        if (LocalDB.useLocalData) {
+            final Connection connection = LocalDB.getConnectionDirect();
             if (connection==null) return;
             try {
                 final PreparedStatement pst1 = connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);");
@@ -381,7 +378,8 @@ public class Ostrov extends JavaPlugin {
     public static String getCurrentHourMin() {
         //date.setTime(System.currentTimeMillis());
         //return hour_min_sdf.format(date);
-        return hour_min_sdf.format(calendar.getTime());
+        return calendar.get(Calendar.HOUR)+":"+String.format("%02d", calendar.get(Calendar.MINUTE));
+        //return hour_min_sdf.format(calendar.getTime());
     }
 
 

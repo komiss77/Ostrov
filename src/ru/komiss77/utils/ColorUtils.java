@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.inventory.ItemStack;
 
 import ru.komiss77.ApiOstrov;
@@ -14,6 +15,8 @@ import ru.komiss77.Ostrov;
 
 
 public class ColorUtils {
+    
+    
     
     
    public static Color getColor(String s) {
@@ -114,8 +117,9 @@ public class ColorUtils {
     
     
     
-    public static boolean canChangeColor (Material check) {
-        final String type = check.toString();
+    public static boolean canChangeColor (Material mat) {
+        if (mat!=null) return false;
+        final String type = mat.toString();
         return type.startsWith("BLACK_") || type.startsWith("BLUE_") || type.startsWith("BROWN_") || type.startsWith("CYAN_") || type.startsWith("GRAY_")
                  || type.startsWith("GREEN_") || type.startsWith("LIGHT_BLUE_") || type.startsWith("LIGHT_GRAY_") || type.startsWith("LIME_") || type.startsWith("MAGENTA_")
                  || type.startsWith("ORANGE_") || type.startsWith("PINK_") || type.startsWith("PURPLE_") || type.startsWith("RED_") || type.startsWith("WHITE_")

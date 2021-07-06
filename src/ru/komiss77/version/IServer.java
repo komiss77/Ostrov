@@ -14,23 +14,23 @@ import org.bukkit.inventory.meta.BookMeta;
 
 public interface IServer {
 
-    String getlevelName (final World bukkitWorld);
+    //String getlevelName (final World bukkitWorld);
         
-    int getMaxWorldSize (final World bukkitWorld);
-    int getitemDespawnRate (final World bukkitWorld);
+    //int getMaxWorldSize (final World bukkitWorld);
+    //int getitemDespawnRate (final World bukkitWorld);
 
     int getTps ();
 
-    public Player getOfflinePlayer(String name, UUID uuid, Location location);
+ //   public Player getOfflinePlayer(String name, UUID uuid, Location location);
     
-    @Deprecated
-    public ItemStack getCustomHead (String base64code, final String item_name, final String lore);
+   // @Deprecated
+   // public ItemStack getCustomHead (String base64code, final String item_name, final String lore);
     
-    public BookMeta addPages (BookMeta bookMeta, List <TextComponent> pagesList);
+  //  public BookMeta addPages (BookMeta bookMeta, List <TextComponent> pagesList);
     
     public void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack);
     
-    public void sendChunkChange (final Player player, final Chunk chunk);
+    //public void sendChunkChange (final Player player, final Chunk chunk);
 
     public void BorderDisplay(final Player player, final Location minPoint, final Location maxPoint, final boolean tpToCenter);
     

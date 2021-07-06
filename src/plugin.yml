@@ -1,4 +1,4 @@
-api-version: 1.15
+api-version: 1.16
 name: Ostrov
 main: ru.komiss77.Ostrov
 version: 2.0
@@ -6,6 +6,7 @@ load: STARTUP
 author: Komiss77
 
 depend: []
+softdepend: []
 
 permissions:
   ostrov.moder:

@@ -38,13 +38,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Commands.CMD;
-import ru.komiss77.Commands.Pvp;
-import ru.komiss77.Managers.PM;
+import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.Pvp;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.Ostrov;
-import ru.komiss77.ProfileMenu.E_Prof;
-import ru.komiss77.ProfileMenu.mainHandler;
-import ru.komiss77.version.VM;
 
 
 
@@ -107,10 +104,25 @@ public class ItemUtils {
         party_empty=new ItemBuilder(Material.GLASS_BOTTLE).setName("§7Ой!").setLore(Gen_lore(null, "У Вас пока нет команды!<br>Чтобы создать команду,<br>наберите §b/party create<br>или используйте флаг.", "§e")).build();
         profile_deny=new ItemBuilder(Material.BARRIER).setName("§cнедоступно").setLore(Gen_lore(null, "На данном сервере<br>этот раздел недоступен!", "§c")).build();
         
-        previos_page=VM.getNmsServer().getCustomHead("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc", "§fназад", "");
-        next_page=VM.getNmsServer().getCustomHead("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516", "§fвперёд", "");
-        nextPage = VM.getNmsServer().getCustomHead("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94", "§fдалее", "");
-        previosPage = VM.getNmsServer().getCustomHead("a2f0425d64fdc8992928d608109810c1251fe243d60d175bed427c651cbe", "§fназад", "");  
+        previos_page = new ItemBuilder(Material.PLAYER_HEAD)
+        .name("§fназад")
+        .setCustomHeadTexture("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc")
+        .build();//VM.getNmsServer().getCustomHead("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc", "§fназад", "");
+        
+        next_page = new ItemBuilder(Material.PLAYER_HEAD)
+        .name("§fвперёд")
+        .setCustomHeadTexture("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516")
+        .build();//=VM.getNmsServer().getCustomHead("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516", "§fвперёд", "");
+        
+        nextPage  = new ItemBuilder(Material.PLAYER_HEAD)
+        .name("§fдалее")
+        .setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94")
+        .build();//= VM.getNmsServer().getCustomHead("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94", "§fдалее", "");
+        
+        previosPage  = new ItemBuilder(Material.PLAYER_HEAD)
+        .name("§fназад")
+        .setCustomHeadTexture("a2f0425d64fdc8992928d608109810c1251fe243d60d175bed427c651cbe")
+        .build();//= VM.getNmsServer().getCustomHead("a2f0425d64fdc8992928d608109810c1251fe243d60d175bed427c651cbe", "§fназад", "");  
         
         
         
@@ -123,10 +135,10 @@ public class ItemUtils {
         
         profile_master_inv_name = "§l§oПрофиль";
         profile_master=Bukkit.createInventory( null, 54,  profile_master_inv_name );
-        mainHandler.setcolorGlassLine(profile_master, Material.LIGHT_GRAY_STAINED_GLASS_PANE);
-        for (E_Prof pr_:E_Prof.values()) {
-            profile_master.setItem(pr_.slot, E_Prof.getItem(pr_));
-        }
+     //   mainHandler.setcolorGlassLine(profile_master, Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+       // for (Section pr_:Section.values()) {
+        //    profile_master.setItem(pr_.slot, Section.getItem(pr_));
+       // }
     }
 
 
@@ -459,6 +471,16 @@ public class ItemUtils {
         ItemMeta m = is.getItemMeta();
         m.setLore(Arrays.asList( lore1, lore2, lore3, lore4 ) );
         is.setItemMeta( m );
+        return is;
+    }
+
+    public static ItemStack setLoreLine (final ItemStack is, final int line, final String value ) {
+        if (is==null || !is.hasItemMeta()) return is; 
+        ItemMeta im = is.getItemMeta();
+        final List<String>lore = im.hasLore() ? im.getLore() : new ArrayList<>();
+        lore.set(line, value);
+        im.setLore( lore );
+        is.setItemMeta( im );
         return is;
     }
 

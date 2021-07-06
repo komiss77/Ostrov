@@ -6,16 +6,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 
-import ru.komiss77.Commands.CMD;
-import ru.komiss77.Commands.Pvp;
-import ru.komiss77.Listener.MenuListener;
-import ru.komiss77.Listener.PlayerListener;
-import ru.komiss77.Listener.ServerListener;
-import ru.komiss77.Listener.TPAListener;
-import ru.komiss77.Managers.MysqlLocal;
-import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.Timer;
-import ru.komiss77.modules.OstrovDB;
+import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.Pvp;
+import ru.komiss77.listener.MenuListener;
+import ru.komiss77.listener.PlayerListener;
+import ru.komiss77.listener.ServerListener;
+import ru.komiss77.listener.TPAListener;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.OstrovConfigManager;
 
@@ -244,7 +241,7 @@ public static void LoadConfigs () {
         TPAListener.ReloadVars();
 
         PM.ReLoadVars();
-        MysqlLocal.ReloadVars();
+        LocalDB.ReloadVars();
         
 
         Timer.ReLoadVars();

@@ -15,7 +15,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -27,29 +26,26 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import ru.komiss77.Commands.Spy;
-import ru.komiss77.Enums.Action;
-import ru.komiss77.Enums.Data;
-import ru.komiss77.Enums.GameState;
-import ru.komiss77.Events.BsignLocalArenaClick;
-import ru.komiss77.Listener.ResourcePacks;
-import ru.komiss77.Listener.SpigotChanellMsg;
-import ru.komiss77.Managers.MysqlLocal;
-import ru.komiss77.Managers.PM;
-import ru.komiss77.Managers.SM;
-import ru.komiss77.Managers.StatManager;
-import ru.komiss77.Managers.Timer;
-import ru.komiss77.Objects.DelayActionBar;
-import ru.komiss77.Objects.DelayBossBar;
-import ru.komiss77.Objects.DelayTitle;
-import ru.komiss77.Enums.Stat;
-import ru.komiss77.Kits.KitManager;
-import ru.komiss77.Managers.WE;
-import ru.komiss77.Managers.Warps;
-import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.commands.Spy;
+import ru.komiss77.enums.Operation;
+import ru.komiss77.enums.Data;
+import ru.komiss77.enums.GameState;
+import ru.komiss77.events.BsignLocalArenaClick;
+import ru.komiss77.listener.ResourcePacks;
+import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.player.profile.StatManager;
+import ru.komiss77.objects.DelayActionBar;
+import ru.komiss77.objects.DelayBossBar;
+import ru.komiss77.objects.DelayTitle;
+import ru.komiss77.enums.Stat;
+import ru.komiss77.modules.kits.KitManager;
+import ru.komiss77.modules.world.WE;
+import ru.komiss77.modules.warp.WarpManager;
+import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov.Module;
-import ru.komiss77.modules.MenuItems;
-import ru.komiss77.modules.OstrovDB;
+import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.utils.ColorUtils;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TeleportLoc;
@@ -68,7 +64,7 @@ public class ApiOstrov {
     //private static final char[]  allowed_Eng = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     //private static final char[] allowed_Num = "_0123456789".toCharArray();
     //private static final char[] allowed_Rus = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя".toCharArray();
-    
+    //private static StringBuilder percentbar = new StringBuilder("§a||||||||||||||||||||||||| ");    
     
     public static WorldManager getWorldManager() {
         return Ostrov.worldManager;
@@ -76,17 +72,17 @@ public class ApiOstrov {
     public static WE getWorldEditor() {
         return Ostrov.worldEditor;
     }
-    public static SM getGameManager() {
+    public static GM getGameManager() {
         return Ostrov.gameManager;
     }
-    public static MenuItems getMenuItemManager() {
+    public static MenuItemsManager getMenuItemManager() {
         return Ostrov.menuItems;
     }
     public static KitManager getKitManager() {
         return Ostrov.kitManager;
     }
-    public static Warps getWarpManager() {
-        return (Warps) Ostrov.getModule(Module.warps);
+    public static WarpManager getWarpManager() {
+        return (WarpManager) Ostrov.getModule(Module.warps);
     }    
     
     //всё по Оплееру
@@ -96,8 +92,9 @@ public class ApiOstrov {
     public static void addStat(final Player p, final Stat e_stat, final int ammount) {
         StatManager.addStat(p, e_stat, ammount);
     }
-    public static void addXP(final Player p, final int ammount) {
-        StatManager.addXP(PM.getOplayer(p), ammount);
+    public static void addExp(final Player p, final int ammount) {
+        //StatManager.addExp(PM.getOplayer(p), ammount);
+        PM.getOplayer(p).addExp(p, ammount);
     }
     public static int getStat(final Player p, final Stat e_stat) {
         return PM.getOplayer(p.getName()).getStat(e_stat);
@@ -243,70 +240,70 @@ public class ApiOstrov {
 
 
     //без указания передатчика
-    public static boolean sendMessage (final Action action) {
+    public static boolean sendMessage (final Operation action) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo) {
+    public static boolean sendMessage (final Operation action, final String senderInfo) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final int int1) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final int int1) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p,action, senderInfo, int1);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final String string1) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final String string1) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo, string1);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final String string1) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final int int1, final String string1) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, string1);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final String string1, final String s2) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final int int1, final int int2, final String string1, final String s2) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, s2, s2);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, int3, s1, s2, s3);
     }
-    public static boolean sendMessage (final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
+    public static boolean sendMessage (final Operation action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
         if (Bukkit.getOnlinePlayers().isEmpty()) return false;
         final Player p = Bukkit.getOnlinePlayers().stream().findAny().get();
         return SpigotChanellMsg.sendMessage(p, action, senderInfo, int1, int2, int3, s1, s2, s3, s4, s5, s6);
     }
     
     //с указанием передатчика
-    public static boolean sendMessage (final Player msgTransport, final Action action) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action) {
         return SpigotChanellMsg.sendMessage(msgTransport, action);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo) {
         return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final int int1) {
         return SpigotChanellMsg.sendMessage(msgTransport, action,senderInfo, int1);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final String string1) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final String string1) {
         return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, string1);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final String string1) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final int int1, final String string1) {
         return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, string1);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final String string1, final String s2) {
-        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, s2, s2);
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final int int1, final int int2, final String s1, final String s2) {
+        return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, s1, s2);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3) {
         return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, int3, s1, s2, s3);
     }
-    public static boolean sendMessage (final Player msgTransport, final Action action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
+    public static boolean sendMessage (final Player msgTransport, final Operation action, final String senderInfo, final int int1, final int int2, final int int3, final String s1, final String s2, final String s3, final String s4, final String s5, final String s6) {
         return SpigotChanellMsg.sendMessage(msgTransport, action, senderInfo, int1, int2, int3, s1, s2, s3, s4, s5, s6);
     }
     
@@ -318,16 +315,16 @@ public class ApiOstrov {
      * @param arena название арены на сервере для вызова ArenaJoinEvent в плагине bsign
      */    
     public static void sendToServer(final Player target, final String server, String arena) {
-        //if (arena.isEmpty()) arena="any";
-        if (server.equalsIgnoreCase(SM.this_server_name)) {
+System.out.println("sendToServer server="+server+" arena="+arena);     
+        if (server.equalsIgnoreCase(GM.this_server_name)) {
             Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick ( target, arena ) );
         } else {
-            sendMessage(target, Action.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
+            sendMessage(target, Operation.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
         }
     }        
     
      public static Connection getLocalConnection() {
-        return MysqlLocal.GetConnection();
+        return LocalDB.GetConnection();
     }
     
     public static Connection getOstrovConnection() {
@@ -455,7 +452,7 @@ public class ApiOstrov {
             moneyChange(Bukkit.getPlayer(name), value, who);
         } else {//запомнить и дать при входе - оффлайн перевод
             if (getLocalConnection()!=null) {
-                MysqlLocal.moneyOffline(name, value, who);
+                LocalDB.moneyOffline(name, value, who);
             } else {
                 Ostrov.log_err("Оффлайн-перевод для "+name+" на сумму "+value+", но локальная БД отключена!");
             }
@@ -647,59 +644,137 @@ public class ApiOstrov {
         }
     }
     
-    public static String secondToTime(int second) { //c днями и нед!
-        second = second/60; //приводим к минутам
-        final int year = second / 3628800;
-        second -= year*3628800;
-        final int month = second / 302400;
-        if (year>0) {
-            if ( month==0) {
-                return  year+"г. ";
-            } else {
-                return  year+"г. "+month+" мес. ";
-            }
-        }
-        second -= month*302400;
-        final int week = second / 10080;
-        if (month>0) {
-            if ( week==0) {
-                return  month+" мес. ";
-            } else {
-                return  month+" мес. "+week+"нед. ";
-            }
-        }
-        second -= week*10080;
-        final int day = second / 1440;
-        if (week>0) {
-            if (day==0) {
-                return  week+" нед. ";
-            } else {
-                return  week+"нед. "+ day+"дн. ";
-            }
-        }
-        second -= day*1440;
-        final int hour = second / 60;
-        if (day>0) {
-            if (hour==0) {
-                return  day+"д. ";
-            } else { //в масштабах дня минуты не считаем!
-                return  day+"д. "+ ( hour>9 ? String.format("%02d",hour) : hour )+"ч ";
-            }
-        }
-        second -= hour*60;
-        if (hour==0) {
-            if (second==0) {
-                return  "меньше минуты";
-            } else {
-                return  ( second>9 ? String.format("%02d",second) : second )+"мин.";
-            }
+    public static String getPercentBar(final int max, final int current, final boolean withPercent) {
+        if (current<0 || current>max) return "§8||||||||||||||||||||||||| ";
+//System.out.println("max="+max+" curr="+current);
+        final double percent = (double)current / max * 100;
+        int p10 = (int) (percent*10);
+        final double percent1d = ((double) p10 / 10); //чтобы не показывало 100
+        int pos = p10/40;
+        //StringBuilder sb = new StringBuilder("§a||||||||||||||||||||||||| ");
+        //return sb.insert(pos, "§8").append(percent1d).append("%").toString();
+        if (pos<2) pos=2;
+        else if (pos>26) pos=26;
+        if (withPercent) {
+            return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").append("§f").append(percent1d).append("%").toString();
         } else {
-            if (second==0) {
-                return  hour+"ч";
-            } else {
-                return  hour+"ч "+( second>9 ? String.format("%02d",second) : second )+"мин.";
-            }
+            return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
         }
+    } 
+    
+    public static String secondToTime(int second) { //c днями и нед!
+        if (second<0) return "---";
+        final int year = second / 30_758_400; //356*24*60*60
+        second -= year*30_758_400; //от секунд отнимаем годы
+        final int month = second / 2_678_400; //31*24*60*60
+        second -= month*2_678_400; //от секунд отнимаем месяцы
+        
+        final int week = second / 604_800; //7*24*60*60
+        if (year==0) second -= week*604_800; //от секунд отнимаем недели. недели не показываем и не отнимаем, если счёт на года
+        
+        final int day = second / 86_400; //24*60*60
+        second -= day*86_400; //от секунд отнимаем дни
+        final int hour = second / 3600; //60*60
+        second-=hour*3600;  //от секунд отнимаем часы
+        final int min = second / 60;
+        second-=min*60; //от секунд отнимаем минуты
+        
+        StringBuilder sb = new StringBuilder();
+        if (year>0) {
+            sb.append(year).append("г. ");
+            //if ( month>0) {
+            //    return  year+"г. "+month+" мес. ";
+            //} else {
+            //    return  year+"г. ";
+            //}
+        }
+        
+        if (month>0) {
+            sb.append(month).append("мес. ");
+            //if ( week==0) {
+            //    return  month+" мес. ";
+            //} else {
+            //    return  month+" мес. "+week+"нед. ";
+            //}
+        }
+        
+        if (week>0 && year==0) {
+            sb.append(week).append("нед. ");
+            //if (day==0) {
+            //    return  week+" нед. ";
+            //} else {
+            //    return  week+"нед. "+ day+"дн. ";
+            //}
+        }
+        
+        if (day>0) {
+            sb.append(day).append("д. ");
+            //if (day==0) {
+            //    return  week+" нед. ";
+            //} else {
+            //    return  week+"нед. "+ day+"дн. ";
+            //}
+        }
+        
+        if (year>0) {
+            return sb.toString(); //счёт на года - достаточно до дней
+        }
+        
+        if (hour>0) {
+            sb.append(hour).append("ч. ");
+            //if (day==0) {
+            //    return  week+" нед. ";
+            //} else {
+            //    return  week+"нед. "+ day+"дн. ";
+            //}
+        }
+        
+        
+       // if (day>0) {
+       //     if (hour==0) {
+       //         return  day+"д. ";
+       //     } else { //в масштабах дня минуты не считаем!
+       //         return  day+"д. "+ ( hour>9 ? String.format("%02d",hour) : hour )+"ч ";
+       //     }
+      //  }
+        
+        
+        if (month>0 || week>0) {
+            return sb.toString(); //счёт на месяца - достаточно до часов
+        }
+        
+        if (min>0) {
+            sb.append(min).append("мин. ");
+            //if (day==0) {
+            //    return  week+" нед. ";
+            //} else {
+            //    return  week+"нед. "+ day+"дн. ";
+            //}
+        }
+        if (second>0) {
+            sb.append(second).append("сек. ");
+            //if (day==0) {
+            //    return  week+" нед. ";
+            //} else {
+            //    return  week+"нед. "+ day+"дн. ";
+            //}
+        }
+      //  if (hour==0) {
+            //second -= hour*60; -не надо, часы тут==0//в second - остаток минут + секунд
+       //     if (min==0) {
+        //        return  second+"сек.";//меньше минуты";
+        //    } else {
+        //        return  min+"мин. "+second+"сек.";//return  ( min>9 ? String.format("%02d",min) : min )+"мин.";
+        //    }
+       // } else {
+       //     second -= hour*60; //в second - остаток минут + секунд
+       //     if (min==0) {
+      //          return  hour+"ч "+second+"сек.";
+      //      } else {
+      //          return  hour+"ч "+min+"мин. "+second+"сек.";//hour+"ч "+( min>9 ? String.format("%02d",min) : min )+"мин.";
+      //      }
+     //   }
+        return sb.toString();
     }        
 
    // public static String housrToTime(int hours) {
@@ -839,9 +914,9 @@ public class ApiOstrov {
     
     
     //    блоки
-    @Deprecated
-    public static boolean isSign (final Material mat) {
-        return Tag.SIGNS.isTagged(mat);
+   // @Deprecated
+  //  public static boolean isSign (final Material mat) {
+   //     return Tag.SIGNS.isTagged(mat);
         /*if (mat==null) return false;
         switch (mat) {
             case ACACIA_SIGN:
@@ -861,7 +936,7 @@ public class ApiOstrov {
             default: 
                 return false;
         }*/
-    }
+ //   }
 
     public static Block getSignAttachedBlock(final Block b) {
         if (b.getState() instanceof Sign) {
@@ -879,7 +954,7 @@ public class ApiOstrov {
    // }
 
     public static void sendArenaData(final String arenaName, final GameState state, final String line0, final String line1, final String line2, final String line3, final String extra, final int playerInGame) {
-        SM.sendArenaData(arenaName, (state==null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3, extra);
+        GM.sendArenaData(arenaName, (state==null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3, extra);
     }
 
 

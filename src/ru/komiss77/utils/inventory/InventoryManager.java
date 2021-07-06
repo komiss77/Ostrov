@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import ru.komiss77.Objects.CaseInsensitiveMap;
+import ru.komiss77.objects.CaseInsensitiveMap;
 
 public class InventoryManager {
     
@@ -85,5 +85,12 @@ public class InventoryManager {
     
     public Map<String, InventoryContent> getContents() {
         return contents;
+    }
+    
+    
+    
+    
+    public boolean hasContent(final Player p) {
+        return contents.containsKey(p.getName());
     }
 }

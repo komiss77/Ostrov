@@ -11,7 +11,6 @@ public class VM {
     private static ServerVersion serverVersion;
     private static IServer nmsServer;
     private static INbt nmsNbtUtil;
-    private static IEntity nmsEntity;
     private static IEntityGroup nmsEntitygroup;
     private static INameTag nmsNameTag;
 
@@ -37,7 +36,6 @@ public class VM {
         try {
             nmsServer = loadModule("Server");
             nmsNbtUtil = loadModule("Nbt");
-            nmsEntity = loadModule("Entity");
             nmsEntitygroup = loadModule("EntityGroup");
             nmsNameTag = loadModule("NameTag");
         } catch (ReflectiveOperationException ex) {
@@ -65,10 +63,6 @@ public class VM {
 
     public static IServer getNmsServer() {
         return nmsServer;
-    }
-
-    public static IEntity getNmsEntity() {
-        return nmsEntity;
     }
 
     public static IEntityGroup getNmsEntitygroup() {

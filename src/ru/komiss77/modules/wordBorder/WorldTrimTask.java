@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Managers.WorldManager;
+import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov;
 
 

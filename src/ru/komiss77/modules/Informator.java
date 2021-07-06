@@ -11,7 +11,7 @@ import org.bukkit.Bukkit;
 
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
-import ru.komiss77.Managers.PM;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.OstrovConfig;
 
