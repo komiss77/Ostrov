@@ -56,6 +56,7 @@ public final class MenuItemsManager extends Initiable implements Listener {
         HandlerList.unregisterAll(this);
         items.clear();
         item_lobby_mode = Cfg.GetCongig().getBoolean("player.item_lobby_mode");
+        
         if (Cfg.GetCongig().getBoolean("player.give_pipboy")) {
             Material mat = Material.matchMaterial(Cfg.GetCongig().getString("system.pipboy_material"));
             if (mat==null) mat = Material.CLOCK;
@@ -70,7 +71,7 @@ public final class MenuItemsManager extends Initiable implements Listener {
             pipboy.duplicate=false;
             pipboy.on_left_click = p -> p.performCommand(Cfg.GetCongig().getString("system.pipboy_left_click_command"));
             pipboy.on_right_click = p -> p.performCommand(Cfg.GetCongig().getString("system.pipboy_rigth_click_command"));
-            addItem("pipboy", pipboy);
+            addItem(pipboy);
         }
         
         if (Cfg.GetCongig().getBoolean("player.give_bow_teleport")) {
@@ -89,7 +90,7 @@ public final class MenuItemsManager extends Initiable implements Listener {
             tpbow.give_on_join=true;
             tpbow.give_on_respavn=true;
             tpbow.anycase=true;
-            addItem("tpbow", tpbow);
+            addItem(tpbow);
             
             final MenuItem tparrow = new MenuItem("tparrow", 
                     new ItemBuilder(Material.ARROW)
@@ -101,7 +102,7 @@ public final class MenuItemsManager extends Initiable implements Listener {
             tparrow.give_on_join=true;
             tparrow.give_on_respavn=true;
             tparrow.anycase=true;
-            addItem("tparrow", tparrow);
+            addItem(tparrow);
         }
         
         Bukkit.getPluginManager().registerEvents(MenuItemsManager.this, Ostrov.instance);
@@ -114,10 +115,6 @@ public final class MenuItemsManager extends Initiable implements Listener {
         return items.containsKey(name);
     }
     
-    @Deprecated
-    public void addItem(final String item_name, final MenuItem si) {
-        items.put(item_name, si);
-    }
     
     public void addItem(final MenuItem si) {
         if (si==null || si.name==null || si.name.isEmpty()) return;

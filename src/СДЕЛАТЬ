@@ -5,12 +5,14 @@
 режим турнир, ведущий
 
 валера
-кик не подставляет
-чтобы человек не мог мутить и банить выше стоящего
++кик не подставляет
 
+
+глобальный афк (исключение для ostrov.afk)
 реплика БД
 простенькая свадьба
-+обнова на 1.17
+
+меню серверов по умолчанию
 
 доделать StatManager - reputationChange calculateReputationBase
 челенджи за рил
@@ -25,12 +27,12 @@
 журнал гуи
 группыб ценыб покупка - в остров
 
-проверить checkString
+ LoadPlayerGroups error - Operation not allowed after ResultSet closed
 
 настройка доступа на арены по репутации или группа доверие
 
 
-NametagEdit -ждём обнову на 1.17
+NametagEdit ProCosmetics  AAC -ждём обнову на 1.17.1
 
 долго нет соединения - не может записать состояние в остров, но ошибок нет
 public static boolean isDbConnected() {

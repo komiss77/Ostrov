@@ -1,7 +1,6 @@
 package ru.komiss77.modules.player.profile;
 
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Data;

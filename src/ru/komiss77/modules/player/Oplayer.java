@@ -81,7 +81,8 @@ public final class Oplayer {
 //System.out.println("result="+result);
         return result;
     }
-
+    @Deprecated
+    public Inventory profile;
   
     
     
@@ -132,7 +133,7 @@ public final class Oplayer {
         menu = new ProfileManager(this);
         
         
-        //profile=Bukkit.createInventory( p, 54,  ItemUtils.profile_master_inv_name );
+        profile=Bukkit.createInventory( p, 54,  "друзья" );
         //profile.setContents(ItemUtils.profile_master.getContents());
         
 
@@ -169,7 +170,7 @@ public final class Oplayer {
         }
         
         if (PM.tablist_header_footer) { //if (SM.this_server_name.length()>4) {
-            ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+GM.thisServerGame.description+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
+            ApiOstrov.sendTabList(p,  "§7Привет, §a"+nik+" §7Вы находитесь: §5"+GM.thisServerGame.displayName+"§7 Сейчас: §6"+ApiOstrov.getCurrentHourMin(), "  §fПомощь - §a/help §fСервер - §a/serv §fПрофиль - §a/profile §fМеню - §a/menu");
             p.setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix);
         }
         

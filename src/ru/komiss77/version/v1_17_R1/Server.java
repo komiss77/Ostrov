@@ -59,8 +59,25 @@ public class Server implements IServer {
     @Override
     public void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack) {
         final EntityPlayer entityPlayer = ((CraftPlayer)player).getHandle();
-        ((CraftPlayer)player).getHandle().b.sendPacket(new PacketPlayOutSetSlot(entityPlayer.bU.j, playerInventorySlot, CraftItemStack.asNMSCopy(itemStack)));
         //1.16.5 ((CraftPlayer)player).getHandle().playerConnection.sendPacket(new PacketPlayOutSetSlot(handle.defaultContainer.windowId, playerInventorySlot, CraftItemStack.asNMSCopy(itemStack)));
+        // 1.16.5 ид конетейнера, слот, предмет
+        //1.17.1 ид конетейнера, слот, (номер слота в NonNullList<ItemStack>[]) ? исходный слот, предмет
+        /*
+            -- 1.17.1 сравнивает отправляемый итем с содержимым и подменяет, если разные
+            private void b(final int i, final ItemStack itemstack, final Supplier<ItemStack> supplier) {
+            if (!this.x) {
+                final ItemStack itemstack2 = this.n.get(i);
+                if (!ItemStack.matches(itemstack2, itemstack)) {
+                    final ItemStack itemstack3 = supplier.get();
+                    this.n.set(i, itemstack3);
+                    if (this.w != null) {
+                        this.w.sendSlotChange(this, i, itemstack3);
+                    }
+                }
+            }
+        }
+        */
+        ((CraftPlayer)player).getHandle().b.sendPacket(new PacketPlayOutSetSlot(entityPlayer.bU.j, playerInventorySlot, playerInventorySlot, CraftItemStack.asNMSCopy(itemStack)));
     }    
 
   /*  @Override

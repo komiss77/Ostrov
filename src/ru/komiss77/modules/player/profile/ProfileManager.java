@@ -1,6 +1,7 @@
 package ru.komiss77.modules.player.profile;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
@@ -24,6 +25,7 @@ public class ProfileManager {
     public Oplayer op;
     public Section section = Section.ПРОФИЛЬ;
     
+    protected Inventory current;
     //иконки, меняющие локе каждую секунду
     //public ClickableItem time;
     //public ClickableItem stat;
@@ -77,7 +79,7 @@ public class ProfileManager {
                 //    } 
                 );*/
                 
-                SmartInventory
+                current = SmartInventory
                     .builder()
                     .id(op.nik+section.name())
                     .provider(new ProfileSection())
@@ -90,7 +92,7 @@ public class ProfileManager {
                 
                 
             case СТАТИСТИКА:
-                SmartInventory
+                current = SmartInventory
                     .builder()
                     .id(op.nik+section.name())
                     .provider(new StatSection())
@@ -102,7 +104,7 @@ public class ProfileManager {
                 break;
                 
             case ДОСТИЖЕНИЯ:
-                SmartInventory
+                current = SmartInventory
                     .builder()
                     .id(op.nik+section.name())
                     .provider(new AdvSection())
@@ -128,8 +130,8 @@ public class ProfileManager {
     
     public void tick(final Player p) {
 //System.out.println("tick hasContent?"+im.hasContent(p));
-        if (PM.im.hasContent(p)) {
-            
+       // if (current!=null) { //if (PM.im.hasContent(p)) {
+
             //поставить игровое время на иконке профиля
             setLine( p, Section.ПРОФИЛЬ.slot, 1, Stat.PLAY_TIME.desc+ApiOstrov.secondToTime(op.getStat(Stat.PLAY_TIME)) );
             
@@ -149,7 +151,7 @@ public class ProfileManager {
                 
             }
             
-        }
+        //}
     }
 
     
@@ -157,7 +159,11 @@ public class ProfileManager {
     
     
     private void setLine(final Player p, final int slot, final int line, final String value) {
-        im.getContents(p).get().getInventory().setItem(slot, ItemUtils.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+        if (current==null || current.getContents().length<=slot) {
+            return;
+        }
+        //im.getContents(p).get().getInventory().setItem(slot, ItemUtils.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+        current.setItem(slot, ItemUtils.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
     }
 
     

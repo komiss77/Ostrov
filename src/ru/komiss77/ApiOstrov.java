@@ -58,9 +58,10 @@ import ru.ostrov77.friends.ApiFriends;
 
 public class ApiOstrov {
     
-    private static final String  pattern_Eng = "[^A-Za-z]";
-    private static final String  pattern_Eng_Num = "[^A-Za-z0-9]";
-    private static final String  pattern_Eng_Num_Rus = "[^A-Za-z0-9А-Яа-я]";
+    private static final String  pattern_Eng = "[A-Za-z]";
+    private static final String  pattern_Eng_Num = "[A-Za-z0-9]";
+    private static final String  pattern_Eng_Rus = "[A-Za-zА-Яа-я]";
+    private static final String  pattern_Eng_Num_Rus = "[A-Za-z0-9А-Яа-я]";
     //private static final char[]  allowed_Eng = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     //private static final char[] allowed_Num = "_0123456789".toCharArray();
     //private static final char[] allowed_Rus = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя".toCharArray();
@@ -958,28 +959,28 @@ System.out.println("sendToServer server="+server+" arena="+arena);
     }
 
 
-   // @Deprecated
-   // public static boolean checkString (final String message) { return checkString(message, true, true); }    
     public static boolean checkString (String message, final boolean allowNumbers, final boolean allowRussian) {
-        //replaceAll("[^A-Za-z0-9]",""); replace all the characters except alphanumeric 
-        //String allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        //if (allowNumbers) allowed=allowed+"_0123456789";
-        //if (allowRussian) allowed=allowed+"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-        //for(int i = 0; i < message.length(); ++i) {
-        //    if( !allowed_Eng.contains(message.charAt(i))) {
-        //        return false;
-        //    }
-        //}
-        message=message.replaceAll(allowRussian ? pattern_Eng_Num_Rus : allowNumbers ? pattern_Eng_Num : pattern_Eng, "");
-        return !message.isEmpty();
+        return checkString(message, false, allowNumbers, allowRussian);
+    }
+    public static boolean checkString (String message, final boolean allowSpace,  final boolean allowNumbers,final boolean allowRussian) {
+        if (allowNumbers && allowRussian) {
+            message = message.replaceAll(pattern_Eng_Num_Rus, "");
+        } else if (allowNumbers) {
+            message = message.replaceAll(pattern_Eng_Num, "");
+        } else if (allowRussian) {
+            message = message.replaceAll(pattern_Eng_Rus, "");
+        } else {
+            message = message.replaceAll(pattern_Eng, "");
+        }
+        return allowSpace ? message.isBlank() :  message.isEmpty() ;
    }    
         
 
     public static boolean canBeBuilder(final CommandSender cs) {
         //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
         return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder") || hasGroup(cs.getName(), "supermoder");
-    }   
-    @Deprecated
+    } 
+    
     public static boolean isLocalBuilder(final CommandSender cs) {
         return isLocalBuilder(cs, false);
     }

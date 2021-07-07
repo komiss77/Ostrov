@@ -36,6 +36,10 @@ public class AdvSection implements InventoryProvider {
     public AdvSection() {
     }
      
+    @Override
+    public void onClose(final Player p, final InventoryContent content) {
+        PM.getOplayer(p).menu.current = null;
+    }
 
     
     @Override

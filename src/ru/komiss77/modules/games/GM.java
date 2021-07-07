@@ -118,7 +118,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
                 if (thisServerGame.type==ServerType.ARENAS) { //фикс для локальных табличек нужна локальная gi
                     games.put(thisServerGame, new GameInfo(thisServerGame));
                 } else {
-                    games.put(thisServerGame, new GameInfo(thisServerGame, this_server_name));
+                    games.put(thisServerGame, new GameInfo(thisServerGame));
                 }
                 //Bukkit.getPluginManager().callEvent(new GameInfoLoadEvent());
                 loadGameSign();
@@ -567,7 +567,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
 
 
     
-    private static GameInfo getGameInfo(final String serverName, final String arenaName) {
+    private static GameInfo getGameInfo(final String serverName) {
         final Game game = Game.fromServerName(serverName);
         
         if (game==null || game==Game.GLOBAL) {
@@ -579,13 +579,15 @@ public final class GM extends Initiable implements Listener {   //не пере�
             switch (game.type) {
 
                 case ONE_GAME:
-                    games.put(game, new GameInfo(game, arenaName));
-                    break;
-
                 case LOBBY:
                 case ARENAS:
-                    games.put(game, new GameInfo(game));
+                  games.put(game, new GameInfo(game ));
                     break;
+
+                //case LOBBY:
+              //  case ARENAS:
+                   // games.put(game, new GameInfo(game));
+                //    break;
 
                 default:
                     return null;
@@ -623,7 +625,8 @@ public final class GM extends Initiable implements Listener {   //не пере�
                 type = ServerType.fromString(rs.getString("type"));
                 if (type!=ServerType.ONE_GAME && type!=ServerType.LOBBY) continue; //или getGameInfo ругается на REG и прочие
                 
-                gi = getGameInfo(rs.getString("name"), rs.getString("motd"));
+                //gi = getGameInfo(rs.getString("name"), rs.getString("motd"));
+                gi = getGameInfo(rs.getString("name"));
                 
                 if (gi!=null) {
                     
@@ -694,7 +697,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
 //System.out.println("loadArenaInfo 3");                                    
             while (rs.next()) {
                 
-                gi = getGameInfo(rs.getString("server"), "");
+                gi = getGameInfo(rs.getString("server"));
                 
                 if (gi!=null) {
                     
@@ -851,14 +854,16 @@ public final class GM extends Initiable implements Listener {   //не пере�
 
 
     public static Inventory getGameInventory(final Game game) {
+        if (game==null) return null;
         return games.get(game).arena_inv;
     }
     
-    public static GameInfo getGameInfo(final String serverName) {
-        return games.get(Game.fromServerName(serverName));
+    //public static GameInfo getGameInfo(final String serverName) {
+    //    return games.get(Game.fromServerName(serverName));
         //return servers.get(serverName.substring(0, 2)); - substring не катит, может быть arcaim daaria
-    }
+   // }
     public static GameInfo getGameInfo(final Game game) {
+        if (game==null) return null;
         return games.get(game);
         //return servers.get(serverName.substring(0, 2)); - substring не катит, может быть arcaim daaria
     }

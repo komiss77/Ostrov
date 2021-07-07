@@ -13,13 +13,9 @@ import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
 
 
 
@@ -36,6 +32,10 @@ public class StatSection implements InventoryProvider {
     public StatSection() {
     }
      
+    @Override
+    public void onClose(final Player p, final InventoryContent content) {
+        PM.getOplayer(p).menu.current = null;
+    }
 
     
     @Override

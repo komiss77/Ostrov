@@ -41,36 +41,50 @@ public class GameInfo {
     
     //private boolean flash;
      
-    //MULTI!!!
-    public GameInfo( final Game game ) { 
+    
+    public GameInfo( final Game game ) {
         this.game = game;
         
         lore.add(0,"§7Игроки: 0");
         lore.add(1,"");
+        
+        if (game.type==ServerType.ONE_GAME) {
+            lore.add(2,"§a⊳ Клик - перейти на сервер");//line 1-4+разделитель
+            final Material mat = Material.matchMaterial(game.mat);
 
-        arena_inv=Bukkit.createInventory(null, 45, GM.main_inv_name+game.displayName);
-        arena_inv.setItem(44, new ItemBuilder(Material.BARRIER).setName("§5Назад").build());
-        lore.add(2,"");
+             //для одиночек данные храним в нулевой арене
+            final ArenaInfo ai = new ArenaInfo(this, game.serverName, "", game.level, game.reputation, mat==null ? Material.BEDROCK : mat);
+            arenas.put(0, ai);
+           // genItem();
+            
+        } else if (game.type==ServerType.ARENAS || game.type==ServerType.LOBBY) {
+            arena_inv=Bukkit.createInventory(null, 45, GM.main_inv_name+game.displayName);
+            arena_inv.setItem(44, new ItemBuilder(Material.BARRIER).setName("§5Назад").build());
+            lore.add(2,"");
+
+            //genItem();
+        } 
         
         genItem();
     }
     
     //SINGLE!!!
-    public GameInfo( final Game game, final String serverName ) {
+   /* public GameInfo( final Game game ) {
         this.game = game;
         
         lore.add(0,"§7Игроки: 0");
         lore.add(1,"");
+        
         lore.add(2,"§a⊳ Клик - перейти на сервер");//line 1-4+разделитель
         final Material mat = Material.matchMaterial(game.mat);
         
          //для одиночек данные храним в нулевой арене
-        final ArenaInfo ai = new ArenaInfo(this, serverName, "", game.level, game.reputation, mat==null ? Material.BEDROCK : mat);
+        final ArenaInfo ai = new ArenaInfo(this, game.serverName, "", game.level, game.reputation, mat==null ? Material.BEDROCK : mat);
         
         arenas.put(0, ai);
         
         genItem();
-    }
+    }*/
 
     
     
