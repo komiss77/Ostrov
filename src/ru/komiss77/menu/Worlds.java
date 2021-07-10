@@ -78,7 +78,7 @@ public class Worlds implements InventoryProvider {
                         .lore("§5===============================")
                         .lore("Центр границы мира: "+world.getWorldBorder().getCenter().getBlockX()+", "+world.getWorldBorder().getCenter().getBlockY()+", "+world.getWorldBorder().getCenter().getBlockZ())
                         .lore("Размер границы мира: §6"+world.getWorldBorder().getSize() )
-                        .lore("§7*(установка параметров границы: /worldborder)")
+                        .lore("§7*(установка границы в меню настроек)")
                         .lore("Макс.размер в server.properties: §6"+Bukkit.getServer().getMaxWorldSize())
                         .lore("Эффективный размер: §e"+maxSize)
                         .lore("(x от "+(world.getWorldBorder().getCenter().getBlockX()-maxSize/2)+" до "+(world.getWorldBorder().getCenter().getBlockX()+maxSize/2)+")")
@@ -116,11 +116,12 @@ public class Worlds implements InventoryProvider {
                                     
                                 case RIGHT:
                                     SmartInventory.builder()
-                                    .id("WorldSettings"+p.getName())
-                                    .provider(new WorldSettings(world))
-                                    .size(6, 9)
-                                    .title("§bНастройки мира "+world.getName())
-                                    .build().open(p);
+                                        .id("WorldSettings"+p.getName())
+                                        .provider(new WorldSettings(world))
+                                        .size(6, 9)
+                                        .title("§bНастройки мира "+world.getName())
+                                        .build()
+                                        .open(p);
                                     break;
                                     
                                     

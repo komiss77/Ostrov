@@ -1,10 +1,7 @@
 
 
 оповещение - модерам или всем, поприветствуем новичка!
-
 режим турнир, ведущий
-
-кик пустая причина
 
 настройка доступа на арены по репутации или группа доверие
 
@@ -29,15 +26,9 @@ LoadPlayerGroups error - Operation not allowed after ResultSet closed
 
 не удалило файл региона
 
-один раз кидает
-] Could not enable the attribute remover for this version.Attributes will show up on items.
-java.lang.ClassNotFoundException: net.minecraft.server.v1_17_R1.NBTTagCompound
-	at ru.komiss77.modules.menuItem.MenuItemsManager.lambda$reload$1(MenuItemsManager.java:73) ~[?:?]
-	at ru.komiss77.modules.menuItem.MenuItemsManager.onInteract(MenuItemsManager.java:228) ~[?:?]
-
-NametagEdit-
+NametagEdit - PacketPlayOut
 sendChunkChange - PacketPlayOutMapChunk
-ProCosmetics  AAC -ждём обнову на 1.17.1
+ProCosmetics  AAC - ждём обнову на 1.17.1
 
 долго нет соединения - не может записать состояние в остров, но ошибок нет
 public static boolean isDbConnected() {

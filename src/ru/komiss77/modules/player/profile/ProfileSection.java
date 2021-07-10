@@ -155,7 +155,7 @@ public class ProfileSection implements InventoryProvider {
 
         
 
-        
+        /*
         
         content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
         {
@@ -163,7 +163,7 @@ public class ProfileSection implements InventoryProvider {
         }
         ));
         
-
+*/
 
         
 

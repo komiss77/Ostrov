@@ -124,9 +124,12 @@ public class WorldSettings implements InventoryProvider {
                 
                 
         contents.set(5,0, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE )
-            .name("Точка спавна мира")
+            .name("Точка СПАВНА мира")
             .lore("")
             .lore("§7сейчас: "+LocationUtil.StringFromLoc(world.getSpawnLocation()))
+            .lore("")
+            .lore("§7Здесь будут появляться все игроки,")
+            .lore("§7впервые зашедшие на сервер.")
             .lore("")
             .lore( "§7ЛКМ - §eустановить")
             .lore("")
@@ -139,6 +142,45 @@ public class WorldSettings implements InventoryProvider {
             }));            
             
         
+        
+        contents.set(5,1, ClickableItem.of(new ItemBuilder(Material.CAKE )
+            .name("Центр ГРАНИЦЫ мира")
+            .lore("")
+            .lore("§7сейчас: "+LocationUtil.StringFromLoc(world.getWorldBorder().getCenter()))
+            .lore("")
+            .lore( "§7ЛКМ - §eустановить")
+            .lore("")
+            .build(), e-> {
+                if (e.isLeftClick()) {
+                    world.getWorldBorder().setCenter(p.getLocation());
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+                    reopen(p, contents);
+                }
+            }));            
+          
+            
+        contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.BEACON)
+            .name("§6Размер §eГРАНИЦЫ §6мира")
+            .lore("§7")
+            .lore("§7сейчас: "+world.getWorldBorder().getSize())
+            .lore("§7")
+            .lore("§fЛКМ - §bустановить")
+            //.lore(ApiOstrov.isLocalBuilder(p, false) ? "§eПКМ - показать все миры" : "")
+            .lore("§7")
+            .build(), ""+world.getWorldBorder().getSize(), imput -> {
+
+                if (!ApiOstrov.isInteger(imput)) {
+                    p.sendMessage("§cДолжно быть число!");
+                    return;
+                }
+                final int r = Integer.valueOf(imput);
+                if (r<0 || r>100000) {
+                    p.sendMessage("§cот 0 до 100000!");
+                    return;
+                }
+                world.getWorldBorder().setSize(r);
+                reopen(p, contents);
+            }));        
         
         
         

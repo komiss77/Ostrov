@@ -14,9 +14,13 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.Pagination;
+import ru.komiss77.utils.inventory.SlotIterator;
+import ru.komiss77.utils.inventory.SlotPos;
 
 
 
@@ -59,10 +63,11 @@ public class GameSection implements InventoryProvider {
 
         
         
+        //final ArrayList<ClickableItem> menuEntry = new ArrayList<>(Game.MAX_SLOT+1);        
+ //System.out.println("GameSection.init() MAX_SLOT="+Game.MAX_SLOT);        
         
-        //final Pagination pagination = content.pagination();
-        //final ArrayList<ClickableItem> menuEntry = new ArrayList<>();        
-        
+        final Pagination pagination = content.pagination();
+        final ClickableItem[] ci = new ClickableItem[Game.MAX_SLOT+1];
         
         
         pm.game = null;
@@ -71,13 +76,13 @@ public class GameSection implements InventoryProvider {
             
             final GameInfo gi = GM.getGameInfo(game);
             if (gi==null) {
-                content.set(game.menuSlot, ClickableItem.empty(new ItemBuilder(Material.matchMaterial(game.mat))
+                ci[36*game.menuPage+game.menuSlot] = ClickableItem.empty(new ItemBuilder(Material.matchMaterial(game.mat))
                         .setName(game.displayName)
                         .lore("")
                         .lore("§cИгра недоступна")
                         .lore("")
                         .build() 
-                    )
+                    
                 );
                 continue;
             }
@@ -90,7 +95,7 @@ public class GameSection implements InventoryProvider {
             switch (game.type) {
                 
                 case ONE_GAME:
-                    content.set(game.menuSlot, ClickableItem.of(new ItemBuilder(gi.mat)
+                    ci[36*game.menuPage+game.menuSlot] = ClickableItem.of(new ItemBuilder(gi.mat)
                         .setName(game.displayName)
                         //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
                         .lore("")
@@ -115,13 +120,12 @@ public class GameSection implements InventoryProvider {
                                     }
                                 } 
                             }
-                        )
                     );
                     break;
                     
                     
                 case LOBBY:
-                    content.set(game.menuSlot, ClickableItem.of(new ItemBuilder(gi.mat)
+                    ci[36*game.menuPage+game.menuSlot] = ClickableItem.of(new ItemBuilder(gi.mat)
                         .setName(game.displayName)
                         //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
                         .lore("")
@@ -139,13 +143,12 @@ final ArenaInfo ai = gi.arenas.get(0);
 ApiOstrov.sendToServer(p, ai.server, ai.arenaName);
                                 } 
                             }
-                        )
                     );
                     break;
                     
                     
                 case ARENAS:
-                    content.set(game.menuSlot, ClickableItem.of(new ItemBuilder(gi.mat)
+                    ci[36*game.menuPage+game.menuSlot] = ClickableItem.of(new ItemBuilder(gi.mat)
                         .setName(game.displayName)
                         //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
                         .lore("")
@@ -164,7 +167,6 @@ ApiOstrov.sendToServer(p, ai.server, ai.arenaName);
 final ArenaInfo ai = gi.arenas.get(0);
 ApiOstrov.sendToServer(p, ai.server, ai.arenaName);                                } 
                             }
-                        )
                     );
                     /*
                     if (ApiOstrov.getWarpManager()!=null && ApiOstrov.getWarpManager().exist(game.name())) {
@@ -224,42 +226,47 @@ ApiOstrov.sendToServer(p, ai.server, ai.arenaName);                             
         
         
               
-           /* 
+            
         
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        //final Pagination pagination = content.pagination();
+        pagination.setItems(ci);// pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
         pagination.setItemsPerPage(36);    
         
 
+        pagination.page(pm.gamePage);
+        
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e 
+            content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtils.nextPage).name(Game.getGamePageTitle(pm.gamePage+1)).build(), e 
                     -> {
-                content.getHost().open(p, pagination.next().getPage()) ;
+                pm.gamePage = pagination.next().getPage();
+                content.getHost().open(p, pm.gamePage);
             }
             ));
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e 
+            content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtils.previosPage).name(Game.getGamePageTitle(pm.gamePage-1)).build(), e 
                     -> {
-                content.getHost().open(p, pagination.previous().getPage()) ;
+                pm.gamePage = pagination.previous().getPage();
+                content.getHost().open(p, pm.gamePage) ;
                })
             );
         }
         
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
-*/
 
 
 
-        
 
         
+
         
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
-        {
-            p.closeInventory();
-        }
-        ));
+        
+       // content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
+      //  {
+      //      p.closeInventory();
+      //  }
+      //  ));
         
 
 
