@@ -17,8 +17,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.world.Cuboid;
-import ru.komiss77.modules.world.WE;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtils;
 
@@ -77,7 +75,24 @@ public class PasteJob  implements Runnable {
         
         if (pause || WE.wait(task.getTaskId())) return;
         
-        if (!schem.ready) return;
+        ++ticks;
+        //NullPointerException: Cannot read field "ready" because "this.schem" is null
+	//at ru.komiss77.modules.world.PasteJob.run(PasteJob.java:80) ~[?:?]
+        if (schem==null) {
+            if (ticks>=60) {
+                Ostrov.log_err("PasteJob schem==null больше 60тик");
+                this.cancel();
+            }
+            return;
+        }
+        
+        if (!schem.ready) {
+            if (ticks>=60) {
+                Ostrov.log_err("PasteJob schem ready=false больше 60тик");
+                this.cancel();
+            }
+            return;
+        }
         
         if (cuboidSize==-1) {
             cuboid = new Cuboid ( loc, schem.sizeX, schem.sizeY, schem.sizeZ );
@@ -136,7 +151,6 @@ public class PasteJob  implements Runnable {
 
         checked += current;
         current = 0;
-        ++ticks;
         if (ticks%5 == 0 && cs!=null) {
             percent = (int)((double)checked / cuboidSize * 100.0D);
             if ( cs instanceof Player) {

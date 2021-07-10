@@ -2,14 +2,12 @@ package ru.komiss77.modules.player.profile;
 
 
 import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
@@ -48,7 +46,7 @@ public class AdvSection implements InventoryProvider {
         //content.fillRect(0,0,  5,8, ClickableItem.empty(fill));
         
         final Oplayer op = PM.getOplayer(p);
-        final ProfileManager pm = op.menu;
+        //final ProfileManager pm = op.menu;
 
         
         

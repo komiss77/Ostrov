@@ -4,74 +4,14 @@ Lobbyitems фикс - на 1.16 воспринимает клик в меню к
 
 не удаётся отправить сообщение ???  -первый вход - баг сервера ??  !!!! наступает если делалось entity.remove() и прошлось по игроку!!!
 
-03.04.21
-Caused by: java.lang.IllegalArgumentException: Multiple entries with same key: Enchantment[minecraft:power, ARROW_DAMAGE]=10 and Enchantment[minecraft:power, ARROW_DAMAGE]=10
-        at com.google.common.collect.ImmutableMap.checkNoConflict(ImmutableMap.java:186) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at com.google.common.collect.RegularImmutableMap.checkNoConflictInKeyBucket(RegularImmutableMap.java:102) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at com.google.common.collect.RegularImmutableMap.fromEntryArray(RegularImmutableMap.java:88) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at com.google.common.collect.ImmutableMap$Builder.build(ImmutableMap.java:359) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack.getEnchantments(CraftItemStack.java:299) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack.getEnchantments(CraftItemStack.java:277) ~[spigot.jar:2991-Spigot-018b9a0-f3f3094]
-        at ru.komiss77.Listener.NbtListener.copyItemMeta(NbtListener.java:384) ~[?:?]
-        at ru.komiss77.Listener.NbtListener$BlockStateMetaCopier.copyValidMeta(NbtListener.java:520) ~[?:?]
-        at ru.komiss77.Listener.NbtListener$BlockStateMetaCopier.copyValidMeta(NbtListener.java:506) ~[?:?]
-        at ru.komiss77.Listener.NbtListener.copyItemMeta(NbtListener.java:373) ~[?:?]
-
-24.02.20 bungee
-olyInquisitor] <-> DownstreamBridge <-> [ol0] has disconnected
-17:50:22 [INFO] [HolyInquisitor] -> UpstreamBridge has disconnected
-17:50:24 [WARNING] Error dispatching event ru.komiss77.bungee.OstrovBungeeChanelEvent@29c916b5 to listener ru.ostrov77.auth.bungee.Listener.ServerMsgHandler@41a6d121
-java.lang.NullPointerException
-	at ru.ostrov77.auth.bungee.Listener.ServerMsgHandler.onPluginMessage(ServerMsgHandler.java:98)
-	at sun.reflect.GeneratedMethodAccessor10.invoke(Unknown Source)
-
-
-	часто после сетпак
-	[16:11:28] [Server thread/INFO]: Set_pack url=http://ostrov77.ru/uploads/resourcepacks/sedna.zip  hash=724e23823625c76c8d8272a4a98fbce75564dc91  last_hash=
-[16:11:28] [Server thread/FATAL]: Error executing task
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at java.util.concurrent.FutureTask.report(FutureTask.java:122) ~[?:1.8.0_131]
-	at java.util.concurrent.FutureTask.get(FutureTask.java:192) ~[?:1.8.0_131]
-	at net.minecraft.server.v1_12_R1.SystemUtils.a(SourceFile:47) [test.jar:git-Spigot-7754231-9a1f5ee]
-	at net.minecraft.server.v1_12_R1.MinecraftServer.D(MinecraftServer.java:748) [test.jar:git-Spigot-7754231-9a1f5ee]
-	at net.minecraft.server.v1_12_R1.DedicatedServer.D(DedicatedServer.java:406) [test.jar:git-Spigot-7754231-9a1f5ee]
-	at net.minecraft.server.v1_12_R1.MinecraftServer.C(MinecraftServer.java:679) [test.jar:git-Spigot-7754231-9a1f5ee]
-	at net.minecraft.server.v1_12_R1.MinecraftServer.run(MinecraftServer.java:577) [test.jar:git-Spigot-7754231-9a1f5ee]
-	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_131]
-Caused by: java.lang.NullPointerException
+09.07.21
+] Could not enable the attribute remover for this version.Attributes will show up on items.
+java.lang.ClassNotFoundException: net.minecraft.server.v1_17_R1.NBTTagCompound
+	at ru.komiss77.modules.menuItem.MenuItemsManager.lambda$reload$1(MenuItemsManager.java:73) ~[?:?]
+	at ru.komiss77.modules.menuItem.MenuItemsManager.onInteract(MenuItemsManager.java:228) ~[?:?]
 
 
 
+NullPointerException: Cannot read field "ready" because "this.schem" is null - профиксил, на проверку
+	at ru.komiss77.modules.world.PasteJob.run(PasteJob.java:80) ~[?:?]
 
-скайблок 30.8.20
-[22:08:03] [Server thread/ERROR]: Could not pass event OstrovChanelEvent to Ostrov v2.0
-org.bukkit.event.EventException: null
-	at org.bukkit.plugin.java.JavaPluginLoader$1.execute(JavaPluginLoader.java:319) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at org.bukkit.plugin.SimplePluginManager.fireEvent(SimplePluginManager.java:589) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:576) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at ru.komiss77.Listener.SpigotChanellMsg.onPluginMessageReceived(SpigotChanellMsg.java:45) ~[?:?]
-	at org.bukkit.plugin.messaging.StandardMessenger.dispatchIncomingMessage(StandardMessenger.java:455) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.PlayerConnection.a(PlayerConnection.java:2511) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.PacketPlayInCustomPayload.a(SourceFile:44) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.PacketPlayInCustomPayload.a(SourceFile:9) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.PlayerConnectionUtils.lambda$0(PlayerConnectionUtils.java:19) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.TickTask.run(SourceFile:18) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.IAsyncTaskHandler.executeTask(SourceFile:144) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.IAsyncTaskHandlerReentrant.executeTask(SourceFile:23) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.IAsyncTaskHandler.executeNext(SourceFile:118) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.MinecraftServer.ba(MinecraftServer.java:941) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.MinecraftServer.executeNext(MinecraftServer.java:934) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.IAsyncTaskHandler.awaitTasks(SourceFile:127) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.MinecraftServer.sleepForTick(MinecraftServer.java:918) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.MinecraftServer.w(MinecraftServer.java:850) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at net.minecraft.server.v1_16_R2.MinecraftServer.lambda$0(MinecraftServer.java:164) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	at java.lang.Thread.run(Thread.java:834) [?:?]
-Caused by: java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1
-	at ru.komiss77.Listener.OstrovChanelListener.onChanelMsg(OstrovChanelListener.java:37) ~[?:?]
-	at jdk.internal.reflect.GeneratedMethodAccessor92.invoke(Unknown Source) ~[?:?]
-	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
-	at java.lang.reflect.Method.invoke(Method.java:566) ~[?:?]
-	at org.bukkit.plugin.java.JavaPluginLoader$1.execute(JavaPluginLoader.java:315) ~[skyblock.jar:git-Spigot-b5a13e6-7d31adb]
-	... 20 more
-	

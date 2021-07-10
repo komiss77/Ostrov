@@ -41,7 +41,7 @@ public class LocationUtil {
         
         final String[] split = loc_string.split(separator);
         if ( split.length<4 || split.length>6 ) {
-            Ostrov.log_err("Декодер локации : длинна массива должна быть от 4 до 6 : "+loc_string);
+            Ostrov.log_warn("Декодер локации : длинна массива должна быть от 4 до 6 : "+loc_string);
             return null;
         }
         

@@ -213,7 +213,13 @@ public class WE extends Initiable {
     
     
     public static Schematic getSchematic(final CommandSender cs, final String schemName, final boolean deleteFile) {
-        if (schematics.containsKey(schemName)) return schematics.get(schemName);
+        if (schematics.containsKey(schemName)) {
+            if (deleteFile) { //не удаляет файл если есть в буфере!!
+                final File file = new File(Ostrov.instance.getDataFolder() + "/schematics" , schemName+".schem");
+                if (file.exists()) file.delete();
+            }
+            return schematics.get(schemName);
+        }
         final File file = new File(Ostrov.instance.getDataFolder() + "/schematics" , schemName+".schem");
         if (!file.exists()) {
             if (cs!=null) cs.sendMessage("§cНет файла схематика "+schemName);
@@ -252,24 +258,28 @@ public class WE extends Initiable {
     
     
     
-    @Deprecated //не убирать!!  использует регионГуи
+  /*  @Deprecated //не убирать!!  использует регионГуи
     public static void save (final CommandSender cs, final Location loc1,  final Location loc2, final String folderPath, final String fileName, final boolean notify) {
         if ( loc1==null || loc2==null || fileName==null || fileName.isEmpty() ) return;
         Schematic sh = new Schematic(cs, fileName, loc1, loc2, true, folderPath, ".region", scipOnPasteDefault);
         schematics.put(sh.getName(), sh);        
 
-    }   
+    }   */
 
 
 
     
     
     public static void paste (final CommandSender cs, final Location loc, final Schematic schem, final boolean pasteAir) {
+        if (schem==null) {
+            cs.sendMessage("Schematic==null!!");
+            return;
+        }
         PasteJob job = new PasteJob(cs, loc, schem, pasteAir);
         jobs.put(job.getId(), job);
     } 
     
-    
+  /*  
     @Deprecated  //не убирать!! использует регионГуи
     public static void paste (final CommandSender cs, final Location loc, final String folderPath, final String fileName, final boolean notify, final boolean deleteFile, final Runnable onDone) {
         paste(cs, loc, folderPath, fileName, notify, deleteFile, onDone, new ArrayList<>());
@@ -285,7 +295,7 @@ public class WE extends Initiable {
         }
         final Schematic schem = new Schematic(cs, regionDataFile, deleteFile);
         paste (cs, loc, schem, true);
-    }
+    }*/
             
     
     

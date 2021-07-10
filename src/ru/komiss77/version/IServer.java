@@ -17,7 +17,7 @@ public interface IServer {
     //String getlevelName (final World bukkitWorld);
         
     //int getMaxWorldSize (final World bukkitWorld);
-    //int getitemDespawnRate (final World bukkitWorld);
+    int getitemDespawnRate (final World bukkitWorld);
 
     int getTps ();
 
@@ -30,7 +30,7 @@ public interface IServer {
     
     public void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack);
     
-    //public void sendChunkChange (final Player player, final Chunk chunk);
+    public void sendChunkChange (final Player player, final Chunk chunk); //skyworld
 
     public void BorderDisplay(final Player player, final Location minPoint, final Location maxPoint, final boolean tpToCenter);
     

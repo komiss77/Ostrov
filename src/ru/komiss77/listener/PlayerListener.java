@@ -64,6 +64,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import static ru.komiss77.listener.ServerListener.block_nether_portal;
 import ru.komiss77.menu.SignEditSelectLine;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
@@ -72,6 +73,43 @@ import ru.komiss77.version.VM;
 
 
 public class PlayerListener implements Listener {
+
+/*
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onNetherCreate(PortalCreateEvent e) { 
+        System.out.println("PortalCreateEvent isCancelled?"+e.isCancelled());
+    }
+
+
+
+    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void testHIGHEST(PlayerInteractEvent e) {
+        System.out.println("Interac HIGHEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }  
+    @EventHandler (priority = EventPriority.HIGH, ignoreCancelled = false)
+    public void testHIGH(PlayerInteractEvent e) {
+        System.out.println("Interac HIGH canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }
+    @EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = false)
+    public void testNORMAL(PlayerInteractEvent e) {
+        System.out.println("Interac NORMAL canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }
+    @EventHandler (priority = EventPriority.LOW, ignoreCancelled = false)
+    public void testLOW(PlayerInteractEvent e) {
+        System.out.println("Interac LOW canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }
+    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void testLOWEST(PlayerInteractEvent e) {
+        System.out.println("Interac LOWEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }
+    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void testMONITOR(PlayerInteractEvent e) {
+        System.out.println("Interac MONITOR canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    }
+
+*/
+
+
 
 
     private static boolean set_gm = false;
@@ -228,6 +266,29 @@ public class PlayerListener implements Listener {
         e.setLine(3, e.getLine(3).replaceAll("&", "§"));
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

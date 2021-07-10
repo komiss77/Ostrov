@@ -35,6 +35,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.ViewPerm;
+import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.utils.ChatMsgUtil;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -185,7 +186,7 @@ switch (label) {
         if (p==null) {sender.sendMessage(Ostrov.prefix+"§сне консольная команда!"); return true;}
             switch (arg.length) {
                 case 0:
-                    p.openInventory(GM.main_inv);
+                    PM.getOplayer(p).menu.open(p, Section.РЕЖИМЫ);//p.openInventory(GM.main_inv);
                     p.playSound(p.getLocation(), Sound.BLOCK_SHULKER_BOX_OPEN, 1, 2);
                     break;
                 case 1:

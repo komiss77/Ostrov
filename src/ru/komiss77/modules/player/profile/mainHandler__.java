@@ -23,15 +23,15 @@ public class mainHandler__ {
     public static void invClick(final InventoryClickEvent e) {
 //System.out.println("mainHandler invClick");
     final Player p=(Player) e.getWhoClicked();
-    final Oplayer op = PM.getOplayer(p.getName());
+    //final Oplayer op = PM.getOplayer(p.getName());
 
     if (Section.isProfileIcon(e.getSlot())) { //если кликают по нижним иконкам
         Section new_prof=Section.profileBySlot(e.getSlot());
     
-        setcolorGlassLine(e.getInventory(), new_prof.mat); //при каждом нажатии восстанавливает полоску
+      //  setcolorGlassLine(e.getInventory(), new_prof.mat); //при каждом нажатии восстанавливает полоску
        // op.e_profile=new_prof;
        // cleanField(op.profile);
-        p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 0.7F, 2);
+       // p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 0.7F, 2);
     
     
             switch (new_prof) {
@@ -61,14 +61,14 @@ public class mainHandler__ {
                   //  else Ostrov.api_friends.onPartyProfileIconClick(p, e);
                     break;
 
-                case СЕРВЕР:
-                    if (e.isLeftClick()) {
+               // case РЕЖИМЫ:
+                  //  if (e.isLeftClick()) {
                         //p.performCommand("serv");
-                        p.openInventory(GM.main_inv);
-                    } else if (e.isRightClick()) {
-                        p.performCommand("menu");
-                    }                    
-                    return;
+                      //  p.openInventory(GM.main_inv);
+                  //  } else if (e.isRightClick()) {
+                 //       p.performCommand("menu");
+                 //   }                    
+                  //  return;
 /*
                 case ПОМОЩЬ:
                     if (e.isShiftClick()) {

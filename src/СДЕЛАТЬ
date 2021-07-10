@@ -4,35 +4,40 @@
 
 режим турнир, ведущий
 
-валера
-+кик не подставляет
+кик пустая причина
 
+настройка доступа на арены по репутации или группа доверие
 
 глобальный афк (исключение для ostrov.afk)
 реплика БД
 простенькая свадьба
 
-меню серверов по умолчанию
 
 доделать StatManager - reputationChange calculateReputationBase
-челенджи за рил
-сохранять выбранные челеджи
+челенджи за рил + дневная касса, сохранять выбранные челеджи
 
 переход на сервера порталами
 
 стата - звания от достижения
 
-профиль: уровень,опыт,настройки аккаунта (пароль,все данные,блокировка по ип), выевсти инфо о других аккаунтах, сколько еще можно создать
+профиль: настройки аккаунта (пароль,все данные,блокировка по ип), выевсти инфо о других аккаунтах, сколько еще можно создать
 предложить заполнить телефон, мыло
 журнал гуи
-группыб ценыб покупка - в остров
+группы цены покупка - в остров
 
- LoadPlayerGroups error - Operation not allowed after ResultSet closed
+LoadPlayerGroups error - Operation not allowed after ResultSet closed
 
-настройка доступа на арены по репутации или группа доверие
+не удалило файл региона
 
+один раз кидает
+] Could not enable the attribute remover for this version.Attributes will show up on items.
+java.lang.ClassNotFoundException: net.minecraft.server.v1_17_R1.NBTTagCompound
+	at ru.komiss77.modules.menuItem.MenuItemsManager.lambda$reload$1(MenuItemsManager.java:73) ~[?:?]
+	at ru.komiss77.modules.menuItem.MenuItemsManager.onInteract(MenuItemsManager.java:228) ~[?:?]
 
-NametagEdit ProCosmetics  AAC -ждём обнову на 1.17.1
+NametagEdit-
+sendChunkChange - PacketPlayOutMapChunk
+ProCosmetics  AAC -ждём обнову на 1.17.1
 
 долго нет соединения - не может записать состояние в остров, но ошибок нет
 public static boolean isDbConnected() {

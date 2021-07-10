@@ -44,7 +44,7 @@ public class StatSection implements InventoryProvider {
         //content.fillRect(0,0,  5,8, ClickableItem.empty(fill));
         
         final Oplayer op = PM.getOplayer(p);
-        final ProfileManager pm = op.menu;
+        //final ProfileManager pm = op.menu;
 
         
         

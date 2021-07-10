@@ -16,7 +16,9 @@ public interface INbt {
      * @param value
      * @return при вызове обязательно присваивать результат!!!!
      */
-    org.bukkit.inventory.ItemStack addString(org.bukkit.inventory.ItemStack item, String name, String value);
+    org.bukkit.inventory.ItemStack addString(org.bukkit.inventory.ItemStack item, String path, String value);
+    
+    org.bukkit.inventory.ItemStack removeString(org.bukkit.inventory.ItemStack item, String path);
     
     String getString(org.bukkit.inventory.ItemStack item, String name);
 

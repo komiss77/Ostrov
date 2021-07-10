@@ -33,7 +33,6 @@ import ru.komiss77.events.PartyUpdateEvent;
 import ru.komiss77.LocalDB;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.scoreboard.CustomScore;
@@ -246,10 +245,10 @@ public final class Oplayer {
         //    resetWantArena = 5;
         //}
         
-System.out.println("- dataInt="+dataInt);        
-System.out.println("- dataString="+dataString);        
-System.out.println("- stat="+stat);        
-System.out.println("- daylyStat="+daylyStat);
+//System.out.println("- dataInt="+dataInt);        
+//System.out.println("- dataString="+dataString);        
+//System.out.println("- stat="+stat);        
+//System.out.println("- daylyStat="+daylyStat);
 
         if (dataString.containsKey(Data.PARTY_MEBRERS) && !dataString.get(Data.PARTY_MEBRERS).isEmpty()) { //пати в виде списка, лидер - первый
 //System.out.println("bungeeDataInject() PARTY_MEBRERS = "+bungeeData.get(Data.PARTY_MEBRERS));

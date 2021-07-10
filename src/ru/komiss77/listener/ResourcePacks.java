@@ -360,7 +360,7 @@ System.out.println("onPlayerResourcePackStatusEvent "+e.getStatus());
         if ( use && block_interact && e.getPlayer() instanceof Player) {
             
         if ( e.getView().getTitle().equals("§4Проверка Ресурс-пака") 
-                || e.getView().getTitle().startsWith(GM.main_inv_name) 
+                //|| e.getView().getTitle().startsWith(GM.main_inv_name) 
                 || e.getView().getTitle().equals(ItemUtils.profile_master_inv_name) 
         ) return;
         

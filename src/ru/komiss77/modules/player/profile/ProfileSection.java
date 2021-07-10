@@ -61,7 +61,7 @@ public class ProfileSection implements InventoryProvider {
                 .lore("§7Общее игровое время с момента регистрации,") //1
                 .lore("§7и ежедневный прирост.") //2
                 .lore("") //3
-                .lore("") //4 игровое время, обновляется каждую секунду.lore( Stat.PLAY_TIME.desc+ApiOstrov.secondToTime(op.getStat(Stat.PLAY_TIME))) //4
+                .lore( Stat.PLAY_TIME.desc+ApiOstrov.secondToTime(op.getStat(Stat.PLAY_TIME)) ) //4 игровое время, обновляется каждую секунду, если наиграл меньше недели!!
                 .lore("") //5 наиграно за сегодня, обновляется каждую секунду
                 .lore("")
                 .lore( Pandora.getInfo(op) )

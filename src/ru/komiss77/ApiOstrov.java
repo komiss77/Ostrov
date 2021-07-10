@@ -87,6 +87,12 @@ public class ApiOstrov {
     }    
     
     //всё по Оплееру
+    public static int getStat(final Player p, final Stat e_stat) {
+        return PM.exist(p.getName()) ? PM.getOplayer(p).getStat(e_stat) : 0;
+    }
+    public static int getDaylyStat(final Player p, final Stat e_stat) {
+        return PM.exist(p.getName()) ? PM.getOplayer(p).getDaylyStat(e_stat) : 0;
+    }
     public static void addStat(final Player p, final Stat e_stat) {
         addStat(p, e_stat, 1);
     }
@@ -97,9 +103,7 @@ public class ApiOstrov {
         //StatManager.addExp(PM.getOplayer(p), ammount);
         PM.getOplayer(p).addExp(p, ammount);
     }
-    public static int getStat(final Player p, final Stat e_stat) {
-        return PM.getOplayer(p.getName()).getStat(e_stat);
-    }
+
     //public static void setStat(final Player p, final E_Stat e_stat, final String new_value) {
     //    StatManager.setStringStat (p, e_stat, new_value);
     //}

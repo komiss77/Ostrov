@@ -170,6 +170,7 @@ public class Schematic {
     //загрузка из файла
     public Schematic(final CommandSender cs, final File schemFile, final boolean deleteFile) {
         
+//System.out.println("new Schematic deleteFile="+deleteFile);
         //ready = false;
       //  Ostrov.async( ()-> { асинхронная загрузка - головняк для редактора!
             
@@ -251,10 +252,12 @@ public class Schematic {
                 
             } finally {
                 
+//System.out.println("schemFile finally deleteFile="+deleteFile);
                 ready = true;
                 
                 if (deleteFile) {
                     schemFile.delete();
+//System.out.println("schemFile delete "+schemFile.getName()+":"+schemFile.getAbsolutePath());
                 }
                 //if (consumer!=null) {
                 //    Ostrov.sync(()->consumer.accept(cs),0);

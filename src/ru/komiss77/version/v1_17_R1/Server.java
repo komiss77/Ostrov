@@ -4,12 +4,16 @@ package ru.komiss77.version.v1_17_R1;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
+import net.minecraft.network.protocol.game.PacketPlayOutUnloadChunk;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
+import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.level.block.entity.TileEntitySign;
 import net.minecraft.world.level.border.WorldBorder;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -34,7 +38,10 @@ public class Server implements IServer {
         return (int) MinecraftServer.TPS;
     }
     
-    
+    @Override
+    public int getitemDespawnRate (final World bukkitWorld) { //skyworld
+        return ((CraftWorld)bukkitWorld).getHandle().spigotConfig.itemDespawnRate;
+    }
     
   /*  @Override
     public Player getOfflinePlayer(String name, UUID uuid, Location location) {
@@ -80,12 +87,12 @@ public class Server implements IServer {
         ((CraftPlayer)player).getHandle().b.sendPacket(new PacketPlayOutSetSlot(entityPlayer.bU.j, playerInventorySlot, playerInventorySlot, CraftItemStack.asNMSCopy(itemStack)));
     }    
 
-  /*  @Override
+    @Override
     public void sendChunkChange(final Player player, final Chunk chunk) {
-        final PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
+        final PlayerConnection conn = ((CraftPlayer) player).getHandle().b;
         conn.sendPacket( new PacketPlayOutUnloadChunk(chunk.getX(), chunk.getZ()) );
-        conn.sendPacket(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65535));
-    }*/
+       // conn.sendPacket(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65535));
+    }
 
     @Override
     public void BorderDisplay(final Player player, final Location minPoint, final Location maxPoint, final boolean tpToCenter) {

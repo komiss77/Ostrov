@@ -3,13 +3,19 @@ package ru.komiss77.version.v1_16_R3;
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.MinecraftServer;
+import net.minecraft.server.v1_16_R3.PacketPlayOutMapChunk;
 import net.minecraft.server.v1_16_R3.PacketPlayOutSetSlot;
+import net.minecraft.server.v1_16_R3.PacketPlayOutUnloadChunk;
 import net.minecraft.server.v1_16_R3.PacketPlayOutWorldBorder;
+import net.minecraft.server.v1_16_R3.PlayerConnection;
 import net.minecraft.server.v1_16_R3.TileEntitySign;
 import net.minecraft.server.v1_16_R3.WorldBorder;
 import net.minecraft.server.v1_16_R3.WorldServer;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
@@ -33,8 +39,12 @@ public class Server implements IServer {
     }
     
     
+    @Override
+    public int getitemDespawnRate (final World bukkitWorld) { //skyworld
+        return ((org.bukkit.craftbukkit.v1_17_R1.CraftWorld)bukkitWorld).getHandle().spigotConfig.itemDespawnRate;
+    }
     
-  /*  @Override
+    /*  @Override
     public Player getOfflinePlayer(String name, UUID uuid, Location location) {
         Player target;
         final GameProfile profile = new GameProfile(uuid, name);
@@ -60,12 +70,12 @@ public class Server implements IServer {
         ((CraftPlayer)player).getHandle().playerConnection.sendPacket(new PacketPlayOutSetSlot(handle.defaultContainer.windowId, playerInventorySlot, CraftItemStack.asNMSCopy(itemStack)));
     }    
 
-  /*  @Override
+    @Override
     public void sendChunkChange(final Player player, final Chunk chunk) {
         final PlayerConnection conn = ((CraftPlayer) player).getHandle().playerConnection;
         conn.sendPacket( new PacketPlayOutUnloadChunk(chunk.getX(), chunk.getZ()) );
         conn.sendPacket(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65535));
-    }*/
+    }
 
     @Override
     public void BorderDisplay(final Player player, final Location minPoint, final Location maxPoint, final boolean tpToCenter) {

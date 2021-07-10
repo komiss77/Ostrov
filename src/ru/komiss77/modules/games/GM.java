@@ -14,7 +14,6 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -27,8 +26,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import ru.komiss77.ApiOstrov;
@@ -44,7 +41,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.utils.ColorUtils;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.version.VM;
 
@@ -73,8 +69,8 @@ public final class GM extends Initiable implements Listener {   //не пере�
     private static int lastCheck=ApiOstrov.currentTimeSec();
     public static int bungee_online=0;
     
-    public static Inventory main_inv;
-    public static final String main_inv_name="§2Сервера ";
+    //public static Inventory main_inv;
+  //  public static final String main_inv_name="§2Сервера ";
 
     
 
@@ -83,7 +79,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
         games=new EnumMap(Game.class);
         signs=new HashMap<>();
         allBungeeServersName=new HashSet<>();
-        main_inv=Bukkit.createInventory(null, 54, main_inv_name);
+      //  main_inv=Bukkit.createInventory(null, 54, main_inv_name);
         reload();
     }
     
@@ -102,7 +98,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
 
         
         
-        main_inv.clear();
+       // main_inv.clear();
         games.clear();
         signs.clear();
         allBungeeServersName.clear();
@@ -135,7 +131,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
             //send_data = Cfg.GetCongig().getBoolean("ostrov_database.games_info_for_server_menu_send");
             Ostrov.async(()-> loadArenaInfo(0), 0);
 //System.out.println("reload4");                                    
-            main_inv.setItem(53, new ItemBuilder(Material.BARRIER).setName("§5Закрыть").build());
+        //    main_inv.setItem(53, new ItemBuilder(Material.BARRIER).setName("§5Закрыть").build());
 //System.out.println("reload5");                                    
             //Ostrov.log_ok ("§2Меню серверов загружено!");
         } catch (Exception ex) { 
@@ -803,9 +799,9 @@ public final class GM extends Initiable implements Listener {   //не пере�
             stmt.close();
 //System.out.println("loadArenaInfo 6");                                    
 
-            games.values().stream().forEach( (si) -> {
-                si.updateIcon();
-            });
+          //  games.values().stream().forEach( (si) -> {
+          //      si.updateIcon();
+        //    });
 //System.out.println("loadArenaInfo 7");                                    
                 //main_inv.getViewers().stream().forEach( p -> {((Player)p).updateInventory();} );
             if (fromStamp==0) {
@@ -1051,7 +1047,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
     
     
 
-
+/*
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public static void onInventoryClick(InventoryClickEvent e) {
@@ -1127,7 +1123,7 @@ public final class GM extends Initiable implements Listener {   //не пере�
             
         }
 
-    }
+    }*/
 
 
 

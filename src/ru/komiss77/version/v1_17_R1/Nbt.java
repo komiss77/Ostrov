@@ -84,6 +84,18 @@ public class Nbt implements INbt {
         return CraftItemStack.asBukkitCopy(itemNms);
     }
 
+    @Override
+    public org.bukkit.inventory.ItemStack removeString(org.bukkit.inventory.ItemStack item, String path) {
+         if (hasString(item, path)) {
+             //ItemStack itemNms = CraftItemStack.asNMSCopy(item);
+             NBTTagCompound tag = getTag(item);
+             tag.remove(path);
+             return setTag(item, tag);
+         } else {
+             return item;
+         }
+    }
+
     
 
     
