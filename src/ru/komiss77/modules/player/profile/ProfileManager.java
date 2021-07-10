@@ -26,12 +26,13 @@ public class ProfileManager {
     private static InventoryManager im = InventoryManager.get();
     public Oplayer op;
     public Section section = Section.РЕЖИМЫ;
-    public Game game = null;  //для динамической обновы
+    public Game game = null;  //для динамической обновы. null значит открыты большие, или арены игры
     
     protected Inventory current;
     //иконки, меняющие локе каждую секунду
     //public ClickableItem time;
     //public ClickableItem stat;
+    protected int gamePage;
     
     
     
@@ -138,9 +139,9 @@ public class ProfileManager {
 
             case РЕЖИМЫ:
                 if (game==null) {
-System.out.println("тик меню игр");
+//System.out.println("тик меню игр");
                 } else {
-System.out.println("тик арен "+game);
+//System.out.println("тик арен "+game);
                 }
                 break;
 
