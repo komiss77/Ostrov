@@ -77,7 +77,7 @@ public final class Pandora implements Initiable, Listener {
                     + "\n§7За скромную, по его мнению, цену."
                     + "\n§7Несколько таких сундучков затерялось на Острове.")));
    
-    private static final TextComponent infoEn = Component.text("§e§kXXX§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e§kXXX")
+    private static final TextComponent infoEn = Component.text("§e§kXXX§6 Pandora Box invites you to try your luck! §e§kXXX")
             	.hoverEvent(HoverEvent.showText(TCUtils.format(
             		"§7Legend say, Pandora's chests were created by the Daarians,"
                     + "\n§7and the secrets of their chars were carefully hidden."
