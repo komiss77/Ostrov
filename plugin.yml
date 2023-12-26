@@ -1,0 +1,147 @@
+api-version: 1.18
+name: Ostrov
+main: ru.komiss77.Ostrov
+version: 2.0
+load: STARTUP
+author: Komiss77
+
+loadbefore: [Factions, Matrix]
+depend: []
+
+
+
+
+
+commands:
+  ohelp:
+    description: Помощь постранично
+  menu:
+    description: Открыть главное меню
+  server:
+    description: Меню выбора сервера
+  serv:
+    description: Меню выбора сервера
+  hub:
+    description: перейти в лобби
+  lobby:
+    description: перейти в лобби
+  profile:
+    description: Открыть профиль
+  settings:
+    description: Открыть меню личных настроек
+  spawn:
+    description: Телепорт в начальную локацию
+  givemenu:
+    description: Получить часики
+  home:
+    description: Домой
+  sethome:
+    description: Установить точку дома
+  delhome:
+    description: Удалить точку дома
+  tpr:
+    description: Телепорт в случайное место
+  world:
+    description: Меню выбора мира
+  tpa:
+    description: Отправить запрос на телепорт
+  tpaccept:
+    description: Принять запрос на телепорт
+  pvp:
+    description: Управление режимом ПВП
+  warp:
+    description: Места. warp.set.x - разрешает установку х точек.
+  top:
+    description: Переместиться в высшую над вами точку
+  kit:
+    description: Получить набор
+  shop:
+    description: Магазин
+  rp:
+    description: Получить серверный ресурс-пак
+  seen:
+    description: Информация об игроке
+  passport:
+    description: Просмотр паспорта игрока
+  report:
+    description: Заявить о нарушении
+  mission:
+    description: миссии
+  donate:
+    description: магазинная книга
+  hat:
+    description: Шлемофон
+  protocol:
+    description: $!@PH@f,v?
+
+    
+    
+  back:
+    description: Вернуться на место гибели <vip>
+  suffix:
+    description: Установить префикс <vip>
+  prefix:
+    description: Установить суффикс <vip>
+  fly:
+    description: Режим полёта <vip>
+  get:
+    description: Получить предмет <moder>
+  tpo:
+    description: Телепорт к игроку <moder>
+  tppos:
+    description: Телепорт по координатам <moder>
+  tphere:
+    description: Телепорт игрока к себе <moder>
+  gm:
+    description: Управление игровым режимом <moder>
+    
+    
+  invsee:
+    description: Просмотр инвентаря. /invsee <ник> [armor/ender] <moder>
+  spy:
+    description: Режим шпиона <moder>
+  builder:
+    description: режим строителя
+  moder:
+    description: режим модера
+  admin:
+    description: режим абьюзера
+  sound:
+    description: звуки
+  nbtfind:
+    description: Просканировать инвентарь игроков на нбт-тэги <moder>
+    usage: '/nbtfind [material] (all-любой)'
+  nbtcheck:
+    description: Просканировать предмет на нбт-тэги <moder>
+    usage: '/nbtcheck'
+  oreload:
+    description: Перезагрузить конфиг <moder>
+  biome:
+    description: Узнать биом
+  entity:
+    description: Управление сущностями <moder>
+  blockstate:
+    description: Подсчитать blockstate <moder>
+  operm:
+    description: Список пермишенов <moder>
+  wm:
+    description: Менеджер миров
+
+  reward:
+    description: награда от консоли и плагинов
+  statadd:
+    description: начисление статистики
+  statreach:
+    description: достижение статистики
+  bossbar:
+    description: панель дракона
+  analytics:
+    description: Аналитика регистраций
+  clean:
+    description: Очистка от хлама
+  figure:
+    description: Получить инструмент
+  craft:
+    description: Редактирование крафтов
+
+

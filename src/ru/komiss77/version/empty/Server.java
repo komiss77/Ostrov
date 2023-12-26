@@ -1,0 +1,107 @@
+package ru.komiss77.version.empty;
+
+import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.level.block.state.IBlockData;
+import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.version.IServer;
+
+public class Server implements IServer {
+
+    @Override
+    public byte[] encodeBase64(byte[] binaryData) {
+        return binaryData;
+    }
+
+    @Override
+    public void pathServer() {
+    }
+
+    @Override
+    public void pathWorld(World bukkitWorld) {
+    }
+
+    @Override
+    public int getTps() {
+        return 20;
+    }
+
+    @Override
+    public int getitemDespawnRate(final World bukkitWorld) { //skyworld
+        return 200;
+    }
+
+    public void sendTabListInfo(final Player p) {
+    }
+
+    @Override
+    public void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack) {
+    }
+
+    @Override
+    public void sendChunkChange(final Player player, final Chunk chunk) {
+    }
+
+    @Override
+    public void BorderDisplay(final Player player, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
+    }
+
+    @Override
+    public void pathPermissions() {
+    }
+
+    @Override
+    public void chatFix() {
+    }
+
+    @Override
+    public void signInput(Player p, String suggest, XYZ signXyz) {
+    }
+
+    @Override
+    public Material getFastMat(final World w, int x, int y, int z) {
+        return w.getBlockAt(x, y, z).getType();
+    }
+
+    @Override
+    public BlockData getBlockData(IBlockData iBlockData) {
+        return null;
+    }
+
+    @Override
+    public WorldServer toNMS(final World w) {
+        return null;
+    }
+
+    @Override
+    public net.minecraft.world.entity.Entity toNMS(final Entity w) {
+        return null;
+    }
+
+    @Override
+    public EntityLiving toNMS(final LivingEntity le) {
+        return null;
+    }
+
+    @Override
+    public EntityPlayer toNMS(final Player p) {
+        return null;
+    }
+
+	@Override
+	public DedicatedServer toNMS() {
+		return null;
+	}
+
+}
