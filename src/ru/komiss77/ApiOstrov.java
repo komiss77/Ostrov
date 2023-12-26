@@ -816,9 +816,14 @@ public class ApiOstrov {
     	return arr;
     }
 
+    public static int rndSignNum(int init, final int rnd) {
+        if (rnd > 0) init += Ostrov.random.nextInt(rnd);
+        return Ostrov.random.nextBoolean() ? init : -init;
+    }
+
+    @Deprecated
 	public static int getRndPlusMinusNum(int init, final int rnd) {
-		if (rnd > 0) init += Ostrov.random.nextInt(rnd);
-		return Ostrov.random.nextBoolean() ? init : -init;
+		return rndSignNum(init, rnd);
 	}
 
 	public static String toSigFigs(final float n, final byte sf) {
