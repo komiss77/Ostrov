@@ -1,12 +1,6 @@
 package ru.komiss77.utils;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
@@ -34,7 +28,6 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
-import java.util.Collection;
 import net.kyori.adventure.text.Component;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtils.Texture;
@@ -143,9 +136,7 @@ public class ItemBuilder {
                 lore.add(TCUtils.format(s));
             }
         } else if (o instanceof Component[] cc) {
-            for (final Component c : cc) {
-                lore.add(c);
-            }
+            Collections.addAll(lore, cc);
         }
         //if (s.isEmpty()) lore.add(Component.text(""));
         //else lore.add(TCUtils.format(s));
@@ -153,7 +144,7 @@ public class ItemBuilder {
     }
     
     public ItemBuilder addLore(final Object... lores) {
-        if (lores==null || lores.length == 0) return this;
+        if (lores == null) return this;
     	for (final Object o : lores) {
             addLore(o);
         }
@@ -330,8 +321,8 @@ public class ItemBuilder {
     }
 
     /**
-     * @param texture https://minecraft-heads.com/custom-heads/
-     * @return 
+     * @param texture <a href="https://minecraft-heads.com/custom-heads/">...</a>
+     * @return
      */
     public ItemBuilder setCustomHeadTexture(final String texture) {
         //if (texture.length()<70) return setCustomHeadUrl(texture); //фикс!!
@@ -404,7 +395,7 @@ public class ItemBuilder {
         
         switch (getType()) {
             
-            case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION -> {
+            case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
                 if (basePotionData!=null || customPotionEffects!=null) {
                     final PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
                     if (basePotionData!=null) potionMeta.setBasePotionData(basePotionData);
@@ -418,19 +409,18 @@ public class ItemBuilder {
                     }
                     item.setItemMeta(potionMeta);
                 }
-            }
+                break;
             
-            case PLAYER_HEAD -> {
+            case PLAYER_HEAD:
                 final SkullMeta skullMeta = (SkullMeta)item.getItemMeta();
                 
                 if (skullOwnerUuid!=null && !skullOwnerUuid.isEmpty()) {
                     final UUID uuid = UUID.fromString(skullOwnerUuid);
-                    if (uuid!=null) {
-                        final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                        skullMeta.setOwningPlayer(offlinePlayer);
-                        item.setItemMeta(skullMeta);
-                    }
+                    final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+                    skullMeta.setOwningPlayer(offlinePlayer);
+                    item.setItemMeta(skullMeta);
                 }
+
                 if (skullTexture!=null && !skullTexture.isEmpty()) {
                     if (skullTexture.length()>72) { //определяяем зашифрованную ссылку
                         final String decoded = new String(Base64.getDecoder().decode(skullTexture));
@@ -440,18 +430,18 @@ public class ItemBuilder {
                     skullMeta.setPlayerProfile(profile);
                     item.setItemMeta(skullMeta);
                 }
-            }
+                break;
             
             case LEATHER_BOOTS, LEATHER_CHESTPLATE, LEATHER_HELMET, 
-            LEATHER_LEGGINGS, LEATHER_HORSE_ARMOR -> {
+            LEATHER_LEGGINGS, LEATHER_HORSE_ARMOR:
                 if (color!=null) {
                     final LeatherArmorMeta leatherMeta = (LeatherArmorMeta) item.getItemMeta();
                     leatherMeta.setColor(color);
                     item.setItemMeta(leatherMeta);
                 }
-            }
+                break;
             
-            case ENCHANTED_BOOK -> {//для книг  чары в storage
+            case ENCHANTED_BOOK://для книг  чары в storage
                 if (enchants!=null && !enchants.isEmpty()) {
                     final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) item.getItemMeta();
                     for (Enchantment enchant : enchants.keySet()) {    //ignoreLevelRestriction
@@ -459,22 +449,22 @@ public class ItemBuilder {
                     }
                     item.setItemMeta(enchantedBookMeta);
                 }
-            }
+                return item;
             
-            default -> { //для обычных предметоа просто кидаем чары
-                if (meta != null && enchants!=null && !enchants.isEmpty()) {
-                    for (Enchantment enchant : enchants.keySet()) {
-                        try { //item.addEnchantment(enchant, enchants.get(enchant));
-                            meta.addEnchant(enchant, enchants.get(enchant), true);
-                        } catch (IllegalArgumentException ex) {
-                            Ostrov.log_err("ItemBuilder: невозможно добавить чары "+enchant.getKey().getKey()+" к предмету "+item.getType().toString()+" : "+ex.getMessage());
-                        }
-                    }
-                    item.setItemMeta(meta);
+            default: break; //для обычных предметов просто кидаем чары - а для дригих не кидаем????? не заслужили тип????
+        }
+
+        if (meta != null && enchants!=null && !enchants.isEmpty()) {
+            for (Enchantment enchant : enchants.keySet()) {
+                try { //item.addEnchantment(enchant, enchants.get(enchant));
+                    meta.addEnchant(enchant, enchants.get(enchant), true);
+                } catch (IllegalArgumentException ex) {
+                    Ostrov.log_err("ItemBuilder: невозможно добавить чары "+enchant.getKey().getKey()+" к предмету "+item.getType().toString()+" : "+ex.getMessage());
                 }
             }
+            item.setItemMeta(meta);
         }
-//SSystem.out.println("-- build hasPlaceableKeys?"+meta.hasPlaceableKeys());        
+
         return item;
     }   
 }

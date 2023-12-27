@@ -42,7 +42,9 @@ public class FakeItemDis extends BukkitRunnable {
 	private final int tdId;
 	private final HashSet<FakeItemDis> anms;
 	protected final Interaction ine;
+	protected final Location olc;
 
+	private float scale = 1f;
 	private boolean showName = false, follow = false, rotate = false;
 	private BiConsumer<Player, FakeItemDis> onClick = (pl, fid) -> {};
 	private BiConsumer<Player, FakeItemDis> onLook = (pl, fid) -> {};
@@ -52,6 +54,7 @@ public class FakeItemDis extends BukkitRunnable {
 	
 	protected FakeItemDis(final Player pl, final Location at) {
 		this.pl = pl;
+		this.olc = at;
 		DisplayManager.animations.putIfAbsent(pl.getEntityId(), new HashSet<>());
 		anms = DisplayManager.animations.get(pl.getEntityId());
 		dv = at.toVector().subtract(pl.getEyeLocation().toVector());
@@ -64,7 +67,7 @@ public class FakeItemDis extends BukkitRunnable {
 		tds.a(stn);
 		tds.setPosRaw(at.getX(), at.getY(), at.getZ(), false);
 		
-		ine = at.getWorld().spawn(at.add(0d, -1d, 0d), Interaction.class);
+		ine = at.getWorld().spawn(at, Interaction.class);
 		ine.customName(TCUtils.format(""));
 		ine.setCustomNameVisible(false);
 		ine.setInteractionHeight(HGHT);
@@ -103,7 +106,7 @@ public class FakeItemDis extends BukkitRunnable {
 
 	@Deprecated
 	public FakeItemDis setOnClick(final Consumer<Player> cn) {
-		onClick = (pl, fid) -> cn.accept(pl); return this;
+		return setOnClick((pl, fid) -> cn.accept(pl));
 	}
 
 	protected void click(final Player pl) {
@@ -116,7 +119,7 @@ public class FakeItemDis extends BukkitRunnable {
 
 	@Deprecated
 	public FakeItemDis setOnLook(final Consumer<Player> cn) {
-		onLook = (pl, fid) -> cn.accept(pl); return this;
+		return setOnLook((pl, fid) -> cn.accept(pl));
 	}
 	
 	protected void look(final Player pl) {
@@ -124,8 +127,10 @@ public class FakeItemDis extends BukkitRunnable {
 	}
 
 	public FakeItemDis setScale(final float sc) {
+		this.scale = sc;
 		tds.a(new Transformation(new Vector3f(), new Quaternionf(),
 			new Vector3f(sc, sc, sc), new Quaternionf()));
+		ine.teleport(olc.clone().add(0d, -1d * scale, 0d));
 		ine.setInteractionHeight(HGHT * sc);
 		ine.setInteractionWidth(WDTH * sc);
 		return this;
@@ -143,6 +148,7 @@ public class FakeItemDis extends BukkitRunnable {
 	
 	public void create() {
 		ine.setCustomNameVisible(showName);
+		ine.teleport(olc.clone().add(0d, -1d * scale, 0d));
 		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
 		pc.a(new PacketPlayOutSpawnEntity(tds));
 		pc.a(new PacketPlayOutEntityMetadata(tdId, tds.aj().c()));
@@ -195,7 +201,8 @@ public class FakeItemDis extends BukkitRunnable {
 			final Vector dlc = nls.toVector().subtract(new Vector(ile.getX(), ile.getY() + 1d, ile.getZ()));
 			pc.a(new PacketPlayOutRelEntityMoveLook(tdId, (short) (dlc.getX() * 4096), (short) (dlc.getY() * 4096), 
 				(short) (dlc.getZ() * 4096), (byte) (( yaw - 360 * (yaw / 180) ) * 0.7f), (byte) 0, true));
-			ine.teleportAsync(new Location(nls.getWorld(), nls.getX(), nls.getY() - 1d, nls.getZ(), nls.getYaw(), nls.getPitch()));
+			ine.teleportAsync(new Location(nls.getWorld(), nls.getX(),
+				nls.getY() - 1d * scale, nls.getZ(), nls.getYaw(), nls.getPitch()));
 			
 			boolean look = false;
 			final double ln = Math.sqrt(Math.pow(dv.getX(), 2d) + Math.pow(dv.getZ(), 2d));
@@ -203,7 +210,7 @@ public class FakeItemDis extends BukkitRunnable {
 				if (Math.pow(-Math.sin(Math.toRadians((180f - elc.getYaw()))) - dv.getX() / ln, 2d) + 
 					Math.pow(-Math.cos(Math.toRadians((180f - elc.getYaw()))) - dv.getZ() / ln, 2d) < 0.16d / (ln * ln)) {
 					final double pty = elc.getY() + Math.tan(Math.toRadians(-elc.getPitch())) * ln - nls.getY();
-					if (pty < 0.6d && pty > -1d) {
+					if (pty < 0.6d * scale && pty > -1d * scale) {
 						look = true;
 						look(pl);
 					}
