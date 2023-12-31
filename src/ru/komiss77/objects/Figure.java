@@ -1,21 +1,17 @@
 package ru.komiss77.objects;
 
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-
 import net.kyori.adventure.text.Component;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
-
-
 
 
 public class Figure {

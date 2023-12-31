@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,16 +18,9 @@ import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 
-
-
-
 public class Donate implements InventoryProvider {
     
-    
-    
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ГРУППЫ.glassMat).name("§8.").build());
-    
-    
     
 
      

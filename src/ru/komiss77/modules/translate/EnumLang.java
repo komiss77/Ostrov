@@ -6,7 +6,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.*;
-//import ru.komiss77.Ostrov;
 
 
 //              НЕ ПЕРЕМЕЩАТЬ, НЕ импортировать остров! Использует прокси!!
@@ -15,8 +14,8 @@ import java.util.*;
 
 public enum EnumLang {
 
-    EN_US("en_us", new HashMap<>()),
-    RU_RU("ru_ru", new HashMap<>()),
+    EN_US("en_us", "en", new HashMap<>()),
+    RU_RU("en_us", "ru", new HashMap<>()),
     ;
 
     //private static final Map<String, EnumLang> lookup = new HashMap<>();
@@ -40,72 +39,23 @@ public enum EnumLang {
     }
 
     private final String locale;
+    public final String targetLanguageCode; //для яндекса
     private final Map<String, String> map;
 
-    /**
-     * Create an index of lang file.
-     */
-    EnumLang(String locale, Map<String, String> map) {
+
+    EnumLang(String locale, String targetLanguageCode, Map<String, String> map) {
         this.locale = locale;
+        this.targetLanguageCode = targetLanguageCode;
         this.map = map;
     }
 
-    /**
-     * @param locale The locale of the language
-     * @return The index of a lang file based on locale.
-     */
+
     public static EnumLang get(final String locale) {
         //EnumLang result = lookup.get(locale.toLowerCase(Locale.ENGLISH));
         //return result == null ? EN_US : result;
         return locale.equalsIgnoreCase("ru_ru") ? RU_RU : EN_US;
     }
 
-    /**
-     * Initialize this class, load all the languages to the corresponding HashMap.
-     */
-    //для обновы файликов поиском искать в папке ассетс клиента по строке "language.code": "ru_ru"
-   // public static void init() {
-        
-     //   for (EnumLang enumLang : EnumLang.values()) {
-            //if (!LangUtils.plugin.config.getStringList("LoadLanguage").contains("all") && !LangUtils.plugin.config.getStringList("LoadLanguage").contains(enumLang.getLocale())) {
-                //LangUtils.plugin.getLogger().fine("Skipped " + enumLang.getLocale());
-            //    continue;
-            //}
-            
-          //  try {
-                //File file = new File(LangUtils.plugin.getDataFolder(), "lang/"+ enumLang.locale+".json");
-//System.out.println(" file = "+FileUtils.readLines(file, Charset.forName("UTF-8")));
-           //     readFile(enumLang, new BufferedReader(new InputStreamReader(EnumLang.class.getResourceAsStream("/lang/" + enumLang.locale + ".json"), Charset.forName("UTF-8"))));
-                //readFile( enumLang, FileUtils.readFileToString(file, Charset.forName("UTF-8")) );
-         //       Ostrov.log_ok("LanguageHelper : поддержка перевода для "+enumLang.getLocale());
-         //   } catch (Exception e) {
-       //         Ostrov.log_err("LanguageHelper : поддержка перевода для "+enumLang.getLocale()+" : "+e.getMessage());
-                //LangUtils.plugin.warn("Fail to load language file " + enumLang.getLocale());
-                //e.printStackTrace();
-       //     }
-       // }
-        
-      /*  File customizedLangDir = new File(Ostrov.instance.getDataFolder(), "language");
-        if (!customizedLangDir.exists()) customizedLangDir.mkdirs();
-
-        for (File file : Objects.requireNonNull(customizedLangDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".json")))) {
-            EnumLang enumLang = get(file.getName()); // Returns EN_US when language not found.
-            if (enumLang.getLocale().equals(EN_US.locale) && !file.getName().contains(EN_US.locale)) {
-               Ostrov.log_err("Failed to load customized language file " + file.getName()); // Language not present
-            } else {
-                try (FileInputStream fs = new FileInputStream(file)) {
-                    readFile(enumLang, new BufferedReader(new InputStreamReader(fs, Charset.forName("UTF-8"))));
-                    Ostrov.log_err("Failed to load customized language file " + file.getName()); // Error loading language files
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-   // }
-
-    /**
-     * Clean all the HashMap
-     */
     public static void clean() {
         for (EnumLang enumLang : EnumLang.values()) {
             enumLang.getMap().clear();
@@ -123,28 +73,11 @@ public enum EnumLang {
             reader.close();
         }
     }
-  /*  public static void readFile(EnumLang enumLang, String raw) throws IOException {
-        //try {
-            Gson gson = new Gson();
-            Type type = new TypeToken<Map<String, String>>() {
-            }.getType();
-            Map<String, String> map = gson.fromJson(raw, type);
-            enumLang.map.putAll(map);
-        //} finally {
-       //     reader.close();
-       // }
-    }*/
 
-    /**
-     * @return The locale of the language
-     */
     public String getLocale() {
         return locale;
     }
 
-    /**
-     * @return The HashMap of the language.
-     */
     public Map<String, String> getMap() {
         return map;
     }

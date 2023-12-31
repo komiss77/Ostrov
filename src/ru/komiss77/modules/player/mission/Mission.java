@@ -8,8 +8,10 @@ import org.bukkit.Material;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.entity.Player;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 
@@ -39,7 +41,7 @@ public class Mission {
     }
     
     
-    protected static List<String> getRequest(final Mission mi) {
+    protected static List<String> getRequest(final Player p, final Mission mi) {
         Stat stat;
         final List<String>lore = new ArrayList<>();
         //lore.add("§7Требования:");
@@ -55,7 +57,7 @@ public class Mission {
                     lore.add("§b"+e.getKey()+" §7: §d"+e.getValue());
                 }
             } else {
-                lore.add(stat.game.displayName+"§7, "+stat.desc+" §d"+e.getValue());
+                lore.add(Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+" §d"+e.getValue());
             }
         }
         return lore;

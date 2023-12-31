@@ -22,15 +22,12 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-
 public class MissionsAcceptMenu implements InventoryProvider {
     
-    
-    
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.GLASS_PANE).name("§8.").build());
-
     private final Map<Integer,Integer> completed;
     private boolean showCompleted = false;
+    
     
     public MissionsAcceptMenu(final Map<Integer,Integer> completed) {
         this.completed = completed;
@@ -176,7 +173,7 @@ public class MissionsAcceptMenu implements InventoryProvider {
                     }
                     
                     lore.add("");
-                    lore.addAll(Mission.getRequest(mi));
+                    lore.addAll(Mission.getRequest(p, mi));
                     lore.add("");
                     
                     if (canTake) {

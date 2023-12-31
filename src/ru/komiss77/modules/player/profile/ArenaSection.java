@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.modules.player.PM;
@@ -20,19 +19,11 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-
-
-
 public class ArenaSection implements InventoryProvider {
-    
-    
     
    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.РЕЖИМЫ.glassMat).name("§8.").build());
     
 
-    
-    public ArenaSection() {
-    }
      
     @Override
     public void onClose(final Player p, final InventoryContent content) {
@@ -80,8 +71,6 @@ public class ArenaSection implements InventoryProvider {
                         final boolean hasLevel =  op.getStat(Stat.LEVEL)>=ai.level;
                         final boolean hasReputation =  op.reputationCalc>=ai.reputation;
                         if (hasLevel && hasReputation) {
-                            //ApiOstrov.sendToServer(p, ai.server, ai.arenaName);
-                            //p.closeInventory();
                             p.performCommand("server "+ai.server+" "+ai.arenaName);
                         } else {
                             PM.soundDeny(p);
@@ -99,26 +88,7 @@ public class ArenaSection implements InventoryProvider {
 
                 
                 
-                
 
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-              
-            
         
         //final Pagination pagination = content.pagination();
         pagination.setItems(ci);// pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));

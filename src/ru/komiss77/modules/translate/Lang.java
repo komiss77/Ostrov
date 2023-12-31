@@ -4,10 +4,15 @@ import com.destroystokyo.paper.ClientOption;
 import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.Translatable;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.HttpResponseBodyPart;
@@ -25,25 +30,25 @@ import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
 
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file
 //https://github.com/AsyncHttpClient/async-http-client
 
+    //Идентификатор ключа: ajehqd0ihg63s9sefjak Ваш секретный ключ: AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa
+    //добавить локальный буфер в файлике
+    //https://docs.papermc.io/paper/dev/component-api/i18n
+
 
 public class Lang {
-
-    //Идентификатор ключа: ajehqd0ihg63s9sefjak Ваш секретный ключ: AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa
-
-    
-    //добавить локальный буфер в файлике
     
     //private static final EnumMap<EnumLang, HashMap<String, String>> langs = langMaps();
     private static final Map<String, String> ruToEng;//Map<Integer, HashMap<String, String>> ruToEng;-возможно потом добавить сортировку по длинне
     public static int updateStamp;
     private static final RequestBuilder rb;
+    private static final Locale RU;
+    private static final Locale EN;
     
+
     static {
         ruToEng = new ConcurrentHashMap<>();
         rb = new RequestBuilder(HttpConstants.Methods.POST)
@@ -52,6 +57,8 @@ public class Lang {
                 .addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
                 //.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}")
                 .setCharset(Charset.forName("UTF-8"));
+        RU = Locale.forLanguageTag("ru_ru");;
+        EN = Locale.forLanguageTag("en_us");;
     }
 
     /*private static EnumMap<EnumLang, HashMap<String, String>> langMaps() {
@@ -77,14 +84,31 @@ public class Lang {
     }
     
     public static String t (final Player p, final String ruMsg) {
-        final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+        final boolean ru = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 //Ostrov.log("sendMessage locale="+locale);
-        if (eng) {
-            return translate(ruMsg);
-        } else {
+        if (ru) {
             return ruMsg;
+        } else {
+            return translate(ruMsg, EnumLang.EN_US);
         }
     }
+    
+    public static String t (final String ruMsg, final EnumLang lang) {
+        if (lang==EnumLang.RU_RU) {
+            return ruMsg;
+        } else {
+            return translate(ruMsg, EnumLang.EN_US);
+        }
+    }
+    
+    //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
+    public static Component t (final Player p, final Object o) {
+        if (!(o instanceof Translatable)) return Component.text("{}");
+        final Locale l = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
+        final TranslatableComponent tc = Component.translatable((Translatable)o);
+        return GlobalTranslator.render(tc, l);
+    }
+
     
     
     //подменять >p.sendMessage(< на >Lang.sendMessage(p, <
@@ -96,26 +120,18 @@ public class Lang {
         if (locale.equals("ru_ru")) {
             p.sendMessage(ruMsg);
         } else {
-            p.sendMessage(translate(ruMsg));
+            p.sendMessage(translate(ruMsg, EnumLang.EN_US));
         }
     }
+
     
-    //переводик сообщений
-    //public static String t (final Player p, final String ruMsg) {
-    //    final Oplayer op = PM.getOplayer(p);
-    //    return op==null ? ruMsg : t(op, ruMsg);
-    //}
-    
-    
-     //откинуть цветовой код!!
-    private static String translate (final String ruMsg) {
-        //if (!op.e) return ruMsg;
+    public static String translate (final String ruMsg, final EnumLang lang) {
         String trans = ruToEng.get(ruMsg);
         if (trans == null) { //перевода нема
             
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
 
-            final Request request = rb.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
+            final Request request = rb.setBody("{\"targetLanguageCode\":\""+lang.targetLanguageCode+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
             
             final AsyncCompletionHandler ah = new AsyncCompletionHandler() {
                 @Override

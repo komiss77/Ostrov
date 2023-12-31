@@ -1,16 +1,15 @@
 package ru.komiss77.commands;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.Config;
 import ru.komiss77.modules.warp.WarpMenu;
-import ru.komiss77.modules.translate.EnumLang;
-import ru.komiss77.modules.translate.Translate;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 
@@ -44,28 +43,30 @@ public class HatCmd implements CommandExecutor {
             p.sendMessage("§6Сначала нужно снять шлем!"); 
             return false; 
         }
+        
+        final ItemStack is = p.getInventory().getItemInMainHand();
            
-       if ( p.getInventory().getItemInMainHand().getType().isAir() ||  !p.getInventory().getItemInMainHand().getType().isBlock()) {
+       if ( is.getType().isAir() ||  !is.getType().isBlock()) {
             p.sendMessage("§6Возьмите одеваемый блок в руку!"); 
             return false; 
         }
            
-       if ( !p.getInventory().getItemInMainHand().getType().isBlock()) {
+       if ( !is.getType().isBlock()) {
             p.sendMessage("§6Одеть можно только блок!"); 
             return false; 
         }
            
-        if ( p.getInventory().getItemInMainHand().getAmount()>1 ) {
+        if ( is.getAmount()>1 ) {
             p.sendMessage("§6Одеть можно только отдельный блок (колл-во =1)!"); 
             return false; 
         }
            
            
-        p.getInventory().setHelmet(p.getInventory().getItemInMainHand());
+        p.getInventory().setHelmet(is);
         p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         
         //if (Ostrov.langUtils) {
-            p.sendMessage("§aВы одели "+Translate.getMaterialName(p.getInventory().getHelmet().getType(), EnumLang.RU_RU)+" на голову!"); 
+            p.sendMessage(Component.text("§aВы одели ").append(Lang.t(p, is.getType() )).append(Component.text(" на голову!"))); 
         //} else {
         //    p.sendMessage("§aВы одели "+p.getInventory().getHelmet().getType().name()+" на голову!"); 
         //}

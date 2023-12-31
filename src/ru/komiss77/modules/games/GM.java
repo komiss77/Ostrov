@@ -477,20 +477,12 @@ public final class GM {
         if (!games.containsKey(game)) {
             switch (game.type) {
 
-                case ONE_GAME:
-                case LOBBY:
-                case ARENAS:
-                  games.put(game, new GameInfo(game ));
-                    break;
-
-                //case LOBBY:
-              //  case ARENAS:
-                   // games.put(game, new GameInfo(game));
-                //    break;
-
-                default:
+                case ONE_GAME, LOBBY, ARENAS -> games.put(game, new GameInfo(game ));
+                default -> {
                     return null;
+                }
             }
+
         }
         return games.get(game);
         //gi.update(serverName, arenaName, state, players, line0, line1, line2, line3, extra, mat);

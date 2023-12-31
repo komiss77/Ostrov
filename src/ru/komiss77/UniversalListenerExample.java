@@ -445,9 +445,11 @@ public class UniversalListenerExample implements Listener  {
 //System.out.println("PlayerChangedWorldEvent from="+e.getFrom().getName());
         //final Player p = e.getPlayer();
         new BukkitRunnable() {
-            final Player p = e.getPlayer();
+            final String name = e.getPlayer().getName();
             @Override
             public void run() {
+                final Player p = Bukkit.getPlayerExact(name);
+                if (p==null) return;
                 switchLocalGlobal(p, true);
                 perWorldTabList(e.getPlayer());
             }

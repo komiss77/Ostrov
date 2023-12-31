@@ -10,14 +10,25 @@ public interface IEntityGroup {
 
 	@Deprecated
     public EntityGroup getEntytyType (final Entity entity);
-    public EntityGroup getEntityType (final Entity entity);
 	@Deprecated
     public EntityGroup getEntytyGroup (final EntityType entityType);
+    
+    
+    //ПЕРЕЗЖАЕМ в EntitiUtil, один фиг мультивесии не поддерживаются
+    
+    @Deprecated
+    public EntityGroup getEntityType (final Entity entity);
+    
+    @Deprecated
     public EntityGroup getEntityGroup (final EntityType entityType);
+    
+    @Deprecated
     public EntityGroup byTag(final String tag_as_string);
+    @Deprecated
     public boolean isGroup(final String tag_as_string);    
 
     
+    @Deprecated
     public enum EntityGroup {
     	/**Монстры, могут агрится на игрока*/
         MONSTER ("§4Монстры"), //не переименовывать! или придётся переделывать конфиги лимитера!!

@@ -113,9 +113,9 @@ public final class Pandora implements Initiable, Listener {
     
     
     public static String getInfo(final Oplayer op) {
-        if (op.hasDaylyFlag(StatFlag.Pandora)) return "§8Пандора сегодня уже открыта";
-        if ( op.getDaylyStat(Stat.PLAY_TIME)>=DAY_PLAY_TIME_TO_OPEN) return "§eВы можете открыть Ящик Пандоры!";
-        return "§6До возможности открыть Ящик Пандоры "+ApiOstrov.secondToTime(DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME));
+        if (op.hasDaylyFlag(StatFlag.Pandora)) return op.eng ? "§8Pandora is already open today" : "§8Пандора сегодня уже открыта";
+        if ( op.getDaylyStat(Stat.PLAY_TIME)>=DAY_PLAY_TIME_TO_OPEN) return op.eng ? "§eYou can open Pandora Box!" : "§eВы можете открыть Ящик Пандоры!";
+        return (op.eng ? "§6You can open Pandora box through " : "§6До возможности открыть Ящик Пандоры ")+ApiOstrov.secondToTime(DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME));
  //:  ( Pandora.DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME))<0 ? "§eПандора ждёт открытия" : "§6До"     
     }
 
@@ -349,7 +349,7 @@ public final class Pandora implements Initiable, Listener {
             
             case 0:
             case 1:
-                ApiOstrov.sendTitle(p, "§4Маленькая неудача", "§c-10 лони 8(", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "" : "§4Маленькая неудача", op.eng ? "" : "§c-10 лони 8(", 10, 40, 60);
                 ApiOstrov.moneyChange(p, -10, "Pandora");
                 //StatManager.karmaBaseChange(op,-1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "get");
@@ -365,7 +365,7 @@ public final class Pandora implements Initiable, Listener {
                 break;
 
             case 2:
-                ApiOstrov.sendTitle(p, "§2Удача!", "§eКарма +2!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "" : "§2Удача!", op.eng ? "" : "§eКарма +2!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,2);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 2, p.getName(), "add");
                 broadcastBossBar(p.getWorld(), " §eКарма +2!");
@@ -395,7 +395,7 @@ public final class Pandora implements Initiable, Listener {
 
             case 3:
             case 4:
-                ApiOstrov.sendTitle(p, "§2Удача!", "§eКарма +1!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§2Luck!" : "§2Удача!", op.eng ? "§eКаrма +1!" : "§eКарма +1!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
                 broadcastBossBar(p.getWorld(), " §eКарма +1!");
@@ -407,7 +407,7 @@ public final class Pandora implements Initiable, Listener {
 
 
             case 5:
-                ApiOstrov.sendTitle(p, "§4Ворьё!", "§c-100 лони 8(", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§4Thief!" : "§4Ворьё!", op.eng ? "§c-100 loni 8(" : "§c-100 лони 8(", 10, 40, 60);
                 ApiOstrov.moneyChange(p, -100, "Pandora");
                 //StatManager.karmaBaseChange(op,-1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "get");
@@ -425,7 +425,7 @@ public final class Pandora implements Initiable, Listener {
 
             case 6:
             case 7:
-                ApiOstrov.sendTitle(p, "§4Неудача :(", "§cМолчанка на 5 минут..", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§4Lose :(" : "§4Неудача :(", op.eng ? "§cMute for 5 minutes.." : "§cМолчанка на 5 минут..", 10, 40, 60);
                 SpigotChanellMsg.sendMessage(p, Operation.GMUTE, Ostrov.MOT_D+":pandora",  5*60, 0, p.getName(), "§eШкатулка Пандоры - §cнеудача");
                 p.sendMessage("§6[§eПандора§6] §cСегодня плохое настроение...");
                 //StatManager.karmaBaseChange(op,-1);
@@ -438,7 +438,7 @@ public final class Pandora implements Initiable, Listener {
 
             case 8:
             case 9:
-                ApiOstrov.sendTitle(p, "§2В Копилку!", "§e1 рил!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§2To Piggy Bank!" : "§2В Копилку!", op.eng ? "§e1 ril!" : "§e1 рил!", 10, 40, 60);
                 op.setData(Data.RIL, op.getDataInt(Data.RIL)+1);//PM.moneyRealAdd(pp, 1, "Pandora");
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -447,7 +447,7 @@ public final class Pandora implements Initiable, Listener {
 
             case 10:
             case 11:
-                ApiOstrov.sendTitle(p, "§2В Копилку!", "§e3 рил!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§2To Piggy Bank!" : "§2В Копилку!", op.eng ? "§e3 ril!" : "§e3 рил!", 10, 40, 60);
                 op.setData(Data.RIL, op.getDataInt(Data.RIL)+3);
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -456,7 +456,7 @@ public final class Pandora implements Initiable, Listener {
 
             case 12:
             case 13:
-                ApiOstrov.sendTitle(p, "§2В Копилку!", "§e5 рил!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§2To Piggy Bank!" : "§2В Копилку!", op.eng ? "§e5 ril!" : "§e5 рил!", 10, 40, 60);
                 op.setData(Data.RIL, op.getDataInt(Data.RIL)+5);//BungeePM.moneyRealAdd(pp, 5, "Pandora");
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -466,7 +466,7 @@ public final class Pandora implements Initiable, Listener {
             case 14:
             case 15:
             case 16:
-                ApiOstrov.sendTitle(p, "§2На растрату!", "§e50 лони!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "" : "§2На растрату!", op.eng ? "§e50 loni!" : "§e50 лони!", 10, 40, 60);
                 ApiOstrov.moneyChange(p, 50, "Pandora");
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -476,7 +476,7 @@ public final class Pandora implements Initiable, Listener {
             case 17:
             case 18:
             case 19:
-                ApiOstrov.sendTitle(p, "§2На растрату!", "§e100 лони!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "" : "§2На растрату!", op.eng ? "§e100 loni!" : "§e100 лони!", 10, 40, 60);
                 ApiOstrov.moneyChange(p, 100, "Pandora");
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -486,7 +486,7 @@ public final class Pandora implements Initiable, Listener {
             case 20:
             case 21:
             case 22:
-                ApiOstrov.sendTitle(p, "§4Ворьё!", "§c-50 лони :(", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§4Ворьё!" : "§4Ворьё!", op.eng ? "§c-50 loni :(" : "§c-50 лони :(", 10, 40, 60);
                 ApiOstrov.moneyChange(p, -50, "Pandora");
                 //StatManager.karmaBaseChange(op,-1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "get");
@@ -497,7 +497,7 @@ public final class Pandora implements Initiable, Listener {
             case 23:
             case 24:
             case 25:
-                ApiOstrov.sendTitle(p, "§2В Копилку!", "§e2 рил!", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§2To Piggy Bank!" : "§2В Копилку!", op.eng ? "§e2 ril!" : "§e2 рил!", 10, 40, 60);
                 op.setData(Data.RIL, op.getDataInt(Data.RIL)+2);//PM.moneyRealAdd(pp, 1, "Pandora");
                 //StatManager.karmaBaseChange(op,1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
@@ -505,7 +505,7 @@ public final class Pandora implements Initiable, Listener {
                 break;
 
             default:
-                ApiOstrov.sendTitle(p, "§fДень прожит зря..", "§e..ничего (", 10, 40, 60);
+                ApiOstrov.sendTitle(p, op.eng ? "§fThe day is wasted.." : "§fДень прожит зря..", op.eng ? "§e..nothing (" : "§e..ничего (", 10, 40, 60);
                 broadcastBossBar(p.getWorld(), "§e..ничего.");
                 luck = false;
                 break;

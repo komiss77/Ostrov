@@ -1,6 +1,5 @@
 package ru.komiss77.builder.menu;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
@@ -13,6 +12,8 @@ import org.bukkit.entity.SpawnCategory;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
@@ -20,8 +21,6 @@ import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.version.IEntityGroup.EntityGroup;
-import ru.komiss77.version.VM;
 
 
 
@@ -57,7 +56,7 @@ public class EntityByWorld implements InventoryProvider {
 
             for (final Entity e : p.getNearbyEntities(radius, radius, radius)) {
                 if (e.getType()==EntityType.PLAYER) continue;
-                group=VM.getNmsEntitygroup().getEntityType(e);
+                group = EntityUtil.group(e);//.VM.getNmsEntitygroup().getEntityType(e);
                 if (count.containsKey(group)) {
                     count.put(group, count.get(group)+1);
                 } else {
@@ -69,7 +68,7 @@ public class EntityByWorld implements InventoryProvider {
 
             for (final Entity e : world.getEntities()) {
                 if (e.getType()==EntityType.PLAYER) continue;
-                group=VM.getNmsEntitygroup().getEntityType(e);
+                group = EntityUtil.group(e);//group=VM.getNmsEntitygroup().getEntityType(e);
                 if (count.containsKey(group)) {
                     count.put(group, count.get(group)+1);
                 } else {
@@ -164,7 +163,7 @@ public class EntityByWorld implements InventoryProvider {
 
 
 
-        contents.set(1, 1, ClickableItem.of( new ItemBuilder(Material.ZOMBIE_HEAD)
+        contents.set(1, 1, ClickableItem.of(new ItemBuilder(Material.ZOMBIE_HEAD)
             .name(EntityGroup.MONSTER.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.MONSTER) ? "§e"+count.get(EntityGroup.MONSTER) : "не найдено") )
@@ -179,7 +178,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.MONSTER)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.MONSTER.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.MONSTER) {
+                        if (EntityUtil.group(entity)==EntityGroup.MONSTER) {
                             entity.remove();
                         }
                     }
@@ -190,7 +189,7 @@ public class EntityByWorld implements InventoryProvider {
 
 
 
-        contents.set(1, 2, ClickableItem.of( new ItemBuilder(Material.LEATHER_HORSE_ARMOR)
+        contents.set(1, 2, ClickableItem.of(new ItemBuilder(Material.LEATHER_HORSE_ARMOR)
             .name(EntityGroup.CREATURE.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.CREATURE) ? "§e"+count.get(EntityGroup.CREATURE) : "не найдено") )
@@ -205,7 +204,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.CREATURE)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.CREATURE.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.CREATURE) {
+                        if (EntityUtil.group(entity)==EntityGroup.CREATURE) {
                             entity.remove();
                         }
                     }
@@ -214,7 +213,7 @@ public class EntityByWorld implements InventoryProvider {
             }));  
 
 
-        contents.set(1, 3, ClickableItem.of( new ItemBuilder(Material.NAUTILUS_SHELL)
+        contents.set(1, 3, ClickableItem.of(new ItemBuilder(Material.NAUTILUS_SHELL)
             .name(EntityGroup.WATER_CREATURE.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.WATER_CREATURE) ? "§e"+count.get(EntityGroup.WATER_CREATURE) : "не найдено") )
@@ -229,7 +228,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_CREATURE)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.WATER_CREATURE.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.WATER_CREATURE) {
+                        if (EntityUtil.group(entity)==EntityGroup.WATER_CREATURE) {
                             entity.remove();
                         }
                     }
@@ -240,7 +239,7 @@ public class EntityByWorld implements InventoryProvider {
 
 
 
-        contents.set(1, 4, ClickableItem.of( new ItemBuilder(Material.COAL)
+        contents.set(1, 4, ClickableItem.of(new ItemBuilder(Material.COAL)
             .name(EntityGroup.AMBIENT.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.AMBIENT) ? "§e"+count.get(EntityGroup.AMBIENT) : "не найдено") )
@@ -255,7 +254,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.AMBIENT)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.AMBIENT.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.AMBIENT) {
+                        if (EntityUtil.group(entity)==EntityGroup.AMBIENT) {
                             entity.remove();
                         }
                     }
@@ -264,7 +263,7 @@ public class EntityByWorld implements InventoryProvider {
             }));  
 
 
-        contents.set(1, 5, ClickableItem.of( new ItemBuilder(Material.TROPICAL_FISH)
+        contents.set(1, 5, ClickableItem.of(new ItemBuilder(Material.TROPICAL_FISH)
             .name(EntityGroup.WATER_AMBIENT.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.WATER_AMBIENT) ? "§e"+count.get(EntityGroup.WATER_AMBIENT) : "не найдено") )
@@ -279,7 +278,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_AMBIENT)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.WATER_AMBIENT.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.WATER_AMBIENT) {
+                        if (EntityUtil.group(entity)==EntityGroup.WATER_AMBIENT) {
                             entity.remove();
                         }
                     }
@@ -288,7 +287,7 @@ public class EntityByWorld implements InventoryProvider {
             }));  
 
 
-        contents.set(1, 7, ClickableItem.of( new ItemBuilder(Material.ARMOR_STAND)
+        contents.set(1, 7, ClickableItem.of(new ItemBuilder(Material.ARMOR_STAND)
             .name(EntityGroup.UNDEFINED.displayName)
             .addLore("§7")
             .addLore("§f"+  (count.containsKey(EntityGroup.UNDEFINED) ? "§e"+count.get(EntityGroup.UNDEFINED) : "не найдено") )
@@ -301,7 +300,7 @@ public class EntityByWorld implements InventoryProvider {
                     SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.UNDEFINED)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.UNDEFINED.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
-                        if (VM.getNmsEntitygroup().getEntityGroup(entity.getType())==EntityGroup.UNDEFINED) {
+                        if (EntityUtil.group(entity)==EntityGroup.UNDEFINED) {
                             if (entity.getType()!=EntityType.PLAYER) {
                                 entity.remove();
                             }

@@ -1,12 +1,10 @@
 package ru.komiss77.builder.menu;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -14,8 +12,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -27,7 +25,6 @@ import ru.komiss77.utils.inventory.Pagination;
 import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.VM;
 
 
 
@@ -200,7 +197,11 @@ public class EntityByType implements InventoryProvider {
             
        
         contents.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> 
-            SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntityGroup(type))). size(6, 9). title("§2"+world.getName()+" "+VM.getNmsEntitygroup().getEntityGroup(type).displayName+" §1r="+radius).build() .open(p)
+            SmartInventory.builder()
+                    .id("EntityByGroup"+p.getName())
+                    . provider(new EntityByGroup(world, radius, EntityUtil.group(type)))
+                    . size(6, 9)
+                    . title("§2"+world.getName()+" "+type+" §1r="+radius).build() .open(p)
         ));
         
 

@@ -392,12 +392,15 @@ public class ChatLst implements Listener {
                     }
 
                 } else {
-                    resultRU = GM.getLogo().append(bRU.build());//b.build();
-                    resultEN = GM.getLogo().append(bEN.build());//b.build();
+                    resultRU = bRU.build();//GM.getLogo().append(bRU.build());//b.build();
+                    resultEN = bEN.build();//GM.getLogo().append(bEN.build());//b.build();
                 }
                 
-                viewerResultRU = ce.getViewerGameInfo() == null ? resultRU : ce.getViewerGameInfo().append(resultRU);
-                viewerResultEN = ce.getViewerGameInfo() == null ? resultEN : ce.getViewerGameInfo().append(resultEN);
+                viewerResultRU = ce.getViewerGameInfo() == null ? GM.getLogo().append(resultRU) :
+                        GM.getLogo().append(ce.getViewerGameInfo()).append(resultRU);
+                
+                viewerResultEN = ce.getViewerGameInfo() == null ? GM.getLogo().append(resultEN) :
+                        GM.getLogo().append(ce.getViewerGameInfo()).append(resultEN);
                 
                 //на минииграх - показать подготовленное сообщение всем, кто в одном мире
                 for (Player p : ce.viewers()) {
@@ -412,10 +415,15 @@ public class ChatLst implements Listener {
                 
             } else {
                 
-                resultRU = GM.getLogo().append(bRU.build());//b.build();
-                resultEN = GM.getLogo().append(bEN.build());//b.build();
-                viewerResultRU = ce.getViewerGameInfo() == null ? resultRU : ce.getViewerGameInfo().append(resultRU);
-                viewerResultEN = ce.getViewerGameInfo() == null ? resultEN : ce.getViewerGameInfo().append(resultEN);
+                resultRU = bRU.build();//GM.getLogo().append(bRU.build());//b.build();
+                resultEN = bEN.build();//GM.getLogo().append(bEN.build());//b.build();
+                
+                viewerResultRU = ce.getViewerGameInfo() == null ? GM.getLogo().append(resultRU) : 
+                        GM.getLogo().append(ce.getViewerGameInfo()).append(resultRU);
+                
+                viewerResultEN = ce.getViewerGameInfo() == null ? GM.getLogo().append(resultEN) :
+                        GM.getLogo().append(ce.getViewerGameInfo()).append(resultEN);
+                
                 //показать подготовленное сообщение всем, кто остался в эвенте
                 for (Player p : ce.viewers()) {
                     if (p.getClientOption(ClientOption.LOCALE).equals("ru_ru")) {

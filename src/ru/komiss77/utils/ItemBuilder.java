@@ -160,6 +160,12 @@ public class ItemBuilder {
     	return this;
     }
 
+    //иногда нужен простой быстрый метод 
+    public ItemBuilder setLore(final List<Component>lore) {
+        this.lore = lore;
+        return this;
+    }
+
     public ItemBuilder setLore(final Object o) {
         if (o==null) {
             lore = null;
@@ -432,13 +438,13 @@ public class ItemBuilder {
                     }
                 }
                 if (skullTexture!=null && !skullTexture.isEmpty()) {
-                    if (skullTexture.length()>72) { //определяяем зашифрованную ссылку
-                        final String decoded = new String(Base64.getDecoder().decode(skullTexture));
-                        skullTexture = decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length());
-                    }
-                    com.destroystokyo.paper.profile.PlayerProfile profile = ItemUtils.getProfile(skullTexture);
-                    skullMeta.setPlayerProfile(profile);
-                    item.setItemMeta(skullMeta);
+                    //if (skullTexture.length()>72) { //определяяем зашифрованную ссылку
+                    //    final String decoded = new String(Base64.getDecoder().decode(skullTexture));
+                    //    skullTexture = decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length());
+                   // }
+                   // com.destroystokyo.paper.profile.PlayerProfile profile = ItemUtils.getProfile(skullTexture);
+                   // skullMeta.setPlayerProfile(profile);
+                    item.setItemMeta(ItemUtils.setHeadTexture(skullMeta, skullTexture));
                 }
             }
             

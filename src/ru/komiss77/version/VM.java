@@ -103,7 +103,7 @@ public class VM {
     public static IServer getNmsServer() {
         return nmsServer;
     }
-
+    @Deprecated
     public static IEntityGroup getNmsEntitygroup() {
         return nmsEntGroup;
     }

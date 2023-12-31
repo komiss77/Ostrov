@@ -14,6 +14,7 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.events.StatChangeEvent;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
 
 
@@ -69,8 +70,8 @@ public class StatManager {
                 //final String achiv = descFromAchiv(stat, 0);
                 //ApiOstrov.sendBossbar(p, stat.game.displayName+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
                 //ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, stat.game.displayName+"§7, "+stat.desc+newStatValue, 20, 40, 20);
-                ApiOstrov.sendBossbar(p, stat.game.displayName+" : §d"+(newLevel==5 ? "Достижение!" : topAdv(stat))+"§7, "+stat.desc+newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
-                ApiOstrov.sendTitle(p, newLevel==5 ? "§e"+topAdv(stat) : "§fДостижение!" , stat.game.displayName+"§7, "+stat.desc+newStatValue, 20, 40, 20);
+                ApiOstrov.sendBossbar(p, Lang.t(p, stat.game.displayName)+" : §d"+(newLevel==5 ? "Достижение!" : topAdv(stat))+"§7, "+Lang.t(p, stat.desc)+newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
+                ApiOstrov.sendTitle(p, newLevel==5 ? "§e"+topAdv(stat) : "§fДостижение!" , Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+newStatValue, 20, 40, 20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
             }
         }

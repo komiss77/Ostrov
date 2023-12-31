@@ -3,11 +3,9 @@ package ru.komiss77.modules.games;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
@@ -15,12 +13,9 @@ import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.GameInfoUpdateEvent;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.translate.EnumLang;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
-
-
-
-
-
 
 
 public class GameInfo {
@@ -58,81 +53,44 @@ public class GameInfo {
         final boolean hasLevel =  op.getStat(Stat.LEVEL)>=game.level;
         final boolean hasReputation =  op.reputationCalc>=game.reputation;
 
-        switch (game.type) {
-
-            case ONE_GAME:
-                return new ItemBuilder(mat)
-                    .name(game.displayName)
-                    //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
+        return switch (game.type) {
+            
+            case ONE_GAME -> new ItemBuilder(mat)
+                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
                     .addLore("")
                     .addLore(getState().displayColor+getState().name())
-                    .addLore( gameOnline>=0 ? "§7Играют: "+gameOnline : "§4Сервер выключен" )
+                    .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : (op.eng?"§4Server is down":"§4Сервер выключен") )
                     .addLore("")
-                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? "§a⊳ Клик - перейти на сервер" : "") : "§eНедоступен !")
-                    .addLore(  hasLevel ? "§7Требуемый уровень : §6" +game.level : "§cБудет доступны с уровня §e"+game.level)
-                    .addLore(  hasReputation ? "§7Требуемая репутация : §a>" +game.reputation : "§cДоступны при репутации §a>"+game.reputation)
-                    .addLore("")
-                    .addLore(game.description)
-                    .build();
-
-
-            case LOBBY:
-                return new ItemBuilder(mat)
-                    .name(game.displayName)
-                    //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    .addLore("")
-                    .addLore(getState().displayColor+getState().name())
-                    .addLore("")
-                    .build();
-
-            case ARENAS:
-                //final boolean hasWarp = ApiOstrov.getWarpManager()!=null && ApiOstrov.getWarpManager().exist(game.name());
-                return new ItemBuilder(mat)
-                    .name(game.displayName)
-                    //.addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    .addLore("")
-                    .addLore(getState().displayColor+getState().name())
-                    .addLore( gameOnline>=0 ? "§7Играют: "+gameOnline : "" )
-                    .addLore("")
-                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? "§a⊳ Клик - выбрать арену" : "") : "§eНедоступен !")
-                    .addLore(  hasLevel ? "§7Требуемый уровень : §6" +game.level : "§cБудет доступны с уровня §e"+game.level)
-                    .addLore(  hasReputation ? "§7Требуемая репутация : §a>" +game.reputation : "§cДоступны при репутации §a>"+game.reputation)
+                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? (op.eng?"§a⊳ Click - to server":"§a⊳ Клик - на сервер") : "") : (op.eng?"§eNot available !":"§eНедоступна !"))
+                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
+                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
                     .addLore("")
                     .addLore(game.description)
                     .build();
                 
-                default:
-                    return new ItemStack(Material.AIR);
-                /*
-                if (ApiOstrov.getWarpManager()!=null && ApiOstrov.getWarpManager().exist(game.name())) {
-                    lore.set(1,"§a  Лев.клик - к табличкам");
-                    lore.set(2,"§a⊳ Прав.клик - выбрать арену"); //line 1-4+разделитель
-                } else {
-                    lore.set(2,"§a⊳ Клик - выбрать арену");
-                }
-
-                        if (ApiOstrov.getWarpManager().exist(gameInfo.game.name())) {
-                            p.closeInventory();
-                            ApiOstrov.teleportSave(p, ApiOstrov.getWarpManager().getWarp(gameInfo.game.name()).loc, false);
-                            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 2);
-                        } else {
-//System.out.println("openInventory "+si.server);
-                            Ostrov.sync( () -> p.openInventory(gameInfo.arena_inv), 2 );
-                            //p.openInventory(si.arena_inv);
-                            p.playSound(p.getLocation(), Sound.BLOCK_SHULKER_BOX_OPEN, 1, 2);
-                        }
-
-                    } else {
-
-                        p.openInventory(gameInfo.arena_inv);
-                        p.playSound(p.getLocation(), Sound.BLOCK_SHULKER_BOX_OPEN, 1, 2);
-
-                    }
-
-                */
-
-
-        }
+            case LOBBY -> new ItemBuilder(mat)
+                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
+                    .addLore("")
+                    .addLore(getState().displayColor+getState().name())
+                    .addLore("")
+                    .build();
+                
+            case ARENAS -> new ItemBuilder(mat)
+                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
+                    .addLore("")
+                    .addLore(getState().displayColor+getState().name())
+                    .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : "" )
+                    .addLore("")
+                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? (op.eng?"§a⊳ Click - to server":"§a⊳ Клик - на сервер") : "") : (op.eng?"§eNot available !":"§eНедоступна !"))
+                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
+                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
+                    .addLore("")
+                    .addLore(game.description)
+                    .build();
+                
+            default -> new ItemStack(Material.AIR);
+                
+        };
         
     }
 

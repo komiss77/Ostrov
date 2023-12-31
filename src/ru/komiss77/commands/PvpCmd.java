@@ -60,6 +60,9 @@ import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.OstrovConfig;
@@ -68,8 +71,6 @@ import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.IEntityGroup.EntityGroup;
-import ru.komiss77.version.VM;
 
 public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
@@ -230,7 +231,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                         } else if (ItemClass.MELEE.has(ofh.getType()) && ItemClass.MELEE.has(damagerHand.getType())) {
                                             Ostrov.sync(() -> {
                                                 final ItemStack noh = inv.getItemInOffHand();
-                                                if (damagerPlayer.isValid() && target.isValid() && noh != null && noh.equals(ofh)) {
+                                                if (damagerPlayer.isValid() && target.isValid() && noh.equals(ofh)) {
                                                     final ItemStack it = inv.getItemInMainHand().clone();
                                                     target.setNoDamageTicks(-1);
                                                     damagerPlayer.addPotionEffect(spd);
@@ -571,7 +572,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                     final Oplayer op = PM.getOplayer(p);
 
                     if (PvpCmd.battle_time > 1 && op.pvp_time > 0 && !ApiOstrov.isLocalBuilder(p)) {
-                        p.sendMessage("§cРежим боя - команды заблокированы! Осталось " + PM.getOplayer(p.getName()).pvp_time + " сек.");
+                        p.sendMessage("§c"+Lang.t(p, "Режим боя - команды заблокированы! Осталось ") + PM.getOplayer(p.getName()).pvp_time + Lang.t(p, " сек."));
                         e.setCancelled(true);
                         return;
                     }
@@ -699,7 +700,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                     //ничего не надо, выпадет само!
                 }
 
-                p.sendMessage("§cВаши вещи достались победителю!");
+                p.sendMessage("§c"+Lang.t(p, "Ваши вещи достались победителю!"));
             }
 
             pvpEndFor(op, p);
@@ -750,7 +751,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
             Component msg;
             if (op.pvp_allow) {
                 //pvpOff(op);
-                msg = TCUtils.format("§7Сейчас ПВП §4Разрешен§7  §6[§7Клик - §2ВЫКЛЮЧИТЬ§6]")
+                msg = TCUtils.format(Lang.t(p, "§7Сейчас ПВП §4Разрешен§7  §6[§7Клик - §2ВЫКЛЮЧИТЬ§6]"))
                         .hoverEvent(HoverEvent.showText(Component.text("Клик - выключить")))
                         .clickEvent(ClickEvent.runCommand("/pvp off"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
                 //.append(Component.text("Разрешен", NamedTextColor.DARK_RED)
@@ -759,7 +760,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 return true;
             } else {
                 //pvpOn(op);
-                msg = TCUtils.format("§7Сейчас ПВП §2Запрещён§7 §6[§7Клик - §4ВКЛЮЧИТЬ§6]")
+                msg = TCUtils.format(Lang.t(p, "§7Сейчас ПВП §2Запрещён§7 §6[§7Клик - §4ВКЛЮЧИТЬ§6]"))
                         .hoverEvent(HoverEvent.showText(Component.text("Клик - включить")))
                         .clickEvent(ClickEvent.runCommand("/pvp on"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
                 //.append(Component.text("Разрешен", NamedTextColor.DARK_RED)
@@ -772,21 +773,21 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         switch (arg[0]) {
             case "on" -> {
                 if (!flags.get(PvpFlag.allow_pvp_command)) {
-                    p.sendMessage("§cУправление режимом ПВП отключено!");
+                    p.sendMessage(Lang.t(p, "§cУправление режимом ПВП отключено!"));
                     return true;
                 }
                 op.pvp_allow = true;
                 pvpOn(op);
-                p.sendMessage("§4ПВП включен!");
+                p.sendMessage(Lang.t(p, "§4ПВП включен!"));
                 return true;
             }
             case "off" -> {
                 if (!flags.get(PvpFlag.allow_pvp_command)) {
-                    p.sendMessage("§cУправление режимом ПВП отключено!");
+                    p.sendMessage(Lang.t(p, "§cУправление режимом ПВП отключено!"));
                     return true;
                 }
                 pvpOff(op);
-                p.sendMessage("§2ПВП выключен!");
+                p.sendMessage(Lang.t(p, "§2ПВП выключен!"));
                 return true;
             }
             case "reload" -> {
@@ -837,9 +838,9 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
         if (target != null && targetOp != null && target.getNoDamageTicks() > 20) { //у жертвы иммунитет
             final int noDamageTicks = target.getNoDamageTicks() / 20;
-            ApiOstrov.sendActionBarDirect(target, "§aИммунитет к повреждениям  - осталось §f" + noDamageTicks + " §a сек.!");
+            ApiOstrov.sendActionBarDirect(target, Lang.t(target, "§aИммунитет к повреждениям  - осталось §f") + noDamageTicks + Lang.t(target, " §a сек.!"));
             if (damager != null) {
-                ApiOstrov.sendActionBarDirect(damager, "§aУ " + target.getName() + " иммунитет к повреждениям  - осталось §f" + noDamageTicks + " §a сек.!");
+                ApiOstrov.sendActionBarDirect(damager, "§a"+target.getName()+Lang.t(damager, " - иммунитет к повреждениям! Осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!") );
             }
             target.playSound(target.getLocation(), Sound.BLOCK_ANVIL_HIT, 1, 1);
             return true;
@@ -847,19 +848,19 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
         if (damager != null && damagerOp != null && damager.getNoDamageTicks() > 20) { //у нападающего иммунитет
             final int noDamageTicks = damager.getNoDamageTicks() / 20;
-            ApiOstrov.sendActionBarDirect(damager, "§aУ тебя иммунитет к повреждениям и атакам - осталось §f" + noDamageTicks + " §a сек.!");
+            ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§aУ тебя иммунитет к повреждениям и атакам - осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
             return true;
         }
 
         if (damager != null && target != null) {                               //если обаигроки
             if (!targetOp.pvp_allow) {                         //если у жертвы выкл пвп
-                ApiOstrov.sendActionBarDirect(damager, "§2У цели выключен режим ПВП!");
-                ApiOstrov.sendActionBarDirect(target, "§2У Вас выключен режим ПВП!");
+                ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен режим ПВП!"));
+                ApiOstrov.sendActionBarDirect(target, Lang.t(target, "§2У Вас выключен режим ПВП!"));
                 return true;
             }
             if (!damagerOp.pvp_allow) {                         //если у атакующего выкл пвп
-                ApiOstrov.sendActionBarDirect(target, "§2У нападающего выключен режим ПВП!");
-                ApiOstrov.sendActionBarDirect(damager, "§2У Вас выключен режим ПВП!");
+                ApiOstrov.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен режим ПВП!"));
+                ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§2У Вас выключен режим ПВП!"));
                 return true;
             }
         }
@@ -867,18 +868,18 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         if (damager != null) { //атакует игрок 
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
                 if (target != null && PM.exist(target.getName()) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
-                    ApiOstrov.sendActionBarDirect(damager, "§cАтака на игрока в креативе невозможна!");
+                    ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
                     return true;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {
-                    final EntityGroup group = VM.getNmsEntitygroup().getEntityType(targetEntity);
+                    final EntityGroup group = EntityUtil.group(targetEntity);
                     if (group != EntityGroup.UNDEFINED) {
-                        ApiOstrov.sendActionBarDirect(damager, "§cАтака на моба в креативе невозможна!");
+                        ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на моба в креативе невозможна!"));
                         return true;
                     }
                 }
             }
             if (flags.get(PvpFlag.block_fly_on_pvp_mode) && damager.isFlying() && !damager.isOp()) {
-                ApiOstrov.sendActionBarDirect(damager, "§cАтака в полёте невозможна!");
+                ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§cАтака в полёте невозможна!"));
                 return true;
             }
         }

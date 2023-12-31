@@ -80,7 +80,7 @@ public class OstrovDB {
         connect();
         if (connection!=null) {
             getBungeeServerInfo(); //1!!!  Perm.loadGroups(false);
-            GM.reload();//GM.loadArenaInfo(0);
+            GM.reload();//+прогрузит Lang
             Perm.loadGroups(false);
         }
     }

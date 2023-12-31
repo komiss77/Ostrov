@@ -231,7 +231,7 @@ public class MissionManager {
                 .id(op.nik+op.menu.section.name())
                 .provider(new MissionsViewMenu(null))
                 .size(6, 9)
-                .title("Миссии")
+                .title(op.eng ? "Missions" : "Миссии")
                 .build()
                 .open(op.getPlayer());
             return;

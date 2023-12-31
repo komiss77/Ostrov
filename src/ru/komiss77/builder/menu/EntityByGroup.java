@@ -11,9 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.translate.EnumLang;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.ValueSortedMap;
-import ru.komiss77.modules.translate.Translate;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -25,8 +26,6 @@ import ru.komiss77.utils.inventory.Pagination;
 import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.IEntityGroup.EntityGroup;
-import ru.komiss77.version.VM;
 
 
 
@@ -62,7 +61,7 @@ public class EntityByGroup implements InventoryProvider {
 
             for (final Entity e : p.getNearbyEntities(radius, radius, radius)) {
                 if (e.getType()==EntityType.PLAYER) continue;
-                if (VM.getNmsEntitygroup().getEntityGroup(e.getType())==group) {
+                if (EntityUtil.group(e.getType())==group) {
                     if (count.containsKey(e.getType())) {
                         count.put(e.getType(), count.get(e.getType())+1);
                     } else {
@@ -75,7 +74,7 @@ public class EntityByGroup implements InventoryProvider {
 
             for (final Entity e : world.getEntities()) {
                 if (e.getType()==EntityType.PLAYER) continue;
-                if (VM.getNmsEntitygroup().getEntityGroup(e.getType())==group) {
+                if (EntityUtil.group(e.getType())==group) {
                     if (count.containsKey(e.getType())) {
                         count.put(e.getType(), count.get(e.getType())+1);
                     } else {
@@ -95,13 +94,17 @@ public class EntityByGroup implements InventoryProvider {
         
         
         
-        
+        int find = 0;
         for (final EntityType type : count.keySet()) {
             
+            find = count.get(type);
+            
             menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(type)
-                .name("§f"+ (Translate.getEntityName(type, EnumLang.RU_RU) ) )
+                //.name("§f"+ (Translate.getEntityName(type, EnumLang.RU_RU) ) )
+                .name(Lang.t(p, type))
+                    .setAmount(find>64 ? 1 : find)
                 .addLore("§7")
-                .addLore("§7Найдено: §e"+ count.get(type) )
+                .addLore("§7Найдено: §e"+ find )
                 .addLore("§7")
                 .addLore("§7ЛКМ - подробно по типу")
                 .addLore("§7")
@@ -112,7 +115,7 @@ public class EntityByGroup implements InventoryProvider {
                                 .id("EntityByType"+p.getName())
                                 .provider(new EntityByType(world, radius, type))
                                 .size(6, 9)
-                                .title("§2"+world.getName()+", §6"+(Translate.getEntityName(type, EnumLang.RU_RU) )+", §1r="+radius).build()
+                                .title("§2"+world.getName()+", §6"+type+", §1r="+radius).build()
                                 .open(p);
                     } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                         for (final Entity entity : world.getEntities()) {

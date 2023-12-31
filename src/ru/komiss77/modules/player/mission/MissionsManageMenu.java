@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.mission;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -21,16 +20,9 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
 
-
-
-
-
 public class MissionsManageMenu implements InventoryProvider {
-    
-    
-    
+
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build());
-    //private final int begin = Timer.getTime()+24*60*60;
     private final List<Mission> missions;
 
     
@@ -81,7 +73,7 @@ public class MissionsManageMenu implements InventoryProvider {
             lore.add("§7Уровень не менее §6"+mi.level);
             lore.add("§7Репутация не менее §6"+mi.reputation);
             lore.add("");
-            lore.addAll(Mission.getRequest(mi));
+            lore.addAll(Mission.getRequest(p, mi));
             lore.add("");
             lore.add("§7ЛКМ - настроить");
             lore.add("§7клав.Q - §cудалить");

@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -11,6 +10,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -22,11 +22,9 @@ import ru.komiss77.utils.inventory.SlotPos;
 
 
 public class GameSection implements InventoryProvider {
-    
        
    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.РЕЖИМЫ.glassMat).name("§8.").build());
     
-
     @Override
     public void onClose(final Player p, final InventoryContent content) {
         PM.getOplayer(p).menu.current = null;
@@ -74,7 +72,7 @@ public class GameSection implements InventoryProvider {
                 } 
                 if (game==Game.LOBBY) {
                     ci[36*game.menuPage+game.menuSlot] = ClickableItem.of(new ItemBuilder(Material.matchMaterial(game.mat))
-                            .name(game.displayName)
+                            .name(Lang.t(p, game.displayName))
                             .addLore("")
                             .addLore("§6Вернуться в лобби")
                             .addLore("")
@@ -84,7 +82,7 @@ public class GameSection implements InventoryProvider {
                     );
                 } else {
                     ci[36*game.menuPage+game.menuSlot] = ClickableItem.of(new ItemBuilder(Material.matchMaterial(game.mat))
-                            .name(game.displayName)
+                            .name(Lang.t(p, game.displayName))
                             .addLore("")
                             .addLore("§8Состояние неизвестно")
                             .addLore("")
@@ -102,11 +100,10 @@ public class GameSection implements InventoryProvider {
 
             ci[36*game.menuPage+game.menuSlot] = ClickableItem.of( gi.getIcon(op)
                     , e-> {
-                        //p.closeInventory();
                         
                         switch (game.type) {
 
-                            case ONE_GAME:
+                            case ONE_GAME -> {
                                 final ArenaInfo ai = gi.arenas.get(0);
                                 if (ai!=null) {
                                     if (ai.server.equals(Ostrov.MOT_D)) {
@@ -114,19 +111,11 @@ public class GameSection implements InventoryProvider {
                                         return;
                                     }
                                     p.performCommand("server "+ai.server);
-                                    //ApiOstrov.sendToServer(p, ai.server, ai.arenaName);
                                 }
-                                break;
+                            }
 
-                            case LOBBY:
-                            case ARENAS:
-                                //if (GM.this_server_name.equals("lobby2")) {
-                                    
-                                //}
-                                pm.openArenaMenu(p, game);
-                                break;
-							default:
-								break;
+                            case LOBBY, ARENAS -> pm.openArenaMenu(p, game);
+
                         }
                         
                     }

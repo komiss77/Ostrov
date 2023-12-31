@@ -75,7 +75,12 @@ public final class MenuItemsManager implements Initiable, Listener {
         if (Config.getConfig().getBoolean("player.give_pipboy")) {
             Material mat = Material.matchMaterial(Config.getConfig().getString("system.pipboy_material"));
             if (mat==null) mat = Material.CLOCK;
-            final ItemStack is = new ItemBuilder(mat).name(Config.getConfig().getString("system.pipboy_name")).unsafeEnchantment(Enchantment.LUCK, 1).build();
+            
+            final ItemStack is = new ItemBuilder(mat)
+                    .name(Config.getConfig().getString("system.pipboy_name"))
+                    .unsafeEnchantment(Enchantment.LUCK, 1)
+                    .build();
+            
             final MenuItem pipboy = new MenuItem("pipboy", is);
             pipboy.slot=Config.getConfig().getInt("player.give_pipboy_slot");
             pipboy.give_on_join=true;
@@ -207,59 +212,19 @@ public final class MenuItemsManager implements Initiable, Listener {
             final MenuItem si = fromItemStack(e.getCursor());
             if (si!=null && !si.can_move) {
                 e.setResult(Event.Result.DENY);
-                //if (e.getClick()==ClickType.CREATIVE) {
-                //    Ostrov.sync(()-> ((Player)e.getWhoClicked()).updateInventory(), 1);
-                //    e.setCancelled(true);
-                //    ((Player)e.getWhoClicked()).updateInventory();
-                //}
             }
         }
         if (e.getCurrentItem()!=null && possibleMat.contains(e.getCurrentItem().getType())) {
             final MenuItem si = fromItemStack(e.getCurrentItem());
             if (si!=null && !si.can_move) {
                 e.setResult(Event.Result.DENY);
-                //if (e.getClick()==ClickType.CREATIVE) {
-                //    Ostrov.sync(()-> ((Player)e.getWhoClicked()).updateInventory(), 1);
-                //    e.setCancelled(true);
-                //    ((Player)e.getWhoClicked()).updateInventory();
-                //}
             }
         }        
 
-        //final MenuItem si = e.getClick()==ClickType.NUMBER_KEY ? fromItemStack(e.getCursor()) : fromItemStack(e.getCurrentItem());
-        //    if (si!=null && !si.can_move) {
-        //        e.setCancelled(true);
-        //    }
     }
     
     
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
- /*   
-@EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
-    public void cancelMove(InventoryDragEvent e) {
-        for (ItemStack item : event.getNewItems().values()) {
-            if (item != null   && item.hasItemMeta() && item.getItemMeta().hasDisplayName() ){
-                    if ( item.getItemMeta().getDisplayName().equals(pipboy_name) ||  item.getItemMeta().getDisplayName().equals(cosmetic_name)
-                            || item.getItemMeta().getDisplayName().equals(friend_name) ) {
-                
-                        event.setCancelled(true);
-                        ((Player) event.getWhoClicked()).updateInventory();
-                        return;
-                    }
-            }
-        }
-    }
-  */      
-    
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent e) {
         final MenuItem si = fromItemStack(e.getItemDrop().getItemStack());
@@ -269,24 +234,6 @@ public final class MenuItemsManager implements Initiable, Listener {
     } 
     
 
-
-   /* @EventHandler( priority = EventPriority.MONITOR, ignoreCancelled = false)
-    public void leftClickAir(PlayerAnimationEvent e) {
-System.out.println("ru.komiss77.Listener.MenuListener.PlayerAnimationEvent() type"+e.getAnimationType()+" canceled?"+e.isCancelled());        
-        if (e.getAnimationType() == PlayerAnimationType.ARM_SWING ) {
-            if (Timer.CD_has(e.getPlayer().getName(), "menu")) return;
-            final SpecItem si = fromItemStack(e.getPlayer().getInventory().getItemInMainHand());
-                if (si!=null && si.on_left_click!=null) {
-                    si.on_left_click.accept(e.getPlayer());
-                    Timer.CD_add(e.getPlayer().getName(), "menu", 1);
-                    e.setCancelled(true);
-                }
-        }
-    }*/
-    //@EventHandler( priority = EventPriority.HIGH, ignoreCancelled = true)
-   // public void onTp(PlayerTeleportEvent e) {
-//System.out.println("TP cause="+e.getCause());
-   // }
     
     @EventHandler( priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent e) {

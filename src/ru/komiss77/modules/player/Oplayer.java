@@ -48,6 +48,7 @@ import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
@@ -205,7 +206,7 @@ public class Oplayer {
         id=p.getUniqueId();
         menu = new ProfileManager(this);
         isGuest = nik.startsWith("guest_");
-        if (p instanceof Player) score=new CustomScore((Player) p);
+        if (p instanceof Player player) score=new CustomScore(player);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
     
@@ -275,7 +276,7 @@ public class Oplayer {
         }
 //Ostrov.log_warn(" ============== tablist_header_footer="+PM.tablist_header_footer);
         if (Config.tablist_header_footer) {
-            ApiOstrov.sendTabList(p,  "§7Сервер: §5"+GM.GAME.displayName+"§7 §6"+ApiOstrov.getCurrentHourMin(), "  §fГлавное меню - §a/menu");
+            ApiOstrov.sendTabList(p, (eng ? "§7Server: §5": "§7Сервер: §5")+GM.GAME.displayName+"§7 §6"+ApiOstrov.getCurrentHourMin(), (eng? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
             //p.setPlayerListName(tab_list_name_prefix+tab_list_name_color+nik+tab_list_name_siffix); - один раз при входе, или мешает плагинам
         }
         
@@ -371,14 +372,14 @@ public class Oplayer {
     
     public void onPVPEnter(final Player p, final int time, 
     	final boolean blockFly, final boolean giveTag) {
-        ApiOstrov.sendActionBarDirect(p, "§cРежим боя " + time + " сек.!");
+        ApiOstrov.sendActionBarDirect(p, (eng?"§cBattle mode ": "§cРежим боя ") + time + (eng?" sec.":" сек."));
     	if (blockFly) {
 //            p.setFlySpeed(fly_speed);
             p.setAllowFlight(false);
             p.setFlying(false);
             if (p.isGliding()) {
             	p.setGliding(false);
-                ApiOstrov.sendActionBarDirect(p, "§cКажется, Вам прострелили крыло :(");
+                ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
             }
     	}
         if (giveTag) nameColor("§4⚔ ", p);
@@ -387,7 +388,7 @@ public class Oplayer {
     
     public void onPVPEnd(final Player p, 
     	final boolean blockFly, final boolean giveTag) {
-        ApiOstrov.sendActionBarDirect(p, "§aТы больше не в бою!");
+        ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§aТы больше не в бою!"));
 //    	if (p == null) return;
     	if (blockFly) {
 //            p.setFlySpeed(fly_speed);
@@ -495,14 +496,14 @@ public class Oplayer {
             SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag, xpCache, "", ""); //обновить на банжи
             daylyStat.put(Stat.EXP, getDaylyStat(Stat.EXP)+value); //увеличение дневного счётчика опыта
             SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag+Stat.diff, getDaylyStat(Stat.EXP), "", "");
-            ApiOstrov.sendTitle(p, "§7.", Ostrov.PREFIX+"Новый уровень : §b"+getStat(Stat.LEVEL), 20, 60, 40);
-            ApiOstrov.sendBossbar(p, Ostrov.PREFIX+"Новый уровень : §b"+getStat(Stat.LEVEL), 8, Color.GREEN, Overlay.NOTCHED_20);
+            ApiOstrov.sendTitle(p, "§7.", Ostrov.PREFIX+(eng?"New level : §b":"Новый уровень : §b")+getStat(Stat.LEVEL), 20, 60, 40);
+            ApiOstrov.sendBossbar(p, Ostrov.PREFIX+(eng?"New level : §b":"Новый уровень : §b")+getStat(Stat.LEVEL), 8, Color.GREEN, Overlay.NOTCHED_20);
         } else { //уровень не меняется - просто добавляем опыт
             //addStat(Stat.EXP, value); addStat нельзя - деадлок!
             stat.put(Stat.EXP, xpCache);
             daylyStat.put(Stat.EXP, getDaylyStat(Stat.EXP)+value);
             SpigotChanellMsg.sendMessage(getPlayer(), Operation.ADD_BUNGEE_STAT, nik, Stat.EXP.tag, value, "", ""); //на банжике уровень не пересчитываем!
-            if (value>10) ApiOstrov.sendActionBar(nik, (curr_level*25-getStat(Stat.EXP)+1) +"§7 опыта до следующего уровня"); //+1 - фикс, или писало 0 до след уровня
+            if (value>10) ApiOstrov.sendActionBar(nik, (curr_level*25-getStat(Stat.EXP)+1) +(eng?"§7 experience to next level":"§7 опыта до следующего уровня")); //+1 - фикс, или писало 0 до след уровня
         }
     }
 
@@ -589,16 +590,27 @@ public class Oplayer {
     
     protected void updScore() {
         if (!Config.ostrovStatScore || hideScore) return;
-        //if (board==null) return;
-        score.getSideBar().setTitle("§7Общий онлайн: §f§l"+GM.bungee_online);//"§a-----------------"
-        score.getSideBar().updateLine(15, "§a--------------");
-        score.getSideBar().updateLine(14, "уровень §b"+getStat(Stat.LEVEL));
-        score.getSideBar().updateLine(13, "опыт §5"+getStat(Stat.EXP));
-        score.getSideBar().updateLine(12, "репутация "+getReputationDisplay());
-        score.getSideBar().updateLine(11, "карма "+getKarmaDisplay());
-        score.getSideBar().updateLine(10, "лони §6"+getDataInt(Data.LONI));
-        score.getSideBar().updateLine(9, "рил §e"+getDataInt(Data.RIL));
-        score.getSideBar().updateLine(1, "§a--------------");
+        if (eng) {
+            score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
+            score.getSideBar().updateLine(15, "§a--------------");
+            score.getSideBar().updateLine(14, "level §b"+getStat(Stat.LEVEL));
+            score.getSideBar().updateLine(13, "exp §5"+getStat(Stat.EXP));
+            score.getSideBar().updateLine(12, "reputation "+getReputationDisplay());
+            score.getSideBar().updateLine(11, "karma "+getKarmaDisplay());
+            score.getSideBar().updateLine(10, "loni §6"+getDataInt(Data.LONI));
+            score.getSideBar().updateLine(9, "ril §e"+getDataInt(Data.RIL));
+            score.getSideBar().updateLine(1, "§a--------------");
+        } else {
+            score.getSideBar().setTitle("§7Общий онлайн: §f§l"+GM.bungee_online);//"§a-----------------"
+            score.getSideBar().updateLine(15, "§a--------------");
+            score.getSideBar().updateLine(14, "уровень §b"+getStat(Stat.LEVEL));
+            score.getSideBar().updateLine(13, "опыт §5"+getStat(Stat.EXP));
+            score.getSideBar().updateLine(12, "репутация "+getReputationDisplay());
+            score.getSideBar().updateLine(11, "карма "+getKarmaDisplay());
+            score.getSideBar().updateLine(10, "лони §6"+getDataInt(Data.LONI));
+            score.getSideBar().updateLine(9, "рил §e"+getDataInt(Data.RIL));
+            score.getSideBar().updateLine(1, "§a--------------");
+        }
     }
     
 
@@ -609,7 +621,7 @@ public class Oplayer {
         if (seconds>no_damage) {
             no_damage=seconds;
             if (actionBar) {
-                ApiOstrov.sendActionBar(getPlayer(), "§aВам дарована неуязвимость на "+no_damage+" сек!");
+                ApiOstrov.sendActionBar(getPlayer(), eng ? "§aYou have invulnerability for "+no_damage+" sec!" : "§aВам дарована неуязвимость на "+no_damage+" сек!");
             }
         }
     }

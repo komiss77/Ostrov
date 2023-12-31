@@ -40,10 +40,6 @@ public class Perm {
         defaultPerms = new HashSet<>();
         localPerms = Config.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"} );
         localPerms.addDefault("default", Arrays.asList( 
-                "deluxechat.utf",
-                "deluxechat.pm", 
-                "deluxechat.bungee.chat", 
-                "deluxechat.bungee.toggle",
                 "chatformat.default"
             ) 
         );

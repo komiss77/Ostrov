@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Base64;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
@@ -53,8 +54,7 @@ import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.items.ItemClass;
-import ru.komiss77.modules.translate.EnumLang;
-import ru.komiss77.modules.translate.Translate;
+import ru.komiss77.modules.translate.Lang;
 
 
 public class ItemUtils {
@@ -127,6 +127,16 @@ public class ItemUtils {
         return is;
     }
 
+    public static ItemMeta setHeadTexture(final SkullMeta skullMeta, String skullTexture) {
+        if (skullTexture.length()>72) { //определяяем зашифрованную ссылку
+            final String decoded = new String(Base64.getDecoder().decode(skullTexture));
+            skullTexture = decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length());
+        }
+        com.destroystokyo.paper.profile.PlayerProfile profile = ItemUtils.getProfile(skullTexture);
+        skullMeta.setPlayerProfile(profile);
+        return skullMeta;
+    }
+
     public static enum Texture {
         nextPage("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516"),
         previosPage("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc"),
@@ -177,42 +187,7 @@ public class ItemUtils {
         playerProfilesCache.put(minecraftURL, profile);
         return profile;
     }
-    
-/*
-    @Deprecated
-    public static GameProfile getUrlGameProfile(String url) { //skullTexture.startsWith("http://
-        if (gameProfilesCache.containsKey(url)) {
-            return gameProfilesCache.get(url);
-        }
-        //if (!url.startsWith("http://")) url = "http://textures.minecraft.net/texture/" + url;
-        final UUID uuid = UUID.randomUUID();
-        final GameProfile gameProfile = new GameProfile(uuid, ""); //в 1.20.2 NullPointerException: Profile name must not be null
-        final byte[] encodedData = VM.getNmsServer().encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-        gameProfile.getProperties().put("textures", new Property("textures", new String(encodedData)));
-        gameProfilesCache.put(url, gameProfile);
-        return gameProfile;
-    }
-
-    @Deprecated
-    public static GameProfile getTextureGameProfile(String blockTexture) {
-        if (gameProfilesCache.containsKey(blockTexture)) {
-            return gameProfilesCache.get(blockTexture);
-        }
-        //if (!skullTexture.startsWith("http://")) skullTexture = "http://textures.minecraft.net/texture/" + skullTexture;
-        final UUID uuid = UUID.randomUUID();
-        final GameProfile gameProfile = new GameProfile(uuid, ""); //в 1.20.2 NullPointerException: Profile name must not be null
-        gameProfile.getProperties().put("textures", new Property("textures", blockTexture));
-        gameProfilesCache.put(blockTexture, gameProfile);
-        return gameProfile;
-    }
-
-    */
-        
-    
-    
-    
-    
-    
+   
     
     
     /**
@@ -1422,7 +1397,7 @@ public class ItemUtils {
             }
         }
 
-        builder.name(Translate.getBiomeName(b, EnumLang.RU_RU));
+        builder.name(Lang.t(null, b));
 
         return builder;
     }
@@ -1434,11 +1409,11 @@ public class ItemUtils {
         switch (type) {
             case ARMOR_STAND -> builder.setType(Material.STRIPPED_OAK_WOOD);
             case ZOMBIE -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
-            default -> {}
+            default -> builder.setType(Material.NAME_TAG);
         }
         //
 
-        builder.name(Translate.getEntityName(type, EnumLang.RU_RU));
+        builder.name(Lang.t(null, type));
         return builder;
     }
 

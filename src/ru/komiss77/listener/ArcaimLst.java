@@ -1,7 +1,6 @@
 package ru.komiss77.listener;
 
 import java.util.Iterator;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -19,15 +18,13 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
-
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.version.IEntityGroup.EntityGroup;
-import ru.komiss77.version.VM;
 
 //просто скинул сюда всё из двух мелких плагинов
 
@@ -94,7 +91,7 @@ public class ArcaimLst implements Listener {
         final ItemStack is = e.getPlayer().getInventory().getItem(e.getHand());//ItemInOffHand();
         switch (is.getType()) {
 		case WATER_BUCKET:
-			e.setCancelled(VM.getNmsEntitygroup().getEntityGroup(e.getRightClicked().getType()) != EntityGroup.WATER_AMBIENT);
+			e.setCancelled(EntityUtil.group(e.getRightClicked().getType()) != EntityGroup.WATER_AMBIENT);
 			break;
 		case LAVA, LAVA_BUCKET, WATER, AXOLOTL_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, 
 			SALMON_BUCKET, TADPOLE_BUCKET, TROPICAL_FISH_BUCKET:

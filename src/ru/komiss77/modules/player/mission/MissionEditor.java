@@ -71,7 +71,7 @@ public class MissionEditor implements InventoryProvider {
             .addLore("§7Уровень не менее §6"+mi.level)
             .addLore("§7Репутация не менее §6"+mi.reputation)
             .addLore("")
-            .addLore(Mission.getRequest(mi))
+            .addLore(Mission.getRequest(p, mi))
             .build()));
 
 

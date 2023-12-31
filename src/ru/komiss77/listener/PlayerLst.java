@@ -66,7 +66,6 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.commands.PvpCmd;
@@ -157,16 +156,24 @@ public class PlayerLst implements Listener {
     
 
 	//int count;
-    //@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
+    //@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //        final Oplayer op = PM.getOplayer(p);
         
         if (e.getAction()==Action.RIGHT_CLICK_BLOCK ) {
-           // Material mat = e.getPlayer().getInventory().getItemInMainHand().getType();
            // Material c = TCUtils.changeColor(mat, DyeColor.YELLOW);
           //  p.sendMessage("inHand="+mat+" change="+c);
             if (p.isSneaking()) {
+                e.setCancelled(true);
+                //Material mat = e.getPlayer().getInventory().getItemInMainHand().getType();
+               // Locale l = Locale.forLanguageTag("ru_ru");
+                //TranslatableComponent tc = Component.translatable(mat);
+                Component c = Lang.t(p, p.getInventory().getItemInMainHand());//GlobalTranslator.render(tc, l);
+                p.sendMessage(Component.text("biome = ").append(Lang.t(p, p.getLocation().getBlock().getBiome())));
+                p.sendMessage(Component.text("item = ").append(c));
+                
+                //p.sendMessage(Lang.t(p, p.getInventory().getItemInMainHand()));
                 //op.tag(Component.text("vvv", NamedTextColor.GOLD), Component.text("zzz", NamedTextColor.BLUE));
             } else {
                // op.tag(null, null);
@@ -183,7 +190,7 @@ public class PlayerLst implements Listener {
         if (e.getAction()==Action.LEFT_CLICK_BLOCK ) {
            // op.addCd("test", count++);
             if (p.isSneaking()) {
-                e.setCancelled(true);
+                //e.setCancelled(true);
                 //Lang.sendMessage(p, "ВСТАВЛЕНО");
                // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
             } else {

@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -12,25 +11,16 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
-
-
-
-
 public class StatSection implements InventoryProvider {
     
-    
-    
    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.СТАТИСТИКА.glassMat).name("§8.").build());
-    
 
-    
-    public StatSection() {
-    }
      
     @Override
     public void onClose(final Player p, final InventoryContent content) {
@@ -71,13 +61,13 @@ public class StatSection implements InventoryProvider {
             for (Stat stat : Stat.values()) {
                 if (stat.game==game) {
 //System.out.println("- stat="+stat.toString()+" len="+op.getStat(stat).length()+" value="+op.getStat(stat));                   
-                    lore.add( stat.desc+op.getStat(stat) + (op.getDaylyStat(stat)>0 ? " §5(+"+op.getDaylyStat(stat)+")" : "") );
+                    lore.add( Lang.t(p, stat.desc)+op.getStat(stat) + (op.getDaylyStat(stat)>0 ? " §5(+"+op.getDaylyStat(stat)+")" : "") );
                 }
             }
             
             
             final ItemStack stat_item = new ItemBuilder(Material.matchMaterial(game.mat))
-                    .name(game.displayName)
+                    .name(Lang.t(p, game.displayName))
                     .addFlags(ItemFlag.HIDE_ATTRIBUTES)
                     .setLore(lore)
                     .build();

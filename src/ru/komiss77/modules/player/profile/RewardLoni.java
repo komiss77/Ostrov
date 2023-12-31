@@ -9,6 +9,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.translate.Lang;
 
 
 public class RewardLoni {
@@ -100,7 +101,7 @@ public class RewardLoni {
             op.setData(Data.LONI, loni);
             if (loniAdd>=5) {
                 //paper версия
-                p.sendMessage(Component.text(Ostrov.PREFIX+"§7Награда за "+stat.desc+" §7-> "+loniAdd+" лони §7! §8<клик-баланс")
+                p.sendMessage(Component.text(Ostrov.PREFIX+"§7Награда за "+Lang.t(p, stat.desc)+" §7-> "+loniAdd+" лони §7! §8<клик-баланс")
                 	.hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e"+loni+" лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
             }
         }

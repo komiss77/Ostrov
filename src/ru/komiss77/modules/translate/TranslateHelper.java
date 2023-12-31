@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
  *
  * @author Meow J
  */
+    @Deprecated
 public class TranslateHelper {
 
     /**
@@ -22,6 +23,7 @@ public class TranslateHelper {
      * @param player The player to be analyzed
      * @return the language of the player(in Java locale format)
      */
+    @Deprecated
     public static EnumLang getPlayerLanguage(Player player) {
         return EnumLang.get(player.locale().toString());
     }
@@ -32,6 +34,7 @@ public class TranslateHelper {
      * @param player The player to be analyzed
      * @return the locale of the player
      */
+    @Deprecated
     public static Locale getPlayerLocale(Player player) {
         return Locale.forLanguageTag(player.locale().toString().replace('_', '-'));
     }
@@ -70,6 +73,7 @@ public class TranslateHelper {
      * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
      * POSSIBILITY OF SUCH DAMAGE.
      */
+    @Deprecated
     public static void toLegacyText(StringBuilder builder, TranslatableComponent translatable, EnumLang lang) {
         String trans = Translate.translateToLocal(translatable.getTranslate(), translatable.getTranslate(), lang);
 
@@ -104,6 +108,7 @@ public class TranslateHelper {
         toLegacyText(builder, (BaseComponent) translatable, lang);
     }
 
+    @Deprecated
     public static void toLegacyText(StringBuilder builder, BaseComponent baseComponent, EnumLang locale) {
         if (baseComponent.getExtra() != null) {
             for (BaseComponent e : baseComponent.getExtra()) {
@@ -116,6 +121,7 @@ public class TranslateHelper {
         }
     }
 
+    @Deprecated
     private static void addFormat(TranslatableComponent translatable, StringBuilder builder) {
         builder.append(translatable.getColor());
         if (translatable.isBold()) {
@@ -139,6 +145,7 @@ public class TranslateHelper {
         }
     }
 
+    @Deprecated
     public static void toPlainText(StringBuilder builder, TranslatableComponent translatable, EnumLang locale) {
         String trans = Translate.translateToLocal(translatable.getTranslate(), translatable.getTranslate(), locale);
 
@@ -171,6 +178,7 @@ public class TranslateHelper {
         toPlainText(builder, (BaseComponent) translatable, locale);
     }
 
+    @Deprecated
     public static void toPlainText(StringBuilder builder, BaseComponent baseComponent, EnumLang locale) {
         if (baseComponent.getExtra() != null) {
             for (BaseComponent e : baseComponent.getExtra()) {
@@ -183,6 +191,7 @@ public class TranslateHelper {
         }
     }
 
+    @Deprecated
     public static String toLegacyText(BaseComponent component, EnumLang locale) {
         StringBuilder builder = new StringBuilder();
         if (component instanceof TranslatableComponent) {
@@ -194,6 +203,7 @@ public class TranslateHelper {
     }
 
 
+    @Deprecated
     public static String toPlainText(BaseComponent component, EnumLang locale) {
         StringBuilder builder = new StringBuilder();
         if (component instanceof TranslatableComponent) {

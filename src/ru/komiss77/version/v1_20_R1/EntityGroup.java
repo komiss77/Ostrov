@@ -25,21 +25,23 @@ import ru.komiss77.utils.FastMath;
 import ru.komiss77.version.IEntityGroup;
 import ru.komiss77.version.VM;
 
-
+@Deprecated
 public class EntityGroup implements IEntityGroup { 
 
     
     //net.minecraft.server.v1_16_R1.EntityTypes - есть все типы   EntityTypes.ZOMBIFIED_PIGLIN.e();
     @Override
+    @Deprecated
     public EntityGroup getEntytyGroup(final EntityType type) {
     	return getEntityGroup(type);
     }
     
     @Override
+    @Deprecated
     public EntityGroup getEntityGroup(final EntityType type) {
-        
-        
-        
+       // type.getKey();
+        //EnumCreatureType enumcreaturetype = (net.minecraft.world.Entiti)entity.(net.minecraft.world.EntityTypes)ae().(net.minecraft.world.EnumCreatureType)f();
+      //  EntityTypes et = EntityTypes.a("").get();
         switch (type) {
 
             case RAVAGER:																											
@@ -186,7 +188,6 @@ public class EntityGroup implements IEntityGroup {
     		case ITEM_DISPLAY:
     		case TEXT_DISPLAY:
     		case BLOCK_DISPLAY:
-                
                 break;
 				
                 
