@@ -130,7 +130,7 @@ public class FakeItemDis extends BukkitRunnable {
 		this.scale = sc;
 		tds.a(new Transformation(new Vector3f(), new Quaternionf(),
 			new Vector3f(sc, sc, sc), new Quaternionf()));
-		ine.teleport(olc.clone().add(0d, -1d * scale, 0d));
+		ine.teleport(olc.clone().add(0d, -1d * scale - 0.1d, 0d));
 		ine.setInteractionHeight(HGHT * sc);
 		ine.setInteractionWidth(WDTH * sc);
 		return this;
@@ -148,7 +148,7 @@ public class FakeItemDis extends BukkitRunnable {
 	
 	public void create() {
 		ine.setCustomNameVisible(showName);
-		ine.teleport(olc.clone().add(0d, -1d * scale, 0d));
+		ine.teleport(olc.clone().add(0d, -1d * scale - 0.1d, 0d));
 		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
 		pc.a(new PacketPlayOutSpawnEntity(tds));
 		pc.a(new PacketPlayOutEntityMetadata(tdId, tds.aj().c()));

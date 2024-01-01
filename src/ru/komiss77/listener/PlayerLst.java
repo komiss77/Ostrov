@@ -1,16 +1,8 @@
 package ru.komiss77.listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.Tag;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
+import net.kyori.adventure.text.Component;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
@@ -43,16 +35,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -60,13 +43,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
-import net.kyori.adventure.text.Component;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
-import ru.komiss77.LocalDB;
-import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
+import ru.komiss77.*;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.ServerType;
@@ -82,19 +59,16 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.SignEditSelectLine;
-import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.TeleportLoc;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.*;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.ItemClickData;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.VM;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class PlayerLst implements Listener {
@@ -172,7 +146,7 @@ public class PlayerLst implements Listener {
                 Component c = Lang.t(p, p.getInventory().getItemInMainHand());//GlobalTranslator.render(tc, l);
                 p.sendMessage(Component.text("biome = ").append(Lang.t(p, p.getLocation().getBlock().getBiome())));
                 p.sendMessage(Component.text("item = ").append(c));
-                
+
                 //p.sendMessage(Lang.t(p, p.getInventory().getItemInMainHand()));
                 //op.tag(Component.text("vvv", NamedTextColor.GOLD), Component.text("zzz", NamedTextColor.BLUE));
             } else {
@@ -358,10 +332,7 @@ public class PlayerLst implements Listener {
             e.getPlayer().updateInventory();
         }
     }
-    
-//    public static Area ar;
-//    private Team tm = null;
-    
+
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
     public void Interact (final PlayerInteractEvent e) {
         if ( e.getAction()==Action.PHYSICAL ) return;
@@ -380,15 +351,7 @@ public class PlayerLst implements Listener {
             }).run(new ItemClickData(p, new InventoryClickEvent(p.getOpenInventory(), SlotType.CONTAINER, 0,
                 ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
         }
-        
-        if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
-        	
-//            QuestManager.showForPl(p, PM.getOplayer(p));
-//            QuestManager.addProgress(p, PM.getOplayer(p), QuestManager.q1);
-//            QuestManager.addProgress(p, PM.getOplayer(p), QuestManager.q2);
-//            QuestManager.addProgress(p, PM.getOplayer(p), QuestManager.q3);
-        }
-        
+
         /*if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
         	final FakeItemDis fid = DisplayManager.fakeItemAnimate(p, p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(2d)));
         	fid.setItem(new ItemStack(Material.GRASS_BLOCK)).setRotate(false).setOnClick(pl -> {
@@ -501,7 +464,6 @@ public class PlayerLst implements Listener {
             if (Config.disable_lava && inHand!=null && inHand.getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(p, false)) {
                 e.setUseItemInHand(Event.Result.DENY);
                 ApiOstrov.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
-                return;
             }
             
         }
@@ -648,7 +610,7 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent e) {
         if ( e.getRemover()!=null && e.getRemover().getType()==EntityType.PLAYER && PM.exist(e.getRemover().getName())) {
-                if ( Config.disable_break_place &&  !ApiOstrov.isLocalBuilder((Player) e.getRemover()) ) e.setCancelled(true);
+                if ( Config.disable_break_place &&  !ApiOstrov.isLocalBuilder(e.getRemover()) ) e.setCancelled(true);
         } 
 
     }
@@ -664,7 +626,6 @@ public class PlayerLst implements Listener {
     public void onPlayerItemFrameChangeEvent(final PlayerItemFrameChangeEvent e) {
         if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
             e.setCancelled(true);
-            return;
         }
     }
     
@@ -851,10 +812,10 @@ public class PlayerLst implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void ProjectileHitEvent(final ProjectileHitEvent e) {
         
-        if (MenuItemsManager.hasItem("tpbow") && e.getEntity().getShooter() instanceof Player && e.getEntity().hasMetadata("bowteleport")) {
+        if (MenuItemsManager.hasItem("tpbow") && e.getEntity().getShooter()
+            instanceof final Player p && e.getEntity().hasMetadata("bowteleport")) {
             Location destination =  (e.getEntity()).getLocation().clone();
             e.getEntity().remove();
-            final Player p = (Player)e.getEntity().getShooter();
             destination.setPitch(p.getLocation().getPitch());
             destination.setYaw(p.getLocation().getYaw());
             p.teleport(destination, PlayerTeleportEvent.TeleportCause.COMMAND);
@@ -902,7 +863,6 @@ public class PlayerLst implements Listener {
                 DROWNING, STARVATION, LAVA:
                 default:
                     if ( Config.disable_damage ) e.setCancelled(true);
-                    return;
             }
         } else {
             if (e.getCause()==EntityDamageEvent.DamageCause.VOID) {
@@ -925,7 +885,7 @@ public class PlayerLst implements Listener {
     public void onPlayerLoseFood(FoodLevelChangeEvent e) { 
         if ( Config.disable_hungry ) {
             e.setCancelled(true);
-            ((Player)e.getEntity()).setFoodLevel(20);
+            e.getEntity().setFoodLevel(20);
         }
     }
   
