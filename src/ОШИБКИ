@@ -1,0 +1,12 @@
+
+
+Lobbyitems фикс - на 1.16 воспринимает клик в меню как интеракт!!!!! - может стать ненужным
+
+не удаётся отправить сообщение ???  -первый вход - баг сервера ??  !!!! наступает если делалось entity.remove() и прошлось по игроку!!!
+
+09.07.21
+] Could not enable the attribute remover for this version.Attributes will show up on items.
+java.lang.ClassNotFoundException: net.minecraft.server.v1_17_R1.NBTTagCompound
+	at ru.komiss77.modules.menuItem.MenuItemsManager.lambda$reload$1(MenuItemsManager.java:73) ~[?:?]
+	at ru.komiss77.modules.menuItem.MenuItemsManager.onInteract(MenuItemsManager.java:228) ~[?:?]
+

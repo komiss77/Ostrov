@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/io/papermc/paper/paper-api/1.20.1-R0.1-SNAPSHOT/paper-api-1.20.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/versions/1.20.1/paper-1.20.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/net/kyori/adventure-api/4.14.0/adventure-api-4.14.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/net/kyori/examination-api/1.3.0/examination-api-1.3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/net/kyori/adventure-key/4.14.0/adventure-key-4.14.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/Dynmap.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/worldguard-bukkit-7.0.9-SNAPSHOT-dist.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/Factions.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/PlaceholderAPI.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/FAWE.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/BungeeCord.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/com/mojang/authlib/4.0.43/authlib-4.0.43.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/LangUtils-3.2.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/velocity-3.2.0-SNAPSHOT-258.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/DeluxeChat.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/Matrix.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/com/mojang/datafixerupper/6.0.8/datafixerupper-6.0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/org/joml/joml/1.10.5/joml-1.10.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/libraries/it/unimi/dsi/fastutil/8.5.9/fastutil-8.5.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/plugins/CrazyAdvancementsAPI.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Romindous/Downloads/new_test/pl2/TradeSystem.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,625 @@
+package ru.komiss77.utils;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Colorable;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextDecoration.State;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.notes.Slow;
+
+
+
+public class TCUtils {
+
+    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)§[0-9a-xа-я]");
+    public static final TextComponent EMPTY;
+    
+    private static final BiMap<DyeColor, TextColor> dyeIx;
+    private static final BiMap<Character, TextColor> chrIx;
+    private static final BiMap<Color, TextColor> clrIx;
+    
+    /**60% - Neutral color*/
+    public static String N = "§7";
+    /**30% - Primary color*/
+    public static String P = "§7";
+    /**10% - Action color*/
+    public static String A = "§7";
+
+    static {
+        EMPTY = Component.empty();
+        dyeIx = HashBiMap.create();
+        chrIx = HashBiMap.create();
+        clrIx = HashBiMap.create();
+        dyeIx.put(DyeColor.BLACK, NamedTextColor.BLACK);
+        chrIx.put('0', NamedTextColor.BLACK);//void
+    	clrIx.put(Color.BLACK, NamedTextColor.BLACK);
+        dyeIx.put(DyeColor.BLUE, NamedTextColor.DARK_BLUE);
+        chrIx.put('1', NamedTextColor.DARK_BLUE);//adventure
+    	clrIx.put(Color.NAVY, NamedTextColor.DARK_BLUE);
+        dyeIx.put(DyeColor.GREEN, NamedTextColor.DARK_GREEN);
+        chrIx.put('2', NamedTextColor.DARK_GREEN);//nature
+    	clrIx.put(Color.GREEN, NamedTextColor.DARK_GREEN);
+        dyeIx.put(DyeColor.CYAN, NamedTextColor.DARK_AQUA);
+        chrIx.put('3', NamedTextColor.DARK_AQUA);//wisdom
+    	clrIx.put(Color.TEAL, NamedTextColor.DARK_AQUA);
+        dyeIx.put(DyeColor.BROWN, NamedTextColor.DARK_RED);
+        chrIx.put('4', NamedTextColor.DARK_RED);//war
+    	clrIx.put(Color.MAROON, NamedTextColor.DARK_RED);
+        dyeIx.put(DyeColor.MAGENTA, NamedTextColor.DARK_PURPLE);
+        chrIx.put('5', NamedTextColor.DARK_PURPLE);//royalty
+    	clrIx.put(Color.PURPLE, NamedTextColor.DARK_PURPLE);
+        dyeIx.put(DyeColor.ORANGE, NamedTextColor.GOLD);
+        chrIx.put('6', NamedTextColor.GOLD);//wealth
+    	clrIx.put(Color.ORANGE, NamedTextColor.GOLD);
+        dyeIx.put(DyeColor.LIGHT_GRAY, NamedTextColor.GRAY);
+        chrIx.put('7', NamedTextColor.GRAY);//plain
+    	clrIx.put(Color.SILVER, NamedTextColor.GRAY);
+        dyeIx.put(DyeColor.GRAY, NamedTextColor.DARK_GRAY);
+        chrIx.put('8', NamedTextColor.DARK_GRAY);//shadow
+    	clrIx.put(Color.GRAY, NamedTextColor.DARK_GRAY);
+        dyeIx.put(DyeColor.PURPLE, NamedTextColor.BLUE);
+        chrIx.put('9', NamedTextColor.BLUE);//trust
+    	clrIx.put(Color.BLUE, NamedTextColor.BLUE);
+        dyeIx.put(DyeColor.LIME, NamedTextColor.GREEN);
+        chrIx.put('a', NamedTextColor.GREEN);//balance
+    	clrIx.put(Color.LIME, NamedTextColor.GREEN);
+        dyeIx.put(DyeColor.LIGHT_BLUE, NamedTextColor.AQUA);
+        chrIx.put('b', NamedTextColor.AQUA);//spirit
+    	clrIx.put(Color.AQUA, NamedTextColor.AQUA);
+        dyeIx.put(DyeColor.RED, NamedTextColor.RED);
+        chrIx.put('c', NamedTextColor.RED);//health
+    	clrIx.put(Color.RED, NamedTextColor.RED);
+        dyeIx.put(DyeColor.PINK, NamedTextColor.LIGHT_PURPLE);
+        chrIx.put('d', NamedTextColor.LIGHT_PURPLE);//magic
+    	clrIx.put(Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE);
+        dyeIx.put(DyeColor.YELLOW, NamedTextColor.YELLOW);
+        chrIx.put('e', NamedTextColor.YELLOW);//hope
+    	clrIx.put(Color.YELLOW, NamedTextColor.YELLOW);
+        dyeIx.put(DyeColor.WHITE, NamedTextColor.WHITE);
+        chrIx.put('f', NamedTextColor.WHITE);//confidence
+    	clrIx.put(Color.WHITE, NamedTextColor.WHITE);
+        
+        chrIx.put('я', CustomTextColor.AMBER);//strength
+    	clrIx.put(Color.fromRGB(CustomTextColor.AMBER.value()), CustomTextColor.AMBER);
+        chrIx.put('с', CustomTextColor.APPLE);//growth
+    	clrIx.put(Color.fromRGB(CustomTextColor.APPLE.value()), CustomTextColor.APPLE);
+        chrIx.put('б', CustomTextColor.BEIGE);//comfort
+    	clrIx.put(Color.fromRGB(CustomTextColor.BEIGE.value()), CustomTextColor.BEIGE);
+        chrIx.put('к', CustomTextColor.CARDINAL);//passion
+    	clrIx.put(Color.fromRGB(CustomTextColor.CARDINAL.value()), CustomTextColor.CARDINAL);
+        chrIx.put('ф', CustomTextColor.INDIGO);//energy
+    	clrIx.put(Color.fromRGB(CustomTextColor.INDIGO.value()), CustomTextColor.INDIGO);
+        chrIx.put('о', CustomTextColor.OLIVE);//peace
+    	clrIx.put(Color.OLIVE, CustomTextColor.OLIVE);
+        chrIx.put('р', CustomTextColor.ORCHID);//love
+    	clrIx.put(Color.fromRGB(CustomTextColor.ORCHID.value()), CustomTextColor.ORCHID);
+        chrIx.put('н', CustomTextColor.SKYBLUE);//calm
+    	clrIx.put(Color.fromRGB(CustomTextColor.SKYBLUE.value()), CustomTextColor.SKYBLUE);
+        chrIx.put('ч', CustomTextColor.STALE);//future
+    	clrIx.put(Color.fromRGB(CustomTextColor.STALE.value()), CustomTextColor.STALE);
+        chrIx.put('м', CustomTextColor.MITHRIL);//durability
+    	clrIx.put(Color.fromRGB(CustomTextColor.MITHRIL.value()), CustomTextColor.MITHRIL);
+    }
+
+    public static ItemStack changeColor(ItemStack source, byte new_color) {
+        DyeColor dc;
+        switch (new_color) {
+            case 0 -> dc = DyeColor.BLACK;
+            case 1 -> dc = DyeColor.BLUE;
+            case 2 -> dc = DyeColor.GREEN;
+            case 3 -> dc = DyeColor.ORANGE;
+            case 4 -> dc = DyeColor.RED;
+            case 5 -> dc = DyeColor.PURPLE;
+            case 6 -> dc = DyeColor.BROWN;
+            case 7 -> dc = DyeColor.LIGHT_GRAY;
+            case 8 -> dc = DyeColor.GRAY;
+            case 9 -> dc = DyeColor.LIGHT_BLUE;
+            case 10 -> dc = DyeColor.LIME;
+            case 11 -> dc = DyeColor.CYAN;
+            case 12 -> dc = DyeColor.PINK;
+            case 13 -> dc = DyeColor.MAGENTA;
+            case 14 -> dc = DyeColor.YELLOW;
+            case 15 -> dc = DyeColor.WHITE;
+            default -> dc = DyeColor.WHITE;
+        }
+        return changeColor(source, dc);
+    }
+
+    public static ItemStack changeColor(final ItemStack source, final DyeColor color) {
+       if (source == null || color == null) return source;
+       if (source.getType().isBlock()) {
+            String matName = source.getType().name();
+            String stripMatName = stripMaterialName(matName);
+            if (matName.length() == stripMatName.length()) return source;//(base_mat_name.isEmpty()) {
+                //return source;
+            //}
+            final Material newMat = Material.matchMaterial(color.name()+"_"+stripMatName);
+            if (newMat != null)  source.setType(newMat);//Material.matchMaterial(new_color.toString() + "_" + base_mat_name));
+       } else {
+            final ItemMeta im = source.getItemMeta();
+            if (im != null && (im instanceof Colorable)) {
+                Colorable c = (Colorable) im;
+                c.setColor(color);
+                source.setItemMeta(im);
+            }
+        }
+        return source;
+    }
+
+    public static Material changeColor(final Material source, final DyeColor color) {
+        if (source == null) return Material.BEDROCK; //заглушки от NullPoint  в плагинах
+        if (color == null) return source; //заглушки от NullPoint  в плагинах
+        final String stripName = stripMaterialName(source.name());
+        final Material newMat = Material.matchMaterial(color.name()+"_"+stripName);
+        return newMat == null ? source : newMat;
+    }
+
+    public static boolean canChangeColor(final Material mat) {
+        if (mat==null) return false; //заглушки от NullPoint  в плагинах
+        return stripMaterialName(mat.name()).length() != mat.name().length();
+    }  
+    
+    public static String stripMaterialName(String materialName) {
+        if (materialName == null) return Material.BEDROCK.name(); //заглушки от NullPoint  в плагинах
+        return switch (materialName.split("_")[0]) {
+            case "RED" -> materialName.substring(4);
+            case "BLUE", "CYAN", "GRAY", "LIME", "PINK" -> materialName.substring(5);
+            case "BLACK", "BROWN", "WHITE", "GREEN" -> materialName.substring(6);
+            case "ORANGE", "PURPLE", "YELLOW" -> materialName.substring(7);
+            case "MAGENTA" -> materialName.substring(8);
+            case "LIGHT" -> materialName.substring(11);  // "LIGHT_BLUE", "LIGHT_GRAY"
+            default -> materialName;
+        };
+    }
+    
+    public static String nameOf(final TextColor color, final String end, final boolean clrz) {
+    	return nameOf(toChar(color), end, clrz);
+    }
+    
+    public static String nameOf(final char color, final String end, final boolean clrz) {
+    	final String cnm = switch (color) {
+		case '0' -> "Черн";
+		case '1' -> "Темно-Лазурн";
+		case '2' -> "Зелен";
+		case '3' -> "Бирюзов";
+		case '4' -> "Бардов";
+		case '5' -> "Пурпурн";
+		case '6' -> "Золот";
+		case '7' -> "Сер";
+		case '8' -> "Темно-Сер";
+		case '9' -> "Лазурн";
+		case 'a' -> "Лаймов";
+		case 'b' -> "Голуб";
+		case 'c' -> "Красн";
+		case 'd' -> "Розов";
+		case 'e' -> "Желт";
+        case 'я' -> "Янтарн";
+        case 'с' -> "Салатов";
+        case 'б' -> "Бежев";
+        case 'к' -> "Кардинн";
+        case 'ф' -> "Сиренев";
+        case 'о' -> "Оливков";
+        case 'р' -> "Малинов";
+        case 'н' -> "Небесн";
+        case 'ч' -> "Черств";
+        case 'м' -> "Мифрилов";
+		default -> "Бел";
+		};
+    	return (clrz ? "§" + String.valueOf(color) + cnm : cnm) + end;
+    }
+
+    public static DyeColor randomDyeColor() {
+        return switch (ApiOstrov.randInt(0, 16)) {
+            case 0 -> DyeColor.BLACK;
+            case 1 -> DyeColor.BLUE;
+            case 2 -> DyeColor.BROWN;
+            case 3 -> DyeColor.CYAN;
+            case 4 -> DyeColor.GRAY;
+            case 5 -> DyeColor.GREEN;
+            case 6 -> DyeColor.LIGHT_BLUE;
+            case 7 -> DyeColor.LIGHT_GRAY;
+            case 8 -> DyeColor.LIME;
+            case 9 -> DyeColor.MAGENTA;
+            case 10 -> DyeColor.ORANGE;
+            case 11 -> DyeColor.PINK;
+            case 12 -> DyeColor.PURPLE;
+            case 13 -> DyeColor.RED;
+            case 14 -> DyeColor.YELLOW;
+            default -> DyeColor.WHITE;
+        };
+    }
+
+    public static Color randomCol() {
+        return switch (ApiOstrov.randInt(0, 16)) {
+            case 0 -> Color.AQUA;
+            case 1 -> Color.BLACK;
+            case 2 -> Color.BLUE;
+            case 3 -> Color.FUCHSIA;
+            case 4 -> Color.GRAY;
+            case 5 -> Color.GREEN;
+            case 6 -> Color.LIME;
+            case 7 -> Color.MAROON;
+            case 8 -> Color.NAVY;
+            case 9 -> Color.OLIVE;
+            case 10 -> Color.ORANGE;
+            case 11 -> Color.PURPLE;
+            case 12 -> Color.RED;
+            case 13 -> Color.SILVER;
+            case 14 -> Color.TEAL;
+            case 15 -> Color.YELLOW;
+            default -> Color.WHITE;
+        };
+    }
+
+    public static String randomColor() {
+        return randomColor(false);
+    }
+
+    public static String randomColor(final boolean extra) {
+        return getColor(ApiOstrov.randInt(0, extra ? chrIx.size() : 16));
+    }
+
+    public static String getColor(final int col) {
+        return switch (col) {
+            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 -> "§"+col;
+            case 10 -> "§a";
+            case 11 -> "§b";
+            case 12 -> "§c";
+            case 13 -> "§d";
+            case 14 -> "§e";
+            case 16 -> "§я";
+            case 17 -> "§н";
+            case 18 ->"§б";
+            case 19 -> "§р";
+            case 20 -> "§о";
+            case 21 -> "§ф";
+            case 22 ->"§с";
+            case 23 ->"§к";
+            case 24 -> "§ч";
+            case 25 ->"§м";
+            default -> "§f";
+        };
+    }
+
+    public static char[] getColors(final boolean extra) {
+    	return extra ? new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
+    		'a', 'b', 'c', 'd', 'e', 'f', 'я', 'н', 'б', 'р', 'о', 'ф', 'с', 'к', 'ч', 'м'} 
+    	: new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    }
+    
+    public static String dyeDisplayName(final DyeColor dyecolor) {
+    	return nameOf(getTextColor(dyecolor), "ый", true);
+    }
+    
+    public static String toChat(final DyeColor dyecolor) {
+        return switch (dyecolor) {
+            case WHITE -> "§f";    //+++бел
+            case ORANGE -> "§6";
+            case PURPLE -> "§d";
+            case LIGHT_BLUE -> "§9";
+            case YELLOW -> "§e";
+            case LIME ->"§a";
+            case PINK -> "§c";
+            case GRAY -> "§8";
+            case LIGHT_GRAY -> "§7";
+            case CYAN -> "§3";
+            case MAGENTA -> "§d";
+            case BLUE -> "§1";
+            case BROWN -> "§6";
+            case GREEN -> "§2";
+            case RED ->  "§4";
+            case BLACK ->  "§0";
+            default ->  "§f";
+        };
+    }
+    
+    public static String stripColor(final String str) {
+        return STRIP_COLOR_PATTERN.matcher(str).replaceAll("");
+    }
+
+    public static String stripColor(final Component cmp) {
+        return STRIP_COLOR_PATTERN.matcher(toString(cmp)).replaceAll("");
+    }
+
+    public static String translateAlternateColorCodes(char c, String string) {
+        if (c=='§') return string.replaceAll("§", "&");
+        else return string.replaceAll("&", "§");
+    }
+
+    public static String setColorChar(final char ch, final String str) {
+        return str.replace(ch, '§');
+    }
+
+    public static String setColorChar(final char ch, final Component str) {
+        return toString(str).replace(ch, '§');
+    }
+
+    //"§[^\s]"
+    @Slow(priority = 1)
+    public static TextComponent format(final String msg) {
+        if (msg == null || msg.isEmpty()) return EMPTY;//Component.text("");
+        final String[] split = msg.split("§[0-9a-xа-я]");
+        if (split.length == 0) return Component.text(msg);
+
+        TextColor textColor = NamedTextColor.WHITE;
+        EnumSet<TextDecoration> dec = EnumSet.noneOf(TextDecoration.class);
+    	
+        final TextComponent[] components = new TextComponent[split.length];
+        components[0] = Component.text(split[0]);
+        int stg = split[0].length() + 1;
+        for (int i = 1; i < split.length; i++) {
+            final char c = msg.charAt(stg);
+            
+            switch (c) {
+        	case 'k' -> dec.add(TextDecoration.OBFUSCATED);
+        	case 'l' -> dec.add(TextDecoration.BOLD);
+        	case 'm' -> dec.add(TextDecoration.STRIKETHROUGH);
+        	case 'n' -> dec.add(TextDecoration.UNDERLINED);
+        	case 'o' -> dec.add(TextDecoration.ITALIC);
+//        	case '#' -> dec.add(TextDecoration.HEX);
+        	default -> {
+                    dec.clear();
+                    final TextColor tc = getTextColor(c);
+                    if (tc.value() != textColor.value()) {
+                        textColor = tc;
+                    }
+                }
+        	case 'r' -> {
+                    dec.clear();
+                    textColor = NamedTextColor.WHITE;
+                }
+            }
+
+            final Style stl = Style.style()
+                .decoration(TextDecoration.ITALIC, false)
+                .decorations(dec, true)
+                .color(textColor)
+                .build();
+            components[i] = Component.text(split[i], stl);
+            stg += split[i].length() + 2;
+        }
+
+        return Component.text().append(components).build();
+    }
+
+    public static boolean has(final Component parent, final Component has) {
+        return parent.contains(has);
+    }
+
+    private static TextColor strClr = NamedTextColor.WHITE;
+
+    @Slow(priority = 1)
+    public static String toString(final Component cmp) {
+    	strClr = NamedTextColor.WHITE;
+    	return toString(cmp, EnumSet.noneOf(TextDecoration.class));
+    }
+
+    private static String toString(final Component component, final EnumSet<TextDecoration> decoration) {
+        if (component == null) return "";
+
+        final StringBuffer sb = new StringBuffer();
+        final TextColor textColor = component.color() == null ? NamedTextColor.WHITE : component.color();
+//Bukkit.broadcast(Component.text("tc-" + tc.value()));
+        if (component instanceof TextComponent) {
+            if (component.hasStyling()) {
+
+                final Style stl = component.style();
+                boolean diff = false;
+                for (final TextDecoration td : decoration) {
+                    if (!stl.hasDecoration(td)) {
+//                        Bukkit.broadcast(Component.text("td-" + decoration.toString() + ", has-" + stl.decorations().toString()));
+                        diff = true;
+                        break;
+                    }
+                }
+
+                final char ch;
+                if (textColor instanceof NamedTextColor) {
+                    ch = toChar(textColor);
+                } else {
+                    final CustomTextColor ctc = CustomTextColor.intClr.get(textColor == null ? 0 : textColor.value());
+                    if (ctc != null) {
+                        ch = toChar(ctc);
+                    } else {
+                        ch = 'f';
+                    }
+                }
+
+                if (diff) {
+                    decoration.clear();
+                    sb.append("§").append(ch);
+                } else if (strClr == null || textColor.value() != strClr.value()) {
+                    strClr = textColor;
+                    sb.append("§").append(ch);
+                }
+
+                for (final Entry<TextDecoration, State> en : stl.decorations().entrySet()) {
+                    if (en.getValue() == State.TRUE && decoration.add(en.getKey())) {
+                        final char dc;
+                        switch (en.getKey()) {
+                            case BOLD:
+                                dc = 'l';
+                                break;
+                            case OBFUSCATED:
+                                dc = 'k';
+                                break;
+                            case STRIKETHROUGH:
+                                dc = 'm';
+                                break;
+                            case UNDERLINED:
+                                dc = 'n';
+                                break;
+                            case ITALIC:
+                            default:
+                                dc = 'o';
+                                break;
+                        }
+                        sb.append("§").append(dc);
+                    }
+                }
+            }
+            sb.append(((TextComponent) component).content());
+        }
+
+        final List<Component> cls = component.children();
+        if (cls.isEmpty()) return sb.toString();
+
+        for (final Component cm : cls) {
+            sb.append(toString(cm, decoration));
+        }
+        return sb.toString();
+    }
+
+    public static boolean compare(final Component of, final Component to) {
+        return toString(of).equals(toString(to));
+    }
+
+    
+    
+    
+
+    
+    
+
+    //надо для скайблока
+    public static TextColor getTextColor(final int col) {
+        return getTextColor(getColor(col).charAt(1));
+    }
+    
+    public static TextColor getTextColor(final String s) {
+        return chrIx.getOrDefault(s.isEmpty() ? 'f' : s.length() == 1 ? s.charAt(0) : s.charAt(1), NamedTextColor.WHITE);
+    }
+    
+    public static TextColor getTextColor (final DyeColor clr) {
+        return dyeIx.getOrDefault(clr, NamedTextColor.WHITE);
+    }
+    
+    public static TextColor getTextColor (final Color clr) {
+        return clrIx.getOrDefault(clr, NamedTextColor.WHITE);
+    }
+
+    public static TextColor getTextColor (final char c) {
+        return chrIx.getOrDefault(c, NamedTextColor.WHITE);
+    }
+    
+    public static Character toChar (final TextColor clr) {
+        return chrIx.inverse().getOrDefault(clr, 'f');
+    }
+    
+    public static DyeColor getDyeColor(final TextColor clr) {
+        return dyeIx.inverse().getOrDefault(clr, DyeColor.WHITE);
+    }
+
+    public static Color getBukkitColor(final TextColor clr) {
+        return clrIx.inverse().getOrDefault(clr, Color.WHITE);
+    }
+
+    public static Color getBukkitColor(final String s) {
+        return switch (s.toUpperCase()) {
+            case "AQUA" -> Color.AQUA;
+            case "BLUE" -> Color.BLUE;
+            case "FUCHSIA" -> Color.FUCHSIA;
+            case "GRAY" -> Color.GRAY;
+            case "GREEN" -> Color.GREEN;
+            case "LIME" -> Color.LIME;
+            case "MAROON" -> Color.MAROON;
+            case "NAVY" -> Color.NAVY;
+            case "OLIVE" -> Color.OLIVE;
+            case "ORANGE" -> Color.ORANGE;
+            case "PURPLE" -> Color.PURPLE;
+            case "RED" -> Color.RED;
+            case "SILVER" -> Color.SILVER;
+            case "TEAL" -> Color.TEAL;
+            case "WHITE" -> Color.WHITE;
+            case "YELLOW" -> Color.YELLOW;
+            default -> Color.BLACK;
+        };
+    }
+    
+    public static int toByte(final TextColor color) {
+        return toByte(toChar(color));
+    }
+
+    public static int toByte(final char color) {
+        return switch (color) {
+            case '0', '1', '2', '3', '4', '5', 
+            '6', '7', '8', '9' -> color - 48;
+            case 'a' -> 10;
+            case 'b' -> 11;
+            case 'c' -> 12;
+            case 'd' -> 13;
+            case 'e' -> 14;
+            case 'я' -> 16;
+            case 'с' -> 17;
+            case 'б' -> 18;
+            case 'к' -> 19;
+            case 'ф' -> 20;
+            case 'о' -> 21;
+            case 'р' -> 22;
+            case 'н' -> 23;
+            case 'ч' -> 24;
+            case 'м' -> 25;
+            default -> 15;
+        };
+    }
+    
+
+
+
+    @Deprecated
+    public static Character getColorChar(final TextColor clr) {
+        return toChar(clr);
+    }
+    
+    @Deprecated
+    public static TextColor getColorDye(final DyeColor clr) {
+        return getTextColor(clr);
+    }
+    @Deprecated
+    public static TextColor getCharColor(final char c) {
+        return chrIx.getOrDefault(c, NamedTextColor.WHITE);
+    }
+    
+    @Deprecated
+    public static int toByte(final NamedTextColor color) {
+    	return toByte((TextColor) color);
+    }
+    
+    @Deprecated
+    public static String toChat(final TextColor color) {
+        return "§" + toChar(color).toString();
+    }
+    
+    @Deprecated
+    public static String toChat(final NamedTextColor color) {
+        return "§" + toChar(color).toString();
+    }
+    
+    @Deprecated
+    public static DyeColor getDyeColor(final NamedTextColor color) {
+    	return getDyeColor((TextColor) color);
+    }
+    
+    @Deprecated //вроде только в кланах
+    public static NamedTextColor chatColorFromString(final String s) {
+    	final TextColor tc = getTextColor(s);
+    	return tc instanceof NamedTextColor ? 
+    		(NamedTextColor) tc : NamedTextColor.WHITE;
+    }
+    
+}
