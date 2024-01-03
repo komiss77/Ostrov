@@ -1,20 +1,14 @@
 package ru.komiss77.modules.world;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-
 import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.version.IServer;
 import ru.komiss77.version.VM;
+
+import java.util.*;
 
 public class AStarFinder {//idea of UnAlike
 	
@@ -23,7 +17,7 @@ public class AStarFinder {//idea of UnAlike
 	private static final int MAX_DST = 4;
 	
 	@ThreadSafe
-	public static LinkedList<Node> findPath(final WXYZ from, final WXYZ to, final int maxNodes, final boolean jump) {
+	protected static LinkedList<Node> findPath(final WXYZ from, final WXYZ to, final int maxNodes, final boolean jump) {
 		return getPath(getClsWlk(from), getClsWlk(to), maxNodes, jump);
 	}
 	
@@ -145,9 +139,8 @@ public class AStarFinder {//idea of UnAlike
 				break;
 			}
 		}
-		final XYZ[] ns = nds.toArray(new XYZ[nds.size()]);
-//		nodes.put(nd.getSLoc(), ns);
-		return ns;
+        //		nodes.put(nd.getSLoc(), ns);
+		return nds.toArray(new XYZ[0]);
 	}
 
 	private static void lookNear(final XYZ sp, final Set<XYZ> nds, final World w, final int dx, final int dz, final boolean jump, final IServer is) {

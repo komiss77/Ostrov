@@ -1,15 +1,11 @@
 package ru.komiss77.listener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -35,7 +31,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
@@ -505,7 +500,7 @@ public class PlayerLst implements Listener {
             if (Config.disable_lava && inHand!=null && inHand.getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(p, false)) {
                 e.setUseItemInHand(Event.Result.DENY);
                 ApiOstrov.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
-                return;
+                //return;
             }
             
         }
@@ -693,7 +688,7 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent e) {
         if ( e.getRemover()!=null && e.getRemover().getType()==EntityType.PLAYER && PM.exist(e.getRemover().getName())) {
-                if ( Config.disable_break_place &&  !ApiOstrov.isLocalBuilder((Player) e.getRemover()) ) e.setCancelled(true);
+                if ( Config.disable_break_place &&  !ApiOstrov.isLocalBuilder(e.getRemover()) ) e.setCancelled(true);
         } 
 
     }
@@ -709,7 +704,7 @@ public class PlayerLst implements Listener {
     public void onPlayerItemFrameChangeEvent(final PlayerItemFrameChangeEvent e) {
         if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
             e.setCancelled(true);
-            return;
+            //return;
         }
     }
     
@@ -893,7 +888,7 @@ public class PlayerLst implements Listener {
         }
     }  
    
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+   /* @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void ProjectileHitEvent(final ProjectileHitEvent e) {
         
         if (MenuItemsManager.hasItem("tpbow") && e.getEntity().getShooter() instanceof Player && e.getEntity().hasMetadata("bowteleport")) {
@@ -906,7 +901,7 @@ public class PlayerLst implements Listener {
             p.playSound(p.getLocation(),Sound.ENTITY_BAT_HURT, 2, 1);
         }
 
-    }
+    }*/
         
 // ------------------------------------------------------------------------
     
@@ -947,7 +942,7 @@ public class PlayerLst implements Listener {
                 DROWNING, STARVATION, LAVA:
                 default:
                     if ( Config.disable_damage ) e.setCancelled(true);
-                    return;
+                    //return;
             }
         } else {
             if (e.getCause()==EntityDamageEvent.DamageCause.VOID) {
@@ -970,7 +965,7 @@ public class PlayerLst implements Listener {
     public void onPlayerLoseFood(FoodLevelChangeEvent e) { 
         if ( Config.disable_hungry ) {
             e.setCancelled(true);
-            ((Player)e.getEntity()).setFoodLevel(20);
+            (e.getEntity()).setFoodLevel(20);
         }
     }
   

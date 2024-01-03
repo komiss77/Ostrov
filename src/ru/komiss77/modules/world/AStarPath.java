@@ -28,13 +28,18 @@ public class AStarPath {
 //	public static final HashMap<Integer, AreaPath> paths = new HashMap<>();
 	public static final BlockData bd = Material.DIAMOND_BLOCK.createBlockData();
 	public static final double WALK_JUMP_DST = 2.5d;
-	public static final double MAX_JUMP_DST = 4.6d;
+	public static final double MAX_JUMP_DST = 3.2d;
+    public static final float MIN_JMP_SPD = 0.8f;
+    public static final float MAX_JMP_SPD = 1.2f;
+	public static final double dY = 0.44d;
+	public static final double MAX_dY = dY * 2d;
 	public static final int JUMP_KD = 2;
 	
 	private final WeakReference<Mob> mrf;
 	private final Pathfinder pth;
 	private final int maxNodes;
 	private final boolean jump;
+    private final double jmpSpd;
 //	private final int id;
 	
 	private WXYZ tgt;
@@ -45,11 +50,26 @@ public class AStarPath {
 	private boolean isJump;
 	private NextState nxs;
 	private Boolean done;
+
+    public AStarPath(final Mob mb, final int maxNodes, final boolean jump) {
+        mrf = new WeakReference<Mob>(mb);
+        this.maxNodes = maxNodes;
+        this.jump = jump;
+        this.jmpSpd = jump ? (MAX_JMP_SPD + MIN_JMP_SPD) * 0.5d : 0d;
+        pth = mb.getPathfinder();
+        steps = new Node[0];
+        nxs = null;
+        tgt = null;
+        done = null;
+        next = 0;
+        jpCd = 0;
+    }
 	
-	public AStarPath(final Mob mb, final int maxNodes, final boolean jump) {
+	public AStarPath(final Mob mb, final int maxNodes, final float jmpSpd) {
 		mrf = new WeakReference<Mob>(mb);
 		this.maxNodes = maxNodes;
-		this.jump = jump;
+        this.jump = true;
+        this.jmpSpd = jmpSpd;
 		pth = mb.getPathfinder();
 		steps = new Node[0];
 		nxs = null;
@@ -57,7 +77,7 @@ public class AStarPath {
 		done = null;
 		next = 0;
 		jpCd = 0;
-//		paths.put(id = mb.getEntityId(), this);
+
 	}
 	
 	public Boolean tickGo(final double speed) {
@@ -123,7 +143,7 @@ public class AStarPath {
 			break;
 		case JUMP, FAST:
 			if (dst > 2) {
-				if (jpCd == 0) jump(mb, lc, crr, speed * 0.4d);
+				if (jpCd == 0) jump(mb, lc, crr);
 				else jpCd--;
 			}
 			break;
@@ -152,7 +172,7 @@ public class AStarPath {
 	}
 
 	public boolean isDone() {
-		return done == null ? false : done;
+		return done != null && done;
 	}
 	
 	@Nullable
@@ -171,24 +191,31 @@ public class AStarPath {
 		if (mb == null) return;
 		Ostrov.async(() -> {
 			final LinkedList<Node> stps = AStarFinder.findPath(new WXYZ(mb.getLocation()), to, maxNodes, jump);
-			steps = stps.toArray(new Node[stps.size()]); next = 0;
+			steps = stps.toArray(new Node[0]); next = 0;
 			move = true;
-			/*for (final XYZ crr : stps) {
-				for (final Player p : tgt.w.getPlayers()) {
-					p.sendBlockChange(crr.getCenterLoc(tgt.w), bd);
-				}
-			}
-			Ostrov.sync(() -> {
-				for (final XYZ crr : stps) {
-					for (final Player p : tgt.w.getPlayers()) {
-						p.sendBlockChange(crr.getCenterLoc(tgt.w), tgt.w.getBlockData(crr.getCenterLoc(tgt.w)));
-					}
-				}
-			}, 80);*/
 		});
 	}
+
+	private void jump(final LivingEntity rplc, final Location from, final XYZ curr) {
+		if (rplc.isOnGround() && jump) {
+			pth.stopPathfinding();
+			isJump = true;
+			jpCd = (JUMP_KD >> 1) + Ostrov.random.nextInt(JUMP_KD);
+			final Vector to = new Vector(curr.x + 0.5d, from.getWorld()
+				.getBlockAt(curr.x, curr.y - 1, curr.z).getBoundingBox().getMaxY(), curr.z + 0.5d);
+			final Vector drv = to.subtract(from.toVector());
+			final double max = nxs == NextState.JUMP ? MAX_JUMP_DST : WALK_JUMP_DST;
+			final double abx = Math.abs(drv.getX());
+			if (abx > max) drv.setX(drv.getX() / abx * max);
+			final double abz = Math.abs(drv.getZ());
+			if (abz > max) drv.setZ(drv.getZ() / abz * max);
+			final double cft = jmpSpd * 0.18d;
+			rplc.setVelocity(new Vector(drv.getX() * cft, Math.min(MAX_dY,
+				dY / jmpSpd * (drv.lengthSquared() * 0.01d + 1d)), drv.getZ() * cft));
+		}
+	}
 	
-	private void jump(final LivingEntity rplc, final Location from, final XYZ curr, final double spd) {
+	/*private void jump(final LivingEntity rplc, final Location from, final XYZ curr, final double spd) {
 		if (rplc.isOnGround() && jump) {
 			pth.stopPathfinding();
 			isJump = true;
@@ -211,43 +238,18 @@ public class AStarPath {
 			//dy = Vo * time + 0.5 * a * time^2
 //			Bukkit.broadcast(TCUtils.format("launch at " + rplc.getVelocity().length() + ", time=" + time));
 		}
-	}
-
-	/*public boolean tryJump(final Location loc, final LivingEntity rplc, final Vector vc) {
-		if (rplc.isOnGround()) {
-			double lx = loc.getX(), lz = loc.getZ();
-			final int dHt = 3;
-			final WXYZ blc = new WXYZ(loc.getWorld(), 0, loc.getBlockY() - dHt, 0, 0);
-			final int tHt = dHt + 3;
-			for (int i = 0; i < 5; i++) {
-				lx += vc.getX(); lz += vc.getZ();
-				blc.x = (int) Math.floor(lx); blc.z = (int) Math.floor(lz);
-				if (checkIfPass(blc, BlockFace.UP, tHt, false) != tHt) {
-					if (i == 0) break;
-					blc.y += tHt;
-					final int upY = tHt - checkIfPass(blc, BlockFace.DOWN, tHt + 2, false);
-					if (upY < 4) {
-						rplc.setVelocity(upY > 2 ? vc.clone().multiply((i) * 0.15d + (upY) * 0.14d - 0.08d).setY(0.42d) 
-								: vc.clone().multiply((i) * 0.15d + (upY) * 0.12d - 0.08d).setY(0.42d));
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}*/
 
 	public int checkIfPass(final WXYZ tst, final BlockFace bf, final int num, final boolean inv) {
 		for (int i = 0; i < num; i++) {
-			
 			final boolean cll = VM.getNmsServer().getFastMat(tst.w, tst.x + (bf.getModX() * i), 
 				tst.y + (bf.getModY() * i), tst.z + (bf.getModZ() * i)).isCollidable();
-			if (inv ? !cll : cll) return i;
+			if (inv != cll) return i;
 		}
 		return num;
 	}
 	
 	private enum NextState {
-		WALK, FAST, JUMP, FALL;
+		WALK, FAST, JUMP, FALL
 	}
 }
