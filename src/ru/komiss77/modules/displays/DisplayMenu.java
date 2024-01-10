@@ -81,9 +81,9 @@ public class DisplayMenu implements InventoryProvider {
                 .addLore("§7Клик - §5тп §7дисплей где стоишь").addLore("§7локация: "
                 + new WXYZ(dis.getLocation(), false).toString()).build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
-                final float yw = dis.getYaw(), pt = dis.getPitch();
+                final Location dl = dis.getLocation();
                 dis.teleport(new WXYZ(p.getLocation()).getCenterLoc());
-                dis.setRotation(yw, pt);
+                dis.setRotation(dl.getYaw(), dl.getPitch());
                 p.closeInventory();
             }
         }));
