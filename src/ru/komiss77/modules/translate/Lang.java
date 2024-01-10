@@ -1,28 +1,16 @@
 package ru.komiss77.modules.translate;
 
 import com.destroystokyo.paper.ClientOption;
-import java.nio.charset.Charset;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.Translatable;
-import org.asynchttpclient.AsyncCompletionHandler;
-import org.asynchttpclient.AsyncHandler;
-import org.asynchttpclient.HttpResponseBodyPart;
-import org.asynchttpclient.Request;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.Response;
+import org.asynchttpclient.*;
 import org.asynchttpclient.util.HttpConstants;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,6 +19,14 @@ import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
+
+import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file
 //https://github.com/AsyncHttpClient/async-http-client
@@ -57,9 +53,9 @@ public class Lang {
                 .setHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
                 //.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}")
-                .setCharset(Charset.forName("UTF-8"));
-        RU = Locale.forLanguageTag("ru_ru");;
-        EN = Locale.forLanguageTag("en_us");;
+                .setCharset(StandardCharsets.UTF_8);
+        RU = Locale.forLanguageTag("ru_ru");
+        EN = Locale.forLanguageTag("en_us");
     }
 
     /*private static EnumMap<EnumLang, HashMap<String, String>> langMaps() {
@@ -140,9 +136,9 @@ public class Lang {
 
             final Request request = rb.setBody("{\"targetLanguageCode\":\""+lang.targetLanguageCode+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
             
-            final AsyncCompletionHandler ah = new AsyncCompletionHandler() {
+            final AsyncCompletionHandler<Response> ah = new AsyncCompletionHandler<>() {
                 @Override
-                public Object onCompleted(Response response) throws Exception {
+                public @Nullable Response onCompleted(final @Nullable Response response) {
                     return response;
                 }
                 @Override
@@ -163,8 +159,7 @@ public class Lang {
             };
 
             try {
-                final Future f = Ostrov.HTTP.executeRequest(request, ah);
-                f.get();
+                Ostrov.HTTP.executeRequest(request, ah).get();
             } catch (InterruptedException | ExecutionException | NullPointerException ex) {
                 Ostrov.log_err("Lang t error : "+ex.getMessage());
             }
@@ -201,9 +196,9 @@ public class Lang {
             request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ce.stripMsgEn+"\"}").build();
         }
         
-        final AsyncCompletionHandler ah = new AsyncCompletionHandler() {
+        final AsyncCompletionHandler<Response> ah = new AsyncCompletionHandler<>() {
             @Override
-            public Object onCompleted(Response response) throws Exception {
+            public @Nullable Response onCompleted(final @Nullable Response response) {
                 return response;
             }
             @Override
@@ -225,8 +220,7 @@ public class Lang {
         };
 
         try {
-            final Future f = Ostrov.HTTP.executeRequest(request, ah);
-            f.get();
+            Ostrov.HTTP.executeRequest(request, ah).get();
         } catch (InterruptedException | ExecutionException | NullPointerException ex) {
             if (ce.stripMsgEn==null) {
                 ce.stripMsgEn = ce.stripMsgRu;

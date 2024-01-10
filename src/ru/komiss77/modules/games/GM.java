@@ -106,7 +106,7 @@ public final class GM {
         
         //Statement stmt=null;
         ResultSet rs = null;
-        try  (Statement stmt = OstrovDB.getConnection().createStatement(); ){
+        try  (Statement stmt = OstrovDB.getConnection().createStatement()){
             //stmt = OstrovDB.getConnection().createStatement(); 
 //System.out.println(" SELECT `сервер`,`игроки`  FROM "+Table.GAMES_MAIN.table_name+" WHERE `тип` LIKE '"+GameType.SINGLE.toString()+"' AND `штамп` > "+last_check);
             rs = stmt.executeQuery( " SELECT `name`,`motd`,`online`,`type`  FROM "+Table.BUNGEE_SERVERS.table_name+" WHERE `stamp` >= "+fromStamp ); 
@@ -245,7 +245,7 @@ public final class GM {
     
     
 
-    protected static void updateSigns(final ArenaInfo ai) {
+    static void updateSigns(final ArenaInfo ai) {
         if (Bukkit.isPrimaryThread()) {
             updateSign(ai);
         } else {
