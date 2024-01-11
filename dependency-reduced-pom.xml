@@ -13,7 +13,11 @@
         <directory>../Ostrov</directory>
         <includes>
           <include>plugin.yml</include>
+          <include>rec/*</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>rec</directory>
       </resource>
       <resource>
         <directory>lib</directory>

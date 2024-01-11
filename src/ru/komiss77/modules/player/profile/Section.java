@@ -111,7 +111,7 @@ public enum Section {
     final public Material glassMat;
     
     
-    private Section(int slot, String item_nameRu, String item_nameEn, String texture, Material glassMat){
+    Section(int slot, String item_nameRu, String item_nameEn, String texture, Material glassMat){
         this.slot = slot;
         this.item_nameRu = item_nameRu;
         this.item_nameEn = item_nameEn;

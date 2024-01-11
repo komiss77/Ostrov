@@ -2,10 +2,15 @@ package ru.komiss77.modules.translate;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 
 //              НЕ ПЕРЕМЕЩАТЬ, НЕ импортировать остров! Использует прокси!!
@@ -24,9 +29,9 @@ public enum EnumLang {
         for (EnumLang lang : EnumSet.allOf(EnumLang.class)) {
             //lookup.put(lang.getLocale(), lang);
             //InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/lang/" + lang.locale + ".json"), Charset.forName("UTF-8"));
-            final InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/ru/komiss77/modules/translate/"+lang.locale+".json"), Charset.forName("UTF-8"));
-            final BufferedReader b = new BufferedReader(in);
             try {
+            final InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/json/translate/" +lang.locale+".json"), StandardCharsets.UTF_8);
+            final BufferedReader b = new BufferedReader(in);
                 readFile(lang, b);
                 //Ostrov.log_ok("§bLanguageHelper : поддержка перевода для "+lang.getLocale());
             } catch (Exception e) {
@@ -63,14 +68,12 @@ public enum EnumLang {
     }
 
     public static void readFile(EnumLang enumLang, BufferedReader reader) throws IOException {
-        try {
+        try (reader) {
             Gson gson = new Gson();
             Type type = new TypeToken<Map<String, String>>() {
             }.getType();
             Map<String, String> map = gson.fromJson(reader, type);
             enumLang.map.putAll(map);
-        } finally {
-            reader.close();
         }
     }
 

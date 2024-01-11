@@ -49,7 +49,12 @@
             <filtering>false</filtering>
             <includes>
                 <include>plugin.yml</include>
+                <include>rec/*</include>
             </includes>
+        </resource>
+        <resource>
+            <directory>rec</directory>
+            <filtering>false</filtering>
         </resource>
         <resource>
             <directory>lib</directory>
