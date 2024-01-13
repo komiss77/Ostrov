@@ -178,10 +178,9 @@ public class Oplayer {
     private String tab_prefix="§7",name_color="§7", tab_suffix="";
     private TextComponent tag_prefix=TCUtils.format("§7");
     private TextComponent tag_suffix=TCUtils.format("");
-    
-    public float flyf_speed=0.1F;
+
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
-    public boolean mysqlError, allow_fly, /*in_fly, */resourcepack_locked=true, pvp_allow=true;
+    public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;
     
     public InputData inputData; //ввод данных с чата или таблички
     
@@ -200,12 +199,11 @@ public class Oplayer {
     public final List<DelayBossBar>delayBossBars = new ArrayList<>();
     public final List<Title>delayTitles = new ArrayList<>();
 
-
     public Oplayer (final HumanEntity p) {
         nik=p.getName();
         id=p.getUniqueId();
         menu = new ProfileManager(this);
-        isGuest = nik.startsWith("guest_");
+        firstJoin = (isGuest = nik.startsWith("guest_"));
         if (p instanceof Player player) score=new CustomScore(player);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    

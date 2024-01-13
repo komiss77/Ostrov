@@ -1,17 +1,5 @@
 package ru.komiss77;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -31,13 +19,17 @@ import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.LocationUtil;
 
+import java.sql.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
+
 public class LocalDB {
 
     public static boolean useLocalData = false;
     private static final boolean PLAYER_DATA_SQL;
-    private static String host = "";
-    private static String user = "";
-    private static String passw = "";
     private static String url;
     public static final String LINE_SPLIT = "∬";
     public static final String WORD_SPLIT = "∫";
@@ -73,9 +65,9 @@ public class LocalDB {
     //при тесте сединения вызывается async из Timer
     public static void init () {
         useLocalData = Config.getConfig().getBoolean("local_database.use");
-        host = Config.getConfig().getString("local_database.mysql_host");
-        user = Config.getConfig().getString("local_database.mysql_user");
-        passw = Config.getConfig().getString("local_database.mysql_passw");
+        String host = Config.getConfig().getString("local_database.mysql_host");
+        String user = Config.getConfig().getString("local_database.mysql_user");
+        String passw = Config.getConfig().getString("local_database.mysql_passw");
         url = host + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=" + user + "&password=" + passw;
         if (useLocalData) {
             connect();//connection = GetConnection();
@@ -367,7 +359,7 @@ public class LocalDB {
             op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
             op.mysqlData.put("uuid", p.getUniqueId().toString());
             Ostrov.sync( () -> {
-                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, true, null)); //записи не было
+                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
             }, 1 );
             Ostrov.log_warn("Вход гостя "+op.nik+", данные не загружаем.");
             return;
@@ -386,16 +378,18 @@ public class LocalDB {
 
             if (!rs.next()) { //нет записи в БД - уходим на эвент
                 //op.mysqlData = new HashMap<>();
+                op.firstJoin = true;
                 op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
                 op.mysqlData.put("uuid", p.getUniqueId().toString());
                 Ostrov.sync( () -> {
-                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, true, null)); //записи не было
+                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
                 }, 1 );
                 return;
             }
             
             //op.mysqlData = new HashMap<>();
-            
+
+            op.firstJoin = false;
             final ResultSetMetaData rmeta = rs.getMetaData();
             for (int i = 1; i <= rmeta.getColumnCount(); i++ ) {
                 switch (rmeta.getColumnName(i)) {
@@ -407,7 +401,7 @@ public class LocalDB {
                         "ender", //сохраняться будет только при playerDataSQL
                         "potion", //сохраняться будет только при playerDataSQL
                         "settings" //сохраняться будет только при playerDataSQL
-                        -> {continue;}
+                        -> {}
                         default -> op.mysqlData.put(rmeta.getColumnName(i), rs.getString(rmeta.getColumnName(i)));
                 }
 
@@ -548,7 +542,7 @@ public class LocalDB {
                     op.setNoDamage(PvpCmd.no_damage_on_tp, true);
                 }
                 
-                final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, false, logout);
+                final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
                 Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
                 if (e.getLogoutLocation()!=null) { //плагины могут изменять 
                     ApiOstrov.teleportSave(p, e.getLogoutLocation(), true);// PlayerTeleportEvent.TeleportCause.COMMAND); //чтобы не тэпэшнуло в PlayerTeleportEvent на координаты выхода еще раз
@@ -583,9 +577,9 @@ public class LocalDB {
 
                 stmt.executeUpdate( "DELETE FROM `moneyOffline` WHERE `name` LIKE '"+op.nik+"'" );
 
-                p.sendMessage( (offlinePayAdd!=0 ? "§fВам поступили оффлайн-платежи на §a"+offlinePayAdd+" §fлони" : "") +
-                    (offlinePayAdd!=0 && offlinePaySub!=0 ? "§f, и оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
-                    (offlinePayAdd==0 && offlinePaySub!=0 ? "§fВам доставлены оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
+                p.sendMessage((offlinePayAdd != 0 ? "§fВам поступили оффлайн-платежи на §a"+offlinePayAdd+" §fлони" : "") +
+                    (offlinePayAdd != 0 && offlinePaySub != 0 ? "§f, и оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
+                    (offlinePayAdd == 0 ? "§fВам доставлены оффлайн-счета на §4"+offlinePaySub+"§f лони" : "") +
                     "."
                     );
             }
@@ -597,7 +591,7 @@ public class LocalDB {
             Ostrov.log_err("loadLocalData error  "+op.nik+" -> "+ex.getMessage());
             op.mysqlError = true; //op.mysqlData = null; //c null не будет сохранять при выходе!
             Ostrov.sync( () -> {
-                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, false, null)); //при ошибке вызов с пустыми данными
+                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
             }, 1 );
             
         } finally {
@@ -627,7 +621,7 @@ public class LocalDB {
     
 
     private static String getSettings(final Player p, final Oplayer op) {
-        final StringBuilder sb = new StringBuilder("");
+        final StringBuilder sb = new StringBuilder();
         sb.append((int)(p.getHealth()*100)).append(","); //0
         sb.append(p.getFoodLevel()).append(","); //1
         sb.append(p.getLevel()).append(","); //2
@@ -978,36 +972,9 @@ public class LocalDB {
             stmt.close();
         } catch (SQLException ex) {
             Ostrov.log_err("§4 setupTable: Ошибка закрытия Statement -> "+ex.getMessage());
-        }    
-
-        /*try {
-                GetConnection().createStatement().executeUpdate(
-                    " CREATE TABLE IF NOT EXISTS `data` (" +
-                    "  `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                    "  `name` varchar(16) NOT NULL UNIQUE KEY," +
-                    "  `homes` varchar(512) NOT NULL DEFAULT ''," +
-                    "  `world_pos` varchar(512) NOT NULL DEFAULT ''," +
-                    "  `fly` tinyint(1) NOT NULL DEFAULT '0'," +
-                    "  `flyspeed` tinyint(2) NOT NULL DEFAULT '-1'," +
-                    "  `walkspeed` tinyint(2) NOT NULL DEFAULT '-1'," +
-                    "  `pvp` tinyint(1) NOT NULL DEFAULT '1'," +
-                    "  `pweather` tinyint(1) NOT NULL DEFAULT '-1'," +
-                    "  `rtime` tinyint(1) NOT NULL DEFAULT '0'," +
-                    "  `ptime` tinyint(2) NOT NULL DEFAULT '-1'," +
-                    "  `bplace` int(11) NOT NULL DEFAULT '0'," +
-                    "  `bbreak` int(11) NOT NULL DEFAULT '0'," +
-                    "  `mobkill` int(11) NOT NULL DEFAULT '0'," +
-                    "  `monsterkill` int(11) NOT NULL DEFAULT '0'," +
-                    "  `pkill` int(11) NOT NULL DEFAULT '0'," +
-                    "  `dead` int(11) NOT NULL DEFAULT '0'," +
-                    "  `kits` varchar(535) NOT NULL DEFAULT ''" +
-                    ") ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8; ");
-
-            } catch (SQLException e) {
-                Ostrov.log_err("§4Не удалось создать таблицу data -> "+e.getMessage());
-            }*/
-            tabbleSetupDone = true;
         }
+        tabbleSetupDone = true;
+    }
 
  
     public static Connection getConnection() {

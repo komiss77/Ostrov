@@ -1,15 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Colorable;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
@@ -19,8 +9,19 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 
 
