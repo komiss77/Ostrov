@@ -26,7 +26,7 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 
 
 
-public class MoneyWithdrawMenu implements InventoryProvider {
+public class ProfileWithdrawMenu implements InventoryProvider {
     
     
     
@@ -34,7 +34,7 @@ public class MoneyWithdrawMenu implements InventoryProvider {
     //private final List<Integer>ids;
     private int ril;
     
-    public MoneyWithdrawMenu(final int ril) {
+    public ProfileWithdrawMenu(final int ril) {
         this.ril = ril;
     }
     

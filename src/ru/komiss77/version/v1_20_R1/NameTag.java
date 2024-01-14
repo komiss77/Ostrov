@@ -60,32 +60,32 @@ public class NameTag implements INameTag {
 
     @Override
     public void updateTag(final Oplayer op, final Player to) {
-        updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())), 
-        	op.tagSuffix(), op.nameColor().charAt(1), to, p -> op.isTagVis(p));
+        updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())),
+                op.tagSuffix(), op.nameColor().charAt(1), to, p -> op.isTagVis(p));
     }
 
     @Override
     public void updateTag(final Oplayer op, final Collection<? extends Player> toPlayers) {
-        updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())), 
-        	op.tagSuffix(), op.nameColor().charAt(1), toPlayers, p -> op.isTagVis(p));
+        updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())),
+                op.tagSuffix(), op.nameColor().charAt(1), toPlayers, p -> op.isTagVis(p));
     }
 
-	@Override
-	public void updateTag(final String name, final String pfx, final String sfx, 
-		final char clr, final Player to, final Predicate<Player> canSee) {
+    @Override
+    public void updateTag(final String name, final String pfx, final String sfx,
+            final char clr, final Player to, final Predicate<Player> canSee) {
         updateTag(name, TCUtils.format(pfx), TCUtils.format(sfx), clr, to, canSee);
-	}
+    }
 
-	@Override
-	public void updateTag(final String name, final String pfx, final String sfx, 
-		final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {
+    @Override
+    public void updateTag(final String name, final String pfx, final String sfx,
+            final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {
         updateTag(name, TCUtils.format(pfx), TCUtils.format(sfx), clr, toPlayers, canSee);
-	}
-	
-	private void updateTag(final String name, final Component pfx, final Component sfx, 
-		final char clr, final Player to, final Predicate<Player> canSee) {
-        final Scoreboard board=  VM.getNmsServer().toNMS().aF();
-        final ScoreboardTeam team=  board.g(name);
+    }
+
+    private void updateTag(final String name, final Component pfx, final Component sfx,
+            final char clr, final Player to, final Predicate<Player> canSee) {
+        final Scoreboard board = VM.getNmsServer().toNMS().aF();
+        final ScoreboardTeam team = board.g(name);
         team.b(PaperAdventure.asVanilla(pfx));
         team.c(PaperAdventure.asVanilla(sfx));
         final EnumChatFormat ecf = EnumChatFormat.a(clr);
@@ -107,12 +107,12 @@ public class NameTag implements INameTag {
         pc.a(teamCreatePacket);
         pc.a(teamAddPacket);
         pc.a(canSee.test(to) ? teamModifySame : teamModifyDiff);
-	}
-	
-	private void updateTag(final String name, final Component pfx, final Component sfx, 
-		final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {
-        final Scoreboard board=  VM.getNmsServer().toNMS().aF();
-        final ScoreboardTeam team=  board.g(name);
+    }
+
+    private void updateTag(final String name, final Component pfx, final Component sfx,
+            final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {
+        final Scoreboard board = VM.getNmsServer().toNMS().aF();
+        final ScoreboardTeam team = board.g(name);
         team.b(PaperAdventure.asVanilla(pfx));
         team.c(PaperAdventure.asVanilla(sfx));
         final EnumChatFormat ecf = EnumChatFormat.a(clr);
@@ -132,7 +132,7 @@ public class NameTag implements INameTag {
             pc.a(teamAddPacket);
             pc.a(canSee.test(to) ? teamModifySame : teamModifyDiff);
         }
-	}
+    }
 
 //    private static final HashMap<String, ScoreboardTeam> TEAMS = new HashMap<>();
 //    private static final HashMap<String, ScoreboardTeam> CACHED_FAKE_TEAMS = new HashMap<>();

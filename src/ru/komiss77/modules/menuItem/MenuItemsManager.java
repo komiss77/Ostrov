@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +18,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -43,7 +45,7 @@ public final class MenuItemsManager implements Initiable, Listener {
 
     private static final Map<String,MenuItem>itemByNames;
     private static final Map<Integer,MenuItem>itemById;
-    private static final EnumSet<Material>possibleMat; //для первичной бфстрой фильтрации
+    private static final EnumSet<Material>possibleMat; //для быстрой первичной фильтрации
     public static boolean item_lobby_mode;
     
     static {
@@ -144,7 +146,15 @@ public final class MenuItemsManager implements Initiable, Listener {
     
     
     
-    
+   /* @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onLaunch(final ProjectileLaunchEvent e) { //PlayerElytraBoostEvent !!!
+        final Projectile prj = e.getEntity();
+        
+        if (prj.getShooter() instanceof Player && prj.getType() == EntityType.FIREWORK) {
+            Ostrov.sync(()-> ((HumanEntity) prj.getShooter()).getInventory().setItem(2, Main.fw), 8);
+//            prj.remove();
+        }
+    } */   
     
     
     
@@ -153,7 +163,7 @@ public final class MenuItemsManager implements Initiable, Listener {
     public void onInventoryMove (InventoryMoveItemEvent e) {
 //System.out.println("onInventoryMove "+e.getItem());
         if (possibleMat.contains(e.getItem().getType())) {
-             final MenuItem si = fromItemStack(e.getItem());
+            final MenuItem si = fromItemStack(e.getItem());
                 if (si!=null && !si.can_move) {
                     e.setCancelled(true);
                 }
@@ -184,7 +194,7 @@ public final class MenuItemsManager implements Initiable, Listener {
     
     
     
-    @EventHandler(priority = EventPriority.LOW,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW,ignoreCancelled = false)
     public void InventoryClick (InventoryClickEvent e) {
 //System.out.println("Menuitem invClick="+e.getClick()+" getSlotType="+e.getSlotType()+" getCurrentItem="+e.getCurrentItem()+" getCursor"+e.getCursor());
         //if (e.getCurrentItem()==null || e.getSlotType()==InventoryType.SlotType.OUTSIDE) return;
@@ -197,6 +207,11 @@ public final class MenuItemsManager implements Initiable, Listener {
                 final MenuItem si = fromItemStack(hotbarItem);
                 if (si!=null && !si.can_move) {
                     e.setResult(Event.Result.DENY);
+                    if (si.on_inv_click!=null) {
+                        if (Timer.has(e.getWhoClicked().getEntityId())) return;
+                        Timer.add(e.getWhoClicked().getEntityId(), 1);
+                        si.on_inv_click.accept(e);
+                    }
                     //if (e.getClick()==ClickType.CREATIVE) {
                         //e.setCancelled(true);
                     //    Ostrov.sync(()-> ((Player)e.getWhoClicked()).updateInventory(), 1);
@@ -238,46 +253,55 @@ public final class MenuItemsManager implements Initiable, Listener {
     @EventHandler( priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent e) {
         
-//System.out.println("Lobbyitems PlayerInteractEvent="+e.getAction()+" useItemInHand="+e.useItemInHand());
+//Ostrov.log("Lobbyitems PlayerInteractEvent="+e.getAction()+" useItemInHand="+e.useItemInHand());
         if ( e.getItem()==null || e.getAction()==Action.PHYSICAL ) return;
         
-        //if (Timer.CD_has(e.getPlayer().getName(), "menu")) return;
-        
-        final MenuItem si = fromItemStack(e.getItem());
-//System.out.println("Lobbyitems PlayerInteractEvent="+e.getAction()+" useItemInHand="+e.useItemInHand()+" si="+si);
-        if (si==null) return;
+        final MenuItem menuItem = fromItemStack(e.getItem());
+//Ostrov.log("menuItem="+menuItem);
+        if (menuItem==null) return;
         
         final Player p = e.getPlayer();
 //System.out.println("Lobbyitems p.getOpenInventory()="+p.getOpenInventory());
+
+        //фикс - на 1.16 воспринимает клик в меню как интеракт!!!!!
+        //CRAFTING, когда нет открытого инвентаря или инвентарь игроков открыт, и возвращает CREATIVE, если они находятся в творческом режиме
         if (p.getOpenInventory().getType()!=InventoryType.CRAFTING && p.getOpenInventory().getType()!=InventoryType.CREATIVE) return; 
-        /*
-        фикс - на 1.16 воспринимает клик в меню как интеракт!!!!!
-        CRAFTING, когда нет открытого инвентаря или инвентарь игроков открыт, и возвращает CREATIVE, если они находятся в творческом режиме
-        */
-        e.setUseInteractedBlock(Event.Result.DENY);
+
+//menuItem.can_interact = e.getItem().getType()==Material.FIREWORK_ROCKET;
+        if (!menuItem.can_interact) {
+            e.setUseInteractedBlock(Event.Result.DENY);
+        }
         //e.setUseItemInHand(Event.Result.DENY);
         
-        if (si.on_right_click!=null || si.on_right_sneak_click!=null) {
+        if (!menuItem.can_interact && (menuItem.on_right_click!=null || menuItem.on_right_sneak_click!=null)) {
             e.setUseItemInHand(Event.Result.DENY); //отменять ПКМ только для командных. или не работает лук-телепортер
-        }
+        }// else {
+        //    e.setUseItemInHand(Event.Result.DENY); //отменять ПКМ только для командных. или не работает лук-телепортер
+        //}
+//Ostrov.log(" can_interact?"+menuItem.can_interact+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
 
         if (Timer.has(p.getEntityId())) return;
         
+        if (menuItem.on_interact!=null) {
+            Timer.add(p.getEntityId(), 1);
+            menuItem.on_interact.accept(e);
+        }
+        
         if (e.getAction()==Action.RIGHT_CLICK_AIR || e.getAction()==Action.RIGHT_CLICK_BLOCK) {
-            if (p.isSneaking()&& si.on_right_sneak_click!=null) {
-                si.on_right_sneak_click.accept(e.getPlayer());
+            if (p.isSneaking()&& menuItem.on_right_sneak_click!=null) {
+                menuItem.on_right_sneak_click.accept(e.getPlayer());
                 Timer.add(p.getEntityId(), 1);
-            } else if (si.on_right_click!=null) {
+            } else if (menuItem.on_right_click!=null) {
                 Timer.add(p.getEntityId(), 1);
-                si.on_right_click.accept(e.getPlayer());
+                menuItem.on_right_click.accept(e.getPlayer());
             }
         } else if ( e.getAction()==Action.LEFT_CLICK_AIR || e.getAction()==Action.LEFT_CLICK_BLOCK) {
-            if (p.isSneaking()&& si.on_left_sneak_click!=null) {
-                si.on_left_sneak_click.accept(e.getPlayer());
+            if (p.isSneaking()&& menuItem.on_left_sneak_click!=null) {
+                menuItem.on_left_sneak_click.accept(e.getPlayer());
                 Timer.add(p.getEntityId(), 1);
-            } else if (si.on_left_click!=null) {
+            } else if (menuItem.on_left_click!=null) {
                 Timer.add(p.getEntityId(), 1);
-                si.on_left_click.accept(e.getPlayer());
+                menuItem.on_left_click.accept(e.getPlayer());
             }
         }
     }

@@ -46,8 +46,9 @@ public class Lang {
     private static final Map<String, String> ruToEng;//Map<Integer, HashMap<String, String>> ruToEng;-возможно потом добавить сортировку по длинне
     public static int updateStamp;
     private static final RequestBuilder rb;
-    private static final Locale RU;
-    private static final Locale EN;
+    public static final Locale RU;
+    public static final Locale EN;
+    private static final TextComponent err;
     
 
     static {
@@ -58,8 +59,9 @@ public class Lang {
                 .addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
                 //.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}")
                 .setCharset(Charset.forName("UTF-8"));
-        RU = Locale.forLanguageTag("ru_ru");;
-        EN = Locale.forLanguageTag("en_us");;
+        RU = Locale.forLanguageTag("ru_ru");
+        EN = Locale.forLanguageTag("en_us");
+        err = Component.text("{}");
     }
 
     /*private static EnumMap<EnumLang, HashMap<String, String>> langMaps() {
@@ -94,6 +96,9 @@ public class Lang {
         }
     }
     
+    
+    
+    @Deprecated
     public static String t (final String ruMsg, final EnumLang lang) {
         if (lang==EnumLang.RU_RU) {
             return ruMsg;
@@ -102,14 +107,33 @@ public class Lang {
         }
     }
     
-    private static final TextComponent err = Component.text("{}");
+    public static String t (final String ruMsg, final Locale locale) {
+        if (locale == RU) {
+            return ruMsg;
+        } else {
+            return translate(ruMsg, locale);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
     public static Component t (final Player p, final Object o) {
         if (!(o instanceof Translatable)) return err;
-        final Locale l = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
+        final Locale locale = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
+        return t(o, locale);
+    }
+
+    public static Component t (final Object o, final Locale locale) {
+        if (!(o instanceof Translatable)) return err;
         try {
             final TranslatableComponent tc = Component.translatable((Translatable)o);
-            return GlobalTranslator.render(tc, l);
+            return GlobalTranslator.render(tc, locale);
         } catch (IllegalArgumentException ex) {
             Ostrov.log_warn("Lang.t : "+ex.getMessage());
             return err;
@@ -127,18 +151,24 @@ public class Lang {
         if (locale.equals("ru_ru")) {
             p.sendMessage(ruMsg);
         } else {
-            p.sendMessage(translate(ruMsg, EnumLang.EN_US));
+            p.sendMessage(translate(ruMsg, EN));
         }
     }
 
+    @Deprecated
+    public static String translate (final String ruMsg, final EnumLang l) {
+        final Locale lang = l==EnumLang.RU_RU ? RU : EN;
+        return translate(ruMsg, lang);
+    }
     
-    public static String translate (final String ruMsg, final EnumLang lang) {
+    public static String translate (final String ruMsg, final Locale locale) {
         String trans = ruToEng.get(ruMsg);
         if (trans == null) { //перевода нема
             
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
 
-            final Request request = rb.setBody("{\"targetLanguageCode\":\""+lang.targetLanguageCode+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
+            //final Request request = rb.setBody("{\"targetLanguageCode\":\""+lang.targetLanguageCode+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
+            final Request request = rb.setBody("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
             
             final AsyncCompletionHandler ah = new AsyncCompletionHandler() {
                 @Override
@@ -233,7 +263,7 @@ public class Lang {
             } else {
                 ce.stripMsgRu = ce.stripMsgEn;
             }
-            Ostrov.log_err("Lang t error : "+ex.getMessage());
+            Ostrov.log_err("Lang translateChat error : "+ex.getMessage());
         }
     }
 

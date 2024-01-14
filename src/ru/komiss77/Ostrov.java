@@ -249,7 +249,7 @@ public class Ostrov extends JavaPlugin {
     
     @Override  //вызывается из CraftServer  public ChunkGenerator getGenerator(String world), если указать в bukkit.yml worlds: world: generator: Ostrov
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        return new EmptyChunkGenerator(this);
+        return new EmptyChunkGenerator();
     }  
 
     public static String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";

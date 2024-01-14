@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.mission;
 
-
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -14,20 +13,17 @@ import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 
-
-
-
-public class MissionsViewMenu implements InventoryProvider {
-    
-    
+public class ProfileManageMenu implements InventoryProvider {
     
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ВОЗМОЖНОСТИ.glassMat).name("§8.").build());
-    private final List<ClickableItem> buttons;
+    private final List<ClickableItem> buttonsCurrent;
+    private final List<ClickableItem> buttonsDone;
     
 
     
-    public MissionsViewMenu(final List<ClickableItem> buttons) {
-        this.buttons = buttons;
+    public ProfileManageMenu(final List<ClickableItem> buttonsCurrent, final List<ClickableItem> buttonsDone) {
+        this.buttonsCurrent = buttonsCurrent;
+        this.buttonsDone = buttonsDone;
     }
     
     @Override
@@ -67,7 +63,7 @@ public class MissionsViewMenu implements InventoryProvider {
                 .build()
             ));
             
-        } else if (buttons==null || buttons.isEmpty()) {
+        } else if ( (buttonsCurrent==null || buttonsCurrent.isEmpty()) && (buttonsDone==null || buttonsDone.isEmpty())) {
             
             content.set(1,4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
                 .name("§7Миссия невыполнима")
@@ -79,8 +75,13 @@ public class MissionsViewMenu implements InventoryProvider {
             ));
 
         } else {
-            for (final ClickableItem head : buttons) {
-                content.add(head);
+            for (final ClickableItem icon : buttonsCurrent) {
+                content.add(icon);
+            }
+            if (buttonsDone!=null) {
+                for (final ClickableItem icon : buttonsDone) {
+                    content.add(icon);
+                }
             }
         }
 
@@ -91,41 +92,7 @@ public class MissionsViewMenu implements InventoryProvider {
         
 
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-  
-              
-            
-        
-        
-
-
-
-
-
-        
-
-        /*
-        
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
-        {
-            p.closeInventory();
-        }
-        ));
-        
-*/
-
-        
+ 
 
     }
 

@@ -57,7 +57,7 @@ public class EntityCmd implements Listener, CommandExecutor {
 
             if ( ApiOstrov.isInteger(arg[0])) {
 
-                int r = Integer.valueOf(arg[0]);
+                int r = Integer.parseInt(arg[0]);
                 SmartInventory
                     .builder()
                     .id("EntityMain"+p.getName())
@@ -87,9 +87,9 @@ public class EntityCmd implements Listener, CommandExecutor {
 
 
         final Set<World> worlds = new HashSet<>();
-        for (int i=0; i<arg.length; i++) {
-            final World world = Bukkit.getWorld(arg[i]);
-//System.out.println("++ i="+i+" arg="+arg[i]);
+        for (String arg1 : arg) {
+            final World world = Bukkit.getWorld(arg1);
+            //System.out.println("++ i="+i+" arg="+arg[i]);
             if (world!=null) {
                 worlds.add(world);
             }

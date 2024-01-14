@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.EntityUtil;
@@ -100,6 +101,7 @@ public class EntityByType implements InventoryProvider {
                         .addLore("§7Дистанция: "+( entitys.get(entity)==-1 ? "§8другой мир" : "§b"+entitys.get(entity)) )
                         .addLore("§7")
                         .addLore("§7ЛКМ - ТП к сущности")
+                        .addLore("§7ПКМ - изменить характеристики")
                         .addLore("§7Шифт+ЛКМ - призвать")
                         .addLore("§7Шифт+ПКМ - удалить")
                         .addLore("§7")
@@ -107,21 +109,20 @@ public class EntityByType implements InventoryProvider {
 //Ostrov.log("CLICK="+e.getClick());
                             if (!ApiOstrov.isLocalBuilder(p, true)) return;
                             switch (e.getClick()) {
-                                case LEFT:
-                                    p.teleport(entity);
-                                    break;
-                                case SHIFT_LEFT:
-                                    entity.teleport(p);
-                                    break;
-                                case SHIFT_RIGHT:
-                                    entity.remove();
-                                    break;
-								default:
-									break;
+                                case LEFT -> p.teleport(entity);
+                                case RIGHT -> {
+                                   SmartInventory.builder()
+                                    . provider(new EntitySetup(entity))
+                                    . size(6, 9)
+                                    . title("§2Характеристики сущности").build()
+                                    .open(p);
+                                }
+                                case SHIFT_LEFT -> entity.teleport(p);
+                                case SHIFT_RIGHT -> entity.remove();
                                     
                             }
 
-                            reopen(p, contents);
+                            if (e.getClick()!=ClickType.RIGHT) reopen(p, contents);
                         }));  
                 }
             }
@@ -180,7 +181,7 @@ public class EntityByType implements InventoryProvider {
                     p.sendMessage("§cДолжно быть число!");
                     return;
                 }
-                final int r = Integer.valueOf(imput);
+                final int r = Integer.parseInt(imput);
                 if (r<0 || r>100000) {
                     p.sendMessage("§cот 0 до 100000!");
                     return;

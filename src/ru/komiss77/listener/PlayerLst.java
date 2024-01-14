@@ -63,6 +63,7 @@ import ru.komiss77.Config;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.ServerType;
@@ -711,16 +712,29 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent e) {
 
+        final Player p = e.getPlayer();
+       
+        if (ApiOstrov.isLocalBuilder(p, false)) {
+            if (p.isSneaking()) {
+                Ostrov.sync(() -> {
+                    SmartInventory.builder()
+                        . provider(new EntitySetup(e.getRightClicked()))
+                        . size(6, 9)
+                        . title("§2Характеристики сущности").build()
+                        .open(p);
+                }, 1); //через тик, илил открывает меню торговли
+            }
+        }
+
         switch (e.getRightClicked().getType()) {
             
-            case ARMOR_STAND -> e.setCancelled(Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true));
+            case ARMOR_STAND -> e.setCancelled(Config.disable_break_place && !ApiOstrov.isLocalBuilder(p, true));
             
             case ITEM_FRAME, GLOW_ITEM_FRAME -> {
-                if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
+                if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(p, true)) {
                     e.setCancelled(true);
                     return;
                 }
-                final Player p = e.getPlayer();
                 final ItemStack it = p.getInventory().getItemInMainHand();
                 if (ItemUtils.isBlank(it, false)) {
                     break;
@@ -755,7 +769,7 @@ public class PlayerLst implements Listener {
 
             default -> {}
         }
-       
+
     }
 
 

@@ -50,7 +50,7 @@ public class SmartInventory {
     }	
 
     @SuppressWarnings("unchecked")
-	public Inventory open(Player player, int page, Map<String, Object> properties) {
+    public Inventory open(Player player, int page, Map<String, Object> properties) {
         Optional<SmartInventory> oldInv = InventoryManager.getInventory(player);
 
         oldInv.ifPresent(inv -> {

@@ -282,7 +282,7 @@ public class Oplayer {
         if (onlineSecond==4) {
             setData(Data.WANT_ARENA_JOIN, "");
         }
-        
+
         onlineSecond++;
     }
 
@@ -327,8 +327,8 @@ public class Oplayer {
     	return name_color;
     }
     
-    public void nameColor(final String nc, final Player p) {
-    	name_color = nc == null ? "" : nc;
+    public void nameColor(final String nameColor, final Player p) {
+    	name_color = nameColor == null ? "" : nameColor;
         VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
         updTabListName(p);
     }
@@ -337,6 +337,12 @@ public class Oplayer {
         if (Config.tablist_name) {//final String name = name_color + (isGuest ? "Гость_" + nik.substring(6) : nik);
             final String displayName = isGuest ? "§8(Гость) " + name_color + getDataString(Data.FAMILY) : name_color + nik;
             p.playerListName(TCUtils.format(tab_prefix + displayName + tab_suffix));
+            //p.displayName(TCUtils.format(displayName));
+            //if (isGuest) {
+                //tag ("§8(", "§8)§f"+getDataString(Data.FAMILY));
+//Ostrov.log_warn("updateTag!!!!!");
+                //VM.getNmsNameTag().updateTag("§8(Гость) ", displayName, "", nameColor().charAt(1), Bukkit.getOnlinePlayers(), pl -> isTagVis(pl));
+            //}//tag("§8(Гость) ", "");
         }
     }
     
@@ -588,23 +594,23 @@ public class Oplayer {
         if (!Config.ostrovStatScore || hideScore) return;
         if (eng) {
             score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
-            score.getSideBar().updateLine(15, "§a--------------");
-            score.getSideBar().updateLine(14, "level §b"+getStat(Stat.LEVEL));
-            score.getSideBar().updateLine(13, "exp §5"+getStat(Stat.EXP));
-            score.getSideBar().updateLine(12, "reputation "+getReputationDisplay());
-            score.getSideBar().updateLine(11, "karma "+getKarmaDisplay());
-            score.getSideBar().updateLine(10, "loni §6"+getDataInt(Data.LONI));
-            score.getSideBar().updateLine(9, "ril §e"+getDataInt(Data.RIL));
+            score.getSideBar().updateLine(8, "§a--------------");
+            score.getSideBar().updateLine(7, "Level §b"+getStat(Stat.LEVEL));
+            score.getSideBar().updateLine(6, "Exp §5"+getStat(Stat.EXP));
+            score.getSideBar().updateLine(5, "Reputation "+getReputationDisplay());
+            score.getSideBar().updateLine(4, "Karma "+getKarmaDisplay());
+            score.getSideBar().updateLine(3, "Loni §6"+getDataInt(Data.LONI));
+            score.getSideBar().updateLine(2, "Ril §e"+getDataInt(Data.RIL));
             score.getSideBar().updateLine(1, "§a--------------");
         } else {
             score.getSideBar().setTitle("§7Общий онлайн: §f§l"+GM.bungee_online);//"§a-----------------"
-            score.getSideBar().updateLine(15, "§a--------------");
-            score.getSideBar().updateLine(14, "уровень §b"+getStat(Stat.LEVEL));
-            score.getSideBar().updateLine(13, "опыт §5"+getStat(Stat.EXP));
-            score.getSideBar().updateLine(12, "репутация "+getReputationDisplay());
-            score.getSideBar().updateLine(11, "карма "+getKarmaDisplay());
-            score.getSideBar().updateLine(10, "лони §6"+getDataInt(Data.LONI));
-            score.getSideBar().updateLine(9, "рил §e"+getDataInt(Data.RIL));
+            score.getSideBar().updateLine(8, "§a--------------");
+            score.getSideBar().updateLine(7, "Уровень §b"+getStat(Stat.LEVEL));
+            score.getSideBar().updateLine(6, "Опыт §5"+getStat(Stat.EXP));
+            score.getSideBar().updateLine(5, "Репутация "+getReputationDisplay());
+            score.getSideBar().updateLine(4, "Карма "+getKarmaDisplay());
+            score.getSideBar().updateLine(3, "Лони §6"+getDataInt(Data.LONI));
+            score.getSideBar().updateLine(2, "Рил §e"+getDataInt(Data.RIL));
             score.getSideBar().updateLine(1, "§a--------------");
         }
     }

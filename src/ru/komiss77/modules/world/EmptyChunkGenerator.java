@@ -1,33 +1,28 @@
 package ru.komiss77.modules.world;
 
-
 import java.util.Random;
 import javax.annotation.Nonnull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.plugin.Plugin;
-
-
+import org.bukkit.generator.WorldInfo;
 
 //https://hub.spigotmc.org/javadocs/spigot/org/bukkit/generator/ChunkGenerator.ChunkData.html
-
-
-
 public class EmptyChunkGenerator extends ChunkGenerator {
 
-    //Plugin plugin;
-
-    public EmptyChunkGenerator(Plugin plugin) {
-//System.out.print("-------------- new EmptyChunkGenerator 1");
-        //this.plugin = plugin;
-    }
-
     
     
+    //@Override
+    //public void generateNoise(WorldInfo worldInfo, Random r, int x, int z, ChunkData result) {
+   //     result.setRegion(0, worldInfo.getMinHeight(), 0, 16, worldInfo.getMaxHeight(), 16, Material.AIR); //очистка
+   //     if (x>16 || x<-16 || z>16 || z<-16) return;
+        //далее - заполнение контентом из зараннее подготовленного чанка
+        //preMade.getSkyGridChunk(worldInfo.getEnvironment()).forEach(b -> result.setBlock(b.getX(), b.getY(), b.getZ(), b.getBd()));
+   // }
     
-	@Override
+    
+    @Override
     @Nonnull
     @SuppressWarnings("deprecation")   //         мир               случайность    чакн х  чанк z          биом
     public ChunkData generateChunkData(@Nonnull World world, @Nonnull Random random, int x, int z, @Nonnull BiomeGrid biomeGrid) {
@@ -42,15 +37,8 @@ public class EmptyChunkGenerator extends ChunkGenerator {
             return cd;
             
         }// else {
-            
-            
-            
         //}
-        
-
         return cd;
-        
-        
     }
     
 
@@ -99,16 +87,5 @@ public class EmptyChunkGenerator extends ChunkGenerator {
   //      return result;
   //  }
 
-    /*@Override
-    public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 0, 100, 0);
-    }*/
 
-  /*  private void setBlock(byte[][] result, int x, int y, int z, byte blkid) {
-        if (result[y >> 4] == null) {
-            result[y >> 4] = new byte[4096];
-        }
-
-        result[y >> 4][(y & 15) << 8 | z << 4 | x] = blkid;
-    }*/
 }

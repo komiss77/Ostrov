@@ -2,6 +2,7 @@ package ru.komiss77.modules.player.mission;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -20,13 +21,16 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
 
-public class MissionsManageMenu implements InventoryProvider {
+
+//настройки миссий билдером
+
+public class MissionSetupMenu implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build());
     private final List<Mission> missions;
 
     
-    public MissionsManageMenu(final List<Mission> missions) {
+    public MissionSetupMenu(final List<Mission> missions) {
         this.missions = missions;
     }
     
@@ -57,40 +61,40 @@ public class MissionsManageMenu implements InventoryProvider {
         
         
         for (final Mission mi : missions) {
-            final List<String>lore = new ArrayList<>();
+            final List<Component>lore = new ArrayList<>();
             
-            lore.add("§7ID: §3"+mi.id); //0
-            lore.add("§7Награда: §e"+mi.reward+" рил"); //1
-            lore.add("§7Лимит выполнения: §6"+mi.rewardFund+" раз"); //2
-            lore.add("§7"); //3
-            lore.add(""); //4
-            lore.add("§7Претенденты: §f"+mi.doing);
-            lore.add("§7Доступна с:");
-            lore.add("§7"+ApiOstrov.dateFromStamp(mi.activeFrom));
-            lore.add("§7Доступна по:");
-            lore.add("§7"+ApiOstrov.dateFromStamp(mi.validTo));
-            lore.add("");
-            lore.add("§7Уровень не менее §6"+mi.level);
-            lore.add("§7Репутация не менее §6"+mi.reputation);
-            lore.add("");
+            lore.add(Component.text("§7ID: §3"+mi.id)); //0
+            lore.add(Component.text("§7Награда: §e"+mi.reward+" рил")); //1
+            lore.add(Component.text("§7Лимит выполнения: §6"+mi.canComplete+" раз")); //2
+            lore.add(Component.empty()); //3
+            lore.add(Component.empty()); //4
+            lore.add(Component.text("§7Претенденты: §f"+mi.doing));
+            lore.add(Component.text("§7Доступна с:"));
+            lore.add(Component.text("§7"+ApiOstrov.dateFromStamp(mi.activeFrom)));
+            lore.add(Component.text("§7Доступна по:"));
+            lore.add(Component.text("§7"+ApiOstrov.dateFromStamp(mi.validTo)));
+            lore.add(Component.empty());
+            lore.add(Component.text("§7Уровень не менее §6"+mi.level));
+            lore.add(Component.text("§7Репутация не менее §6"+mi.reputation));
+            lore.add(Component.empty());
             lore.addAll(Mission.getRequest(p, mi));
-            lore.add("");
-            lore.add("§7ЛКМ - настроить");
-            lore.add("§7клав.Q - §cудалить");
-            lore.add("§7");
+            lore.add(Component.empty());
+            lore.add(Component.text("§7ЛКМ - настроить"));
+            lore.add(Component.text("§7клав.Q - §cудалить"));
+            lore.add(Component.empty());
             
             
             //активна сейчас
             if (Timer.getTime()>=mi.activeFrom && Timer.getTime()<mi.validTo) {
-                lore.set(4, MissionManager.missions.containsKey(mi.id) ? "§aПодгружена, активна" : "§6Ожижает подгрузки");
+                lore.set(4, Component.text(MissionManager.missions.containsKey(mi.id) ? "§aПодгружена, активна" : "§6Ожижает подгрузки"));
                 displayMat = mi.mat;
             } else {
-                lore.set(4, MissionManager.missions.containsKey(mi.id) ? "§dОжижает выгрузки" :  "§5неактивна");
+                lore.set(4, Component.text(MissionManager.missions.containsKey(mi.id) ? "§dОжижает выгрузки" :  "§5неактивна"));
                 displayMat = Material.GRAY_DYE;
             }
             
-            if (mi.rewardFund<=0) {
-                lore.set(2, "§7Счётчик выполнения: §6"+mi.rewardFund+" §сисчерпан!");
+            if (mi.canComplete<=0) {
+                lore.set(2, Component.text("§7Счётчик выполнения §сисчерпан!"));
                 displayMat = Material.REDSTONE;
             }
             

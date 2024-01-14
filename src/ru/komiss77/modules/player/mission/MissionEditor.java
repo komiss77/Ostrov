@@ -61,7 +61,7 @@ public class MissionEditor implements InventoryProvider {
             .addLore(mi.name)
             .addLore("§7ID миссии: §3"+(mi.id<0 ? "не назначен (новая)" : mi.id))
             .addLore("§7Награда: §6"+mi.reward+" рил")
-            .addLore("§7Счётчик выполнения: §6"+mi.rewardFund+" раз")
+            .addLore("§7Могут выполнить: §6"+mi.canComplete+" чел.")
             //.addLore("§7Будет доступна:")
             .addLore("§7Доступна с:")
             .addLore("§7"+ApiOstrov.dateFromStamp(mi.activeFrom))
@@ -183,23 +183,23 @@ public class MissionEditor implements InventoryProvider {
             .addLore("§7Сколько человек могут")
             .addLore("§7выполнить данную миссию?")
             .addLore("§7")
-            .addLore("§7Сейчас: §b"+(mi.rewardFund))
+            .addLore("§7Сейчас: §b"+(mi.canComplete))
             .addLore("§7Призовой фонд составит:")
-            .addLore("§f"+mi.rewardFund+"*"+mi.reward+"="+mi.rewardFund*mi.reward+" рил")
+            .addLore("§f"+mi.canComplete+"*"+mi.reward+"="+mi.canComplete*mi.reward+" рил")
             .addLore("§7")
             .addLore("§7ЛКМ : +1 (макс.64)")
             .addLore("§7ПКМ : -1")
             .addLore("§7")
             .build(), e -> {
-                if (e.isLeftClick() && mi.rewardFund<64) {
+                if (e.isLeftClick() && mi.canComplete<64) {
                     p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                     mi.changed = true;
-                    mi.rewardFund++;
+                    mi.canComplete++;
                     reopen(p, content);
-                } else if (e.isRightClick() && mi.rewardFund>1) {
+                } else if (e.isRightClick() && mi.canComplete>1) {
                     p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                     mi.changed = true;
-                    mi.rewardFund--;
+                    mi.canComplete--;
                     reopen(p, content);
                 } else {
                     PM.soundDeny(p);
@@ -531,7 +531,7 @@ public class MissionEditor implements InventoryProvider {
                     oldid = mi.id;
                     mi.id=-1;
                     mi.changed = true;
-                    mi.rewardFund=30;
+                    mi.canComplete=30;
                     mi.doing=0;
                     if(e.isLeftClick()) {
                         //oldid = mi.id;
@@ -577,12 +577,12 @@ public class MissionEditor implements InventoryProvider {
                     
                     if (mi.id==-1) {
                         OstrovDB.executePstAsync(p, "INSERT INTO `missions` (`name`, `nameColor`, `mat`, `level`, `reputation`, `request`, `reward`, `rewardFund`, `activeFrom`, `validTo`) "
-                                + "VALUES ('"+mi.name+"', '"+ TCUtils.toChar(mi.nameColor) +"', '"+mi.mat.name()+"', '"+mi.level+"', '"+mi.reputation+"', '"+Mission.getRequestString(mi)+"', '"+mi.reward+"', '"+mi.rewardFund+"', '"+mi.activeFrom+"', '"+mi.validTo+"');");
+                                + "VALUES ('"+mi.name+"', '"+ TCUtils.toChar(mi.nameColor) +"', '"+mi.mat.name()+"', '"+mi.level+"', '"+mi.reputation+"', '"+Mission.getRequestString(mi)+"', '"+mi.reward+"', '"+mi.canComplete+"', '"+mi.activeFrom+"', '"+mi.validTo+"');");
                         if (oldid!=0) {
                             OstrovDB.executePstAsync(p, "DELETE FROM `missions` WHERE 'id'='"+oldid+"'; ");
                         }
                     } else {
-                        OstrovDB.executePstAsync(p, "UPDATE `missions` SET `name`='"+mi.name+"', `nameColor`='"+TCUtils.toChar(mi.nameColor)+"', `mat`='"+mi.mat.name()+"', `level`='"+mi.level+"', `reputation`='"+mi.reputation+"', `request`='"+Mission.getRequestString(mi)+"', `reward`='"+mi.reward+"', `rewardFund`='"+mi.rewardFund+"', `activeFrom`='"+mi.activeFrom+"', `validTo`='"+mi.validTo+"' WHERE `missionId`='"+mi.id+"'");
+                        OstrovDB.executePstAsync(p, "UPDATE `missions` SET `name`='"+mi.name+"', `nameColor`='"+TCUtils.toChar(mi.nameColor)+"', `mat`='"+mi.mat.name()+"', `level`='"+mi.level+"', `reputation`='"+mi.reputation+"', `request`='"+Mission.getRequestString(mi)+"', `reward`='"+mi.reward+"', `rewardFund`='"+mi.canComplete+"', `activeFrom`='"+mi.activeFrom+"', `validTo`='"+mi.validTo+"' WHERE `missionId`='"+mi.id+"'");
                     }
                     MissionManager.openMissionsEditMenu(p);
                 }));

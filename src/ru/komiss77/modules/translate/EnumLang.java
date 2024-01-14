@@ -11,10 +11,12 @@ import java.util.*;
 //              НЕ ПЕРЕМЕЩАТЬ, НЕ импортировать остров! Использует прокси!!
 
 //для обновы файликов поиском искать в папке ассетс клиента по строке "language.code": "ru_ru"
-
+@Deprecated
 public enum EnumLang {
-
+    
+    @Deprecated
     EN_US("en_us", "en", new HashMap<>()),
+    @Deprecated
     RU_RU("en_us", "ru", new HashMap<>()),
     ;
 

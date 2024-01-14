@@ -28,7 +28,7 @@ public class Cuboid {
     public String name;
     public String displayName;
     public Location spawnPoint;
-    public Set<String> playerNames;// = new HashSet<>();
+    public Set<String> playerNames = new HashSet<>();
     //private final CuboidInfo info;
 
     public Cuboid(final String fromString) { // x1 + ", " + y1 + ", " + z1 + ", " + x2 + ", " + y2 + ", " + z2;

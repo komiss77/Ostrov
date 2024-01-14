@@ -27,11 +27,15 @@ import ru.komiss77.Perm;
 import ru.komiss77.Timer;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.ViewPerm;
+import ru.komiss77.enums.Game;
+import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.figures.MenuMain;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.profile.JustPlayMenu;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.player.profile.TPA;
 import ru.komiss77.modules.translate.Lang;
@@ -91,8 +95,63 @@ public class CMD implements TabCompleter  {
         
     switch (label) {
 
+
+
+        case "serv":
+            if (op==null || p==null) {
+                sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
+                return true;
+            }
+            //if (GM.GAME==Game.LOBBY || op.isGuest || op.hasSettings(Settings.JustGame)) {
+                SmartInventory.builder()
+                .id("JustPlayMenu")
+                .provider(new JustPlayMenu())
+                .size(6, 9)
+                .title("§fВыбор §2ИГРЫ")
+                .build()
+                .open(p);
+            //} else {
+            //    op.menu.open(p,Section.РЕЖИМЫ);//p.openInventory(GM.main_inv);
+            //}
+            break;
+
+        case "profile":
+            if (op==null || p==null) {
+                sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
+                return true;
+            }
+            if (op.isGuest) {
+                sender.sendMessage(Ostrov.PREFIX+"§eИгровые данные Гостей не сохраняются!");
+                return true;
+            }
+            op.menu.open(p,Section.ПРОФИЛЬ);//p.openInventory(GM.main_inv);
+            break;
+
+        case "menu":
+            if (op==null || p==null) {
+                sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
+                return true;
+            }
+            PM.getOplayer(p).menu.openLocalMenu(p);//p.performCommand(Cfg.GetCongig().getString("modules.command.menu"));
+            break;
+
+        case "settings":
+            if (op==null || p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
+                if ( Config.settings_command ){
+                    //if ( p.hasPermission("ostrov.settings")){
+                        op.menu.openLocalSettings(p);
+                    //}  else p.sendMessage("§cУ Вас нет пава ostrov.settings !");
+                } else {
+                    p.sendMessage( "§cЛичные настройки отключёны на этом сервере!");
+                }
+            break;
+
+
+
+
+
         case "figure":
-            if (p==null) {
+            if (op==null || p==null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
                 return true;
             }
@@ -110,7 +169,7 @@ public class CMD implements TabCompleter  {
 
 
         case "sethome":
-            if (p==null) {
+            if (op==null || p==null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
                 return true;
             }
@@ -157,7 +216,7 @@ public class CMD implements TabCompleter  {
             break;
 
         case "delhome":
-            if (p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
+            if (op==null || p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
             if (Config.home_command) {
                 if (  arg.length ==0 && op.homes.size()>1 ) { //если не указал дом, но их больше 1 - уточнить какой
                 	final TextComponent.Builder homes = Component.text().content("§c"+Lang.t(p, "Какой дом удалить? "));
@@ -180,34 +239,11 @@ public class CMD implements TabCompleter  {
             } else p.sendMessage( "§c"+Lang.t(p, "Дома отключены на этом сервере!"));
 
 
-
-
-        case "serv":
-            if (p==null) {
-                sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
-                return true;
-            }
-
-            PM.getOplayer(p).menu.open(p,Section.РЕЖИМЫ);//p.openInventory(GM.main_inv);
-            break;
-
             
-        case "menu":
-            if (p==null) {
-                sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
-                return true;
-            }
-            if (Bukkit.getPluginManager().getPlugin("ChestCommands")!=null) {
-                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "cc open menu "+p.getName() );
-            } else {
-                //PM.getOplayer(p).menu.openLastSection(p);//p.performCommand(Cfg.GetCongig().getString("modules.command.menu"));
-                PM.getOplayer(p).menu.openLocalMenu(p);//p.performCommand(Cfg.GetCongig().getString("modules.command.menu"));
-            }
-            break;
-
+            
         case "lobby":
         case "hub":
-            if (p==null) {
+            if (op==null || p==null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
                 return true;
             }
@@ -216,7 +252,7 @@ public class CMD implements TabCompleter  {
 
 
         case "fly":
-            if (p==null) {sender.sendMessage("§сне консольная команда!"); return true;}
+            if (op==null || p==null) {sender.sendMessage("§сне консольная команда!"); return true;}
             if (!Config.fly_command) {p.sendMessage( "§c"+Lang.t(p, "Полёт отключён на этом сервере!"));return false;}
                 if ( p.hasPermission("ostrov.fly") ) {
                     switch (arg.length) {
@@ -328,20 +364,8 @@ public class CMD implements TabCompleter  {
             break;
 
 
-        case "settings":
-            if (p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
-                if ( Config.settings_command ){
-                    //if ( p.hasPermission("ostrov.settings")){
-                        op.menu.openLocalSettings(p);
-                    //}  else p.sendMessage("§cУ Вас нет пава ostrov.settings !");
-                    
-                } else {
-                    p.sendMessage( "§cЛичные настройки отключёны на этом сервере!");
-                }
-            break;
-
         case "spawn":
-            if (p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
+            if (op==null || p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
                 if ( Config.spawn_command ){
                     if (WarpManager.exist("spawn")) {
                         DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
@@ -355,7 +379,7 @@ public class CMD implements TabCompleter  {
 
 
         case "back":
-            if (p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
+            if (op==null || p==null) {sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!"); return true;}
                 if ( Config.back_command ){
                     if ( p.hasPermission("ostrov.back") ) {
                         Location b1 = p.getLocation();
@@ -392,7 +416,7 @@ public class CMD implements TabCompleter  {
             break;
 
          case "gm":
-            if (p==null) {
+            if (op==null || p==null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
                 return true;
             }
@@ -430,7 +454,7 @@ public class CMD implements TabCompleter  {
 
 
          case "tppos":
-            if (p==null) {
+            if (op==null || p==null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
                 return true;
             }

@@ -94,7 +94,7 @@ public class EntityByGroup implements InventoryProvider {
         
         
         
-        int find = 0;
+        int find;
         for (final EntityType type : count.keySet()) {
             
             find = count.get(type);
@@ -102,7 +102,7 @@ public class EntityByGroup implements InventoryProvider {
             menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(type)
                 //.name("§f"+ (Translate.getEntityName(type, EnumLang.RU_RU) ) )
                 .name(Lang.t(p, type))
-                    .setAmount(find>64 ? 1 : find)
+                .setAmount(find>64 ? 1 : find)
                 .addLore("§7")
                 .addLore("§7Найдено: §e"+ find )
                 .addLore("§7")

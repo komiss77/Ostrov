@@ -25,7 +25,7 @@ public class Mission {
     int reputation = -77;
     CaseInsensitiveMap<Integer> request = new CaseInsensitiveMap<>(); //макс 8 требований!!
     int reward = 5;
-    int rewardFund = 10;
+    int canComplete = 10;
     int activeFrom = Timer.getTime()+1*60*60; //через час
     int validTo = Timer.getTime()+25*60*60; //через сутки и час
     int doing = 0;
@@ -41,23 +41,23 @@ public class Mission {
     }
     
     
-    protected static List<String> getRequest(final Player p, final Mission mi) {
+    protected static List<Component> getRequest(final Player p, final Mission mi) {
         Stat stat;
-        final List<String>lore = new ArrayList<>();
+        final List<Component>lore = new ArrayList<>();
         //lore.add("§7Требования:");
-        lore.add("§7Требования : " + (mi.request.isEmpty() ? "§cне указаны!" : "§b"+mi.request.size()));
+        lore.add(Component.text("§7Требования : " + (mi.request.isEmpty() ? "§cне указаны!" : "§b"+mi.request.size())));
         for (final Map.Entry<String,Integer> e : mi.request.entrySet()) {
             stat = Stat.fromName(e.getKey());
             if (stat==null) {
                 if (MissionManager.customStatsDisplayNames.containsKey(e.getKey())) {
-                    lore.add(MissionManager.customStatsDisplayNames.get(e.getKey())
-                            + (MissionManager.customStatsShowAmmount.get(e.getKey()) ? " §7: §d"+e.getValue() : "") 
+                    lore.add( Component.text( MissionManager.customStatsDisplayNames.get(e.getKey())
+                            + (MissionManager.customStatsShowAmmount.get(e.getKey()) ? " §7: §d"+e.getValue() : "") )
                     );
                 } else {
-                    lore.add("§b"+e.getKey()+" §7: §d"+e.getValue());
+                    lore.add(Component.text("§b"+e.getKey()+" §7: §d"+e.getValue()));
                 }
             } else {
-                lore.add(Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+" §d"+e.getValue());
+                lore.add(Component.text( Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+" §d"+e.getValue()) );
             }
         }
         return lore;

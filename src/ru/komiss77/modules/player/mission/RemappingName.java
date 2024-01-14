@@ -2,11 +2,9 @@ package ru.komiss77.modules.player.mission;
 
 
 import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-
 import ru.komiss77.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
@@ -25,34 +23,19 @@ import ru.komiss77.version.AnvilGUI;
 
 public class RemappingName implements InventoryProvider {
     
-    
-    
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
     
-
-    
-    public RemappingName() {
-    }
-     
 
     
     @Override
     public void init(final Player p, final InventoryContent content) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
         
-
-        
-        
         //линия - разделитель
         content.fillRow(4, fill);
         
         
-        
-        
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();        
-        
-
-    
                     
         MissionManager.customStatsDisplayNames.keySet().forEach( (name) -> {
             

@@ -41,6 +41,7 @@ import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.hook.WGhook;
+import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -159,7 +160,7 @@ public class ProfileManager {
                         .open(p);
 
             case МИССИИ ->
-                MissionManager.openMissionsMenu(op);
+                MissionManager.openMissionsMenu(op, true);
 
             case ДРУЗЬЯ ->
                 Friends.openFriendsMain(op);
@@ -298,27 +299,24 @@ public class ProfileManager {
     }
 
     // ********** Подменю профиля *************
-    public void openWithdrawalRequest(final Player p) {
-        section = Section.ПРОФИЛЬ;
-        profileMode = ProfileMode.Вывод;
-        runLoadAnimations();
+    public void openWithdrawalRequest(final Player p, final boolean inProfile) {
+        if (inProfile) {
+            section = Section.ПРОФИЛЬ;
+            profileMode = ProfileMode.Вывод;
+            runLoadAnimations();
+        }
 
         Ostrov.async(() -> {
 
             final List<ClickableItem> buttons = new ArrayList<>();
 
-            Statement stmt = null;
-            ResultSet rs = null;
+            try (Statement stmt = OstrovDB.getConnection().createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM `withdraw` WHERE `name`='" + p.getName() + "' ORDER BY `time` DESC");) {
 
-            try {
-                stmt = OstrovDB.getConnection().createStatement();
-
-                rs = stmt.executeQuery("SELECT * FROM `withdraw` WHERE `name`='" + p.getName() + "' ORDER BY `time` DESC");
 
                 while (rs.next()) {
                     switch (rs.getString("status")) {
-                        case "ожидание":
-                            buttons.add(ClickableItem.empty(new ItemBuilder(Material.WHITE_CANDLE)
+                        case "ожидание" -> buttons.add(ClickableItem.empty(new ItemBuilder(Material.WHITE_CANDLE)
                                     .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
                                     .addLore("")
                                     .addLore("§7сумма : §e" + rs.getInt("summ"))
@@ -328,9 +326,7 @@ public class ProfileManager {
                                     .addLore("")
                                     .build()
                             ));
-                            break;
-                        case "выполнено":
-                            buttons.add(ClickableItem.empty(new ItemBuilder(Material.LIME_CANDLE)
+                        case "выполнено" -> buttons.add(ClickableItem.empty(new ItemBuilder(Material.LIME_CANDLE)
                                     .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
                                     .addLore("")
                                     .addLore("§7сумма : §e" + rs.getInt("summ"))
@@ -341,8 +337,7 @@ public class ProfileManager {
                                     .addLore("")
                                     .build()
                             ));
-                            break;
-                        case "ошибка":
+                        case "ошибка" -> {
                             final int id = rs.getInt("id");
                             buttons.add(ClickableItem.of(new ItemBuilder(Material.RED_CANDLE)
                                     .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
@@ -363,43 +358,40 @@ public class ProfileManager {
                                         }
                                     }
                             ));
-                            break;
+                        }
                     }
 
                 }
 
                 Ostrov.sync(() -> {
-                    if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Вывод) {
+                    if (inProfile && section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Вывод) {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                                .builder()
-                                .id(op.nik + section.name())
-                                .provider(new CI_MultiPage(buttons, Material.BLACK_STAINED_GLASS_PANE))
-                                .size(6, 9)
-                                .title("Профиль : Заявки на вывод")
-                                .build()
-                                .open(p);
-                    }// else p.sendMessage("уже другое меню"); }
+                            .builder()
+                            .id(op.nik + section.name())
+                            .provider(new CI_MultiPage(buttons, Material.BLACK_STAINED_GLASS_PANE))
+                            .size(6, 9)
+                            .title("Профиль : Заявки на вывод")
+                            .build()
+                            .open(p);
+                    } else {
+                        SmartInventory
+                            .builder()
+                            .provider(new MissionWithdrawViewMenu(buttons))
+                            .size(5, 9)
+                            .title("§l§lЗаявки на вывод")
+                            .build()
+                            .open(p);
+                    }
                 }, 0);
 
             } catch (SQLException e) {
 
                 Ostrov.log_err("§с openWithdrawalRequest - " + e.getMessage());
 
-            } finally {
-                try {
-                    if (rs != null) {
-                        rs.close();
-                    }
-                    if (stmt != null) {
-                        stmt.close();
-                    }
-                } catch (SQLException e) {
-                    Ostrov.log_err("§с openWithdrawalRequest close - " + e.getMessage());
-                }
             }
-
+            
         }, 20);
 
     }
@@ -407,20 +399,19 @@ public class ProfileManager {
     public void openPassport(final Player p) {
         section = Section.ПРОФИЛЬ;
         profileMode = ProfileMode.Паспорт;
-        runLoadAnimations();
-        Ostrov.sync(() -> {
-            if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Паспорт) {
-                stopLoadAnimations();
-                current = SmartInventory
-                        .builder()
-                        .id(op.nik + section.name())
-                        .provider(new Passport())
-                        .size(6, 9)
-                        .title("Профиль : Паспорт") //не переименовывыть! юзает QuestManager
-                        .build()
-                        .open(p);
-            }// else p.sendMessage("уже другое меню"); }
-        }, 30);
+        //runLoadAnimations();
+        //Ostrov.sync(() -> {
+            //if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Паспорт) {
+                //stopLoadAnimations();
+        current = SmartInventory.builder()
+                .id(op.nik + section.name())
+                .provider(new Passport())
+                .size(6, 9)
+                .title("Профиль : Паспорт") //не переименовывыть! юзает QuestManager
+                .build()
+                .open(p);
+           // }// else p.sendMessage("уже другое меню"); }
+       // }, 30);
     }
 
     public void openIgnoreList(final Player p) {

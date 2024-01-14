@@ -4,6 +4,8 @@ import com.destroystokyo.paper.ClientOption;
 import java.util.function.Consumer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.modules.translate.EnumLang;
@@ -24,13 +26,15 @@ public class MenuItem {
     public boolean duplicate; //выдавать, если уже есть
     public boolean anycase; //если слот занят, предмет из слота будет дропнут и поставлен менюитем
     public boolean can_move, can_drop, can_pickup, can_swap_hand;
+    public boolean can_interact; //даёт ПКМ например для лука или ракеты
     public Consumer<Player> on_left_click, on_right_click, on_left_sneak_click, on_right_sneak_click;
+    protected Consumer<InventoryClickEvent> on_inv_click;
+    protected Consumer<PlayerInteractEvent> on_interact;
     
     public MenuItem(final String name, final ItemStack is) {
         this.name=name;
         id = name.hashCode();//ApiOstrov.generateId();
         itemRu = ItemUtils.setCusomModelData(is, id);
-        
         itemEn = is.clone();
         
         final ItemMeta im = itemEn.getItemMeta();
@@ -40,8 +44,6 @@ public class MenuItem {
         im.displayName(TCUtils.format(displayName));
         
         itemEn.setItemMeta(im);
-        //this.item=is;
-//System.out.println("================ SpecItem name="+name+" id="+id);
     }
     
     public ItemStack getItem() {
@@ -86,6 +88,12 @@ public class MenuItem {
 //System.out.println("================ SpecItem give name="+name);
         final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
         p.getInventory().setItem(slot, eng ? itemEn : itemRu);
+    }
+
+    public void giveForce(final Player p, final int customSlot) {
+//System.out.println("================ SpecItem give name="+name);
+        final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+        p.getInventory().setItem(customSlot, eng ? itemEn : itemRu);
     }
 
     public int takeAway(final Player p) {

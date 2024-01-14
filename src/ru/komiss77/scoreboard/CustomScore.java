@@ -10,9 +10,6 @@ import org.bukkit.scoreboard.Team;
 import ru.komiss77.modules.player.PM;
 
 
-
-
-
 public class CustomScore {
     
     private final String name;

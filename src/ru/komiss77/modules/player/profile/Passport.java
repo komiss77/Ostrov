@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,18 +27,10 @@ import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 
-
-
-
 public class Passport implements InventoryProvider {
-    
-    
     
    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ПРОФИЛЬ.glassMat).name("§8.").build());
     
-    
-    public Passport() {
-    }
     
     @Override
     public void onClose(final Player p, final InventoryContent content) {

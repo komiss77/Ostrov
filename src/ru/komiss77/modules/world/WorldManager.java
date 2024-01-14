@@ -651,7 +651,7 @@ public class WorldManager implements Initiable {
                 return;
                 
             case Empty : 
-                wc.generator(new EmptyChunkGenerator(Ostrov.instance));
+                wc.generator(new EmptyChunkGenerator());
                 wc.type(org.bukkit.WorldType.FLAT); //Void darkness - start at around Y=64, if you want them to start at Y=0, set the level-type in the server.properties file to FLAT. 
 //Ostrov.log("=================== applyGenerator generateStructures(false)");
                 wc.generateStructures(false);

@@ -9,10 +9,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
@@ -36,10 +40,10 @@ public class MissionManager {
     public static final int WITHDRAW_MAX = 300;
     
     protected static final Map<Integer,Mission> missions = new HashMap<>();
-    private static final List<RecordData> record = new ArrayList<RecordData>();
+    private static final List<RecordData> record = new ArrayList<>();
     
-    public static final Map<String,String> customStatsDisplayNames = new HashMap<>();
-    public static final Map<String,Boolean> customStatsShowAmmount = new HashMap<>();
+    public static final CaseInsensitiveMap<String> customStatsDisplayNames = new CaseInsensitiveMap<>();
+    public static final CaseInsensitiveMap<Boolean> customStatsShowAmmount = new CaseInsensitiveMap<>();
     
     protected static int getLimit(final Oplayer op) {
         //if (op.isStaff) return 0;
@@ -55,7 +59,7 @@ public class MissionManager {
     
     public static void tickAsync() {
         if (record.isEmpty()) return;
-        final RecordData[] recordCopy = record.toArray(new RecordData[0]);//new ArrayList<>(record);
+        final RecordData[] recordCopy = record.toArray(RecordData[]::new);//new ArrayList<>(record);
         record.clear();
 //System.out.println("recordCopy="+recordCopy.size());        
        // Ostrov.async( ()-> {
@@ -148,7 +152,9 @@ public class MissionManager {
                     rs.close();
 
                     if (progress==null) {
-                        if (PM.exist(rd.name)) Bukkit.getPlayerExact(rd.name).sendMessage("§cнет прогресса для recordId "+rd.recordId);
+                        if (PM.exist(rd.name)) {
+                            Bukkit.getPlayerExact(rd.name).sendMessage("§cнет прогресса для recordId "+rd.recordId);
+                        }
                     } else if (!skip) {
                         pst = conn.prepareStatement("UPDATE `missionsProgress` SET `progress` = '"+progress+"' WHERE `recordId`='"+rd.recordId+"'; ");
                         pst.execute(); //через OstrovDB счётчик статы в задании теряет данные
@@ -204,8 +210,8 @@ public class MissionManager {
         Mission mission;
         for (final int id : op.missionIds) {
 //System.out.println("find id "+id);
-            if (missions.containsKey(id)) {
-                mission = missions.get(id);
+            mission = missions.get(id);
+                if (mission!=null) {
                 //проверить на действующую
                 //миссия просрочена - удалить и лог в журнал
                 if (mission.request.containsKey(customStatName)) { //эта стата участвует в миссии
@@ -221,36 +227,37 @@ public class MissionManager {
 
 
 
-    public static void openMissionsMenu(Oplayer op) {
-        op.menu.section = Section.МИССИИ;
-        
-        if (op.isGuest) {
-//System.out.println("rawData="+rawData);
-            op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik+op.menu.section.name())
-                .provider(new MissionsViewMenu(null))
-                .size(6, 9)
-                .title(op.eng ? "Missions" : "Миссии")
-                .build()
-                .open(op.getPlayer());
-            return;
+    public static void openMissionsMenu(final Oplayer op, final boolean inProfile) {
+       
+        if (inProfile) {
+            op.menu.section = Section.МИССИИ;
+
+            if (op.isGuest) {
+    //System.out.println("rawData="+rawData);
+                op.menu.current = SmartInventory
+                    .builder()
+                    .id(op.nik+op.menu.section.name())
+                    .provider(new ProfileManageMenu(null, null))
+                    .size(6, 9)
+                    .title(op.eng ? "Missions" : "Миссии")
+                    .build()
+                    .open(op.getPlayer());
+                return;
+            }
+            //profileMode = ProfileManager.ProfileMode.АккаунтыБД;
+            op.menu.runLoadAnimations();
         }
-        //profileMode = ProfileManager.ProfileMode.АккаунтыБД;
-        op.menu.runLoadAnimations();
         
         Ostrov.async( ()-> {
             
-            final List<ClickableItem> buttons = new ArrayList<>();
+            final List<ClickableItem> buttonsCurrent = new ArrayList<>();
+            final List<ClickableItem> buttonsDone = new ArrayList<>();
 
-            Statement stmt = null;
-            ResultSet rs = null;
 //System.out.println("missions="+missions);
 
-            try { 
-                stmt = OstrovDB.getConnection().createStatement();
+            try (Statement stmt = OstrovDB.getConnection().createStatement();
+                   ResultSet rs = stmt.executeQuery( "SELECT * FROM `missionsProgress` WHERE `name` = '"+op.nik+"' " ); ){ 
 
-                rs = stmt.executeQuery( "SELECT * FROM `missionsProgress` WHERE `name` = '"+op.nik+"' " );
 
                 Mission mission;
                 int request;
@@ -261,12 +268,12 @@ public class MissionManager {
                 
                 while (rs.next()) {
 
-                    final List<String>lore = new ArrayList<>();
+                    final List<Component>lore = new ArrayList<>();
                     final int missionId = rs.getInt("missionId");
 //System.out.println("missionId="+rs.getInt("missionId"));
-                    if (missions.containsKey(missionId)) {
+                    mission = missions.get(missionId);
+                        if (mission!=null) {
                         
-                        mission = missions.get(missionId);
                         
                         //lore.add("§7ID: §3"+mission.id);
                         //lore.add("§7Награда: §e"+mission.reward+" рил");
@@ -275,67 +282,111 @@ public class MissionManager {
                         //ore.add("");
                         //lore.add("§fПринята:");
                         //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
-                        //lore.add("");
+                        //lore.add(Component.empty());
                         
                         
                         if (rs.getInt("completed")>0) { //уже выполнена
                         
-                            lore.add("");
-                            lore.add("§aзавершена §2"+ApiOstrov.dateFromStamp(rs.getInt("completed")));
-                            lore.add("");
-                            lore.add("§8Награда: "+mission.reward+" рил");
-                            lore.add("§8Призовой фонд: "+mission.rewardFund*mission.reward+" рил" + (mission.rewardFund<=0?"исчерпан!":""));
-                            lore.add("§8Претенденты: "+mission.doing);
-                            lore.add("");
-                            lore.add("§8Принята:");
-                            lore.add("§8"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
-                            lore.add("");
+                            lore.add(Component.empty());
+                            lore.add(Component.text("§a§lЗавершена §2"+ApiOstrov.dateFromStamp(rs.getInt("completed"))));
+                            lore.add(Component.empty());
+                            //lore.add("§8Награда: "+mission.reward+" рил");
+                            //lore.add("§8Призовой фонд: "+mission.rewardFund*mission.reward+" рил" + (mission.rewardFund<=0?"исчерпан!":""));
+                            //lore.add("§8Претенденты: "+mission.doing);
+                            //lore.add(Component.empty());
+                            //lore.add("§8Принята:");
+                            //lore.add("§8"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                            //lore.add(Component.empty());
                         
-                        } else if (Timer.getTime()<mission.activeFrom) { //еще не началась
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
+                                .name(mission.displayName())
+                                .setLore(lore)
+                                .build()
+                            ));
+
+                        } else if (Timer.getTime()<mission.activeFrom) { //еще не началась, возможно когда изменили дату начала уже взятой миссии
                             
-                            lore.add("§7Награда: §e"+mission.reward+" рил");
-                            lore.add("§7Призовой фонд: §6"+mission.rewardFund*mission.reward+" рил" + (mission.rewardFund<=0?"§сисчерпан!":""));
+                            lore.add(Component.text("§7Награда: §e"+mission.reward+" рил"));
+                            lore.add(Component.text( mission.canComplete <= 0 ? "§7Призовой фонд: §6"+mission.canComplete*mission.reward+" рил" : "§сисчерпан!") );
                             //lore.add("§7Претенденты: §f"+mission.doing);
-                            lore.add("");
+                            lore.add(Component.empty());
                             //lore.add("§fПринята:");
                             //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
-                            //lore.add("");
-                            lore.add("§bДо начала:");
-                            lore.add("§f"+ApiOstrov.secondToTime(mission.activeFrom-Timer.getTime()));
-                            lore.add("");
+                            //lore.add(Component.empty());
+                            lore.add(Component.text("§bПланируется, до начала:"));
+                            lore.add(Component.text("§f"+ApiOstrov.secondToTime(mission.activeFrom-Timer.getTime())));
+                            lore.add(Component.empty());
                             //lore.add("§7Уровень не менее §6"+mission.level);
                             //lore.add("§7Репутация не менее §6"+mission.reputation);
-                            //lore.add("");
+                            //lore.add(Component.empty());
                             //lore.addAll(Mission.getRequest(mission));
-                            //lore.add("");
+                            //lore.add(Component.empty());
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.SUGAR)
+                                .name(mission.displayName())
+                                .setLore(lore)
+                                .build()
+                            ));
                             
                         } else if (Timer.getTime()>mission.validTo) { //просрочена
                             
-                            lore.add("");
-                            lore.add("§сПросрочена");
-                            lore.add("");
+                            lore.add(Component.empty());
+                            lore.add(Component.text("§сПросрочена"));
+                            lore.add(Component.empty());
+                            
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
+                                .name(mission.displayName())
+                                .setLore(lore)
+                                .build()
+                            ));
+                            
+                        } else if (mission.canComplete <= 0) { //призовой фонд исчерпан
+                            
+                            lore.add(Component.text("§f**********************"));
+                            lore.add(Component.text("§f*     §eПринята      §f*"));
+                            lore.add(Component.text("§f**********************")); 
+                            lore.add(Component.empty());
+                            lore.add(Component.text("§cПризовой фонд исчерпан!"));
+                            lore.add(Component.empty());
+                            lore.add(Component.text("§7Клав. Q - §4отказаться"));
+                            lore.add(Component.empty());
+                            lore.add(Component.text("§сПри отказе от миссии"));
+                            lore.add(Component.text("§cвесь прогресс будет потерян!"));
+
+                            buttonsDone.add(ClickableItem.of(new ItemBuilder(Material.GUNPOWDER)
+                                .name(mission.displayName())
+                                .setLore(lore)
+                                .build(), e-> {
+                                    if (e.getClick()==ClickType.DROP) {
+                                        op.getPlayer().performCommand("mission deny "+missionId);
+                                    } else {
+                                        PM.soundDeny(op.getPlayer());
+                                    }
+                                }
+                            ));
                             
                         } else { //прогресс
-                            
-                            lore.add("§7Награда: §e"+mission.reward+" рил");
-                            lore.add("§7Призовой фонд: §6"+mission.rewardFund*mission.reward+" рил" + (mission.rewardFund<=0?"§сисчерпан!":""));
-                            lore.add("§7Претенденты: §f"+mission.doing);
-                            lore.add("");
-                            lore.add("§fПринята:");
-                            lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
-                            lore.add("");
-                            lore.add("");
-                            lore.add("§fПрогресс:");
+                            //lore.add("§fПринята:");
+                            //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                            lore.add(Component.text("§fНаграда§7: §e"+mission.reward+" рил§7, §fПризовой фонд§7: §6"+mission.canComplete*mission.reward+" рил" ));
+                            lore.add(Component.text("§fПретенденты§7: §b"+mission.doing ));
+                            lore.add(Component.text("§f**********************"));
+                            lore.add(Component.text("§f*    §eПринята      §f*"));
+                            lore.add(Component.text("§f**********************")); 
+                            //lore.add("§7Претенденты: §f"+mission.doing);
+                            //lore.add(Component.empty());
+                            //lore.add(Component.empty());
+                            //lore.add(Component.empty());
+                            lore.add(Component.text("§f§lПрогресс:"));
                             
                             final CaseInsensitiveMap<Integer> progressMap = getMapFromString(rs.getString("progress"));
                             done=true;
-                            boolean showAmmount = true;
+                            boolean showAmmount;
                             
                             for (String requestName : mission.request.keySet()) {
                                 
                                 request = mission.request.get(requestName);
                                 stat = Stat.fromName(requestName);
-                                showAmmount = customStatsShowAmmount.containsKey(requestName)?customStatsShowAmmount.get(requestName):true;
+                                showAmmount = !customStatsShowAmmount.containsKey(requestName) || customStatsShowAmmount.get(requestName);//customStatsShowAmmount.containsKey(requestName)?customStatsShowAmmount.get(requestName):true;
                                 
                                 if (stat==null) {
                                     displayName = "§b"+(customStatsDisplayNames.containsKey(requestName)?customStatsDisplayNames.get(requestName):requestName)+ (showAmmount?" §7: §d":"");
@@ -348,15 +399,15 @@ public class MissionManager {
                                     current = progressMap.get(requestName);
                                     if (current>=request) {
                                         if (showAmmount) {
-                                            lore.add("§a✔ §8"+TCUtils.stripColor(displayName)+current+" ("+request+")");
+                                            lore.add(Component.text("§a✔ §8"+TCUtils.stripColor(displayName)+current+" ("+request+")"));
                                         } else {
-                                            lore.add("§a✔ §8"+TCUtils.stripColor(displayName));
+                                            lore.add(Component.text("§a✔ §8"+TCUtils.stripColor(displayName)));
                                         }
                                     } else {
                                         if (showAmmount) {
-                                            lore.add(displayName+current+" §7из §5"+request);
+                                            lore.add(Component.text(displayName+current+" §7из §5"+request));
                                         } else {
-                                            lore.add(displayName);
+                                            lore.add(Component.text(displayName));
                                         }
                                         //lore.add(displayName+current+" §7из §5"+request);
                                         done = false;
@@ -365,9 +416,9 @@ public class MissionManager {
                                 } else {
                                     
                                     if (showAmmount) {
-                                        lore.add(displayName+"§fнакопите §5"+request);
+                                        lore.add(Component.text(displayName+"§fнакопите §5"+request));
                                     } else {
-                                        lore.add(displayName);
+                                        lore.add(Component.text(displayName));
                                     }
                                     done = false;
                                     
@@ -375,36 +426,61 @@ public class MissionManager {
                                 
                             }
                             
-                            lore.add("");
+                            lore.add(Component.empty());
                             if (done) {
-                                lore.add("§aВсе условия выполнены,");
-                                lore.add("§aполучите награду у Инспектора!");
+                                lore.add(Component.text("§aВсе условия выполнены!"));
+                                lore.add(Component.text("§fЛКМ §7- §eЗавершить и получить награду!"));
+                                buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
+                                    .name(mission.displayName())
+                                    .setLore(lore)
+                                        .addEnchant(Enchantment.LUCK)
+                                        .addFlags(ItemFlag.HIDE_ENCHANTS)
+                                    .build(), e-> {
+                                            op.getPlayer().performCommand("mission complete "+missionId);
+                                        }
+                                    )
+                                );
+                            } else {
+                                lore.add(Component.text("§7Клав. Q - §4отказаться"));
+                                //lore.add(Component.text("§сПри отказе от миссии"));
+                                lore.add(Component.text("§7(§cвесь прогресс будет потерян!§7)"));
+                                buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
+                                    .name(mission.displayName())
+                                    .setLore(lore)
+                                    .build(), e-> {
+                                        if (e.getClick()==ClickType.DROP) {
+                                            op.getPlayer().performCommand("mission deny "+missionId);
+                                        } else {
+                                            PM.soundDeny(op.getPlayer());
+                                        }
+                                    }
+                                ));
                             }
 
                         }
                         
                         
-                        buttons.add(ClickableItem.empty(new ItemBuilder(mission.mat)
+                       /* buttons.add(ClickableItem.empty(new ItemBuilder(mission.mat)
                             .name(mission.displayName())
                             .setLore(lore)
                             .build()
-                        ));
+                        ));*/
                         
                         
                     } else {
                         
-                        buttons.add(ClickableItem.of(new ItemBuilder( Material.MUSIC_DISC_11)
+                        buttonsCurrent.add(ClickableItem.of(new ItemBuilder( Material.MUSIC_DISC_11)
                             .name("§7ID: §3"+missionId)
                             .addLore("§cМиссия неактивна")
                             .addLore("")
                             .addLore("§7Клав.Q - §cотказаться")
                             .addLore("")
-                            .addLore("§сПри отказе от миссии")
-                            .addLore("§cвесь прогресс будет потерян!")
+                            //.addLore("§сПри отказе от миссии")
+                            //.addLore("§cвесь прогресс будет потерян!")
                             .addLore("")
                             .build(), e-> {
                                 op.getPlayer().performCommand("mission deny "+missionId);
-                                MissionManager.openMissionsMenu(op);
+                                MissionManager.openMissionsMenu(op, inProfile);
                             }
                         ));
                         
@@ -414,36 +490,38 @@ public class MissionManager {
                 }
                 
 
-
                 Ostrov.sync( ()-> {
-                    op.menu.stopLoadAnimations();
-                    if (op.menu.section==Section.МИССИИ){// && profileMode == ProfileManager.ProfileMode.АккаунтыБД) {
-//System.out.println("rawData="+rawData);
-                    op.menu.current = SmartInventory
-                        .builder()
-                        .id(op.nik+op.menu.section.name())
-                        .provider(new MissionsViewMenu(buttons))
-                        .size(6, 9)
-                        .title("Миссии")
-                        .build()
-                        .open(op.getPlayer());
-                    }// else p.sendMessage("уже другое меню"); }
+                    if (inProfile) {
+                        op.menu.stopLoadAnimations();
+                        if (op.menu.section==Section.МИССИИ){// && profileMode == ProfileManager.ProfileMode.АккаунтыБД) {
+    //System.out.println("rawData="+rawData);
+                        op.menu.current = SmartInventory
+                            .builder()
+                            .id(op.nik+op.menu.section.name())
+                            .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
+                            .size(6, 9)
+                            .title("Миссии")
+                            .build()
+                            .open(op.getPlayer());
+                        }// else p.sendMessage("уже другое меню"); }
+                    } else {
+                        SmartInventory
+                            .builder()
+                            .provider(new MissionManageMenu(buttonsCurrent, buttonsDone))
+                            .size(5, 9)
+                            .title("§b§lМиссионария")
+                            .build()
+                            .open(op.getPlayer());
+                    }
                 }, 0);
 
             } catch (SQLException e) { 
 
                 Ostrov.log_err("§с openMissionsMenu - "+e.getMessage());
 
-            } finally {
-                try{
-                    if (rs!=null) rs.close();
-                    if (stmt!=null) stmt.close();
-                } catch (SQLException e) {
-                    Ostrov.log_err("§с openMissionsMenu close - "+e.getMessage());
-                }
-            }
+            } 
             
-        }, 20);
+        }, inProfile ? 20 : 0);
     }
 
     
@@ -498,7 +576,7 @@ public class MissionManager {
                 Ostrov.sync( ()-> {
                     SmartInventory.builder()
                         .id("Миссии")
-                        .provider(new MissionsManageMenu(list))
+                        .provider(new MissionSetupMenu(list))
                         .size(6, 9)
                         .title("Миссии")
                         .build()
@@ -659,7 +737,7 @@ public class MissionManager {
         mission.reputation = rs.getInt("reputation");
         mission.reward = rs.getInt("reward");
         mission.doing = rs.getInt("doing");
-        mission.rewardFund = rs.getInt("rewardFund");
+        mission.canComplete = rs.getInt("rewardFund");
         mission.activeFrom = rs.getInt("activeFrom");
         mission.validTo = rs.getInt("validTo");
 

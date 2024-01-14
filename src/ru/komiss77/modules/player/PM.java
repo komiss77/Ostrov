@@ -20,7 +20,6 @@ import ru.komiss77.Perm;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
-import ru.komiss77.enums.Settings;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;

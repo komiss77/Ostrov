@@ -1,6 +1,6 @@
 package ru.komiss77.modules.player.profile;
 
-import ru.komiss77.modules.player.mission.MoneyWithdrawMenu;
+import ru.komiss77.modules.player.mission.ProfileWithdrawMenu;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.ReportCmd;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.Pandora;
@@ -50,19 +51,24 @@ public class ProfileSection implements InventoryProvider {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
         
-        
+        final boolean justGame = op.hasSettings(Settings.JustGame);
         content.set( 0,4, ClickableItem.of(new ItemBuilder(op.eng ? Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE : Material.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE)
-                .name(op.eng ? "§7Change Language" : "§7Сменить язык")
+                .name(op.eng ? "§7JustGame Menu Mode" : "§7Режим простого меню")
                 .addLore("") //0
-                .addLore(op.eng ? "§7Now: §fEnglish" : "§7Сейчас: §fРусский") //1
-                .addLore(op.eng ? "§7Click - set Russian" : "§7ЛКМ - установить Английский") //2
+                .addLore(op.eng ? "§7Now: "+(justGame?"§6ON":"§aOFF") : "§7Сейчас: "+(justGame?"§6Включен":"§aВыключен")) //1
+                .addLore(op.eng ? "§7Click - change" : "§7ЛКМ - изменить") //2
+                .addLore("")
+                .addLore("§7С режимом JustGame")
+                .addLore("§7будут отключены квесты и")
+                .addLore("§7будут сразы выдаваться все")
+                .addLore("§7в лобби")
                 .addLore("")
                 .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS)
                 .build()
-            , e-> {
-                        op.setData(Data.LANG, (op.eng ? 0 : 1));
+                    , e-> {
+                        op.setSettings(Settings.JustGame, !justGame);
                         reopen(p, content);
-                } 
+                    } 
             )
         );        
 
@@ -138,7 +144,7 @@ public class ProfileSection implements InventoryProvider {
                             break;
                             
                         case RIGHT:
-                            pm.openWithdrawalRequest(p);
+                            pm.openWithdrawalRequest(p, true);
                             break;
                             
                         case DROP:
@@ -147,7 +153,7 @@ public class ProfileSection implements InventoryProvider {
                                 .builder()
                                 .id(op.nik+"Миссии")
                                 .type(InventoryType.HOPPER)
-                                .provider(new MoneyWithdrawMenu(op.getDataInt(Data.RIL)))
+                                .provider(new ProfileWithdrawMenu(op.getDataInt(Data.RIL)))
                                 .title("Новая заявка на вывод Рил")
                                 .build()
                                 .open(p);

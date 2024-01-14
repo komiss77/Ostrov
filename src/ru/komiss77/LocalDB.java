@@ -598,6 +598,7 @@ public class LocalDB {
             op.mysqlError = true; //op.mysqlData = null; //c null не будет сохранять при выходе!
             Ostrov.sync( () -> {
                 Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, false, null)); //при ошибке вызов с пустыми данными
+                op.updTabListName(p);
             }, 1 );
             
         } finally {

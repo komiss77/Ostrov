@@ -277,7 +277,7 @@ public enum Section {
                     switch (e.getClick()) {
                         case LEFT -> op.menu.open(op.getPlayer(), section); //открыть безусловно (для обновления списка и выходя из режима поиска)
                         case RIGHT -> {
-                            if (!op.isGuest) op.menu.openPassport(op.getPlayer());
+                            op.getPlayer().performCommand("passport edit");//if (!op.isGuest) op.menu.openPassport(op.getPlayer());
                         }
                         case SHIFT_RIGHT -> {
                             if (!op.isGuest) op.getPlayer().performCommand("passport get");

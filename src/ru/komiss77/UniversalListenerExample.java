@@ -1,8 +1,6 @@
 package ru.komiss77;
 
-
 import java.util.Iterator;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -44,7 +42,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import net.kyori.adventure.text.Component;
 import ru.komiss77.enums.Data;
 import ru.komiss77.events.BsignLocalArenaClick;
@@ -59,9 +56,6 @@ import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
-
-
-
 
 
 

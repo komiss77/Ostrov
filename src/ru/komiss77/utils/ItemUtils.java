@@ -1,7 +1,6 @@
 package ru.komiss77.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,32 +54,34 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.objects.CaseInsensitiveMap;
 
 
 public class ItemUtils {
 
-    public static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "ostrov");
-    private static HashMap<String, com.destroystokyo.paper.profile.PlayerProfile> playerProfilesCache = new HashMap<>();
+    public static final NamespacedKey key;
+    private static final CaseInsensitiveMap <com.destroystokyo.paper.profile.PlayerProfile> playerProfilesCache;
+    public static final ItemStack air, book, add, nextPage, previosPage;
 
-
-    public static final ItemStack air = new ItemStack(Material.AIR);
-    public static final ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-
-    public static final ItemStack add = new ItemBuilder(Material.PLAYER_HEAD)
+    static {
+        key = new NamespacedKey(Ostrov.instance, "ostrov");
+        playerProfilesCache = new CaseInsensitiveMap<>();
+        air = new ItemStack(Material.AIR);
+        book = new ItemStack(Material.WRITTEN_BOOK);
+        add = new ItemBuilder(Material.PLAYER_HEAD)
             .name("§aдобавить")
             .setCustomHeadTexture(Texture.add)
             .build();
-
-    public static final ItemStack nextPage = new ItemBuilder(Material.PLAYER_HEAD)
+        nextPage = new ItemBuilder(Material.PLAYER_HEAD)
             .name("§fдалее")
             .setCustomHeadTexture(Texture.nextPage)
             .build();
-
-    public static final ItemStack previosPage = new ItemBuilder(Material.PLAYER_HEAD)
+        previosPage = new ItemBuilder(Material.PLAYER_HEAD)
             .name("§fназад")
             .setCustomHeadTexture(Texture.previosPage)
             .build();
-
+    }
+    
     public static Texture getNumberTexture(final int number) {
         return switch (number) {
             case 0 -> Texture._0_;

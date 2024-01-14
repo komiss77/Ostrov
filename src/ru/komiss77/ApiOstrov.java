@@ -458,6 +458,10 @@ public class ApiOstrov {
     	sendTitle(p, TCUtils.format(title), TCUtils.format(subtitle), times);
     }
 
+    public static void sendTitle(final Player p, final Component title, final Component subtitle, final int fadein, final int stay, final int fadeout  ) {
+        final Times times =  Title.Times.times(Duration.ofMillis(fadein* 50L), Duration.ofMillis(stay* 50L), Duration.ofMillis(fadeout* 50L));
+        sendTitle(p, title, subtitle, times);
+    }
     // сообщения сохраняются и выводятся поочерёдно 
     public static void sendTitle(final Player p, final Component title, final Component subtitle, final Times times ) {
         final Oplayer op = PM.getOplayer(p);

@@ -1,6 +1,5 @@
 package ru.komiss77.commands;
 
-
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,46 +73,56 @@ public class PassportCmd implements CommandExecutor {
             
             switch (arg.length) { 
                 
-                case 0:
-                    break;
+                case 0 -> {
+                }
                     
-                case 1:
-                    p.closeInventory();
-                    if (arg[0].equals("get")) {
+                case 1 -> {
+                    
+                    switch (arg[0]) {
                         
-//System.out.println("get() "+p.getInventory().getItemInMainHand());        
-                        p.closeInventory();
-                        final int slot = ItemUtils.findItem(p, PlayerLst.passport);
-                        if (slot>0) {
-                        //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
-                            cs.sendMessage(Ostrov.PREFIX+"§cУ вас уже есть копия паспотра, слот "+slot+"!");
+                        case "get" -> {
+                            p.closeInventory();
+                            final int slot = ItemUtils.findItem(p, PlayerLst.passport);
+                            if (slot>0) {
+                                //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
+                                cs.sendMessage(Ostrov.PREFIX+"§cУ вас уже есть копия паспотра, слот "+slot+"!");
+                                return true;
+                            }
+                            if (ItemUtils.giveItemTo(p, PlayerLst.passport.clone(), 4, false)) {
+                                p.sendMessage("§7Вот Ваш паспорт!");
+                            }
+                        }
+                        
+                        case "see" -> {
+                            p.closeInventory();
+                            cs.sendMessage(Ostrov.PREFIX+"§cУкажите ник!");
                             return true;
                         }
-                        if (ItemUtils.giveItemTo(p, PlayerLst.passport.clone(), 4, false)) {
-                            p.sendMessage("§7Вот Ваш паспорт!");
+                        
+                        case "edit" -> {
+                            if (op.isGuest) {
+                                cs.sendMessage(Ostrov.PREFIX+"§cГостям паспорт не выдавался! Зарегайтесь!");
+                            } else {
+                                op.menu.openPassport(op.getPlayer());
+                            }
+                            return true;
                         }
-                        return true;
-                        
-                    } else if (arg[0].equals("see")) {
-                        
-                        cs.sendMessage(Ostrov.PREFIX+"§cУкажите ник!");
-                        return false;
-                        
+
                     }
-                    break;
+                }
                     
-                case 2:
+                case 2 -> {
                     if (arg[0].equals("see")) {
                         if (arg[0].equals(cs.getName()) || PM.getOplayer(cs.getName()).hasGroup("moder") || p.hasPermission("pasport.see")|| op.getStat(Stat.PLAY_TIME)>18000) { 
                             //PassportHandler.showPasport(p,arg[1]);
                             //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
-p.sendMessage("не готово");
+                            p.sendMessage("не готово");
                         } else {
                             cs.sendMessage(Ostrov.PREFIX+"§cПросматривать чужой паспорт могут модераторы,вип,премиум или наигравшие боьльше 300 часов!");
                         }
                         return true;
                     }
-                    break;
+                }
                     
                     
             }

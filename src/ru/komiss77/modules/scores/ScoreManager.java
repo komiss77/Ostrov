@@ -15,49 +15,50 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 
 public class ScoreManager implements Initiable, Listener {
-	
-	protected static final HashMap<UUID, ScoreBoard> scores = new HashMap<>();
-	protected static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "score");
-	
-	public ScoreManager() {
-		reload();
-	}
 
-	@Override
-	public void postWorld() {
-	}
+    protected static final HashMap<UUID, ScoreBoard> scores = new HashMap<>();
+    protected static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "score");
 
-	@Override
-	public void reload() {
+    public ScoreManager() {
+        reload();
+    }
+
+    @Override
+    public void postWorld() {
+    }
+
+    @Override
+    public void reload() {
         HandlerList.unregisterAll(this);
-		Ostrov.log_ok("§2Статистика включена!");
-    	
+        Ostrov.log_ok("§2Статистика включена!");
+
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
-	}
-	
-	@Override
-	public void onDisable() {
-		Ostrov.log_ok("§6Статистика выключена!");
-	}
-	
-	@EventHandler
-	public void onEntLoad(final EntitiesLoadEvent e) {
-		boolean fnd = false;
-		for (final Entity ent : e.getEntities()) {
-			if (ent.getPersistentDataContainer().has(key)) {
-				if (scores.containsKey(ent.getUniqueId())) continue;
-				else {
-					ent.remove();
-					fnd = true;
-				}
-			}
-		}
-		
-		if (fnd) {
-			for (final ScoreBoard sb : scores.values()) {
-				sb.reanimate(sb.getEntity());
-			}
-		}
-	}
+    }
+
+    @Override
+    public void onDisable() {
+        Ostrov.log_ok("§6Статистика выключена!");
+    }
+
+    @EventHandler
+    public void onEntLoad(final EntitiesLoadEvent e) {
+        boolean fnd = false;
+        for (final Entity ent : e.getEntities()) {
+            if (ent.getPersistentDataContainer().has(key)) {
+                if (scores.containsKey(ent.getUniqueId())) {
+                    continue;
+                } else {
+                    ent.remove();
+                    fnd = true;
+                }
+            }
+        }
+
+        if (fnd) {
+            for (final ScoreBoard sb : scores.values()) {
+                sb.reanimate(sb.getEntity());
+            }
+        }
+    }
 
 }

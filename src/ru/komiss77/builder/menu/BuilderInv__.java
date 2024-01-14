@@ -1,5 +1,5 @@
 package ru.komiss77.builder.menu;
-
+/*
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.BlockDisplay;
@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
-
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.listener.PlayerLst;
@@ -181,3 +180,4 @@ public class BuilderInv__ implements InventoryProvider {
     }
 
 }
+*/

@@ -22,7 +22,7 @@ import net.kyori.adventure.text.format.TextDecoration.State;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
-
+// градиент https://www.birdflop.com/resources/rgb/
 
 public class TCUtils {
 

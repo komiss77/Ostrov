@@ -135,12 +135,6 @@ public class ChatLst implements Listener {
             if (it.next() instanceof Player playerTo) {
                 if (playerTo.getName().equals(senderName)) continue; //себя не надо в спислк - в конце отправляется безусловно
                 oplayerTo = PM.getOplayer(playerTo);
-               /* if (oplayerTo != null && oplayerTo.isBlackListed(senderName)) {
-                    it.remove();
-                    hasRemoved = true;
-                } else {
-                    list.add(playerTo);
-                }*/
                 if (oplayerTo != null) {
                     if (oplayerTo.isBlackListed(senderName)) {
                         it.remove();
@@ -182,7 +176,6 @@ public class ChatLst implements Listener {
         //лого сервера - готовый компонент
         //инфо игры - готовый компонент
         ce.senderName = senderName;
-        //ce.oriStripMsg = stripMsg;
         ce.banned = banned;
         ce.muted = muted;
         ce.prefix =  senderOp.getDataString(Data.PREFIX)+" ";
@@ -198,14 +191,6 @@ public class ChatLst implements Listener {
                     .append((muted ? "\n§4Молчанка: §cДА" : ""))
                     .append("\n§5Server: §a").append(Ostrov.MOT_D)
                     .append("\n§fClick - write a message");
-               // ce.playerTooltip = 
-               //     "§6Player is in §eGuet Mode§6!"
-               //     +"\n§6Player data do not save!"
-               //     +"\n§5Write at: §f"+ApiOstrov.getCurrentHourMin()
-                //    +(muted ? "\n§4Молчанка: §cДА" : "")
-                //    +"\n§5Server: §a"+Ostrov.MOT_D
-                 //   +"\n§fClick - write a message";
-
             } else {
                 sb.append("§6Игрок в §eГостевом режиме§6!")
                     .append("\n§6Игровые данные не сохраняются!")
@@ -213,13 +198,6 @@ public class ChatLst implements Listener {
                     .append((muted ? "\n§4Молчанка: §cДА" : ""))
                     .append("\n§5Сервер: §a").append(Ostrov.MOT_D)
                     .append("\n§fКлик - написать сообщение");
-               /* ce.playerTooltip = 
-                    "§6Игрок в §eГостевом режиме§6!"
-                    +"\n§6Игровые данные не сохраняются!"
-                    +"\n§5Написано: §f"+ApiOstrov.getCurrentHourMin()
-                    +(muted ? "\n§4Молчанка: §cДА" : "")
-                    +"\n§5Сервер: §a"+Ostrov.MOT_D
-                    +"\n§fКлик - написать сообщение";*/
             }
             ce.suffix =  "";
         } else {
@@ -233,16 +211,6 @@ public class ChatLst implements Listener {
                     .append("\n§5Groups: §f").append(senderOp.chat_group)
                     .append("\n§5Totatl ply time: ").append(ApiOstrov.secondToTime(senderOp.getStat(Stat.PLAY_TIME)))
                     .append("\n§fClick - write a message");
-                /*ce.playerTooltip = 
-                    PM.getGenderDisplay(senderOp)
-                    +"\n§5Write at: §f"+ApiOstrov.getCurrentHourMin()
-                    +(muted ? "\n§4Muted: §cYES" : "")
-                    +"\n§5Server: §a"+Ostrov.MOT_D
-                    +"\n§5Social status: "+getStatus(senderOp)
-                    +"\n§5Groups: §f"+senderOp.chat_group
-                    +"\n§5Totatl ply time: "+ApiOstrov.secondToTime(senderOp.getStat(Stat.PLAY_TIME))
-                    +"\n§fClick - write a message";*/
-
             } else {
                 sb.append(PM.getGenderDisplay(senderOp))
                     .append("\n§5Написано: §f").append(ApiOstrov.getCurrentHourMin())
@@ -252,15 +220,6 @@ public class ChatLst implements Listener {
                     .append("\n§5Группы: §f").append(senderOp.chat_group)
                     .append("\n§5Игровое время: ").append(ApiOstrov.secondToTime(senderOp.getStat(Stat.PLAY_TIME)))
                     .append("\n§fКлик - написать сообщение");
-                /*ce.playerTooltip = 
-                    PM.getGenderDisplay(senderOp)
-                    +"\n§5Написано: §f"+ApiOstrov.getCurrentHourMin()
-                    +(muted ? "\n§4Молчанка: §cДА" : "")
-                    +"\n§5Сервер: §a"+Ostrov.MOT_D
-                    +"\n§5Социальный статус: "+getStatus(senderOp)
-                    +"\n§5Группы: §f"+senderOp.chat_group
-                    +"\n§5Игровое время: "+ApiOstrov.secondToTime(senderOp.getStat(Stat.PLAY_TIME))
-                    +"\n§fКлик - написать сообщение";*/
             }
             ce.suffix =  " "+senderOp.getDataString(Data.SUFFIX);
         }
@@ -291,11 +250,13 @@ public class ChatLst implements Listener {
     
     public static void process (final ChatPrepareEvent ce) {
         
-        final TextComponent msgRU = TCUtils.format(ApiOstrov.isLocalBuilder(ce.getPlayer(), false) ?
+        final boolean useColorCode = ce.getOplayer().isStaff; //ApiOstrov.isLocalBuilder(ce.getPlayer(), false);
+        
+        final TextComponent msgRU = TCUtils.format( useColorCode ?
                 ce.stripMsgRu.replace('&', '§') : //сообщение от билдеров возможно с цветами
                 ce.stripMsgRu);
         
-        final TextComponent msgEN = TCUtils.format(ApiOstrov.isLocalBuilder(ce.getPlayer(), false) ?
+        final TextComponent msgEN = TCUtils.format( useColorCode ?
                 ce.stripMsgEn.replace('&', '§') : //сообщение от билдеров возможно с цветами
                 ce.stripMsgEn);
         
@@ -389,13 +350,14 @@ public class ChatLst implements Listener {
             if (serverType!=ServerType.ARENAS || senderWorldName.equals("lobby")) {
                 final Component proxyResultRU;
                 final Component proxyResultEN;
-                if (ce.getViewerGameInfo()!=null) {
-                    proxyResultRU = GM.getLogo().append(ce.getViewerGameInfo()).append(bRU.build());//proxyResult = GM.getLogo().append(ce.getViewerGameInfo()).append(b.build());
-                    proxyResultEN = GM.getLogo().append(ce.getViewerGameInfo()).append(bEN.build());//proxyResult = GM.getLogo().append(ce.getViewerGameInfo()).append(b.build());
-                } else {
+                //убрать лишние элементы, пускай ГЛОБАЛЬНЫЕ сообщения будут всегда в формате: [Значек]_<Префикс>_Имя_<Суффикс>_»_(cообщение)
+                //if (ce.getViewerGameInfo()!=null) {
+                //    proxyResultRU = GM.getLogo().append(ce.getViewerGameInfo()).append(bRU.build());//proxyResult = GM.getLogo().append(ce.getViewerGameInfo()).append(b.build());
+                //    proxyResultEN = GM.getLogo().append(ce.getViewerGameInfo()).append(bEN.build());//proxyResult = GM.getLogo().append(ce.getViewerGameInfo()).append(b.build());
+                //} else {
                     proxyResultRU = GM.getLogo().append(bRU.build());//proxyResult = GM.getLogo().append(b.build());
                     proxyResultEN = GM.getLogo().append(bEN.build());//proxyResult = GM.getLogo().append(b.build());
-                }
+                //}
 //sender.sendMessage("");sender.sendMessage(" -- на прокси уйдёт такое сообщение: ");sender.sendMessage(proxyResult);sender.sendMessage("");
                 final String gsonMsgRU = GsonComponentSerializer.gson().serialize(proxyResultRU);
                 final String gsonMsgEN = GsonComponentSerializer.gson().serialize(proxyResultEN);

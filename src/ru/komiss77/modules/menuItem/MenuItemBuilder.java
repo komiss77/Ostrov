@@ -1,9 +1,9 @@
 package ru.komiss77.modules.menuItem;
 
+import java.util.function.Consumer;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-
-
 
 
 public class MenuItemBuilder {
@@ -15,6 +15,7 @@ public class MenuItemBuilder {
         //закидываем типовые значения
         si.slot = 8;
         si.anycase = false;
+        si.can_interact = false;
         si.can_drop = true;
         si.can_move = true;
         si.can_pickup = true;
@@ -60,6 +61,11 @@ public class MenuItemBuilder {
         return this;
     }
     
+    public MenuItemBuilder canInteract(final boolean value) {
+        si.can_interact = value;
+        return this;
+    }
+    
     public MenuItemBuilder giveOnWorld_change(final boolean value) {
         si.give_on_world_change = value;
         return this;
@@ -82,7 +88,19 @@ public class MenuItemBuilder {
         return this;
     }
     
+    public MenuItemBuilder inventoryClick(final Consumer<InventoryClickEvent> consumer) {
+        si.on_inv_click = consumer;
+        return this;
+    }
+    
+    public MenuItemBuilder interact (final Consumer<PlayerInteractEvent> consumer) {
+        si.on_interact = consumer;
+        return this;
+    }
+    
+    
     public MenuItem create() {
+//Ostrov.log("MenuItem create can_interact="+si.can_interact);
         MenuItemsManager.addItem(si);
         return si;
     }

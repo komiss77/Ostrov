@@ -108,7 +108,7 @@ public class EntityByWorld implements InventoryProvider {
                     p.sendMessage("§cДолжно быть число!");
                     return;
                 }
-                final int r = Integer.valueOf(imput);
+                final int r = Integer.parseInt(imput);
                 if (r<0 || r>100000) {
                     p.sendMessage("§cот 0 до 100000!");
                     return;
@@ -175,7 +175,12 @@ public class EntityByWorld implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.MONSTER)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.MONSTER.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder()
+                            .id("EntityByGroup"+p.getName())
+                            . provider(new EntityByGroup(world, radius, EntityGroup.MONSTER))
+                            . size(6, 9)
+                            . title("§2"+world.getName()+" "+EntityGroup.MONSTER.displayName+" §1r="+radius).build()
+                            .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.MONSTER) {

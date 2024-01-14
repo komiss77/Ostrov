@@ -21,13 +21,7 @@ import ru.komiss77.utils.inventory.Pagination;
 import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
-
-
-
-
 public class FriendView implements InventoryProvider {
-    
-    
     
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ДРУЗЬЯ.glassMat).name("§8.").build());
     private final String rawData;

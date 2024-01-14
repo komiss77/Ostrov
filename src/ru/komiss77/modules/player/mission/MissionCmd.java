@@ -44,53 +44,39 @@ import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 
-
-
-
 public class MissionCmd implements CommandExecutor, TabCompleter {
     
-    private final List<String> subCmd = Arrays.asList("journal", "accept", "deny", "complete", "forceload");
-
+    private final List<String> subCmd = Arrays.asList("journal", "select", "accept", "deny", "complete", "forceload");
     
     
     @Override
     public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] strings) {
         
-//System.out.println("l="+strings.length+" 0="+strings[0]);
-
         final List <String> sugg;
         switch (strings.length) {
             
-            case 1:
+            case 1 -> {
                 return subCmd;
+            }
 
-            case 2:
+            case 2 -> {
                 //1-то,что вводится (обновляется после каждой буквы
-//System.out.println("l="+strings.length+" 0="+strings[0]+" 1="+strings[1]);
                 if (!PM.exist(cs.getName())) return ImmutableList.of();
                 sugg = new ArrayList<>();
                 if (strings[1].equalsIgnoreCase("deny") || strings[1].equalsIgnoreCase("complete") ) {
                     for (final int id:PM.getOplayer(cs.getName()).missionIds) {
                         sugg.add(String.valueOf(id));
                     }
-                    //sugg.addAll(OstrovDB.groups.keySet());
                     return sugg;
-                }
-                if (strings[1].equalsIgnoreCase("accept") ) {
+}
+                if (strings[1].equalsIgnoreCase("accept")) {
                     for (final int id:MissionManager.missions.keySet()) {
                         sugg.add(String.valueOf(id));
                     }
-                    //sugg.addAll(OstrovDB.groups.keySet());
                     return sugg;
                 }
-                 //   sugg.add("loni");
-                //    sugg.add("permission");
-                 //   sugg.add("group");
-                  //  sugg.add("exp");
-                  //  sugg.add("reputation");
-                ///}
-                break;
-
+            }
+            
         }
         
         return ImmutableList.of();
@@ -99,34 +85,32 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
 
 
 
-    public MissionCmd() {
-        //init();
-    }
-
-    
 
     @Override
     public boolean onCommand(final CommandSender cs, final Command cmd, final String string, final String[] arg) {
         
-        final Player p = ( cs instanceof Player) ? (Player)cs : null;
+        if (cs==null) return true;
         
-        if (arg.length>=1 && arg[0].equalsIgnoreCase("forceload")) {
-            if (ApiOstrov.isLocalBuilder(cs, true)) {
-                MissionManager.loadMissions();
-                cs.sendMessage("§aМиссии прогружены из БД Острова");
-            }
-            return true;
-        }
-        
-        if ( p==null ) {
+        if ( !( cs instanceof Player) ) {
             cs.sendMessage("§cКоманда исполняется от имени игрока!");
             return false;
         }
         
+        final Player p =(Player)cs;
+        
+        if (arg.length>=1 && arg[0].equalsIgnoreCase("forceload")) {
+            if (ApiOstrov.isLocalBuilder(cs, true)) {
+                MissionManager.loadMissions();
+                p.sendMessage("§aМиссии прогружены из БД Острова");
+            }
+            return true;
+        }
+
+        
         final Oplayer op = PM.getOplayer(p);
 
         if ( op.isGuest ) {
-            cs.sendMessage("§6Гостям недоступны миссии! Пожалуйста, §bзарегистрируйтесь§6!");
+            p.sendMessage("§6Гостям недоступны миссии! Пожалуйста, §bзарегистрируйтесь§6!");
             return false;
         }
         
@@ -135,13 +119,13 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
         
         
         if (arg.length==0) {
-            TextComponent servers = Component.text( "§bКлик на команду:");
-                for (final String s : subCmd) {
-                    servers.append(Component.text( " §e"+s )
-                    	.hoverEvent(HoverEvent.showText(Component.text("§7Клик - набрать")))
-                    	.clickEvent(ClickEvent.suggestCommand("/mission "+s)));
-                }
-                p.sendMessage(servers);
+            SmartInventory
+                .builder()
+                .provider(new MissionMainMenu())
+                .size(5, 9)
+                .title("§a§lМиссии")
+                .build()
+                .open(p);
             return true;
         }
        
@@ -151,15 +135,10 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
         switch (arg[0]) {
             
                 
-            case "journal":
+            case "journal" -> {
                 p.getOpenInventory().close();
                 Ostrov.async(()-> {
-                    Statement stmt = null;
-                    ResultSet rs = null;
-                    try { 
-                        stmt = OstrovDB.getConnection().createStatement();
-                        rs = stmt.executeQuery( "SELECT * FROM `missions` ORDER BY `activeFrom` DESC" );
-
+                    try (Statement stmt = OstrovDB.getConnection().createStatement(); ResultSet rs = stmt.executeQuery( "SELECT * FROM `missions` ORDER BY `activeFrom` DESC" )){ 
 
                         final ItemStack book = new ItemBuilder(Material.WRITTEN_BOOK)
                                 .name("Журнал \"Миссия сегодня\"")
@@ -193,27 +172,18 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                         Ostrov.sync( ()-> {
                             p.openBook(book);
                         }, 0);
-
-                    } catch (SQLException e) { 
-
-                        Ostrov.log_err("§с MissionCmd list - "+e.getMessage());
-
-                    } finally {
-                        try{
-                            if (rs!=null) rs.close();
-                            if (stmt!=null) stmt.close();
-                        } catch (SQLException e) {
-                            Ostrov.log_err("§с MissionCmd list close - "+e.getMessage());
-                        }
+                        
+                    } catch (SQLException e) {
+                        Ostrov.log_err("§с MissionCmd journal - "+e.getMessage());
                     }
-
                 }, 0);
-                break;
+            }
 
                 
             
-            case "accept":
+            case "accept" -> {
                 if (!MissionManager.canUseCommand(p,"accept"))return true;
+                
                 if (arg.length==2) { //принятие с указанием ИД
                     final int missionId = ApiOstrov.getInteger(arg[1]);
                     if (missionId<0 || !MissionManager.missions.containsKey(missionId)) {
@@ -226,7 +196,7 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                         p.sendMessage("§cМисия уже принята!");
                         return true;
                     }
-                    if (mi.rewardFund<=0) {
+                    if (mi.canComplete<=0) {
                         p.sendMessage("§cПризовой фонд исчерпан! :(");
                         return true;
                     }
@@ -267,7 +237,7 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                             op.setData(Data.MISSIONS, ApiOstrov.listToString(op.missionIds, ";"));//обновить Data.MISSION
                             final Title.Times times =  Title.Times.times(Duration.ofMillis(20*50), Duration.ofMillis(20*50), Duration.ofMillis(80*50));
                             ApiOstrov.sendTitle(p, Component.text(""), Component.text("Принятие миссии ", NamedTextColor.GRAY).append(mi.displayName()), times);
-                            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1, 1);
+                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_2, 1, 1);
                             //p.sendMessage("§fВы приняли миссию "+mi.getDisplayName()+"§f, выполните её до "+ApiOstrov.dateFromStamp(mi.validTo));
                             p.sendMessage(Component.text("Вы приняли миссию ", NamedTextColor.WHITE)
                                     .append(mi.displayName())
@@ -275,68 +245,104 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                             );
                             Ostrov.sync( () -> Bukkit.getPluginManager().callEvent( new MissionEvent(p, mi.name, MissionEvent.MissionAction.Accept)), 1 );
                         });
-
-                    }, 0);    
-
+                        
+                    }, 0);
+                    
                     return true;
                 } 
+                
+                
+                Ostrov.async( ()-> {
+                    
+                    final Connection conn = OstrovDB.getConnection();
+                    if (conn==null) return;
+                    
+                    Statement stmt = null;
+                    ResultSet rs = null;
+                    
+                    try {
                         
+                        stmt = conn.createStatement();
+                        rs = stmt.executeQuery( "SELECT `missionId`,`completed` FROM `missionsProgress` WHERE `name`='"+op.nik+"' AND `completed`>0");
                         
-                    Ostrov.async( ()-> { 
-
-                        final Connection conn = OstrovDB.getConnection();
-                        if (conn==null) return;
-
-                        Statement stmt = null;
-                        ResultSet rs = null;
-
-                        try {
-
-                            stmt = conn.createStatement();
-                            rs = stmt.executeQuery( "SELECT `missionId`,`completed` FROM `missionsProgress` WHERE `name`='"+op.nik+"' AND `completed`>0");
-                            
-                            final HashMap<Integer,Integer> completed = new HashMap<>();
-                            while (rs.next()) {
-                                completed.put(rs.getInt("missionId"), rs.getInt("completed"));
-//System.out.println("progress="+progress);
-                            }
-                            rs.close();
-
-                            Ostrov.sync( ()-> {
-                                SmartInventory
+                        final HashMap<Integer,Integer> completed = new HashMap<>();
+                        while (rs.next()) {
+                            completed.put(rs.getInt("missionId"), rs.getInt("completed"));
+                        }
+                        rs.close();
+                        
+                        Ostrov.sync( ()-> {
+                            SmartInventory
                                     .builder()
-                                    .id(op.nik+"Актуальные Миссии")
-                                    .provider(new MissionsAcceptMenu(completed))
+                                    .provider(new MissionSelectMenu(completed))
                                     .size(5, 9)
                                     .title("Актуальные Миссии")
                                     .build()
                                     .open(p);
-                            },0);
-                            
-                        } catch (SQLException ex) {
-
-                            Ostrov.log_err("§с MissionCmd accept : "+ex.getMessage());
-
-                        } finally {
-
-                            try {
-                                if (rs!=null) rs.close();
-                                if (stmt!=null) stmt.close();
-                            } catch (SQLException ex) {
-                                Ostrov.log_err("§с MissionCmd accept close "+ex.getMessage());
-                            }
-
-                        }
-
-                    }, 0);
-                    
-    
+                        },0);
                         
-                break;
+                    } catch (SQLException ex) {
+                        
+                        Ostrov.log_err("§с MissionCmd accept : "+ex.getMessage());
+                        
+                    } finally {
+                        
+                        try {
+                            if (rs!=null) rs.close();
+                            if (stmt!=null) stmt.close();
+                        } catch (SQLException ex) {
+                            Ostrov.log_err("§с MissionCmd accept close "+ex.getMessage());
+                        }
+                        
+                    }
+                    
+                }, 0);
+            }
             
           
                 
                 
+            
+            case "select" -> {
+                if (!MissionManager.canUseCommand(p,"select"))return true;
+
+                Ostrov.async( ()-> {
+
+                    final Connection conn = OstrovDB.getConnection();
+                    if (conn==null) return;
+
+                    try (Statement stmt = conn.createStatement(); 
+                            ResultSet rs = stmt.executeQuery( "SELECT `missionId`,`completed` FROM `missionsProgress` WHERE `name`='"+op.nik+"' AND `completed`>0");){
+
+
+                        final HashMap<Integer,Integer> completed = new HashMap<>();
+                        while (rs.next()) {
+                            completed.put(rs.getInt("missionId"), rs.getInt("completed"));
+                        }
+                        //rs.close();
+
+                        Ostrov.sync( ()-> {
+                            SmartInventory
+                                    .builder()
+                                    .provider(new MissionSelectMenu(completed))
+                                    .size(5, 9)
+                                    .title("§2§lВыбор Миссии")
+                                    .build()
+                                    .open(p);
+                        },0);                                
+
+                    } catch (SQLException ex) {
+                        Ostrov.log_err("§с MissionCmd select : "+ex.getMessage());
+                    }
+
+                }, 0);
+                
+                
+
+            }
+            
+          
+                                
                 
                 
                 
@@ -348,9 +354,7 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                 
                 
                 
-                
-                
-            case "complete":
+            case "complete" -> {
                 if (!MissionManager.canUseCommand(p,"complete"))return true;
                 //обновить missionIds и Data.MISSION
                 if (arg.length==2) { //выполнить с указанием ИД
@@ -370,8 +374,8 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                         return true;
                     }
                     
-                    Ostrov.async( ()-> { 
-
+                    Ostrov.async( ()-> {
+                        
                         final Connection conn = OstrovDB.getConnection();
                         if (conn==null) return;
 
@@ -389,8 +393,8 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
 //System.out.println("progress="+progress);
                             }
                             rs.close();
-
-
+                            
+                            
                             if (progress==null || progress.isEmpty()) {
                                 
                                 //op.getPlayer().sendMessage("§cнет прогресса по миссии "+mi.getDisplayName());
@@ -441,9 +445,9 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                                     //поправить счётчики миссии
                                     OstrovDB.executePstAsync(p, "UPDATE missions SET doing=doing-1,rewardFund=rewardFund-1 WHERE missionId="+missionId); //убавить претендента в БД и фонд
                                     mi.doing--;
-                                    mi.rewardFund--;
+                                    mi.canComplete--;
                                     //эффекты
-                                    p.getWorld().playSound(p.getLocation(), "ui.toast.challenge_complete", 1, 1);
+                                    p.getWorld().playSound(p.getLocation(),Sound.ITEM_GOAT_HORN_SOUND_5, 1, 1);
                                     DonatEffect.display(p.getLocation());
                                     Ostrov.sync( ()-> {
                                         Bukkit.getPluginManager().callEvent( new MissionEvent(p, mi.name, MissionEvent.MissionAction.Complete));
@@ -478,31 +482,26 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                     }, 0);
                     return true;
                 }
-                
                 //Ostrov.async( ()-> { //в остальных случаях открыть меню выбора
-                   // OstrovDB.getResultSet(p, "SELECT * FROM `missionsProgress` WHERE `name`='"+op.nik+"' AND `completed`='0';", (completed)-> {
-                    //    if (completed==null) {
-                    //        p.sendMessage("§cОшибка запроса к БД!");
-                     //       return;
-                     //   }
-
-                       // Ostrov.sync( ()-> {
-                            SmartInventory
-                                .builder()
-                                .id(op.nik+"Миссии")
-                                .type(InventoryType.HOPPER)
-                                .provider(new MissionsCompleteMenu())
-                                //.size(3, 9)
-                                .title("Завершение Миссии")
-                                .build()
-                                .open(p);
-                       // },0);
-                        
-                    //});
-                    
+                // OstrovDB.getResultSet(p, "SELECT * FROM `missionsProgress` WHERE `name`='"+op.nik+"' AND `completed`='0';", (completed)-> {
+                //    if (completed==null) {
+                //        p.sendMessage("§cОшибка запроса к БД!");
+                //       return;
+                //   }
+                // Ostrov.sync( ()-> {
+                SmartInventory
+                        .builder()
+                        .id(op.nik+"Миссии")
+                        .type(InventoryType.HOPPER)
+                        .provider(new MissionsCompleteMenu())
+                        //.size(3, 9)
+                        .title("Завершение Миссии")
+                        .build()
+                        .open(p);
+                // },0);
+                //});
                 //}, 0);
-                
-                break;
+            }
             
                 
                 
@@ -511,7 +510,7 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                 
                 
                 
-            case "deny":
+            case "deny" -> {
                 if (!MissionManager.canUseCommand(p,"deny"))return true;
                 //отказ должен быть возможен для устаревших тоже!
                 if (arg.length==2) { //отказ с указанием ИД
@@ -520,12 +519,13 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                     //    p.sendMessage("§cВы не выполняете миссию с ИД "+arg[1]+"!");
                     //    return true;
                     //}
+                    p.getOpenInventory().close();
                     if (missionId<0) {  //missionIds подгружаются при входе и меняются при принятии!
                         p.sendMessage("§cНе может быть миссии с ИД "+arg[1]+"!");
                         return true;
                     }
                     //отказ - обработка по выполнению запроса к БД?
-                    OstrovDB.executePstAsync(p, "DELETE FROM missionsProgress WHERE `name`='"+op.nik+"' AND `missionId`='"+missionId+"'"); 
+                    OstrovDB.executePstAsync(p, "DELETE FROM missionsProgress WHERE `name`='"+op.nik+"' AND `missionId`='"+missionId+"'");
                     //OstrovDB.executePstAsync(p, "DELETE FROM missionsProgress WHERE `recordId`='"'"); 
                     OstrovDB.executePstAsync(p, "UPDATE missions SET doing=doing-1 WHERE missionId="+missionId); //убавить претендента в БД
                     if (MissionManager.missions.containsKey(missionId)) {
@@ -534,12 +534,12 @@ public class MissionCmd implements CommandExecutor, TabCompleter {
                     }
                     if (op.missionIds.remove(missionId)) {//обновить missionIds
                         op.setData(Data.MISSIONS, ApiOstrov.listToString(op.missionIds, ";"));//обновить Data.MISSION
-                        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 1, 1);
+                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_TOTEM_USE, .5f, .5f);
                         p.sendMessage("§5Вы отказались от миссии !");
                     }
 
                 }
-                break;
+            }
             
         }
         
