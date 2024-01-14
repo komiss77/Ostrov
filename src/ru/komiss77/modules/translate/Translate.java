@@ -1,6 +1,7 @@
 package ru.komiss77.modules.translate;
 
 import com.destroystokyo.paper.ClientOption;
+import java.util.Locale;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
@@ -50,7 +51,7 @@ public class Translate {
     
     @Deprecated
     public static String getMaterialName(final Material mat, final EnumLang lang) {
-        return translateToLocal(mat.toString(), getItemUnlocalizedName(mat), lang);
+        return TCUtils.toString(Lang.t(mat, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(mat.toString(), getItemUnlocalizedName(mat), lang);
 
     }
     
@@ -71,7 +72,7 @@ public class Translate {
 
     @Deprecated
     public static String getBiomeName(final Biome biome, final EnumLang lang) {
-        return translateToLocal(biome.toString(), getBiomeUnlocalizedName(biome), lang);
+        return TCUtils.toString(Lang.t(biome, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//translateToLocal(biome.toString(), getBiomeUnlocalizedName(biome), lang);
     }
 
     @Deprecated
@@ -106,12 +107,12 @@ public class Translate {
     @Deprecated
     public static String getEntityName(final EntityType entityType, final EnumLang lang) {
         
-        return translateToLocal(entityType.toString(), getEntityUnlocalizedName(entityType), lang);
+        return TCUtils.toString(Lang.t(entityType, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(entityType.toString(), getEntityUnlocalizedName(entityType), lang);
     }
 
     @Deprecated
     public static String getEntityName(final EntityType entityType, final Player player) {
-        return getEntityName(entityType, TranslateHelper.getPlayerLanguage(player));
+        return TCUtils.toString(Lang.t(player, entityType));//return getEntityName(entityType, TranslateHelper.getPlayerLanguage(player));
     }
 
     @Deprecated
@@ -131,7 +132,7 @@ public class Translate {
 
     @Deprecated
     public static String getEnchantmentName(final Enchantment enchantment, final EnumLang lang) {
-        return translateToLocal(getEnchantmentUnlocalizedName(enchantment), lang);
+        return TCUtils.toString(Lang.t(enchantment, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(getEnchantmentUnlocalizedName(enchantment), lang);
     }
 
     @Deprecated
@@ -212,8 +213,8 @@ public class Translate {
     public static String translateToLocal(final String sourceName, final String unlocalizedName, final EnumLang lang) {
 //System.out.println("translateToLocal() unlocalizedName="+unlocalizedName);
 //final Map<String, String> langMap = EnumLang.get(locale.toLowerCase()).getMap();
-
-        String result = lang.getMap().get(unlocalizedName);
+return  sourceName;
+      /*  String result = lang.getMap().get(unlocalizedName);
 //System.out.println("translateToLocal() 1 result="+result+"    contains?"+langMap.containsKey(unlocalizedName));
         if (result != null && !result.isEmpty())
             return result;
@@ -223,6 +224,6 @@ public class Translate {
             if (result == null || result.isEmpty())// when fallback language doesn't exist
                 result = EnumLang.EN_US.getMap().get(unlocalizedName);
         }
-        return result == null ? sourceName : result;
+        return result == null ? sourceName : result;*/
     }
 }

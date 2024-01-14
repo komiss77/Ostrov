@@ -26,14 +26,9 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
 
-
-
-
-
 public class ServerCmd implements CommandExecutor, TabCompleter {
     
-
-    
+   
     
     @Override
     public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] strings) {

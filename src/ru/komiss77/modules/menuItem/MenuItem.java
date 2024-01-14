@@ -40,7 +40,7 @@ public class MenuItem {
         final ItemMeta im = itemEn.getItemMeta();
         im.setCustomModelData(id);
         String displayName = im.hasDisplayName() ? TCUtils.toString(im.displayName()) : "";
-        displayName = Lang.t( displayName, EnumLang.EN_US);
+        displayName = Lang.t( displayName, Lang.EN);
         im.displayName(TCUtils.format(displayName));
         
         itemEn.setItemMeta(im);

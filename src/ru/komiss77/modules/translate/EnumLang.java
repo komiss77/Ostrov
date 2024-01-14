@@ -1,14 +1,5 @@
 package ru.komiss77.modules.translate;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +19,11 @@ public enum EnumLang {
     //private static final Map<String, EnumLang> lookup = new HashMap<>();
 
     static {
-        for (EnumLang lang : EnumSet.allOf(EnumLang.class)) {
+       /* for (EnumLang lang : EnumSet.allOf(EnumLang.class)) {
             //lookup.put(lang.getLocale(), lang);
-            //InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/lang/" + lang.locale + ".json"), Charset.forName("UTF-8"));
             try {
-            final InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/json/translate/" +lang.locale+".json"), StandardCharsets.UTF_8);
+            InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/lang/" + lang.locale + ".json"), Charset.forName("UTF-8"));
+            //final InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/json/translate/" +lang.locale+".json"), StandardCharsets.UTF_8);
             final BufferedReader b = new BufferedReader(in);
                 readFile(lang, b);
                 //Ostrov.log_ok("§bLanguageHelper : поддержка перевода для "+lang.getLocale());
@@ -41,7 +32,7 @@ public enum EnumLang {
                 e.printStackTrace();
             }
                 
-        }
+        }*/
         
     }
 
@@ -69,7 +60,7 @@ public enum EnumLang {
         }
     }
 
-    public static void readFile(EnumLang enumLang, BufferedReader reader) throws IOException {
+   /* public static void readFile(EnumLang enumLang, BufferedReader reader) throws IOException {
         try (reader) {
             Gson gson = new Gson();
             Type type = new TypeToken<Map<String, String>>() {
@@ -77,7 +68,7 @@ public enum EnumLang {
             Map<String, String> map = gson.fromJson(reader, type);
             enumLang.map.putAll(map);
         }
-    }
+    }*/
 
     public String getLocale() {
         return locale;
