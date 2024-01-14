@@ -12,13 +12,21 @@ import ru.komiss77.modules.player.PM;
 
 public class LocalDataLoadEvent extends Event implements Cancellable {
     
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Player p;
     private final Oplayer op;
     private boolean cancel;
     private final boolean isFirstJoin;
     private Location logoutLoc;
-    
+
+    public LocalDataLoadEvent(final Player p, final Oplayer op, final Location logoutLoc) {
+        this.p = p;
+        this.op = op;
+        this.isFirstJoin = op.firstJoin;
+        this.logoutLoc = logoutLoc;
+    }
+
+    @Deprecated
     public LocalDataLoadEvent(final Player p, final Oplayer op, final boolean isFirstJoin, final Location logoutLoc) {
         this.p = p;
         this.op = op;
@@ -52,8 +60,9 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
    
     public Map <String,String> getData() {
         return op.mysqlData;
-    }   
-   
+    }
+
+    @Deprecated
     public boolean isFirstJoin() {
         return isFirstJoin;
     }

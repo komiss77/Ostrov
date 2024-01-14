@@ -13,7 +13,11 @@
         <directory>../Ostrov</directory>
         <includes>
           <include>plugin.yml</include>
+          <include>rec/*</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>rec</directory>
       </resource>
       <resource>
         <directory>lib</directory>
@@ -119,6 +123,12 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.16.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.clerezza.ext</groupId>
+      <artifactId>org.json.simple</artifactId>
+      <version>0.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

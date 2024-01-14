@@ -13,6 +13,7 @@ import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
 
+import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocationUtil;
@@ -54,53 +55,52 @@ public class BotGoal implements Goal<Mob> {
 		if (rplc == null || !rplc.isValid()) {
 			bot.die(rplc);
 			return;
-		} else {
-			
-	    	final Pathfinder pth = rplc.getPathfinder();
-			//Bukkit.broadcast(Component.text("le-" + rplc.getName()));
-			final Location loc = rplc.getLocation();
-			final Location eyel = rplc.getEyeLocation();
-			final Vector vc = eyel.getDirection();
-			
-			vc.normalize();
-			
-			bot.move(loc, vc, true);
-			
+		}
+
+        final Pathfinder pth = rplc.getPathfinder();
+        //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+        final Location loc = rplc.getLocation();
+        final Location eyel = rplc.getEyeLocation();
+        final Vector vc = eyel.getDirection();
+
+        vc.normalize();
+
+        bot.move(loc, vc, true);
+
 //			if (bot.tryJump(loc, rplc, vc)) return;
-			
-			vc.setY(0d);
-			if (rplc.isInWater()) {
-				rplc.setVelocity(rplc.getVelocity().setY(0.1d).add(vc.multiply(0.05d)));
-			} else {
-				if (rplc.isOnGround()) {
-					
-					final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
-					if (pl == null) return;
-					rplc.getPathfinder().moveTo(pl, 1.4d);
+
+        vc.setY(0d);
+        if (rplc.isInWater()) {
+            rplc.setVelocity(rplc.getVelocity().setY(0.1d).add(vc.multiply(0.05d)));
+        } else {
+            if (rplc.isOnGround()) {
+
+                final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
+                if (pl == null) return;
+                rplc.getPathfinder().moveTo(pl, 1.4d);
 					/*if (path == null && PlayerLst.ar != null) {
 						path = new AreaPath(rplc, PlayerLst.ar);
 					}
-					
+
 					if (path != null) {
 						path.setTgt(new WXYZ(pl.getLocation()));
 						path.tickGo(1.5d);
 					}*/
 
-				} else {
-					if (pth.hasPath()) pth.stopPathfinding(); 
-					rplc.setVelocity(rplc.getVelocity().add(vc.multiply(0.05d)));
-				}
-			}
-		}
+            } else {
+                if (pth.hasPath()) pth.stopPathfinding();
+                rplc.setVelocity(rplc.getVelocity().add(vc.multiply(0.05d)));
+            }
+        }
     }
 
 	@Override
-    public GoalKey<Mob> getKey() {
+    public @NotNull GoalKey<Mob> getKey() {
         return key;
     }
     
     @Override
-    public EnumSet<GoalType> getTypes() {
+    public @NotNull EnumSet<GoalType> getTypes() {
         return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
     }
 }

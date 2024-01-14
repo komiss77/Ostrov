@@ -1,26 +1,26 @@
 package ru.komiss77.builder;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.listener.PlayerLst;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.Perm;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 
@@ -28,8 +28,8 @@ import ru.komiss77.utils.ItemBuilder;
 public class BuilderCmd implements CommandExecutor, TabCompleter {
     
     public static List<String> subCommands = Arrays.asList( "end");
-    public static ItemStack openBuildMenu = new ItemBuilder(Material.MAP).name("§aМеню билдера").build();;
-    public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();;
+    public static ItemStack openBuildMenu = new ItemBuilder(Material.MAP).name("§aМеню билдера").build();
+    public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();
     
     @Override
     public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] args) {
@@ -59,17 +59,12 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
         
-        if ( ! (cs instanceof Player) ) {
+        if ( ! (cs instanceof final Player p) ) {
             cs.sendMessage("§eне консольная команда!");
             return true;
         }
-        
-        final Player p=(Player) cs;
+
         final Oplayer op = PM.getOplayer(p);
-        //if (!allow_command) {
-        //    p.sendMessage( "");
-        //    return true;
-        //}
         if (!ApiOstrov.canBeBuilder(cs)) {
             p.sendMessage( "§сНужно право §e"+Ostrov.MOT_D+".builder §cили группа §esupermoder");
             return true;
@@ -87,8 +82,7 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
                         p.setAllowFlight(true);
                         p.setFlying(true);
                     }
-                    p.getInventory().setItem(0, openBuildMenu.clone());
-                    p.updateInventory();
+                    ItemUtils.giveItemTo(p, openBuildMenu.clone(), 0, false);
                     if (op.setup==null) {
                         final SetupMode sm = new SetupMode(p);
                         op.setup = sm;
@@ -103,13 +97,12 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
                     }
                     
                     //добавляем права билдера
-//Bukkit.broadcastMessage("has astools.* ? "+op.user_perms.contains("astools.*"));
                     if (!op.user_perms.contains("astools.*")) {
                     //    op.setData(Data.USER_PERMS, op.getDataString(Data.USER_PERMS)+",astools.*");- реализовал в PM.calculatePerms(p, op, false);
                         Perm.calculatePerms(p, op, false);
                     }
                     
-                }, 10);
+                }, 4);
                 break;
 
             case 1:

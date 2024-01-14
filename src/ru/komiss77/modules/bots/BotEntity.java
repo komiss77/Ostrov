@@ -1,59 +1,36 @@
 package ru.komiss77.modules.bots;
 
+import com.destroystokyo.paper.entity.ai.Goal;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.BaseBlockPosition;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.level.EnumGamemode;
+import net.minecraft.world.phys.Vec3D;
+import org.bukkit.*;
+import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.*;
+import org.bukkit.util.Vector;
+import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.TCUtils;
+import ru.komiss77.version.VM;
+
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Husk;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.util.Vector;
-
-import com.destroystokyo.paper.entity.ai.Goal;
-import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Pair;
-
-import net.minecraft.core.BaseBlockPosition;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityHeadRotation;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
-import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.level.EnumGamemode;
-import net.minecraft.world.phys.Vec3D;
-import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.TCUtils;
-import ru.komiss77.version.VM;
 
 public class BotEntity extends EntityPlayer {
 
@@ -82,13 +59,13 @@ public class BotEntity extends EntityPlayer {
 	public static final int BASH_TICKS = 40;
 	
 	protected BotEntity(final String name, final World w) {
-		super(ds, VM.getNmsServer().toNMS(w), new GameProfile(UUID.randomUUID(), name));
+		super(ds, VM.getNmsServer().toNMS(w), getProfile(name));
 		this.name = name; this.rid = -1; this.w = w;
 		
 		lastBash = -BASH_TICKS;
 		lastParry = -PARRY_TICKS;
 //		goal = m -> new BotGoal(this);
-		rplc = new WeakReference<LivingEntity>(null);
+		rplc = new WeakReference<>(null);
 		PlayerInventory pi = null;
 		try {
 			pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName() + 
@@ -98,9 +75,6 @@ public class BotEntity extends EntityPlayer {
 			ex.printStackTrace();
 		}
 		inv = pi;
-//		onDamage = e -> hurt((LivingEntity) e.getEntity());
-//		onDeath = e -> die((LivingEntity) e.getEntity());
-//		isTagVis = p -> true;
 		prefix = ""; suffix = "";
 		nameClr = '7';
 		BotManager.nameBots.put(name, this);
@@ -108,6 +82,12 @@ public class BotEntity extends EntityPlayer {
     	if (pr != null) {
         	this.fM().getProperties().put("textures", new Property("textures", pr.getFirst(), pr.getSecond()));
     	}*/
+	}
+
+	private static GameProfile getProfile(final String name) {
+		final GameProfile gp = new GameProfile(UUID.randomUUID(), name);
+		gp.getProperties().put("textures", new Property("textures", BotManager.skinVal.get(name), BotManager.skinSig.get(name)));
+		return gp;
 	}
 	
 	public int lastBusy;
@@ -172,8 +152,8 @@ public class BotEntity extends EntityPlayer {
 	}
 	
 	public void telespawn(final Location to, @Nullable final LivingEntity le) {
-		BotManager.sendWrldPckts(this.dI(), 
-			new PacketPlayOutEntityDestroy(this.af()), 
+		BotManager.sendWrldPckts(this.dI(),
+			new PacketPlayOutEntityDestroy(this.af()),
 			remListPlayerPacket(this));
 		
 		if (le == null || !le.isValid() || isDead) {
@@ -201,8 +181,8 @@ public class BotEntity extends EntityPlayer {
 		try {this.a(EnumGamemode.a);} 
 		catch (NullPointerException e) {}
     	this.setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-		BotManager.sendWrldPckts(this.dI(), 
-			addListPlayerPacket(this), 
+		BotManager.sendWrldPckts(this.dI(),
+			addListPlayerPacket(this),
 			modListPlayerPacket(this), 
 			new PacketPlayOutNamedEntitySpawn(this),
 			new PacketPlayOutEntityDestroy(rid));
@@ -292,8 +272,8 @@ public class BotEntity extends EntityPlayer {
 			BotManager.rIdBots.remove(rid);
 			mb.remove();
 		}
-		BotManager.sendWrldPckts(this.dI(), 
-		new PacketPlayOutEntityDestroy(this.af()), 
+		BotManager.sendWrldPckts(this.dI(),
+		new PacketPlayOutEntityDestroy(this.af()),
 		modListPlayerPacket(this));
 	}
 
@@ -301,7 +281,7 @@ public class BotEntity extends EntityPlayer {
 		BotManager.nameBots.remove(name);
 		BotManager.rIdBots.remove(rid);
 		die(getEntity());
-		BotManager.sendWrldPckts(this.dI(), 
+		BotManager.sendWrldPckts(this.dI(),
 		remListPlayerPacket(this));
 		this.a(RemovalReason.a);
 	}
@@ -340,6 +320,10 @@ public class BotEntity extends EntityPlayer {
 		return true;
 	}
 
+	public boolean isSeenBy(final Player p) {
+		return true;
+	}
+
 	public void removeAll(final Player pl) {
 		final NetworkManager nm = VM.getNmsServer().toNMS(pl).c.h;
 		nm.a(new PacketPlayOutEntityDestroy(this.af()));
@@ -351,7 +335,7 @@ public class BotEntity extends EntityPlayer {
 		updateTag(pl);
 	}
 
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public void updateAll(final NetworkManager nm) {
 		nm.a(addListPlayerPacket(this));
 		nm.a(modListPlayerPacket(this));
@@ -409,7 +393,7 @@ public class BotEntity extends EntityPlayer {
 		this.b(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
 		//loc.getWorld().playSound(loc, Sound.ENTITY_SHEEP_STEP, 1f, 1.2f);
 		final Vector dl = new Vector(loc.getX() - ps.c, loc.getY() - ps.d, loc.getZ() - ps.e);
-		BotManager.sendWrldPckts(this.dI(), 
+		BotManager.sendWrldPckts(this.dI(),
 			new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)), 
 			new PacketPlayOutRelEntityMoveLook(this.af(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096), (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
 	}

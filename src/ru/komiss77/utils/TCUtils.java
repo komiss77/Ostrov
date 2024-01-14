@@ -1,15 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Colorable;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
@@ -19,10 +9,21 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
-// градиент https://www.birdflop.com/resources/rgb/
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
+
 
 public class TCUtils {
 
@@ -134,7 +135,6 @@ public class TCUtils {
             case 12 -> dc = DyeColor.PINK;
             case 13 -> dc = DyeColor.MAGENTA;
             case 14 -> dc = DyeColor.YELLOW;
-            case 15 -> dc = DyeColor.WHITE;
             default -> dc = DyeColor.WHITE;
         }
         return changeColor(source, dc);
@@ -152,8 +152,7 @@ public class TCUtils {
             if (newMat != null)  source.setType(newMat);//Material.matchMaterial(new_color.toString() + "_" + base_mat_name));
        } else {
             final ItemMeta im = source.getItemMeta();
-            if (im != null && (im instanceof Colorable)) {
-                Colorable c = (Colorable) im;
+            if (im instanceof final Colorable c) {
                 c.setColor(color);
                 source.setItemMeta(im);
             }
@@ -220,7 +219,7 @@ public class TCUtils {
         case 'м' -> "Мифрилов";
 		default -> "Бел";
 		};
-    	return (clrz ? "§" + String.valueOf(color) + cnm : cnm) + end;
+    	return (clrz ? "§" + color + cnm : cnm) + end;
     }
 
     public static DyeColor randomDyeColor() {
@@ -310,21 +309,20 @@ public class TCUtils {
         return switch (dyecolor) {
             case WHITE -> "§f";    //+++бел
             case ORANGE -> "§6";
-            case PURPLE -> "§d";
-            case LIGHT_BLUE -> "§9";
+            case PURPLE -> "§5";
+            case LIGHT_BLUE -> "§b";
             case YELLOW -> "§e";
             case LIME ->"§a";
-            case PINK -> "§c";
+            case PINK -> "§d";
             case GRAY -> "§8";
             case LIGHT_GRAY -> "§7";
             case CYAN -> "§3";
-            case MAGENTA -> "§d";
+            case MAGENTA -> "§9";
             case BLUE -> "§1";
-            case BROWN -> "§6";
+            case BROWN -> "§4";
             case GREEN -> "§2";
-            case RED ->  "§4";
+            case RED ->  "§c";
             case BLACK ->  "§0";
-            default ->  "§f";
         };
     }
     
@@ -353,7 +351,7 @@ public class TCUtils {
     @Slow(priority = 1)
     public static TextComponent format(final String msg) {
         if (msg == null || msg.isEmpty()) return EMPTY;//Component.text("");
-        final String[] split = msg.split("§[0-9a-xа-я]");
+        final String[] split = msg.split("§[0-9a-zа-я]");
         if (split.length == 0) return Component.text(msg);
 
         TextColor textColor = NamedTextColor.WHITE;
@@ -412,7 +410,7 @@ public class TCUtils {
     private static String toString(final Component component, final EnumSet<TextDecoration> decoration) {
         if (component == null) return "";
 
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         final TextColor textColor = component.color() == null ? NamedTextColor.WHITE : component.color();
 //Bukkit.broadcast(Component.text("tc-" + tc.value()));
         if (component instanceof TextComponent) {
@@ -450,25 +448,13 @@ public class TCUtils {
 
                 for (final Entry<TextDecoration, State> en : stl.decorations().entrySet()) {
                     if (en.getValue() == State.TRUE && decoration.add(en.getKey())) {
-                        final char dc;
-                        switch (en.getKey()) {
-                            case BOLD:
-                                dc = 'l';
-                                break;
-                            case OBFUSCATED:
-                                dc = 'k';
-                                break;
-                            case STRIKETHROUGH:
-                                dc = 'm';
-                                break;
-                            case UNDERLINED:
-                                dc = 'n';
-                                break;
-                            case ITALIC:
-                            default:
-                                dc = 'o';
-                                break;
-                        }
+                        final char dc = switch (en.getKey()) {
+                            case BOLD -> 'l';
+                            case OBFUSCATED -> 'k';
+                            case STRIKETHROUGH -> 'm';
+                            case UNDERLINED -> 'n';
+                            case ITALIC -> 'o';
+                        };
                         sb.append("§").append(dc);
                     }
                 }

@@ -53,12 +53,8 @@ public class CMD implements TabCompleter  {
     static {
         ostrov_commands = new ArrayList<>( Ostrov.instance.getDescription().getCommands().keySet() );
         all_server_commands = new HashSet<>();
-        for (Plugin plugin:Bukkit.getServer().getPluginManager().getPlugins()){      
-            if (plugin.getDescription().getCommands()!=null) {
-                plugin.getDescription().getCommands().keySet().stream().forEach((command) -> {
-                    all_server_commands.add(command);
-                });
-            }
+        for (Plugin plugin:Bukkit.getServer().getPluginManager().getPlugins()){
+            all_server_commands.addAll(plugin.getDescription().getCommands().keySet());
         }
     }
     
@@ -235,7 +231,7 @@ public class CMD implements TabCompleter  {
                     op.mysqlData.put("homes", null); //пометить на сохранение
                     p.sendMessage( "§4"+Lang.t(p, "Точка дома ")+ (home.equals("home")? "":home)+Lang.t(p, " удалена!"));
                 } else p.sendMessage( "§c"+Lang.t(p, "Нет такого дома! Ваши дома:")+" §6"+ApiOstrov.listToString(op.homes.keySet(), ",") );
-                  break;
+                break;
             } else p.sendMessage( "§c"+Lang.t(p, "Дома отключены на этом сервере!"));
 
 
@@ -294,7 +290,7 @@ public class CMD implements TabCompleter  {
                             break;
                     }
                 } else p.sendMessage( "§cНет права ostrov.fly!");
-                  break;
+                break;
 
         case "tpa":
         case "tpo":
@@ -344,7 +340,7 @@ public class CMD implements TabCompleter  {
             if (MenuItemsManager.hasItem("pipboy")){
                 if (!MenuItemsManager.giveItem(p, "pipboy")) p.sendMessage( "§cУ Вас уже есть предмет-меню!");
             } else p.sendMessage( "§cЧасики отключены на этом сервере!");
-                   break;
+            break;
 
         
 
@@ -392,7 +388,7 @@ public class CMD implements TabCompleter  {
                         //}
                     } else p.sendMessage("§c"+Lang.t(p, "У Вас нет пава ostrov.back !"));
                 }else p.sendMessage( "§c"+Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
-                  break;
+                break;
 
          case "get":
             if (p==null) {
@@ -404,8 +400,8 @@ public class CMD implements TabCompleter  {
                     if (arg.length == 2) {
                         if ( !ApiOstrov.isInteger(arg[1])) {p.sendMessage( "§cКолличество должно быть числом!");return false;}
                         //if (Integer.valueOf(arg[1]) <0 || Integer.valueOf(arg[1])>640 ) {p.sendMessage( "§cОт 0 до 640!");return false;}
-                            ItemStack i = new ItemStack(Material.matchMaterial(arg[1]), Integer.valueOf(arg[1]) );
-                        if (i==null || i.getType()==Material.AIR) {
+                            ItemStack i = new ItemStack(Material.matchMaterial(arg[1]), Integer.parseInt(arg[1]) );
+                        if (i.getType() == Material.AIR) {
                             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "give "+p.getName()+" "+arg[0]+" "+arg[1] );
                         } else {
                             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "give "+p.getName()+" "+i.getType().toString().toLowerCase().replaceAll("_", "")+" "+arg[1] );
@@ -462,7 +458,7 @@ public class CMD implements TabCompleter  {
                 if ( p.hasPermission("ostrov.tppos") || op.hasGroup("youtuber") ) {
                     if (arg.length == 3) {
                         if ( ApiOstrov.isInteger(arg[0]) && ApiOstrov.isInteger(arg[1]) && ApiOstrov.isInteger(arg[2]) ) {
-                            DelayTeleport.tp(p, new Location(p.getWorld(), Double.valueOf(arg[0]), Double.valueOf(arg[1]), Double.valueOf(arg[2])), 3, "Вы вернулись на указанную локацию", true, true, DyeColor.BROWN);
+                            DelayTeleport.tp(p, new Location(p.getWorld(), Double.parseDouble(arg[0]), Double.parseDouble(arg[1]), Double.parseDouble(arg[2])), 3, "Вы вернулись на указанную локацию", true, true, DyeColor.BROWN);
                             //Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp "+p.getName()+" "+arg[0]+" "+arg[1]+" "+arg[2] );
                         } else {
                             p.sendMessage( "§c"+Lang.t(p, "Координаты должны быть числами!"));
@@ -560,7 +556,7 @@ public class CMD implements TabCompleter  {
             } else {
                 if ( arg.length == 1 ) {
                     if (ApiOstrov.isInteger(arg[0])) {
-                        Help(p,Integer.valueOf(arg[0]));
+                        Help(p,Integer.parseInt(arg[0]));
                         //Help(p,Integer.valueOf(arg[0]));
                         return true;
                     } p.sendMessage( "§cНаберите /help <страница> или просто  /help");
@@ -615,30 +611,30 @@ public class CMD implements TabCompleter  {
 
         int from = page*15;
         if (from > limit) {
-            p.sendMessage("§cСтраниц всего "+(int)limit/15);
+            p.sendMessage("§cСтраниц всего "+ limit /15);
             return;
         }
         int to = from+15;
         if (to> limit) to = limit;
 
-            if (page == 0) {
-                p.sendMessage( "§2Помощь по командам Острова." );
-            } else {
-                p.sendMessage(Component.text("§eПредыдущая страница - клик сюда").clickEvent(ClickEvent.runCommand("/help "+ (page-1))));
+        if (page == 0) {
+            p.sendMessage( "§2Помощь по командам Острова." );
+        } else {
+            p.sendMessage(Component.text("§eПредыдущая страница - клик сюда").clickEvent(ClickEvent.runCommand("/help "+ (page-1))));
+        }
+
+            for (int i=from; i<to; i++) {
+                final String cmd = CMD.ostrov_commands.get(i);
+                p.sendMessage(Component.text("§a§l"+cmd+" §f- "+Ostrov.instance.getDescription().getCommands().get(cmd).get("description").toString()
+                    .replaceFirst("<vip>", "§3(привилегия)").replaceFirst("<moder>", "§3(модерская)")+" §8<- клик - набрать" )
+                    .clickEvent(ClickEvent.suggestCommand("/"+cmd+" ")));
             }
 
-                for (int i=from; i<to; i++) {
-                    final String cmd = CMD.ostrov_commands.get(i);
-                    p.sendMessage(Component.text("§a§l"+cmd+" §f- "+Ostrov.instance.getDescription().getCommands().get(cmd).get("description").toString()
-                    	.replaceFirst("<vip>", "§3(привилегия)").replaceFirst("<moder>", "§3(модерская)")+" §8<- клик - набрать" )
-                    	.clickEvent(ClickEvent.suggestCommand("/"+cmd+" ")));
-                }
-
-            //p.sendMessage("§b* §3- требуют привилегии, §b** §3- модераторские");
-            if (to<limit) {
-                    p.sendMessage(Component.text("§eСледующая страница - клик сюда")
-                    	.clickEvent(ClickEvent.runCommand("/help "+ (page+1))));
-            }
+        //p.sendMessage("§b* §3- требуют привилегии, §b** §3- модераторские");
+        if (to<limit) {
+                p.sendMessage(Component.text("§eСледующая страница - клик сюда")
+                    .clickEvent(ClickEvent.runCommand("/help "+ (page+1))));
+        }
     }
 
 
