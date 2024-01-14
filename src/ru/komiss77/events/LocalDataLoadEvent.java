@@ -16,7 +16,6 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
     private final Player p;
     private final Oplayer op;
     private boolean cancel;
-    @Deprecated
     private final boolean isFirstJoin;
     private Location logoutLoc;
 
@@ -61,8 +60,9 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
    
     public Map <String,String> getData() {
         return op.mysqlData;
-    }   
-   
+    }
+
+    @Deprecated
     public boolean isFirstJoin() {
         return isFirstJoin;
     }

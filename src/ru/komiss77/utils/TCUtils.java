@@ -453,7 +453,7 @@ public class TCUtils {
                             case OBFUSCATED -> 'k';
                             case STRIKETHROUGH -> 'm';
                             case UNDERLINED -> 'n';
-                            default -> 'o';
+                            case ITALIC -> 'o';
                         };
                         sb.append("§").append(dc);
                     }

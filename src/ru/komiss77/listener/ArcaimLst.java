@@ -1,12 +1,17 @@
 package ru.komiss77.listener;
 
+import com.destroystokyo.paper.entity.ai.Goal;
+import com.destroystokyo.paper.entity.ai.GoalKey;
+import com.destroystokyo.paper.entity.ai.GoalType;
 import com.google.common.collect.ArrayListMultimap;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -16,10 +21,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDropItemEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -30,19 +32,127 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.hook.WGhook;
+import ru.komiss77.modules.bots.BotEntity;
+import ru.komiss77.modules.bots.BotManager;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.TCUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
 //просто скинул сюда всё из двух мелких плагинов
 public class ArcaimLst implements Listener {
+
+    private static final String admin = "komiss77";
+
+    public ArcaimLst() {
+        BotManager.regSkin(admin);
+    }
+
+    private static class AdminBot extends BotEntity {
+
+        protected final Player tgt;
+
+        protected AdminBot(final Player tgt) {
+            super(admin, tgt.getWorld());
+            this.tgt = tgt;
+        }
+
+        @Override
+        public void onDamage(final EntityDamageEvent e) {
+            e.setCancelled(true);
+            e.setDamage(0d);
+        }
+
+        @Override
+        public Goal<Mob> getGoal(final Mob org) {
+            return new AdminGoal(this);
+        }
+    }
+
+    private static class AdminGoal implements Goal<Mob> {
+
+        private static final GoalKey<Mob> key = GoalKey.of(Mob.class, new NamespacedKey(Ostrov.instance, "bot"));
+
+        private final AdminBot bot;
+        private final WeakReference<Player> trf;
+
+        private int tick;
+
+        public AdminGoal(final AdminBot bot) {
+            this.trf = new WeakReference<>(bot.tgt);
+            this.bot = bot;
+            this.tick = 0;
+        }
+
+        @Override
+        public boolean shouldActivate() {
+            return true;
+        }
+
+        @Override
+        public boolean shouldStayActive() {
+            return true;
+        }
+
+        @Override
+        public void start() {}
+
+        @Override
+        public void stop() {bot.remove();}
+
+        @Override
+        public void tick() {
+            final Mob rplc = (Mob) bot.getEntity();
+            if (rplc == null || !rplc.isValid()) {
+                bot.remove();
+                return;
+            }
+
+            final Player tgt = trf.get();
+            if (tgt == null || !tgt.isValid() || !tgt.isOnline()) {
+                bot.remove();
+                return;
+            }
+            //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+            final Location loc = rplc.getLocation();
+
+            final Vector vc;
+            if ((tick++ & 7) == 0 && Ostrov.random.nextBoolean()) {
+                vc = tgt.getLocation().add(Ostrov.random.nextDouble() - 0.5d,
+                    Ostrov.random.nextDouble() - 0.5d, Ostrov.random.nextDouble() - 0.5d)
+                    .subtract(loc).toVector();
+                if (vc.lengthSquared() < 10) {
+                    BotManager.sendWrldPckts(bot.dI(), new PacketPlayOutAnimation(bot, 0));
+                    tgt.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 1f);
+                }
+            } else vc = tgt.getLocation().subtract(loc).toVector();
+            bot.move(loc, vc.normalize(), true);
+        }
+
+        @Override
+        public @NotNull GoalKey<Mob> getKey() {
+            return key;
+        }
+
+        @Override
+        public @NotNull EnumSet<GoalType> getTypes() {
+            return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
+        }
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public static void onInteract(PlayerInteractEvent e) {
@@ -216,6 +326,50 @@ public class ArcaimLst implements Listener {
                         break;
                 }
             }
+        }
+    }
+
+
+    @EventHandler
+    public void onFirst(final LocalDataLoadEvent e) {
+        final Oplayer op = e.getOplayer();
+        if (op.firstJoin) {
+            final Player p = e.getPlayer();
+            p.setGameMode(GameMode.SURVIVAL);
+            op.firstJoin = false;
+            Ostrov.sync(() -> {
+                if (!p.isValid() || !p.isOnline()) return;
+                final Location loc = new Location(p.getWorld(), 130, 73, -281);
+                p.teleport(loc);
+                final AdminBot ab = BotManager.createBot(admin, AdminBot.class, () -> new AdminBot(p));
+                if (ab != null) {
+                    ab.telespawn(loc, null);
+                    ab.updateTag("", " §7(§eСисАдмин§7)", '7');
+                    ab.getEntity().setGravity(false);
+                    p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_AMBIENT, 2f, 0.8f);
+                    p.sendMessage(GM.getLogo().append(TCUtils.format(
+                        "§2komiss77 §7» О, привет, " + p.getName() + "! ты тут новичек?")));
+                    Ostrov.sync(() -> {
+                        if (!p.isValid() || !p.isOnline()) return;
+                        p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_TRADE, 2f, 0.8f);
+                        p.sendMessage(GM.getLogo().append(TCUtils.format(
+                            "§2komiss77 §7» Я тут заскучал строить уже, может ты мне сможешь помочь?")));
+                        Ostrov.sync(() -> {
+                            if (!p.isValid() || !p.isOnline()) return;
+                            p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_YES, 2f, 0.8f);
+                            p.sendMessage(GM.getLogo().append(TCUtils.format(
+                                "§2komiss77 §7» Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
+                            p.sendMessage("Ваш игроаой режим был изменен на Творческий режим");
+                            p.setGameMode(GameMode.CREATIVE);
+                            Ostrov.sync(() -> {
+                                if (!p.isValid() || !p.isOnline()) return;
+                                p.teleport(p.getWorld().getSpawnLocation());
+                                ab.remove();
+                            }, 80);
+                        }, 120);
+                    }, 80);
+                }
+            }, 80);
         }
     }
 

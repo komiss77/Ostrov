@@ -151,6 +151,12 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
+          <groupId>org.apache.clerezza.ext</groupId>
+          <artifactId>org.json.simple</artifactId>
+          <version>0.4</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
           <groupId>org.dynmap</groupId>
           <artifactId>dynmap</artifactId>
           <version>1.20.1-R0.1-SNAPSHOT</version>

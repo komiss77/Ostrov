@@ -1,15 +1,15 @@
 package ru.komiss77.modules.bots;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.PacketPlayInUseEntity.b;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -22,29 +22,27 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.network.protocol.game.PacketListenerPlayOut;
-import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
-import net.minecraft.network.protocol.game.PacketPlayInUseEntity.b;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutUpdateAttributes;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.version.VM;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 
 
@@ -53,6 +51,8 @@ public class BotManager implements Initiable, Listener {
     protected static final HashMap<Integer, BotEntity> rIdBots = new HashMap<>();
     protected static final HashMap<String, BotEntity> nameBots = new HashMap<>();
 //	protected static final String[] names = readNames();
+    protected static final HashMap<String, String> skinVal = new HashMap<>();
+    protected static final HashMap<String, String> skinSig = new HashMap<>();
     
 	public BotManager() {
     	
@@ -326,6 +326,28 @@ public class BotManager implements Initiable, Listener {
 			e.printStackTrace();
 			return null;
 		}
+    }
+
+    public static void regSkin(final String name) {
+        if (!Config.bots) {
+            Ostrov.log_warn("Tried setting skin while the module is off!");
+            return;
+        }
+
+        Ostrov.async(() -> {
+            try {
+                final InputStreamReader irn = new InputStreamReader(new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream());
+                final String id = (String) ((JSONObject) new JSONParser().parse(irn)).get("id");
+
+                final InputStreamReader tsr = new InputStreamReader(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").openStream());
+                final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).get(0));
+
+                skinVal.put(name, (String) ppt.get("value"));
+                skinSig.put(name, (String) ppt.get("signature"));
+            } catch (NullPointerException | IOException | ParseException e) {
+                skinVal.put(name, ""); skinSig.put(name, "");
+            }
+        });
     }
 
 }
