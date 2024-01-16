@@ -1,7 +1,6 @@
 package ru.komiss77.modules.translate;
 
 import com.destroystokyo.paper.ClientOption;
-import java.nio.charset.Charset;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -20,6 +19,8 @@ import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
+
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -53,7 +54,7 @@ public class Lang {
                 .setHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
                 //.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}")
-                .setCharset(Charset.forName("UTF-8"));
+                .setCharset(StandardCharsets.UTF_8);
         RU = Locale.forLanguageTag("ru_ru");
         EN = Locale.forLanguageTag("en_us");
         err = Component.text("{}");

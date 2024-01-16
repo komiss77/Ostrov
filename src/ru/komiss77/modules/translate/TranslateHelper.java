@@ -41,7 +41,7 @@ public class TranslateHelper {
 
 
     /**
-     * Copied from https://github.com/SpigotMC/BungeeCord/blob/master/chat/src/main/java/net/md_5/bungee/api/chat/
+     * Copied from <a href="https://github.com/SpigotMC/BungeeCord/blob/master/chat/src/main/java/net/md_5/bungee/api/chat/">link</a>
      * <p>
      * Copyright (c) 2012, md_5. All rights reserved.
      * <p>

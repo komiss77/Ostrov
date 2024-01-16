@@ -18,8 +18,8 @@ public enum EnumLang {
 
     //private static final Map<String, EnumLang> lookup = new HashMap<>();
 
-    static {
-       /* for (EnumLang lang : EnumSet.allOf(EnumLang.class)) {
+    /*static {
+       for (EnumLang lang : EnumSet.allOf(EnumLang.class)) {
             //lookup.put(lang.getLocale(), lang);
             try {
             InputStreamReader in = new InputStreamReader(EnumLang.class.getResourceAsStream("/lang/" + lang.locale + ".json"), Charset.forName("UTF-8"));
@@ -31,10 +31,10 @@ public enum EnumLang {
                 //Ostrov.log_err("LanguageHelper : поддержка перевода для "+lang.getLocale()+" : "+e.getMessage());
                 e.printStackTrace();
             }
-                
-        }*/
-        
-    }
+
+        }
+
+    }*/
 
     private final String locale;
     public final String targetLanguageCode; //для яндекса

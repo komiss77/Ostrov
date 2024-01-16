@@ -1,7 +1,6 @@
 package ru.komiss77.modules.translate;
 
 import com.destroystokyo.paper.ClientOption;
-import java.util.Locale;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
@@ -9,12 +8,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import java.util.Map;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
+
+import java.util.Map;
 
 
 @Deprecated
@@ -37,16 +37,13 @@ public class Translate {
     public static String getItemName(final ItemStack item, final EnumLang lang) {
         // Potion & SpawnEgg & Player Skull
     	if (item == null) return "{}";
-    	switch (item.getType()) {
-		case POTION, SPLASH_POTION, 
-		LINGERING_POTION, TIPPED_ARROW:
-            return translateToLocal(ApiOstrov.nrmlzStr(item.getType().toString()), getItemUnlocalizedName(item.getType()) + ".effect." + 
-            	((PotionMeta) item.getItemMeta()).getBasePotionData().getType().toString().toLowerCase(), lang);
-		case PLAYER_HEAD, PLAYER_WALL_HEAD:
-            return getPlayerSkullName(item, lang);
-		default:
-	        return getMaterialName(item.getType(), lang);
-		}
+        return switch (item.getType()) {
+            case POTION, SPLASH_POTION, LINGERING_POTION, TIPPED_ARROW ->
+                translateToLocal(ApiOstrov.nrmlzStr(item.getType().toString()), getItemUnlocalizedName(item.getType()) + ".effect." +
+                    ((PotionMeta) item.getItemMeta()).getBasePotionData().getType().toString().toLowerCase(), lang);
+            case PLAYER_HEAD, PLAYER_WALL_HEAD -> getPlayerSkullName(item, lang);
+            default -> getMaterialName(item.getType(), lang);
+        };
     }
     
     @Deprecated

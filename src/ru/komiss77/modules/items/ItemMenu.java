@@ -96,31 +96,74 @@ public class ItemMenu implements InventoryProvider {
             p.closeInventory();
         }));
 
-        ItemBuilder prepare = new ItemBuilder(Material.BOOK).name("§dЗачарования");
-        if (im.hasEnchants()) {
-            prepare.addEnchant(CustomEnchant.GLINT, 1);
-            prepare.addLore(" ", "§aЕсть зачарования,", "§8ЛКМ §7- Выдать 'cвечение'", "§cПКМ §7- Снять все зачары");
+        its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
+            .name("§7Имя:§r " + (im.hasDisplayName() ? TCUtils.toString(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
+            .addLore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
+            ? TCUtils.toString(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
+            im.displayName(msg.equals("-") ? null : TCUtils.format(msg.replace('&', '§')));
+            it.setItemMeta(im);
+            reopen(p, its);
+        }));
+
+        ItemBuilder prep = new ItemBuilder(Material.MOJANG_BANNER_PATTERN);
+        if (im.hasLore()) {
+            prep.name("§7Описание:").addLore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
+            for (final Component lr : im.lore()) prep.addLore("- " + TCUtils.toString(lr).replace('§', '&'));
         } else {
-            prepare.addLore(" ", "§7Зачарований нет,", "§dЛКМ §7- Выдать 'cвечение'", "§8ПКМ §7- Снять все зачары");
+            prep = new ItemBuilder(Material.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
+                .addLore(" ", "§eЛКМ §7- Добавить линию");
         }
-        its.set(16, ClickableItem.of(prepare.build(), e -> {
+
+        its.set(14, ClickableItem.from(prep.build(), e -> {
+            if (e.getEvent() instanceof final InventoryClickEvent ev) {
+                final List<Component> lrs = im.lore();
+                if (ev.isLeftClick()) {
+                    PlayerInput.get(InputType.ANVILL, p, text -> {
+                        if (lrs == null) {
+                            im.lore(Arrays.asList(TCUtils.format(text)));
+                        } else {
+                            lrs.add(TCUtils.format(text));
+                            im.lore(lrs);
+                        }
+                        it.setItemMeta(im);
+                        reopen(p, its);
+                    }, "");
+                } else if (lrs != null && !lrs.isEmpty()) {
+                    lrs.remove(lrs.size() - 1);
+                    im.lore(lrs);
+                    it.setItemMeta(im);
+                    reopen(p, its);
+                }
+            }
+        }));
+
+        prep = new ItemBuilder(Material.BOOK).name("§dЗачарования");
+        if (im.hasEnchants()) {
+            prep.addEnchant(CustomEnchant.GLINT, 1);
+            prep.addLore(" ", "§aЕсть зачарования,", "§8ЛКМ §7- Выдать 'cвечение'", "§cПКМ §7- Снять все зачары");
+        } else {
+            prep.addLore(" ", "§7Зачарований нет,", "§dЛКМ §7- Выдать 'cвечение'", "§8ПКМ §7- Снять все зачары");
+        }
+        its.set(16, ClickableItem.of(prep.build(), e -> {
         	if (Config.enchants) {
 	            switch (e.getClick()) {
 	                case LEFT:
 	                case SHIFT_LEFT:
 	                    if (!im.hasEnchant(CustomEnchant.GLINT)) {
-	                        it.addEnchantment(CustomEnchant.GLINT, 1);
+                            im.addEnchant(CustomEnchant.GLINT, 1, true);
 	                    }
+                        it.setItemMeta(im);
 	                    reopen(p, its);
 	                    break;
 	                case RIGHT:
 	                case SHIFT_RIGHT:
 	                    if (im.hasEnchants()) {
 	                        for (final Enchantment en : im.getEnchants().keySet()) {
-	                            it.removeEnchantment(en);
+	                            im.removeEnchant(en);
 	                        }
 	                    }
-	                    it.removeEnchantment(CustomEnchant.GLINT);
+                        im.removeEnchant(CustomEnchant.GLINT);
+                        it.setItemMeta(im);
 	                    reopen(p, its);
 	                    break;
 	                default:
@@ -129,47 +172,6 @@ public class ItemMenu implements InventoryProvider {
         	} else {
                 p.sendMessage(Ostrov.PREFIX + "Зачарования выключены!");
 			}
-        }));
-
-        final StringBuffer sb = new StringBuffer();
-        if (im.hasLore()) {
-            prepare = new ItemBuilder(Material.MOJANG_BANNER_PATTERN).name("§7Описание:").addLore(im.lore().toArray((Object[]) new Component[im.lore().size()]))
-                .addLore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
-            for (final Component lr : im.lore()) {
-                sb.append(TCUtils.toString(lr) + ";");
-            }
-        } else {
-            prepare = new ItemBuilder(Material.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
-                .addLore(" ", "§eЛКМ §7- Добавить линию");
-        }
-        
-        its.set(14, ClickableItem.from(prepare.build(), e -> {
-            if (e.getEvent() instanceof final InventoryClickEvent ev) {
-            	final List<Component> lrs = im.lore();
-            	if (ev.isLeftClick()) {
-                    PlayerInput.get(InputType.ANVILL, p, text -> {
-                    	if (lrs == null) {
-                        	im.lore(Arrays.asList(TCUtils.format(text)));
-                    	} else {
-                        	lrs.add(TCUtils.format(text));
-                        	im.lore(lrs);
-                    	}
-                    }, "");
-            	} else if (lrs != null && !lrs.isEmpty()) {
-            		lrs.remove(lrs.size() - 1);
-                	im.lore(lrs);
-            	}
-                reopen(p, its);
-            }
-        }));
-        
-        its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-        	.name("§7Имя: " + (im.hasDisplayName() ? TCUtils.toString(im.displayName()) : "§8(Не Указано)"))
-        	.addLore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), 
-               im.hasDisplayName() ? TCUtils.toString(im.displayName()) : "&7Предмет", msg -> {
-            im.displayName(msg.equals("-") ? null : TCUtils.format(msg.replace('&', '§')));
-            it.setItemMeta(im);
-            reopen(p, its);
         }));
         
         its.set(20, ClickableItem.from(new ItemBuilder(Material.ENDER_PEARL).name("§фСкрытые Флаги")
@@ -190,7 +192,7 @@ public class ItemMenu implements InventoryProvider {
 
         final ItemBuilder cmd = new ItemBuilder(Material.QUARTZ);
         if (im.hasCustomModelData()) {
-            cmd.name("§7Значение Модели: §b" + String.valueOf(im.getCustomModelData()))
+            cmd.name("§7Значение Модели: §b" + im.getCustomModelData())
                     .addLore(" ", "§c-1 §7- Сбросить значение модели");
         } else {
             cmd.name("§7Значение Модели: §8(Не Указано)")

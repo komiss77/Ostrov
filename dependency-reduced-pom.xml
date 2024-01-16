@@ -17,9 +17,6 @@
         </includes>
       </resource>
       <resource>
-        <directory>rec</directory>
-      </resource>
-      <resource>
         <directory>lib</directory>
       </resource>
     </resources>
