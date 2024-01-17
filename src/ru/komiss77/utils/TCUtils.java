@@ -343,8 +343,11 @@ public class TCUtils {
                 i++;
 
                 final char ch = chMsg[i];
-                if (ch == hex) {//хекс
-                    final int cend = i + 7;//#000000
+                final int cend;
+                switch (ch) {//форматы стиля
+                default: break;
+                case hex://хекс
+                    cend = i + 7;//#000000
                     if (cend > chMsg.length) continue;
                     while (true) {//6 -> 1 хекс код
                         if (i+1==cend) break;
@@ -355,47 +358,44 @@ public class TCUtils {
                             break;
                         }
                     }
-                } else {
-                    switch (ch) {//форматы стиля
-                        default -> {}
-                        case 'g' -> {//градиент
-                            if (i+1==chMsg.length) continue;
-                            i++;
+                    break;
+                case 'g'://градиент
+                    if (i+1==chMsg.length) continue;
+                    i++;
 
-                            final char from = chMsg[i];
-                            if (from == hex) {//хекс
-                                final int cend = i + 7;//#000000
-                                if (cend > chMsg.length) continue;
-                                while (true) {//6 -> 1 хекс код
-                                    if (i+1==cend) break; else i++;
-                                    final int dg = Character.digit(chMsg[i], 16);
-                                    if (dg == -1) {//символ не хекс
-                                        i = cend - 7;
-                                        break;
-                                    }
-                                }
+                    final char from = chMsg[i];
+                    if (from == hex) {//хекс
+                        cend = i + 7;//#000000
+                        if (cend > chMsg.length) continue;
+                        while (true) {//6 -> 1 хекс код
+                            if (i+1==cend) break; else i++;
+                            final int dg = Character.digit(chMsg[i], 16);
+                            if (dg == -1) {//символ не хекс
+                                i = cend - 7;
+                                break;
                             }
+                        }
+                    }
 
-                            if (i+1==chMsg.length) continue;
-                            if (chMsg[i+1] == sep) { i++;
-                                if (i+1==chMsg.length) continue;
-                                i++;
-                                final char to = chMsg[i];
-                                if (to == hex) {
-                                    final int cend = i + 7;//#000000
-                                    if (cend > chMsg.length) continue;
-                                    while (true) {//6 -> 1 хекс код
-                                        if (i+1==cend) break; else i++;
-                                        final int dg = Character.digit(chMsg[i], 16);
-                                        if (dg == -1) {//символ не хекс
-                                            i = cend - 7;
-                                            break;
-                                        }
-                                    }
+                    if (i+1==chMsg.length) continue;
+                    if (chMsg[i+1] == sep) { i++;
+                        if (i+1==chMsg.length) continue;
+                        i++;
+                        final char to = chMsg[i];
+                        if (to == hex) {
+                            final int gend = i + 7;//#000000
+                            if (gend > chMsg.length) continue;
+                            while (true) {//6 -> 1 хекс код
+                                if (i+1==gend) break; else i++;
+                                final int dg = Character.digit(chMsg[i], 16);
+                                if (dg == -1) {//символ не хекс
+                                    i = gend - 8;
+                                    break;
                                 }
                             }
                         }
                     }
+                    break;
                 }
                 continue;
             }
@@ -556,7 +556,7 @@ public class TCUtils {
                                 final int dg = Character.digit(chMsg[i], 16);
                                 if (dg == -1) {//символ не хекс
                                     eval = -1;
-                                    i = gend - 8;
+                                    i = gend - 7;
                                     break;
                                 }
                                 eval += dg << (4 * (gend - i - 1));//хекс код ставит в позицию
@@ -568,9 +568,7 @@ public class TCUtils {
                             }
                         } else {
                             final TextColor toc = chrIx.get(to);
-                            if (toc == null) {
-                                i--;
-                            } else {
+                            if (toc != null) {
                                 color = gradTo;
                                 gradTo = toc;
                             }
@@ -689,7 +687,12 @@ public class TCUtils {
                                     lstClr != null && lstClr.value() == color.value());
                             }
                         } else {//stop gradient - >2 chars
-                            if (gradient != null) {//gradient
+                            if (gradient == null) {//no gradient
+//                            Bukkit.broadcast(Component.text(cnt + ", " + lstClr));
+                                if (lstClr == null || lstClr.value() != color.value()) {
+                                    sb.append("§").append(clr); decor.clear();
+                                }
+                            } else {//gradient
                                 if (lstClr == null || gradient.init.value() == lstClr.value()) {
                                     sb.insert(gradient.start, "§" + toString(gradient.init));
                                 } else {
@@ -697,10 +700,6 @@ public class TCUtils {
                                         : "§g" + toString(gradient.init) + sep + toString(lstClr));
                                 }
                                 gradient = null;
-                            }
-
-//                            Bukkit.broadcast(Component.text(cnt + ", " + lstClr));
-                            if (lstClr == null || lstClr.value() != color.value()) {
                                 sb.append("§").append(clr); decor.clear();
                             }
 
