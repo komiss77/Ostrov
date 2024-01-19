@@ -357,13 +357,13 @@ public class ItemUtils {
     public static void substractItemInHand(final Player p, final EquipmentSlot hand) {
         if (hand == EquipmentSlot.HAND) {
             if (p.getInventory().getItemInMainHand().getAmount() == 1) {
-                p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                p.getInventory().setItemInMainHand(air);
             } else {
                 p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
             }
         } else if (hand == EquipmentSlot.OFF_HAND) {
             if (p.getInventory().getItemInOffHand().getAmount() == 1) {
-                p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+                p.getInventory().setItemInOffHand(air);
             } else {
                 p.getInventory().getItemInOffHand().setAmount(p.getInventory().getItemInOffHand().getAmount() - 1);
             }
@@ -374,14 +374,16 @@ public class ItemUtils {
         if (!he.getInventory().contains(mat)) {
             return false;
         }
+        ItemStack is;
         for (int i = 0; i < he.getInventory().getContents().length; i++) {
-            if (he.getInventory().getContents()[i] != null && he.getInventory().getContents()[i].getType() == mat) {
-                if (he.getInventory().getContents()[i].getAmount() >= 2) {
-                    he.getInventory().getContents()[i].setAmount(he.getInventory().getContents()[i].getAmount() - 1);
+            is = he.getInventory().getContents()[i];
+            if (is != null && is.getType() == mat) {
+                if (is.getAmount() >= 2) {
+                    is.setAmount(is.getAmount()-1);//he.getInventory().getContents()[i].setAmount(he.getInventory().getContents()[i].getAmount() - 1);
                 } else {
-                    he.getInventory().getContents()[i].setAmount(0);
-                    //he.getInventory().getContents()[i]=null;
+                    is = air;//he.getInventory().getContents()[i].setAmount(0);
                 }
+                he.getInventory().setItem(i, is);
                 return true;
             }
         }

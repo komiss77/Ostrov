@@ -8,7 +8,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.modules.translate.EnumLang;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;

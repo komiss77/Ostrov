@@ -1,7 +1,6 @@
 package ru.komiss77.modules.translate;
 
 import com.destroystokyo.paper.ClientOption;
-import java.util.Locale;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
@@ -19,6 +18,44 @@ import ru.komiss77.utils.TCUtils;
 
 @Deprecated
 public class Translate {
+
+    @Deprecated
+    public static String getMaterialName(final Material mat, final EnumLang lang) {
+        return mat.name();
+        //return TCUtils.toString(Lang.t(mat, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));
+//return translateToLocal(mat.toString(), getItemUnlocalizedName(mat), lang);
+    }
+    
+    @Deprecated
+    public static String getBiomeName(final Biome biome, final EnumLang lang) {
+        return biome.name();
+        //return TCUtils.toString(Lang.t(biome, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//translateToLocal(biome.toString(), getBiomeUnlocalizedName(biome), lang);
+    }
+    
+    @Deprecated
+    public static String getEntityName(final EntityType entityType, final EnumLang lang) {
+        return entityType.name();
+        //return TCUtils.toString(Lang.t(entityType, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(entityType.toString(), getEntityUnlocalizedName(entityType), lang);
+    }
+
+    @Deprecated
+    public static String getEntityName(final EntityType entityType, final Player player) {
+        return entityType.name();
+        //return TCUtils.toString(Lang.t(player, entityType));//return getEntityName(entityType, TranslateHelper.getPlayerLanguage(player));
+    }    
+    @Deprecated
+    public static String getEnchantmentName(final Enchantment enchantment, final EnumLang lang) {
+        return enchantment.toString();
+        //return TCUtils.toString(Lang.t(enchantment, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(getEnchantmentUnlocalizedName(enchantment), lang);
+    }    
+    
+
+
+
+
+
+
+
 
     @Deprecated
     public static String getItemDisplayName(final ItemStack item, final EnumLang lang) {
@@ -49,11 +86,8 @@ public class Translate {
 		}
     }
     
-    @Deprecated
-    public static String getMaterialName(final Material mat, final EnumLang lang) {
-        return TCUtils.toString(Lang.t(mat, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(mat.toString(), getItemUnlocalizedName(mat), lang);
 
-    }
+    
     
     @Deprecated
     private static String getPlayerSkullName(final ItemStack skull, final EnumLang lang) {
@@ -70,10 +104,6 @@ public class Translate {
         return getItemName(item, TranslateHelper.getPlayerLanguage(player));
     }
 
-    @Deprecated
-    public static String getBiomeName(final Biome biome, final EnumLang lang) {
-        return TCUtils.toString(Lang.t(biome, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//translateToLocal(biome.toString(), getBiomeUnlocalizedName(biome), lang);
-    }
 
     @Deprecated
     public static String getBiomeName(final Biome biome, final Player player) {
@@ -104,16 +134,7 @@ public class Translate {
         return getEntityName(entity.getType(), lang);
     }
 
-    @Deprecated
-    public static String getEntityName(final EntityType entityType, final EnumLang lang) {
-        
-        return TCUtils.toString(Lang.t(entityType, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(entityType.toString(), getEntityUnlocalizedName(entityType), lang);
-    }
 
-    @Deprecated
-    public static String getEntityName(final EntityType entityType, final Player player) {
-        return TCUtils.toString(Lang.t(player, entityType));//return getEntityName(entityType, TranslateHelper.getPlayerLanguage(player));
-    }
 
     @Deprecated
     public static String getEnchantmentLevelName(final int level, final Player player) {
@@ -130,10 +151,7 @@ public class Translate {
         return getEnchantmentName(enchantment, TranslateHelper.getPlayerLanguage(player));
     }
 
-    @Deprecated
-    public static String getEnchantmentName(final Enchantment enchantment, final EnumLang lang) {
-        return TCUtils.toString(Lang.t(enchantment, lang==EnumLang.RU_RU ? Lang.RU : Lang.EN));//return translateToLocal(getEnchantmentUnlocalizedName(enchantment), lang);
-    }
+
 
     @Deprecated
     public static String getEnchantmentDisplayName(final Enchantment enchantment, final int level, final Player player) {

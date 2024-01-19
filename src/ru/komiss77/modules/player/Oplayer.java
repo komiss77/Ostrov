@@ -250,7 +250,9 @@ public class Oplayer {
                 if (!delayBossBars.isEmpty()) {
                     final DelayBossBar bb = delayBossBars.remove(0);
                     bb.apply(this, p);
-                } else p.hideBossBar(bossbar);
+                } else {
+                    p.hideBossBar(bossbar);
+                }
             } else if (timeBar) {
                 final float time = barMaxTime > 0 ? (float) barTime / (float) barMaxTime : 0f;
                 bossbar.progress(time > 1f ? 1f : time < 0f ? 0f : time);

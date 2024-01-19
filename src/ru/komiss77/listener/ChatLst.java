@@ -398,16 +398,16 @@ public class ChatLst implements Listener {
                 } else if (!senderWorldName.equals("lobby")) { //отправитель не в мире лобби - игровое сообщение
                     
                     if (ce.getViewerGameInfo()!=null) {
-                        resultRU = ce.getViewerGameInfo()
-                            .append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+                        //resultRU = ce.getViewerGameInfo().append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+                        resultRU = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
                                 .hoverEvent(HoverEvent.showText(TCUtils.format("§кКлик - кинуть в ЧС")))
-                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName)))
+                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
                                 .append(msgRU);
                         
-                        resultEN = ce.getViewerGameInfo()
-                            .append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+                        //resultEN = ce.getViewerGameInfo().append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+                        resultEN = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
                                 .hoverEvent(HoverEvent.showText(TCUtils.format("§кClick - add to blackList")))
-                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName)))
+                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
                                 .append(msgEN);
                     } else {
                         resultRU = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
@@ -475,9 +475,11 @@ public class ChatLst implements Listener {
                 //ce.getPlayer().sendMessage(viewerResult);
             } else {
                 if (ce.getPlayer().getClientOption(ClientOption.LOCALE).equals("ru_ru")) {
-                    ce.getPlayer().sendMessage(ce.getSenderGameInfo().append(resultRU));
+                    //ce.getPlayer().sendMessage(ce.getSenderGameInfo().append(resultRU));
+                    ce.getPlayer().sendMessage(GM.getLogo().append(ce.getSenderGameInfo()).append(resultRU));
                 } else {
-                    ce.getPlayer().sendMessage(ce.getSenderGameInfo().append(resultEN));
+                    //ce.getPlayer().sendMessage(ce.getSenderGameInfo().append(resultEN));
+                    ce.getPlayer().sendMessage(GM.getLogo().append(ce.getSenderGameInfo()).append(resultEN));
                 }
                 //ce.getPlayer().sendMessage(ce.getSenderGameInfo().append(result));
             }

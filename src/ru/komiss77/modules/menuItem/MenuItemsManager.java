@@ -200,13 +200,16 @@ public final class MenuItemsManager implements Initiable, Listener {
         //if (e.getCurrentItem()==null || e.getSlotType()==InventoryType.SlotType.OUTSIDE) return;
         if (e.getSlotType()==InventoryType.SlotType.OUTSIDE) return;
         
+        //клик по хотбар
         if (e.getClick()==ClickType.NUMBER_KEY && e.getClickedInventory()!=null && e.getClickedInventory().getSize()>e.getHotbarButton()) {
 //System.out.println("NUMBER_KEY hotbar="+e.getClickedInventory().getItem(e.getHotbarButton()).getType());
             final ItemStack hotbarItem = e.getClickedInventory().getItem(e.getHotbarButton());
             if (hotbarItem!=null && possibleMat.contains(hotbarItem.getType())) {
                 final MenuItem si = fromItemStack(hotbarItem);
-                if (si!=null && !si.can_move) {
-                    e.setResult(Event.Result.DENY);
+                if (si!=null) {
+                    if (!si.can_move) {
+                        e.setResult(Event.Result.DENY);
+                    }
                     if (si.on_inv_click!=null) {
                         if (Timer.has(e.getWhoClicked().getEntityId())) return;
                         Timer.add(e.getWhoClicked().getEntityId(), 1);
@@ -222,17 +225,25 @@ public final class MenuItemsManager implements Initiable, Listener {
                 }
             }
         }
-        
+        //подмена предмета на курсор
         if (e.getCursor()!=null && possibleMat.contains(e.getCursor().getType())) {
             final MenuItem si = fromItemStack(e.getCursor());
             if (si!=null && !si.can_move) {
                 e.setResult(Event.Result.DENY);
             }
         }
+        //просто клик по предмету
         if (e.getCurrentItem()!=null && possibleMat.contains(e.getCurrentItem().getType())) {
             final MenuItem si = fromItemStack(e.getCurrentItem());
-            if (si!=null && !si.can_move) {
-                e.setResult(Event.Result.DENY);
+            if (si!=null) {
+                if (!si.can_move) {
+                    e.setResult(Event.Result.DENY);
+                }
+                if (si.on_inv_click!=null) {
+                    if (Timer.has(e.getWhoClicked().getEntityId())) return;
+                    Timer.add(e.getWhoClicked().getEntityId(), 1);
+                    si.on_inv_click.accept(e);
+                }
             }
         }        
 
