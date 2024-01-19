@@ -18,8 +18,7 @@ import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
@@ -33,6 +32,11 @@ public class TCUtils {
     private static final BiMap<DyeColor, TextColor> dyeIx;
     private static final BiMap<Character, TextColor> chrIx;
     private static final BiMap<Color, TextColor> clrIx;
+
+    public static final char style = '§';
+//    public static final char form = '᨟';
+    public static final char hex = '#';
+    public static final char sep = '|';
     
     /**60% - Neutral color*/
     public static String N = "§7";
@@ -327,16 +331,89 @@ public class TCUtils {
     }
     
     public static String stripColor(final String str) {
-        return STRIP_COLOR_PATTERN.matcher(str).replaceAll("");
+        if (str.isEmpty()) return "";
+
+        final char[] chMsg = str.toCharArray();
+        final StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i != chMsg.length; i++) {
+            if (chMsg[i] == style) {//начало стиля
+
+                if (i+1==chMsg.length) continue;
+                i++;
+
+                final char ch = chMsg[i];
+                final int cend;
+                switch (ch) {//форматы стиля
+                default: break;
+                case hex://хекс
+                    cend = i + 7;//#000000
+                    if (cend > chMsg.length) continue;
+                    while (true) {//6 -> 1 хекс код
+                        if (i+1==cend) break;
+                        else i++;
+                        final int dg = Character.digit(chMsg[i], 16);
+                        if (dg == -1) {//символ не хекс
+                            i = cend - 7;
+                            break;
+                        }
+                    }
+                    break;
+                case 'g'://градиент
+                    if (i+1==chMsg.length) continue;
+                    i++;
+
+                    final char from = chMsg[i];
+                    if (from == hex) {//хекс
+                        cend = i + 7;//#000000
+                        if (cend > chMsg.length) continue;
+                        while (true) {//6 -> 1 хекс код
+                            if (i+1==cend) break; else i++;
+                            final int dg = Character.digit(chMsg[i], 16);
+                            if (dg == -1) {//символ не хекс
+                                i = cend - 7;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (i+1==chMsg.length) continue;
+                    if (chMsg[i+1] == sep) { i++;
+                        if (i+1==chMsg.length) continue;
+                        i++;
+                        final char to = chMsg[i];
+                        if (to == hex) {
+                            final int gend = i + 7;//#000000
+                            if (gend > chMsg.length) continue;
+                            while (true) {//6 -> 1 хекс код
+                                if (i+1==gend) break; else i++;
+                                final int dg = Character.digit(chMsg[i], 16);
+                                if (dg == -1) {//символ не хекс
+                                    i = gend - 8;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                continue;
+            }
+            sb.append(chMsg[i]);
+        }
+        return sb.toString();
     }
 
     public static String stripColor(final Component cmp) {
-        return STRIP_COLOR_PATTERN.matcher(toString(cmp)).replaceAll("");
+        final StringBuilder sb = new StringBuilder();
+        if (cmp instanceof TextComponent) sb.append(((TextComponent) cmp).content());
+        for (final Component ch : cmp.children()) sb.append(stripColor(ch));
+        return sb.toString();
     }
 
     public static String translateAlternateColorCodes(char c, String string) {
-        if (c=='§') return string.replaceAll("§", "&");
-        else return string.replaceAll("&", "§");
+        if (c=='§') return string.replace('§', '&');
+        else return string.replace('&', '§');
     }
 
     public static String setColorChar(final char ch, final String str) {
@@ -344,132 +421,348 @@ public class TCUtils {
     }
 
     public static String setColorChar(final char ch, final Component str) {
-        return toString(str).replace(ch, '§');
+        return setColorChar(ch, toString(str));
     }
 
     //"§[^\s]"
     @Slow(priority = 1)
     public static TextComponent format(final String msg) {
         if (msg == null || msg.isEmpty()) return EMPTY;//Component.text("");
-        final String[] split = msg.split("§[0-9a-zа-я]");
-        if (split.length == 0) return Component.text(msg);
 
-        TextColor textColor = NamedTextColor.WHITE;
-        EnumSet<TextDecoration> dec = EnumSet.noneOf(TextDecoration.class);
-    	
-        final TextComponent[] components = new TextComponent[split.length];
-        components[0] = Component.text(split[0]);
-        int stg = split[0].length() + 1;
-        for (int i = 1; i < split.length; i++) {
-            final char c = msg.charAt(stg);
-            
-            switch (c) {
-        	case 'k' -> dec.add(TextDecoration.OBFUSCATED);
-        	case 'l' -> dec.add(TextDecoration.BOLD);
-        	case 'm' -> dec.add(TextDecoration.STRIKETHROUGH);
-        	case 'n' -> dec.add(TextDecoration.UNDERLINED);
-        	case 'o' -> dec.add(TextDecoration.ITALIC);
-//        	case '#' -> dec.add(TextDecoration.HEX);
-        	default -> {
+        final ArrayList<TextComponent> comps = new ArrayList<>();
+        final char[] chMsg = msg.toCharArray();
+
+        StringBuilder sb = new StringBuilder();
+        TextColor color = null, gradTo = null;
+        final LinkedHashMap<TextDecoration, Integer> dec = new LinkedHashMap<>();
+
+        for (int i = 0; i != chMsg.length; i++) {
+            if (chMsg[i] == style) {//начало стиля
+
+                if (i+1==chMsg.length) continue;
+                i++;
+
+                final char ch = chMsg[i];
+                final int cend; int val;
+                final TextColor tclr;
+                switch (ch) {//форматы стиля
+                case 'k':
+                    dec.putIfAbsent(TextDecoration.OBFUSCATED, sb.length());
+                    break;
+                case 'l':
+                    dec.putIfAbsent(TextDecoration.BOLD, sb.length());
+                    break;
+                case 'm':
+                    dec.putIfAbsent(TextDecoration.STRIKETHROUGH, sb.length());
+                    break;
+                case 'n':
+                    dec.putIfAbsent(TextDecoration.UNDERLINED, sb.length());
+                    break;
+                case 'o':
+                    dec.putIfAbsent(TextDecoration.ITALIC, sb.length());
+                    break;
+                case 'r'://reset
+                    buildCmp(sb, color, gradTo, dec, comps);//предыдущий стиль
+                    sb = new StringBuilder();
+                    color = null; gradTo = null;
                     dec.clear();
-                    final TextColor tc = getTextColor(c);
-                    if (tc.value() != textColor.value()) {
-                        textColor = tc;
+                    break;
+                case hex://хекс
+                    cend = i + 7;//#000000
+                    if (cend > chMsg.length) continue;
+                    val = 0;//10чная версия хекса
+                    while (true) {//1 -> 6 хекс код
+                        if (i+1==cend) break; else i++;
+                        final int dg = Character.digit(chMsg[i], 16);
+                        if (dg == -1) {//символ не хекс
+                            val = -1;
+                            i = cend - 7;
+                            break;
+                        }
+                        val += dg << (4 * (cend - i - 1));//хекс код ставит в позицию
                     }
-                }
-        	case 'r' -> {
-                    dec.clear();
-                    textColor = NamedTextColor.WHITE;
-                }
-            }
 
-            final Style stl = Style.style()
-                .decoration(TextDecoration.ITALIC, false)
-                .decorations(dec, true)
-                .color(textColor)
-                .build();
-            components[i] = Component.text(split[i], stl);
-            stg += split[i].length() + 2;
+                    if (val != -1) {
+                        buildCmp(sb, color, gradTo, dec, comps);//предыдущий стиль
+                        sb = new StringBuilder();
+                        if (gradTo != null) color = gradTo;
+                        if (color == null || val != color.value()) {
+                            color = TextColor.color(val);
+                        }
+                        gradTo = null;
+                        dec.clear();
+                    }
+                    break;
+                default://цвет
+                    tclr = chrIx.get(ch);
+                    if (tclr != null) {
+                        buildCmp(sb, color, gradTo, dec, comps);//предыдущий стиль
+                        sb = new StringBuilder();
+                        if (gradTo != null) color = gradTo;
+                        if (color == null || tclr.value() != color.value()) {
+                            color = tclr;
+                        }
+                        gradTo = null;
+                        dec.clear();
+                    }
+                    break;
+                case 'g'://градиент
+                    if (i+1==chMsg.length) continue;
+                    i++;
+
+                    final char from = chMsg[i];
+                    if (from == hex) {//хекс
+                        cend = i + 7;//#000000
+                        if (cend > chMsg.length) continue;
+                        val = 0;//10чная версия хекса
+                        while (true) {//1 -> 6 хекс код
+                            if (i+1==cend) break; else i++;
+                            final int dg = Character.digit(chMsg[i], 16);
+                            if (dg == -1) {//символ не хекс
+                                val = -1;
+                                i = cend - 7;
+                                break;
+                            }
+                            val += dg << (4 * (cend - i - 1));//хекс код ставит в позицию
+                        }
+
+                        if (val == -1) continue;
+                        buildCmp(sb, color, gradTo, dec, comps);//предыдущий стиль
+                        sb = new StringBuilder();
+                        if (gradTo != null) color = gradTo;
+                        gradTo = TextColor.color(val);
+                    } else {
+                        tclr = chrIx.get(from);
+                        if (tclr == null) continue;
+                        buildCmp(sb, color, gradTo, dec, comps);//предыдущий стиль
+                        sb = new StringBuilder();
+                        if (gradTo != null) color = gradTo;
+                        gradTo = tclr;
+
+                    }
+                    dec.clear();
+
+                    if (i+1==chMsg.length) continue;
+                    if (chMsg[i+1] == sep) { i++;
+                        if (i+1==chMsg.length) continue;
+                        i++;
+                        final char to = chMsg[i];
+                        if (to == hex) {
+                            final int gend = i + 7;//#000000
+                            if (gend > chMsg.length) continue;
+                            int eval = 0;//10чная версия хекса
+                            while (true) {//1 -> 6 хекс код
+                                if (i+1==gend) break; else i++;
+                                final int dg = Character.digit(chMsg[i], 16);
+                                if (dg == -1) {//символ не хекс
+                                    eval = -1;
+                                    i = gend - 7;
+                                    break;
+                                }
+                                eval += dg << (4 * (gend - i - 1));//хекс код ставит в позицию
+                            }
+
+                            if (eval != -1) {
+                                color = gradTo;
+                                gradTo = TextColor.color(eval);
+                            }
+                        } else {
+                            final TextColor toc = chrIx.get(to);
+                            if (toc != null) {
+                                color = gradTo;
+                                gradTo = toc;
+                            }
+                        }
+                    } else {
+                        if (color == null) {
+                            color = gradTo;
+                            gradTo = null;
+                        } else if (gradTo.value() == color.value()) {
+                            gradTo = null;
+                        }
+                    }
+                    break;
+                }
+                continue;
+            }
+            sb.append(chMsg[i]);
         }
 
-        return Component.text().append(components).build();
+        buildCmp(sb, color, gradTo, dec, comps);//последний стиль
+        return Component.text().append(comps).build();
+    }
+
+    private static void buildCmp(final StringBuilder sb, final TextColor color, final TextColor gradTo,
+        final LinkedHashMap<TextDecoration, Integer> dec, final ArrayList<TextComponent> comps) {
+        if (!sb.isEmpty()) {
+            final Style.Builder stb = Style.style().decoration(TextDecoration.ITALIC, false);
+            if (gradTo == null) {
+                final EnumSet<TextDecoration> decs = EnumSet.noneOf(TextDecoration.class);
+                int last = 0;
+                if (!dec.isEmpty()) {
+                    for (final Entry<TextDecoration, Integer> en : dec.entrySet()) {
+                        final int end = en.getValue();
+                        if (last != end) {
+                            comps.add(Component.text(sb.substring(last, end),
+                                stb.decorations(decs, true).color(color).build()));
+                            last = end;
+                        }
+                        decs.add(en.getKey());
+                    }
+                }
+
+                if (last != sb.length()) comps.add(Component.text(sb.substring(last, sb.length()),
+                    stb.decorations(decs, true).color(color).build()));
+            } else if (color != null) {
+                final EnumSet<TextDecoration> decs = EnumSet.noneOf(TextDecoration.class);
+                int ln = sb.length() - 1, ir = color.red(), ig = color.green(), ib = color.blue(),
+                    dr = (gradTo.red() - ir) / ln, dg = (gradTo.green() - ig) / ln, db = (gradTo.blue() - ib) / ln;
+                final char[] car = sb.toString().toCharArray();
+                if (dec.isEmpty()) {
+                    for (int ci = 0; ci != ln; ci++) {
+                        comps.add(Component.text(car[ci], stb.color(TextColor.color(ir, ig, ib)).build()));
+                        ir += dr; ig += dg; ib += db;
+                    }
+                } else {
+                    final Iterator<Entry<TextDecoration, Integer>> it = dec.entrySet().iterator();
+                    Entry<TextDecoration, Integer> nextDec = it.next(); int nxt = nextDec.getValue();
+                    for (int ci = 0; ci != ln; ci++) {
+                        while (nxt == ci) {decs.add(nextDec.getKey());
+                            if (!it.hasNext()) break; nextDec = it.next();
+                            nxt = nextDec.getValue();
+                        }
+                        comps.add(Component.text(car[ci], stb.decorations(decs, true)
+                                .color(TextColor.color(ir, ig, ib)).build()));
+                        ir += dr; ig += dg; ib += db;
+                    }
+
+                    while (true) {
+                        decs.add(nextDec.getKey());
+                        if (!it.hasNext()) break;
+                        nextDec = it.next();
+                    }
+                }
+                comps.add(Component.text(car[ln], stb.decorations(decs, true).color(gradTo).build()));
+            }
+        }
     }
 
     public static boolean has(final Component parent, final Component has) {
         return parent.contains(has);
     }
 
-    private static TextColor strClr = NamedTextColor.WHITE;
-
     @Slow(priority = 1)
     public static String toString(final Component cmp) {
-    	strClr = NamedTextColor.WHITE;
-    	return toString(cmp, EnumSet.noneOf(TextDecoration.class));
-    }
-
-    private static String toString(final Component component, final EnumSet<TextDecoration> decoration) {
-        if (component == null) return "";
-
+        lstClr = null; gradient = null;
         final StringBuilder sb = new StringBuilder();
-        final TextColor textColor = component.color() == null ? NamedTextColor.WHITE : component.color();
+    	return toString(cmp, sb, EnumSet.noneOf(TextDecoration.class), true);
+    }
+    
+    private static TextColor lstClr;
+    private static Gradient gradient;
+
+    private static String toString(final Component comp, final StringBuilder sb, final EnumSet<TextDecoration> decor, final boolean parent) {
+        if (comp == null) return "";
+
+        final TextColor color = comp.color();
 //Bukkit.broadcast(Component.text("tc-" + tc.value()));
-        if (component instanceof TextComponent) {
-            if (component.hasStyling()) {
+        if (comp instanceof TextComponent) {
+            final String cnt = ((TextComponent) comp).content();
+            if (!cnt.isEmpty()) {
 
-                final Style stl = component.style();
-                boolean diff = false;
-                for (final TextDecoration td : decoration) {
-                    if (!stl.hasDecoration(td)) {
-//                        Bukkit.broadcast(Component.text("td-" + decoration.toString() + ", has-" + stl.decorations().toString()));
-                        diff = true;
-                        break;
+                if (comp.hasStyling()) {
+                    final Style stl = comp.style();
+                    for (final TextDecoration td : decor) {
+                        if (!stl.hasDecoration(td)) {
+                            decor.clear();
+                            break;
+                        }
+                    }
+
+                    if (color != null) {
+                        final String clr = toString(color);
+                        if (cnt.length() == 1) {//>1 char
+                            if (gradient == null) {//no gradient
+                                gradient = new Gradient(color, sb.length(),
+                                    lstClr != null && lstClr.value() == color.value());
+                            }
+                        } else {//stop gradient - >2 chars
+                            if (gradient == null) {//no gradient
+//                            Bukkit.broadcast(Component.text(cnt + ", " + lstClr));
+                                if (lstClr == null || lstClr.value() != color.value()) {
+                                    sb.append("§").append(clr); decor.clear();
+                                }
+                            } else {//gradient
+                                if (lstClr == null || gradient.init.value() == lstClr.value()) {
+                                    sb.insert(gradient.start, "§" + toString(gradient.init));
+                                } else {
+                                    sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
+                                        : "§g" + toString(gradient.init) + sep + toString(lstClr));
+                                }
+                                gradient = null;
+                                sb.append("§").append(clr); decor.clear();
+                            }
+
+                        }
+                    } else if (lstClr != null) {
+                        sb.append("§r"); decor.clear();
+
+                        if (gradient != null) {//stop gradient - no color
+                            if (lstClr == null || gradient.init.value() == lstClr.value()) {
+                                sb.insert(gradient.start, "§" + toString(gradient.init));
+                            } else {
+                                sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
+                                    : "§g" + toString(gradient.init) + sep + toString(lstClr));
+                            }
+                            gradient = null;
+                        }
+                    }
+
+                    for (final Entry<TextDecoration, State> en : stl.decorations().entrySet()) {
+                        if (en.getValue() == State.TRUE && decor.add(en.getKey())) {
+                            final char dc = switch (en.getKey()) {
+                                case BOLD -> 'l';
+                                case OBFUSCATED -> 'k';
+                                case STRIKETHROUGH -> 'm';
+                                case UNDERLINED -> 'n';
+                                case ITALIC -> 'o';
+                            };
+                            sb.append("§").append(dc);
+                        }
                     }
                 }
-
-                final char ch;
-                if (textColor instanceof NamedTextColor) {
-                    ch = toChar(textColor);
-                } else {
-                    final CustomTextColor ctc = CustomTextColor.intClr.get(textColor == null ? 0 : textColor.value());
-                    if (ctc != null) {
-                        ch = toChar(ctc);
-                    } else {
-                        ch = 'f';
-                    }
-                }
-
-                if (diff) {
-                    decoration.clear();
-                    sb.append("§").append(ch);
-                } else if (strClr == null || textColor.value() != strClr.value()) {
-                    strClr = textColor;
-                    sb.append("§").append(ch);
-                }
-
-                for (final Entry<TextDecoration, State> en : stl.decorations().entrySet()) {
-                    if (en.getValue() == State.TRUE && decoration.add(en.getKey())) {
-                        final char dc = switch (en.getKey()) {
-                            case BOLD -> 'l';
-                            case OBFUSCATED -> 'k';
-                            case STRIKETHROUGH -> 'm';
-                            case UNDERLINED -> 'n';
-                            case ITALIC -> 'o';
-                        };
-                        sb.append("§").append(dc);
-                    }
-                }
+                sb.append(cnt);
             }
-            sb.append(((TextComponent) component).content());
+            lstClr = color;
         }
 
-        final List<Component> cls = component.children();
-        if (cls.isEmpty()) return sb.toString();
+        final List<Component> cls = comp.children();
+        if (!cls.isEmpty()) {
+            for (final Component cm : cls) {
+                toString(cm, sb, decor, false);
+            }
+        }
 
-        for (final Component cm : cls) {
-            sb.append(toString(cm, decoration));
+        if (gradient != null && parent) {//stop gradient - end
+            if (lstClr == null || gradient.init.value() == lstClr.value()) {
+                sb.insert(gradient.start, "§" + toString(gradient.init));
+            } else {
+                sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
+                    : "§g" + toString(gradient.init) + sep + toString(lstClr));
+            }
+            gradient = null;
         }
         return sb.toString();
     }
+
+    public static String toString(final TextColor color) {
+        if (color instanceof NamedTextColor) return String.valueOf(toChar(color));
+        final CustomTextColor ctc = CustomTextColor.intClr.get(color.value());
+        if (ctc != null) return String.valueOf(toChar(ctc));
+        return color.asHexString().toUpperCase();
+    }
+
+    private record Gradient(TextColor init, int start, boolean ext) {}
 
     public static boolean compare(final Component of, final Component to) {
         return toString(of).equals(toString(to));

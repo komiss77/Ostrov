@@ -53,10 +53,6 @@
             </includes>
         </resource>
         <resource>
-            <directory>rec</directory>
-            <filtering>false</filtering>
-        </resource>
-        <resource>
             <directory>lib</directory>
             <filtering>false</filtering>
         </resource>

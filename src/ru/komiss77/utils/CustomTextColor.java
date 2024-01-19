@@ -55,6 +55,6 @@ public class CustomTextColor implements TextColor {
     }
 
     public static CustomTextColor[] values() {
-        return VALUES.values().toArray(new CustomTextColor[VALUES.size()]);
+        return VALUES.values().toArray(new CustomTextColor[0]);
     }
 }
