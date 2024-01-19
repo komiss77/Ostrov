@@ -702,7 +702,6 @@ public class TCUtils {
                                 gradient = null;
                                 sb.append("§").append(clr); decor.clear();
                             }
-
                         }
                     } else if (lstClr != null) {
                         sb.append("§r"); decor.clear();

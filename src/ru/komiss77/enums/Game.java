@@ -72,7 +72,7 @@ public enum Game {
     private static final CaseInsensitiveMap<Game> nameMap; //напихать максимально для распознавания
     
     
-    private Game(final String defaultlogo, final int statSlot, final int menuPage, final int menuSlot, final String suggestName, final String serverName, final ServerType type, final String mat, final String displayName, final List<String> description, final int level, final int reputation){
+    Game(final String defaultlogo, final int statSlot, final int menuPage, final int menuSlot, final String suggestName, final String serverName, final ServerType type, final String mat, final String displayName, final List<String> description, final int level, final int reputation){
         this.defaultlogo = defaultlogo;
         this.statSlot = statSlot;
         this.menuPage = menuPage;
@@ -105,13 +105,6 @@ public enum Game {
             
             
             displayNames.add(game.suggestName);
-            //if (!game.serverName.isEmpty()) {
-               //snm.put(d.serverName.toLowerCase(),d);
-               //nm.put(game.serverName.toLowerCase(),game);
-            //} //else {
-                //snm.put(game.name().toLowerCase(),game);
-            //}
-            //nm.put(game.name().toLowerCase(),game);
         }
         //nameMap = Collections.unmodifiableMap(nm);
         nameMap.put("хаб", LOBBY);
@@ -122,7 +115,6 @@ public enum Game {
         nameMap.put("lobby1", LOBBY);
         nameMap.put("lobby2", LOBBY);
         nameMap.put("lobby3", LOBBY);
-        nameMap.put("lobby4", LOBBY);
         nameMap.put("lobby4", LOBBY);
         nameMap.put("skyblock", SK); //фикс-портал в лобби отпраляет на skyblock
         

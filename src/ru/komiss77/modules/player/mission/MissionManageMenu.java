@@ -33,10 +33,8 @@ public class MissionManageMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent content) {
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 5, 5);
         content.fillRect(0,0,  4,8, fill);
-        
 
-
-    if ( (buttonsCurrent==null || buttonsCurrent.isEmpty()) && (buttonsDone==null || buttonsDone.isEmpty())) {
+        if ( (buttonsCurrent==null || buttonsCurrent.isEmpty()) && (buttonsDone==null || buttonsDone.isEmpty())) {
             
             content.set(1,4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
                 .name("§7Миссия невыполнима")
@@ -48,16 +46,10 @@ public class MissionManageMenu implements InventoryProvider {
             ));
 
         } else {
-        
-            final List <ClickableItem> buttons = new ArrayList<>();
 
-            for (final ClickableItem icon : buttonsCurrent) {
-                buttons.add(icon);
-            }
+            final List<ClickableItem> buttons = new ArrayList<>(buttonsCurrent);
             if (buttonsDone!=null) {
-                for (final ClickableItem icon : buttonsDone) {
-                    buttons.add(icon);
-                }
+                buttons.addAll(buttonsDone);
             }
 
             final Pagination pagination = content.pagination();
@@ -84,25 +76,5 @@ public class MissionManageMenu implements InventoryProvider {
             pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
         }
-
-
-               
-        
-        
-
-        
- 
-
     }
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

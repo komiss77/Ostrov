@@ -92,7 +92,7 @@ public class QuestManager implements Initiable {
 
     //для квестов где ammount>0
     public static int updatePrg(final Player p, final Oplayer op, final Quest qs) {
-        if (disabled() || justGame(op)) return 0;
+        if (disabled()) return 0;
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
             AdvanceCrazy.sendProgress(p, qs, 0, true);
@@ -104,7 +104,7 @@ public class QuestManager implements Initiable {
 
     //для квестов где ammount>0
     public static int updatePrg(final Player p, final Oplayer op, final Quest qs, final IProgress prg, final boolean silent) {
-        if (disabled() || justGame(op)) return 0;
+        if (disabled()) return 0;
 //		p.sendMessage("qs-" + qs.displayName + ", prg=" + prg.getProg() + ", amt=" + prg.getGoal());
         AdvanceCrazy.sendProgress(p, qs, prg.getProg(), false);
         if (prg.isDone()) {
@@ -124,7 +124,7 @@ public class QuestManager implements Initiable {
     }
 
     public static void showForPl(final Player p, final Oplayer op) {
-        if (disabled() || justGame(op)) return;
+        if (disabled()) return;
         if (Bukkit.isPrimaryThread()) {
             AdvanceCrazy.loadPlQs(p, op);
         } else {
@@ -138,7 +138,7 @@ public class QuestManager implements Initiable {
     //ну, естественно он будет завершен, если был получен и не был завершен, что проверяется выше.
     //checkProgress нужен для отладки из меню квестов (чтобы не засылало в updateProgress и не меняло lp.getProgress)
     public static boolean complete(final Player p, final Oplayer op, final Quest quest) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         if (!Bukkit.isPrimaryThread()) {
             Ostrov.log_warn("Асинхронный вызов tryCompleteQuest :" + quest + ", " + p.getName());
@@ -162,7 +162,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         if (addProgress(p, op, qs, 1)) {
             return true;
@@ -180,7 +180,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final int i) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
@@ -197,7 +197,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final Comparable<?> obj) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
@@ -218,7 +218,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean resetProgress(final Player p, final Oplayer op) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         AdvanceCrazy.resetProgress(p, false);
         op.quests.clear();
@@ -226,7 +226,7 @@ public class QuestManager implements Initiable {
     }
 
     public static int getProgress(final Oplayer op, final Quest qs) {
-        if (disabled() || justGame(op)) return 0;
+        if (disabled()) return 0;
 
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
@@ -236,7 +236,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean isComplete(final Oplayer op, final Quest qs) {
-        if (disabled() || justGame(op)) return false;
+        if (disabled()) return false;
 
         final IProgress prg = op.quests.get(qs);
         return prg != null && prg.isDone();
@@ -253,7 +253,7 @@ public class QuestManager implements Initiable {
     
     private static boolean disabled() {
         if (!Config.quests) {
-            Ostrov.log_warn("Tried showing while Quests are off!");
+            Ostrov.log_warn("Tried using while Quests are off!");
             return true;
         }
         return false;
