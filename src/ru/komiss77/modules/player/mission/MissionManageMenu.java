@@ -58,19 +58,15 @@ public class MissionManageMenu implements InventoryProvider {
             pagination.setItemsPerPage(21);
 
             if (!pagination.isLast()) {
-                content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                        -> {
+                content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e -> {
                     content.getHost().open(p, pagination.next().getPage());
-                }
-                ));
+                }));
             }
 
             if (!pagination.isFirst()) {
-                content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                        -> {
+                content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e -> {
                     content.getHost().open(p, pagination.previous().getPage());
-                })
-                );
+                }));
             }
 
             pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));

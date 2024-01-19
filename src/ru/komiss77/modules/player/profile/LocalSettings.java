@@ -121,12 +121,12 @@ public class LocalSettings implements InventoryProvider {
                         float curr;
                         if (p.getAllowFlight()) {
                             curr = p.getFlySpeed();
-                            curr +=0.1;
+                            curr += 0.1f;
                             if (curr>1) curr = 0;
                             p.setFlySpeed(curr);
                         } else { 
                             curr = p.getWalkSpeed();
-                            curr +=0.1;
+                            curr += 0.1f;
                             if (curr>1) curr = 0;
                             p.setWalkSpeed(curr);
                         }

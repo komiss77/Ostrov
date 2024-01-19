@@ -56,37 +56,37 @@ public class GameInfo {
         return switch (game.type) {
             
             case ONE_GAME -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
-                    .addLore("")
-                    .addLore(getState().displayColor+getState().name())
-                    .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : (op.eng?"§4Server is down":"§4Сервер выключен") )
-                    .addLore("")
-                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? (op.eng?"§a⊳ Click - to server":"§a⊳ Клик - на сервер") : "") : (op.eng?"§eNot available !":"§eНедоступна !"))
-                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
-                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
-                    .addLore("")
-                    .addLore(game.description)
-                    .build();
+                .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
+                .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                .addLore("")
+                .addLore(game.description)
+                .addLore("")
+                .addLore(getState().displayColor+getState().name())
+                .addLore( hasLevel && hasReputation && gameOnline >=0 ? (op.eng?"§a⊳ Click - §сPLAY":"§a⊳ Клик - §сИГРАТЬ") : (op.eng?"§eNot available!":"§eНедоступна!"))
+                .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : (op.eng?"§4Server is down":"§4Сервер выключен") )
+//                    .addLore( hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
+//                    .addLore( hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
+                .build();
                 
             case LOBBY -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
-                    .addLore("")
-                    .addLore(getState().displayColor+getState().name())
-                    .addLore("")
-                    .build();
+                .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
+                .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                .addLore("")
+                .addLore(getState().displayColor+getState().name())
+                .build();
                 
             case ARENAS -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
-                    .addLore("")
-                    .addLore(getState().displayColor+getState().name())
-                    .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : "" )
-                    .addLore("")
-                    .addLore( hasLevel && hasReputation ? (gameOnline >=0 ? (op.eng?"§a⊳ Click - to server":"§a⊳ Клик - на сервер") : "") : (op.eng?"§eNot available !":"§eНедоступна !"))
-                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
-                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
-                    .addLore("")
-                    .addLore(game.description)
-                    .build();
+                .name(op.eng ? Lang.t(game.displayName, EnumLang.EN_US) : game.displayName)
+                .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                .addLore("")
+                .addLore(game.description)
+                .addLore("")
+                .addLore(getState().displayColor+getState().name())
+                .addLore( hasLevel && hasReputation && gameOnline >=0 ? (op.eng?"§a⊳ Click - §сPLAY":"§a⊳ Клик - §сИГРАТЬ") : (op.eng?"§eNot available!":"§eНедоступна!"))
+                .addLore( gameOnline>=0 ? (op.eng?"§7Players: ":"§7Играют: ")+gameOnline : "" )
+//                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
+//                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
+                .build();
                 
             default -> new ItemStack(Material.AIR);
                 
@@ -213,22 +213,13 @@ public class GameInfo {
     }
 
     public GameState getState() {
-        switch (game.type) {
-                    
-            case LOBBY:
-                return GameState.РАБОТАЕТ;
-                
-            case ONE_GAME:
-                return gameOnline>=0 ? GameState.РАБОТАЕТ : GameState.ВЫКЛЮЧЕНА;
+        return switch (game.type) {
+            case LOBBY -> GameState.РАБОТАЕТ;
+            case ONE_GAME -> gameOnline >= 0 ? GameState.РАБОТАЕТ : GameState.ВЫКЛЮЧЕНА;
+            case ARENAS -> arenas.isEmpty() ? GameState.ВЫКЛЮЧЕНА : GameState.РАБОТАЕТ;
+            default -> GameState.НЕОПРЕДЕЛЕНО;
+        };
 
-            case ARENAS:
-                return arenas.isEmpty() ? GameState.ВЫКЛЮЧЕНА : GameState.РАБОТАЕТ;
-			default:
-				break;
-                    
-            }
-        
-        return GameState.НЕОПРЕДЕЛЕНО;
     }
 
 

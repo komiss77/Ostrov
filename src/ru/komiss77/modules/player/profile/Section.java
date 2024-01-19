@@ -18,6 +18,7 @@ import ru.komiss77.modules.translate.EnumLang;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 
 //http://textures.minecraft.net/texture/be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8
@@ -31,50 +32,58 @@ import ru.komiss77.utils.inventory.ClickableItem;
 //https://minecraft-heads.com/custom-heads/miscellaneous/39696-star звезда 1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd
 public enum Section {
 
-    РЕЖИМЫ (
+    МИНИИГРЫ (
             45,
-            "§b§lВыбор игры", 
-            "§b§lGame selection", 
+            "§gb|с§lВыбор Игры",
+            "§gb|с§lGame Selection",
             "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
             Material.LIGHT_BLUE_STAINED_GLASS_PANE
-    ), 
-    
-   ВОЗМОЖНОСТИ (
+    ),
+
+    РЕЖИМЫ (
+            45,
+            "§gb|с§lВыбор Игры",
+            "§gb|с§lGame Selection",
+            "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
+            Material.LIGHT_BLUE_STAINED_GLASS_PANE
+    ),
+
+    ВОЗМОЖНОСТИ (
             46,
-            "§a§lВозможности", 
-            "§a§lPossibilities", 
+            "§gс|3§lВозможности",
+            "§gс|3§lAbilities",
             "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
             Material.LIME_STAINED_GLASS_PANE
     ), 
     
     ПРОФИЛЬ (
             47,
-            "§7§lПрофиль",
-            "§7§lProfile",
+            "§g3|d§lПрофиль",
+            "§g3|d§lProfile",
             "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1", 
-            Material.BLACK_STAINED_GLASS_PANE
+            Material.GRAY_STAINED_GLASS_PANE
     ),
     
     СТАТИСТИКА (
             48,
-            "§d§lСтатистика", 
-            "§d§lStatistics", 
+            "§gd|9§lСтатистика",
+            "§gd|9§lStatistics",
             "5b4ddb8abed660825b68b922e22a9558c2f208938bd438eaeaccdc3941",
             Material.PURPLE_STAINED_GLASS_PANE
     ),
     
     ДОСТИЖЕНИЯ (
             49,
-            "§3§lДостижения",
-            "§3§lAchievements",
+            "§g9|н§lДостижения",
+            "§g9|н§lAchievements",
             "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f", 
             Material.BROWN_STAINED_GLASS_PANE
     ), 
     
     МИССИИ(
             50,
-            "§6§lМиссии", 
-            "§6§lMissions", 
+            "§gн|6§lМиссии",
+            "§gн|6§lMissions",
             "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
             Material.ORANGE_STAINED_GLASS_PANE
     ), 
@@ -89,16 +98,16 @@ public enum Section {
     
     КОМАНДА (
             52,
-            "§c§lКоманда", 
-            "§c§lParty", 
+            "§g6|c§l§lКоманда",
+            "§g6|c§lParty",
             "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
             Material.RED_STAINED_GLASS_PANE
     ),
     
     ГРУППЫ (
             53,
-            "§c§lПривилегии", 
-            "§c§lPrivileges", 
+            "§gc|ф§lПривилегии",
+            "§gc|ф§lDonations",
             "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
             Material.YELLOW_STAINED_GLASS_PANE
     ), 
@@ -206,14 +215,7 @@ public enum Section {
                     );
                 }
                 consumer = e -> {
-                    switch (e.getClick()) {
-                        case LEFT -> //if (op.menu.section!=section || op.menu.localSettingsPage)
-                            op.menu.openLocalMenu(op.getPlayer());
-                        case RIGHT -> //if (op.menu.section!=section || !op.menu.localSettingsPage)
-                            op.menu.openLocalSettings(op.getPlayer());
-                        case SHIFT_RIGHT -> {
-                        }
-                    }
+                    op.menu.openLocalSettings(op.getPlayer(), e.isRightClick());
                 };
 
                /* return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
@@ -276,9 +278,7 @@ public enum Section {
                 consumer = e -> {
                     switch (e.getClick()) {
                         case LEFT -> op.menu.open(op.getPlayer(), section); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                        case RIGHT -> {
-                            op.getPlayer().performCommand("passport edit");//if (!op.isGuest) op.menu.openPassport(op.getPlayer());
-                        }
+                        case RIGHT -> op.getPlayer().performCommand("passport edit");//if (!op.isGuest) op.menu.openPassport(op.getPlayer());
                         case SHIFT_RIGHT -> {
                             if (!op.isGuest) op.getPlayer().performCommand("passport get");
                         }
@@ -710,7 +710,7 @@ public enum Section {
 
         final ItemStack is = new ItemStack(Material.PLAYER_HEAD);
         final ItemMeta im = is.getItemMeta();
-        im.displayName(Component.text(op.eng ? section.item_nameEn : section.item_nameRu));
+        im.displayName(TCUtils.format(op.eng ? section.item_nameEn : section.item_nameRu));
         im.lore(lore);
         ItemUtils.setHeadTexture((SkullMeta) im, section.texture);
         is.setItemMeta(im);

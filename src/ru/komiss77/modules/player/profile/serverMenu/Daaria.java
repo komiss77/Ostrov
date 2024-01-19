@@ -309,7 +309,7 @@ public class Daaria implements InventoryProvider {
             .addLore("")
             .addLore("")
             .build(), e-> {
-                pm.openLocalSettings(p);
+                pm.openLocalSettings(p, true);
             }));
         
        // if (Ostrov.deluxeChat) {

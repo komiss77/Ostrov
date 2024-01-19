@@ -1,12 +1,9 @@
 package ru.komiss77.modules.player.profile;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -15,36 +12,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import net.kyori.adventure.text.Component;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
-import ru.komiss77.Perm;
-import ru.komiss77.Timer;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.Game;
-import ru.komiss77.enums.HistoryType;
-import ru.komiss77.enums.Stat;
-import ru.komiss77.enums.Table;
+import ru.komiss77.*;
+import ru.komiss77.enums.*;
+import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
+import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
 import ru.komiss77.modules.player.profile.serverMenu.LocalMenuOpener;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.hook.WGhook;
-import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
-import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class ProfileManager {
 
@@ -79,17 +72,12 @@ public class ProfileManager {
         }
 //Ostrov.log("isProfileInventory="+invTitle);
         switch (invTitle) {
-            case "Режимы", "Локальные настройки", "Возможности", "Профиль", "Статистика", "Достижения", "Миссии", "Друзья", "Команда" -> {
-                return true;
-            }
-            case "Games", "Local Settings", "Possibilities", "Profile", "Statistics", "Achievements", "Missions", "Friends", "Party" -> {
+            case "Режимы", "Локальные настройки", "Возможности", "Профиль", "Статистика", "Достижения", "Миссии", "Друзья", "Команда",
+                    "Games", "Local Settings", "Possibilities", "Profile", "Statistics", "Achievements", "Missions", "Friends", "Party" -> {
                 return true;
             }
         }
-        if (invTitle.startsWith("Меню сервера") || invTitle.startsWith("Server menu")) {
-            return true;
-        }
-        return false;
+        return invTitle.startsWith("Меню сервера") || invTitle.startsWith("Server menu");
     }
 
     public void open(final Player p, final Section section) {
@@ -102,27 +90,41 @@ public class ProfileManager {
             case РЕЖИМЫ -> {
                 game = null; //при клике или переходе на режимы если открыты арены - сбросить на игры и переоткрыть
                 current = SmartInventory
-                        .builder()
-                        //.parent(parent)
-                        .id(op.nik + section.name())
-                        .provider(new GameSection())
-                        .size(6, 9)
-                        .title(op.eng ? "Games" : "Режимы")
-                        .build()
-                        .open(p);
+                    .builder()
+                    //.parent(parent)
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new GameMenu(false))
+                    .size(6, 9)
+                    .build()
+                    .open(p);
+            }
+
+            case МИНИИГРЫ -> {
+                game = null; //при клике или переходе на режимы если открыты арены - сбросить на игры и переоткрыть
+                current = SmartInventory
+                    .builder()
+                    //.parent(parent)
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new GameMenu(true))
+                    .size(6, 9)
+                    .build()
+                    .open(p);
             }
 
             case ВОЗМОЖНОСТИ -> {
                 if (localSettingsPage) {
                     current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new LocalSettings())
-                            .size(6, 9)
-                            .title(op.eng ? "Local Settings" : "Локальные настройки")
-                            .build()
-                            .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new LocalSettings())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
                 } else {
+                    localSettingsPage = true;
                     LocalMenuOpener.open(p, op);
                 }
             }
@@ -130,34 +132,34 @@ public class ProfileManager {
             case ПРОФИЛЬ -> {
                 profileMode = ProfileMode.Главное;
                 current = SmartInventory
-                        .builder()
-                        .id(op.nik + section.name())
-                        .provider(new ProfileSection())
-                        .size(6, 9)
-                        .title(op.eng ? "Profile" : "Профиль")
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new ProfileSection())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
             }
 
             case СТАТИСТИКА ->
                 current = SmartInventory
-                        .builder()
-                        .id(op.nik + section.name())
-                        .provider(new StatSection())
-                        .size(6, 9)
-                        .title(op.eng ? "Statistics" : "Статистика")
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new StatSection())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
 
             case ДОСТИЖЕНИЯ ->
                 current = SmartInventory
-                        .builder()
-                        .id(op.nik + section.name())
-                        .provider(new AdvSection())
-                        .size(6, 9)
-                        .title(op.eng ? "Achievements" : "Достижения")
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new AdvSection())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
 
             case МИССИИ ->
                 MissionManager.openMissionsMenu(op, true);
@@ -179,12 +181,16 @@ public class ProfileManager {
     }
 
     public void openLocalMenu(final Player p) {
-        localSettingsPage = false;
-        open(p, Section.ВОЗМОЖНОСТИ);
+        LocalMenuOpener.open(p, op);
     }
 
+    @Deprecated
     public void openLocalSettings(final Player p) {
-        localSettingsPage = true;
+        openLocalSettings(p, false);
+    }
+
+    public void openLocalSettings(final Player p, final boolean settings) {
+        localSettingsPage = settings;
         open(p, Section.ВОЗМОЖНОСТИ);
     }
 
@@ -196,7 +202,7 @@ public class ProfileManager {
                 .id(op.nik + section.name())
                 .provider(new Donate())
                 .size(6, 9)
-                .title(op.eng ? "Support the project" : "Поддержать проект")
+                .title(op.eng ? "§gc|н§lSupport the project" : "§gc|н§lПоддержать проект")
                 .build()
                 .open(op.getPlayer());
     }
@@ -311,7 +317,7 @@ public class ProfileManager {
             final List<ClickableItem> buttons = new ArrayList<>();
 
             try (Statement stmt = OstrovDB.getConnection().createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM `withdraw` WHERE `name`='" + p.getName() + "' ORDER BY `time` DESC");) {
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM `withdraw` WHERE `name`='" + p.getName() + "' ORDER BY `time` DESC")) {
 
 
                 while (rs.next()) {
@@ -868,7 +874,7 @@ public class ProfileManager {
                             continue;
                         }
                         gi = GM.getGameInfo(g);
-                        if (gi != null) {
+                        if (gi != null && g.menuSlot > 0) {
                             current.setItem(g.menuSlot, gi.getIcon(op));
                         } //обновляем только активные
                     }
@@ -1011,15 +1017,15 @@ public class ProfileManager {
     }
 
     public enum FriendMode {
-        Просмотр, Поиск, Настройки, Письма;
+        Просмотр, Поиск, Настройки, Письма
     }
 
     public enum ProfileMode {
-        Главное, Журнал, Вывод, Пермишены, Паспорт, Игнор, Репорты, АккаунтыБД, ГруппыПраваБД;
+        Главное, Журнал, Вывод, Пермишены, Паспорт, Игнор, Репорты, АккаунтыБД, ГруппыПраваБД
     }
 
     public enum LocalMode {
-        Главное, TPA, Регионы, Дома;
+        Главное, TPA, Регионы, Дома
     }
 
 }

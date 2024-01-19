@@ -46,14 +46,7 @@ public class LocalMenuOpener {
                 break;
                 
             default:
-                op.menu.current = SmartInventory
-                    .builder()
-                    .id(op.nik+op.menu.section.name())
-                    .provider(new Default())
-                    .size(6, 9)
-                    .title("Меню сервера")
-                    .build()
-                    .open(p);
+                op.menu.openLastSection(p);
                 break;
 
         }

@@ -46,7 +46,7 @@ public class Friends {
                 .id(op.nik+op.menu.section.name())
                 .provider(new PartyView())
                 .size(6, 9)
-                .title("Команда : Просмотр")
+                .title(op.eng ? Section.КОМАНДА.item_nameEn : Section.КОМАНДА.item_nameRu)
                 .build()
                 .open(op.getPlayer());
     }
@@ -60,7 +60,8 @@ public class Friends {
                 .id(op.nik+op.menu.section.name())
                 .provider(new PartySettings())
                 .size(6, 9)
-                .title("Команда : Настройки")
+                .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Settings" :
+                    Section.КОМАНДА.item_nameRu + "§8: Настройки")
                 .build()
                 .open(op.getPlayer());
     }
@@ -73,7 +74,8 @@ public class Friends {
                 .id(op.nik+op.menu.section.name())
                 .provider(new PartyFind())
                 .size(6, 9)
-                .title("Команда : Добавить")
+                .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Invite" :
+                    Section.КОМАНДА.item_nameRu + "§8: Добавить")
                 .build()
                 .open(op.getPlayer());
     }
@@ -263,7 +265,7 @@ public class Friends {
                                     .id(op.nik+op.menu.section.name())
                                     .provider(new FriendMail(mails))
                                     .size(6, 9)
-                                    .title("Друзья : Письма")
+                                    .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Messages" : Section.ДРУЗЬЯ.item_nameRu + "§8: Письма")
                                     .build()
                                     .open(op.getPlayer());
                         }
@@ -284,7 +286,7 @@ public class Friends {
                     .id(op.nik+op.menu.section.name())
                     .provider(new FriendView(rawData))
                     .size(6, 9)
-                    .title("Друзья")
+                    .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn : Section.ДРУЗЬЯ.item_nameRu)
                     .build()
                     .open(op.getPlayer());
         }// else p.sendMessage("уже другое меню"); }
@@ -298,7 +300,7 @@ public class Friends {
                 .id(op.nik+op.menu.section.name())
                 .provider(new FriendSettings())
                 .size(6, 9)
-                .title("Друзья : Настройки")
+                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Settings" : Section.ДРУЗЬЯ.item_nameRu + "§8: Настройки")
                 .build()
                 .open(op.getPlayer());
     }
@@ -311,7 +313,7 @@ public class Friends {
                 .id(op.nik+op.menu.section.name())
                 .provider(new FriendFind())
                 .size(6, 9)
-                .title("Друзья : Добавить")
+                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Invite" : Section.ДРУЗЬЯ.item_nameRu + "§8: Добавить")
                 .build()
                 .open(op.getPlayer());
     }
