@@ -244,14 +244,6 @@ public class BotManager implements Initiable, Listener {
 		                    if (BotManager.rIdBots.containsKey(((PacketPlayOutEntityMetadata) pc).a())) {
 		                        pit.remove();
 		                    }
-		                } else if (packet instanceof PacketPlayOutEntityTeleport) {
-		                    if (BotManager.rIdBots.containsKey(((PacketPlayOutEntityTeleport) pc).a())) {
-		                        pit.remove();
-		                    }
-		                } else if (packet instanceof PacketPlayOutUpdateAttributes) {
-		                    if (BotManager.rIdBots.containsKey(((PacketPlayOutUpdateAttributes) pc).a())) {
-		                        pit.remove();
-		                    }
 		                } else if (pc instanceof PacketPlayOutEntity) {
 		                    if (BotManager.rIdBots.containsKey(entId.get(pc))) {
 		                        pit.remove();
@@ -283,7 +275,6 @@ public class BotManager implements Initiable, Listener {
                 
                 
 //                Bukkit.getConsoleSender().sendMessage("p-" + packet);
-                
                 super.write(chc, packet, channelPromise);
             }
         });

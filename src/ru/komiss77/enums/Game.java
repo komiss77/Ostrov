@@ -12,18 +12,18 @@ public enum Game {
         //слот в меню статы  : страница в меню режимов : слот в меню режимов
     GLOBAL  ("", 4, 0, 0, "", "", ServerType.NONE, "NAUTILUS_SHELL", "§eОстров", Arrays.asList(""),0, 0),
     
-    LOBBY   ("§6☣1 ", 0, 0, 22, "ХАБ", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6§k0 §e§lЛобби §6§k0", Arrays.asList(""), 0, -99),
+    LOBBY   ("§6☣1 ", 0, 0, 49, "ХАБ", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6§k0 §e§lЛобби §6§k0", Arrays.asList(""), 0, -99),
 
-    DA      ("§a❂ ", 1, 0, 3, "Даария", "daaria", ServerType.ONE_GAME, "NETHERITE_SWORD", "§a§lДаария", Arrays.asList("§fКлассическое выживание.","§fДанжи, работа, приваты и др."), 0, -99),
-    SE      ("§4☠ ", 2, 0, 24, "Седна", "sedna_wastes", ServerType.ONE_GAME, "CRIMSON_NYLIUM", "§c§lСедна", Arrays.asList("§c§nУльтраХаркор, постАпокалипсис.", "§c§nскиллы, боссы, магия!", "§c§nНовичкам не рекомендуется.","§bБета Тест"), 0, -99),
-    AR      ("§a☺ ", 3, 0, 5, "Аркаим", "arcaim", ServerType.ONE_GAME, "DIAMOND_PICKAXE", "§e§lАркаим", Arrays.asList("§fОтдохни, расслабься!","§fКреатив для всех!"), 0, -99),
-    MI      ("§5✠ ", 4, 0, 16, "Мидгард", "midgard", ServerType.ONE_GAME, "SCULK_SHRIEKER", "§d§lМидгард", Arrays.asList("§fКланы, турели, ","§fразвитие, войны"), 0, -99),
-    SK      ("§f☯ ", 5, 0, 20, "Скай-Ворлд", "skyworld", ServerType.ONE_GAME, "FLOWERING_AZALEA", "§b§lОстрова", Arrays.asList("§fНачни жизнь на крохотном островке","§fи построй Империю!"), 0, -99),
-    OB      ("§b◈ ", 6, 0, 28, "Ван-Блок", "oneblock", ServerType.ONE_GAME, "AZALEA", "§bOneBlock", Arrays.asList("§fКогда классический","§fСкайблокслишком сложен,","§fвам сюда!","§fЛомайте всего один блок,","§fи развивайтесь!"), 0, -77),
-    SD      ("§f✜ ", 7, 0, 30, "Скай-Грид", "skygrid", ServerType.ONE_GAME, "SPAWNER", "§bSkyGrid", Arrays.asList("§fНевероятное приключение","§fв сетчатом мире.","§fСобирай всё, что нужно,","§fи победи дракона","§fкак можно быстрее!"), 0, -77),
-    EN      ("E", 7, 0, 10, "Энигма", "enigma", ServerType.ONE_GAME, "END_PORTAL_FRAME", "§d§lЭнигма", Arrays.asList("§fСервер тайн и загадок"), 0, -77),
-    PA      ("§5❖ ", 8, 0, 34, "Паркуры", "parkur", ServerType.ONE_GAME, "FEATHER", "§b§lПаркуры", Arrays.asList("§fМного паркуров разной сложности"), 0, -77),
-    FA      ("§5🤓 ", 9, 0, 16, "Фатта", "fatta", ServerType.ONE_GAME, "LECTERN", "§ф§lФатта", Arrays.asList("§fЛамповый РП Режим","§fРаботы, города, банды...","§кВ РАЗРАБОТКЕ!"), 0, -99),
+    DA      ("§a❂ ", 1, 0, 3, "Даария", "daaria", ServerType.ONE_GAME, "NETHERITE_SWORD", "§a§lДаария", Arrays.asList("§оКлассическое выживание", "§она последней версии игры.", "§оТорговля, работы, приваты, и др.", "§eЗаходи и развивайся с друзьями!"), 0, -99),
+    SE      ("§4☠ ", 2, 0, 15, "Седна", "sedna_wastes", ServerType.ONE_GAME, "CRIMSON_NYLIUM", "§4§lСедна", Arrays.asList("§cХардкорный режим с новыми", "§cскиллами, мирами, мобами,", "§cкрафтами, и постройками.", "§eУничтожай местную фауну!", " ", "§4§nНе для новичков. [Бета Тест]"), 0, -99),
+    AR      ("§a☺ ", 3, 0, 11, "Аркаим", "arcaim", ServerType.ONE_GAME, "DIAMOND_PICKAXE", "§e§lАркаим", Arrays.asList("§бОтдохни, расслабься, построй", "§бчто душа пожелает. Халявный", "§бкреатив для всех!", "§eЗапривать и обустрой территорию!"), 0, -99),
+    MI      ("§5✠ ", 4, 0, 0, "Мидгард", "midgard", ServerType.ONE_GAME, "SCULK_SHRIEKER", "§d§lМидгард", Arrays.asList("§фБанды, оружие, работы, и", "§фмногое другое ждет тебя.", "§eНовый и интересный РП режим!", " ", "§к§n[В Разработке]"), 0, -99),
+    SK      ("§f☯ ", 5, 0, 5, "Скай-Ворлд", "skyworld", ServerType.ONE_GAME, "FLOWERING_AZALEA", "§b§lОстрова", Arrays.asList("§нНачни жизнь на крохотном", "§ностровке, добывай ресурсы,", "§ни выполняй задания.", "§eПострой свою империю с нуля!"), 0, -99),
+    OB      ("§b◈ ", 6, 0, 29, "Ван-Блок", "oneblock", ServerType.ONE_GAME, "AZALEA", "§bOneBlock", Arrays.asList("§нПогрузись в выживание на", "§нодном блоке в пустоте,", "§нрасширяя границы за преодоление", "§нразличных фаз.", "§eПострой свою империю с нуля!"), 0, -77),
+    SD      ("§f✜ ", 7, 0, 39, "Скай-Грид", "skygrid", ServerType.ONE_GAME, "SPAWNER", "§bSkyGrid", Arrays.asList("§нВыживи в брутальной сетке", "§нблоков, собери всё, чтобы", "§нпостроить собственный островок", "§ни пройти игру.", "§eПострой свою империю с нуля!"), 0, -77),
+    PA      ("§5❖ ", 8, 0, 33, "Паркуры", "parkur", ServerType.ONE_GAME, "FEATHER", "§b§lПаркуры", Arrays.asList("§мОтточи свое мастерство паркура", "§мна нашем захватывающем режиме", "§мс 60+ различных карт.", "§eПородемонстрируй свое проворство!"), 0, -77),
+    EN      ("E", 7, 0, 0, "Энигма", "enigma", ServerType.ONE_GAME, "END_PORTAL_FRAME", "§d§lЭнигма", Arrays.asList("§5Сервер тайн и загадок"), 0, -77),
+    FA      ("§5🤓 ", 9, 0, 41, "Фатта", "fatta", ServerType.ONE_GAME, "LECTERN", "§ф§lФатта", Arrays.asList("§фБанды, оружие, работы, и", "§фмногое другое ждет тебя.", "§eНовый и интересный РП режим!", " ", "§к§n[В Разработке]"), 0, -99),
     
     BW      ("§e☢ ", 18, 1, 10, "бедварс", "bw01", ServerType.ARENAS, "RED_BED", "§e§lБедВарс", Arrays.asList(""), 0, -77),
     SG      ("§c☠ ", 19, 1, 25, "голодные", "sg01", ServerType.ARENAS, "GOLDEN_APPLE", "§4§lГолодные Игры", Arrays.asList(""), 0, -77),
@@ -37,7 +37,7 @@ public enum Game {
     TW      ("§e▦ ", 27, 1, 30, "твист", "twis", ServerType.ARENAS, "MUSIC_DISC_RELIC", "§d§lТвист", Arrays.asList(""), 0, -77),
     SN      ("§6ಊ ", 28, 1, 32, "змейка", "snek", ServerType.ARENAS, "STRING", "§f§lЗмейка", Arrays.asList(""), 0, -77),
     CS      ("§3✡ ", 29, 1, 19, "контра", "cs01", ServerType.ARENAS, "FLINT_AND_STEEL", "§5§lКонтра", Arrays.asList(""), 0, -77),
-    HS      ("§a۩ ", 30, 1, 22, "прятки", "hs01", ServerType.ARENAS, "JACK_O_LANTERN", "§3§lПрятки", Arrays.asList(""), 0, -77),
+    HS      ("§a۩ ", 30, 1, 13, "прятки", "hs01", ServerType.ARENAS, "JACK_O_LANTERN", "§3§lПрятки", Arrays.asList(""), 0, -77),
     QU      ("§4⚛ ", 31, 1, 29, "квэйк", "qu01", ServerType.ARENAS, "TRIDENT", "§c§lКвэйк", Arrays.asList(""), 0, -77),
     
     ;
@@ -72,7 +72,7 @@ public enum Game {
     private static final CaseInsensitiveMap<Game> nameMap; //напихать максимально для распознавания
     
     
-    private Game(final String defaultlogo, final int statSlot, final int menuPage, final int menuSlot, final String suggestName, final String serverName, final ServerType type, final String mat, final String displayName, final List<String> description, final int level, final int reputation){
+    Game(final String defaultlogo, final int statSlot, final int menuPage, final int menuSlot, final String suggestName, final String serverName, final ServerType type, final String mat, final String displayName, final List<String> description, final int level, final int reputation){
         this.defaultlogo = defaultlogo;
         this.statSlot = statSlot;
         this.menuPage = menuPage;
@@ -105,13 +105,6 @@ public enum Game {
             
             
             displayNames.add(game.suggestName);
-            //if (!game.serverName.isEmpty()) {
-               //snm.put(d.serverName.toLowerCase(),d);
-               //nm.put(game.serverName.toLowerCase(),game);
-            //} //else {
-                //snm.put(game.name().toLowerCase(),game);
-            //}
-            //nm.put(game.name().toLowerCase(),game);
         }
         //nameMap = Collections.unmodifiableMap(nm);
         nameMap.put("хаб", LOBBY);
@@ -122,7 +115,6 @@ public enum Game {
         nameMap.put("lobby1", LOBBY);
         nameMap.put("lobby2", LOBBY);
         nameMap.put("lobby3", LOBBY);
-        nameMap.put("lobby4", LOBBY);
         nameMap.put("lobby4", LOBBY);
         nameMap.put("skyblock", SK); //фикс-портал в лобби отпраляет на skyblock
         

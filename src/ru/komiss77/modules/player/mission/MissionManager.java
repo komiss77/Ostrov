@@ -239,7 +239,7 @@ public class MissionManager {
                     .id(op.nik+op.menu.section.name())
                     .provider(new ProfileManageMenu(null, null))
                     .size(6, 9)
-                    .title(op.eng ? "Missions" : "Миссии")
+                    .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
                     .build()
                     .open(op.getPlayer());
                 return;
@@ -256,7 +256,7 @@ public class MissionManager {
 //System.out.println("missions="+missions);
 
             try (Statement stmt = OstrovDB.getConnection().createStatement();
-                   ResultSet rs = stmt.executeQuery( "SELECT * FROM `missionsProgress` WHERE `name` = '"+op.nik+"' " ); ){ 
+                   ResultSet rs = stmt.executeQuery( "SELECT * FROM `missionsProgress` WHERE `name` = '"+op.nik+"' " ) ){
 
 
                 Mission mission;
@@ -389,7 +389,7 @@ public class MissionManager {
                                 showAmmount = !customStatsShowAmmount.containsKey(requestName) || customStatsShowAmmount.get(requestName);//customStatsShowAmmount.containsKey(requestName)?customStatsShowAmmount.get(requestName):true;
                                 
                                 if (stat==null) {
-                                    displayName = "§b"+(customStatsDisplayNames.containsKey(requestName)?customStatsDisplayNames.get(requestName):requestName)+ (showAmmount?" §7: §d":"");
+                                    displayName = "§b"+(customStatsDisplayNames.getOrDefault(requestName, requestName))+ (showAmmount?" §7: §d":"");
                                 } else {
                                     displayName = stat.game.displayName+"§7, "+stat.desc+"§d";
                                 }

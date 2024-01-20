@@ -86,7 +86,9 @@ public class BotEntity extends EntityPlayer {
 
 	private static GameProfile getProfile(final String name) {
 		final GameProfile gp = new GameProfile(UUID.randomUUID(), name);
-		gp.getProperties().put("textures", new Property("textures", BotManager.skinVal.get(name), BotManager.skinSig.get(name)));
+		gp.getProperties().put("textures", new Property("textures",
+				BotManager.skinVal.getOrDefault(name, ""),
+			BotManager.skinSig.getOrDefault(name, "")));
 		return gp;
 	}
 	

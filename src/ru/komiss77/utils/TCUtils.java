@@ -406,7 +406,7 @@ public class TCUtils {
 
     public static String stripColor(final Component cmp) {
         final StringBuilder sb = new StringBuilder();
-        if (cmp instanceof TextComponent) sb.append(((TextComponent) cmp).content());
+        if (cmp instanceof TextComponent) sb.append(stripColor(((TextComponent) cmp).content()));
         for (final Component ch : cmp.children()) sb.append(stripColor(ch));
         return sb.toString();
     }
@@ -702,7 +702,6 @@ public class TCUtils {
                                 gradient = null;
                                 sb.append("§").append(clr); decor.clear();
                             }
-
                         }
                     } else if (lstClr != null) {
                         sb.append("§r"); decor.clear();

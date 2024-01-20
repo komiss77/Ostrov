@@ -176,14 +176,14 @@ public class AdvanceCrazy implements Listener {
        	else Ostrov.sync(() -> onAdvCls.accept(e.getPlayer()));
     }
     
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         final String qss = op.mysqlData.get("quests");
         if (qss == null || qss.isEmpty() || !Config.quests) return;
         final String[] split = qss.split(LocalDB.LINE_SPLIT);
 //      p.sendMessage(Arrays.toString(split));
-	    int stamp = -1;
+	    int stamp;
 	    for (String quest : split) {
 	        if (quest.isEmpty()) continue;
 	        final Quest qs = QuestManager.byCode(quest.charAt(0));
@@ -194,7 +194,7 @@ public class AdvanceCrazy implements Listener {
 	            if (stamp>0) op.quests.put(qs, qs.createPrg(stamp));
 	        } else op.quests.put(qs, qs.createPrg(0).markDone());
 	    }
-	    
+
 	    QuestManager.showForPl(e.getPlayer(), op);
     }
     

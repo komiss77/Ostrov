@@ -1,15 +1,7 @@
 package ru.komiss77.modules.player;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -131,6 +123,7 @@ public class Oplayer {
     public final String nik;
     public final UUID id;
     public boolean eng; //true - english; false - russian
+    public Locale locale; //true - english; false - russian
     public int karmaCalc, reputationCalc; //просчитывается в 
     private final int loginTime = ApiOstrov.currentTimeSec();
     private int daylyLoginTime=loginTime;   //время входа для дневной статы, сброс в полночь

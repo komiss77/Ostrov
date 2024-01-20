@@ -226,7 +226,7 @@ public class ProfileSection implements InventoryProvider {
         
         
         final int repu_base = op.getDataInt(Data.REPUTATION);
-        final int playDay = ((int)op.getStat(Stat.PLAY_TIME)/86400);
+        final int playDay = op.getStat(Stat.PLAY_TIME) / 86400;
         final int passFill = StatManager.getPassportFill(op);
         final int statFill = op.getStatFill();
         final int groupCounter = StatManager.getGroupCounter(op);
