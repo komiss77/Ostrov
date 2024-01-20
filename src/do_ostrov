@@ -8,7 +8,7 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 "+Lang.t(p, "           (bp.e ? "" :     
 final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 
-
+ScoreBoardBelow показывает не под владельцем борды а под другими
 меню создания вложенных квестов + система отображения и хранения
 доделки WE: скан не сохран.текст табличек
 ресурспаки - на прокси?
