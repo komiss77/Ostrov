@@ -9,7 +9,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.TCUtils;
-
 import java.util.Iterator;
 
 
@@ -39,6 +38,17 @@ public class CustomScore {
         ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
         ownerTeam.setCanSeeFriendlyInvisibles(false);
         p.setScoreboard(ownerBoard);
+        onJoin();
+    }
+    
+    public CustomScore(final String botName) {
+        name = botName;
+        ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
+        sideBar = null;
+        ownerTeam = ownerBoard.registerNewTeam("_" + name);
+        //ownerTeam.addEntry(name);
+        ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
+        ownerTeam.setCanSeeFriendlyInvisibles(false);
         onJoin();
     }
     
