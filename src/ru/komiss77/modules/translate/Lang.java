@@ -3,7 +3,6 @@ package ru.komiss77.modules.translate;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.Translatable;
 import org.asynchttpclient.*;
@@ -119,21 +118,15 @@ public class Lang {
     
     
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
-    public static Component t (final Player p, final Object o) {
-        if (!(o instanceof Translatable)) return err;
-        final Locale locale = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
-        return t(o, locale);
+    public static <T extends Translatable> Component t (final Player p, final T o) {
+        if (o == null) return err;
+//        final Locale locale = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
+        return t(o, p.locale());
     }
 
-    public static Component t (final Object o, final Locale locale) {
-        if (!(o instanceof Translatable)) return err;
-        try {
-            final TranslatableComponent tc = Component.translatable((Translatable)o);
-            return GlobalTranslator.render(tc, locale);
-        } catch (IllegalArgumentException ex) {
-            Ostrov.log_warn("Lang.t : "+ex.getMessage());
-            return err;
-        }
+    public static <T extends Translatable> Component t (final T o, final Locale locale) {
+        if (o == null) return err;
+        return GlobalTranslator.render(Component.translatable(o), locale);
     }
 
     
