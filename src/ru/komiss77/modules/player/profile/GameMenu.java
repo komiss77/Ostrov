@@ -5,6 +5,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
+import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
@@ -45,9 +46,6 @@ public class GameMenu implements InventoryProvider {
         content.set(52, slab);
         
         final Oplayer op = PM.getOplayer(p);
-
-        
-        
         
         if (mini) {
 
@@ -60,9 +58,17 @@ public class GameMenu implements InventoryProvider {
 
                 if (game.menuSlot>0) {
                     content.set(game.menuSlot, ClickableItem.of( gi.getIcon(op), e-> {
-                            p.performCommand("server "+game.serverName);
-                        }
-                    ));
+                        if (e.isLeftClick()) {
+                            final ArenaInfo ai = gi.arenas.get(0);
+                            if (ai!=null) {
+                                if (game == GM.GAME) {
+                                    p.sendMessage("§6Вы и так уже на этом сервере!");
+                                    return;
+                                }
+                                p.performCommand("server "+ai.server);
+                            }
+                        } else op.menu.openArenaMenu(p, game);
+                    }));
                 }
             }
 
@@ -95,9 +101,15 @@ public class GameMenu implements InventoryProvider {
 
                 if (game.menuSlot>0) {
                     content.set(game.menuSlot, ClickableItem.of( gi.getIcon(op), e-> {
-                            p.performCommand("server "+game.serverName);
+                        final ArenaInfo ai = gi.arenas.get(0);
+                        if (ai!=null) {
+                            if (game == GM.GAME) {
+                                p.sendMessage("§6Вы и так уже на этом сервере!");
+                                return;
+                            }
+                            p.performCommand("server "+ai.server);
                         }
-                    ));
+                    }));
                 }
             }
 

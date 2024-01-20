@@ -109,24 +109,31 @@ public class Lang {
             return translate(ruMsg, locale);
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
-    public static <T extends Translatable> Component t (final Player p, final T o) {
-        if (o == null) return err;
-//        final Locale locale = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
-        return t(o, p.locale());
+    @Deprecated
+    public static  Component t (final Player p, final Object o) {
+        return o instanceof Translatable ? t((Translatable) o, p) : err;
     }
 
-    public static <T extends Translatable> Component t (final T o, final Locale locale) {
-        if (o == null) return err;
-        return GlobalTranslator.render(Component.translatable(o), locale);
+    @Deprecated
+    public static  Component t (final Object o, final Locale locale) {
+        return o instanceof Translatable ? t((Translatable) o, locale) : err;
+    }
+
+    //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
+    public static Component t (final Translatable o, final Player p) {
+        return o == null ? err : t(o, p.locale());
+    }
+
+    public static Component t (final Translatable o, final Locale locale) {
+        return o == null ? err : GlobalTranslator.render(Component.translatable(o), locale);
     }
 
     
