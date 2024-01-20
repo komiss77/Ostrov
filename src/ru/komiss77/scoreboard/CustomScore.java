@@ -1,16 +1,16 @@
 package ru.komiss77.scoreboard;
 
-import java.util.Iterator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.TCUtils;
+
+import java.util.Iterator;
 
 
 public class CustomScore {

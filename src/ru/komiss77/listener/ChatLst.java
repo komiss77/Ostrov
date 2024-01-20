@@ -1,13 +1,7 @@
 package ru.komiss77.listener;
 
 import com.destroystokyo.paper.ClientOption;
-import java.util.Iterator;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -17,9 +11,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import java.util.ArrayList;
-import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -36,6 +33,10 @@ import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.InputButton;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 //https://docs.advntr.dev/serializer/gson.html
 
 //SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsg); - отправлять русск и англ сообщ
@@ -45,7 +46,8 @@ public class ChatLst implements Listener {
     
     private static final boolean TRANSLATE_CHAT = true;
 
-    private static final TextColor NIK_COLOR;
+    public static final String NIK_COLOR;
+    //    private static final TextColor NIK_COLOR;
     private static final TextColor MSG_COLOR;
     private static final TextComponent SUGGEST_MUTE_TOOLTIP_RU;
     //private static final TextComponent SUGGEST_BLACKLIST_TOOLTIP_RU;
@@ -58,7 +60,7 @@ public class ChatLst implements Listener {
     private static final ClickEvent DONATE_CLICK_URL;
 
     static {
-        NIK_COLOR = NamedTextColor.DARK_GREEN;
+        NIK_COLOR = "§gн|b";
         MSG_COLOR = NamedTextColor.GRAY;
         SUGGEST_MUTE_TOOLTIP_RU = TCUtils.format("§кКлик - выдать молчанку");
         //SUGGEST_BLACKLIST_TOOLTIP_RU = TCUtils.format("§кКлик - кинуть в ЧС");
@@ -176,7 +178,7 @@ public class ChatLst implements Listener {
         //лого сервера - готовый компонент
         //инфо игры - готовый компонент
         ce.senderName = senderName;
-        ce.banned = banned;
+        ce.banned = false;
         ce.muted = muted;
         ce.prefix =  senderOp.getDataString(Data.PREFIX)+" ";
         
@@ -278,22 +280,22 @@ public class ChatLst implements Listener {
         
         //ник игрока
         if (ce.getOplayer().isGuest) {
-            bRU.append(TCUtils.format(ce.getOplayer().getDataString(Data.FAMILY)).color(NIK_COLOR)
+            bRU.append(TCUtils.format(NIK_COLOR + ce.getOplayer().getDataString(Data.FAMILY))
                 .hoverEvent(HoverEvent.showText(TCUtils.format(ce.playerTooltip)))
                 .clickEvent(ClickEvent.suggestCommand("/msg "+ce.senderName))
             );
 
-            bEN.append(TCUtils.format(ce.senderName).color(NIK_COLOR)
+            bEN.append(TCUtils.format(NIK_COLOR + ce.senderName)
                 .hoverEvent(HoverEvent.showText(TCUtils.format(ce.playerTooltip)))
                 .clickEvent(ClickEvent.suggestCommand("/msg "+ce.senderName))
             );
         } else {
-            bRU.append(TCUtils.format(ce.senderName).color(NIK_COLOR)
+            bRU.append(TCUtils.format(NIK_COLOR + ce.senderName)
                 .hoverEvent(HoverEvent.showText(TCUtils.format(ce.playerTooltip)))
                 .clickEvent(ClickEvent.suggestCommand("/msg "+ce.senderName))
             );
 
-            bEN.append(TCUtils.format(ce.senderName).color(NIK_COLOR)
+            bEN.append(TCUtils.format(NIK_COLOR + ce.senderName)
                 .hoverEvent(HoverEvent.showText(TCUtils.format(ce.playerTooltip)))
                 .clickEvent(ClickEvent.suggestCommand("/msg "+ce.senderName))
             );
@@ -396,29 +398,15 @@ public class ChatLst implements Listener {
                         .append(msgEN);
 
                 } else if (!senderWorldName.equals("lobby")) { //отправитель не в мире лобби - игровое сообщение
-                    
-                    if (ce.getViewerGameInfo()!=null) {
-                        //resultRU = ce.getViewerGameInfo().append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
-                        resultRU = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
-                                .hoverEvent(HoverEvent.showText(TCUtils.format("§кКлик - кинуть в ЧС")))
-                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
-                                .append(msgRU);
-                        
-                        //resultEN = ce.getViewerGameInfo().append(TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
-                        resultEN = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
-                                .hoverEvent(HoverEvent.showText(TCUtils.format("§кClick - add to blackList")))
-                                .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
-                                .append(msgEN);
-                    } else {
-                        resultRU = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+
+                    resultRU = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
                             .hoverEvent(HoverEvent.showText(TCUtils.format("§кКлик - кинуть в ЧС")))
                             .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
                             .append(msgRU);
-                        resultEN = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
+                    resultEN = TCUtils.format("§6<§e"+ce.senderName+"§6> §7§o≫ §f")
                             .hoverEvent(HoverEvent.showText(TCUtils.format("§кClick - add to blackList")))
                             .clickEvent(ClickEvent.suggestCommand("/ignore add "+ce.senderName))
                             .append(msgEN);
-                    }
 
                 } else {
                     resultRU = bRU.build();//GM.getLogo().append(bRU.build());//b.build();

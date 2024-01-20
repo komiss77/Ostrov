@@ -1,17 +1,15 @@
 package ru.komiss77.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import java.net.URI;
-import java.util.Base64;
+
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.FireworkEffect;
@@ -487,8 +485,7 @@ public class ItemUtils {
 
     public static boolean damage(final HumanEntity p, final ItemStack it, final int damage, final EntityEffect breackEffect, final boolean checkEnch) {
         //p.sendMessage("1");
-        if (!isBlank(it, false) && it.getItemMeta() instanceof Damageable) {
-            final Damageable dm = (Damageable) it.getItemMeta();
+        if (!isBlank(it, false) && it.getItemMeta() instanceof final Damageable dm) {
             if (!dm.isUnbreakable()) {
                 if (it.containsEnchantment(Enchantment.DURABILITY) && checkEnch
                         && Ostrov.random.nextInt(it.getEnchantmentLevel(Enchantment.DURABILITY) + 1) == 0) {
@@ -506,8 +503,6 @@ public class ItemUtils {
                     //p.sendMessage("itmx-" + it.getType().getMaxDurability());
                     p.playEffect(breackEffect);
                     switch (breackEffect) {
-                        case BREAK_EQUIPMENT_MAIN_HAND ->
-                            p.getInventory().setItemInMainHand(air);
                         case BREAK_EQUIPMENT_OFF_HAND ->
                             p.getInventory().setItemInOffHand(air);
                         case BREAK_EQUIPMENT_HELMET ->
@@ -563,7 +558,7 @@ public class ItemUtils {
         if (is == null || is.getType() == Material.AIR) {
             return "air:1";
         }
-        final StringBuffer res = new StringBuffer(is.getType().toString().toLowerCase() + ":" + is.getAmount());//apple<>1
+        final StringBuilder res = new StringBuilder(is.getType().toString().toLowerCase() + ":" + is.getAmount());//apple<>1
         final String spl = " " + splitter + " ";
 
         if (is.hasItemMeta()) {
@@ -699,7 +694,7 @@ public class ItemUtils {
             return builder.name("§cСтрока для декодирования ошибочная!").build();
         }
 
-        if (splitter == null || splitter.isBlank()) {
+        if (splitter.isBlank()) {
             Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, Разделитель не может быть пробелом!");
             return builder.name("§cРазделитель для декодирования ошибочный!").build();
         }
@@ -788,7 +783,7 @@ public class ItemUtils {
                     case "color":
                         if (splittedParam.length == 4) {
                             if (ApiOstrov.isInteger(splittedParam[1]) && ApiOstrov.isInteger(splittedParam[2]) && ApiOstrov.isInteger(splittedParam[3])) {
-                                builder.setColor(Color.fromRGB(Integer.valueOf(splittedParam[1]), Integer.valueOf(splittedParam[2]), Integer.valueOf(splittedParam[3])));
+                                builder.setColor(Color.fromRGB(Integer.parseInt(splittedParam[1]), Integer.parseInt(splittedParam[2]), Integer.parseInt(splittedParam[3])));
                             } else {
                                 Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[1] + " " + splittedParam[2] + " " + splittedParam[3]);
                             }
@@ -801,7 +796,7 @@ public class ItemUtils {
                     case "custommodeldata":
                         if (splittedParam.length == 2) {
                             if (ApiOstrov.isInteger(splittedParam[1])) {
-                                int modelData = Integer.valueOf(splittedParam[1]);
+                                int modelData = Integer.parseInt(splittedParam[1]);
                                 if (modelData < 0) {
                                     modelData = 0;
                                 }
@@ -869,7 +864,7 @@ public class ItemUtils {
                             }
                             if (enchant != null) {
                                 if (ApiOstrov.isInteger(splittedParam[2])) {
-                                    builder.addEnchant(enchant, Integer.valueOf(splittedParam[2]));
+                                    builder.addEnchant(enchant, Integer.parseInt(splittedParam[2]));
                                 } else {
                                     Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[2]);
                                 }
@@ -891,7 +886,7 @@ public class ItemUtils {
                                     if (potionType != null) {
                                         if ((splittedParam[2].equalsIgnoreCase("true") || splittedParam[2].equalsIgnoreCase("false"))
                                                 && (splittedParam[2].equalsIgnoreCase("true") || splittedParam[2].equalsIgnoreCase("false"))) {
-                                            builder.setBasePotionData(new PotionData(potionType, Boolean.valueOf(splittedParam[2].toLowerCase()), Boolean.valueOf(splittedParam[3].toLowerCase())));
+                                            builder.setBasePotionData(new PotionData(potionType, Boolean.parseBoolean(splittedParam[2].toLowerCase()), Boolean.parseBoolean(splittedParam[3].toLowerCase())));
                                         } else {
                                             Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, должно быть true/false §f" + splittedParam[2] + " " + splittedParam[3]);
                                         }
@@ -917,7 +912,7 @@ public class ItemUtils {
                                     final PotionEffectType potionEffectType = PotionEffectType.getByName(splittedParam[1]);
                                     if (potionEffectType != null) {
                                         if (ApiOstrov.isInteger(splittedParam[2]) && ApiOstrov.isInteger(splittedParam[2])) {
-                                            builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.valueOf(splittedParam[2].toLowerCase()), Integer.valueOf(splittedParam[3].toLowerCase())));
+                                            builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.parseInt(splittedParam[2].toLowerCase()), Integer.parseInt(splittedParam[3].toLowerCase())));
                                         } else {
                                             Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[2] + " " + splittedParam[3]);
                                         }
@@ -1329,8 +1324,8 @@ public class ItemUtils {
         VANISHING_CURSE (Enchantment.VANISHING_CURSE, "vanishing_curse"),
         ;
         
-        public Enchantment enchantment;
-        public String key;
+        public final Enchantment enchantment;
+        public final String key;
         
         private EnchantDecode (Enchantment enchantment, String key) {
             this.enchantment = enchantment;
