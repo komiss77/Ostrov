@@ -1400,7 +1400,7 @@ public class ItemUtils {
             }
         }
 
-        builder.name(Lang.t(null, b));
+        builder.name(Lang.t(b, Lang.RU));
 
         return builder;
     }
@@ -1416,7 +1416,7 @@ public class ItemUtils {
         }
         //
 
-        builder.name(Lang.t(null, type));
+        builder.name(Lang.t(type, Lang.RU));
         return builder;
     }
 

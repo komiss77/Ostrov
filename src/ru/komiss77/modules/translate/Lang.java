@@ -1,5 +1,12 @@
 package ru.komiss77.modules.translate;
 
+import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -19,13 +26,6 @@ import ru.komiss77.Timer;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file
 //https://github.com/AsyncHttpClient/async-http-client
@@ -111,23 +111,30 @@ public class Lang {
     }
     
     
-    
-    
-    
-    
+
+    //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
+    @Deprecated
+    public static  Component t (final Player p, final Object o) {
+        return o instanceof Translatable ? t((Translatable) o, p) : err;
+    }
+
+    @Deprecated
+    public static  Component t (final Object o, final Locale locale) {
+        return o instanceof Translatable ? t((Translatable) o, locale) : err;
+    }
+
     
     
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
-    public static <T extends Translatable> Component t (final Player p, final T o) {
-        if (o == null) return err;
-//        final Locale locale = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru") ? RU : p.locale();
-        return t(o, p.locale());
+    public static Component t (final Translatable o, final Player p) {
+        return o == null ? err : t(o, p.locale());
     }
 
-    public static <T extends Translatable> Component t (final T o, final Locale locale) {
-        if (o == null) return err;
-        return GlobalTranslator.render(Component.translatable(o), locale);
-    }
+    public static Component t (final Translatable o, final Locale locale) {
+        return o == null ? err : GlobalTranslator.render(Component.translatable(o), locale);
+    }    
+    
+
 
     
     
@@ -152,6 +159,8 @@ public class Lang {
     
     public static String translate (final String ruMsg, final Locale locale) {
         String trans = ruToEng.get(ruMsg);
+        //при написании \ .\ или ..\ Lang t error : Unexpected character (C) at position 0.
+        
         if (trans == null) { //перевода нема
             
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы

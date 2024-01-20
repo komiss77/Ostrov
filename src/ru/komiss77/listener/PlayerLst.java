@@ -58,6 +58,7 @@ import org.bukkit.potion.PotionEffectType;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import java.util.WeakHashMap;
 import net.kyori.adventure.text.Component;
+import org.bukkit.inventory.meta.Damageable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.LocalDB;
@@ -76,7 +77,6 @@ import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
@@ -161,8 +161,11 @@ public class PlayerLst implements Listener {
         if (!ApiOstrov.isLocalBuilder(p)) return;
         final Oplayer op = PM.getOplayer(p);
         
-        e.setCancelled(true);
-        if (e.getAction()==Action.RIGHT_CLICK_BLOCK ) {
+        //e.setCancelled(true);
+       // if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem()!=null) {
+       //     p.sendMessage("Damageable? "+(e.getItem().getItemMeta() instanceof Damageable));
+       // }
+       /* if (e.getAction()==Action.RIGHT_CLICK_BLOCK ) {
            // Material c = TCUtils.changeColor(mat, DyeColor.YELLOW);
           //  p.sendMessage("inHand="+mat+" change="+c);
             if (p.isSneaking()) {
@@ -204,7 +207,7 @@ public class PlayerLst implements Listener {
               //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
             }
             //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
-        }
+        }*/
     }
     
     
@@ -296,13 +299,13 @@ public class PlayerLst implements Listener {
             ApiOstrov.sendTabList(p, "", "");
         }
         
-        for (final Oplayer otherOp : PM.getOplayers()) {
+        //for (final Oplayer otherOp : PM.getOplayers()) {
             //otherOp.score.onJoin(op);
             //if (otherOp.score.hideNameTags) {
             //    otherOp.score.getTeam().addEntry(op.nik);
             //}
-            VM.getNmsNameTag().updateTag( otherOp, p); //закинуть тэги других игроков вошедшему
-        }
+          //  VM.getNmsNameTag().updateTag( otherOp, p); //закинуть тэги других игроков вошедшему
+       // }
 
     }
 

@@ -168,9 +168,9 @@ public class Oplayer {
     public Location last_death=Bukkit.getWorlds().get(0).getSpawnLocation();
 
     public String chat_group=" ---- ";
-    private String tab_prefix="§7",name_color="§7", tab_suffix="";
+    private String  tab_prefix="§7", name_color="§7", tab_suffix="";
     private TextComponent tag_prefix=TCUtils.format("§7");
-    private TextComponent tag_suffix=TCUtils.format("");
+    private TextComponent tag_suffix=Component.empty();
 
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;

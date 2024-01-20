@@ -2,7 +2,6 @@ package ru.komiss77.modules.world;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,7 +23,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
-
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
@@ -60,7 +58,7 @@ class PasteJob  implements Runnable {
         this.world = world;
         cuboidSize = cuboid.volume();
         
-        task = Bukkit.getScheduler().runTaskTimer(Ostrov.instance, this, 2, 1);
+        task = Bukkit.getScheduler().runTaskTimer(Ostrov.instance, PasteJob.this, 2, 1);
         
         WE.getChunks(cuboid.getLowerLocation(world), cuboid.getHightesLocation(world)).stream().forEach( (chunk) -> {
             for (Entity e : chunk.getEntities()) {
@@ -124,10 +122,19 @@ class PasteJob  implements Runnable {
                 blockDataAsString = schem.blockDatas.get(sLoc);
                 if (blockDataAsString!=null) {//if (schem.blockDatas.containsKey(sLoc)) { //есть блокдата\
 //Ostrov.log("bd="+blockDataAsString);
-                    final BlockData bd = Bukkit.createBlockData(blockDataAsString);
-                    if (rotate!=Rotate.r0) {
-                        rotateData(bd, rotate);
-                    }//rotateData(schem.blockDatas.get(sLoc));
+
+                    //200124 серануло java.lang.IllegalArgumentException: Could not parse data: CraftBlockData{minecraft:bamboo_slab[type=bottom,waterlogged=false]}
+                    BlockData bd;
+                    try {
+                        bd = Bukkit.createBlockData(blockDataAsString);
+                        if (rotate!=Rotate.r0) {
+                            rotateData(bd, rotate);
+                        }
+                    } catch (IllegalArgumentException ex) {
+                        bd = mat.createBlockData();
+                        Ostrov.log_err("parse BlockData "+blockDataAsString+" : "+ex.getMessage());
+                    }
+                    
                     
                     if (mat == block.getType()) {//if (schem.blocks.get(sLoc) == block.getType()) { //тип такой же - обновить блокдату?
                         
@@ -191,12 +198,12 @@ class PasteJob  implements Runnable {
         //}
 //Ostrov.log("rotateData=");
 
-        if (bd instanceof Rotatable) {
-            ((Rotatable) bd).setRotation(rotateFace( ((Rotatable) bd).getRotation(), rt));
+        if (bd instanceof Rotatable rotatable) {
+            rotatable.setRotation(rotateFace(rotatable.getRotation(), rt));
         }
 
-        if (bd instanceof MultipleFacing) {
-            final MultipleFacing mf = (MultipleFacing) bd;
+        if (bd instanceof MultipleFacing multipleFacing) {
+            final MultipleFacing mf = multipleFacing;
             final Set<BlockFace> bfs = mf.getFaces();
             for (final BlockFace bf : bfs) {
                 mf.setFace(bf, false);
@@ -206,12 +213,12 @@ class PasteJob  implements Runnable {
             }
         }
 
-        if (bd instanceof Orientable) {
-            ((Orientable) bd).setAxis(rotateAxis(((Orientable) bd).getAxis(), rt));
+        if (bd instanceof Orientable orientable) {
+            orientable.setAxis(rotateAxis(orientable.getAxis(), rt));
         }
 
-        if (bd instanceof Directional) {
-            ((Directional) bd).setFacing(rotateFace(((Directional) bd).getFacing(), rt));
+        if (bd instanceof Directional directional) {
+            directional.setFacing(rotateFace(directional.getFacing(), rt));
         }
 
         //return bd;

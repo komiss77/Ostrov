@@ -66,7 +66,7 @@ public class HatCmd implements CommandExecutor {
         p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         
         //if (Ostrov.langUtils) {
-            p.sendMessage(Component.text("§aВы одели ").append(Lang.t(p, is.getType() )).append(Component.text(" на голову!"))); 
+            p.sendMessage(Component.text("§aВы одели ").append(Lang.t(is.getType(), p )).append(Component.text(" на голову!"))); 
         //} else {
         //    p.sendMessage("§aВы одели "+p.getInventory().getHelmet().getType().name()+" на голову!"); 
         //}

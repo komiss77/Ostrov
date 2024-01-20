@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.EntityUtil;
@@ -98,10 +99,9 @@ public class EntityByGroup implements InventoryProvider {
         for (final EntityType type : count.keySet()) {
             
             find = count.get(type);
-            
             menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(type)
                 //.name("§f"+ (Translate.getEntityName(type, EnumLang.RU_RU) ) )
-                .name(Lang.t(p, type))
+                .name(Lang.t(type, p))
                 .setAmount(find>64 ? 1 : find)
                 .addLore("§7")
                 .addLore("§7Найдено: §e"+ find )

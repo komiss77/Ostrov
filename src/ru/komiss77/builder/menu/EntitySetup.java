@@ -68,9 +68,9 @@ public class EntitySetup implements InventoryProvider {
             content.add(ClickableItem.of( new ItemBuilder(Material.ANVIL)
                 .name("§fПрофессия")
                 .addLore("")
-                .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(p, prof_prev).style(Style.style(NamedTextColor.GOLD))))
-                .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(p, prof).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(p, prof_next).style(Style.style(NamedTextColor.GOLD))))
+                .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
                 .addLore("")
                 .build(), e -> {
                     if (e.isLeftClick()) {
@@ -110,9 +110,9 @@ public class EntitySetup implements InventoryProvider {
             content.add(ClickableItem.of( new ItemBuilder(Material.ANVIL)
                 .name("§fПрофессия")
                 .addLore("")
-                .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(p, prof_prev).style(Style.style(NamedTextColor.GOLD))))
-                .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(p, prof).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(p, prof_next).style(Style.style(NamedTextColor.GOLD))))
+                .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
                 .addLore("")
                 .build(), e -> {
                     if (e.isLeftClick()) {

@@ -224,6 +224,10 @@ public class PM {
         op.updScore();
         op.updateGender();
         op.updTabListName(p);
+        if (op.isGuest) {
+            String displayName = op.isGuest ? "§8(Гость) §f"+op.getDataString(Data.FAMILY) : "§f"+op.nik;
+            op.tag(displayName, "§0", "");
+        }
         
         op.setLocalChat(false); //вернуть глобальный чат - фикс проблемы выхода с миниигр из мира карты
         //if (op.hasFlag(StatFlag.LocalChat)) {
