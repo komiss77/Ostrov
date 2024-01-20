@@ -204,7 +204,7 @@ public class Oplayer {
         id=p.getUniqueId();
         menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
-        if (p instanceof Player player) score=new CustomScore(player);
+        if (p instanceof Player player) score = new CustomScore(player);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
     
@@ -323,41 +323,24 @@ public class Oplayer {
         updTabListName(p);
     }
     
-    public String nameColor() {
-    	return name_color;
-    }
-    
-    public void nameColor(final String nameColor, final Player p) {
-    	name_color = nameColor == null ? "" : nameColor;
-        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
-        updTabListName(p);
-    }
-    
     public void updTabListName (final Player p) {
         if (Config.tablist_name) {//final String name = name_color + (isGuest ? "Гость_" + nik.substring(6) : nik);
             final String displayName = isGuest ? "§8(Гость) " + name_color + getDataString(Data.FAMILY) : name_color + nik;
             p.playerListName(TCUtils.format(tab_prefix + displayName + tab_suffix));
-            //p.displayName(TCUtils.format(displayName));
-            //if (isGuest) {
-                //tag ("§8(", "§8)§f"+getDataString(Data.FAMILY));
-//Ostrov.log_warn("updateTag!!!!!");
-                //VM.getNmsNameTag().updateTag("§8(Гость) ", displayName, "", nameColor().charAt(1), Bukkit.getOnlinePlayers(), pl -> isTagVis(pl));
-            //}//tag("§8(Гость) ", "");
         }
     }
     
-    
-    public void tag(final String prefix, final String suffix) {
-    	tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
-    	tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
-        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+    //показать/скрыть ник этого оплеера от других
+    public void nameTag(final boolean visible) {
+        if (visible) {
+            score.showNameTag();
+        } else {
+            score.hideNameTag();
+        }
     }
     
-    public void tag(final String prefix, final String color, final String suffix) {
-    	tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
-    	tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
-    	name_color = color == null ? "" : color;
-        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+    public String nameColor() {
+    	return name_color;
     }
     
     public TextComponent tagPrefix() {
@@ -368,9 +351,39 @@ public class Oplayer {
     	return tag_suffix;
     }
     
+    public void nameColor(final String nameColor, final Player p) {
+    	name_color = nameColor == null ? "" : nameColor;
+        updTabListName(p);
+        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+        //score.nameColor(nameColor);
+        score.tag(tag_prefix, name_color, tag_suffix);
+    }
+    
+    
+    public void tag(final String prefix, final String suffix) {
+        tag (prefix, name_color, suffix);
+    	//tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
+    	//tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
+        //VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+        //score.tag(tag_prefix, tag_suffix);
+    }
+    
+    public void tag(final String prefix, final String color, final String suffix) {
+    	tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
+    	tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
+    	name_color = color == null ? "" : color;
+        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+        score.tag(tag_prefix, color, tag_suffix);
+    }
+    
     public boolean isTagVis(final Player to) {
     	return true;
     }
+  
+    
+    
+    
+    
     
     public void onPVPEnter(final Player p, final int time, 
     	final boolean blockFly, final boolean giveTag) {
@@ -689,6 +702,7 @@ public class Oplayer {
     	if (!mysqlError && !mysqlData.isEmpty() && LocalDB.useLocalData) {
             Ostrov.async(()->LocalDB.saveLocalData(p, this), 0); //op.mysqlData не должна быть пустой, если загружало!
     	}
+        score.onQuit();
     }
     
     

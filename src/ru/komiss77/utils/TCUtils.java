@@ -894,11 +894,11 @@ public class TCUtils {
     	return getDyeColor((TextColor) color);
     }
     
-    @Deprecated //вроде только в кланах
+    //@Deprecated //вроде только в кланах иногда юзается в разных плагинах
     public static NamedTextColor chatColorFromString(final String s) {
     	final TextColor tc = getTextColor(s);
     	return tc instanceof NamedTextColor ? 
-    		(NamedTextColor) tc : NamedTextColor.WHITE;
+            (NamedTextColor) tc : NamedTextColor.WHITE;
     }
     
 }

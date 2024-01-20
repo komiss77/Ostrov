@@ -5,26 +5,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
-
 import ru.komiss77.utils.TCUtils;
-
 import org.bukkit.entity.Player;
-
-
 
 
 public class SideBar {
     
-    private String name;
-    private Objective obj;
-    private CustomScore board;
-    private HashMap <Integer, Line> entries;
+    private final CustomScore board;
+    private final String name;
+    private final Objective obj;
+    private final HashMap <Integer, Line> entries;
     
     public SideBar(final Player p, final CustomScore board, final String title) {
         entries = new HashMap<>();
-        this.name = p.getName();
+        name = p.getName();
         this.board = board;
-        (obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.format(title))).setDisplaySlot(DisplaySlot.SIDEBAR);
+        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.format(title));
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
     
     public Player getPlayer() {

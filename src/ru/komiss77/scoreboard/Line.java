@@ -2,28 +2,24 @@ package ru.komiss77.scoreboard;
 
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Team;
-
 import net.kyori.adventure.text.Component;
 import ru.komiss77.utils.TCUtils;
 
 
-
-
-
-
-
+//чтобы строчки были с цветом, они дрбавляются как тимы
 public class Line {
     
     private Team team;
-    private Score score;
+    private final Score score;
     private int hash; //String content;
     
     public Line(final CustomScore scoreBoard, final String s, final int color) {
         final String string = TCUtils.getColor(color - 1) + "§r";
         team = scoreBoard.getScoreboard().registerNewTeam(string);
-        (this.score = scoreBoard.getSideBar().getObjective().getScore(string)).setScore(color);
+        score = scoreBoard.getSideBar().getObjective().getScore(string);
+        score.setScore(color);
         team.addEntry(string);
-        update(s);
+        Line.this.update(s);
     }
     
     public void unregister() {

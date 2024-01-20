@@ -158,41 +158,48 @@ public class PlayerLst implements Listener {
     //@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-//        final Oplayer op = PM.getOplayer(p);
+        if (!ApiOstrov.isLocalBuilder(p)) return;
+        final Oplayer op = PM.getOplayer(p);
         
+        e.setCancelled(true);
         if (e.getAction()==Action.RIGHT_CLICK_BLOCK ) {
            // Material c = TCUtils.changeColor(mat, DyeColor.YELLOW);
           //  p.sendMessage("inHand="+mat+" change="+c);
             if (p.isSneaking()) {
-                e.setCancelled(true);
-                //Material mat = e.getPlayer().getInventory().getItemInMainHand().getType();
-               // Locale l = Locale.forLanguageTag("ru_ru");
-                //TranslatableComponent tc = Component.translatable(mat);
-                Component c = Lang.t(p, p.getInventory().getItemInMainHand());//GlobalTranslator.render(tc, l);
-                p.sendMessage(Component.text("biome = ").append(Lang.t(p, p.getLocation().getBlock().getBiome())));
-                p.sendMessage(Component.text("item = ").append(c));
-                
-                //p.sendMessage(Lang.t(p, p.getInventory().getItemInMainHand()));
+                op.tag("", "§7", "");
+                p.sendMessage("tag reset");
                 //op.tag(Component.text("vvv", NamedTextColor.GOLD), Component.text("zzz", NamedTextColor.BLUE));
             } else {
-               // op.tag(null, null);
+                op.tag("§apref", "§b", "§esuff");
+                p.sendMessage("tag set");
             }
-            //ItemStack is = p.getInventory().getItemInMainHand();
-           // p.sendMessage("canChangeColor?"+TCUtils.canChangeColor(is.getType()));
-         //   p.sendMessage("stripMaterialName="+TCUtils.stripMaterialName(is.getType().name()));
-           // p.sendMessage("changeColor="+TCUtils.changeColor(is.getType(), DyeColor.BLUE));
-            //PlayerInput.get(InputType.CHAT, p, s -> p.sendMessage(s), null);
-          //  p.sendMessage("left:"+op.getCd("test"));
-          //  ApiOstrov.sendActionBar(p, "§7ab=" + ++count);
-            //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
+
         }
         if (e.getAction()==Action.LEFT_CLICK_BLOCK ) {
            // op.addCd("test", count++);
             if (p.isSneaking()) {
-                //e.setCancelled(true);
+                op.nameTag(true);
+                p.sendMessage("tag on");
                 //Lang.sendMessage(p, "ВСТАВЛЕНО");
                // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
             } else {
+                op.nameTag(false);
+                p.sendMessage("tag off");
+               // Lang.sendMessage(p, "Изменить паспортные данные");
+              //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
+            }
+            //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
+        }
+        if (e.getAction()==Action.LEFT_CLICK_AIR ) {
+           // op.addCd("test", count++);
+            if (p.isSneaking()) {
+                op.score.showBelow("aaaaaa"+ApiOstrov.randInt(0, 10), 1);
+                p.sendMessage("below add");
+                //Lang.sendMessage(p, "ВСТАВЛЕНО");
+               // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
+            } else {
+                op.score.removeBelow();
+                p.sendMessage("below off");
                // Lang.sendMessage(p, "Изменить паспортные данные");
               //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
             }
@@ -288,10 +295,12 @@ public class PlayerLst implements Listener {
         } else {
             ApiOstrov.sendTabList(p, "", "");
         }
+        
         for (final Oplayer otherOp : PM.getOplayers()) {
-            if (otherOp.score.hideNameTags) {
-                otherOp.score.getTeam().addEntry(op.nik);
-            }
+            //otherOp.score.onJoin(op);
+            //if (otherOp.score.hideNameTags) {
+            //    otherOp.score.getTeam().addEntry(op.nik);
+            //}
             VM.getNmsNameTag().updateTag( otherOp, p); //закинуть тэги других игроков вошедшему
         }
 
@@ -310,11 +319,12 @@ public class PlayerLst implements Listener {
             op.onLeave(p);
         }
         
-        for (final Oplayer otherOp : PM.getOplayers()) {
-            if (otherOp.score.hideNameTags) {
-                otherOp.score.getTeam().removeEntry(p.getName());
-            }
-        }
+        //for (final Oplayer otherOp : PM.getOplayers()) {
+            //otherOp.score.onQuit(op);
+            //if (otherOp.score.hideNameTags) {
+            //    otherOp.score.getTeam().removeEntry(p.getName());
+            //}
+        //}
         
     }
 

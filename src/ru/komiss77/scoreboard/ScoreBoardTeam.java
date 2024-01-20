@@ -2,25 +2,23 @@ package ru.komiss77.scoreboard;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
-
-import ru.komiss77.utils.TCUtils;
 
 
 
-
+@Deprecated
 public class ScoreBoardTeam {
     
-    private Scoreboard board;
+ //   private Scoreboard board;
     //private List<Team> teams;
-    private Team team;
+  //  private Team team;
     
+    @Deprecated
     public ScoreBoardTeam( final String name, final Scoreboard board) {
         
-        team = board.registerNewTeam(name);
-        team.prefix(TCUtils.format(""));
-        team.suffix(TCUtils.format(""));
-        team.addEntry(name);
+    //    team = board.registerNewTeam(name);
+    //    team.prefix(TCUtils.format(""));
+    //    team.suffix(TCUtils.format(""));
+     //   team.addEntry(name);
        
         
      /* this.teams = new ArrayList<>();
@@ -45,6 +43,7 @@ public class ScoreBoardTeam {
         }*/
     }
     
+    @Deprecated
     public void add(final Player player) {
        /* final Team registerNewTeam = this.board.registerNewTeam(player.getName());
         final PlayerData playerStatus = GameManager.players_data.get(player.getName());//game.getStats().get(player.getUniqueId());
@@ -56,9 +55,10 @@ public class ScoreBoardTeam {
         this.teams.add(registerNewTeam);*/
     }
     
+    @Deprecated
     public void remove(final Player player) {
-        final Team team = this.board.getTeam(player.getName());
-        team.unregister();
+      //  final Team team = this.board.getTeam(player.getName());
+     //   team.unregister();
         //this.teams.remove(team);
     }
     
@@ -66,6 +66,7 @@ public class ScoreBoardTeam {
     //    return this.teams;
     //}
     
+    @Deprecated
     public void update(final Player player) {
        /* final Team team = this.board.getTeam(player.getName());
         final boolean contains = game.getSpectators().contains(player);
@@ -75,12 +76,14 @@ public class ScoreBoardTeam {
         Main.getVersionInterface().hideNameTag(team);
     */}
 
+    @Deprecated
     public void setPrefix(final String prefix) {
-        team.prefix(TCUtils.format(prefix));
+      //  team.prefix(TCUtils.format(prefix));
     }
 
+    @Deprecated
     public void setSuffix(final String suffix) {
-        team.suffix(TCUtils.format(suffix));
+      //  team.suffix(TCUtils.format(suffix));
     }
     
     

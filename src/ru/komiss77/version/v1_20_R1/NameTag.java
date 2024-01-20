@@ -84,7 +84,7 @@ public class NameTag implements INameTag {
 
     private void updateTag(final String name, final Component pfx, final Component sfx,
             final char clr, final Player to, final Predicate<Player> canSee) {
-        final Scoreboard board = VM.getNmsServer().toNMS().aF();
+      /*  final Scoreboard board = VM.getNmsServer().toNMS().aF();
         final ScoreboardTeam team = board.g(name);
         team.b(PaperAdventure.asVanilla(pfx));
         team.c(PaperAdventure.asVanilla(sfx));
@@ -106,12 +106,12 @@ public class NameTag implements INameTag {
         pc.a(teamPacket);
         pc.a(teamCreatePacket);
         pc.a(teamAddPacket);
-        pc.a(canSee.test(to) ? teamModifySame : teamModifyDiff);
+        pc.a(canSee.test(to) ? teamModifySame : teamModifyDiff);*/
     }
 
     private void updateTag(final String name, final Component pfx, final Component sfx,
             final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {
-        final Scoreboard board = VM.getNmsServer().toNMS().aF();
+    /*    final Scoreboard board = VM.getNmsServer().toNMS().aF();
         final ScoreboardTeam team = board.g(name);
         team.b(PaperAdventure.asVanilla(pfx));
         team.c(PaperAdventure.asVanilla(sfx));
@@ -131,7 +131,7 @@ public class NameTag implements INameTag {
             pc.a(teamCreatePacket);
             pc.a(teamAddPacket);
             pc.a(canSee.test(to) ? teamModifySame : teamModifyDiff);
-        }
+        }*/
     }
 
 //    private static final HashMap<String, ScoreboardTeam> TEAMS = new HashMap<>();
