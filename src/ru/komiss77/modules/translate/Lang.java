@@ -127,7 +127,8 @@ public class Lang {
     
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
     public static Component t (final Translatable o, final Player p) {
-        return o == null ? err : t(o, p.locale());
+        final Locale locale = p==null ? RU : p.locale(); //не убирать! расчитано, что иногда приходит с null, так надо!
+        return o == null ? err : t(o, locale);
     }
 
     public static Component t (final Translatable o, final Locale locale) {
@@ -165,8 +166,9 @@ public class Lang {
             
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
 
+            //ruMsg = ruMsg.replace('\\', ' ');
             //final Request request = rb.setBody("{\"targetLanguageCode\":\""+lang.targetLanguageCode+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
-            final Request request = rb.setBody("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg+"\"}").build();
+            final Request request = rb.setBody("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}").build();
             
             final AsyncCompletionHandler<Response> ah = new AsyncCompletionHandler<>() {
                 @Override

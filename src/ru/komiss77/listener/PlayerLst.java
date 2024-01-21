@@ -58,7 +58,6 @@ import org.bukkit.potion.PotionEffectType;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import java.util.WeakHashMap;
 import net.kyori.adventure.text.Component;
-import org.bukkit.inventory.meta.Damageable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.LocalDB;
@@ -91,7 +90,6 @@ import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.utils.inventory.ItemClickData;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.VM;
 
 
 public class PlayerLst implements Listener {
@@ -309,11 +307,9 @@ public class PlayerLst implements Listener {
 
     }
 
-
     
     @EventHandler(priority = EventPriority.MONITOR) 
     public void PlayerQuit(PlayerQuitEvent e) {
-//System.out.println("----- MONITOR"); 
         e.quitMessage(null);
         final Player p = e.getPlayer();
         final Oplayer op = PM.remove(p.getName());

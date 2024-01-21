@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.Team;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.TCUtils;
 import java.util.Iterator;
+import ru.komiss77.Ostrov;
 
 
 public class CustomScore {
@@ -33,7 +34,7 @@ public class CustomScore {
         name = p.getName();
         ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
         sideBar = new SideBar(p, this, name);
-        ownerTeam = ownerBoard.registerNewTeam("_" + name);
+        ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
         //ownerTeam.addEntry(name);
         ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
         ownerTeam.setCanSeeFriendlyInvisibles(false);
@@ -45,7 +46,7 @@ public class CustomScore {
         name = botName;
         ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
         sideBar = null;
-        ownerTeam = ownerBoard.registerNewTeam("_" + name);
+        ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
         //ownerTeam.addEntry(name);
         ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
         ownerTeam.setCanSeeFriendlyInvisibles(false);
@@ -90,7 +91,7 @@ public class CustomScore {
                 score.ownerTeam.removeEntry(name); //удалить его запись
             } else { //вычистить данные этой борды у других
                 if (score.registeredTeams.remove( name)!=null) {
-                    score.ownerBoard.getTeam("_"+name).unregister();
+                    score.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
                 }
             }
         }
@@ -102,7 +103,7 @@ public class CustomScore {
             for (CustomScore score : boards.values()) {
                 if (score.name.equals(name)) continue; //самому себе не добавлять
                 if (score.registeredTeams.remove( name)!=null) { //убрать инфо о тиме владельца борды, или ник не скроется
-                    score.ownerBoard.getTeam("_"+name).unregister();
+                    score.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
                 } 
                 score.ownerTeam.addEntry(name);
             }
@@ -138,25 +139,45 @@ public class CustomScore {
     }
     
     //добавить в эту борду тимы других игроков
-    private void updTeam(final String ownerName, final Team ownerTeam) {
+    private void updTeam(final String otherName, final Team otherTeam) {
         //if (ownerName.equals(name)) return; //в свою борду не пихаем
 //Ostrov.log("addTeam name="+name+" : "+ownerName);
-        Team t = registeredTeams.get(ownerName);
+        Team t = registeredTeams.get(otherName);
         if (t==null) {
-            t = ownerBoard.registerNewTeam("_"+ownerName);
-            t.addEntry(ownerName);
-            registeredTeams.put(ownerName, t);
+            //regTeam(otherName);
+            t = regTeam(otherName);//ownerBoard.registerNewTeam("_"+ownerName);
+            t.addEntry(otherName);
+            registeredTeams.put(otherName, t);
 //Ostrov.log("registerNewTeam t="+t);
         }
-        t.prefix(ownerTeam.prefix());
-        t.suffix(ownerTeam.suffix());
-        if (ownerTeam.hasColor()) {
-            t.color(NamedTextColor.nearestTo(ownerTeam.color()));
+        t.prefix(otherTeam.prefix());
+        t.suffix(otherTeam.suffix());
+        if (otherTeam.hasColor()) {
+            t.color(NamedTextColor.nearestTo(otherTeam.color()));
         }
     }
 
 
-
+    private Team regTeam(final String name) {
+        Team t;
+        try {
+            t = ownerBoard.registerNewTeam("_"+name);
+        } catch (IllegalArgumentException ex) {
+            t = ownerBoard.getTeam("_"+name);
+            Ostrov.log_err("CustomScore registeredTeam : "+ex.getMessage());
+            //ownerBoard.getTeam("_"+name).unregister();
+        }
+        return t;
+    }
+    
+    private void unregTeam(final String name) {
+        try {
+            ownerBoard.getTeam("_"+name).unregister();
+        } catch (IllegalArgumentException ex) {
+            Ostrov.log_err("CustomScore unregisteredTeam : "+ex.getMessage());
+        }
+    }
+    
 
 
 
@@ -228,7 +249,8 @@ public class CustomScore {
         //ownerTeam.removeEntries(ownerTeam.getEntries());//team.removeEntries(PM.getOplayersNames());
         //hideNameTags = false;
     }
-    
+
+
 
 
     

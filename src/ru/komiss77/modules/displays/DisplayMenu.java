@@ -31,8 +31,6 @@ import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
-
-
 public class DisplayMenu implements InventoryProvider {
 
     private static final BlockData std = Material.STONE.createBlockData();
@@ -47,7 +45,7 @@ public class DisplayMenu implements InventoryProvider {
     @Override
     public void init(final Player p, final InventoryContent its) {
         //dis.setGlowColorOverride(Color.WHITE);
-    	final ClickableItem eti;
+        final ClickableItem eti;
 
         final String bdesc;
         final Billboard bb = switch (dis.getBillboard()) {
@@ -87,7 +85,7 @@ public class DisplayMenu implements InventoryProvider {
                 p.closeInventory();
             }
         }));
-        
+
         final Transformation tr = dis.getTransformation();
         final Vector3f scl = tr.getScale();
         its.set(5, ClickableItem.from(new ItemBuilder(Material.DRIED_KELP_BLOCK).name("§2Изменить Размер")
@@ -95,19 +93,21 @@ public class DisplayMenu implements InventoryProvider {
                 .addLore("§7сейчас: x=" + scl.x + ", y=" + scl.y + ", z=" + scl.z).build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 PlayerInput.get(InputType.ANVILL, p, text -> {
-                	final String[] pts = text.split(";");
-                	if (pts.length == 3) {
-                		try {
-							dis.setTransformation(new Transformation(tr.getTranslation(), tr.getLeftRotation(), 
-								new Vector3f(Float.parseFloat(pts[0]), Float.parseFloat(pts[1]), Float.parseFloat(pts[2])), tr.getRightRotation()));
-						} catch (NumberFormatException ex) {
-							p.sendMessage("§cНеправельный формат!");
-						}
-                	} else p.sendMessage("§cНеправельный формат!");
+                    final String[] pts = text.split(";");
+                    if (pts.length == 3) {
+                        try {
+                            dis.setTransformation(new Transformation(tr.getTranslation(), tr.getLeftRotation(),
+                                    new Vector3f(Float.parseFloat(pts[0]), Float.parseFloat(pts[1]), Float.parseFloat(pts[2])), tr.getRightRotation()));
+                        } catch (NumberFormatException ex) {
+                            p.sendMessage("§cНеправельный формат!");
+                        }
+                    } else {
+                        p.sendMessage("§cНеправельный формат!");
+                    }
                     reopen(p, its);
-                }, ApiOstrov.toSigFigs(scl.x, (byte) 3) + ";" + 
-                	ApiOstrov.toSigFigs(scl.y, (byte) 3) + ";" + 
-                	ApiOstrov.toSigFigs(scl.z, (byte) 3));
+                }, ApiOstrov.toSigFigs(scl.x, (byte) 3) + ";"
+                        + ApiOstrov.toSigFigs(scl.y, (byte) 3) + ";"
+                        + ApiOstrov.toSigFigs(scl.z, (byte) 3));
             }
         }));
 
@@ -133,13 +133,13 @@ public class DisplayMenu implements InventoryProvider {
         }));
 
         if (dis instanceof final TextDisplay tds) {
-        	eti = ClickableItem.empty(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).name("§0.").build());
+            eti = ClickableItem.empty(new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).name("§0.").build());
             its.set(9, eti);
 
             final Component cmp = tds.text();
-            
+
             its.set(13, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GLOBE_BANNER_PATTERN).name("§6Замена Текста")
-            		.addLore("§7Клик - записать новый §6текст").build(), TCUtils.toString(cmp).replace('§', '&'), msg -> {
+                    .addLore("§7Клик - записать новый §6текст").build(), TCUtils.toString(cmp).replace('§', '&'), msg -> {
                 tds.text(TCUtils.format(msg.replace('&', '§')));
                 reopen(p, its);
             }));
@@ -147,11 +147,17 @@ public class DisplayMenu implements InventoryProvider {
             its.set(11, ClickableItem.from(new ItemBuilder(Material.LADDER).name("§яЦентровка Текста")
                     .addLore("§7Клик - изменить §яцентровку").addLore("§7сейчас: §я" + tds.getAlignment().name()).build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
-                	switch (tds.getAlignment()) {
-					case CENTER: tds.setAlignment(TextAlignment.LEFT); break;
-					case LEFT: tds.setAlignment(TextAlignment.RIGHT); break;
-					case RIGHT: tds.setAlignment(TextAlignment.CENTER); break;
-					}
+                    switch (tds.getAlignment()) {
+                        case CENTER:
+                            tds.setAlignment(TextAlignment.LEFT);
+                            break;
+                        case LEFT:
+                            tds.setAlignment(TextAlignment.RIGHT);
+                            break;
+                        case RIGHT:
+                            tds.setAlignment(TextAlignment.CENTER);
+                            break;
+                    }
                     reopen(p, its);
                 }
             }));
@@ -171,10 +177,10 @@ public class DisplayMenu implements InventoryProvider {
                     reopen(p, its);
                 }
             }));
-            
+
             its.set(15, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FEATHER).name("§aДлинна Строки")
-	                .addLore("§7Клик - изменить §aдлинну").addLore("§7сейчас длинна: §a" + tds.getLineWidth()).build(), 
-	                String.valueOf(tds.getLineWidth()), msg -> {
+                    .addLore("§7Клик - изменить §aдлинну").addLore("§7сейчас длинна: §a" + tds.getLineWidth()).build(),
+                    String.valueOf(tds.getLineWidth()), msg -> {
                 tds.setLineWidth(Math.max(ApiOstrov.getInteger(msg), 10));
                 reopen(p, its);
             }));
@@ -185,16 +191,16 @@ public class DisplayMenu implements InventoryProvider {
                     final BlockDisplay nd = dis.getWorld().spawn(dis.getLocation(), BlockDisplay.class);
                     nd.setPersistent(true);
                     nd.setBillboard(Billboard.CENTER);
-                    
+
                     nd.setBlock(std);
-                    
+
                     replace(nd);
                     reopen(p, its);
                 }
             }));
 
         } else if (dis instanceof BlockDisplay) {
-        	eti = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§0.").build());
+            eti = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§0.").build());
 
             its.set(9, ClickableItem.from(new ItemBuilder(Material.GLOBE_BANNER_PATTERN).name("§оДисплей Текста")
                     .addLore("§7Клик - поменять тип на:").addLore("§7дисплей §отекста").build(), e -> {
@@ -202,7 +208,7 @@ public class DisplayMenu implements InventoryProvider {
                     final TextDisplay nd = dis.getWorld().spawn(dis.getLocation(), TextDisplay.class);
                     nd.setPersistent(true);
                     nd.setBillboard(Billboard.CENTER);
-                    
+
                     nd.setSeeThrough(true);
                     nd.setShadowed(true);
                     nd.setLineWidth(200);
@@ -241,7 +247,7 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
         } else if (dis instanceof ItemDisplay) {
-        	eti = ClickableItem.empty(new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).name("§0.").build());
+            eti = ClickableItem.empty(new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).name("§0.").build());
             its.set(17, eti);
 
             its.set(9, ClickableItem.from(new ItemBuilder(Material.BOOKSHELF).name("§чДисплей Блока")
@@ -250,9 +256,9 @@ public class DisplayMenu implements InventoryProvider {
                     final BlockDisplay nd = dis.getWorld().spawn(dis.getLocation(), BlockDisplay.class);
                     nd.setPersistent(true);
                     nd.setBillboard(Billboard.CENTER);
-                    
+
                     nd.setBlock(std);
-                    
+
                     replace(nd);
                     reopen(p, its);
                 }
@@ -305,8 +311,10 @@ public class DisplayMenu implements InventoryProvider {
                     reopen(p, its);
                 }
             }));
-        } else return;
-        
+        } else {
+            return;
+        }
+
         its.set(0, eti);
         its.set(8, eti);
         its.set(18, eti);

@@ -143,5 +143,9 @@ commands:
     description: Получить инструмент
   craft:
     description: Редактирование крафтов
+  prefix:
+    description: prefix
+  suffix:
+    description: suffix
 
 

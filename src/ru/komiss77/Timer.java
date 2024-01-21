@@ -150,8 +150,8 @@ public class Timer {
                         time_left-=1;
                     }
 
-                    cd.values().removeIf(value -> value <= currentTime);
-                    
+                    //cd.values().removeIf(value -> value <= currentTime);
+                    //cd.entrySet().removeIf(entry -> entry.getValue() <= currentTime);
                     //MissionManager.tick(); перенёс в асинх
                     
                     if (lockSecond.compareAndSet(false, true)) {
@@ -190,18 +190,8 @@ public class Timer {
             
             @Override
             public void run() {
-                
-                //всякие обработчики раз  в секунду
-              /*  if (syncTick%20==0) {
-                    if (lockSecond.compareAndSet(false, true)) {
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                asyncSecondJob();
-                            }
-                        }.runTaskAsynchronously(Ostrov.instance);
-                    }
-                }*/
+
+                cd.entrySet().removeIf(entry -> entry.getValue() <= currentTime);//чтобы точнее ловить если надо меньше секунды
                 
                 //отправить запросы в БД острова
                 if (OstrovDB.useOstrovData && OstrovDB.ready && !OstrovDB.QUERY.isEmpty()) {
@@ -215,7 +205,7 @@ public class Timer {
                     }
                 }
                 
-                if (!authMode) {    
+                if (!authMode) {   
                     PM.getOplayers().stream().forEach( (op) -> {
                             op.tick++;
                             if (op.tick==20) {

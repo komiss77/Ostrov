@@ -162,7 +162,7 @@ public class ArcaimLst implements Listener {
                 p.performCommand("menu");
             }
         }
-        if (e.getAction() == Action.PHYSICAL || e.getItem() == null) {
+       /* if (e.getAction() == Action.PHYSICAL || e.getItem() == null) {
             return;
         }
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem().getType().name().endsWith("_EGG")) {
@@ -171,11 +171,11 @@ public class ArcaimLst implements Listener {
     //            e.setCancelled(true);
                 e.getPlayer().sendMessage("§cЖмякать яички можно только в привате!");
             }
-        }
+        }*/
     }
 
     // ------------ No build outside -------------
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    //@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlace(final BlockPlaceEvent e) {
         if (ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
             return;
@@ -201,7 +201,7 @@ public class ArcaimLst implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    //@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent e) {
         if (ApiOstrov.isLocalBuilder(e.getPlayer(), false)) {
             return;

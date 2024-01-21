@@ -7,6 +7,7 @@ import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 
 public class BlockUtils {
@@ -14,7 +15,7 @@ public class BlockUtils {
     
     public static Block getHighestBlock(final World world, final int x, final int z) { //не отдавать null!!
         final Location loc = LocationUtil.getHighestLoc(world, x, z);
-        return loc == null ?  world.getHighestBlockAt(z, z, HeightMap.MOTION_BLOCKING) : loc.getBlock();
+        return loc == null ?  world.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING) : loc.getBlock().getRelative(BlockFace.UP);
         //Block block;
         //for ( block = world.getHighestBlockAt(x, z).getRelative(BlockFace.DOWN); 
         //        Tag.LEAVES.isTagged(block.getType()) || block.getType() == Material.AIR || block.getType() == Material.GRASS || block.getType() == Material.TALL_GRASS; block = block.getRelative(BlockFace.DOWN)) {}

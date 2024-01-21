@@ -21,18 +21,13 @@ import ru.komiss77.version.AnvilGUI;
 import ru.komiss77.version.VM;
 
 
-
-
 // НЕ ПЕРЕМЕЩАТЬ!! 
-
 public class PlayerInput implements Listener {
 
     public static final WeakHashMap<Player,InputData> fallBackdata;
-//    private static final ItemStack right;
     
     static {
         fallBackdata = new WeakHashMap<>();
-//        right = new ItemBuilder(Material.PAPER).name("режим ввода текста").addLore("§7Наберите в строке", "§7значение и нажмите", "§7на результат.").build();
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> consumer, String suggest) {
@@ -51,7 +46,8 @@ public class PlayerInput implements Listener {
                         .addLore("§7значение и нажмите")
                         .addLore("§7на результат.")
                         .addLore("")
-                        .addLore("§bКлик - оставить как есть")
+                        .addLore("§6Клик на левую бумагу - ")
+                        .addLore("§eоставить как есть")
                         .build();
                 
                 new AnvilGUI.Builder()
@@ -94,13 +90,7 @@ public class PlayerInput implements Listener {
 
     }
     
-  /*  public static void unregister (final InputData data) {
-        if (data != null && data.lst != null) {
-            HandlerList.unregisterAll(data.lst);
-            data.lst = null;
-        }
-    }*/
-    
+
     
     public static void onInput(final String name, final InputButton.InputType type, final String result) { //вызов только SUNC !!!
         

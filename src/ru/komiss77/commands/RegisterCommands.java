@@ -16,6 +16,8 @@ public class RegisterCommands {
 
         Ostrov.log_ok("§5Регистрация команд:");
         
+        plugin.getCommand("prefix").setExecutor(new Prefix());
+        plugin.getCommand("suffix").setExecutor(new Suffix());
         plugin.getCommand("profile").setExecutor(new ProfileCmd());
         plugin.getCommand("invsee").setExecutor(new InvseeCmd());
         plugin.getCommand("seen").setExecutor(new SeenCmd());

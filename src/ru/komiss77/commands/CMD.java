@@ -88,8 +88,6 @@ public class CMD implements TabCompleter  {
         
     switch (label) {
 
-
-
         case "serv":
             if (op == null) {
                 sender.sendMessage(Ostrov.PREFIX+"§сне консольная команда!");
