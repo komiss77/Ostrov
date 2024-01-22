@@ -26,6 +26,7 @@ import ru.komiss77.events.PartyUpdateEvent;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.version.VM;
 
 
 
@@ -143,15 +144,10 @@ public class PM {
 
 
     //-создать оп сразу, пермишены и прочее зависимое от player пересчитать когда player будет не null, или бывает так:
-    //UUID of player komiss77 is 227faf91-3a15-39b0-b1f9-bf8850f4d7b6
-    //[00:05:49 INFO]: [Остров] onPluginMessage chanel OSTROV readbuff error chanelName=ostrov:type4 : Cannot invoke "org.bukkit.entity.Player.getName()" because "p" is null
-    //[00:05:49 INFO]: komiss77[/46.32.91.134:45677] logged in with entity id 2300 at ([lobby]1.5, 7.0, 0.5)
-    public static void bungeeDataInject(final Player p, final String raw) { //всё сразу
-        
-        final Oplayer op = oplayers.get(p.getName());
+    public static void bungeeDataHandle(final Player p, final Oplayer op, final String raw) { //всё сразу
 
         op.dataString.put(Data.NAME, op.nik);
-//Ostrov.log("+++bungeeDataInject raw="+raw);            
+        
         int enumTag;
         String value;
         int v;
@@ -161,20 +157,16 @@ public class PM {
 
             enumTag = ApiOstrov.getInteger(s.substring(0, 3));
             value = s.substring(3);
-//Ostrov.log("enumTag="+enumTag+" val="+value);            
 
             if (enumTag>=100 && enumTag<=299) {
                     final Data _data = Data.byTag(enumTag);
-//Ostrov.log("_data="+_data);            
                     if (_data!=null) {
                         if (_data.is_integer) {
                             v = ApiOstrov.getInteger(value);
                             if (v>Integer.MIN_VALUE) {
                                 op.dataInt.put (_data, v);
-//Ostrov.log("dataInt.put="+value);            
                             }
                         } else {
-//Ostrov.log("dataString.put="+value);            
                             op.dataString.put (_data, value);
                         }
                     } 
@@ -205,34 +197,33 @@ public class PM {
             }
         }
         
-        StatManager.recalc(op);
+        StatManager.recalc(op); //пересчёт статы
         
-        onPartyRecieved(p, op, false);
+        onPartyRecieved(p, op, false); //обработка пати
 
         Perm.calculatePerms(p, op, false); //там еще добавить таблист префикс,суффикс для донатов и стафф
 
-//Ostrov.log("JustGame?"+op.hasSettings(Settings.JustGame));
-        Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, op ) ) ;
+        VM.getNmsServer().addPacketSpy(p); //!!!! перед эвентом BungeeDataRecieved, или боты не сработают!!
+        
+        Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, op ) );
+        
         
         Friends.updateViewMode(p);
-        
-        if (ApiOstrov.canBeBuilder(p)) {
-            ApiOstrov.sendActionBarDirect(p, op.eng ? "§f* You are §eBuilder §fon this server." : "§f* У Вас есть право §eСтроителя §fна этом сервере.");
-            p.sendMessage(op.eng ? builderMsgEn : builderMsgRu);
-        }
         
         op.updScore();
         op.updateGender();
         op.updTabListName(p);
+        
         if (op.isGuest) {
             String displayName = op.isGuest ? "§8(Гость) §f"+op.getDataString(Data.FAMILY) : "§f"+op.nik;
             op.tag(displayName, "§0", "");
         }
         
-        op.setLocalChat(false); //вернуть глобальный чат - фикс проблемы выхода с миниигр из мира карты
         //if (op.hasFlag(StatFlag.LocalChat)) {
         //    p.sendMessage("§8Используем локальный чат (так указано в настройках)");
         //}
+        op.setLocalChat(false); //вернуть глобальный чат - фикс проблемы выхода с миниигр из мира карты
+        
         if (Ostrov.MOT_D.equals("jail")) {
             ApiOstrov.sendTabList(p,  op.eng ?"§4PURGATORY":"§4ЧИСТИЛИЩЕ", "");
             if (op.isStaff) {
@@ -247,6 +238,12 @@ public class PM {
                 p.sendMessage(op.eng ?"§cyou can return to the Ostrov.":"§cсможете вернуться на Остров.");
             }
         }
+        
+        if (ApiOstrov.canBeBuilder(p)) {
+            ApiOstrov.sendActionBarDirect(p, op.eng ? "§f* You are §eBuilder §fon this server." : "§f* У Вас есть право §eСтроителя §fна этом сервере.");
+            p.sendMessage(op.eng ? builderMsgEn : builderMsgRu);
+        }
+        
     }
 
     

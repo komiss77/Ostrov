@@ -35,13 +35,8 @@ import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
 
 
-
-
-
 public class ServerLst implements Listener {
     
-
-
     
     @EventHandler (priority = EventPriority.MONITOR)
     public void onRestartWarning (final RestartWarningEvent e) {
@@ -54,12 +49,7 @@ public class ServerLst implements Listener {
             e.setCancelled(true);
         }
     }
-    
-    
-    
-    
-    
-    
+     
     
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -81,9 +71,8 @@ public class ServerLst implements Listener {
     
     
     
-    
     @SuppressWarnings("deprecation")
-	@EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginEnable(PluginEnableEvent e) {
 
         //if (e.getPlugin().getDescription().getCommands()!=null) {
@@ -124,11 +113,7 @@ public class ServerLst implements Listener {
     }
     
     
-    
-   // @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-   // public void on1(final WorldInitEvent e) {
-//Ostrov.log("WorldInitEvent "+e.getWorld().getName());
-  //  }
+
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onPostWorld(final ServerLoadEvent e) { //прилетает 1: после загрузки всех миров server.enablePlugins(PluginLoadOrder.POSTWORLD); либо после перезагрузки командой
@@ -144,10 +129,6 @@ public class ServerLst implements Listener {
     
         WorldManager.tryRestoreFill(w.getName());
 
-        // if (PM.nameTagManager==null && Config.getConfig().getBoolean("modules.name_tag_manager")) {
-        //PM.nameTagManager = new NametagManager();
-        //    Ostrov.log_ok ("§aNametagManager инициализирован!");
-        //}
         
         if (GM.GAME.type==ServerType.LOBBY) {
             VM.getNmsServer().pathWorld(w);
@@ -181,10 +162,7 @@ public class ServerLst implements Listener {
             
             Ostrov.log_ok("Настройки мира "+ w.getName() +" инициализированы для лобби или миниигры");
         }
-        
-        //if (Ostrov.dynmap) {
-        //    DynmapHook.show(e.getWorld(), e.getWorld().getName());
-       // }
+
 
     }
         
@@ -192,23 +170,19 @@ public class ServerLst implements Listener {
         
         
         
-    
-    
-    @EventHandler(ignoreCancelled = true,priority=EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onBlockFade(BlockFadeEvent e) {
         if (Config.disable_ice_melt) {
-        	switch (e.getBlock().getType()) {
-			case ICE, PACKED_ICE, SNOW, SNOW_BLOCK:
-				e.setCancelled(true);
-			default:
-				break;
-			}
+            switch (e.getBlock().getType()) {
+                case ICE, PACKED_ICE, SNOW, SNOW_BLOCK:
+                    e.setCancelled(true);
+                default:
+                    break;
+            }
         }
     }
 
-    
-    
-    
+
         
         
  // --------------------------- WORLD --------------------------       
@@ -220,7 +194,7 @@ public class ServerLst implements Listener {
 //    public void onThunderChange(ThunderChangeEvent event) { if( Config.disable_weather && event.toThunderState() ) event.setCancelled(true); }     
           
     @EventHandler(ignoreCancelled = true)
-   public void onNetherCreate(PortalCreateEvent event) { if ( Config.block_nether_portal ) event.setCancelled(true); }
+    public void onNetherCreate(PortalCreateEvent event) { if ( Config.block_nether_portal ) event.setCancelled(true); }
    
     @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
     public void onBlockSpread(BlockSpreadEvent e) { 

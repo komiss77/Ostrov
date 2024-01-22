@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 import org.bukkit.GameMode;
+import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.OstrovConfigManager;
 
@@ -71,7 +72,6 @@ public class Config {
     public static boolean crafts;
     public static boolean displays;
     public static boolean quests;
-    public static boolean bots;
 
     
     public static void init () {
@@ -135,7 +135,7 @@ public class Config {
         crafts=config.getBoolean("modules.crafts");
         displays=config.getBoolean("modules.displays");
         quests=config.getBoolean("modules.quests");
-        bots=config.getBoolean("modules.bots");
+        BotManager.enable.set(config.getBoolean("modules.bots"));
         
     }    
     

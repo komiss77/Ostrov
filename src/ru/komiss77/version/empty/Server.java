@@ -104,4 +104,12 @@ public class Server implements IServer {
 		return null;
 	}
 
+    @Override
+    public void addPacketSpy(Player p) {
+    }
+
+    @Override
+    public void removePacketSpy(Player p) {
+    }
+
 }

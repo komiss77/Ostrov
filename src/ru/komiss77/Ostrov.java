@@ -33,6 +33,7 @@ import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.ServerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.listener.TestLst;
 import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -164,6 +165,7 @@ public class Ostrov extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), instance); //в режиме AUTH инициализация дубль выше
         Bukkit.getPluginManager().registerEvents(new ServerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
         //Bukkit.getPluginManager().registerEvents(new InvLst(), instance);
         //if (Bukkit.getPluginManager().getPlugin("TradeSystem")!=null) {
        //     Bukkit.getPluginManager().registerEvents(new TradeLst(), instance);

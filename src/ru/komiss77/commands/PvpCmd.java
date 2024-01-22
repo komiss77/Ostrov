@@ -246,7 +246,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                         }
                                     }
                                 } else {
-                                    final BotEntity dbe = Config.bots ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                    final BotEntity dbe = BotManager.enable.get() ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
                                     if (dbe != null) {//B v P
                                         targetHand = targetPlayer.getInventory().getItemInMainHand();
                                         final Material mt = targetHand.getType();
@@ -295,7 +295,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                     }
                                 }
                             } else {
-                                final BotEntity tbe = Config.bots ? BotManager.getBot(target.getEntityId(), BotEntity.class) : null;
+                                final BotEntity tbe = BotManager.enable.get() ? BotManager.getBot(target.getEntityId(), BotEntity.class) : null;
                                 if (tbe != null) {// # v B
                                     if (e.getDamager().getType() == EntityType.PLAYER) {// P v B
                                         final Player damagerPlayer = (Player) e.getDamager();
@@ -346,7 +346,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                             }
                                         }
                                     } else {
-                                        final BotEntity dbe = Config.bots ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                        final BotEntity dbe = BotManager.enable.get() ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
                                         if (dbe != null) {// B v B
                                             targetHand = tbe.item(EquipmentSlot.HAND);
                                             if (targetHand != null) {
@@ -432,7 +432,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                             }
                                         }
                                     } else {
-                                        final BotEntity dbe = Config.bots ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                        final BotEntity dbe = BotManager.enable.get() ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
                                         if (dbe != null) {// B v M
                                             final LivingEntity dle = (LivingEntity) e.getDamager();
                                             final ItemStack hnd = dbe.item(EquipmentSlot.HAND);

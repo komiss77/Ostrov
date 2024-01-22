@@ -81,7 +81,7 @@ import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.SignEditSelectLine;
+import ru.komiss77.utils.SignEditMenu;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
@@ -90,6 +90,7 @@ import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.utils.inventory.ItemClickData;
 import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.version.VM;
 
 
 public class PlayerLst implements Listener {
@@ -152,90 +153,6 @@ public class PlayerLst implements Listener {
     }
     
 
-	//int count;
-    //@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void test(PlayerInteractEvent e) {
-        final Player p = e.getPlayer();
-        if (!ApiOstrov.isLocalBuilder(p)) return;
-        final Oplayer op = PM.getOplayer(p);
-        
-        //e.setCancelled(true);
-       // if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getItem()!=null) {
-       //     p.sendMessage("Damageable? "+(e.getItem().getItemMeta() instanceof Damageable));
-       // }
-       /* if (e.getAction()==Action.RIGHT_CLICK_BLOCK ) {
-           // Material c = TCUtils.changeColor(mat, DyeColor.YELLOW);
-          //  p.sendMessage("inHand="+mat+" change="+c);
-            if (p.isSneaking()) {
-                op.tag("", "§7", "");
-                p.sendMessage("tag reset");
-                //op.tag(Component.text("vvv", NamedTextColor.GOLD), Component.text("zzz", NamedTextColor.BLUE));
-            } else {
-                op.tag("§apref", "§b", "§esuff");
-                p.sendMessage("tag set");
-            }
-
-        }
-        if (e.getAction()==Action.LEFT_CLICK_BLOCK ) {
-           // op.addCd("test", count++);
-            if (p.isSneaking()) {
-                op.nameTag(true);
-                p.sendMessage("tag on");
-                //Lang.sendMessage(p, "ВСТАВЛЕНО");
-               // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
-            } else {
-                op.nameTag(false);
-                p.sendMessage("tag off");
-               // Lang.sendMessage(p, "Изменить паспортные данные");
-              //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
-            }
-            //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
-        }
-        if (e.getAction()==Action.LEFT_CLICK_AIR ) {
-           // op.addCd("test", count++);
-            if (p.isSneaking()) {
-                op.score.showBelow("aaaaaa"+ApiOstrov.randInt(0, 10), 1);
-                p.sendMessage("below add");
-                //Lang.sendMessage(p, "ВСТАВЛЕНО");
-               // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
-            } else {
-                op.score.removeBelow();
-                p.sendMessage("below off");
-               // Lang.sendMessage(p, "Изменить паспортные данные");
-              //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
-            }
-            //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
-        }*/
-    }
-    
-    
-/*
-    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void testHIGHEST(PlayerInteractEvent e) {
-        System.out.println("Interac HIGHEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }  
-    @EventHandler (priority = EventPriority.HIGH, ignoreCancelled = false)
-    public void testHIGH(PlayerInteractEvent e) {
-        System.out.println("Interac HIGH canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = false)
-    public void testNORMAL(PlayerInteractEvent e) {
-        System.out.println("Interac NORMAL canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.LOW, ignoreCancelled = false)
-    public void testLOW(PlayerInteractEvent e) {
-        System.out.println("Interac LOW canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void testLOWEST(PlayerInteractEvent e) {
-        System.out.println("Interac LOWEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
-    public void testMONITOR(PlayerInteractEvent e) {
-        System.out.println("Interac MONITOR canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-
-*/
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.LOW )
     public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
         //final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
@@ -248,23 +165,17 @@ public class PlayerLst implements Listener {
             op.lastCommand =  cmd;
         }
     }
-    
-
 
     //вызывается из SpigotChanellMsg
     public static void onBungeeData(final String name, final String raw) { 
-//System.out.println("onBungeeData "+name);        
         final Player p = Bukkit.getPlayerExact(name);
         if (p==null) { //данные пришли раньше PlayerJoinEvent
             bungeeDataCache.put(name, raw);
         } else { //если уже был PlayerJoinEvent
-//System.out.println("bungeeDataInject - onBungeeData "); 
-            PM.bungeeDataInject(p, raw); //просто прогрузить данные
+            PM.bungeeDataHandle(p, PM.getOplayer(p), raw); //просто прогрузить данные
         }
     }
 
-
-    
 
     @EventHandler(priority = EventPriority.LOWEST) 
     public void onPlayerJoin(PlayerJoinEvent e) {
@@ -275,7 +186,7 @@ public class PlayerLst implements Listener {
         p.setShieldBlockingDelay(2);
         p.setNoDamageTicks(20);
         
-        if (LocalDB.useLocalData) { // && LocalDB.playerDataSQL) {
+        if (LocalDB.useLocalData) {
             
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
             Ostrov.async( () ->  { 
@@ -289,7 +200,7 @@ public class PlayerLst implements Listener {
         
         final String bungeeData = bungeeDataCache.remove(p.getName());
         if (bungeeData!=null) { //данные пришли ранее, берём из кэша
-            Ostrov.sync( ()-> PM.bungeeDataInject(p, bungeeData) ,1); //- без задержки не выдавало предметы лобби!
+            Ostrov.sync( ()-> PM.bungeeDataHandle(p, op, bungeeData) ,1); //- без задержки не выдавало предметы лобби!
         }
         if (Ostrov.MOT_D.equals("jail")) {
             ApiOstrov.sendTabList(p,  "§4ЧИСТИЛИЩЕ", "");
@@ -317,7 +228,7 @@ public class PlayerLst implements Listener {
         if (op!=null) { //сохраняем, если было реально загружено!
             op.onLeave(p);
         }
-        
+        VM.getNmsServer().removePacketSpy(p);
         //for (final Oplayer otherOp : PM.getOplayers()) {
             //otherOp.score.onQuit(op);
             //if (otherOp.score.hideNameTags) {
@@ -609,7 +520,7 @@ public class PlayerLst implements Listener {
                 SmartInventory.builder()
                     //.type(InventoryType.HOPPER)
                     .id("SignEditSelectLine"+p.getName()) 
-                    .provider(new SignEditSelectLine(sign))
+                    .provider(new SignEditMenu(sign))
                     .title("§fВыберите строку")
                     .size(3, 9)
                     .build()

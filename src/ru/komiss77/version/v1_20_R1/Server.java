@@ -7,12 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -22,9 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.SpigotConfig;
 import com.mojang.brigadier.tree.RootCommandNode;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -32,11 +29,14 @@ import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.key.Key;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.core.BlockPosition.MutableBlockPosition;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.PacketPlayInUpdateSign;
+import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
+import net.minecraft.network.protocol.game.PacketPlayOutEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutOpenSignEditor;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.server.MinecraftServer;
@@ -48,71 +48,90 @@ import net.minecraft.world.item.EnumColor;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.entity.TileEntitySign;
 import net.minecraft.world.level.block.state.IBlockData;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.Cuboid;
 import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.utils.ParticlePlay;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.version.IServer;
 
-public class Server implements IServer {
-
-    public static final List<String> vanilaCommandToDisable = Arrays.asList("execute",
-            "bossbar", "defaultgamemode", "me", "help", "kick", "kill", "tell",
-            "say", "spreadplayers", "teammsg", "tellraw", "trigger",
-            "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf", "save-all", "save-off", "save-on", "setidletimeout", "publish");
     // private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT; 
     // private static Method cC; //nmsWorld  //net.minecraft.world.entity.Entity public World cC()
+
+public class Server implements IServer {
+    
+    @Deprecated
+    @Override
+    public void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
+        ParticlePlay.BorderDisplay(p, minPoint, maxPoint, tpToCenter);
+    }
+    
+    public static final List<String> vanilaCommandToDisable ;
     protected static final MutableBlockPosition mutableBlockPosition;
-    private static final DedicatedServer ds;
+    private static final DedicatedServer nmsServer;
     private static final IChatBaseComponent emtc = IChatBaseComponent.a("");
     private static final IBlockData signIbd;
     private static final Key chatKey;
-    private static final Method getWrld = mkGet(".CraftWorld", "getHandle");
-    private static final Method getEt = mkGet(".entity.CraftEntity", "getHandle");
-    private static final Method getLE = mkGet(".entity.CraftLivingEntity", "getHandle");
-    private static final Method getPl = mkGet(".entity.CraftPlayer", "getHandle");
-
-    private static Method mkGet(final String pth, final String mtd) {
-        try {
-            return Class.forName(Bukkit.getServer().getClass().getPackageName() + pth).getDeclaredMethod(mtd);
-        } catch (NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    private static final Method CraftWorldMethod, CraftEntityMethod, CraftLivingEntityMethod, CraftPlayerMethod;
+    public static final Field useId, entId;
 
     static {
+        vanilaCommandToDisable = Arrays.asList("execute",
+            "bossbar", "defaultgamemode", "me", "help", "kick", "kill", "tell",
+            "say", "spreadplayers", "teammsg", "tellraw", "trigger",
+            "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf", "save-all", "save-off", "save-on", "setidletimeout", "publish");
         chatKey = Key.key("ostrov_chat", "listener");
         mutableBlockPosition = new MutableBlockPosition(0, 0, 0);
-        signIbd = getBD();
+        signIbd = getNmsBlockData();
         DedicatedServer dds = null;
         try {
-        	dds = (DedicatedServer) Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-        	e.printStackTrace();
+            dds = (DedicatedServer) Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+            //e.printStackTrace();
+            Ostrov.log_err("Server get DedicatedServer : "+ex.getMessage());
         }
-        ds = dds;
+        nmsServer = dds;
+        CraftWorldMethod = getNmsMethod(".CraftWorld", "getHandle");
+        CraftEntityMethod = getNmsMethod(".entity.CraftEntity", "getHandle");
+        CraftLivingEntityMethod = getNmsMethod(".entity.CraftLivingEntity", "getHandle");
+        CraftPlayerMethod = getNmsMethod(".entity.CraftPlayer", "getHandle");
+        useId = getIdFld(PacketPlayInUseEntity.class);
+        entId = getIdFld(PacketPlayOutEntity.class);
     }
 
-    private static IBlockData getBD() {
+    private static Method getNmsMethod(final String path, final String methodName) {
         try {
-            return (IBlockData) mkGet(".block.data.CraftBlockData", "getState").invoke(Material.ACACIA_SIGN.createBlockData());
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
+            return Class.forName(Bukkit.getServer().getClass().getPackageName() + path).getDeclaredMethod(methodName);
+        } catch (NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+            Ostrov.log_err("Server getNmsMethod : "+ex.getMessage());
+            //e.printStackTrace();
             return null;
         }
     }
 
+    private static IBlockData getNmsBlockData() {
+        try {
+            return (IBlockData) getNmsMethod(".block.data.CraftBlockData", "getState").invoke(Material.ACACIA_SIGN.createBlockData());
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Ostrov.log_err("Server getNmsBlockData : "+ex.getMessage());
+            //e.printStackTrace();
+            return null;
+        }
+    }
+    
+    private static Field getIdFld(final Class<?> cls) {
+        final Field fld = cls.getDeclaredFields()[0];
+        fld.setAccessible(true);
+        return fld;
+    }
+
+    
     @Override
     public WorldServer toNMS(final World w) {
         try {
-            return (WorldServer) getWrld.invoke(w);
+            return (WorldServer) CraftWorldMethod.invoke(w);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
@@ -121,13 +140,13 @@ public class Server implements IServer {
     @Override
     public net.minecraft.world.entity.Entity toNMS(final Entity en) {
         try {
-            return (net.minecraft.world.entity.Entity) getEt.invoke(en);
+            return (net.minecraft.world.entity.Entity) CraftEntityMethod.invoke(en);
             //return (EntityPlayer) getEt.invoke(en);
-        //ClassCastException: class net.minecraft.world.entity.monster.EntityVex cannot be cast to class net.minecraft.server.level.EntityPlayer (net.minecraft.world.entity.monster.EntityVex and net.minecraft.server.level.EntityPlayer are in unnamed module of loader java.net.URLClassLoader @2b71fc7e)
-	//at ru.komiss77.version.v1_20_R1.Server.toNMS(Server.java:119) ~[Ostrov.jar:?]
-	//at ru.komiss77.version.v1_20_R1.EntityGroup.sendLookAtPlayerPacket(EntityGroup.java:258) ~[Ostrov.jar:?]
-	//at ru.komiss77.modules.figure.SpeachTask.sendLookResetPacket(SpeachTask.java:118) ~[Ostrov.jar:?]
-	//at ru.komiss77.modules.figure.SpeachTask.cancel(SpeachTask.java:77) ~[Ostrov.jar:?]
+            //ClassCastException: class net.minecraft.world.entity.monster.EntityVex cannot be cast to class net.minecraft.server.level.EntityPlayer (net.minecraft.world.entity.monster.EntityVex and net.minecraft.server.level.EntityPlayer are in unnamed module of loader java.net.URLClassLoader @2b71fc7e)
+            //at ru.komiss77.version.v1_20_R1.Server.toNMS(Server.java:119) ~[Ostrov.jar:?]
+            //at ru.komiss77.version.v1_20_R1.EntityGroup.sendLookAtPlayerPacket(EntityGroup.java:258) ~[Ostrov.jar:?]
+            //at ru.komiss77.modules.figure.SpeachTask.sendLookResetPacket(SpeachTask.java:118) ~[Ostrov.jar:?]
+            //at ru.komiss77.modules.figure.SpeachTask.cancel(SpeachTask.java:77) ~[Ostrov.jar:?]
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
@@ -136,7 +155,7 @@ public class Server implements IServer {
     @Override
     public EntityLiving toNMS(final LivingEntity le) {
         try {
-            return (EntityLiving) getLE.invoke(le);
+            return (EntityLiving) CraftLivingEntityMethod.invoke(le);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
@@ -145,7 +164,7 @@ public class Server implements IServer {
     @Override
     public EntityPlayer toNMS(final Player p) {
         try {
-            return (EntityPlayer) getPl.invoke(p);
+            return (EntityPlayer) CraftPlayerMethod.invoke(p);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
@@ -153,21 +172,34 @@ public class Server implements IServer {
 
     @Override
     public DedicatedServer toNMS() {
-        return ds;
+        return nmsServer;
     }
 
     @Override
-    public void chatFix() {
-
-        // Chat Report fix    
-        // https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
+    public void chatFix() { // Chat Report fix  https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
         final ChatHandler handler = new ChatHandler();
+        //подслушать исходящие от сервера пакеты
         io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
                 chatKey,
                 channel -> channel.pipeline().addAfter("packet_handler", "ostrov_chat_handler", handler)
         );
         Ostrov.log_ok("§bchatFix - блокировка уведомлений подписи чата");
+    }
+    
+    @Override //добавляется в bungeeDataHandler
+    public void addPacketSpy (final Player p) {
+        final NetworkManager nm = toNMS(p).c.h; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
+        final PackerSpy packetSpy = new PackerSpy();
+        nm.m.pipeline().addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
+    }
 
+    @Override
+    public void removePacketSpy (final Player p) {
+        final Channel channel = toNMS(p).c.h.m; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
+        channel.eventLoop().submit(() -> {
+            channel.pipeline().remove("ostrov_"+p.getName());
+            return null;
+        });
     }
 
     @Override
@@ -184,38 +216,22 @@ public class Server implements IServer {
         EnumColor color = EnumColor.a;
         if (suggest.length() >= 2 && suggest.charAt(0) == '§') {
             switch (suggest.charAt(1)) {
-                case '0' ->
-                    color = EnumColor.a;
-                case '1' ->
-                    color = EnumColor.b;
-                case '2' ->
-                    color = EnumColor.c;
-                case '3' ->
-                    color = EnumColor.d;
-                case '4' ->
-                    color = EnumColor.e;
-                case '5' ->
-                    color = EnumColor.f;
-                case '6' ->
-                    color = EnumColor.g;
-                case '7' ->
-                    color = EnumColor.h;
-                case '8' ->
-                    color = EnumColor.i;
-                case '9' ->
-                    color = EnumColor.j;
-                case 'a' ->
-                    color = EnumColor.k;
-                case 'b' ->
-                    color = EnumColor.l;
-                case 'c' ->
-                    color = EnumColor.m;
-                case 'd' ->
-                    color = EnumColor.n;
-                case 'e' ->
-                    color = EnumColor.o;
-                case 'f' ->
-                    color = EnumColor.p;
+                case '0' -> color = EnumColor.a;
+                case '1' -> color = EnumColor.b;
+                case '2' -> color = EnumColor.c;
+                case '3' -> color = EnumColor.d;
+                case '4' -> color = EnumColor.e;
+                case '5' -> color = EnumColor.f;
+                case '6' -> color = EnumColor.g;
+                case '7' -> color = EnumColor.h;
+                case '8' -> color = EnumColor.i;
+                case '9' -> color = EnumColor.j;
+                case 'a' -> color = EnumColor.k;
+                case 'b' -> color = EnumColor.l;
+                case 'c' -> color = EnumColor.m;
+                case 'd' -> color = EnumColor.n;
+                case 'e' -> color = EnumColor.o;
+                case 'f' -> color = EnumColor.p;
             }
             suggest = suggest.substring(2);
         }
@@ -257,25 +273,16 @@ public class Server implements IServer {
                     if (pipeline.get(chName) != null) {
                         pipeline.remove(chName);
                     }
-
                     if (chName.startsWith("ostrov_sign_")) {
                         final String name = ctx.name().substring(12);
                         if (!name.isEmpty()) {
-                            //final Oplayer op = PM.getOplayer(name);
-                            //if (op.inputData != null && op.inputData.type == InputButton.InputType.SIGN) {
                             final String result = signPacket.d()[0] + signPacket.d()[1] + signPacket.d()[2] + signPacket.d()[3];
-                            //op.inputData.setResult(result);
                             PlayerInput.onInput(name, InputButton.InputType.SIGN, result);
-                            //}
-                            //final BlockPosition bps = signPacket.a();
                         }
-                        //return;
                     }
-
                 }
                 super.channelRead(ctx, packet);
             }
-        ;
         };
         
         final ChannelPipeline pipeline = ep.c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
@@ -298,12 +305,10 @@ public class Server implements IServer {
     @Override
     public void pathServer() {
         final MinecraftServer srv = toNMS();
-
         final com.mojang.brigadier.CommandDispatcher<CommandListenerWrapper> dispatcher = srv.vanillaCommandDispatcher.a();
         final RootCommandNode<CommandListenerWrapper> root = dispatcher.getRoot();
 
         try {
-
             Field childrenField = root.getClass().getSuperclass().getDeclaredField("children");
             childrenField.setAccessible(true);
 
@@ -331,7 +336,7 @@ public class Server implements IServer {
             }
             );
 
-        } catch (Exception ex) { //NoSuchFieldException | SecurityException | IllegalAccessException ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) { //NoSuchFieldException | SecurityException | IllegalAccessException ex) {
             Ostrov.log_warn("nms Server pathServer : " + ex.getMessage());
         }
 
@@ -350,13 +355,11 @@ public class Server implements IServer {
 
         switch (GM.GAME) {
             case AR, DA, OB, SW, MI -> {
-//Ostrov.log("+++++++++++++++++++++++++++++");
                 SpigotConfig.disableAdvancementSaving = false;
                 SpigotConfig.disabledAdvancements = Collections.emptyList();
                 SpigotConfig.disableStatSaving = false;
             }
             default -> {
-//Ostrov.log("--------------------------------");
                 SpigotConfig.disableAdvancementSaving = true;
                 SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");
                 SpigotConfig.disableStatSaving = true;
@@ -411,49 +414,6 @@ public class Server implements IServer {
         toNMS(p).c.a(packet);//sendPacket(p, packet);
     }
 
-    @Override
-    public void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
-        final Oplayer op = PM.getOplayer(p);
-        final Cuboid cuboid = new Cuboid(minPoint, maxPoint);
-
-        if (op.displayCube != null && !op.displayCube.isCancelled()) {
-            op.displayCube.cancel();
-        }
-
-        op.displayCube = new BukkitRunnable() {
-            final Set<XYZ> border = cuboid.getBorder();
-            final Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
-
-            @Override
-            public void run() {
-                if (p == null || !p.isOnline()) {
-                    this.cancel();
-                    return;
-                }
-                if (p.isDead() || p.isSneaking()) {
-                    p.resetTitle();
-                    this.cancel();
-                    return;
-                }
-                border.stream().forEach(
-                        (xyz) -> {
-                            particleLoc.set(xyz.x, xyz.y, xyz.z);
-                            if (xyz.pitch >= 5) { //стенки
-                                p.spawnParticle(Particle.FIREWORKS_SPARK, particleLoc, 0);
-                            } else {
-                                p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
-                            }
-                        }
-                );
-                ApiOstrov.sendTitle(p, "", "§7Шифт - остановить показ", 0, 30, 0);
-            }
-        }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
-
-        if (tpToCenter && !cuboid.contains(p.getLocation())) {
-            final Location center = cuboid.getCenter(p.getLocation());
-            p.teleport(center);
-        }
-    }
 
     @Override
     public BlockData getBlockData(final IBlockData iBlockData) {

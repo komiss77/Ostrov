@@ -1,6 +1,7 @@
 package ru.komiss77.utils;
 
 import java.util.List;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,8 +9,14 @@ import org.bukkit.Particle;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-
 import net.kyori.adventure.text.Component;
+import org.bukkit.scheduler.BukkitRunnable;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.Cuboid;
+import ru.komiss77.modules.world.XYZ;
 
 public class ParticlePlay {
 
@@ -22,6 +29,51 @@ public class ParticlePlay {
 
     }
     
+
+    public static void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
+        final Oplayer op = PM.getOplayer(p);
+        final Cuboid cuboid = new Cuboid(minPoint, maxPoint);
+
+        if (op.displayCube != null && !op.displayCube.isCancelled()) {
+            op.displayCube.cancel();
+        }
+
+        op.displayCube = new BukkitRunnable() {
+            final Set<XYZ> border = cuboid.getBorder();
+            final Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
+
+            @Override
+            public void run() {
+                if (p == null || !p.isOnline()) {
+                    this.cancel();
+                    return;
+                }
+                if (p.isDead() || p.isSneaking()) {
+                    p.resetTitle();
+                    this.cancel();
+                    return;
+                }
+                border.stream().forEach(
+                        (xyz) -> {
+                            particleLoc.set(xyz.x, xyz.y, xyz.z);
+                            if (xyz.pitch >= 5) { //стенки
+                                p.spawnParticle(Particle.FIREWORKS_SPARK, particleLoc, 0);
+                            } else {
+                                p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                            }
+                        }
+                );
+                ApiOstrov.sendTitle(p, "", "§7Шифт - остановить показ", 0, 30, 0);
+            }
+        }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
+
+        if (tpToCenter && !cuboid.contains(p.getLocation())) {
+            final Location center = cuboid.getCenter(p.getLocation());
+            p.teleport(center);
+        }
+    }
+
+
     public void display() {
         if (particleEffect.getDataType() == Void.class) {
             

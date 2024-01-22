@@ -8,7 +8,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
@@ -34,7 +33,7 @@ public interface IServer {
     
     public EntityPlayer toNMS(final Player p);
 
-	public DedicatedServer toNMS();
+    public DedicatedServer toNMS();
 
     int getitemDespawnRate (final World bukkitWorld);
 
@@ -47,6 +46,7 @@ public interface IServer {
     
     public void sendChunkChange (final Player player, final Chunk chunk); //skyworld
 
+    @Deprecated
     public void BorderDisplay(final Player player, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter);
     
     public void chatFix();
@@ -57,4 +57,9 @@ public interface IServer {
     public BlockData getBlockData(final IBlockData iBlockData);
    
     public void signInput(final Player p, final String suggest, final XYZ signXyz);
+    
+    public void addPacketSpy (final Player p);
+    
+    public void removePacketSpy (final Player p);
+    
 }

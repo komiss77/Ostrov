@@ -183,33 +183,7 @@ public class Friends {
                 }
             }
         }
-     /*   E_view view_mode=E_view.ВИДЕТЬ_ВСЕХ;
-        if (settings.containsKey(F_set.ВИДЕТЬ_РЕЖИМ)) {
-            view_mode=E_view.настройка_по_метке(settings.get(F_set.ВИДЕТЬ_РЕЖИМ));
-        }
-        final Player actor=GetBukkitPlayer();
-        
-        switch(view_mode) {
-            case ВИДЕТЬ_ВСЕХ: 
-                actor.showPlayer(Ostrov.instance, target);
-                break;
-            case ВИДЕТЬ_ДРУЗЕЙ_И_КОМАНДУ: 
-                if (ApiOstrov.isInParty(actor, target) || isFriend(target.getName())) actor.showPlayer(Ostrov.instance, target);
-                else actor.hidePlayer(Ostrov.instance, target);
-                break;
-            case ВИДЕТЬ_ДРУЗЕЙ: 
-                if (isFriend(target.getName())) actor.showPlayer(Ostrov.instance, target);
-                else actor.hidePlayer(Ostrov.instance, target);
-                break;
-            case ВИДЕТЬ_КОМАНДУ: 
-                if (ApiOstrov.isInParty(actor, target)) actor.showPlayer(Ostrov.instance, target);
-                else actor.hidePlayer(Ostrov.instance, target);
-                break;
-            case СКРЫТЬ_ВСЕХ: 
-                actor.hidePlayer(Ostrov.instance, target);
-                break;
-        }*/
-        
+
     }
 
 

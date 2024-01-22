@@ -24,7 +24,7 @@ import ru.komiss77.version.VM;
 // НЕ ПЕРЕМЕЩАТЬ!! 
 public class PlayerInput implements Listener {
 
-    public static final WeakHashMap<Player,InputData> fallBackdata;
+    public static final WeakHashMap<Player,InputData> fallBackdata; //для авторизации - там нет оплеера
     
     static {
         fallBackdata = new WeakHashMap<>();
