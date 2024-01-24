@@ -8,10 +8,12 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 "+Lang.t(p, "           (bp.e ? "" :     
 final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 
+в лист, тп и прочее подставлять ники гостей
 подменять ник над головой или Гость ставить в суффикс
-при написании \ .\ или ..\ Lang t error : Unexpected character (C) at position 0.
 кодер материала в char
 
+//https://github.com/jpenilla/reflection-remapper
+//https://mappings.cephx.dev/index.html  FriendlyByteBuf
 
 ScoreBoardBelow показывает не под владельцем борды а под другими
 меню создания вложенных квестов + система отображения и хранения

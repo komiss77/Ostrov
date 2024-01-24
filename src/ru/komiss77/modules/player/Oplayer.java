@@ -48,6 +48,7 @@ import ru.komiss77.objects.InputData;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
+import ru.komiss77.version.v1_20_R1.PacketSpy;
 
 
 
@@ -122,8 +123,9 @@ public class Oplayer {
     
     public final String nik;
     public final UUID id;
-    public boolean eng; //true - english; false - russian
-    public Locale locale; //true - english; false - russian
+    public final PacketSpy packetSpy;
+    public boolean eng; //true - english; false - russian 
+    //public Locale locale; нет смысла дублировать, он есть p.locale
     public int karmaCalc, reputationCalc; //просчитывается в 
     private final int loginTime = ApiOstrov.currentTimeSec();
     private int daylyLoginTime=loginTime;   //время входа для дневной статы, сброс в полночь
@@ -174,9 +176,7 @@ public class Oplayer {
 
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;
-    
-    public InputData inputData; //ввод данных с чата или таблички
-    
+   
     //служебные
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
@@ -193,11 +193,12 @@ public class Oplayer {
     public final List<Title>delayTitles = new ArrayList<>();
 
     public Oplayer (final HumanEntity p) {
-        nik=p.getName();
-        id=p.getUniqueId();
+        nik = p.getName();
+        id = p.getUniqueId();
         menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
         if (p instanceof Player player) score = new CustomScore(player);
+        packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
     
@@ -323,15 +324,6 @@ public class Oplayer {
         }
     }
     
-    //показать/скрыть ник этого оплеера от других
-    public void nameTag(final boolean visible) {
-        if (visible) {
-            score.showNameTag();
-        } else {
-            score.hideNameTag();
-        }
-    }
-    
     public String nameColor() {
     	return name_color;
     }
@@ -347,11 +339,16 @@ public class Oplayer {
     public void nameColor(final String nameColor, final Player p) {
     	name_color = nameColor == null ? "" : nameColor;
         updTabListName(p);
-        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
+        //VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
         //score.nameColor(nameColor);
         score.tag(tag_prefix, name_color, tag_suffix);
     }
     
+    
+    //показать/скрыть ник этого оплеера от других
+    public void tag(final boolean visible) {
+            score.tag(visible);
+    }
     
     public void tag(final String prefix, final String suffix) {
         tag (prefix, name_color, suffix);
@@ -676,7 +673,9 @@ public class Oplayer {
         return !dataString.isEmpty();
     }
 
-    public void onLeave(final Player p) {
+    public void onLeave(final Player p, final boolean async) {
+        VM.getNmsServer().removePacketSpy(p);
+        
         //в saveLocalData инвентарь не сохранит
         if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) &&  PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && pvp_time>0) {      //если удрал во время боя
             final List<ItemStack> drop = new ArrayList<>();
@@ -693,7 +692,11 @@ public class Oplayer {
         }
         
     	if (!mysqlError && !mysqlData.isEmpty() && LocalDB.useLocalData) {
-            Ostrov.async(()->LocalDB.saveLocalData(p, this), 0); //op.mysqlData не должна быть пустой, если загружало!
+            if (async) {
+                Ostrov.async(()->LocalDB.saveLocalData(p, this), 0); //op.mysqlData не должна быть пустой, если загружало!
+            } else {
+                LocalDB.saveLocalData(p, this);
+            }
     	}
         score.onQuit();
     }

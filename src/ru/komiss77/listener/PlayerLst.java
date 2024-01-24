@@ -224,11 +224,10 @@ public class PlayerLst implements Listener {
         e.quitMessage(null);
         final Player p = e.getPlayer();
         final Oplayer op = PM.remove(p.getName());
-        
         if (op!=null) { //сохраняем, если было реально загружено!
-            op.onLeave(p);
+            op.onLeave(p, true);
         }
-        VM.getNmsServer().removePacketSpy(p);
+        //VM.getNmsServer().removePacketSpy(p);
         //for (final Oplayer otherOp : PM.getOplayers()) {
             //otherOp.score.onQuit(op);
             //if (otherOp.score.hideNameTags) {

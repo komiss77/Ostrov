@@ -32,7 +32,6 @@ import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.InputButton;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -85,12 +84,11 @@ public class ChatLst implements Listener {
         final Oplayer senderOp = PM.getOplayer(sender);
         
         //режим ввода из чата
-        if ( (senderOp==null && PlayerInput.fallBackdata.containsKey(sender)  && PlayerInput.fallBackdata.get(sender).type==InputButton.InputType.CHAT) 
-            || (senderOp!=null && senderOp.inputData!=null && senderOp.inputData.type==InputButton.InputType.CHAT) ) {
+        if ( (senderOp==null && PlayerInput.inputData.containsKey(sender)  && PlayerInput.inputData.get(sender).type==InputButton.InputType.CHAT) ) {
                 e.viewers().clear();
                 //PlayerInput.onInput(sender.getName(), InputButton.InputType.CHAT, TCUtils.toString(e.message()));
                 //Could not pass event AsyncChatEvent to Ostrov v2.0 java.lang.IllegalStateException: InventoryOpenEvent may only be triggered synchronously.
-                Ostrov.sync( ()-> PlayerInput.onInput(sender.getName(), InputButton.InputType.CHAT, TCUtils.toString(e.message())));
+                Ostrov.sync( ()-> PlayerInput.onInput(sender, InputButton.InputType.CHAT, TCUtils.toString(e.message())));
                 return;
         }
         

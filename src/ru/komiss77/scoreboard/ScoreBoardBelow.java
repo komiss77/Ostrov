@@ -8,11 +8,12 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Objective;
 import ru.komiss77.utils.TCUtils;
 
-
+@Deprecated
 public class ScoreBoardBelow {
     private final Objective obj;
     protected final List<Score> scores;
     
+@Deprecated
     public ScoreBoardBelow(final CustomScore scoreBoard, final String text, final int score) {
         scores = new ArrayList<>();
         obj = scoreBoard.getScoreboard().registerNewObjective("below", Criteria.DUMMY, TCUtils.format(text));
@@ -24,14 +25,17 @@ public class ScoreBoardBelow {
         //scores.add(sc);
     }
     
+@Deprecated
     public List<Score> getScores() {
         return scores;
     }
     
+@Deprecated
     public Objective getObjective() {
         return obj;
     }
     
+@Deprecated
     public void update(final String below_line, final int value) {
         final Score sc = obj.getScore(below_line);
         sc.setScore(value);

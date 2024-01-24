@@ -14,8 +14,10 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.level.block.state.IBlockData;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.version.IServer;
+import ru.komiss77.version.v1_20_R1.PacketSpy;
 
 public class Server implements IServer {
 
@@ -66,7 +68,7 @@ public class Server implements IServer {
     }
 
     @Override
-    public void signInput(Player p, String suggest, XYZ signXyz) {
+    public void signInput(Player p, String suggest, XYZ xyz) {
     }
 
     @Override
@@ -99,17 +101,22 @@ public class Server implements IServer {
         return null;
     }
 
-	@Override
-	public DedicatedServer toNMS() {
-		return null;
-	}
+    @Override
+    public DedicatedServer toNMS() {
+            return null;
+    }
 
     @Override
-    public void addPacketSpy(Player p) {
+    public PacketSpy addPacketSpy(Player p, final Oplayer op) {
+        return null;
     }
 
     @Override
     public void removePacketSpy(Player p) {
+    }
+
+    @Override
+    public void addPacketSpy() {
     }
 
 }

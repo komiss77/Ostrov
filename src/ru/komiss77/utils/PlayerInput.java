@@ -5,14 +5,12 @@ import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.objects.InputData;
 import ru.komiss77.utils.inventory.InputButton;
@@ -24,10 +22,10 @@ import ru.komiss77.version.VM;
 // НЕ ПЕРЕМЕЩАТЬ!! 
 public class PlayerInput implements Listener {
 
-    public static final WeakHashMap<Player,InputData> fallBackdata; //для авторизации - там нет оплеера
+    public static final WeakHashMap<Player,InputData> inputData; //для авторизации - там нет оплеера
     
     static {
-        fallBackdata = new WeakHashMap<>();
+        inputData = new WeakHashMap<>();
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> consumer, String suggest) {
@@ -81,38 +79,39 @@ public class PlayerInput implements Listener {
                 
         }
         
-        final Oplayer op = PM.getOplayer(p);
-        if (op!=null) {
-            op.inputData = new InputData(type, consumer, xyz);
-        } else {
-            fallBackdata.put(p, new InputData(type, consumer, xyz));
-        }
+        //final Oplayer op = PM.getOplayer(p);
+        //if (op!=null) {
+       //     op.inputData = new InputData(type, consumer, xyz);
+       // } else {
+            inputData.put(p, new InputData(type, consumer, xyz));
+      //  }
 
     }
     
 
     
-    public static void onInput(final String name, final InputButton.InputType type, final String result) { //вызов только SUNC !!!
+    public static void onInput(final Player p, final InputButton.InputType type, final String result) { //вызов только SUNC !!!
+//Ostrov.log_warn("onInput "+p.getName()+" result="+result);
         
-        final Oplayer op = PM.getOplayer(name);
-        final Player p = Bukkit.getPlayerExact(name);
+        //final Oplayer op = PM.getOplayer(name);
+        //final Player p = Bukkit.getPlayerExact(name);
         
-        InputData data = null;
-        if (op==null) {
-            if (p!=null) {
-                data = fallBackdata.remove(p);
-            }
-        } else {
-            data = op.inputData;
-            op.inputData = null;
-        }
+        final InputData data = inputData.remove(p);
+       // if (op==null) {
+           // if (p!=null) {
+          //      data = 
+         //   }
+        //} else {
+        //    data = op.inputData;
+      //      op.inputData = null;
+      //  }
         if (data==null || data.type != type) {
             return;
         }
 
         data.setResult(result);
         
-        if (p != null) {
+       // if (p != null) {
             if (data.type==InputType.CHAT) {
                 p.sendMessage("");
                 p.sendMessage("§aЗначение получено: ");
@@ -125,7 +124,7 @@ public class PlayerInput implements Listener {
                 }
             }
             data.accept();
-        }
+        //}
     }
     /*
     public static void onSignPacket(final String name, final String input) {

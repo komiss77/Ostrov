@@ -137,13 +137,13 @@ public class Timer {
                         }
                         if (time_left==0) {
                             this.cancel();
-                            //синхронный дисконнект от БД, чтобы не висело соединение
-                            if (OstrovDB.useOstrovData) {
-                                OstrovDB.Disconnect();
-                            }                            
-                            if (LocalDB.useLocalData) {
-                                LocalDB.Disconnect();
-                            }                            
+                            //синхронный дисконнект от БД, чтобы не висело соединение - 
+                            //if (OstrovDB.useOstrovData) {
+                            //    OstrovDB.Disconnect();
+                            //}                            
+                            //if (LocalDB.useLocalData) {
+                            //    LocalDB.Disconnect();
+                            //}                            
                             Bukkit.shutdown();
                             return;
                         }

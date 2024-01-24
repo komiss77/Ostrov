@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -116,7 +115,7 @@ public class BotManager implements Initiable, Listener {
     }
 
     @EventHandler
-    public void onJoin(final BungeeDataRecieved e) {
+    public void onBungeeData(final BungeeDataRecieved e) {
         final Player pl = e.getPlayer();
      //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
@@ -158,6 +157,30 @@ public class BotManager implements Initiable, Listener {
     }
     
     
+    
+    
+    
+    
+    
+    
+    
+    @Nullable
+    public static <Bot extends BotEntity> Bot createBot(final String name, final Class<Bot> botClass, final Supplier<Bot> onCreate) {
+        if (!enable.get()) {
+            Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
+            return null;
+        }
+
+        final BotEntity be = nameBots.get(name);
+        try {
+            return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : onCreate.get();
+        } catch (IllegalArgumentException | SecurityException ex) {
+            Ostrov.log_err("BotManager createBot : "+ex.getMessage());
+            //e.printStackTrace();
+            return null;
+        }
+    }
+    
     public static void clearBots() {
         final HashMap<Integer, BotEntity> ns = new HashMap<>(rIdBots);
         for (final BotEntity bt : ns.values()) {
@@ -180,29 +203,12 @@ public class BotManager implements Initiable, Listener {
         final BotEntity be = nameBots.get(name);
         return be == null ? null : cls.cast(be);
     }
-    
-    @Nullable
-    public static <Bot extends BotEntity> Bot createBot(final String name, final Class<Bot> botClass, final Supplier<Bot> onCreate) {
-        if (!enable.get()) {
-            Ostrov.log_warn("Tried creating a Bot while the module is off!");
-            return null;
-        }
-
-        final BotEntity be = nameBots.get(name);
-        try {
-            return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : onCreate.get();
-        } catch (IllegalArgumentException | SecurityException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public static void regSkin(final String name) {
         if (!enable.get()) {
-            Ostrov.log_warn("Tried setting skin while the module is off!");
+            Ostrov.log_warn("BotManager Tried setting skin while the module is off!");
             return;
         }
-
         Ostrov.async(() -> {
             try {
                 final InputStreamReader irn = new InputStreamReader(new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream());
@@ -213,7 +219,7 @@ public class BotManager implements Initiable, Listener {
                 skin.put(name, new String []{ (String) ppt.get("value"), (String) ppt.get("signature")} );
                 //skinSignatures.put(name, (String) ppt.get("signature"));
             } catch (NullPointerException | IOException | ParseException e) {
-                //skin.put(name, new String []{"", ""});
+                //skin.put(name, new String []{"", ""}); зачем хранить пустышку, проще отдать пустышку по гет если нет ключа
                 //skinSignatures.put(name, "");
             }
         });

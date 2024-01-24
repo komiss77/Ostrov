@@ -1160,7 +1160,8 @@ public class TCUtils {
     public static NamedTextColor chatColorFromString(final String s) {
         final TextColor tc = getTextColor(s);
         return tc instanceof NamedTextColor
-                ? (NamedTextColor) tc : NamedTextColor.WHITE;
+                //? (NamedTextColor) tc : NamedTextColor.WHITE;
+                ? (NamedTextColor) tc : NamedTextColor.nearestTo(tc);
     }
 
 }

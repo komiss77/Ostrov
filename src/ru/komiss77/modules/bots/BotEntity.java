@@ -11,6 +11,7 @@ import com.destroystokyo.paper.entity.ai.Goal;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
+import net.kyori.adventure.text.Component;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.game.*;
@@ -27,6 +28,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.util.Vector;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
@@ -40,23 +42,26 @@ public class BotEntity extends EntityPlayer {
 
     private static final DedicatedServer ds = VM.getNmsServer().toNMS();
     public final World world;
+    private boolean isDead;
     private WeakReference<LivingEntity> rplc;
-    private String prefix, suffix;
-    private char nameClr;//	private Function<Mob, Goal<Mob>> goal;
+    //private String prefix, suffix;
+    //private char nameClr;//	private Function<Mob, Goal<Mob>> goal;
     public static final double DHIT_DST_SQ = 4d;
     public static final int PARRY_TICKS = 40;
     public static final int BASH_TICKS = 40;//	
+    public final CustomScore score;
+    private static final String [] empty = new String []{"", ""};
     //private static int botID = 0;
 //	protected Consumer<EntityDamageEvent> onDamage;
 //	protected Consumer<EntityDeathEvent> onDeath;
 //	private Predicate<Player> isTagVis;
 
 
-    protected BotEntity(final String name, final World w) {
-        super(ds, VM.getNmsServer().toNMS(w), getProfile(name));
+    protected BotEntity(final String name, final World world) {
+        super(ds, VM.getNmsServer().toNMS(world), getProfile(name));
         this.name = name;
-        this.rid = -1;
-        this.world = w;
+        rid = -1;
+        this.world = world;
 
         lastBash = -BASH_TICKS;
         lastParry = -PARRY_TICKS;
@@ -71,9 +76,10 @@ public class BotEntity extends EntityPlayer {
             ex.printStackTrace();
         }
         inv = pi;
-        prefix = "";
-        suffix = "";
-        nameClr = '7';
+        //prefix = "";
+        //suffix = "";
+        //nameClr = '7';
+        score = new CustomScore(name);
         BotManager.nameBots.put(name, this);
         /*final Pair<String, String> pr = bt.txs[Main.srnd.nextInt(bt.txs.length)];
     	if (pr != null) {
@@ -83,7 +89,7 @@ public class BotEntity extends EntityPlayer {
 
     private static GameProfile getProfile(final String name) {
         final GameProfile gameProfile = new GameProfile(UUID.randomUUID(), name);
-        final String[] skin = BotManager.skin.getOrDefault(name, new String []{"", ""});
+        final String[] skin = BotManager.skin.getOrDefault(name, empty);
         gameProfile.getProperties().put("textures", new Property("textures", skin[0], skin[1]));
                 //BotManager.skin.getOrDefault(name, ""),
                 //BotManager.skinSignatures.getOrDefault(name, "")));
@@ -188,10 +194,11 @@ public class BotEntity extends EntityPlayer {
             this.a(EnumGamemode.a);
         } catch (NullPointerException e) {
         }
-        this.setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        BotManager.sendWrldPckts(this.dI(),
-                addListPlayerPacket(this),
-                modListPlayerPacket(this),
+        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
+        BotManager.sendWrldPckts(
+                dI(),
+                addListPlayerPacket(this), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+                modListPlayerPacket(this), //UPDATE_GAME_MODE
                 new PacketPlayOutNamedEntitySpawn(this),
                 new PacketPlayOutEntityDestroy(rid));
         swapToSlot(0);
@@ -204,8 +211,12 @@ public class BotEntity extends EntityPlayer {
     }
 
     private ClientboundPlayerInfoUpdatePacket addListPlayerPacket(final BotEntity be) {
-        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.a.a,
-                ClientboundPlayerInfoUpdatePacket.a.d, ClientboundPlayerInfoUpdatePacket.a.f), Arrays.asList(be));
+        return new ClientboundPlayerInfoUpdatePacket(
+                EnumSet.of(
+                        ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
+                        ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
+                        ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+                Arrays.asList(be));
     }
 
     private ClientboundPlayerInfoUpdatePacket modListPlayerPacket(final BotEntity be) {
@@ -295,7 +306,6 @@ public class BotEntity extends EntityPlayer {
         return mb == null || !mb.isValid() ? null : mb;
     }
 
-    private boolean isDead;
 
     public boolean isDead() {
         return isDead;
@@ -322,6 +332,7 @@ public class BotEntity extends EntityPlayer {
         die(getEntity());
         BotManager.sendWrldPckts(this.dI(),
                 remListPlayerPacket(this));
+        score.onQuit();
         this.a(RemovalReason.a);
     }
 
@@ -336,25 +347,33 @@ public class BotEntity extends EntityPlayer {
         return new WXYZ(world, bp.u(), bp.v(), bp.w());
     }
 
-    /*@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
-	@Override
-	public boolean equals(final Object o) {
-		return o instanceof BotEntity ? ((BotEntity) o).name.equals(name) : false;
-	}*/
-    public void updateTag(final String pfx, final String sfx, final char clr) {
-        VM.getNmsNameTag().updateTag(name, prefix = pfx, suffix = sfx, nameClr = clr, world.getPlayers(), p -> isTagVisFor(p));
+
+    
+    
+    public void tag(final boolean show) {
+        score.tag(show);
+    }
+    
+    public void tag(final String prefix, final String color, final String suffix) {
+        score.tag(Component.text(prefix), color, Component.text(suffix));
+        //VM.getNmsNameTag().updateTag(name, prefix = pfx, suffix = sfx, nameClr = clr, world.getPlayers(), p -> isTagVisFor(p));
     }
 
+    
+    
+    
+    @Deprecated
+    public void updateTag(final String pfx, final String sfx, final char clr) {
+        tag(pfx, Character.toString(clr), sfx);
+        //VM.getNmsNameTag().updateTag(name, prefix = pfx, suffix = sfx, nameClr = clr, world.getPlayers(), p -> isTagVisFor(p));
+    }
+        
     public void updateTag(final char clr, final Player pl) {
-        VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr = clr, pl, p -> isTagVisFor(p));
+        //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr = clr, pl, p -> isTagVisFor(p));
     }
 
     public void updateTag(final Player pl) {
-        VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr, pl, p -> isTagVisFor(p));
+        //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr, pl, p -> isTagVisFor(p));
     }
 
     public boolean isTagVisFor(final Player p) {
@@ -451,3 +470,16 @@ public class BotEntity extends EntityPlayer {
         remove();
     }
 }
+
+
+
+
+    /*@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
+	public boolean equals(final Object o) {
+		return o instanceof BotEntity ? ((BotEntity) o).name.equals(name) : false;
+	}*/

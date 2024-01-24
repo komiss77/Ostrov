@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.papermc.paper.adventure.PaperAdventure;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -21,19 +25,11 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.spigotmc.SpigotConfig;
 import com.mojang.brigadier.tree.RootCommandNode;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.papermc.paper.adventure.PaperAdventure;
-import net.kyori.adventure.key.Key;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.core.BlockPosition.MutableBlockPosition;
-import net.minecraft.network.NetworkManager;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.network.protocol.game.PacketPlayInUpdateSign;
 import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
@@ -50,11 +46,10 @@ import net.minecraft.world.level.block.entity.TileEntitySign;
 import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ParticlePlay;
-import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.version.IServer;
 
     // private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT; 
@@ -75,7 +70,7 @@ public class Server implements IServer {
     private static final IBlockData signIbd;
     private static final Key chatKey;
     private static final Method CraftWorldMethod, CraftEntityMethod, CraftLivingEntityMethod, CraftPlayerMethod;
-    public static final Field useId, entId;
+    public static final Field useIdField, entityIdField;
 
     static {
         vanilaCommandToDisable = Arrays.asList("execute",
@@ -97,8 +92,8 @@ public class Server implements IServer {
         CraftEntityMethod = getNmsMethod(".entity.CraftEntity", "getHandle");
         CraftLivingEntityMethod = getNmsMethod(".entity.CraftLivingEntity", "getHandle");
         CraftPlayerMethod = getNmsMethod(".entity.CraftPlayer", "getHandle");
-        useId = getIdFld(PacketPlayInUseEntity.class);
-        entId = getIdFld(PacketPlayOutEntity.class);
+        useIdField = getIdFld(PacketPlayInUseEntity.class);
+        entityIdField = getIdFld(PacketPlayOutEntity.class);
     }
 
     private static Method getNmsMethod(final String path, final String methodName) {
@@ -186,15 +181,24 @@ public class Server implements IServer {
         Ostrov.log_ok("§bchatFix - блокировка уведомлений подписи чата");
     }
     
-    @Override //добавляется в bungeeDataHandler
-    public void addPacketSpy (final Player p) {
-        final NetworkManager nm = toNMS(p).c.h; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
-        final PackerSpy packetSpy = new PackerSpy();
-        nm.m.pipeline().addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
+     @Override
+    public void addPacketSpy () {
+       // final In handler = new In();  -так слушает все пакеты, а не отдельного игрока
+       // io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
+       //         chatKey, channel -> channel.pipeline().addBefore("packet_handler", "ostrov_spy", handler)
+       // );
     }
-
+    
+    @Override //добавляется в bungeeDataHandler
+    public PacketSpy addPacketSpy (final Player p, final Oplayer op) {
+        final PacketSpy packetSpy = new PacketSpy(op);
+        final ChannelPipeline pipeline = toNMS(p).c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
+        pipeline.addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
+        return packetSpy;
+    }
+    
     @Override
-    public void removePacketSpy (final Player p) {
+    public void removePacketSpy (final Player p) {  //при дисконнекте
         final Channel channel = toNMS(p).c.h.m; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
         channel.eventLoop().submit(() -> {
             channel.pipeline().remove("ostrov_"+p.getName());
@@ -263,7 +267,7 @@ public class Server implements IServer {
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
         ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);*/
 
-        final ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
+       /* final ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
                 if (packet instanceof PacketPlayInUpdateSign signPacket) {
@@ -277,7 +281,10 @@ public class Server implements IServer {
                         final String name = ctx.name().substring(12);
                         if (!name.isEmpty()) {
                             final String result = signPacket.d()[0] + signPacket.d()[1] + signPacket.d()[2] + signPacket.d()[3];
-                            PlayerInput.onInput(name, InputButton.InputType.SIGN, result);
+                            final Player p = Bukkit.getPlayerExact(name);
+                            if (p!=null) {
+                                PlayerInput.onInput(p, InputButton.InputType.SIGN, result);
+                            }
                         }
                     }
                 }
@@ -287,7 +294,7 @@ public class Server implements IServer {
         
         final ChannelPipeline pipeline = ep.c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
         pipeline.addBefore("packet_handler", "ostrov_sign_" + p.getName(), channelDuplexHandler);
-
+*/
     }
 
     @Override

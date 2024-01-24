@@ -26,23 +26,19 @@ import ru.komiss77.events.PartyUpdateEvent;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.version.VM;
 
 
 
 public class PM {
 	
     private static Function<HumanEntity, ? extends Oplayer> opSup = he -> new Oplayer(he);//могут указывать другие плагины
-    
     private static final CaseInsensitiveMap <Oplayer> oplayers;
-    //public static NametagManager nameTagManager;
     public static final EnumMap<Data,Integer> textEdit;
     private static final Component builderMsgRu;
     private static final Component builderMsgEn;
     
     static {
         oplayers = new CaseInsensitiveMap<>();
-        //nameTagManager = new NametagManager();
         
         builderMsgRu = Component.text("§a>>>> §fКлик сюда - выполнить /builder §a<<<<")
         	.hoverEvent(HoverEvent.showText(Component.text("§aВключить ГМ1 и открыть меню строителя")))
@@ -203,7 +199,7 @@ public class PM {
 
         Perm.calculatePerms(p, op, false); //там еще добавить таблист префикс,суффикс для донатов и стафф
 
-        VM.getNmsServer().addPacketSpy(p); //!!!! перед эвентом BungeeDataRecieved, или боты не сработают!!
+        //VM.getNmsServer().addPacketSpy(p); //!!!! перед эвентом BungeeDataRecieved, или боты не сработают!!
         
         Bukkit.getPluginManager().callEvent(new BungeeDataRecieved ( p, op ) );
         

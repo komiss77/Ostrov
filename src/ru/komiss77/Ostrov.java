@@ -116,6 +116,8 @@ public class Ostrov extends JavaPlugin {
         RegisterCommands.register(this); //после модулей!!
         
         log_ok ("§2Остров готов к работе!");
+        
+        VM.getNmsServer().addPacketSpy();
     }
  
     
@@ -129,20 +131,26 @@ public class Ostrov extends JavaPlugin {
         if (MOT_D.length()==3) return;
         if (PM.hasOplayers()) {
             for (Oplayer op : PM.getOplayers()) {
-                LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
+                op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
             }
-            //PM.oplayers.clear();
         }
-        LocalDB.Disconnect();
+        if (LocalDB.useLocalData) {
+            LocalDB.Disconnect();
+        }
+        if (OstrovDB.useOstrovData) {
+            OstrovDB.Disconnect();
+        }                            
 
         modules.values().stream().forEach( 
             (module) ->  (module).onDisable()
         );
+        
         try {
             HTTP.close();
         } catch (IOException ex) {
             log_err("HTTP : "+ex.getMessage());
         }
+        
         log_ok("§4Остров выгружен!");
     }  
 

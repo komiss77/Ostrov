@@ -13,8 +13,10 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.level.block.state.IBlockData;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.ThreadSafe;
+import ru.komiss77.version.v1_20_R1.PacketSpy;
 
 
 public interface IServer {
@@ -58,7 +60,9 @@ public interface IServer {
    
     public void signInput(final Player p, final String suggest, final XYZ signXyz);
     
-    public void addPacketSpy (final Player p);
+    public PacketSpy addPacketSpy (final Player p, final Oplayer op);
+    
+    public void addPacketSpy ();
     
     public void removePacketSpy (final Player p);
     

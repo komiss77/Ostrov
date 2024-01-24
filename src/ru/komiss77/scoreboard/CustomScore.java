@@ -10,15 +10,21 @@ import org.bukkit.scoreboard.Team;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.TCUtils;
 import java.util.Iterator;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Score;
 import ru.komiss77.Ostrov;
 
 
 public class CustomScore {
     private static final CaseInsensitiveMap<CustomScore> boards; //для удобства перебора
     private final String name;
+    private final boolean botBoard;
     private final Scoreboard ownerBoard;
-    //private ScoreBoardTeam team;
-    private ScoreBoardBelow below;
+    private Objective belowObj;
+    private Score belowScore;
+    private String belowText;
+    private int belowValue;
     private final SideBar sideBar;
     private final Team ownerTeam;
     private final CaseInsensitiveMap<Team>registeredTeams = new CaseInsensitiveMap<>(); //всосанные тимы других игроков для префиксов и тд
@@ -32,52 +38,35 @@ public class CustomScore {
     
     public CustomScore(final Player p) {
         name = p.getName();
+        botBoard = false;
         ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
         sideBar = new SideBar(p, this, name);
         ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
-        //ownerTeam.addEntry(name);
-        ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
-        ownerTeam.setCanSeeFriendlyInvisibles(false);
-        p.setScoreboard(ownerBoard);
         onJoin();
+        p.setScoreboard(ownerBoard);
     }
     
     public CustomScore(final String botName) {
         name = botName;
+        botBoard = true;
         ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
         sideBar = null;
         ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
-        //ownerTeam.addEntry(name);
-        ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
-        ownerTeam.setCanSeeFriendlyInvisibles(false);
         onJoin();
     }
     
-    public Scoreboard getScoreboard() {
-        return ownerBoard;
-    }
-    
-    public SideBar getSideBar() {
-        return sideBar;
-    }
-    
-
-    public Team getTeam() {
-        return ownerTeam;
-    }
-
-    
-    
-    
-
-    
-    //при входе на серв владельца борды - всосать данные с других
     private void onJoin() {
-        for (CustomScore score : boards.values()) {
-            if (score.hideNameTags) { //у другого скрыт ник - добавить в тим этой борды
-                ownerTeam.addEntry(score.name);
-            } else {
-                updTeam(score.name, score.ownerTeam); // закинуть данные с борд других
+        //ownerTeam.addEntry(name);
+        ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
+        ownerTeam.setCanSeeFriendlyInvisibles(false);
+        //при входе на серв не бота - всосать данные с других
+        if (!botBoard) {
+            for (CustomScore otherScore : boards.values()) {
+                if (otherScore.hideNameTags) { //у другого скрыт ник - добавить в тим этой борды
+                    ownerTeam.addEntry(otherScore.name);
+                } else {
+                    updTeam(otherScore.name, otherScore.ownerTeam); // закинуть данные с борд других
+                }
             }
         }
         boards.put(name, this); //добавлять после перебора других борд!
@@ -86,53 +75,52 @@ public class CustomScore {
     //при дисконнекте владельца борды
     public void onQuit() {
         boards.remove(name);
-        for (CustomScore score : boards.values()) {
+        for (CustomScore otherScore : boards.values()) {
             if (hideNameTags) { //владелец этой борды был скрыт
-                score.ownerTeam.removeEntry(name); //удалить его запись
+                otherScore.ownerTeam.removeEntry(name); //удалить его запись
             } else { //вычистить данные этой борды у других
-                if (score.registeredTeams.remove( name)!=null) {
-                    score.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
+                if (otherScore.registeredTeams.remove( name)!=null) {
+                    otherScore.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
                 }
             }
         }
         remove();
     }
     
-    public void hideNameTag() { //скрыть ник владельца борды от остальных игроков
-        if (!hideNameTags) { //сейчас не скрыто
-            for (CustomScore score : boards.values()) {
-                if (score.name.equals(name)) continue; //самому себе не добавлять
-                if (score.registeredTeams.remove( name)!=null) { //убрать инфо о тиме владельца борды, или ник не скроется
-                    score.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
-                } 
-                score.ownerTeam.addEntry(name);
+    public void tag (final boolean show) {
+        if (show) {
+            if (hideNameTags) { //сейчас скрыто
+                for (CustomScore otherScore : boards.values()) {
+                    if (otherScore.name.equals(name)) continue; //самому себе не надо
+                    otherScore.ownerTeam.removeEntry(name);
+                    otherScore.updTeam(name, ownerTeam);
+                }
+                hideNameTags = false;
             }
-            hideNameTags = true;
-        }
-    }
-    
-    public void showNameTag() { //показать ник владельца борды остальным игрокам
-        if (hideNameTags) { //сейчас скрыто
-            for (CustomScore score : boards.values()) {
-                if (score.name.equals(name)) continue; //самому себе не надо
-                score.ownerTeam.removeEntry(name);
-                score.updTeam(name, ownerTeam);
+        } else {
+            if (!hideNameTags) { //сейчас не скрыто
+                for (CustomScore otherScore : boards.values()) {
+                    if (otherScore.name.equals(name)) continue; //самому себе не добавлять
+                    if (otherScore.registeredTeams.remove( name)!=null) { //убрать инфо о тиме владельца борды, или ник не скроется
+                        otherScore.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
+                    } 
+                    otherScore.ownerTeam.addEntry(name);
+                }
+                hideNameTags = true;
             }
-            hideNameTags = false;
         }
-    }
-     
-    public void tag(final Component prefix, final String color, final Component suffix) {
-        ownerTeam.prefix(prefix.append(TCUtils.format(color)));
+    }     
+    public void tag (final Component prefix, final String nameColor, final Component suffix) {
+        ownerTeam.prefix(prefix.append(TCUtils.format(nameColor)));
         ownerTeam.suffix(suffix);
-        ownerTeam.color(TCUtils.chatColorFromString(color));
+        ownerTeam.color(TCUtils.chatColorFromString(nameColor));
         if (hideNameTags) { //сейчас скрыто
 //Ostrov.log_warn("ставим префиксы на боард, тэги ON.");
-            showNameTag();//там же сделает updTeam
+            tag(true);//showNameTag();//там же сделает updTeam
         } else { //обновить префиксы в других бордах
-            for (CustomScore score : boards.values()) {
-                if (score.name.equals(name)) continue; //самому себе не надо
-                score.updTeam(name, ownerTeam); //в борды других игроков закинуть префиксы этой борды
+            for (CustomScore otherScore : boards.values()) {
+                if (otherScore.name.equals(name)) continue; //самому себе не надо
+                otherScore.updTeam(name, ownerTeam); //в борды других игроков закинуть префиксы этой борды
             }
         }
         
@@ -140,11 +128,9 @@ public class CustomScore {
     
     //добавить в эту борду тимы других игроков
     private void updTeam(final String otherName, final Team otherTeam) {
-        //if (ownerName.equals(name)) return; //в свою борду не пихаем
 //Ostrov.log("addTeam name="+name+" : "+ownerName);
         Team t = registeredTeams.get(otherName);
         if (t==null) {
-            //regTeam(otherName);
             t = regTeam(otherName);//ownerBoard.registerNewTeam("_"+ownerName);
             t.addEntry(otherName);
             registeredTeams.put(otherName, t);
@@ -187,42 +173,53 @@ public class CustomScore {
 
 
 
-    
+    @Deprecated
     public ScoreBoardBelow getBelow() {
-        return below;
+        return new ScoreBoardBelow(this, name, 0);//below;
     }
     
-    public void showBelow(final String below_line, final int value) {
-        if (below==null) {
-            below = new ScoreBoardBelow(this, below_line, value);
+    public void below(final String text, final int value) {
+        if (belowObj==null) {
+            belowObj = ownerBoard.registerNewObjective("below", Criteria.DUMMY, TCUtils.format(text));
+            belowObj.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            belowObj.displayName(TCUtils.format(text));
+            //below = new ScoreBoardBelow(this, below_line, value);
+        } else if (belowScore!=null && belowText!=null && !belowText.equals(text)) { //текст изменился
+            ownerBoard.resetScores(belowScore.getEntry());
+        }
+        belowText = text;
+        belowValue = value;
+        belowScore = belowObj.getScore(text);
+        belowScore.setScore(value);
+Ostrov.log("belowObj="+belowObj+"belowScore="+belowScore);
+        // else {
+        //    below.update(below_line, value);
+        //}
+    }
+    
+    public void below(final boolean show) {
+        if (show) {
+            if (belowText!=null) {
+                below(belowText, belowValue);
+            }
         } else {
-            below.update(below_line, value);
+            if (belowObj!=null) {
+                if (belowScore!=null) {
+                    ownerBoard.resetScores(belowScore.getEntry());
+                    belowScore = null;
+                }
+                belowObj.unregister();
+                belowObj = null;
+            }
         }
     }
-    
-    public void removeBelow() {
-        if (below != null) {
-            below.scores.stream().forEach( sc -> ownerBoard.resetScores(sc.getEntry()));
-            below.scores.clear();
-            //final Iterator<Score> iterator = below.getScores().iterator();
-            //while (iterator.hasNext()) {
-            //    ownerBoard.resetScores(iterator.next().getEntry());
-            //}
-            below.getObjective().unregister();
-            below = null;
-        }
-    }
-    
 
-    
-    
-    
-    
+
     
     
     public void remove() {
        // removeTeam();
-        removeBelow();
+        below(false);//removeBelow();
         final Iterator<Objective> iterator = ownerBoard.getObjectives().iterator();
         while (iterator.hasNext()) {
             iterator.next().unregister();
@@ -234,7 +231,44 @@ public class CustomScore {
     }
 
 
+    
+    
+    
+    
+    public Scoreboard getScoreboard() {
+        return ownerBoard;
+    }
+    
+    public SideBar getSideBar() {
+        return sideBar;
+    }
+    
+    public Team getTeam() {
+        return ownerTeam;
+    }
 
+
+    
+    
+    @Deprecated
+    public void removeBelow() {
+        //if (below != null) {
+       //     below.scores.stream().forEach( sc -> ownerBoard.resetScores(sc.getEntry()));
+       //     below.scores.clear();
+       //     //final Iterator<Score> iterator = below.getScores().iterator();
+            //while (iterator.hasNext()) {
+            //    ownerBoard.resetScores(iterator.next().getEntry());
+            //}
+          //  below.getObjective().unregister();
+         //   below = null;
+        //}
+    }
+    
+
+    
+    
+    
+        
    
     @Deprecated
     public void hideNameTags() { //скрыть ники остальных игроков от владельца борды

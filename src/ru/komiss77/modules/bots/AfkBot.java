@@ -6,39 +6,94 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import com.destroystokyo.paper.entity.ai.Goal;
+import com.destroystokyo.paper.entity.ai.GoalKey;
+import com.destroystokyo.paper.entity.ai.GoalType;
+import java.util.EnumSet;
+import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.NotNull;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 
+public class AfkBot extends BotEntity {
 
-public class TestBot extends BotEntity {
+    public AfkBot(final String name, final WXYZ loc) {
+        super(name, loc.w);
+        telespawn(loc.getCenterLoc(), null);
+        //TCUtils.N + "[" + TCUtils.P + "Bot" + TCUtils.N + "] 
+        updateTag("", "", '7');
+    }
 
-	public TestBot(final String name, final WXYZ loc) {
-		super(name, loc.w);
-		telespawn(loc.getCenterLoc(), null);
-		//TCUtils.N + "[" + TCUtils.P + "Bot" + TCUtils.N + "] 
-		updateTag("", "", '7');
-	}
+    @Override
+    public Goal<Mob> getGoal(final Mob org) {
+        return new AfkGoal(this);
+    }
+
+    @Override
+    public void onDamage(final EntityDamageEvent e) {
+      //  if (e instanceof final EntityDamageByEntityEvent ee) {
+       //     if (ee.getDamager() instanceof final Player pl) {
+                //QuestManager.complete(pl, PM.getOplayer(pl, LobbyPlayer.class), Quests.greet);
+         //   }
+       // }
+        super.onDamage(e);
+    }
+
+    @Override
+    public void onDeath(EntityDeathEvent e) {
+        remove();
+    }
+    
+class AfkGoal implements Goal<Mob> {
 	
+    private static final GoalKey<Mob> key = GoalKey.of(Mob.class, new NamespacedKey(Ostrov.instance, "bot"));
+    
+    private final BotEntity bot;
+    
+    public AfkGoal(final BotEntity bot) {
+        this.bot = bot;
+    }
+
 	@Override
-	public Goal<Mob> getGoal(final Mob org) {
-		return new TestGoal(this, org);
-	}
-	
-	@Override
-	public void onDamage(final EntityDamageEvent e) {
-		if (e instanceof final EntityDamageByEntityEvent ee) {
-			if (ee.getDamager() instanceof final Player pl) {
-				//QuestManager.complete(pl, PM.getOplayer(pl, LobbyPlayer.class), Quests.greet);
-			}
+    public boolean shouldActivate() {
+        return true;
+    }
+ 
+    @Override
+    public boolean shouldStayActive() {
+        return true;
+    }
+ 
+    @Override
+    public void start() {
+    }
+ 
+    @Override
+    public void stop() {
+		bot.die(bot.getEntity());
+    }
+    
+    @Override
+    public void tick() {
+    	final Mob rplc = (Mob) bot.getEntity();
+		if (rplc == null || !rplc.isValid()) {
+			bot.die(rplc);
+			//return;
 		}
-		super.onDamage(e);
-	}
-	
-	@Override
-	public void onDeath(EntityDeathEvent e) {
-		remove();
-	}
 
-/*
+    }
+
+	@Override
+    public @NotNull GoalKey<Mob> getKey() {
+        return key;
+    }
+    
+    @Override
+    public @NotNull EnumSet<GoalType> getTypes() {
+        return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
+    }
+}
+    
+    /*
     //лестницы-
     //стрейфы
     public static final String nm = "";
@@ -304,6 +359,4 @@ public class TestBot extends BotEntity {
 			}
 		}
 	}*/
-
-
 }
