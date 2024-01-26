@@ -1,24 +1,32 @@
 package ru.komiss77.version.remapper;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.framework.qual.DefaultQualifier;
+
+@DefaultQualifier(NonNull.class)
 final class NoopReflectionRemapper implements ReflectionRemapper {
+  static NoopReflectionRemapper INSTANCE = new NoopReflectionRemapper();
 
-    static NoopReflectionRemapper INSTANCE = new NoopReflectionRemapper();
+  private NoopReflectionRemapper() {
+  }
 
-    private NoopReflectionRemapper() {}
+  @Override
+  public String remapClassName(final String className) {
+    return className;
+  }
 
-    public String remapClassName(final String className) {
-        return className;
-    }
+  @Override
+  public String remapFieldName(final Class<?> holdingClass, final String fieldName) {
+    return fieldName;
+  }
 
-    public String remapFieldName(final Class holdingClass, final String fieldName) {
-        return fieldName;
-    }
+  @Override
+  public String remapMethodName(final Class<?> holdingClass, final String methodName, final Class<?>... paramTypes) {
+    return methodName;
+  }
 
-    public String remapMethodName(final Class holdingClass, final String methodName, final Class... paramTypes) {
-        return methodName;
-    }
-
-    public String remapClassOrArrayName(final String name) {
-        return name;
-    }
+  @Override
+  public String remapClassOrArrayName(final String name) {
+    return name;
+  }
 }

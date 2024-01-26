@@ -24,11 +24,11 @@ import ru.komiss77.utils.inventory.InputButton;
 
 
 
-public class PacketSpy extends ChannelDuplexHandler {
+public class PlayerPacketHandler extends ChannelDuplexHandler {
 
     private final Oplayer op;
     
-    PacketSpy(final Oplayer op) {
+    PlayerPacketHandler(final Oplayer op) {
         this.op = op;
     }
 
@@ -39,7 +39,7 @@ public class PacketSpy extends ChannelDuplexHandler {
             if (BotManager.enable.get()) {
                 if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {
                     final int id = useEntityPacket.getEntityId();
-                    for (final BotEntity bot : BotManager.rIdBots.values()) {
+                    for (final BotEntity bot : BotManager.botById.values()) {
                         if (bot.af() == id) {
                             Server.useIdField.set(useEntityPacket, bot.rid);
                             break;
@@ -85,7 +85,7 @@ public class PacketSpy extends ChannelDuplexHandler {
                 id = (int) Server.entityIdField.get(packet);
             }
             
-            if (id!=0 && BotManager.rIdBots.containsKey(id)) {
+            if (id!=0 && BotManager.botById.containsKey(id)) {
 //Ostrov.log_warn("packet "+packet.getClass().getSimpleName()+" id="+id+" - return!");
                 return; //не пропускать пакеты дальше
             }
@@ -103,7 +103,7 @@ public class PacketSpy extends ChannelDuplexHandler {
                     }
                 }
                 
-                if (id!=0 && BotManager.rIdBots.containsKey(id)) {
+                if (id!=0 && BotManager.botById.containsKey(id)) {
 //Ostrov.log_warn("packet "+packet.getClass().getSimpleName()+" id="+id+" - remove!");
                     pit.remove();
                 }

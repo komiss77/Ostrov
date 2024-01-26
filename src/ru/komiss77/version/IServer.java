@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.ThreadSafe;
-import ru.komiss77.version.v1_20_R1.PacketSpy;
+import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
 
 
 public interface IServer {
@@ -60,7 +60,7 @@ public interface IServer {
    
     public void signInput(final Player p, final String suggest, final XYZ signXyz);
     
-    public PacketSpy addPacketSpy (final Player p, final Oplayer op);
+    public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op);
     
     public void addPacketSpy ();
     

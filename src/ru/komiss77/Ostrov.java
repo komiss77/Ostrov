@@ -30,6 +30,7 @@ import ru.komiss77.events.WorldsLoadCompleteEvent;
 import ru.komiss77.listener.ArcaimLst;
 import ru.komiss77.listener.ArmorEquipLst;
 import ru.komiss77.listener.ChatLst;
+import ru.komiss77.listener.InteractLst;
 import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.ServerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
@@ -131,7 +132,7 @@ public class Ostrov extends JavaPlugin {
         if (MOT_D.length()==3) return;
         if (PM.hasOplayers()) {
             for (Oplayer op : PM.getOplayers()) {
-                op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
+                PlayerLst.onLeave(op.getPlayer(), op, false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
             }
         }
         if (LocalDB.useLocalData) {
@@ -173,6 +174,7 @@ public class Ostrov extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), instance); //в режиме AUTH инициализация дубль выше
         Bukkit.getPluginManager().registerEvents(new ServerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
         Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
         //Bukkit.getPluginManager().registerEvents(new InvLst(), instance);
         //if (Bukkit.getPluginManager().getPlugin("TradeSystem")!=null) {

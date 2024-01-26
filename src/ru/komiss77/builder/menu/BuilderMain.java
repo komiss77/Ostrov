@@ -8,13 +8,12 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.ViewPerm.SelectPlayer;
-import ru.komiss77.listener.PlayerLst;
+import ru.komiss77.listener.InteractLst;
 import ru.komiss77.modules.displays.DisplayMenu;
 import ru.komiss77.modules.items.ItemMenu;
 import ru.komiss77.modules.player.PM;
@@ -267,7 +266,7 @@ public class BuilderMain implements InventoryProvider {
                 .addLore("§7ЛКМ - получить")
                 .addLore("")
                 .build(), e -> {
-                    p.getInventory().addItem(PlayerLst.signEdit.clone());
+                    p.getInventory().addItem(InteractLst.signEdit.clone());
                 }));
 
         content.set(3, 3, ClickableItem.of(new ItemBuilder(Material.CRIMSON_SIGN)
@@ -281,7 +280,7 @@ public class BuilderMain implements InventoryProvider {
                 .addLore("§7ЛКМ - получить")
                 .addLore("")
                 .build(), e -> {
-                    p.getInventory().addItem(PlayerLst.gameSignEdit.clone());
+                    p.getInventory().addItem(InteractLst.gameSignEdit.clone());
                 }));
 
         content.set(3, 4, ClickableItem.of(new ItemBuilder(Material.CARTOGRAPHY_TABLE)

@@ -88,7 +88,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
     private static Listener cmdListener;
     private static Listener advancedListener;
 
-    private static final String inPvP = "§cТы в режиме боя!";
+    private static final String PVP_NOTIFY = "§cТы в режиме боя!";
     private static final PotionEffect spd = new PotionEffect(PotionEffectType.FAST_DIGGING, 2, 255, true, false, false);
     private static final PotionEffect slw = new PotionEffect(PotionEffectType.SLOW_DIGGING, 32, 255, true, false, false);
     private static final HashSet<Integer> noClds = new HashSet<>();
@@ -528,7 +528,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                         if (p.getAllowFlight() && p.isFlying()) {
                             p.setFlying(false);
                             p.setAllowFlight(false);
-                            ApiOstrov.sendActionBarDirect(p, inPvP);
+                            ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
                             e.setCancelled(true);
                         }
                     }
@@ -547,7 +547,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                     //System.err.println(">>>>>>>>>>> 2");  
                     final Player p = (Player) e.getEntity();
                     if (battle_time > 1 && PM.inBattle(p.getName())) {
-                        ApiOstrov.sendActionBarDirect(p, inPvP);
+                        ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
                         e.setCancelled(true);
                     }
                 }
@@ -952,7 +952,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         op.pvp_allow = false;
         if (flags.get(PvpFlag.display_pvp_tag)) {
             final Player p = op.getPlayer();
-            op.nameColor("§2☮ ", p);
+            op.beforName("§2☮ ", p);
         }
     }
 
@@ -960,7 +960,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         op.pvp_allow = true;
         if (flags.get(PvpFlag.display_pvp_tag)) {
             final Player p = op.getPlayer();
-            op.nameColor("§7", p);
+            op.beforName(null, p);
         }
     }
 

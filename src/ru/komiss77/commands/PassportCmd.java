@@ -18,7 +18,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Stat;
-import ru.komiss77.listener.PlayerLst;
+import ru.komiss77.listener.InteractLst;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.E_Pass;
@@ -82,13 +82,13 @@ public class PassportCmd implements CommandExecutor {
                         
                         case "get" -> {
                             p.closeInventory();
-                            final int slot = ItemUtils.findItem(p, PlayerLst.passport);
+                            final int slot = ItemUtils.findItem(p, InteractLst.passport);
                             if (slot>0) {
                                 //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
                                 cs.sendMessage(Ostrov.PREFIX+"§cУ вас уже есть копия паспотра, слот "+slot+"!");
                                 return true;
                             }
-                            if (ItemUtils.giveItemTo(p, PlayerLst.passport.clone(), 4, false)) {
+                            if (ItemUtils.giveItemTo(p, InteractLst.passport.clone(), 4, false)) {
                                 p.sendMessage("§7Вот Ваш паспорт!");
                             }
                         }

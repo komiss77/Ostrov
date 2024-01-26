@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,20 +32,22 @@ import org.json.simple.parser.ParseException;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.events.BungeeDataRecieved;
+import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.objects.IntHashMap;
 
 public class BotManager implements Initiable, Listener {
 
     public static final AtomicBoolean enable;
-    public static final HashMap<Integer, BotEntity> rIdBots;
-    protected static final HashMap<String, BotEntity> nameBots;
-    protected static final HashMap<String, String[]> skin;
+    public static final IntHashMap<BotEntity> botById;
+    protected static final CaseInsensitiveMap<BotEntity> botByName;
+    protected static final CaseInsensitiveMap<String[]> skin;
     //protected static final HashMap<String, String> skinSignatures;
  
     static {
         enable = new AtomicBoolean(false);
-        rIdBots = new HashMap<>();
-        nameBots = new HashMap<>();
-        skin = new HashMap<>();
+        botById = new IntHashMap<>();
+        botByName = new CaseInsensitiveMap<>();
+        skin = new CaseInsensitiveMap<>();
         //skinSignatures = new HashMap<>();
     }
     
@@ -65,7 +67,7 @@ public class BotManager implements Initiable, Listener {
             @Override
             public void run() {
                 final ArrayList<BotEntity> rbs = new ArrayList<>();
-                for (final Entry<Integer, BotEntity> en : rIdBots.entrySet()) {
+                for (final IntHashMap.Entry<BotEntity> en : botById.entrySet()) {
                     final BotEntity be = en.getValue();
                     if (!be.isDead()) {
                         final LivingEntity le = be.getEntity();
@@ -120,7 +122,7 @@ public class BotManager implements Initiable, Listener {
      //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
-            for (final BotEntity be : nameBots.values()) {
+            for (final BotEntity be : botByName.values()) {
                 if (be.world.getUID().equals(id)) {
                     be.updateAll(pl);
                 }
@@ -135,7 +137,7 @@ public class BotManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
-        final BotEntity be = rIdBots.get(e.getEntity().getEntityId());
+        final BotEntity be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
             be.onDamage(e);
         }
@@ -143,7 +145,7 @@ public class BotManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDeath(final EntityDeathEvent e) {
-        final BotEntity be = rIdBots.get(e.getEntity().getEntityId());
+        final BotEntity be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
             be.onDeath(e);
         }
@@ -171,7 +173,7 @@ public class BotManager implements Initiable, Listener {
             return null;
         }
 
-        final BotEntity be = nameBots.get(name);
+        final BotEntity be = botByName.get(name);
         try {
             return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : onCreate.get();
         } catch (IllegalArgumentException | SecurityException ex) {
@@ -182,25 +184,25 @@ public class BotManager implements Initiable, Listener {
     }
     
     public static void clearBots() {
-        final HashMap<Integer, BotEntity> ns = new HashMap<>(rIdBots);
-        for (final BotEntity bt : ns.values()) {
+        final Set<BotEntity> en = new HashSet<>(botById.values());
+        for (final BotEntity bt : en) {
             bt.remove();
         }
     }
 
     public static boolean isBot(final LivingEntity le) {
-        return rIdBots.containsKey(le.getEntityId());
+        return botById.containsKey(le.getEntityId());
     }
 
     @Nullable
     public static <Bot extends BotEntity> Bot getBot(final int rid, final Class<Bot> cls) {
-        final BotEntity be = rIdBots.get(rid);
+        final BotEntity be = botById.get(rid);
         return be == null ? null : cls.cast(be);
     }
 
     @Nullable
     public static <Bot extends BotEntity> Bot getBot(final String name, final Class<Bot> cls) {
-        final BotEntity be = nameBots.get(name);
+        final BotEntity be = botByName.get(name);
         return be == null ? null : cls.cast(be);
     }
 

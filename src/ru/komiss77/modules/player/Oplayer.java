@@ -1,13 +1,13 @@
 package ru.komiss77.modules.player;
 
 import java.util.*;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
 import net.kyori.adventure.bossbar.BossBar;
@@ -18,7 +18,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
-import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Perm;
 import ru.komiss77.Timer;
@@ -31,9 +30,9 @@ import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.Settings;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.enums.StatFlag;
+import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.E_Pass;
@@ -44,14 +43,10 @@ import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
-import ru.komiss77.objects.InputData;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
-import ru.komiss77.version.v1_20_R1.PacketSpy;
-
-
-
+import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
 
 
 public class Oplayer {
@@ -108,6 +103,57 @@ public class Oplayer {
     }
 
     
+    @Deprecated
+    public String tabPrefix() {
+    	return tab_prefix;
+    }
+    @Deprecated
+    public String tabSuffix() {
+    	return tab_suffix;
+    }
+    @Deprecated
+    public String nameColor() {
+    	return beforName;
+    }
+    @Deprecated
+    public TextComponent tagPrefix() {
+    	return TCUtils.format(tag_prefix);//tag_prefix;
+    }
+    @Deprecated
+    public TextComponent tagSuffix() {
+    	return TCUtils.format(tag_suffix);//tag_suffix;
+    }
+    @Deprecated
+    public void addCd(final String type, final int seconds) {
+       Timer.add(nik, type, seconds);//if (seconds<=0) return;coutDown.put(type.hashCode(), Timer.getTime() + seconds);
+    }
+    @Deprecated
+    public void delCd(final  String type) {
+       Timer.del(nik, type);//coutDown.remove(type.hashCode());
+    }
+    @Deprecated
+    public int getCd(final  String type) {
+        return Timer.getLeft(nik, type);//int left = coutDown.getOrDefault(type.hashCode(), 0);return left==0 ? 0 : left - Timer.getTime();
+    }
+    @Deprecated
+    public boolean hasCd(final  String type) {
+        return Timer.has(nik, type);
+    }
+    @Deprecated
+    public void nameColor(String beforName, Player p) {
+        beforName(beforName, p);
+    }
+    @Deprecated
+    public boolean isTagVis(final Player to) {
+    	return true;
+    }
+    @Deprecated
+    public void tag(final String tagPrefix, final String beforName, final String tagSuffix) {
+        beforName(beforName, getPlayer());
+        tag(tagPrefix, tagSuffix);
+    }
+  
+    
     
     
     
@@ -123,7 +169,7 @@ public class Oplayer {
     
     public final String nik;
     public final UUID id;
-    public final PacketSpy packetSpy;
+    public final PlayerPacketHandler packetSpy;
     public boolean eng; //true - english; false - russian 
     //public Locale locale; нет смысла дублировать, он есть p.locale
     public int karmaCalc, reputationCalc; //просчитывается в 
@@ -165,14 +211,15 @@ public class Oplayer {
     public PermissionAttachment permissionAttachmen=null;
     public ProfileManager menu;
     public CustomScore score;
+    public CustomTag customTag;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
     public Location last_death=Bukkit.getWorlds().get(0).getSpawnLocation();
 
     public String chat_group=" ---- ";
-    private String  tab_prefix="§7", name_color="§7", tab_suffix="";
-    private TextComponent tag_prefix=TCUtils.format("§7");
-    private TextComponent tag_suffix=Component.empty();
+    private String  tab_prefix="§7", beforName, tab_suffix="";
+    private String tag_prefix = "";//=TCUtils.format("§7");
+    private String tag_suffix = "";//=Component.empty();
 
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;
@@ -197,7 +244,8 @@ public class Oplayer {
         id = p.getUniqueId();
         menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
-        if (p instanceof Player player) score = new CustomScore(player);
+        score = new CustomScore((Player) p);
+        customTag = new CustomTag(p);
         packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
@@ -265,8 +313,8 @@ public class Oplayer {
         
         menu.tick(p); //обновление lore в меню ProfileManager
 
-        if (Config.ostrovStatScore && onlineSecond%10==0) {
-            updScore();
+        if (!hideScore && Config.ostrovStatScore && onlineSecond%10==0) {
+            showOstrovBoard();
         }
 
         if (Config.tablist_header_footer) {
@@ -299,78 +347,45 @@ public class Oplayer {
     
     
     
-    public String tabPrefix() {
-    	return tab_prefix;
-    }
     
-    public void tabPrefix(final String pr, final Player p) {
-    	tab_prefix = pr == null ? "" : pr;
+    
+    public void tabPrefix(@Nullable final String tab_prefix, @Nonnull final Player p) {
+    	this.tab_prefix = tab_prefix == null ? "" : tab_prefix;
         updTabListName(p);
     }
     
-    public String tabSuffix() {
-    	return tab_suffix;
+    public void beforName(@Nullable final String beforName, @Nonnull final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
+    	this.beforName =  beforName == null ? ChatLst.NIK_COLOR : beforName;
+        updTabListName(p);
+        tag(tag_prefix, tag_suffix);
     }
     
-    public void tabSuffix(final String sf, final Player p) {
-    	tab_suffix = sf == null ? "" : sf;
+    public void tabSuffix(@Nullable final String tab_suffix, final Player p) {
+    	this.tab_suffix = tab_suffix == null ? "" : tab_suffix;
         updTabListName(p);
     }
     
-    public void updTabListName (final Player p) {
+    public void updTabListName (@Nonnull final Player p) {
         if (Config.tablist_name) {//final String name = name_color + (isGuest ? "Гость_" + nik.substring(6) : nik);
-            final String displayName = isGuest ? "§8(Гость) " + name_color + getDataString(Data.FAMILY) : name_color + nik;
+            final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
             p.playerListName(TCUtils.format(tab_prefix + displayName + tab_suffix));
         }
     }
     
-    public String nameColor() {
-    	return name_color;
-    }
-    
-    public TextComponent tagPrefix() {
-    	return tag_prefix;
-    }
-    
-    public TextComponent tagSuffix() {
-    	return tag_suffix;
-    }
-    
-    public void nameColor(final String nameColor, final Player p) {
-    	name_color = nameColor == null ? "" : nameColor;
-        updTabListName(p);
-        //VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
-        //score.nameColor(nameColor);
-        score.tag(tag_prefix, name_color, tag_suffix);
-    }
-    
-    
     //показать/скрыть ник этого оплеера от других
     public void tag(final boolean visible) {
-            score.tag(visible);
+        customTag.visible(visible);
     }
     
-    public void tag(final String prefix, final String suffix) {
-        tag (prefix, name_color, suffix);
-    	//tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
-    	//tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
-        //VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
-        //score.tag(tag_prefix, tag_suffix);
+    public void tag(final String tagPrefix, final String tagSuffix) {
+    	tag_prefix = tagPrefix;
+    	tag_suffix = tagSuffix;
+        final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
+        customTag.content(TCUtils.format(tagPrefix + displayName + tagSuffix));
     }
     
-    public void tag(final String prefix, final String color, final String suffix) {
-    	tag_prefix = TCUtils.format(prefix);// == null ? Component.text("", NamedTextColor.GRAY) : pr;
-    	tag_suffix = TCUtils.format(suffix);// == null ? Component.text("") : sf;
-    	name_color = color == null ? "" : color;
-        VM.getNmsNameTag().updateTag(this, Bukkit.getOnlinePlayers());
-        score.tag(tag_prefix, color, tag_suffix);
-    }
     
-    public boolean isTagVis(final Player to) {
-    	return true;
-    }
-  
-    
+     
     
     
     
@@ -593,8 +608,8 @@ public class Oplayer {
 
 
     
-    protected void updScore() {
-        if (!Config.ostrovStatScore || hideScore) return;
+    protected void showOstrovBoard() {
+        //if (!Config.ostrovStatScore || hideScore) return;
         if (eng) {
             score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
             score.getSideBar().updateLine(8, "§a--------------");
@@ -673,34 +688,7 @@ public class Oplayer {
         return !dataString.isEmpty();
     }
 
-    public void onLeave(final Player p, final boolean async) {
-        VM.getNmsServer().removePacketSpy(p);
-        
-        //в saveLocalData инвентарь не сохранит
-        if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) &&  PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && pvp_time>0) {      //если удрал во время боя
-            final List<ItemStack> drop = new ArrayList<>();
-            for (ItemStack is : p.getInventory().getContents()) {
-                if (is != null && !MenuItemsManager.isSpecItem(is)) {
-                    drop.add(is.clone());
-                }
-            }
-            Ostrov.sync( () -> {
-                for (ItemStack is : drop) {
-                    p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
-                }
-            }, 10);
-        }
-        
-    	if (!mysqlError && !mysqlData.isEmpty() && LocalDB.useLocalData) {
-            if (async) {
-                Ostrov.async(()->LocalDB.saveLocalData(p, this), 0); //op.mysqlData не должна быть пустой, если загружало!
-            } else {
-                LocalDB.saveLocalData(p, this);
-            }
-    	}
-        score.onQuit();
-    }
-    
+
     
 
     
@@ -816,22 +804,7 @@ public class Oplayer {
 
     
 
-    @Deprecated
-    public void addCd(final String type, final int seconds) {
-       Timer.add(nik, type, seconds);//if (seconds<=0) return;coutDown.put(type.hashCode(), Timer.getTime() + seconds);
-    }
-    @Deprecated
-    public void delCd(final  String type) {
-       Timer.del(nik, type);//coutDown.remove(type.hashCode());
-    }
-    @Deprecated
-    public int getCd(final  String type) {
-        return Timer.getLeft(nik, type);//int left = coutDown.getOrDefault(type.hashCode(), 0);return left==0 ? 0 : left - Timer.getTime();
-    }
-    @Deprecated
-    public boolean hasCd(final  String type) {
-        return Timer.has(nik, type);
-    }
+
 
 }
  /*

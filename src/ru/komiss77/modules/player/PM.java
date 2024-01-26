@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -28,17 +30,18 @@ import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 
-
 public class PM {
 	
     private static Function<HumanEntity, ? extends Oplayer> opSup = he -> new Oplayer(he);//могут указывать другие плагины
-    private static final CaseInsensitiveMap <Oplayer> oplayers;
+    private static final CaseInsensitiveMap <Oplayer> oplayersByName;
+    private static final ConcurrentHashMap <UUID, Oplayer> oplayersByUuid;
     public static final EnumMap<Data,Integer> textEdit;
     private static final Component builderMsgRu;
     private static final Component builderMsgEn;
     
     static {
-        oplayers = new CaseInsensitiveMap<>();
+        oplayersByName = new CaseInsensitiveMap<>();
+        oplayersByUuid = new ConcurrentHashMap<>();
         
         builderMsgRu = Component.text("§a>>>> §fКлик сюда - выполнить /builder §a<<<<")
         	.hoverEvent(HoverEvent.showText(Component.text("§aВключить ГМ1 и открыть меню строителя")))
@@ -68,27 +71,29 @@ public class PM {
     public static void setOplayerFun(final Function<HumanEntity, ? extends Oplayer> opSup, final boolean remake) {
         PM.opSup = opSup;
         if (remake) {
-            oplayers.clear();
+            oplayersByName.clear();
+            oplayersByUuid.clear();
             Bukkit.getOnlinePlayers().stream().forEach(p -> PM.createOplayer(p));
         }
     }
     
     public static Oplayer createOplayer(final HumanEntity he) {
     	final Oplayer op = opSup.apply(he);
-        PM.oplayers.put(he.getName(), op);
+        oplayersByName.put(he.getName(), op);
+        oplayersByUuid.put(he.getUniqueId(), op);
         return op;
     }
     
     public static Collection<Oplayer> getOplayers() {
-        return oplayers.values();
+        return oplayersByName.values();
     }
     
     public static <O extends Oplayer> Collection<O> getOplayers(final Class<O> cls) {
-        return oplayers.values().stream().map(o -> cls.cast(o)).collect(Collectors.toList());
+        return oplayersByName.values().stream().map(o -> cls.cast(o)).collect(Collectors.toList());
     }
     
     public static Set<String> getOplayersNames() {
-        return oplayers.keySet();
+        return oplayersByName.keySet();
     }
 
     public static Oplayer getOplayer(final String nik) {
@@ -96,11 +101,15 @@ public class PM {
     }
 
     public static <O extends Oplayer> O getOplayer(final String nik, final Class<O> cls) {
-        return cls.cast(oplayers.get(nik));
+        return cls.cast(oplayersByName.get(nik));
     }
     
     public static Oplayer getOplayer(final HumanEntity p) {
-        return oplayers.get(p.getName());
+        return oplayersByUuid.get(p.getUniqueId());
+    }    
+    
+    public static Oplayer getOplayer(final UUID uuid) {
+        return oplayersByUuid.get(uuid);
     }    
     
     //не убирать, посыпались все плагины!!  Caused by: java.lang.NoSuchMethodError: 'ru.komiss77.modules.player.Oplayer ru.komiss77.modules.player.PM.getOplayer(org.bukkit.entity.Player)'
@@ -109,22 +118,26 @@ public class PM {
     }
 
     public static <O extends Oplayer> O getOplayer(final HumanEntity p, final Class<O> cls) {
-        return cls.cast(oplayers.get(p.getName()));
+        return cls.cast(oplayersByUuid.get(p.getUniqueId()));
     }
     
     public static boolean exist (final String nik) {
-        return oplayers.containsKey(nik) && Bukkit.getPlayerExact(nik)!=null;
+        return oplayersByName.containsKey(nik);// && Bukkit.getPlayerExact(nik)!=null;
         //переделать на runable
     }
     public static Oplayer remove (final String nik) {
-        return oplayers.remove(nik);
+        Oplayer op = oplayersByName.remove(nik);
+        if (op!=null) {
+            oplayersByUuid.remove(op.id);
+        }
+        return op;
     }
 
     public static int getOnlineCount() {
-        return oplayers.size();
+        return oplayersByName.size();
     }
     public static boolean hasOplayers() {
-        return !oplayers.isEmpty();
+        return !oplayersByName.isEmpty();
     }
 
 
@@ -206,14 +219,16 @@ public class PM {
         
         Friends.updateViewMode(p);
         
-        op.updScore();
         op.updateGender();
-        op.updTabListName(p);
         
-        if (op.isGuest) {
-            String displayName = op.isGuest ? "§8(Гость) §f"+op.getDataString(Data.FAMILY) : "§f"+op.nik;
-            op.tag(displayName, "§0", "");
-        }
+        //op.updScore();
+        op.beforName(null, p);
+        //op.updTabListName(p);
+        //op.tag("",  "");
+        //if (op.isGuest) {
+        //    String displayName = op.isGuest ? "§8(Гость) §f"+op.getDataString(Data.FAMILY) : "§f"+op.nik;
+        //    op.tag(displayName, "§0", "");
+        //}
         
         //if (op.hasFlag(StatFlag.LocalChat)) {
         //    p.sendMessage("§8Используем локальный чат (так указано в настройках)");
@@ -338,11 +353,11 @@ public class PM {
 
 //---------------------- Режим боя, сброс инвентаря ----------------------------
     public static boolean inBattle (String nik) {
-        return oplayers.containsKey(nik) && getOplayer(nik).pvp_time>0;
+        return oplayersByName.containsKey(nik) && getOplayer(nik).pvp_time>0;
     }
     public static int inBattle_time_left (String nik) {
     //System.out.println(" ???? inBattle "+nik+"  time:"+CMD.pvp_battle_time+" -> "+Timer.CD_has(nik, "pvp") );
-        return oplayers.containsKey(nik)? getOplayer(nik).pvp_time : 0;
+        return oplayersByName.containsKey(nik)? getOplayer(nik).pvp_time : 0;
     }
 
 //------------------------------------------------------------------------------

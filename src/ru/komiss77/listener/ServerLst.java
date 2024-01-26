@@ -186,15 +186,11 @@ public class ServerLst implements Listener {
         
         
  // --------------------------- WORLD --------------------------       
-//		на этоесть gamerule
-//    @EventHandler(ignoreCancelled = true)
-//    public void onWeatherChange(WeatherChangeEvent event) { if( Config.disable_weather && event.toWeatherState() )  event.setCancelled(true);}
-// 
-//    @EventHandler(ignoreCancelled = true)
-//    public void onThunderChange(ThunderChangeEvent event) { if( Config.disable_weather && event.toThunderState() ) event.setCancelled(true); }     
-          
+       
     @EventHandler(ignoreCancelled = true)
-    public void onNetherCreate(PortalCreateEvent event) { if ( Config.block_nether_portal ) event.setCancelled(true); }
+    public void onNetherCreate(PortalCreateEvent event) {
+        if ( Config.block_nether_portal ) event.setCancelled(true);
+    }
    
     @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
     public void onBlockSpread(BlockSpreadEvent e) { 

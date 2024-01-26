@@ -172,7 +172,7 @@ public class Server implements IServer {
 
     @Override
     public void chatFix() { // Chat Report fix  https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
-        final ChatHandler handler = new ChatHandler();
+        final ServerOutPacketHandler handler = new ServerOutPacketHandler();
         //подслушать исходящие от сервера пакеты
         io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
                 chatKey,
@@ -190,8 +190,8 @@ public class Server implements IServer {
     }
     
     @Override //добавляется в bungeeDataHandler
-    public PacketSpy addPacketSpy (final Player p, final Oplayer op) {
-        final PacketSpy packetSpy = new PacketSpy(op);
+    public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op) {
+        final PlayerPacketHandler packetSpy = new PlayerPacketHandler(op);
         final ChannelPipeline pipeline = toNMS(p).c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
         pipeline.addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
         return packetSpy;

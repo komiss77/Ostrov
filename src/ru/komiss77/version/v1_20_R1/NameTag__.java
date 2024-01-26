@@ -2,21 +2,11 @@ package ru.komiss77.version.v1_20_R1;
 
 import java.util.Collection;
 import java.util.function.Predicate;
-
 import org.bukkit.entity.Player;
-
-import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
-import net.minecraft.EnumChatFormat;
-import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.ScoreboardTeam;
-import net.minecraft.world.scores.ScoreboardTeamBase.EnumNameTagVisibility;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.INameTag;
-import ru.komiss77.version.VM;
 
 //https://www.spigotmc.org/resources/nametagedit.3836/           https://github.com/sgtcaze/NametagEdit/issues
 //https://github.com/sgtcaze/NametagEdit/tree/master/src/main/java/com/nametagedit/plugin
@@ -56,7 +46,7 @@ import ru.komiss77.version.VM;
     a,      b,          c,          d,           e,         f,      g,       h,     i,      j,      k,   l,    m,       n,          o,     p,       q,        r,        s,           t,        u,    v;
     BLACK, DARK_BLUE, DARK_GREEN, DARK_AQUA, DARK_RED, DARK_PURPLE, GOLD, GRAY, DARK_GRAY, BLUE, GREEN, AQUA, RED, LIGHT_PURPLE, YELLOW, WHITE, OBFUSCATED, BOLD, STRIKETHROUGH, UNDERLINE, ITALIC, RESET;
  */
-public class NameTag implements INameTag {
+public class NameTag__ implements INameTag {
 
     @Override
     public void updateTag(final Oplayer op, final Player to) {

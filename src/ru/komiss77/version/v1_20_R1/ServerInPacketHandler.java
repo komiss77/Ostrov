@@ -9,7 +9,7 @@ import ru.komiss77.Ostrov;
 
 //ловит все ходящие пакеты на сервер
 @Sharable
-public class In extends MessageToMessageDecoder<Object> {
+public class ServerInPacketHandler extends MessageToMessageDecoder<Object> {
 
 
     @Override
@@ -22,7 +22,7 @@ public class In extends MessageToMessageDecoder<Object> {
     public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
         if (packet instanceof PacketPlayInUpdateSign signPacket) {
             final String chName = ctx.name();
-Ostrov.log_warn("In channelRead chName="+chName);
+//Ostrov.log_warn("In channelRead chName="+chName);
             
         }
         super.channelRead(ctx, packet);

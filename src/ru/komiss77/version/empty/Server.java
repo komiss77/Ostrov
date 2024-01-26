@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.version.IServer;
-import ru.komiss77.version.v1_20_R1.PacketSpy;
+import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
 
 public class Server implements IServer {
 
@@ -107,7 +107,7 @@ public class Server implements IServer {
     }
 
     @Override
-    public PacketSpy addPacketSpy(Player p, final Oplayer op) {
+    public PlayerPacketHandler addPacketSpy(Player p, final Oplayer op) {
         return null;
     }
 

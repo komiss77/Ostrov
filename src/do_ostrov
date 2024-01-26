@@ -12,8 +12,7 @@ final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 подменять ник над головой или Гость ставить в суффикс
 кодер материала в char
 
-//https://github.com/jpenilla/reflection-remapper
-//https://mappings.cephx.dev/index.html  FriendlyByteBuf
+тэги тест при деад, плавании
 
 ScoreBoardBelow показывает не под владельцем борды а под другими
 меню создания вложенных квестов + система отображения и хранения

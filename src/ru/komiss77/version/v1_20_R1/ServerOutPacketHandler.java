@@ -1,5 +1,7 @@
 package ru.komiss77.version.v1_20_R1;
 
+import java.util.Objects;
+import java.util.Optional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
@@ -8,8 +10,6 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
-import java.util.Objects;
-import java.util.Optional;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.EnumProtocol;
 import net.minecraft.network.NetworkManager;
@@ -26,21 +26,18 @@ import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.server.MinecraftServer;
 import ru.komiss77.Ostrov;
 
-// https://github.com/e-im/FreedomChat/blob/main/src/main/java/ru/bk/oharass/freedomchat/FreedomHandler.java
+//https://github.com/e-im/FreedomChat/blob/main/src/main/java/ru/bk/oharass/freedomchat/FreedomHandler.java
+//https://github.com/e-im/FreedomChat
+//https://www.libhunt.com/r/FreedomChat
+
+//декомпилить плагин!
 
 @Sharable
-public class FreedomHandler extends MessageToByteEncoder<Object> {
+public class ServerOutPacketHandler extends MessageToByteEncoder<Object> {
 
-    private final boolean rewriteChat;
-    private final boolean claimSecureChatEnforced;
-    private final boolean noChatReports;
-
-    FreedomHandler(boolean rewriteChat, boolean claimSecureChatEnforced, boolean noChatReports) {
-        this.rewriteChat = rewriteChat;
-        this.claimSecureChatEnforced = claimSecureChatEnforced;
-        this.noChatReports = noChatReports;
-    }
-
+    private final boolean rewriteChat = true;
+    private final boolean claimSecureChatEnforced = true;
+    private final boolean noChatReports = true;
     
     @Override
     public boolean acceptOutboundMessage(Object msg) {
@@ -99,9 +96,8 @@ public class FreedomHandler extends MessageToByteEncoder<Object> {
 
     private void writeId(final ChannelHandlerContext ctx, final Packet<?> packet, final PacketDataSerializer buf) {
         buf.d(((EnumProtocol) ctx.channel().attr(NetworkManager.e).get()).a(EnumProtocolDirection.b, packet));
-
     }
     
-   } 
+} 
     
     

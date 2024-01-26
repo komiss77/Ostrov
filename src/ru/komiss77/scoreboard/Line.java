@@ -13,11 +13,11 @@ public class Line {
     private final Score score;
     private int hash; //String content;
     
-    public Line(final CustomScore scoreBoard, final String s, final int color) {
-        final String string = TCUtils.getColor(color - 1) + "§r";
+    public Line(final CustomScore scoreBoard, final String s, final int line) {
+        final String string = TCUtils.getColor(line) + "§r";
         team = scoreBoard.getScoreboard().registerNewTeam(string);
         score = scoreBoard.getSideBar().getObjective().getScore(string);
-        score.setScore(color);
+        score.setScore(line);
         team.addEntry(string);
         Line.this.update(s);
     }
@@ -34,7 +34,8 @@ public class Line {
     public void update(final String content) {
         if (hash!=content.hashCode()) {//(!newContent.equals(content)) {
             hash = content.hashCode();
-            if (content.length() < 16) {
+            team.prefix(TCUtils.format(content));
+            /*if (content.length() < 16) {
                 team.prefix(TCUtils.format(content));
                 team.suffix(Component.empty());
             } else { //тут точно больше 16 символов
@@ -54,7 +55,8 @@ public class Line {
                         team.suffix(TCUtils.format(content.substring(16, 32)));
                     }
                 }
-            }
+            }*/
+            
         }
     }
 }

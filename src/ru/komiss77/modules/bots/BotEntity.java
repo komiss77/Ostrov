@@ -80,7 +80,7 @@ public class BotEntity extends EntityPlayer {
         //suffix = "";
         //nameClr = '7';
         score = new CustomScore(name);
-        BotManager.nameBots.put(name, this);
+        BotManager.botByName.put(name, this);
         /*final Pair<String, String> pr = bt.txs[Main.srnd.nextInt(bt.txs.length)];
     	if (pr != null) {
         	this.fM().getProperties().put("textures", new Property("textures", pr.getFirst(), pr.getSecond()));
@@ -169,7 +169,7 @@ public class BotEntity extends EntityPlayer {
                 remListPlayerPacket(this));
 
         if (le == null || !le.isValid() || isDead) {
-            BotManager.rIdBots.remove(rid);
+            BotManager.botById.remove(rid);
             isDead = false;
             final Husk hs = (Husk) world.spawnEntity(to, EntityType.HUSK, false);
             this.rplc = new WeakReference<LivingEntity>(hs);
@@ -181,7 +181,7 @@ public class BotEntity extends EntityPlayer {
             hs.setCustomNameVisible(true);
             Bukkit.getMobGoals().removeAllGoals(hs);
             Bukkit.getMobGoals().addGoal(hs, 0, getGoal(hs));
-            BotManager.rIdBots.put(rid, this);
+            BotManager.botById.put(rid, this);
             parry(hs, false);
             bash(hs, false);
             block(hs, false);
@@ -318,7 +318,7 @@ public class BotEntity extends EntityPlayer {
         }
         isDead = true;
         if (mb != null) {
-            BotManager.rIdBots.remove(rid);
+            BotManager.botById.remove(rid);
             mb.remove();
         }
         BotManager.sendWrldPckts(this.dI(),
@@ -327,8 +327,8 @@ public class BotEntity extends EntityPlayer {
     }
 
     public void remove() {
-        BotManager.nameBots.remove(name);
-        BotManager.rIdBots.remove(rid);
+        BotManager.botByName.remove(name);
+        BotManager.botById.remove(rid);
         die(getEntity());
         BotManager.sendWrldPckts(this.dI(),
                 remListPlayerPacket(this));

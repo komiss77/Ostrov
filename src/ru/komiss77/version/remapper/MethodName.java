@@ -1,4 +1,4 @@
-package ru.komiss77.version.remapper.annotation;
+package ru.komiss77.version.remapper;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
