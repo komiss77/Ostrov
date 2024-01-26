@@ -14,7 +14,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.StatFlag;
@@ -477,7 +476,17 @@ public class Passport implements InventoryProvider {
         //Matcher matcher = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE) .matcher(email);
         Matcher matcher = Pattern.compile("^([\\w-\\.]+){1,64}@([\\w&&[^_]]+){2,255}.[a-z]{2,}$", Pattern.CASE_INSENSITIVE) .matcher(email);
         return matcher.find();
-    }     
+    } 
+
+
+
+
+
+
+
+
+
+
     
     
 }

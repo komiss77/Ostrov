@@ -217,7 +217,7 @@ public class Perm {
                         	op.tabSuffix(" §7{§e"+group.chat_name+"§7}", p);
                             op.isStaff = true;
                         } else {
-                        	op.tabPrefix("§6✪ §f", p);
+                            op.tabPrefix("§6✪ §f", p);
                         }
                     } else {
                         if (OstrovDB.useOstrovData) {

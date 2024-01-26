@@ -171,8 +171,8 @@ public class PassportCmd implements CommandExecutor {
     
     
     @SuppressWarnings("deprecation")
-	public static void showLocal(final Player owner, final Player target) {
-        createBook(owner, PM.getOplayer(target.getName()).getPassportData(false));
+    public static void showLocal(final Player owner, final Player target) {
+        createBook(owner, PM.getPassportData(PM.getOplayer(target), false));
     }
 
     

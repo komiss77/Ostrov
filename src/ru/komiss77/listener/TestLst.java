@@ -33,7 +33,7 @@ public class TestLst implements Listener {
                     op.customTag.visible(false);
                     p.sendMessage("custom name off");
                 } else {
-                    op.tag("§bdd☻§edfdsg", "§к", "§gк|avvvddedrfer §edffffff");
+                    op.tag("§bdd☻§edfdsg", "§gк|avvvddedrfer §edffffff");
                     //op.upperName.visible(true);
                     p.sendMessage("custom name on");
                 }

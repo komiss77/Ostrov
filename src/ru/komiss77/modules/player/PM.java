@@ -3,6 +3,7 @@ package ru.komiss77.modules.player;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,7 @@ import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
+import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
@@ -385,7 +387,7 @@ public class PM {
 
 
 
-   public static void soundDeny(final Player p) {
+    public static void soundDeny(final Player p) {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.3f, 1);
     }
 
@@ -397,12 +399,54 @@ public class PM {
         };
     }
 
-    public static Object get(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
+    public static int getPasportFillPercent(final Oplayer op) {
+        double max = 0;
+        for (E_Pass ep:E_Pass.values()) {
+            if (ep.editable) max++;
+        }
+        int complete = 0;
+        E_Pass ePass;
+        for (Data d:op.dataString.keySet()) {
+            ePass = E_Pass.fromStrind(d.name());
+            if (ePass!=null && ePass.editable && !op.getDataString(d).isEmpty()) {
+                complete++;
+            }
+        }
+        return (int) Math.round(complete/max*100);
     }
 
-
-
+    public static Map<E_Pass, String> getPassportData(final Oplayer op, final boolean skipUneditable) { //для паспорта
+        final EnumMap<E_Pass,String>result = new EnumMap<>(E_Pass.class);
+        E_Pass ePass;
+        for (Data d:op.dataString.keySet()) {
+            ePass = E_Pass.fromStrind(d.name());
+            if (ePass!=null && (!skipUneditable || ePass.editable)) {
+                result.put(ePass, op.getDataString(d));
+            }
+        }
+        for (Data d:op.dataInt.keySet()) {
+            ePass = E_Pass.fromStrind(d.name());
+            if (ePass!=null && (!skipUneditable || ePass.editable)) {
+                result.put(ePass, String.valueOf(op.getDataInt(d)) );
+            }
+        }
+        for (Stat st:op.stat.keySet()) {
+            ePass = E_Pass.fromStrind(st.name());
+            if (ePass!=null && (!skipUneditable || ePass.editable)) {
+                result.put(ePass, String.valueOf(op.getStat(st)) );
+            }
+        }
+        //for (Stat st:daylyStat.keySet()) {
+        //    if (E_Pass.exist(st.name())) {
+        //        result.put(E_Pass.valueOf(st.name()), ""+daylyStat.get(st));
+        //    }
+        //}
+//System.out.println("result="+result);
+        result.put(E_Pass.USER_GROUPS, op.chat_group);
+        return result;
+    }
+    
 
 
 

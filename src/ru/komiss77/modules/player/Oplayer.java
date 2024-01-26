@@ -35,7 +35,6 @@ import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
-import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
@@ -53,63 +52,14 @@ public class Oplayer {
 
     public static final int ACTION_BAR_INTERVAL = 3;
 
-    //юзает паспорт и LobbyOstrov в QuestManager.updateProgress
-    public int getPasportFillPercent() {
-        double max = 0;
-        for (E_Pass ep:E_Pass.values()) {
-            if (ep.editable) max++;
-        }
-        int complete = 0;
-        E_Pass ePass;
-        for (Data d:dataString.keySet()) {
-            ePass = E_Pass.fromStrind(d.name());
-            if (ePass!=null && ePass.editable && !dataString.get(d).isEmpty()) {
-                complete++;
-            }
-        }
-        return (int) Math.round(complete/max*100);
-    }
-
-    @Deprecated 
-    public Map<E_Pass, String> getPassportData(final boolean skipUneditable) { //для паспорта
-        final EnumMap<E_Pass,String>result = new EnumMap<>(E_Pass.class);
-        E_Pass ePass;
-        for (Data d:dataString.keySet()) {
-            ePass = E_Pass.fromStrind(d.name());
-            if (ePass!=null && (!skipUneditable || ePass.editable)) {
-                result.put(ePass, dataString.get(d));
-            }
-        }
-        for (Data d:dataInt.keySet()) {
-            ePass = E_Pass.fromStrind(d.name());
-            if (ePass!=null && (!skipUneditable || ePass.editable)) {
-                result.put(ePass, String.valueOf(dataInt.get(d)) );
-            }
-        }
-        for (Stat st:stat.keySet()) {
-            ePass = E_Pass.fromStrind(st.name());
-            if (ePass!=null && (!skipUneditable || ePass.editable)) {
-                result.put(ePass, String.valueOf(stat.get(st)) );
-            }
-        }
-        //for (Stat st:daylyStat.keySet()) {
-        //    if (E_Pass.exist(st.name())) {
-        //        result.put(E_Pass.valueOf(st.name()), ""+daylyStat.get(st));
-        //    }
-        //}
-//System.out.println("result="+result);
-        result.put(E_Pass.USER_GROUPS, chat_group);
-        return result;
-    }
-
-    
+   
     @Deprecated
     public String tabPrefix() {
-    	return tab_prefix;
+    	return tabPreffix;
     }
     @Deprecated
     public String tabSuffix() {
-    	return tab_suffix;
+    	return tabSuffix;
     }
     @Deprecated
     public String nameColor() {
@@ -117,11 +67,11 @@ public class Oplayer {
     }
     @Deprecated
     public TextComponent tagPrefix() {
-    	return TCUtils.format(tag_prefix);//tag_prefix;
+    	return TCUtils.format(tagPreffix);//tag_prefix;
     }
     @Deprecated
     public TextComponent tagSuffix() {
-    	return TCUtils.format(tag_suffix);//tag_suffix;
+    	return TCUtils.format(tagSuffix);//tag_suffix;
     }
     @Deprecated
     public void addCd(final String type, final int seconds) {
@@ -217,9 +167,8 @@ public class Oplayer {
     public Location last_death=Bukkit.getWorlds().get(0).getSpawnLocation();
 
     public String chat_group=" ---- ";
-    private String  tab_prefix="§7", beforName, tab_suffix="";
-    private String tag_prefix = "";//=TCUtils.format("§7");
-    private String tag_suffix = "";//=Component.empty();
+    private String  tabPreffix="§7", beforName, tabSuffix="";
+    private String tagPreffix = ""; private String tagSuffix = "";
 
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;
@@ -350,25 +299,25 @@ public class Oplayer {
     
     
     public void tabPrefix(@Nullable final String tab_prefix, @Nonnull final Player p) {
-    	this.tab_prefix = tab_prefix == null ? "" : tab_prefix;
+    	this.tabPreffix = tab_prefix == null ? "" : tab_prefix;
         updTabListName(p);
     }
     
     public void beforName(@Nullable final String beforName, @Nonnull final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
-    	this.beforName =  beforName == null ? ChatLst.NIK_COLOR : beforName;
+    	this.beforName =  beforName == null || beforName.isBlank() ? ChatLst.NIK_COLOR : beforName;
         updTabListName(p);
-        tag(tag_prefix, tag_suffix);
+        tag(tagPreffix, tagSuffix);
     }
     
     public void tabSuffix(@Nullable final String tab_suffix, final Player p) {
-    	this.tab_suffix = tab_suffix == null ? "" : tab_suffix;
+    	this.tabSuffix = tab_suffix == null ? "" : tab_suffix;
         updTabListName(p);
     }
     
     public void updTabListName (@Nonnull final Player p) {
-        if (Config.tablist_name) {//final String name = name_color + (isGuest ? "Гость_" + nik.substring(6) : nik);
+        if (Config.tablist_name) {
             final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
-            p.playerListName(TCUtils.format(tab_prefix + displayName + tab_suffix));
+            p.playerListName(TCUtils.format(tabPreffix + displayName + tabSuffix));
         }
     }
     
@@ -378,10 +327,10 @@ public class Oplayer {
     }
     
     public void tag(final String tagPrefix, final String tagSuffix) {
-    	tag_prefix = tagPrefix;
-    	tag_suffix = tagSuffix;
+    	if (tagPrefix!=null) this.tagPreffix = tagPrefix; //чтобы можно было поменять что-то одно, не трогая другое
+    	if (tagSuffix!=null) this.tagSuffix = tagSuffix;
         final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
-        customTag.content(TCUtils.format(tagPrefix + displayName + tagSuffix));
+        customTag.content(TCUtils.format(this.tagPreffix + displayName + this.tagSuffix));
     }
     
     
@@ -402,7 +351,7 @@ public class Oplayer {
                 ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
             }
     	}
-        if (giveTag) nameColor("§4⚔ ", p);
+        if (giveTag) beforName("§4⚔ ", p);
         pvp_time = time;
     }
     
@@ -418,7 +367,7 @@ public class Oplayer {
                 default -> allow_fly;
             });
     	}
-        if (giveTag) nameColor("§7", p);
+        if (giveTag) beforName(null, p);
     }
     
     public String getDataString(final Data data) {
