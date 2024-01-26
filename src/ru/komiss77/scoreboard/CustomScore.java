@@ -19,7 +19,7 @@ public class CustomScore {
     private static final CaseInsensitiveMap<CustomScore> boards; //для удобства перебора
     private final String name;
     private final boolean botBoard;
-    private final Scoreboard ownerBoard;
+    private Scoreboard ownerBoard;
     //private Objective belowObj;
     //private Score belowScore;
     //private String belowText;
@@ -72,7 +72,7 @@ public class CustomScore {
     }
 
     //при дисконнекте владельца борды
-    public void onQuit() {
+   /* public void onQuit() {
         boards.remove(name);
         Team team;
         for (CustomScore otherScore : boards.values()) {
@@ -86,16 +86,49 @@ public class CustomScore {
             }
         }
         remove();
-    }
+        ownerBoard = null;
+    }*/
     
+    public void remove() {
+        if (ownerBoard==null) {
+            return;
+        }
+        boards.remove(name);
+        Team team;
+        for (CustomScore otherScore : boards.values()) {
+            if (!visible) { //владелец этой борды был скрыт
+                otherScore.ownerTeam.removeEntry(name); //удалить его запись
+            } else { //вычистить данные этой борды у других
+                team = otherScore.ownerBoard.getTeam("_"+name);
+                if ( team !=null) {//if (otherScore.registeredTeams.remove( name)!=null) {
+                    team.unregister();//otherScore.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
+                }
+            }
+        }
+        //remove();
+        below(false);//removeBelow();
+        final Iterator<Objective> iterator = ownerBoard.getObjectives().iterator();
+        while (iterator.hasNext()) {
+            iterator.next().unregister();
+        }
+        final Iterator<Team> iterator2 = ownerBoard.getTeams().iterator();
+        while (iterator2.hasNext()) {
+            iterator2.next().unregister();
+        }
+        ownerBoard = null;
+    }    
     //владелец борды увидел target (только игрока, не бота!)
     public void startTrack(final String target) {
-        ownerTeam.addEntry(target); //скрыть тэг цели
+        if (ownerBoard!=null) { //скрыть тэг цели
+            ownerTeam.addEntry(target);
+        }
     }
 
     //владелец борды больше не видит target (только игрока, не бота!)
     public void stopTrack(final String target) {
-        ownerTeam.removeEntry(target); //убрать из списка, чтобы не замусоривать
+        if (ownerBoard!=null) { //убрать из списка, чтобы не замусоривать
+            ownerTeam.removeEntry(target);
+        } 
     }
 
     
@@ -104,6 +137,10 @@ public class CustomScore {
         if (PM.exist(name)) {
             Ostrov.log_warn("CustomScore : тэги игрока ставить через Oplayer.tag !!!");
             PM.getOplayer(name).tag(visible);
+            return;
+        }
+        if (ownerBoard==null) {
+            Ostrov.log_warn("CustomScore : ставится тэк на выключенную борду : "+name);
             return;
         }
         if (visible) {
@@ -135,6 +172,10 @@ public class CustomScore {
         if (PM.exist(name)) {
             Ostrov.log_warn("CustomScore : тэги игрока ставить через Oplayer.tag !!!");
             PM.getOplayer(name).tag( ((TextComponent)prefix).content(),  ((TextComponent)suffix).content());
+            return;
+        }
+        if (ownerBoard==null) {
+            Ostrov.log_warn("CustomScore : ставится тэк на выключенную борду : "+name);
             return;
         }
         ownerTeam.prefix(prefix.append(TCUtils.format(nameColor)));
@@ -245,18 +286,7 @@ Ostrov.log("belowObj="+belowObj+"belowScore="+belowScore);
 
     
     
-    public void remove() {
-       // removeTeam();
-        below(false);//removeBelow();
-        final Iterator<Objective> iterator = ownerBoard.getObjectives().iterator();
-        while (iterator.hasNext()) {
-            iterator.next().unregister();
-        }
-        final Iterator<Team> iterator2 = ownerBoard.getTeams().iterator();
-        while (iterator2.hasNext()) {
-            iterator2.next().unregister();
-        }
-    }
+
 
 
     

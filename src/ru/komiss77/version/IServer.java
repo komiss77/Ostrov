@@ -1,5 +1,6 @@
 package ru.komiss77.version;
 
+import net.minecraft.network.protocol.Packet;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -65,5 +66,7 @@ public interface IServer {
     public void addPacketSpy ();
     
     public void removePacketSpy (final Player p);
+
+    public void sendPacket(final Player p, final Packet packet);
     
 }

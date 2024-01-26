@@ -172,7 +172,7 @@ public class PlayerLst implements Listener {
             }
     	}
         op.customTag.visible(false);
-        op.score.onQuit();
+        op.score.remove();
     }
     
  
@@ -190,7 +190,7 @@ public class PlayerLst implements Listener {
         if (e.getEntity().getType()!=EntityType.PLAYER) return;
         final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //UpperName cn = nameStorage.get(event.getEntity().getUniqueId());
         final Oplayer trackerOp = PM.getOplayer(e.getPlayer().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
-Ostrov.log("startTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
+//Ostrov.log("startTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
         if (targetOp != null) {
             Ostrov.sync(() -> {
                 targetOp.customTag.showTo(e.getPlayer());
@@ -206,7 +206,7 @@ Ostrov.log("startTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+
     public void stopTrack(PlayerUntrackEntityEvent e) {
         if (e.getEntity().getType()!=EntityType.PLAYER) return;
         final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
-Ostrov.log("stopTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
+//Ostrov.log("stopTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
         if (targetOp != null) {
             targetOp.customTag.hideFor(e.getPlayer());
             targetOp.score.stopTrack(e.getPlayer().getName());

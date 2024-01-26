@@ -18,6 +18,7 @@ import org.checkerframework.framework.qual.DefaultQualifier;
 
 
 ////https://github.com/jpenilla/reflection-remapper
+// мапы в файле \versions\1.20.х\paper-1.20.х.jar\META-INF\mappings\reobf.tiny
 
 
 import static ru.komiss77.version.remapper.Util.mojangMapped;

@@ -1,8 +1,6 @@
 package ru.komiss77.modules.bots;
 
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import com.destroystokyo.paper.entity.ai.Goal;
@@ -20,7 +18,7 @@ public class AfkBot extends BotEntity {
         super(name, loc.w);
         telespawn(loc.getCenterLoc(), null);
         //TCUtils.N + "[" + TCUtils.P + "Bot" + TCUtils.N + "] 
-        updateTag("", "", '7');
+        tag("Просто ", "стою", " и сосу лапу");
     }
 
     @Override

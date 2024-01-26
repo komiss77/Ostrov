@@ -332,7 +332,7 @@ public class BotEntity extends EntityPlayer {
         die(getEntity());
         BotManager.sendWrldPckts(this.dI(),
                 remListPlayerPacket(this));
-        score.onQuit();
+        score.remove();
         this.a(RemovalReason.a);
     }
 

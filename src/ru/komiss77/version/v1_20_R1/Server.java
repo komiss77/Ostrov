@@ -213,7 +213,7 @@ public class Server implements IServer {
 
         mutableBlockPosition.d(signXyz.x, signXyz.y, signXyz.z);
         PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(mutableBlockPosition, signIbd);
-        ep.c.a(packet);
+        sendPacket(p, packet);//ep.c.a(packet);
 
         final TileEntitySign sign = new TileEntitySign(mutableBlockPosition, signIbd);
 
@@ -262,10 +262,10 @@ public class Server implements IServer {
 
         final SignText signtext = new SignText(comps, comps, color, true);
         sign.a(signtext, true);
-        ep.c.a(sign.j());
+        sendPacket(p, sign.j());//ep.c.a(sign.j());
 
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
-        ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);*/
+        sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);*/
 
        /* final ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
             @Override
@@ -409,7 +409,7 @@ public class Server implements IServer {
         net.minecraft.world.inventory.Container cont = entityPlayer.bQ;
         final Packet<?> packet = new PacketPlayOutSetSlot(cont.j, playerInventorySlot, playerInventorySlot,
                 net.minecraft.world.item.ItemStack.fromBukkitCopy(itemStack));
-        entityPlayer.c.a(packet);
+        sendPacket(p, packet);//entityPlayer.c.a(packet);
     }
 
     @Override
@@ -418,13 +418,18 @@ public class Server implements IServer {
         final net.minecraft.world.level.World nmsWorld = toNMS(p.getWorld());
         final net.minecraft.world.level.chunk.Chunk nmsChunk = nmsWorld.getChunkIfLoaded(chunk.getX(), chunk.getZ());
         final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(nmsChunk, nmsWorld.s_(), null, null, true);
-        toNMS(p).c.a(packet);//sendPacket(p, packet);
+        sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
     }
 
 
     @Override
     public BlockData getBlockData(final IBlockData iBlockData) {
         return iBlockData.createCraftBlockData();
+    }
+
+    @Override
+    public void sendPacket(final Player p, final Packet packet) {
+        toNMS(p).c.a(packet);
     }
 
 }

@@ -2,7 +2,6 @@ package ru.komiss77.scoreboard;
 
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Team;
-import net.kyori.adventure.text.Component;
 import ru.komiss77.utils.TCUtils;
 
 

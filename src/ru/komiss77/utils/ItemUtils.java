@@ -7,9 +7,7 @@ import java.net.URL;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import java.net.URI;
-
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.FireworkEffect;
@@ -1282,68 +1280,7 @@ public class ItemUtils {
         }
     }
 
-    //используют прятки
-    @Deprecated
-    public enum EnchantDecode {
-        PROTECTION_ENVIRONMENTAL (Enchantment.PROTECTION_ENVIRONMENTAL, "protection"),
-        PROTECTION_FIRE (Enchantment.PROTECTION_FIRE, "fire_protection"),
-        PROTECTION_FALL (Enchantment.PROTECTION_FALL, "feather_falling"),
-        PROTECTION_EXPLOSIONS (Enchantment.PROTECTION_EXPLOSIONS, "blast_protection"),
-        PROTECTION_PROJECTILE (Enchantment.PROTECTION_PROJECTILE, "projectile_protection"),
-        OXYGEN (Enchantment.OXYGEN, "respiration"),
-        WATER_WORKER (Enchantment.WATER_WORKER, "aqua_affinity"),
-        THORNS (Enchantment.THORNS, "thorns"),
-        DEPTH_STRIDER (Enchantment.DEPTH_STRIDER, "depth_strider"),
-        FROST_WALKER (Enchantment.FROST_WALKER, "frost_walker"),
-        BINDING_CURSE (Enchantment.BINDING_CURSE, "binding_curse"),
-        DAMAGE_ALL (Enchantment.DAMAGE_ALL, "sharpness"),
-        DAMAGE_UNDEAD (Enchantment.DAMAGE_UNDEAD, "smite"),
-        DAMAGE_ARTHROPODS (Enchantment.DAMAGE_ARTHROPODS, "bane_of_arthropods"),
-        KNOCKBACK (Enchantment.KNOCKBACK, "knockback"),
-        FIRE_ASPECT (Enchantment.FIRE_ASPECT, "fire_aspect"),
-        LOOT_BONUS_MOBS (Enchantment.LOOT_BONUS_MOBS, "looting"),
-        SWEEPING_EDGE (Enchantment.SWEEPING_EDGE, "sweeping"),
-        DIG_SPEED (Enchantment.DIG_SPEED, "efficiency"),
-        SILK_TOUCH (Enchantment.SILK_TOUCH, "silk_touch"),
-        DURABILITY (Enchantment.DURABILITY, "unbreaking"),
-        LOOT_BONUS_BLOCKS (Enchantment.LOOT_BONUS_BLOCKS, "fortune"),
-        ARROW_DAMAGE (Enchantment.ARROW_DAMAGE, "power"),
-        ARROW_KNOCKBACK (Enchantment.ARROW_KNOCKBACK, "punch"),
-        ARROW_FIRE (Enchantment.ARROW_FIRE, "flame"),
-        ARROW_INFINITE (Enchantment.ARROW_INFINITE, "infinity"),
-        LUCK (Enchantment.LUCK, "luck_of_the_sea"),
-        LURE (Enchantment.LURE, "lure"),
-        LOYALTY (Enchantment.LOYALTY, "loyalty"),
-        IMPALING (Enchantment.IMPALING, "impaling"),
-        RIPTIDE (Enchantment.RIPTIDE, "riptide"),
-        CHANNELING (Enchantment.CHANNELING, "channeling"),
-        MULTISHOT (Enchantment.MULTISHOT, "multishot"),
-        QUICK_CHARGE (Enchantment.QUICK_CHARGE, "quick_charge"),
-        PIERCING (Enchantment.PIERCING, "piercing"),
-        MENDING (Enchantment.MENDING, "mending"),
-        VANISHING_CURSE (Enchantment.VANISHING_CURSE, "vanishing_curse"),
-        ;
-        
-        public final Enchantment enchantment;
-        public final String key;
-        
-        private EnchantDecode (Enchantment enchantment, String key) {
-            this.enchantment = enchantment;
-            this.key = key;
-        }
-        
-        
-        public static Enchantment fromEnchantmentName (final String name) {
-            if (name==null || name.isEmpty()) return null;
-            for (EnchantDecode ed : EnchantDecode.values()) {
-                if (ed.toString().equalsIgnoreCase(name)) {
-                    return ed.enchantment;
-                }
-            }
-            return null;
-        }
-        
-   }
+
     
     public static ItemBuilder buildBiomeIcon(final Biome b) {
         final ItemBuilder builder = new ItemBuilder(Material.TROPICAL_FISH_BUCKET);
@@ -1420,3 +1357,68 @@ public class ItemUtils {
     }
 
 }
+
+
+/*
+   //используют прятки
+    public enum EnchantDecode {
+        PROTECTION_ENVIRONMENTAL (Enchantment.PROTECTION_ENVIRONMENTAL, "protection"),
+        PROTECTION_FIRE (Enchantment.PROTECTION_FIRE, "fire_protection"),
+        PROTECTION_FALL (Enchantment.PROTECTION_FALL, "feather_falling"),
+        PROTECTION_EXPLOSIONS (Enchantment.PROTECTION_EXPLOSIONS, "blast_protection"),
+        PROTECTION_PROJECTILE (Enchantment.PROTECTION_PROJECTILE, "projectile_protection"),
+        OXYGEN (Enchantment.OXYGEN, "respiration"),
+        WATER_WORKER (Enchantment.WATER_WORKER, "aqua_affinity"),
+        THORNS (Enchantment.THORNS, "thorns"),
+        DEPTH_STRIDER (Enchantment.DEPTH_STRIDER, "depth_strider"),
+        FROST_WALKER (Enchantment.FROST_WALKER, "frost_walker"),
+        BINDING_CURSE (Enchantment.BINDING_CURSE, "binding_curse"),
+        DAMAGE_ALL (Enchantment.DAMAGE_ALL, "sharpness"),
+        DAMAGE_UNDEAD (Enchantment.DAMAGE_UNDEAD, "smite"),
+        DAMAGE_ARTHROPODS (Enchantment.DAMAGE_ARTHROPODS, "bane_of_arthropods"),
+        KNOCKBACK (Enchantment.KNOCKBACK, "knockback"),
+        FIRE_ASPECT (Enchantment.FIRE_ASPECT, "fire_aspect"),
+        LOOT_BONUS_MOBS (Enchantment.LOOT_BONUS_MOBS, "looting"),
+        SWEEPING_EDGE (Enchantment.SWEEPING_EDGE, "sweeping"),
+        DIG_SPEED (Enchantment.DIG_SPEED, "efficiency"),
+        SILK_TOUCH (Enchantment.SILK_TOUCH, "silk_touch"),
+        DURABILITY (Enchantment.DURABILITY, "unbreaking"),
+        LOOT_BONUS_BLOCKS (Enchantment.LOOT_BONUS_BLOCKS, "fortune"),
+        ARROW_DAMAGE (Enchantment.ARROW_DAMAGE, "power"),
+        ARROW_KNOCKBACK (Enchantment.ARROW_KNOCKBACK, "punch"),
+        ARROW_FIRE (Enchantment.ARROW_FIRE, "flame"),
+        ARROW_INFINITE (Enchantment.ARROW_INFINITE, "infinity"),
+        LUCK (Enchantment.LUCK, "luck_of_the_sea"),
+        LURE (Enchantment.LURE, "lure"),
+        LOYALTY (Enchantment.LOYALTY, "loyalty"),
+        IMPALING (Enchantment.IMPALING, "impaling"),
+        RIPTIDE (Enchantment.RIPTIDE, "riptide"),
+        CHANNELING (Enchantment.CHANNELING, "channeling"),
+        MULTISHOT (Enchantment.MULTISHOT, "multishot"),
+        QUICK_CHARGE (Enchantment.QUICK_CHARGE, "quick_charge"),
+        PIERCING (Enchantment.PIERCING, "piercing"),
+        MENDING (Enchantment.MENDING, "mending"),
+        VANISHING_CURSE (Enchantment.VANISHING_CURSE, "vanishing_curse"),
+        ;
+        
+        public final Enchantment enchantment;
+        public final String key;
+        
+        private EnchantDecode (Enchantment enchantment, String key) {
+            this.enchantment = enchantment;
+            this.key = key;
+        }
+        
+        
+        public static Enchantment fromEnchantmentName (final String name) {
+            if (name==null || name.isEmpty()) return null;
+            for (EnchantDecode ed : EnchantDecode.values()) {
+                if (ed.toString().equalsIgnoreCase(name)) {
+                    return ed.enchantment;
+                }
+            }
+            return null;
+        }
+        
+   }    
+*/

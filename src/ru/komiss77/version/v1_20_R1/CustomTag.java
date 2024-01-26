@@ -1,4 +1,4 @@
-package ru.komiss77.modules.player;
+package ru.komiss77.version.v1_20_R1;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.ref.WeakReference;
@@ -25,13 +25,14 @@ import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import ru.komiss77.version.VM;
 import ru.komiss77.version.remapper.ReflectionRemapper;
 
 //https://github.com/Owen1212055/CustomNames
 //https://github.com/jpenilla/reflection-remapper
+
+// мапы в файле \versions\1.20.х\paper-1.20.х.jar\META-INF\mappings\reobf.tiny
 
 public class CustomTag {
 
@@ -40,7 +41,7 @@ public class CustomTag {
     protected boolean replaceName = true;
     @Nullable
     private Component name;
-    private final WeakReference<Entity> targetEntity;
+    private final WeakReference<Player> targetEntity;
     private final int nametagEntityId;
     private final double passengerOffset;
     private final float effectiveHeight;
@@ -73,7 +74,7 @@ public class CustomTag {
 
 
     
-    CustomTag(final Entity entity) {
+    public CustomTag(final Player entity) {
         nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId();//Bukkit.getUnsafe().nextEntityId();
         targetEntity = new WeakReference<>(entity);//entity;
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
@@ -84,7 +85,7 @@ public class CustomTag {
     }
 
     
-    protected void content(Component name) {
+    public void content(Component name) {
         this.name = name;
         visible(true);//visible = true;
         syncData();
@@ -126,22 +127,22 @@ public class CustomTag {
 
     private void sendTrackersPacket(final Packet packet) {
         targetEntity.get().getTrackedPlayers().forEach(p -> {
-            ((CraftPlayer) p).getHandle().c.a(packet);
+            VM.getNmsServer().sendPacket(p, packet);//(CraftPlayer) p).getHandle().c.a(packet);
         });
-        if (SELF_VIEW) ((CraftPlayer)targetEntity.get()).getHandle().c.a(packet);
+        if (SELF_VIEW) VM.getNmsServer().sendPacket(targetEntity.get(), packet);//((CraftPlayer)targetEntity.get()).getHandle().c.a(packet);
     }
     
     
     public void showTo(final Player p) {
         if (visible && targetEntity.get()!=null) {
-            ((CraftPlayer) p).getHandle().c.a(initialSpawnPacket());
+            VM.getNmsServer().sendPacket(p, initialSpawnPacket());
         }
     }
 
     public void hideFor(final Player p) {
 //Ostrov.log("hide "+" for "+p.getName());
         final Packet destroyPacket = new PacketPlayOutEntityDestroy(new int[]{nametagEntityId});
-        ((CraftPlayer) p).getHandle().c.a(destroyPacket);
+        VM.getNmsServer().sendPacket(p, destroyPacket);
     }
    
     

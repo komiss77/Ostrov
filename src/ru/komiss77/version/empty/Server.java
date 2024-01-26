@@ -1,5 +1,6 @@
 package ru.komiss77.version.empty;
 
+import net.minecraft.network.protocol.Packet;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -117,6 +118,10 @@ public class Server implements IServer {
 
     @Override
     public void addPacketSpy() {
+    }
+
+    @Override
+    public void sendPacket(Player p, Packet packet) {
     }
 
 }

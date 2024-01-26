@@ -1,5 +1,6 @@
 package ru.komiss77.modules.player;
 
+import ru.komiss77.version.v1_20_R1.CustomTag;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -194,7 +195,7 @@ public class Oplayer {
         menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
         score = new CustomScore((Player) p);
-        customTag = new CustomTag(p);
+        customTag = new CustomTag((Player) p);
         packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
