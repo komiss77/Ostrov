@@ -319,8 +319,12 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
             }
 
             case EXECUTE_OSTROV_CMD -> {
-                Player p = Bukkit.getPlayerExact(senderInfo);
-                p.performCommand(s1);
+                if (senderInfo.equals("console")) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s1);
+                } else {
+                    Player p = Bukkit.getPlayerExact(senderInfo);
+                    if (p!=null) p.performCommand(s1);
+                }
             }
                 
             case ADD_IGNORE_OSTROV -> {

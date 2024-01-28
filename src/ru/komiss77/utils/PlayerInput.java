@@ -29,8 +29,8 @@ public class PlayerInput implements Listener {
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> consumer, String suggest) {
-        
-        final String sugg = suggest = suggest==null ? "" : suggest.replaceAll("§", "&");
+        final String sugg = suggest==null ? "" : suggest.replaceAll("§", "&");
+//Ostrov.log("PlayerInput get sugg="+sugg);
         XYZ xyz = null;
                 
         switch (type) {
@@ -66,15 +66,15 @@ public class PlayerInput implements Listener {
             case CHAT -> {
                 p.closeInventory();
                 p.sendMessage(Component.text()
-                    .append(Component.text("§fНаберите в чате значение "+(suggest.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<")))
+                    .append(Component.text("§fНаберите в чате значение "+(sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<")))
                     .hoverEvent(HoverEvent.showText(Component.text("§7Клик - подставить текст для редактирования")))
-                    .clickEvent(ClickEvent.runCommand(suggest))
+                    .clickEvent(ClickEvent.suggestCommand(sugg))
                     .build());
             	}
             
             case SIGN -> {
                 xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
-                VM.getNmsServer().signInput(p, suggest, xyz);
+                VM.getNmsServer().signInput(p, sugg, xyz);
             }
                 
         }
@@ -115,7 +115,7 @@ public class PlayerInput implements Listener {
             if (data.type==InputType.CHAT) {
                 p.sendMessage("");
                 p.sendMessage("§aЗначение получено: ");
-                p.sendMessage("§f"+data.getResult());
+                p.sendMessage(TCUtils.format("§f"+data.getResult()));
                 p.sendMessage("");
             } else if (data.type==InputType.SIGN) {
                 if (data.xyz != null) {

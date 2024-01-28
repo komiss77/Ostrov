@@ -73,6 +73,16 @@ public class BuilderMain implements InventoryProvider {
                     PM.getOplayer(p).setup.openLocalGameMenu(p);
                 }));
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         content.set(1, 1, ClickableItem.of(new ItemBuilder(Material.PAPER)
                 .name("§6Репорты")
                 .addLore("§7Модерация")
@@ -144,6 +154,38 @@ public class BuilderMain implements InventoryProvider {
                 .build(), e -> {
                     p.performCommand("analytics");
                 }));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
                 .name("§7Миры")
@@ -245,6 +287,32 @@ public class BuilderMain implements InventoryProvider {
                     }
                 }));
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         content.set(3, 1, ClickableItem.of(new ItemBuilder(Material.NOTE_BLOCK)
                 .name("§7Прослушивание звуков")
                 .addLore("§7Утилита")
@@ -408,6 +476,42 @@ public class BuilderMain implements InventoryProvider {
                     }));
         }
 
+        content.set(3, 7, ClickableItem.of(new ItemBuilder(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE)
+                .name("§7Редактор переводиков")
+                .addLore("§7Утилита")
+                .addLore("§7В редакторе сортировка")
+                .addLore("§7по свежести")
+                .build(), e -> {
+                    LangEditor.edit(p, 0);
+                }));
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         content.set(4, 4, ClickableItem.of(new ItemBuilder(Material.CRIMSON_FENCE).name("Закрыть режим строителя").build(), e
                 -> {
             p.performCommand("builder end");

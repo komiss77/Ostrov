@@ -44,7 +44,7 @@ public class RequestSelect implements InventoryProvider {
         
         
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(5, fill);
         
         
         
@@ -80,7 +80,7 @@ public class RequestSelect implements InventoryProvider {
         }));
                     
         for (String name : MissionManager.customStatsDisplayNames.keySet()) {
-            menuEntry.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+            menuEntry.add(ClickableItem.of(new ItemBuilder(Material.NAME_TAG)
                 .name("§7локальное требование")
                 .addLore("§f"+name)
                 .addLore("")
@@ -113,7 +113,7 @@ public class RequestSelect implements InventoryProvider {
 				default:
 					break;
             }
-            menuEntry.add(ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
+            menuEntry.add(ClickableItem.of(new ItemBuilder(Material.matchMaterial(stat.game.mat))
                 .name("§f"+stat.name())
                 .addLore(stat.game.displayName+" "+stat.desc)
                 .addLore("")
@@ -126,17 +126,26 @@ public class RequestSelect implements InventoryProvider {
             ));
         }
 
+        
+        
+        
+        
+       content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
+                .setCustomHeadTexture(ItemUtils.Texture.previosPage)
+                .name("§7вернуться")
+                .build(), e -> {
+                    MissionManager.editMission(p, mi);
+                }));
+
 
             
         final Pagination pagination = content.pagination();
-
-
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);    
+        pagination.setItems(menuEntry.toArray(ClickableItem[]::new));
+        pagination.setItemsPerPage(45);    
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e 
+            content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e 
                     -> {
                 content.getHost().open(p, pagination.next().getPage()) ;
             }
@@ -144,7 +153,7 @@ public class RequestSelect implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e 
+            content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e 
                     -> {
                 content.getHost().open(p, pagination.previous().getPage()) ;
                })

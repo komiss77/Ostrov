@@ -13,7 +13,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
@@ -723,27 +722,31 @@ public class MissionManager {
     }
 
     private static Mission fromResultSet(final ResultSet rs) throws SQLException {
-        final Mission mission = new Mission();
-        mission.id = rs.getInt("missionId");
-        mission.name  = rs.getString("name");
-        if (!rs.getString("nameColor").isEmpty()) {
-            mission.nameColor = TCUtils.getTextColor(rs.getString("nameColor").charAt(0));
-            if (mission.nameColor==null) {
-                mission.nameColor = NamedTextColor.WHITE;
-            }
-        }
-        mission.mat  = Material.matchMaterial(rs.getString("mat"));
-        mission.level = rs.getInt("level");
-        mission.reputation = rs.getInt("reputation");
-        mission.reward = rs.getInt("reward");
-        mission.doing = rs.getInt("doing");
-        mission.canComplete = rs.getInt("rewardFund");
-        mission.activeFrom = rs.getInt("activeFrom");
-        mission.validTo = rs.getInt("validTo");
+        final Mission mi = new Mission();
+        mi.id = rs.getInt("missionId");
+        mi.name  = rs.getString("name");
+        mi.nameColor = rs.getString("nameColor");
+if (mi.nameColor.length()==1) { //фиксик старого кода в один чар, убрать после обновы всех
+    mi.nameColor = "§"+mi.nameColor;
+}
+        //if (!rs.getString("nameColor").isEmpty()) {
+        //    mission.nameColor = TCUtils.getTextColor(rs.getString("nameColor").charAt(0));
+        //    if (mission.nameColor==null) {
+        //        mission.nameColor = NamedTextColor.WHITE;
+        //    }
+        //}
+        mi.mat  = Material.matchMaterial(rs.getString("mat"));
+        mi.level = rs.getInt("level");
+        mi.reputation = rs.getInt("reputation");
+        mi.reward = rs.getInt("reward");
+        mi.doing = rs.getInt("doing");
+        mi.canComplete = rs.getInt("rewardFund");
+        mi.activeFrom = rs.getInt("activeFrom");
+        mi.validTo = rs.getInt("validTo");
 
-        if (mission.mat==null) mission.mat = Material.BEDROCK;
-        mission.request = getMapFromString(rs.getString("request"));
-        return mission;
+        if (mi.mat==null) mi.mat = Material.BEDROCK;
+        mi.request = getMapFromString(rs.getString("request"));
+        return mi;
     }
 
     

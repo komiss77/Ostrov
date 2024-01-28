@@ -26,23 +26,47 @@ import ru.komiss77.Timer;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
 
-
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file
 //https://github.com/AsyncHttpClient/async-http-client
 
-    //Идентификатор ключа: ajehqd0ihg63s9sefjak Ваш секретный ключ: AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa
-    //добавить локальный буфер в файлике
-    //https://docs.papermc.io/paper/dev/component-api/i18n
+//Идентификатор ключа: ajehqd0ihg63s9sefjak Ваш секретный ключ: AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa
+//добавить локальный буфер в файлике
+//https://docs.papermc.io/paper/dev/component-api/i18n
 
 
 public class Lang {
     
-    //private static final EnumMap<EnumLang, HashMap<String, String>> langs = langMaps();
+    
+    @Deprecated
+    public static String t (final String ruMsg, final EnumLang lang) {
+        if (lang==EnumLang.RU_RU) {
+            return ruMsg;
+        } else {
+            return translate(ruMsg, EnumLang.EN_US);
+        }
+    }
+    @Deprecated
+    public static  Component t (final Player p, final Object o) {
+        return o instanceof Translatable ? t((Translatable) o, p) : err;
+    }
+
+    @Deprecated
+    public static  Component t (final Object o, final Locale locale) {
+        return o instanceof Translatable ? t((Translatable) o, locale) : err;
+    }  
+
+    @Deprecated
+    public static String translate (final String ruMsg, final EnumLang l) {
+        final Locale lang = l==EnumLang.RU_RU ? RU : EN;
+        return translate(ruMsg, lang);
+    }
+
+
+
     private static final Map<String, String> ruToEng;//Map<Integer, HashMap<String, String>> ruToEng;-возможно потом добавить сортировку по длинне
     public static int updateStamp;
     private static final RequestBuilder rb;
-    public static final Locale RU;
-    public static final Locale EN;
+    public static final Locale RU, EN;
     private static final TextComponent err;
     
 
@@ -59,12 +83,7 @@ public class Lang {
         err = Component.text("{}");
     }
 
-    /*private static EnumMap<EnumLang, HashMap<String, String>> langMaps() {
-        final EnumMap<EnumLang, HashMap<String, String>> lmp = new EnumMap<>(EnumLang.class);
-        for (final EnumLang rl : EnumLang.values()) lmp.put(rl, new HashMap<>());
-        return lmp;
-    }*/
-
+    
     //при старте вычитает все записи, свежее updateStamp
     //затем будет подкидывать обновы вместе с GM.loadArenaInfo
     public static void updateBase(final ResultSet rs) {
@@ -75,33 +94,27 @@ public class Lang {
                 add++;
             }
             updateStamp = Timer.getTime();
-            if (add>0) Ostrov.log_ok("Lang loadBase добавлено записей : §b"+add+" (всего:"+ruToEng.size()+")");
+            if (add>0) {
+                Ostrov.log_ok("Lang loadBase добавлено записей : §b"+add+" (всего:"+ruToEng.size()+")");
+            }
         } catch (SQLException ex) {
             Ostrov.log_err("Lang loadBase error : "+ex.getMessage());
         }
     }
     
+    
+    
+    
     public static String t (final Player p, final String ruMsg) {
         final boolean ru = p==null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-//Ostrov.log("sendMessage locale="+locale);
         if (ru) {
             return ruMsg;
         } else {
-            return translate(ruMsg, EnumLang.EN_US);
+            return translate(ruMsg, EN);
         }
     }
     
-    
-    
-    @Deprecated
-    public static String t (final String ruMsg, final EnumLang lang) {
-        if (lang==EnumLang.RU_RU) {
-            return ruMsg;
-        } else {
-            return translate(ruMsg, EnumLang.EN_US);
-        }
-    }
-    
+  
     public static String t (final String ruMsg, final Locale locale) {
         if (locale == RU) {
             return ruMsg;
@@ -109,22 +122,7 @@ public class Lang {
             return translate(ruMsg, locale);
         }
     }
-    
-    
 
-    //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
-    @Deprecated
-    public static  Component t (final Player p, final Object o) {
-        return o instanceof Translatable ? t((Translatable) o, p) : err;
-    }
-
-    @Deprecated
-    public static  Component t (final Object o, final Locale locale) {
-        return o instanceof Translatable ? t((Translatable) o, locale) : err;
-    }
-
-    
-    
     //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
     public static Component t (final Translatable o, final Player p) {
         final Locale locale = p==null ? RU : p.locale(); //не убирать! расчитано, что иногда приходит с null, так надо!
@@ -136,15 +134,10 @@ public class Lang {
     }    
     
 
-
-    
     
     //подменять >p.sendMessage(< на >Lang.sendMessage(p, <
-    //p.getClientOption(ClientOption.LOCALE).equalsIgnoreCase("ru_ru")
     public static void sendMessage (final Player p, final String ruMsg) {
-        //final Oplayer op = PM.getOplayer(p);
         final String locale = p.getClientOption(ClientOption.LOCALE);
-//Ostrov.log("sendMessage locale="+locale);
         if (locale.equals("ru_ru")) {
             p.sendMessage(ruMsg);
         } else {
@@ -152,12 +145,6 @@ public class Lang {
         }
     }
 
-    @Deprecated
-    public static String translate (final String ruMsg, final EnumLang l) {
-        final Locale lang = l==EnumLang.RU_RU ? RU : EN;
-        return translate(ruMsg, lang);
-    }
-    
     public static String translate (final String ruMsg, final Locale locale) {
         String trans = ruToEng.get(ruMsg);
         //при написании \ .\ или ..\ Lang t error : Unexpected character (C) at position 0.
@@ -183,11 +170,11 @@ public class Lang {
                     JSONArray res_translate = (JSONArray) json_res.get("translations");
                     JSONObject res_json_obj = (JSONObject) res_translate.get(0);
                     String translateResult = (String) res_json_obj.get("text");
-                    translateResult = translateResult.replaceAll("'", ""); // ' багает мускул
+                    translateResult = translateResult.replace('\'', ' '); // ' багает мускул
                     
-                    ruToEng.put(ruMsg, translateResult);
-                    OstrovDB.executePstAsync(Bukkit.getConsoleSender(), "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `stamp`) VALUES ('"+ruMsg.length()+"', '"+ruMsg+"', '"+translateResult+"', '"+Timer.getTime()+"')  ON DUPLICATE KEY UPDATE eng=VALUES(eng), stamp=VALUES(stamp)");
-//Ostrov.log_ok("t:"+ruMsg+"->"+translateResult);
+                    upd(ruMsg, translateResult);
+                    //ruToEng.put(ruMsg, translateResult);
+                    //OstrovDB.executePstAsync(Bukkit.getConsoleSender(), "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `stamp`) VALUES ('"+ruMsg.length()+"', '"+ruMsg+"', '"+translateResult+"', '"+Timer.getTime()+"')  ON DUPLICATE KEY UPDATE eng=VALUES(eng), stamp=VALUES(stamp)");
                     return AsyncHandler.State.ABORT;
                 }
             };
@@ -203,7 +190,10 @@ public class Lang {
         return trans;
     }
 
-  /*  */
+    public static void upd(final String ruMsg, final String translateResult) {
+        ruToEng.put(ruMsg, translateResult);
+        OstrovDB.executePstAsync(Bukkit.getConsoleSender(), "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `stamp`) VALUES ('"+ruMsg.length()+"', '"+ruMsg+"', '"+translateResult+"', '"+Timer.getTime()+"')  ON DUPLICATE KEY UPDATE eng=VALUES(eng), stamp=VALUES(stamp)");
+    }
     
     
     
@@ -220,6 +210,9 @@ public class Lang {
         return tmg;
     }*/
 
+    
+    
+    
     //в эвенте переводим недостающий язык
     public static void translateChat(final ChatPrepareEvent ce) {
         //final Request request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ce.oriStripMsg+"\"}").build();
@@ -265,4 +258,11 @@ public class Lang {
         }
     }
 
+    public static String getTranslate(final String rus) {
+        return ruToEng.getOrDefault(rus, "");
+    }
+
+    
+    
+    
 }

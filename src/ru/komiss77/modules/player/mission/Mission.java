@@ -5,22 +5,21 @@ import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.TCUtils;
 
 
 public class Mission {
 
     int id = -1;
     Material mat = Material.SPYGLASS;
-    protected TextColor nameColor = NamedTextColor.WHITE;
-    String name = "Новая миссия";
+    protected String nameColor = "";
+    protected String name = "Новая миссия";
+    protected Component displayName;
     int level = 0;
     int reputation = -77;
     CaseInsensitiveMap<Integer> request = new CaseInsensitiveMap<>(); //макс 8 требований!!
@@ -37,7 +36,10 @@ public class Mission {
     }
     
     public Component displayName() {
-        return Component.text(name, nameColor).decoration(TextDecoration.ITALIC, false);//TCUtils.toChat(nameColor)+name;
+        if (displayName == null) {
+            displayName = TCUtils.format(nameColor + "§o" + name);
+        }
+        return displayName;//TCUtils.(name, nameColor).decoration(TextDecoration.ITALIC, false);//TCUtils.toChat(nameColor)+name;
     }
     
     

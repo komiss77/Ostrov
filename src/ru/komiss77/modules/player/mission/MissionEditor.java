@@ -1,11 +1,8 @@
 package ru.komiss77.modules.player.mission;
 
-import java.util.ArrayList;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.OstrovDB;
@@ -30,7 +27,7 @@ public class MissionEditor implements InventoryProvider {
     private int oldid;
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
     private static final ClickableItem fill2 = ClickableItem.empty(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
-    private static final ArrayList<NamedTextColor> ccs = new ArrayList<>(NamedTextColor.NAMES.values());
+    //private static final ArrayList<NamedTextColor> ccs = new ArrayList<>(NamedTextColor.NAMES.values());
 
     
     public MissionEditor(final Mission mission) {
@@ -103,17 +100,21 @@ public class MissionEditor implements InventoryProvider {
 
         content.set(1, 1 , new InputButton( InputButton.InputType.ANVILL, new ItemBuilder(Material.ACACIA_SIGN)
             .name("§7Название")
-            .addLore("§7")
+            .addLore("")
             .addLore("§7Сейчас: ")
             .addLore(mi.displayName())
-            .addLore("§7")
+            .addLore("")
             .addLore("§7ЛКМ - изменить")
+            .addLore("")
+            .addLore("§fТолько название,")
+            .addLore("§fбез цвета!")
             .build(), mi.name, newName -> {
                 if(newName.length()>20 ) {
                     p.sendMessage("§cСлишком длинное название! (лимит20)");
                     PM.soundDeny(p);
                 } else {
-                    mi.name = newName;
+                    mi.name = TCUtils.stripColor(newName);
+                    mi.displayName = null;
                     mi.changed=true;
                     p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                     reopen(p, content);
@@ -123,16 +124,37 @@ public class MissionEditor implements InventoryProvider {
         
 
 
-        content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.valueOf(TCUtils.getDyeColor(mi.nameColor).toString()+"_STAINED_GLASS_PANE"))
+        content.set(1, 2 , new InputButton( InputButton.InputType.ANVILL, new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
             .name("§7Цвет названия")
-            .addLore(Component.text("ТИПА НАЗВАНИЕ", mi.nameColor))
+            .addLore(TCUtils.format(mi.nameColor + "ТИПА НАЗВАНИЕ"))
+            .addLore("")
+            .addLore("§7ЛКМ - изменить")
+            .addLore("")
+            .addLore("§fВ формате &цвет")
+            .addLore("§fМожно кастомные и градиент!")
+            .build(), mi.nameColor.replaceAll("§", "&"), newColor -> {   
+                if(newColor.length()>5 ) {
+                    p.sendMessage("§cСлишком длинный цветовой код! (макс.5)");
+                    PM.soundDeny(p);
+                } else {
+                    mi.nameColor =newColor.replaceAll("&", "§");
+                    mi.displayName = null;
+                    mi.changed=true;
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
+                    reopen(p, content);
+                }
+        }));
+
+      /*  content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE)
+            .name("§7Цвет названия")
+            .addLore(TCUtils.format(mi.nameColor + "ТИПА НАЗВАНИЕ"))
             .addLore("§7ЛКМ - менять цвет +")
             .addLore("§7ПКМ - менять цвет -")
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
                     //final ArrayList<NamedTextColor> ccs = new ArrayList<>(NamedTextColor.NAMES.values());
-                    final int current = ccs.indexOf(mi.nameColor) + 1;
+                    final int current = TCUtils.ccs.indexOf(mi.nameColor) + 1;
                     mi.nameColor = ccs.get(current<ccs.size() ? current : 0);
                     mi.changed=true;
                     reopen(p, content);
@@ -143,7 +165,7 @@ public class MissionEditor implements InventoryProvider {
                     mi.changed = true;
                     reopen(p, content);
                 }
-            }));            
+            }));  */          
         
         
         
@@ -577,12 +599,12 @@ public class MissionEditor implements InventoryProvider {
                     
                     if (mi.id==-1) {
                         OstrovDB.executePstAsync(p, "INSERT INTO `missions` (`name`, `nameColor`, `mat`, `level`, `reputation`, `request`, `reward`, `rewardFund`, `activeFrom`, `validTo`) "
-                                + "VALUES ('"+mi.name+"', '"+ TCUtils.toChar(mi.nameColor) +"', '"+mi.mat.name()+"', '"+mi.level+"', '"+mi.reputation+"', '"+Mission.getRequestString(mi)+"', '"+mi.reward+"', '"+mi.canComplete+"', '"+mi.activeFrom+"', '"+mi.validTo+"');");
+                                + "VALUES ('"+mi.name+"', '"+ mi.nameColor +"', '"+mi.mat.name()+"', '"+mi.level+"', '"+mi.reputation+"', '"+Mission.getRequestString(mi)+"', '"+mi.reward+"', '"+mi.canComplete+"', '"+mi.activeFrom+"', '"+mi.validTo+"');");
                         if (oldid!=0) {
                             OstrovDB.executePstAsync(p, "DELETE FROM `missions` WHERE 'id'='"+oldid+"'; ");
                         }
                     } else {
-                        OstrovDB.executePstAsync(p, "UPDATE `missions` SET `name`='"+mi.name+"', `nameColor`='"+TCUtils.toChar(mi.nameColor)+"', `mat`='"+mi.mat.name()+"', `level`='"+mi.level+"', `reputation`='"+mi.reputation+"', `request`='"+Mission.getRequestString(mi)+"', `reward`='"+mi.reward+"', `rewardFund`='"+mi.canComplete+"', `activeFrom`='"+mi.activeFrom+"', `validTo`='"+mi.validTo+"' WHERE `missionId`='"+mi.id+"'");
+                        OstrovDB.executePstAsync(p, "UPDATE `missions` SET `name`='"+mi.name+"', `nameColor`='"+mi.nameColor+"', `mat`='"+mi.mat.name()+"', `level`='"+mi.level+"', `reputation`='"+mi.reputation+"', `request`='"+Mission.getRequestString(mi)+"', `reward`='"+mi.reward+"', `rewardFund`='"+mi.canComplete+"', `activeFrom`='"+mi.activeFrom+"', `validTo`='"+mi.validTo+"' WHERE `missionId`='"+mi.id+"'");
                     }
                     MissionManager.openMissionsEditMenu(p);
                 }));

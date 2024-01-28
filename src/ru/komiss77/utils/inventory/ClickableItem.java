@@ -1,6 +1,5 @@
 package ru.komiss77.utils.inventory;
 
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
