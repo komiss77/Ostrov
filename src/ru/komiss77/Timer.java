@@ -11,14 +11,17 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.events.RestartWarningEvent;
+import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.player.mission.MissionManager;
@@ -36,7 +39,7 @@ public class Timer {
     private static BukkitTask timer, playerTimer, timerAsync;
     private static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
 
-    private static boolean auto_restart,to_restart;
+    public static boolean auto_restart,to_restart;
     private static int rstHour,rstMin;
 
     private static boolean perms_autoupdate, mission_tick, jailMode, authMode;
@@ -119,10 +122,8 @@ public class Timer {
 
                     currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
                     Ostrov.calendar.setTimeInMillis(System.currentTimeMillis()-time_delta);
-//System.out.println("auto_restart?"+auto_restart+" rstHour="+rstHour+" rstMin="+rstMin+" now="+Ostrov.calendar.get(Calendar.HOUR_OF_DAY)+" "+Ostrov.calendar.get(Calendar.MINUTE));
                     
                     if (auto_restart && syncSecondCounter%60==0 ) {
-//System.out.println("time_delta="+time_delta+" currentTime="+currentTime+" rstHour="+rstHour+" rstMin="+rstMin+" время="+Ostrov.calendar.get(Calendar.HOUR_OF_DAY)+":"+Ostrov.calendar.get(Calendar.MINUTE));
                         if (rstHour == Ostrov.calendar.get(Calendar.HOUR_OF_DAY) && rstMin == Ostrov.calendar.get(Calendar.MINUTE)) {
                             to_restart=true;
                             auto_restart = false;
@@ -135,24 +136,19 @@ public class Timer {
                         if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
                             Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
                         }
+                        if (time_left==15) {
+                            for (Player p : Bukkit.getOnlinePlayers()) {
+                                PlayerLst.PREPARE_RESTART = true;
+                                p.kick(Component.text("§eСервер перезагружается."), PlayerKickEvent.Cause.PLUGIN);
+                            }
+                        }
                         if (time_left==0) {
                             this.cancel();
-                            //синхронный дисконнект от БД, чтобы не висело соединение - 
-                            //if (OstrovDB.useOstrovData) {
-                            //    OstrovDB.Disconnect();
-                            //}                            
-                            //if (LocalDB.useLocalData) {
-                            //    LocalDB.Disconnect();
-                            //}                            
                             Bukkit.shutdown();
                             return;
                         }
                         time_left-=1;
                     }
-
-                    //cd.values().removeIf(value -> value <= currentTime);
-                    //cd.entrySet().removeIf(entry -> entry.getValue() <= currentTime);
-                    //MissionManager.tick(); перенёс в асинх
                     
                     if (lockSecond.compareAndSet(false, true)) {
                         new BukkitRunnable() {
@@ -165,7 +161,6 @@ public class Timer {
                     
                     syncSecondCounter++;
 
-//Ostrov.log_warn("disable? "+SpigotConfig.disableAdvancementSaving+" list="+Arrays.toString(SpigotConfig.disabledAdvancements.toArray()));
 
                 }}.runTaskTimer(Ostrov.instance, 20, 20);        
         

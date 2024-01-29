@@ -5,6 +5,7 @@ import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -22,6 +23,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -62,12 +64,21 @@ import ru.komiss77.version.VM;
 public class PlayerLst implements Listener {
 
     private static final CaseInsensitiveMap <String> bungeeDataCache;
+    public static boolean PREPARE_RESTART;
     
     static {
         bungeeDataCache = new CaseInsensitiveMap<>();
     }
     
 
+    @EventHandler
+    public void bungeeJoin(AsyncPlayerPreLoginEvent e) {
+        if (PREPARE_RESTART) {
+            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("§6§lСервер перезагружается, попробуйте через 30 сек." ) );
+        }
+    }
+
+    
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.LOW )
     public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
         //final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
@@ -81,6 +92,7 @@ public class PlayerLst implements Listener {
         }
     }
 
+    
     //вызывается из SpigotChanellMsg
     public static void onBungeeData(final String name, final String raw) { 
         final Player p = Bukkit.getPlayerExact(name);

@@ -36,7 +36,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class WorldManagerCmd implements CommandExecutor, TabCompleter {
 
     public static final List<String> commands = Arrays.asList( "list", "tp", "create", "load", "import", "save", "unload", "setwordspawn", "delete", "backup", "restore");
-    private static final HashMap<String, String> wnames = new HashMap<>();
+    //private static final HashMap<String, String> wnames = new HashMap<>();
 
      
     
@@ -53,20 +53,19 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
 
         switch (strings.length) {
             
-            case 1:
+            case 1 -> {
                 //0- пустой (то,что уже введено)
                 for (String s : commands) {
                     if (s.startsWith(strings[0])) sugg.add(s);
                 }
-                
                 // if (ApiOstrov.isLocalBuilder(cs, false)){
                 //     for (String s : adminCommands) {
                 //         if (s.startsWith(strings[0])) sugg.add(s);
                 //     }
                 //  }
-                break;
+            }
                 
-            case 2:
+            case 2 -> {
                 //1-то,что вводится (обновляется после каждой буквы
 //System.out.println("l="+strings.length+" 0="+strings[0]+" 1="+strings[1]);
                 if (strings[0].equalsIgnoreCase("tp") ||
@@ -75,27 +74,22 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                         strings[0].equalsIgnoreCase("save") ||
                         strings[0].equalsIgnoreCase("fill") ||
                         strings[0].equalsIgnoreCase("trim") ||
-                        strings[0].equalsIgnoreCase("backup") 
-                        ) {
+                        strings[0].equalsIgnoreCase("backup")) {
                     for (World w : Bukkit.getWorlds()) {
                         sugg.add(w.getName());
                     }
                 } else if (strings[0].equalsIgnoreCase("load") || strings[0].equalsIgnoreCase("import")) { //для импорт - скан папок с level.dat но не загруженных
                     
-                    FileFilter worldFolderFilter  = new FileFilter() {
-                        @Override
-                        public boolean accept(File file) {
-                            
-                            if (file.isDirectory() && file.listFiles().length>=2) {
-                                final File[] files = file.listFiles();
-                                for (final File f : files) {
-                                    if (f.getName().equals("level.dat")) {
-                                        return true;
-                                    }
+                    FileFilter worldFolderFilter  = (File file) -> {
+                        if (file.isDirectory() && file.listFiles().length>=2) {
+                            final File[] files = file.listFiles();
+                            for (final File f : files) {
+                                if (f.getName().equals("level.dat")) {
+                                    return true;
                                 }
                             }
-                            return false;
                         }
+                        return false;
                     };
                     
                     for (File serverWorldFolder : Bukkit.getWorldContainer().listFiles(worldFolderFilter)) {
@@ -106,10 +100,10 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                     
                 }// if (strings[0].equalsIgnoreCase("ChestManager")) {
                 //  sugg.addAll(plugin.kits.keySet());
-                // } 
-                break;
+                // }
+            }
                 
-            case 3:
+            case 3 -> {
                 if (strings[0].equalsIgnoreCase("create") || strings[0].equalsIgnoreCase("load") || strings[0].equalsIgnoreCase("import")) {
                     //for (WorldType type : WorldType.values()) {
                     //    sugg.add(type.toString());
@@ -118,9 +112,9 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                         sugg.add(env.toString());
                     }
                 }
-                break;
+            }
                 
-            case 4:
+            case 4 -> {
                 if (strings[0].equalsIgnoreCase("create") || strings[0].equalsIgnoreCase("load") || strings[0].equalsIgnoreCase("import")) {
                     //for (WorldType type : WorldType.values()) {
                     //    sugg.add(type.toString());
@@ -129,7 +123,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                         sugg.add(gen.toString());
                     }
                 }
-                break;
+            }
                 
         }
         
@@ -158,7 +152,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] arg) {
         
         
-        if (!ApiOstrov.isLocalBuilder(sender, true)) {
+        if (sender==null || !ApiOstrov.isLocalBuilder(sender, true)) {
             return true;
         }
         if (arg.length==0) {
@@ -215,8 +209,9 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
             World.Environment env = World.Environment.valueOf(arg[2].toUpperCase());
 
         	final World nw = WorldManager.create(sender, arg[1], env, Generator.fromString(arg[3]), true);
-        	if (nw == null) sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был создан... ");
-        	else wnames.put(arg[1], nw.getName());
+        	if (nw == null) {
+                    sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был создан... ");
+                } //else wnames.put(arg[1], nw.getName());
             return true;
             
             
@@ -258,13 +253,13 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                 sendCommandUsage(sender, "WorldManager save", "<Name>", new String[0]);
                 return true;
             }
-            final String nm = wnames.get(arg[1]);
-            final World world = Bukkit.getWorld(nm == null ? arg[1] : nm);
+            //final String nm = wnames.get(arg[1]);
+            final World world = Bukkit.getWorld(arg[1]);//Bukkit.getWorld(nm == null ? arg[1] : nm);
             if (world==null) {
                 sender.sendMessage("§cМир "+arg[1]+" не найден!");
                 return true;
             }
-            Bukkit.getWorld(arg[1]).save();
+            world.save();
             return true;
             
             
@@ -284,6 +279,11 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                 sender.sendMessage(Ostrov.PREFIX+" §aточка спавна мира установлена под ногами!");
             }
             return true;
+            
+            
+            
+            
+            
             
             
         } else if (sub_command.equalsIgnoreCase("import") || sub_command.equalsIgnoreCase("load")) {
@@ -346,8 +346,10 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
             final Generator gen = Generator.fromString(genString);
             
         	final World nw = WorldManager.load(sender, arg[1], env, gen);
-        	if (nw == null) sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был загружен... ");
-        	else wnames.put(arg[1], nw.getName());
+        	if (nw == null) {
+                    sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был загружен... ");
+                }
+        	//else wnames.put(arg[1], nw.getName());
             return true;
             
             
@@ -366,8 +368,8 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                 sendCommandUsage(sender, "WorldManager unload", "<Name>", new String[0]);
                 return true;
             }
-            final String nm = wnames.get(arg[1]);
-            final World world = Bukkit.getWorld(nm == null ? arg[1] : nm);
+            //final String nm = wnames.get(arg[1]);
+            final World world =  Bukkit.getWorld(arg[1]);//Bukkit.getWorld(nm == null ? arg[1] : nm);
             if (world != null) {
                 if (!world.getPlayers().isEmpty()) {
                     sender.sendMessage(Ostrov.PREFIX+"Все игроки должны покинуть мир перед удалением!");
@@ -376,7 +378,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                     });
                     return false;
                 }
-                wnames.remove(arg[1]);
+                //wnames.remove(arg[1]);
                 Bukkit.unloadWorld(world, true);
                 sender.sendMessage(Ostrov.PREFIX+" мир "+arg[1]+" выгружен!");
             } else {
@@ -389,8 +391,8 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                 sendCommandUsage(sender, "WorldManager " + sub_command.substring(0, 1).toUpperCase() + sub_command.substring(1, sub_command.length()), "<Name>", new String[0]);
                 return true;
             }
-            final String nm = wnames.get(arg[1]);
-            final World world = Bukkit.getWorld(nm == null ? arg[1] : nm);
+            //final String nm = wnames.get(arg[1]);
+            final World world =  Bukkit.getWorld(arg[1]);//Bukkit.getWorld(nm == null ? arg[1] : nm);
             if (world == null) {
                 sender.sendMessage(Ostrov.PREFIX+"Загруженный мир с таким названием не найден!");
                 return true;
@@ -430,13 +432,15 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                     final File worldFolder = world.getWorldFolder();
                     final World.Environment environment = world.getEnvironment();
                     Bukkit.unloadWorld(world, false); //тут не надо сохранять - на подмену!
-                    wnames.remove(arg[1]);
+                    //wnames.remove(arg[1]);
                     deleteFile(worldFolder);
                     copyFile(wfile, worldFolder);
                     Ostrov.sync(() -> {
                     	final World nw = Bukkit.createWorld(new WorldCreator(wfile.getName()).environment(environment));
-                    	if (nw == null) sender.sendMessage(Ostrov.PREFIX+"Мир "+wfile.getName()+" не был восстановлен... ");
-                    	else wnames.put("backup-" + world.getName(), nw.getName());
+                    	if (nw == null) {
+                            sender.sendMessage(Ostrov.PREFIX+"Мир "+wfile.getName()+" не был восстановлен... ");
+                        }
+                    	//else wnames.put("backup-" + world.getName(), nw.getName());
                         sender.sendMessage(Ostrov.PREFIX+"Мир §b"+wfile.getName()+"§aвосстановлен из копии за §5"+(System.currentTimeMillis() - currentTimeMillis) + "ms!");
                     });
                 }
@@ -452,14 +456,16 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                 sendCommandUsage(sender, "wm Tp", "<Name>", new String[0]);
                 return true;
             }
-            final String nm = wnames.get(arg[1]);
-            final World world = Bukkit.getWorld(nm == null ? arg[1] : nm);
+            //final String nm = wnames.get(arg[1]);
+            final World world =  Bukkit.getWorld(arg[1]);//Bukkit.getWorld(nm == null ? arg[1] : nm);
             if (world == null) {
-                p.sendMessage(Ostrov.PREFIX+"Мир с таким названием не найден!");
+                sender.sendMessage(Ostrov.PREFIX+"Мир с таким названием не найден!");
                 return true;
             }
-            p.teleport(world.getSpawnLocation());
-            p.sendMessage(Ostrov.PREFIX+"Вы перемещены в мир §2"+arg[1]);
+            if (p!=null) {
+                p.teleport(world.getSpawnLocation());
+                p.sendMessage(Ostrov.PREFIX+"Вы перемещены в мир §2"+arg[1]);
+            }
             return true;
             
             

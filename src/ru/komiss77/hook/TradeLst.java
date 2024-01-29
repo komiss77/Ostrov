@@ -1,6 +1,5 @@
 package ru.komiss77.hook;
 
-import de.codingair.tradesystem.spigot.TradeSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -124,11 +123,12 @@ public class TradeLst implements Listener {
             ApiOstrov.moneyChange(p1, -1, "Оплата торговцу");
             ApiOstrov.moneyChange(p, -1, "Оплата торговцу");
             
-            //p.performCommand("trade "+p1Name);
-            //Ostrov.sync( ()-> p1.performCommand("trade accept "+p.getName()), 1 );
+            p.performCommand("trade "+p1Name);
+            Ostrov.sync( ()-> p1.performCommand("trade accept "+p.getName()), 5 );
             //p1.performCommand("trade accept "+p.getName());
              //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.getName(), p.getUniqueId(), true);
-             TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.getName(), true);
+             //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.getName(), true);
+             //TradeSystem.getInstance().getTradeManager().startTrade(p, p1);
 //Ostrov.log("Trade session : "+p1Name+" - "+p.getName());
             
 

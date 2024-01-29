@@ -58,7 +58,7 @@ public class WorldManager implements Initiable {
         config.addDefault("autoload_worlds", Arrays.asList("some_world"));
         config.saveConfig();
         
-        reload();
+        WorldManager.this.reload();
     }
 
     @Override
@@ -278,10 +278,8 @@ public class WorldManager implements Initiable {
                     break;
                 }
             }
-            
             generator = Generator.fromString( yml.getString("generator", "empty") );
             sb.append(generator.toString()).append(", ");
-            
         }
         
         if (environment==null) environment = Environment.NORMAL;
@@ -462,9 +460,14 @@ public class WorldManager implements Initiable {
         
         
         if (suggestTp) {
-        	sender.sendMessage(Component.text(Ostrov.PREFIX+"Мир загружен за §5"+(System.currentTimeMillis() - time) + 
-        			"ms" +"§7, тп в мир - /ostrov wm tp " + world_name + " <клик")
-    			.clickEvent(ClickEvent.runCommand("/wm tp " + world_name)));
+            sender.sendMessage(Component.text()
+                .append(Component.text(Ostrov.PREFIX+"Мир создан за §5"+(System.currentTimeMillis() - time) + "ms" +"§7 §f>§lПЕРЕЙТИ§f<"))
+                .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
+                .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
+                .build());
+        	//sender.sendMessage(Component.text(Ostrov.PREFIX+"Мир загружен за §5"+(System.currentTimeMillis() - time) + 
+        	//		"ms" +"§7, тп в мир - /ostrov wm tp " + world_name + " <клик")
+    		//	.clickEvent(ClickEvent.runCommand("/wm tp " + world_name)));
         }
         
         return world;
@@ -643,28 +646,33 @@ public class WorldManager implements Initiable {
         
        switch (generator) {
             
-            case SkyGrid : 
+            case SkyGrid -> { 
                 wc.generator(new SkyGridGen());
                 wc.type(org.bukkit.WorldType.FLAT); //Void darkness - start at around Y=64, if you want them to start at Y=0, set the level-type in the server.properties file to FLAT. 
 //Ostrov.log("=================== applyGenerator generateStructures(false)");
                 wc.generateStructures(false);
                 return;
+            }
                 
-            case Empty : 
+            case Empty -> { 
                 wc.generator(new EmptyChunkGenerator());
                 wc.type(org.bukkit.WorldType.FLAT); //Void darkness - start at around Y=64, if you want them to start at Y=0, set the level-type in the server.properties file to FLAT. 
 //Ostrov.log("=================== applyGenerator generateStructures(false)");
                 wc.generateStructures(false);
                 return;
+            }
                 
-            case LavaOcean : wc.generator(new LavaOceanGenerator(Ostrov.instance));
+            case LavaOcean -> {
+                wc.generator(new LavaOceanGenerator(Ostrov.instance));
                 wc.type(org.bukkit.WorldType.FLAT);
                 wc.generateStructures(false);
                 return;
+            }
                 
-            default:
+            default -> {
                 wc.type(org.bukkit.WorldType.valueOf(generator.toString().toUpperCase()));
                 return;
+            }
                 
         }
 
