@@ -14,13 +14,14 @@ import ru.komiss77.modules.bots.AfkBot;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.MaterialUtil;
 
 
 public class TestLst implements Listener {
 
     private AfkBot bot;
     
-    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
+    //@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.isLocalBuilder(p) || e.getItem()==null) return;
@@ -31,8 +32,8 @@ public class TestLst implements Listener {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel!");
             
-            Timer.to_restart = true; Timer.auto_restart = false;
-            p.sendMessage("to_restart");
+            //MaterialUtil.toChar (e.getItem().getType());
+            p.sendMessage(e.getItem().getType()+"="+MaterialUtil.toChar (e.getItem().getType()));
             
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
                 if (p.isSneaking()) {

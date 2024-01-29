@@ -30,21 +30,21 @@ public class EncodeData {
         
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+            BukkitObjectOutputStream bukkitOutStream = new BukkitObjectOutputStream(outputStream);
             // Write the size of the inventory
-            dataOutput.writeInt(items.length);
+            bukkitOutStream.writeInt(items.length);
 
             // Save every element in the list
             for (int i = 0; i < items.length; i++) {
                 if (MenuItemsManager.isSpecItem(items[i])) {
-                    dataOutput.writeObject(empty); 
+                    bukkitOutStream.writeObject(empty); 
                 } else {
-                    dataOutput.writeObject(items[i]); 
+                    bukkitOutStream.writeObject(items[i]); 
                 }
             }
 
             // Serialize that array
-            dataOutput.close();
+            bukkitOutStream.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
             
         } catch (IOException e) {

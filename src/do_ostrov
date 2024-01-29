@@ -8,7 +8,7 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 "+Lang.t(p, "           (bp.e ? "" :     
 final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 
-в лист, тп и прочее подставлять ники гостей
+сохранение данных до перехода с сервера (по команде server??)
 кодер материала в char
 
 меню создания вложенных квестов + система отображения и хранения
