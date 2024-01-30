@@ -22,21 +22,21 @@ import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
 
 public interface IServer {
     
-    public void pathServer();
+    void pathServer();
      
-    public void pathWorld(World bukkitWorld);
+    void pathWorld(World bukkitWorld);
      
-    public void pathPermissions();
+    void pathPermissions();
     
-    public WorldServer toNMS(final World w);
+    WorldServer toNMS(final World w);
     
-    public net.minecraft.world.entity.Entity toNMS(final Entity p);
+    net.minecraft.world.entity.Entity toNMS(final Entity p);
     
-    public EntityLiving toNMS(final LivingEntity le);
+    EntityLiving toNMS(final LivingEntity le);
     
-    public EntityPlayer toNMS(final Player p);
+    EntityPlayer toNMS(final Player p);
 
-    public DedicatedServer toNMS();
+    DedicatedServer toNMS();
 
     int getitemDespawnRate (final World bukkitWorld);
 
@@ -45,28 +45,28 @@ public interface IServer {
     byte[] encodeBase64(byte[] binaryData);
    
     //5-шлем
-    public void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack);
+    void sendFakeEquip(final Player player, final int playerInventorySlot, final ItemStack itemStack);
     
-    public void sendChunkChange (final Player player, final Chunk chunk); //skyworld
+    void sendChunkChange(final Player player, final Chunk chunk); //skyworld
 
     @Deprecated
-    public void BorderDisplay(final Player player, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter);
+    void BorderDisplay(final Player player, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter);
     
-    public void chatFix();
+    void chatFix();
     
     @ThreadSafe
-    public Material getFastMat (final World w, final int x, final int y, final int z);
+    Material getFastMat(final World w, final int x, final int y, final int z);
     
-    public BlockData getBlockData(final IBlockData iBlockData);
+    BlockData getBlockData(final IBlockData iBlockData);
    
-    public void signInput(final Player p, final String suggest, final XYZ signXyz);
+    void signInput(final Player p, final String suggest, final XYZ signXyz);
     
-    public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op);
+    PlayerPacketHandler addPacketSpy(final Player p, final Oplayer op);
     
-    public void addPacketSpy ();
+    void addPacketSpy();
     
-    public void removePacketSpy (final Player p);
+    void removePacketSpy(final Player p);
 
-    public void sendPacket(final Player p, final Packet packet);
+    void sendPacket(final Player p, final Packet<?> packet);
     
 }

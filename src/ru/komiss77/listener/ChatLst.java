@@ -59,7 +59,7 @@ public class ChatLst implements Listener {
     private static final ClickEvent DONATE_CLICK_URL;
 
     static {
-        NIK_COLOR = "§gн|b";
+        NIK_COLOR = "§н|b";
         MSG_COLOR = NamedTextColor.GRAY;
         SUGGEST_MUTE_TOOLTIP_RU = TCUtils.format("§кКлик - выдать молчанку");
         //SUGGEST_BLACKLIST_TOOLTIP_RU = TCUtils.format("§кКлик - кинуть в ЧС");

@@ -1,17 +1,13 @@
 package ru.komiss77.modules.bots;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.ai.Goal;
+import com.destroystokyo.paper.entity.ai.GoalKey;
+import com.destroystokyo.paper.entity.ai.GoalType;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
-import net.kyori.adventure.text.Component;
+import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.game.*;
@@ -27,11 +23,25 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
+import ru.komiss77.version.v1_20_R1.CustomTag;
+
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 
 public class BotEntity extends EntityPlayer {
@@ -41,58 +51,48 @@ public class BotEntity extends EntityPlayer {
             = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtils.air);
 
     private static final DedicatedServer ds = VM.getNmsServer().toNMS();
-    public final World world;
+
+    public final World w;
+//    public final CustomScore score;
+    public final CustomTag tag;
+
     private boolean isDead;
     private WeakReference<LivingEntity> rplc;
-    //private String prefix, suffix;
-    //private char nameClr;//	private Function<Mob, Goal<Mob>> goal;
+//    private String prefix, affix, suffix;
     public static final double DHIT_DST_SQ = 4d;
     public static final int PARRY_TICKS = 40;
-    public static final int BASH_TICKS = 40;//	
-    public final CustomScore score;
+    public static final int BASH_TICKS = 40;
     private static final String [] empty = new String []{"", ""};
-    //private static int botID = 0;
-//	protected Consumer<EntityDamageEvent> onDamage;
-//	protected Consumer<EntityDeathEvent> onDeath;
-//	private Predicate<Player> isTagVis;
 
 
     protected BotEntity(final String name, final World world) {
         super(ds, VM.getNmsServer().toNMS(world), getProfile(name));
         this.name = name;
         rid = -1;
-        this.world = world;
+        this.w = world;
 
         lastBash = -BASH_TICKS;
         lastParry = -PARRY_TICKS;
-//		goal = m -> new BotGoal(this);
         rplc = new WeakReference<>(null);
         PlayerInventory pi = null;
         try {
             pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName()
-                    + ".inventory.CraftInventoryPlayer").getConstructor(fN().getClass()).newInstance(fN());
+                + ".inventory.CraftInventoryPlayer").getConstructor(fN().getClass()).newInstance(fN());
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+            | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
         inv = pi;
-        //prefix = "";
-        //suffix = "";
-        //nameClr = '7';
-        score = new CustomScore(name);
+//        prefix = ""; suffix = ""; affix = ChatLst.NIK_COLOR;
+        tag = new CustomTag(getBukkitEntity());
+        CustomScore.allStartTrack(name);
         BotManager.botByName.put(name, this);
-        /*final Pair<String, String> pr = bt.txs[Main.srnd.nextInt(bt.txs.length)];
-    	if (pr != null) {
-        	this.fM().getProperties().put("textures", new Property("textures", pr.getFirst(), pr.getSecond()));
-    	}*/
     }
 
     private static GameProfile getProfile(final String name) {
         final GameProfile gameProfile = new GameProfile(UUID.randomUUID(), name);
         final String[] skin = BotManager.skin.getOrDefault(name, empty);
         gameProfile.getProperties().put("textures", new Property("textures", skin[0], skin[1]));
-                //BotManager.skin.getOrDefault(name, ""),
-                //BotManager.skinSignatures.getOrDefault(name, "")));
         return gameProfile;
     }
 
@@ -131,8 +131,8 @@ public class BotEntity extends EntityPlayer {
 
     public void parry(final LivingEntity mb, final boolean set) {
         if (set) {
-            world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
-            world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
+            w.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
+            w.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
             lastParry = mb.getTicksLived();
         } else {
             lastParry = -PARRY_TICKS;
@@ -141,7 +141,7 @@ public class BotEntity extends EntityPlayer {
 
     public void hurt(final LivingEntity mb) {
         BotManager.sendWrldPckts(this.dI(), new ClientboundHurtAnimationPacket(this));
-        world.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
+        w.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
     }
 
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
@@ -150,29 +150,28 @@ public class BotEntity extends EntityPlayer {
             final ItemStack it = eq.getItemInMainHand();
             eq.setItemInMainHand(eq.getItemInOffHand(), true);
             from.attack(to);
-            world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
-//			to.setVelocity(to.getVelocity().multiply(4));
+            w.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
             BotManager.sendWrldPckts(this.dI(), new PacketPlayOutAnimation(this, 3));
         } else {
             from.attack(to);
-            world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
-//			to.setVelocity(to.getVelocity().multiply(4));
+            w.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             BotManager.sendWrldPckts(this.dI(), new PacketPlayOutAnimation(this, 0));
         }
     }
 
+    @OverrideMe
     public void telespawn(final Location to, @Nullable final LivingEntity le) {
         BotManager.sendWrldPckts(this.dI(),
                 new PacketPlayOutEntityDestroy(this.af()),
-                remListPlayerPacket(this));
+                remListPlayerPacket());
 
         if (le == null || !le.isValid() || isDead) {
             BotManager.botById.remove(rid);
             isDead = false;
-            final Husk hs = (Husk) world.spawnEntity(to, EntityType.HUSK, false);
-            this.rplc = new WeakReference<LivingEntity>(hs);
+            final Husk hs = (Husk) w.spawnEntity(to, EntityType.HUSK, false);
+            this.rplc = new WeakReference<>(hs);
             this.rid = hs.getEntityId();
             hs.setSilent(true);
             hs.setPersistent(true);
@@ -190,51 +189,49 @@ public class BotEntity extends EntityPlayer {
             le.teleportAsync(to);
         }
 
-        try {
-            this.a(EnumGamemode.a);
-        } catch (NullPointerException e) {
-        }
+        try {this.a(EnumGamemode.a);} catch (NullPointerException e) {}
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        BotManager.sendWrldPckts(
-                dI(),
-                addListPlayerPacket(this), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-                modListPlayerPacket(this), //UPDATE_GAME_MODE
-                new PacketPlayOutNamedEntitySpawn(this),
-                new PacketPlayOutEntityDestroy(rid));
+        BotManager.sendWrldPckts(dI(),
+            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+            modListPlayerPacket(), //UPDATE_GAME_MODE
+            new PacketPlayOutNamedEntitySpawn(this),
+            new PacketPlayOutEntityDestroy(rid));
         swapToSlot(0);
+
 //		final Vector vc = to.toVector();
 //		pss.add(vc); pss.add(vc); pss.add(vc); pss.add(vc);
     }
 
+    @OverrideMe
     public Goal<Mob> getGoal(final Mob org) {
         return new BotGoal(this);
     }
 
-    private ClientboundPlayerInfoUpdatePacket addListPlayerPacket(final BotEntity be) {
-        return new ClientboundPlayerInfoUpdatePacket(
-                EnumSet.of(
-                        ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
-                        ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
-                        ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
-                Arrays.asList(be));
+    private ClientboundPlayerInfoUpdatePacket addListPlayerPacket() {
+        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
+                ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
+                ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
+                ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+            List.of(this));
     }
 
-    private ClientboundPlayerInfoUpdatePacket modListPlayerPacket(final BotEntity be) {
-        return new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.a.c, be);
+    private ClientboundPlayerInfoUpdatePacket modListPlayerPacket() {
+        return new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.a.c, this);
     }
 
-    private ClientboundPlayerInfoRemovePacket remListPlayerPacket(final BotEntity be) {
-        return new ClientboundPlayerInfoRemovePacket(Arrays.asList(be.ax));
+    private ClientboundPlayerInfoUpdatePacket updListPlayerPacket() {
+        return new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.a.f, this);
+    }
+
+    private ClientboundPlayerInfoRemovePacket remListPlayerPacket() {
+        return new ClientboundPlayerInfoRemovePacket(Arrays.asList(this.ax));
     }
 
     private final PlayerInventory inv;
 
     public ItemStack item(final EquipmentSlot slot) {
         final LivingEntity mb = getEntity();
-        if (mb == null) {
-            return null;
-        }
-        return mb.getEquipment().getItem(slot);
+        return mb == null ? null : mb.getEquipment().getItem(slot);
     }
 
     public ItemStack item(final int slot) {
@@ -290,16 +287,8 @@ public class BotEntity extends EntityPlayer {
         BotManager.sendWrldPckts(this.dI(), new PacketPlayOutEntityEquipment(this.af(), updateIts()));
     }
 
-    public void dropInv(final Location loc) {
-        /*int slot = 0;
-		for (final ItemStack it : inv) {
-			if (it != null && ifSlotItem.test(slot, it)) {
-				w.dropItem(loc, it);
-				drop = true;
-			}
-			slot++;
-		}*/
-    }
+    @OverrideMe
+    public void dropInv(final Location loc) {}
 
     public LivingEntity getEntity() {
         final LivingEntity mb = rplc.get();
@@ -322,8 +311,8 @@ public class BotEntity extends EntityPlayer {
             mb.remove();
         }
         BotManager.sendWrldPckts(this.dI(),
-                new PacketPlayOutEntityDestroy(this.af()),
-                modListPlayerPacket(this));
+            new PacketPlayOutEntityDestroy(this.af()),
+            modListPlayerPacket(), tag.killPacket());
     }
 
     public void remove() {
@@ -331,8 +320,8 @@ public class BotEntity extends EntityPlayer {
         BotManager.botById.remove(rid);
         die(getEntity());
         BotManager.sendWrldPckts(this.dI(),
-                remListPlayerPacket(this));
-        score.remove();
+            remListPlayerPacket());
+        CustomScore.allStopTrack(name);
         this.a(RemovalReason.a);
     }
 
@@ -344,42 +333,55 @@ public class BotEntity extends EntityPlayer {
 
     public WXYZ getPos() {
         final BaseBlockPosition bp = di();
-        return new WXYZ(world, bp.u(), bp.v(), bp.w());
+        return new WXYZ(w, bp.u(), bp.v(), bp.w());
     }
 
-
-    
+    public void tab(final String prefix, final String affix, final String suffix) {
+//        score.tab(prefix, affix, suffix);
+        listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
+        BotManager.sendWrldPckts(this.dI(), updListPlayerPacket());
+    }
     
     public void tag(final boolean show) {
-        score.tag(show);
+        tag.visible(show);
     }
     
-    public void tag(final String prefix, final String color, final String suffix) {
-        score.tag(Component.text(prefix), color, Component.text(suffix));
-        //VM.getNmsNameTag().updateTag(name, prefix = pfx, suffix = sfx, nameClr = clr, world.getPlayers(), p -> isTagVisFor(p));
+    public void tag(final String prefix, final String affix, final String suffix) {
+        tag.content(prefix + affix + name + suffix);
     }
 
-    
-    
-    
+    public void setTagVis(final Predicate<Player> canSee) {
+        tag.canSee(canSee);
+    }
+
+    public boolean isTagVisTo(final Player pl) {
+        return tag.canSee(pl);
+    }
+
+
+
+
     @Deprecated
     public void updateTag(final String pfx, final String sfx, final char clr) {
         tag(pfx, Character.toString(clr), sfx);
-        //VM.getNmsNameTag().updateTag(name, prefix = pfx, suffix = sfx, nameClr = clr, world.getPlayers(), p -> isTagVisFor(p));
     }
-        
+
+    @Deprecated
     public void updateTag(final char clr, final Player pl) {
         //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr = clr, pl, p -> isTagVisFor(p));
     }
 
+    @Deprecated
     public void updateTag(final Player pl) {
         //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr, pl, p -> isTagVisFor(p));
     }
 
+    @OverrideMe
     public boolean isTagVisFor(final Player p) {
         return true;
     }
 
+    @OverrideMe
     public boolean isSeenBy(final Player p) {
         return true;
     }
@@ -387,7 +389,7 @@ public class BotEntity extends EntityPlayer {
     public void removeAll(final Player pl) {
         final NetworkManager nm = VM.getNmsServer().toNMS(pl).c.h;
         nm.a(new PacketPlayOutEntityDestroy(this.af()));
-        nm.a(remListPlayerPacket(this));
+        nm.a(remListPlayerPacket());
     }
 
     public void updateAll(final Player pl) {
@@ -397,8 +399,8 @@ public class BotEntity extends EntityPlayer {
 
     @Deprecated(forRemoval = true)
     public void updateAll(final NetworkManager nm) {
-        nm.a(addListPlayerPacket(this));
-        nm.a(modListPlayerPacket(this));
+        nm.a(addListPlayerPacket());
+        nm.a(modListPlayerPacket());
         nm.a(new PacketPlayOutNamedEntitySpawn(this));
         nm.a(new PacketPlayOutEntityTeleport(this));
         nm.a(new PacketPlayOutEntityDestroy(rid));
@@ -424,7 +426,7 @@ public class BotEntity extends EntityPlayer {
                 = (Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
         for (int i = its.length - 1; i >= 0; i--) {
             final ItemStack it = eq.getItem(ess[i]);
-            its[i] = Pair.of(eis[i], it == null ? air : net.minecraft.world.item.ItemStack.fromBukkitCopy(it));
+            its[i] = Pair.of(eis[i], net.minecraft.world.item.ItemStack.fromBukkitCopy(it));
         }
         return Arrays.asList(its);
     }
@@ -468,6 +470,85 @@ public class BotEntity extends EntityPlayer {
 
     public void onBug() {
         remove();
+    }
+
+    private record BotGoal(BotEntity bot) implements Goal<Mob> {
+
+        private static final GoalKey<Mob> key = GoalKey.of(Mob.class, new NamespacedKey(Ostrov.instance, "bot"));
+
+        @Override
+        public boolean shouldActivate() {
+            return true;
+        }
+
+        @Override
+        public boolean shouldStayActive() {
+            return true;
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void stop() {
+            bot.die(bot.getEntity());
+        }
+
+        @Override
+        public void tick() {
+            final Mob rplc = (Mob) bot.getEntity();
+            if (rplc == null || !rplc.isValid()) {
+                bot.die(rplc);
+                return;
+            }
+
+            final Pathfinder pth = rplc.getPathfinder();
+            //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+            final Location loc = rplc.getLocation();
+            final Location eyel = rplc.getEyeLocation();
+            final Vector vc = eyel.getDirection();
+
+            vc.normalize();
+
+            bot.move(loc, vc, true);
+
+//			if (bot.tryJump(loc, rplc, vc)) return;
+
+            vc.setY(0d);
+            if (rplc.isInWater()) {
+                rplc.setVelocity(rplc.getVelocity().setY(0.1d).add(vc.multiply(0.05d)));
+            } else {
+                if (rplc.isOnGround()) {
+
+                    final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
+                    if (pl == null) return;
+                    rplc.getPathfinder().moveTo(pl, 1.4d);
+                    /*if (path == null && PlayerLst.ar != null) {
+                        path = new AreaPath(rplc, PlayerLst.ar);
+                    }
+
+                    if (path != null) {
+                        path.setTgt(new WXYZ(pl.getLocation()));
+                        path.tickGo(1.5d);
+                    }*/
+
+                } else {
+                    if (pth.hasPath()) pth.stopPathfinding();
+                    rplc.setVelocity(rplc.getVelocity().add(vc.multiply(0.05d)));
+                }
+            }
+        }
+
+        @Override
+        public @NotNull GoalKey<Mob> getKey() {
+            return key;
+        }
+
+        @Override
+        public @NotNull EnumSet<GoalType> getTypes() {
+            return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
+        }
     }
 }
 

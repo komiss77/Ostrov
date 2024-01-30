@@ -2,18 +2,13 @@ package ru.komiss77.listener;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Timer;
-import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.AfkBot;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.MaterialUtil;
 
 
@@ -34,13 +29,13 @@ public class TestLst implements Listener {
             
             //MaterialUtil.toChar (e.getItem().getType());
             p.sendMessage(e.getItem().getType()+"="+MaterialUtil.toChar (e.getItem().getType()));
-            
+
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
                 if (p.isSneaking()) {
-                    //op.customTag.visible(false);
-                    //p.sendMessage("custom name off");
+                    op.tag.visible(false);
+                    p.sendMessage("custom name off");
                 } else {
-                    //op.tag("§bdd☻§edfdsg", "§gк|avvvddedrfer §edffffff");
+                    op.tag("§bdd☻§edfdsg", "§к|avvvddedrfer §edffffff");
                     //op.upperName.visible(true);
                     //p.sendMessage("custom name on");
                 }

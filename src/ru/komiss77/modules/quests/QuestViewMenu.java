@@ -88,7 +88,7 @@ public class QuestViewMenu implements InventoryProvider {
 			}
 	    }
         
-        pagination.setItems(buttons.toArray(new ClickableItem[buttons.size()]));
+        pagination.setItems(buttons.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(21);
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
         

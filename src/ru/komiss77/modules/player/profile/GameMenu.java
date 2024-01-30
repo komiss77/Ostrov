@@ -73,7 +73,7 @@ public class GameMenu implements InventoryProvider {
             }
 
             content.set(22, ClickableItem.of( new ItemBuilder(Material.RECOVERY_COMPASS)
-                .name("§gc|e§lБольшие Режимы")
+                .name("§c|e§lБольшие Режимы")
                 .addLore("")
                 .addLore("§a§lВыживание")
                 .addLore("§9§lКреатив")

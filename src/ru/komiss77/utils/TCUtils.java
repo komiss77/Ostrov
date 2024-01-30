@@ -33,7 +33,7 @@ public class TCUtils {
     public static final char STYLE = '§';
 //    public static final char form = '᨟';
     public static final char HEX = '#';
-    public static final char SEP = '|';
+    public static final char GRAD = '|';
 
     /**
      * 60% - Neutral color
@@ -481,55 +481,10 @@ public class TCUtils {
                 final int cend;
                 switch (ch) {//форматы стиля
                     default:
-                        break;
-                    case HEX://хекс
-                        cend = i + 7;//#000000
-                        if (cend > chMsg.length) {
+                        if (chrIx.get(ch) == null || i + 1 == chMsg.length) {
                             continue;
                         }
-                        while (true) {//6 -> 1 хекс код
-                            if (i + 1 == cend) {
-                                break;
-                            } else {
-                                i++;
-                            }
-                            final int dg = Character.digit(chMsg[i], 16);
-                            if (dg == -1) {//символ не хекс
-                                i = cend - 7;
-                                break;
-                            }
-                        }
-                        break;
-                    case 'g'://градиент
-                        if (i + 1 == chMsg.length) {
-                            continue;
-                        }
-                        i++;
-
-                        final char from = chMsg[i];
-                        if (from == HEX) {//хекс
-                            cend = i + 7;//#000000
-                            if (cend > chMsg.length) {
-                                continue;
-                            }
-                            while (true) {//6 -> 1 хекс код
-                                if (i + 1 == cend) {
-                                    break;
-                                } else {
-                                    i++;
-                                }
-                                final int dg = Character.digit(chMsg[i], 16);
-                                if (dg == -1) {//символ не хекс
-                                    i = cend - 7;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (i + 1 == chMsg.length) {
-                            continue;
-                        }
-                        if (chMsg[i + 1] == SEP) {
+                        if (chMsg[i + 1] == GRAD) {
                             i++;
                             if (i + 1 == chMsg.length) {
                                 continue;
@@ -552,6 +507,80 @@ public class TCUtils {
                                         i = gend - 8;
                                         break;
                                     }
+                                }
+                            }
+                        }
+                        break;
+                    case HEX://хекс
+                        cend = i + 7;//#000000
+                        if (cend > chMsg.length) {
+                            continue;
+                        }
+                        while (true) {//6 -> 1 хекс код
+                            if (i + 1 == cend) {
+                                break;
+                            } else {
+                                i++;
+                            }
+                            final int dg = Character.digit(chMsg[i], 16);
+                            if (dg == -1) {//символ не хекс
+                                i = cend - 7;
+                                break;
+                            }
+                        }
+
+                        if (i + 1 == chMsg.length) {
+                            continue;
+                        }
+                        if (chMsg[i + 1] == GRAD) {
+                            i++;
+                            if (i + 1 == chMsg.length) {
+                                continue;
+                            }
+                            i++;
+                            final char to = chMsg[i];
+                            if (to == HEX) {
+                                final int gend = i + 7;//#000000
+                                if (gend > chMsg.length) {
+                                    continue;
+                                }
+                                while (true) {//6 -> 1 хекс код
+                                    if (i + 1 == gend) {
+                                        break;
+                                    } else {
+                                        i++;
+                                    }
+                                    final int dg = Character.digit(chMsg[i], 16);
+                                    if (dg == -1) {//символ не хекс
+                                        i = gend - 8;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case GRAD://градиент
+                        if (i + 1 == chMsg.length) {
+                            continue;
+                        }
+                        i++;
+
+                        final char from = chMsg[i];
+                        if (from == HEX) {//хекс
+                            cend = i + 7;//#000000
+                            if (cend > chMsg.length) {
+                                continue;
+                            }
+                            while (true) {//6 -> 1 хекс код
+                                if (i + 1 == cend) {
+                                    break;
+                                } else {
+                                    i++;
+                                }
+                                final int dg = Character.digit(chMsg[i], 16);
+                                if (dg == -1) {//символ не хекс
+                                    i = cend - 7;
+                                    break;
                                 }
                             }
                         }
@@ -671,6 +700,48 @@ public class TCUtils {
                             }
                             gradTo = null;
                             dec.clear();
+
+                            if (i + 1 == chMsg.length) {
+                                continue;
+                            }
+                            if (chMsg[i + 1] == GRAD) {//градиент
+                                i++;
+                                if (i + 1 == chMsg.length) {
+                                    continue;
+                                }
+                                i++;
+                                final char to = chMsg[i];
+                                if (to == HEX) {
+                                    final int gend = i + 7;//#000000
+                                    if (gend > chMsg.length) {
+                                        continue;
+                                    }
+                                    int eval = 0;//10чная версия хекса
+                                    while (true) {//1 -> 6 хекс код
+                                        if (i + 1 == gend) {
+                                            break;
+                                        } else {
+                                            i++;
+                                        }
+                                        final int dg = Character.digit(chMsg[i], 16);
+                                        if (dg == -1) {//символ не хекс
+                                            eval = -1;
+                                            i = gend - 7;
+                                            break;
+                                        }
+                                        eval += dg << (4 * (gend - i - 1));//хекс код ставит в позицию
+                                    }
+
+                                    if (eval != -1) {
+                                        gradTo = TextColor.color(eval);
+                                    }
+                                } else {
+                                    final TextColor toc = chrIx.get(to);
+                                    if (toc != null) {
+                                        gradTo = toc;
+                                    }
+                                }
+                            }
                         }
                         break;
                     default://цвет
@@ -686,9 +757,51 @@ public class TCUtils {
                             }
                             gradTo = null;
                             dec.clear();
+
+                            if (i + 1 == chMsg.length) {
+                                continue;
+                            }
+                            if (chMsg[i + 1] == GRAD) {//градиент
+                                i++;
+                                if (i + 1 == chMsg.length) {
+                                    continue;
+                                }
+                                i++;
+                                final char to = chMsg[i];
+                                if (to == HEX) {
+                                    final int gend = i + 7;//#000000
+                                    if (gend > chMsg.length) {
+                                        continue;
+                                    }
+                                    int eval = 0;//10чная версия хекса
+                                    while (true) {//1 -> 6 хекс код
+                                        if (i + 1 == gend) {
+                                            break;
+                                        } else {
+                                            i++;
+                                        }
+                                        final int dg = Character.digit(chMsg[i], 16);
+                                        if (dg == -1) {//символ не хекс
+                                            eval = -1;
+                                            i = gend - 7;
+                                            break;
+                                        }
+                                        eval += dg << (4 * (gend - i - 1));//хекс код ставит в позицию
+                                    }
+
+                                    if (eval != -1) {
+                                        gradTo = TextColor.color(eval);
+                                    }
+                                } else {
+                                    final TextColor toc = chrIx.get(to);
+                                    if (toc != null) {
+                                        gradTo = toc;
+                                    }
+                                }
+                            }
                         }
                         break;
-                    case 'g'://градиент
+                    case GRAD://простой градиент
                         if (i + 1 == chMsg.length) {
                             continue;
                         }
@@ -738,58 +851,15 @@ public class TCUtils {
                             gradTo = tclr;
 
                         }
+
+                        if (color == null) {
+                            color = gradTo;
+                            gradTo = null;
+                        } else if (gradTo.value() == color.value()) {
+                            gradTo = null;
+                        }
+
                         dec.clear();
-
-                        if (i + 1 == chMsg.length) {
-                            continue;
-                        }
-                        if (chMsg[i + 1] == SEP) {
-                            i++;
-                            if (i + 1 == chMsg.length) {
-                                continue;
-                            }
-                            i++;
-                            final char to = chMsg[i];
-                            if (to == HEX) {
-                                final int gend = i + 7;//#000000
-                                if (gend > chMsg.length) {
-                                    continue;
-                                }
-                                int eval = 0;//10чная версия хекса
-                                while (true) {//1 -> 6 хекс код
-                                    if (i + 1 == gend) {
-                                        break;
-                                    } else {
-                                        i++;
-                                    }
-                                    final int dg = Character.digit(chMsg[i], 16);
-                                    if (dg == -1) {//символ не хекс
-                                        eval = -1;
-                                        i = gend - 7;
-                                        break;
-                                    }
-                                    eval += dg << (4 * (gend - i - 1));//хекс код ставит в позицию
-                                }
-
-                                if (eval != -1) {
-                                    color = gradTo;
-                                    gradTo = TextColor.color(eval);
-                                }
-                            } else {
-                                final TextColor toc = chrIx.get(to);
-                                if (toc != null) {
-                                    color = gradTo;
-                                    gradTo = toc;
-                                }
-                            }
-                        } else {
-                            if (color == null) {
-                                color = gradTo;
-                                gradTo = null;
-                            } else if (gradTo.value() == color.value()) {
-                                gradTo = null;
-                            }
-                        }
                         break;
                 }
                 continue;
@@ -922,8 +992,8 @@ public class TCUtils {
                                 if (lstClr == null || gradient.init.value() == lstClr.value()) {
                                     sb.insert(gradient.start, "§" + toString(gradient.init));
                                 } else {
-                                    sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
-                                            : "§g" + toString(gradient.init) + SEP + toString(lstClr));
+                                    sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
+                                        : "§" + toString(gradient.init) + GRAD + toString(lstClr));
                                 }
                                 gradient = null;
                                 sb.append("§").append(clr);
@@ -938,8 +1008,8 @@ public class TCUtils {
                             if (lstClr == null || gradient.init.value() == lstClr.value()) {
                                 sb.insert(gradient.start, "§" + toString(gradient.init));
                             } else {
-                                sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
-                                        : "§g" + toString(gradient.init) + SEP + toString(lstClr));
+                                sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
+                                    : "§" + toString(gradient.init) + GRAD + toString(lstClr));
                             }
                             gradient = null;
                         }
@@ -979,8 +1049,8 @@ public class TCUtils {
             if (lstClr == null || gradient.init.value() == lstClr.value()) {
                 sb.insert(gradient.start, "§" + toString(gradient.init));
             } else {
-                sb.insert(gradient.start, gradient.ext ? "§g" + toString(lstClr)
-                        : "§g" + toString(gradient.init) + SEP + toString(lstClr));
+                sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
+                    : "§" + toString(gradient.init) + GRAD + toString(lstClr));
             }
             gradient = null;
         }

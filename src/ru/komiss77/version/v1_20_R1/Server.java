@@ -136,12 +136,6 @@ public class Server implements IServer {
     public net.minecraft.world.entity.Entity toNMS(final Entity en) {
         try {
             return (net.minecraft.world.entity.Entity) CraftEntityMethod.invoke(en);
-            //return (EntityPlayer) getEt.invoke(en);
-            //ClassCastException: class net.minecraft.world.entity.monster.EntityVex cannot be cast to class net.minecraft.server.level.EntityPlayer (net.minecraft.world.entity.monster.EntityVex and net.minecraft.server.level.EntityPlayer are in unnamed module of loader java.net.URLClassLoader @2b71fc7e)
-            //at ru.komiss77.version.v1_20_R1.Server.toNMS(Server.java:119) ~[Ostrov.jar:?]
-            //at ru.komiss77.version.v1_20_R1.EntityGroup.sendLookAtPlayerPacket(EntityGroup.java:258) ~[Ostrov.jar:?]
-            //at ru.komiss77.modules.figure.SpeachTask.sendLookResetPacket(SpeachTask.java:118) ~[Ostrov.jar:?]
-            //at ru.komiss77.modules.figure.SpeachTask.cancel(SpeachTask.java:77) ~[Ostrov.jar:?]
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
@@ -209,8 +203,6 @@ public class Server implements IServer {
     @Override
     public void signInput(final Player p, String suggest, final XYZ signXyz) {
 
-        final EntityPlayer ep = toNMS(p);
-
         mutableBlockPosition.d(signXyz.x, signXyz.y, signXyz.z);
         PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(mutableBlockPosition, signIbd);
         sendPacket(p, packet);//ep.c.a(packet);
@@ -266,35 +258,6 @@ public class Server implements IServer {
 
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
         sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);*/
-
-       /* final ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
-            @Override
-            public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
-                if (packet instanceof PacketPlayInUpdateSign signPacket) {
-                    final String chName = ctx.name();
-//Ostrov.log_warn("inUpdateSign ctx="+chName);
-                    final ChannelPipeline pipeline = ctx.pipeline();
-                    if (pipeline.get(chName) != null) {
-                        pipeline.remove(chName);
-                    }
-                    if (chName.startsWith("ostrov_sign_")) {
-                        final String name = ctx.name().substring(12);
-                        if (!name.isEmpty()) {
-                            final String result = signPacket.d()[0] + signPacket.d()[1] + signPacket.d()[2] + signPacket.d()[3];
-                            final Player p = Bukkit.getPlayerExact(name);
-                            if (p!=null) {
-                                PlayerInput.onInput(p, InputButton.InputType.SIGN, result);
-                            }
-                        }
-                    }
-                }
-                super.channelRead(ctx, packet);
-            }
-        };
-        
-        final ChannelPipeline pipeline = ep.c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
-        pipeline.addBefore("packet_handler", "ostrov_sign_" + p.getName(), channelDuplexHandler);
-*/
     }
 
     @Override
@@ -331,15 +294,9 @@ public class Server implements IServer {
 
             //Полученного экземпляра Field уже достаточно для доступа к изменяемым приватным полям.
             vanilaCommandToDisable.forEach((name) -> {
-                if (children.containsKey(name)) {
-                    children.remove(name);
-                }
-                if (literals.containsKey(name)) {
-                    literals.remove(name);
-                }
-                if (arguments.containsKey(name)) {
-                    arguments.remove(name);
-                }
+                children.remove(name);
+                literals.remove(name);
+                arguments.remove(name);
             }
             );
 
@@ -393,7 +350,7 @@ public class Server implements IServer {
 
     @Override
     public int getTps() {
-        return (int) MinecraftServer.TPS;
+        return MinecraftServer.TPS;
     }
 
     @Override
@@ -428,7 +385,7 @@ public class Server implements IServer {
     }
 
     @Override
-    public void sendPacket(final Player p, final Packet packet) {
+    public void sendPacket(final Player p, final Packet<?> packet) {
         toNMS(p).c.a(packet);
     }
 

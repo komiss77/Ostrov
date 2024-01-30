@@ -1,15 +1,5 @@
 package ru.komiss77.modules.bots;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Supplier;
-import java.util.concurrent.atomic.AtomicBoolean;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.EntityPlayer;
@@ -34,6 +24,18 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class BotManager implements Initiable, Listener {
 
@@ -123,7 +125,7 @@ public class BotManager implements Initiable, Listener {
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
             for (final BotEntity be : botByName.values()) {
-                if (be.world.getUID().equals(id)) {
+                if (be.w.getUID().equals(id)) {
                     be.updateAll(pl);
                 }
             }
@@ -167,7 +169,7 @@ public class BotManager implements Initiable, Listener {
     
     
     @Nullable
-    public static <Bot extends BotEntity> Bot createBot(final String name, final Class<Bot> botClass, final Supplier<Bot> onCreate) {
+    public static <Bot extends BotEntity> Bot createBot(final String name, final Class<Bot> botClass, final Function<String, Bot> creator) {
         if (!enable.get()) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
             return null;
@@ -175,12 +177,17 @@ public class BotManager implements Initiable, Listener {
 
         final BotEntity be = botByName.get(name);
         try {
-            return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : onCreate.get();
+            return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : creator.apply(name);
         } catch (IllegalArgumentException | SecurityException ex) {
             Ostrov.log_err("BotManager createBot : "+ex.getMessage());
             //e.printStackTrace();
             return null;
         }
+    }
+    @Nullable
+    @Deprecated
+    public static <Bot extends BotEntity> Bot createBot(final String name, final Class<Bot> botClass, final Supplier<Bot> onCreate) {
+        return createBot(name, botClass, nm -> onCreate.get());
     }
     
     public static void clearBots() {
