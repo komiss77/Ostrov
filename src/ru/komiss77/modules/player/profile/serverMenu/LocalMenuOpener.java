@@ -19,7 +19,7 @@ public class LocalMenuOpener {
                     .id(op.nik+op.menu.section.name())
                     .provider(new Arcaim())
                     .size(6, 9)
-                    .title("§g9|6§lМеню сервера " + GM.GAME.displayName)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;
@@ -31,7 +31,7 @@ public class LocalMenuOpener {
                     .id(op.nik+op.menu.section.name())
                     .provider(new Daaria())
                     .size(6, 9)
-                    .title("§g9|6§lМеню сервера " + GM.GAME.displayName)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;
@@ -43,7 +43,7 @@ public class LocalMenuOpener {
                     .id(op.nik+op.menu.section.name())
                     .provider(new Sedna())
                     .size(6, 9)
-                    .title("§g9|6§lМеню сервера " + GM.GAME.displayName)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;

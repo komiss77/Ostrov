@@ -1,9 +1,11 @@
 package ru.komiss77.modules.player;
 
-import ru.komiss77.version.v1_20_R1.CustomTag;
-import java.util.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.bossbar.BossBar.Color;
+import net.kyori.adventure.bossbar.BossBar.Overlay;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -11,26 +13,12 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.bossbar.BossBar.Color;
-import net.kyori.adventure.bossbar.BossBar.Overlay;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.title.Title;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
-import ru.komiss77.Ostrov;
-import ru.komiss77.Perm;
+import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Timer;
+import ru.komiss77.*;
 import ru.komiss77.builder.SetupMode;
 import ru.komiss77.commands.PvpCmd;
-import ru.komiss77.enums.CheatType;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.GlobalLogType;
-import ru.komiss77.enums.Operation;
-import ru.komiss77.enums.Settings;
-import ru.komiss77.enums.Stat;
-import ru.komiss77.enums.StatFlag;
+import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
@@ -46,7 +34,12 @@ import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
+import ru.komiss77.version.v1_20_R1.CustomTag;
 import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
 
 
 public class Oplayer {
@@ -64,7 +57,7 @@ public class Oplayer {
     }
     @Deprecated
     public String nameColor() {
-    	return beforName;
+    	return beforeName;
     }
     @Deprecated
     public TextComponent tagPrefix() {
@@ -93,10 +86,6 @@ public class Oplayer {
     @Deprecated
     public void nameColor(String beforName, Player p) {
         beforName(beforName, p);
-    }
-    @Deprecated
-    public boolean isTagVis(final Player to) {
-    	return true;
     }
     @Deprecated
     public void tag(final String tagPrefix, final String beforName, final String tagSuffix) {
@@ -162,14 +151,14 @@ public class Oplayer {
     public PermissionAttachment permissionAttachmen=null;
     public ProfileManager menu;
     public CustomScore score;
-    public CustomTag customTag;
+    public CustomTag tag;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
     public Location last_death=Bukkit.getWorlds().get(0).getSpawnLocation();
 
     public String chat_group=" ---- ";
-    private String  tabPreffix="§7", beforName, tabSuffix="";
-    private String tagPreffix = ""; private String tagSuffix = "";
+    private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix="";
+    private String tagPreffix = "", tagSuffix = "";
 
     public int mysql_stage, pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked=true, pvp_allow=true;
@@ -195,7 +184,8 @@ public class Oplayer {
         menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
         score = new CustomScore((Player) p);
-        customTag = new CustomTag((Player) p);
+        tag = new CustomTag(p);
+        tag(tagPreffix, ChatLst.NIK_COLOR, tagSuffix);
         packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
     	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
@@ -294,20 +284,23 @@ public class Oplayer {
 //System.out.println("** isPartyLeader() party_members="+party_members+"  party_leader="+party_leader+" nik="+nik);
         return !party_members.isEmpty() && party_leader.equals(nik);
     }
-    
-    
-    
-    
-    
-    public void tabPrefix(@Nullable final String tab_prefix, @Nonnull final Player p) {
-    	this.tabPreffix = tab_prefix == null ? "" : tab_prefix;
-        updTabListName(p);
+
+
+
+    @Deprecated
+    public void beforName(@Nullable final String beforeName, final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
+    	beforeName(beforeName, p);
     }
-    
-    public void beforName(@Nullable final String beforName, @Nonnull final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
-    	this.beforName =  beforName == null || beforName.isBlank() ? ChatLst.NIK_COLOR : beforName;
+
+    public void beforeName(@Nullable final String beforeName, final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
+        this.beforeName = beforeName == null || beforeName.isBlank() ? ChatLst.NIK_COLOR : beforeName;
         updTabListName(p);
         tag(tagPreffix, tagSuffix);
+    }
+
+    public void tabPrefix(@Nullable final String tab_prefix, final Player p) {
+        this.tabPreffix = tab_prefix == null ? "" : tab_prefix;
+        updTabListName(p);
     }
     
     public void tabSuffix(@Nullable final String tab_suffix, final Player p) {
@@ -315,30 +308,32 @@ public class Oplayer {
         updTabListName(p);
     }
     
-    public void updTabListName (@Nonnull final Player p) {
+    public void updTabListName (@NotNull final Player p) {
         if (Config.tablist_name) {
-            final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
+            final String displayName = isGuest ? beforeName + "§8(Гость) §7" + getDataString(Data.FAMILY) : beforeName + nik;
             p.playerListName(TCUtils.format(tabPreffix + displayName + tabSuffix));
         }
     }
     
     //показать/скрыть ник этого оплеера от других
-    public void tag(final boolean visible) {
-        customTag.visible(visible);
-    }
-    
     public void tag(final String tagPrefix, final String tagSuffix) {
-    	if (tagPrefix!=null) this.tagPreffix = tagPrefix; //чтобы можно было поменять что-то одно, не трогая другое
-    	if (tagSuffix!=null) this.tagSuffix = tagSuffix;
-        final String displayName = isGuest ?   beforName + "§8(Гость) §f" + getDataString(Data.FAMILY)  :  beforName + nik;
-        customTag.content(TCUtils.format(this.tagPreffix + displayName + this.tagSuffix));
+        if (tagPrefix!=null) this.tagPreffix = tagPrefix; //чтобы можно было поменять что-то одно, не трогая другое
+        if (tagSuffix!=null) this.tagSuffix = tagSuffix;
+        final String displayName = isGuest ? beforeName + "§8(Гость) §7" + getDataString(Data.FAMILY) : beforeName + nik;
+        tag.content(this.tagPreffix + displayName + this.tagSuffix);
     }
-    
-    
-     
-    
-    
-    
+
+    public void tag(final boolean visible) {
+        tag.visible(visible);
+    }
+
+    public void setTagVis(final Predicate<Player> canSee) {
+        tag.canSee(canSee);
+    }
+
+    public boolean isTagVisTo(final Player pl) {
+        return tag.canSee(pl);
+    }
     
     public void onPVPEnter(final Player p, final int time, 
     	final boolean blockFly, final boolean giveTag) {

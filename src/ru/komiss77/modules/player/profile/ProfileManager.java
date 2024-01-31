@@ -202,7 +202,7 @@ public class ProfileManager {
                 .id(op.nik + section.name())
                 .provider(new Donate())
                 .size(6, 9)
-                .title(op.eng ? "§gc|н§lSupport the project" : "§gc|н§lПоддержать проект")
+                .title(op.eng ? "§c|н§lSupport the project" : "§c|н§lПоддержать проект")
                 .build()
                 .open(op.getPlayer());
     }
@@ -273,13 +273,13 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                                .builder()
-                                .id(op.nik + section.name())
-                                .provider(new CI_MultiPage(buttons, Section.ГРУППЫ.glassMat))
-                                .size(6, 9)
-                                .title("Администрация")
-                                .build()
-                                .open(op.getPlayer());
+                            .builder()
+                            .id(op.nik + section.name())
+                            .provider(new CI_MultiPage(buttons, Section.ГРУППЫ.glassMat))
+                            .size(6, 9)
+                            .title(op.eng ? Section.ГРУППЫ.item_nameEn : Section.ГРУППЫ.item_nameRu)
+                            .build()
+                            .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 

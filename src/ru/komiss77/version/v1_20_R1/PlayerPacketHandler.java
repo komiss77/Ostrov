@@ -49,19 +49,12 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             }
             
         } else if (packet instanceof PacketPlayInUpdateSign signPacket) {
-            //final String chName = chc.name();
-//Ostrov.log_warn("inUpdateSign chc="+chName);
-            //if (chName.startsWith("ostrov_")) {
-                //final String name = chc.name().substring(7);
-                //if (!name.isEmpty()) {
-                    final Player p = op.getPlayer();//Bukkit.getPlayerExact(name);
-                    if (p!=null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
-                        final String result = signPacket.d()[0] + " " + signPacket.d()[1] + " " + signPacket.d()[2] + " " + signPacket.d()[3];
-                        Ostrov.sync(  () -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0 );
-                        return; //пакет ввода с таблички не отдаём в сервер!
-                    }
-                //}
-            //}
+            final Player p = op.getPlayer();//Bukkit.getPlayerExact(name);
+            if (p!=null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
+                final String result = signPacket.d()[0] + " " + signPacket.d()[1] + " " + signPacket.d()[2] + " " + signPacket.d()[3];
+                Ostrov.sync(  () -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0 );
+                return; //пакет ввода с таблички не отдаём в сервер!
+            }
         }
         
         super.channelRead(chc, packet);

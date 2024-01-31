@@ -37,8 +37,6 @@ public class ScoreBoard {
         this.loc = loc;
         this.length = length;
         this.isAsc = isAsc;
-        final StringBuffer sb = new StringBuffer();
-        sb.append(name + "\n");
         final Location lc = loc.getCenterLoc();
         lc.getChunk().load();
         lc.getChunk().setForceLoaded(true);
@@ -69,8 +67,8 @@ public class ScoreBoard {
         } else {
             td = (TextDisplay) dis;
         }
-        final StringBuffer sb = new StringBuffer();
-        sb.append(score + "\n\n");
+        final StringBuilder sb = new StringBuilder();
+        sb.append(score).append("\n\n");
         for (int i = 0; i < length; i++) {
             final String nm = ranks.size() > i ? ranks.get(i) : null;
             final String clr = switch (i) {
@@ -84,9 +82,10 @@ public class ScoreBoard {
                     "§7";
             };
             if (nm == null) {
-                sb.append("§8" + (i + 1) + ") " + clr + "=-=-=-=§б: --\n");
+                sb.append("§8").append(i + 1).append(") ").append(clr).append("=-=-=-=§б: --\n");
             } else {
-                sb.append("§8" + (i + 1) + ") " + clr + nm + "§б: " + toDisplay(stats.get(nm)) + "\n");
+                sb.append("§8").append(i + 1).append(") ").append(clr).append(nm)
+                    .append("§б: ").append(toDisplay(stats.get(nm))).append("\n");
             }
         }
         final String text = sb.toString();
@@ -188,7 +187,7 @@ public class ScoreBoard {
     }
 
     public boolean isPlaced(final String name, final int place) {
-        return place > ranks.size() ? false : ranks.get(Math.max(1, place) - 1).equals(name);
+        return place <= ranks.size() && ranks.get(Math.max(1, place) - 1).equals(name);
     }
 
     public @Nullable

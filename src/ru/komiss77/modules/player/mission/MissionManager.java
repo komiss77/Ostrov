@@ -499,7 +499,7 @@ public class MissionManager {
                             .id(op.nik+op.menu.section.name())
                             .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
                             .size(6, 9)
-                            .title("Миссии")
+                            .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
                             .build()
                             .open(op.getPlayer());
                         }// else p.sendMessage("уже другое меню"); }

@@ -101,8 +101,8 @@ public class Lang {
             Ostrov.log_err("Lang loadBase error : "+ex.getMessage());
         }
     }
-    
-    
+
+
     
     
     public static String t (final Player p, final String ruMsg) {
@@ -131,8 +131,8 @@ public class Lang {
 
     public static Component t (final Translatable o, final Locale locale) {
         return o == null ? err : GlobalTranslator.render(Component.translatable(o), locale);
-    }    
-    
+    }
+
 
     
     //подменять >p.sendMessage(< на >Lang.sendMessage(p, <
@@ -148,7 +148,7 @@ public class Lang {
     public static String translate (final String ruMsg, final Locale locale) {
         String trans = ruToEng.get(ruMsg);
         //при написании \ .\ или ..\ Lang t error : Unexpected character (C) at position 0.
-        
+
         if (trans == null) { //перевода нема
             
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
@@ -210,7 +210,7 @@ public class Lang {
         return tmg;
     }*/
 
-    
+
     
     
     //в эвенте переводим недостающий язык
@@ -262,7 +262,7 @@ public class Lang {
         return ruToEng.getOrDefault(rus, "");
     }
 
-    
-    
+
+
     
 }

@@ -34,56 +34,56 @@ public enum Section {
 
     МИНИИГРЫ (
             45,
-            "§gb|с§lВыбор Игры",
-            "§gb|с§lGame Selection",
+            "§b|с§lВыбор Игры",
+            "§b|с§lGame Selection",
             "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
             Material.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     РЕЖИМЫ (
             45,
-            "§gb|с§lВыбор Игры",
-            "§gb|с§lGame Selection",
+            "§b|с§lВыбор Игры",
+            "§b|с§lGame Selection",
             "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
             Material.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     ВОЗМОЖНОСТИ (
             46,
-            "§gс|3§lВозможности",
-            "§gс|3§lAbilities",
+            "§с|3§lВозможности",
+            "§с|3§lAbilities",
             "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
             Material.LIME_STAINED_GLASS_PANE
     ), 
     
     ПРОФИЛЬ (
             47,
-            "§g3|d§lПрофиль",
-            "§g3|d§lProfile",
+            "§3|d§lПрофиль",
+            "§3|d§lProfile",
             "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1", 
             Material.GRAY_STAINED_GLASS_PANE
     ),
     
     СТАТИСТИКА (
             48,
-            "§gd|9§lСтатистика",
-            "§gd|9§lStatistics",
+            "§d|9§lСтатистика",
+            "§d|9§lStatistics",
             "5b4ddb8abed660825b68b922e22a9558c2f208938bd438eaeaccdc3941",
             Material.PURPLE_STAINED_GLASS_PANE
     ),
     
     ДОСТИЖЕНИЯ (
             49,
-            "§g9|н§lДостижения",
-            "§g9|н§lAchievements",
+            "§9|н§lДостижения",
+            "§9|н§lAchievements",
             "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f", 
             Material.BROWN_STAINED_GLASS_PANE
     ), 
     
     МИССИИ(
             50,
-            "§gн|6§lМиссии",
-            "§gн|6§lMissions",
+            "§н|6§lМиссии",
+            "§н|6§lMissions",
             "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
             Material.ORANGE_STAINED_GLASS_PANE
     ), 
@@ -98,16 +98,16 @@ public enum Section {
     
     КОМАНДА (
             52,
-            "§g6|c§l§lКоманда",
-            "§g6|c§lParty",
+            "§6|c§l§lКоманда",
+            "§6|c§lParty",
             "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
             Material.RED_STAINED_GLASS_PANE
     ),
     
     ГРУППЫ (
             53,
-            "§gc|ф§lПривилегии",
-            "§gc|ф§lDonations",
+            "§c|ф§lПривилегии",
+            "§c|ф§lDonations",
             "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
             Material.YELLOW_STAINED_GLASS_PANE
     ), 

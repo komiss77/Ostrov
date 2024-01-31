@@ -1,8 +1,5 @@
 package ru.komiss77.listener;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,16 +40,12 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameSign;
 import ru.komiss77.modules.games.GameSignEditor;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.SignEditMenu;
-import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.ItemClickData;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.*;
+import ru.komiss77.utils.inventory.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.WeakHashMap;
 
 
 public class InteractLst implements Listener {
@@ -133,7 +126,8 @@ public class InteractLst implements Listener {
             }
         }
     }
-    
+
+//    private AfkBot bt = null;
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
     public void Interact (final PlayerInteractEvent e) {
@@ -153,6 +147,15 @@ public class InteractLst implements Listener {
             }).run(new ItemClickData(p, new InventoryClickEvent(p.getOpenInventory(), InventoryType.SlotType.CONTAINER, 0,
                 ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
         }
+
+        /*if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
+            PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
+            if (bt != null) {
+                bt.remove();
+            }
+            bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
+            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
+        }*/
 
         //паспорт
         if (ItemUtils.compareItem(inHand, passport, true)) { //посмотреть свой паспорт

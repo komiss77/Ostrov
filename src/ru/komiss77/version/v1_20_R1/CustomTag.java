@@ -1,33 +1,29 @@
 package ru.komiss77.version.v1_20_R1;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import javax.annotation.Nullable;
-import net.kyori.adventure.text.Component;
 import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.network.PacketDataSerializer;
+import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutMount;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.world.entity.EntityPose;
 import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
 import ru.komiss77.version.remapper.ReflectionRemapper;
+
+import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 //https://github.com/Owen1212055/CustomNames
 //https://github.com/jpenilla/reflection-remapper
@@ -36,35 +32,47 @@ import ru.komiss77.version.remapper.ReflectionRemapper;
 
 public class CustomTag {
 
-    private static final boolean SELF_VIEW = true; //удобно для отладки видеть свой тэг
-    protected boolean visible = true;
-    protected boolean replaceName = true;
+//    public static final boolean SELF_VIEW = true; //удобно для отладки видеть свой тэг
+//    пускай всегда будет вкл, пока что, чтоб люди видели как выглядит их тег
+    private static final byte flags = (/*shadow*/1 /*| seethrough 0*/) & /*background*/~4;
     @Nullable
-    private Component name;
-    private final WeakReference<Player> targetEntity;
-    private final int nametagEntityId;
+    private final WeakReference<LivingEntity> target;
+    private final boolean real;
+    private final int tagEntId;
+    private final int[] idArr;
     private final double passengerOffset;
-    private final float effectiveHeight;
-    private boolean targetEntitySneaking;
+//    private boolean replaceName = true;
+//    private boolean sneak = false;
+    private Predicate<Player> canSee = p -> true;
+    private IChatBaseComponent name;
+    private boolean visible = true;
 
-    public static DataWatcherObject DATA_SHARED_FLAGS_ID, DATA_POSE, DATA_CUSTOM_NAME, DATA_CUSTOM_NAME_VISIBLE, DATA_WIDTH_ID, DATA_HEIGHT_ID;
+//    public static DataWatcherObject<?> DATA_SHARED_FLAGS_ID, DATA_POSE,
+//            DATA_CUSTOM_NAME, DATA_CUSTOM_NAME_VISIBLE, DATA_WIDTH_ID, DATA_HEIGHT_ID;
+
+    private static final DataWatcherObject<?> DATA_POSE, DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
+        DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
 
     static {
-        ReflectionRemapper reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar();
-        DATA_SHARED_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_SHARED_FLAGS_ID");
+        final ReflectionRemapper reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar();
+//        DATA_SHARED_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_SHARED_FLAGS_ID");
         DATA_POSE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_POSE");
-        DATA_CUSTOM_NAME = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_CUSTOM_NAME");
-        DATA_CUSTOM_NAME_VISIBLE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_CUSTOM_NAME_VISIBLE");
-        DATA_WIDTH_ID = get(reflectionRemapper, Interaction.class, "DATA_WIDTH_ID");
-        DATA_HEIGHT_ID = get(reflectionRemapper, Interaction.class, "DATA_HEIGHT_ID");
+//        DATA_CUSTOM_NAME_VISIBLE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_CUSTOM_NAME_VISIBLE");
+        DATA_BILLBOARD_RENDER_CONSTRAINTS_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.class, "DATA_BILLBOARD_RENDER_CONSTRAINTS_ID");
+//        DATA_WIDTH_ID = get(reflectionRemapper, Interaction.class, "DATA_WIDTH_ID");
+//        DATA_HEIGHT_ID = get(reflectionRemapper, Interaction.class, "DATA_HEIGHT_ID");
+        DATA_TEXT_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_TEXT_ID");
+        DATA_LINE_WIDTH_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_LINE_WIDTH_ID");
+        DATA_BACKGROUND_COLOR_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_BACKGROUND_COLOR_ID");
+        DATA_STYLE_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_STYLE_FLAGS_ID");
     }
     
-    private static DataWatcherObject get(ReflectionRemapper reflectionRemapper, Class clazz, String name) {
+    private static DataWatcherObject<?> get(ReflectionRemapper reflectionRemapper, Class<?> clazz, String name) {
         try {
-            return (DataWatcherObject) MethodHandles
-                    .privateLookupIn(clazz, MethodHandles.lookup())
-                    .findStaticGetter(clazz, reflectionRemapper.remapFieldName(clazz, name), DataWatcherObject.class)
-                    .invoke();
+            return (DataWatcherObject<?>) MethodHandles
+                .privateLookupIn(clazz, MethodHandles.lookup())
+                .findStaticGetter(clazz, reflectionRemapper.remapFieldName(clazz, name), DataWatcherObject.class)
+                .invoke();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }
@@ -74,135 +82,138 @@ public class CustomTag {
 
 
     
-    public CustomTag(final Player entity) {
-        nametagEntityId = net.minecraft.world.entity.Entity.nextEntityId();//Bukkit.getUnsafe().nextEntityId();
-        targetEntity = new WeakReference<>(entity);//entity;
-        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entity).getHandle();
-        double ridingOffset = nmsEntity.bx();
-        double nametagOffset = (double) nmsEntity.df();
-        passengerOffset = ridingOffset; //= ridingOffset; 
-        effectiveHeight = (float) (-ridingOffset - 0.5D + nametagOffset);//-ridingOffset - 0.5D + nametagOffset;
+    public CustomTag(final LivingEntity ent) {
+        tagEntId = net.minecraft.world.entity.Entity.nextEntityId();//Bukkit.getUnsafe().nextEntityId();
+        idArr = new int[] {tagEntId};
+        target = new WeakReference<>(ent);//entity;
+        passengerOffset = ent.getHeight() * 0.75d; //= ridingOffset;
+        real = ent.isValid();
+        name = PaperAdventure.asVanilla(TCUtils.format(ent.getName() + "\n\n"));
     }
 
-    
-    public void content(Component name) {
-        this.name = name;
-        visible(true);//visible = true;
-        syncData();
+    /**Can contain \n for >1 lines*/
+    public void content(final String name) {
+        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
+        if (visible) sendTrackersPacket(spawnPacket());
     }
 
-    public void visible(boolean visible) {
-        //if (this.visible == visible) return;
-        this.visible = visible  && targetEntity.get()!=null;
+    /**Can contain \n for >1 lines*/
+    /*public void content(final String name, final @Nullable Boolean visible) {
+        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
+        visible(visible == null ? this.visible : visible);
+    }*/
+
+    public void visible(final boolean visible) {
+        this.visible = visible;
+        sendTrackersPacket(visible ? spawnPacket() : killPacket());
+    }
+
+    public void canSee(final Predicate<Player> canSee) {
+        this.canSee = canSee;
+        if (visible) sendTrackersPacket(spawnPacket());
+    }
+
+    public boolean canSee(final Player pl) {
+        return canSee.test(pl);
+    }
+
+    /*public void sneaking(final boolean sneak) {
+        this.sneak = sneak;
         if (visible) {
             sendTrackersPacket(initialSpawnPacket());
-        } else {
-            final Packet destroyPacket = new PacketPlayOutEntityDestroy(new int[]{nametagEntityId});
-            sendTrackersPacket(destroyPacket);
         }
-    }
+    }*/
 
-    public void replaceName(boolean replace) {
+    /*public void replaceName(boolean replace) {
         this.replaceName = replace;
-        if (visible && targetEntity.get()!=null) {
-            //final Packet destroyPacket = new PacketPlayOutEntityDestroy(new int[]{nametagEntityId});
-            //sendTrackersPacket(destroyPacket);
+        if (visible) {
             sendTrackersPacket(initialSpawnPacket());
         }
-    }
+    }*/
 
-    public void setTargetEntitySneaking(final boolean isSneaking) {
-        this.targetEntitySneaking = isSneaking;//targetEntitySneaking;
-        syncData();
-    }
+    private void sendTrackersPacket(final Packet<?> packet) {
+        final LivingEntity tgt = target.get();
+        if (tgt == null) return;
+        final PacketPlayOutEntityDestroy not = killPacket();
+        if (real) {
+            for (final Player p : tgt.getTrackedPlayers()) {
+                VM.getNmsServer().sendPacket(p, canSee.test(p) ? packet : not);
+            }
 
-    
-    
-    private void syncData() {
-        if (visible) {
-            final Packet syncDataPacket = syncDataPacket();
-            sendTrackersPacket(syncDataPacket);
+            if (tgt instanceof final Player pl)
+                VM.getNmsServer().sendPacket(pl, packet);
+        } else {
+            for (final Player p : tgt.getWorld().getPlayers()) {
+                VM.getNmsServer().sendPacket(p, canSee.test(p) ? packet : not);
+            }
         }
     }
 
-    private void sendTrackersPacket(final Packet packet) {
-        targetEntity.get().getTrackedPlayers().forEach(p -> {
-            VM.getNmsServer().sendPacket(p, packet);//(CraftPlayer) p).getHandle().c.a(packet);
-        });
-        if (SELF_VIEW) VM.getNmsServer().sendPacket(targetEntity.get(), packet);//((CraftPlayer)targetEntity.get()).getHandle().c.a(packet);
-    }
-    
-    
     public void showTo(final Player p) {
-        if (visible && targetEntity.get()!=null) {
-            VM.getNmsServer().sendPacket(p, initialSpawnPacket());
+        if (visible && canSee.test(p)) {
+            VM.getNmsServer().sendPacket(p, spawnPacket());
         }
     }
 
-    public void hideFor(final Player p) {
-//Ostrov.log("hide "+" for "+p.getName());
-        final Packet destroyPacket = new PacketPlayOutEntityDestroy(new int[]{nametagEntityId});
-        VM.getNmsServer().sendPacket(p, destroyPacket);
+    public void hideTo(final Player p) {
+        VM.getNmsServer().sendPacket(p, killPacket());
     }
    
     
     
     
-    private Packet initialSpawnPacket() {
-        final Location location = targetEntity.get().getLocation();
-        final  Packet spawnPacket = new PacketPlayOutSpawnEntity(
-                nametagEntityId, 
+    public ClientboundBundlePacket spawnPacket() {
+        final LivingEntity tgt = target.get();
+        if (tgt == null) return new ClientboundBundlePacket(List.of());
+
+        final Location location = tgt.getLocation();
+        final PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(
+                tagEntId,
                 UUID.randomUUID(), 
                 location.x(),
                 location.y() + passengerOffset,
                 location.z(), 
                 0.0F, 
                 0.0F, 
-                EntityTypes.ab, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
+                EntityTypes.aX, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
                 0, 
                 Vec3D.b, 
                 0.0D
         );
         
-        final  PacketPlayOutEntityMetadata initialCreatePacket = new PacketPlayOutEntityMetadata(
-                nametagEntityId,
-                List.of(ofData(DATA_WIDTH_ID, 0.0F), 
-                        //ofData(DATA_HEIGHT_ID, effectiveHeight), //(float) или крашит клиент!!
-                        ofData(DATA_HEIGHT_ID, replaceName ? effectiveHeight - 0.4f : effectiveHeight), //(float) или крашит клиент!!
-                        ofData(DATA_POSE, EntityPose.i), 
-                        ofData(DATA_CUSTOM_NAME_VISIBLE, true)
-                )
+        final PacketPlayOutEntityMetadata initialCreatePacket = new PacketPlayOutEntityMetadata(
+            tagEntId,
+            List.of(ofData(DATA_POSE, EntityPose.i),
+                ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
         );
         
-        final  Packet syncDataPacket = syncDataPacket();
+        final PacketPlayOutEntityMetadata syncDataPacket = syncPacket();
         
         final PacketDataSerializer buf = new PacketDataSerializer(Unpooled.buffer());
-        buf.d(targetEntity.get().getEntityId());
-        buf.a(new int[]{nametagEntityId});
-        final  Packet mountPacket =  new PacketPlayOutMount(buf);
-        
-        final  PacketPlayOutEntityMetadata afterCreateData = new PacketPlayOutEntityMetadata(
-                nametagEntityId,
-                List.of(ofData(DATA_HEIGHT_ID, 1.0E8F))
-        );
+        buf.d(tgt.getEntityId());
+        buf.a(idArr);
+        final PacketPlayOutMount mountPacket = new PacketPlayOutMount(buf);
 
         return new ClientboundBundlePacket(
-                List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket, afterCreateData)
+            List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)
         );
     }
 
-    
-    private Packet syncDataPacket() {
-        final ArrayList data = new ArrayList();
-        data.add(ofData(DATA_CUSTOM_NAME, Optional.ofNullable(PaperAdventure.asVanilla(name))));
-        data.add(ofData(DATA_SHARED_FLAGS_ID, targetEntitySneaking ? (byte)2 : (byte)0)); //(byte) не убирать!!
-//data.add(ofData(DATA_HEIGHT_ID, replaceName ? effectiveHeight - 0.3f : effectiveHeight)); //float или крашит клиент!!
-        return new PacketPlayOutEntityMetadata(nametagEntityId, data);
+    public PacketPlayOutEntityMetadata syncPacket() {
+        return new PacketPlayOutEntityMetadata(tagEntId,
+            List.of(ofData(DATA_TEXT_ID, name),
+//                ofData(DATA_SHARED_FLAGS_ID, (byte) (sneak ? 2 : 0)), //(byte) не убирать!!
+                ofData(DATA_LINE_WIDTH_ID, 1000),
+                ofData(DATA_STYLE_FLAGS_ID, flags),
+                ofData(DATA_BACKGROUND_COLOR_ID, 1)));
     }
 
+    public PacketPlayOutEntityDestroy killPacket() {
+        return new PacketPlayOutEntityDestroy(idArr);
+    }
 
-
-    private static DataWatcher.b ofData(DataWatcherObject data, Object value) {
+    @SuppressWarnings("rawtypes")
+    private static DataWatcher.b<?> ofData(DataWatcherObject<?> data, Object value) {
         return (new DataWatcher.Item(data, value)).e();
     }
 

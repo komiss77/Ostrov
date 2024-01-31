@@ -3,8 +3,6 @@ package ru.komiss77.listener;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
-import java.util.ArrayList;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -23,28 +21,15 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
-import ru.komiss77.LocalDB;
-import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
+import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.events.FriendTeleportEvent;
@@ -60,12 +45,15 @@ import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.VM;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class PlayerLst implements Listener {
 
     private static final CaseInsensitiveMap <String> bungeeDataCache;
     public static boolean PREPARE_RESTART;
-    
+
     static {
         bungeeDataCache = new CaseInsensitiveMap<>();
     }
@@ -78,7 +66,7 @@ public class PlayerLst implements Listener {
         }
     }
 
-    
+
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.LOW )
     public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
         //final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
@@ -92,7 +80,6 @@ public class PlayerLst implements Listener {
         }
     }
 
-    
     //вызывается из SpigotChanellMsg
     public static void onBungeeData(final String name, final String raw) { 
         final Player p = Bukkit.getPlayerExact(name);
@@ -183,7 +170,7 @@ public class PlayerLst implements Listener {
                 LocalDB.saveLocalData(p, op);
             }
     	}
-        op.customTag.visible(false);
+        op.tag.visible(false);
         op.score.remove();
     }
     
@@ -191,59 +178,78 @@ public class PlayerLst implements Listener {
     
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void toggleSneak(PlayerToggleSneakEvent e) {
+    public void toggleSneak(final PlayerToggleSneakEvent e) {
         if (!e.getPlayer().isInsideVehicle()) {
-            PM.getOplayer(e.getPlayer()).customTag.setTargetEntitySneaking(e.isSneaking());
+            PM.getOplayer(e.getPlayer()).tag.visible(!e.isSneaking());
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void startTrack(PlayerTrackEntityEvent e) {
-        if (e.getEntity().getType()!=EntityType.PLAYER) return;
+    public void startTrack(final PlayerTrackEntityEvent e) {
+        if (!e.getEntity().getType().isAlive()) return;
+        final Player p = e.getPlayer();
+        final Oplayer trackerOp = PM.getOplayer(p.getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
         final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //UpperName cn = nameStorage.get(event.getEntity().getUniqueId());
-        final Oplayer trackerOp = PM.getOplayer(e.getPlayer().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
-//Ostrov.log("startTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
         if (targetOp != null) {
             Ostrov.sync(() -> {
-                targetOp.customTag.showTo(e.getPlayer());
-                targetOp.score.startTrack(e.getPlayer().getName());
-                if (trackerOp != null) {
-                    trackerOp.score.startTrack(e.getEntity().getName());
-                }
+                targetOp.tag.showTo(p);
+                targetOp.score.startTrack(p.getName());
+                trackerOp.score.startTrack(e.getEntity().getName());
             }, 1);
         }
+
+        /*final BotEntity be = BotManager.getBot(e.getEntity().getEntityId(), BotEntity.class);//не працюе
+        if (be != null) {
+            Ostrov.sync(() -> {
+                p.sendMessage("sent for " + be.name());
+                be.tag.showTo(p);
+                be.score.startTrack(p.getName());
+                trackerOp.score.startTrack(be.name());
+            }, 1);
+        }*/
     }
 //после респавне не меняется
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void stopTrack(PlayerUntrackEntityEvent e) {
-        if (e.getEntity().getType()!=EntityType.PLAYER) return;
+    public void stopTrack(final PlayerUntrackEntityEvent e) {
+        if (!e.getEntity().getType().isAlive()) return;
+        final Player p = e.getPlayer();
+        final Oplayer trackerOp = PM.getOplayer(p.getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
         final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
-//Ostrov.log("stopTrack "+e.getPlayer().getName()+" -> "+e.getEntity().getName()+" targetOp="+targetOp);
         if (targetOp != null) {
-            targetOp.customTag.hideFor(e.getPlayer());
-            targetOp.score.stopTrack(e.getPlayer().getName());
+            targetOp.tag.hideTo(p);
+            targetOp.score.stopTrack(p.getName());
+            if (trackerOp != null) {
+                trackerOp.score.stopTrack(e.getEntity().getName());
+            }
         }
-        final Oplayer trackerOp = PM.getOplayer(e.getPlayer().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
-        if (trackerOp != null) {
-            trackerOp.score.stopTrack(e.getEntity().getName());
-        }
+
+        /*final BotEntity be = BotManager.getBot(e.getEntity().getEntityId(), BotEntity.class);
+        if (be != null) {
+            Ostrov.sync(() -> {
+                be.tag.hideTo(p);
+                be.score.stopTrack(p.getName());
+                if (trackerOp != null) {
+                    trackerOp.score.stopTrack(be.name());
+                }
+            }, 1);
+        }*/
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void mountEntity(EntityMountEvent e) {
+    public void mountEntity(final EntityMountEvent e) {
         final Oplayer op = PM.getOplayer(e.getMount().getUniqueId()); //UpperName cn = nameStorage.get(event.getMount().getUniqueId());
         if (op != null) {
-            op.customTag.visible(false);
+//            op.tag.visible(false);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void dismountEntity(EntityDismountEvent e) {
+    public void dismountEntity(final EntityDismountEvent e) {
         if (e.getDismounted().getPassengers().size() == 1) {
             final Oplayer op = PM.getOplayer(e.getDismounted().getUniqueId()); //UpperName cn = nameStorage.get(event.getDismounted().getUniqueId());
             if (op!=null) {
                 // Run 2 ticks later, we need to ensure that the game sends the packets to update the passengers.
-                Ostrov.sync(() -> op.customTag.visible(true), 2);
+//                Ostrov.sync(() -> op.tag.visible(true), 2);
             }
         }
     }
@@ -300,7 +306,7 @@ public class PlayerLst implements Listener {
         
     @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent e) {
-        if ( e.getRemover()!=null && e.getRemover().getType()==EntityType.PLAYER && PM.exist(e.getRemover().getName())) {
+        if (e.getRemover().getType() == EntityType.PLAYER && PM.exist(e.getRemover().getName())) {
                 if ( Config.disable_break_place &&  !ApiOstrov.isLocalBuilder(e.getRemover()) ) e.setCancelled(true);
         } 
 
@@ -414,21 +420,21 @@ public class PlayerLst implements Listener {
         
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-            final Oplayer op = PM.getOplayer(e.getPlayer());
-            if(op==null) return;
-            
-            if (Config.home_command && op.homes.containsKey("home")) {
-                final Player p = e.getPlayer();
-                Location loc = LocationUtil.LocFromString(op.homes.get("home"));
-                if (!TeleportLoc.isSafeLocation(loc)) {
-                    loc = TeleportLoc.findNearestSafeLocation(loc, null);
-                }
-                if (loc==null) {
-                    p.sendMessage("§7Не получилось респавниться дома - точка дома может быть опасна.");
-                } else {
-                    e.setRespawnLocation(loc);
-                }
+        final Oplayer op = PM.getOplayer(e.getPlayer());
+        if(op==null) return;
+
+        if (Config.home_command && op.homes.containsKey("home")) {
+            final Player p = e.getPlayer();
+            Location loc = LocationUtil.LocFromString(op.homes.get("home"));
+            if (!TeleportLoc.isSafeLocation(loc)) {
+                loc = TeleportLoc.findNearestSafeLocation(loc, null);
             }
+            if (loc==null) {
+                p.sendMessage("§7Не получилось респавниться дома - точка дома может быть опасна.");
+            } else {
+                e.setRespawnLocation(loc);
+            }
+        }
         
         if (op.pvp_time>0) {
             Ostrov.sync(()-> {
@@ -436,7 +442,8 @@ public class PlayerLst implements Listener {
             }, 5);
         }
 
-        
+        //if (CustomTag.SELF_VIEW)
+        Ostrov.sync(() -> op.tag.showTo(e.getPlayer()), 4);
     }      
     
     

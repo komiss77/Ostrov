@@ -107,7 +107,7 @@ public class PM {
     }
     
     public static Oplayer getOplayer(final HumanEntity p) {
-        return oplayersByUuid.get(p.getUniqueId());
+        return getOplayer(p.getUniqueId());
     }    
     
     public static Oplayer getOplayer(final UUID uuid) {
@@ -120,7 +120,11 @@ public class PM {
     }
 
     public static <O extends Oplayer> O getOplayer(final HumanEntity p, final Class<O> cls) {
-        return cls.cast(oplayersByUuid.get(p.getUniqueId()));
+        return getOplayer(p.getUniqueId(), cls);
+    }
+
+    public static <O extends Oplayer> O getOplayer(final UUID uuid, final Class<O> cls) {
+        return cls.cast(oplayersByUuid.get(uuid));
     }
     
     public static boolean exist (final String nik) {
@@ -224,7 +228,7 @@ public class PM {
         op.updateGender();
         
         //op.updScore();
-        op.beforName(null, p);
+        op.beforeName(null, p);
         //op.updTabListName(p);
         //op.tag("",  "");
         //if (op.isGuest) {
