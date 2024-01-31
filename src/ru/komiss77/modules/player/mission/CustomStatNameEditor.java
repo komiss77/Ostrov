@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.mission;
 
-
 import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,14 +17,10 @@ import ru.komiss77.utils.inventory.SlotPos;
 import ru.komiss77.version.AnvilGUI;
 
 
-
-
-
-public class RemappingName implements InventoryProvider {
+public class CustomStatNameEditor implements InventoryProvider {
     
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
     
-
     
     @Override
     public void init(final Player p, final InventoryContent content) {
@@ -41,7 +36,14 @@ public class RemappingName implements InventoryProvider {
             
             final boolean showAmmount = MissionManager.customStatsShowAmmount.get(name);
 //Bukkit.broadcastMessage("key="+name+" val="+MissionManager.customStatsDisplayNames.get(name));
-            menuEntry.add(ClickableItem.of(new ItemBuilder(name.equals(TCUtils.stripColor(MissionManager.customStatsDisplayNames.get(name))) ? Material.GUNPOWDER : Material.NAME_TAG)
+            final Material mat;// = MissionManager.customStatsDisplayNames.containsKey(name) ? MissionManager.customStatMat(name): Material.GUNPOWDER;
+            if ( name.equals(TCUtils.stripColor(MissionManager.customStatsDisplayNames.get(name))) ) {
+                mat = Material.GUNPOWDER;
+            } else {
+                mat = MissionManager.customStatMat(name);
+            }
+            
+            menuEntry.add(ClickableItem.of(new ItemBuilder(mat)
                     .name("§7значение String:§f "+name)
                     .setAmount(showAmmount ? 2 : 1)
                     .addLore("§7")

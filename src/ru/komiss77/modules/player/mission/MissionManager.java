@@ -705,7 +705,17 @@ public class MissionManager {
     
     
     
-    
+
+    public static Material customStatMat(final String customStatName) {
+        if (customStatName.length()>=4) {
+            final Game game = Game.fromServerName(customStatName.substring(0, 4));
+            if (game!=Game.GLOBAL) {
+                return Material.matchMaterial(game.mat);
+            }
+        }
+        return Material.NAME_TAG;
+    }
+        
     
     
     

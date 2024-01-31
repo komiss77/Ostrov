@@ -130,7 +130,7 @@ public class MissionSetupMenu implements InventoryProvider {
 
         
         final Pagination pagination = content.pagination();
-        pagination.setItems(buttons.toArray(new ClickableItem[buttons.size()]));
+        pagination.setItems(buttons.toArray(ClickableItem[]::new));
         pagination.setItemsPerPage(36);    
 
 
@@ -174,7 +174,7 @@ public class MissionSetupMenu implements InventoryProvider {
             .build(), e-> {
                 SmartInventory.builder()
                     .id("Редактор названий customStat")
-                    .provider(new RemappingName())
+                    .provider(new CustomStatNameEditor())
                     .size(6, 9)
                     .title("Редактор названий customStat")
                     .build()

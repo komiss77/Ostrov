@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.mission;
 
-
 import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,16 +17,10 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-
-
-
 public class RequestSelect implements InventoryProvider {
-    
-    
     
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
     private final Mission mi;
-    
 
     
     public RequestSelect(final Mission mission) {
@@ -41,7 +34,6 @@ public class RequestSelect implements InventoryProvider {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
         
 
-        
         
         //линия - разделитель
         content.fillRow(5, fill);
@@ -80,7 +72,7 @@ public class RequestSelect implements InventoryProvider {
         }));
                     
         for (String name : MissionManager.customStatsDisplayNames.keySet()) {
-            menuEntry.add(ClickableItem.of(new ItemBuilder(Material.NAME_TAG)
+            menuEntry.add(ClickableItem.of(new ItemBuilder(MissionManager.customStatMat(name))
                 .name("§7локальное требование")
                 .addLore("§f"+name)
                 .addLore("")
@@ -103,15 +95,10 @@ public class RequestSelect implements InventoryProvider {
                     
         for (Stat stat : Stat.values()) {
             switch (stat) {
-                case EXP:
-                case FLAGS:
-                case KARMA:
-                case LEVEL:
-                case PLAY_TIME:
-                case REPUTATION:
+                case EXP, FLAGS, KARMA, LEVEL, PLAY_TIME, REPUTATION -> {
                     continue;
-				default:
-					break;
+                }
+                default -> {}
             }
             menuEntry.add(ClickableItem.of(new ItemBuilder(Material.matchMaterial(stat.game.mat))
                 .name("§f"+stat.name())

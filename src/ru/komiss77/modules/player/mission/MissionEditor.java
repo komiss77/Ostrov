@@ -5,8 +5,10 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtils;
@@ -109,8 +111,8 @@ public class MissionEditor implements InventoryProvider {
             .addLore("§fТолько название,")
             .addLore("§fбез цвета!")
             .build(), mi.name, newName -> {
-                if(newName.length()>20 ) {
-                    p.sendMessage("§cСлишком длинное название! (лимит20)");
+                if(newName.length()>32 ) {
+                    p.sendMessage("§cСлишком длинное название! (лимит32)");
                     PM.soundDeny(p);
                 } else {
                     mi.name = TCUtils.stripColor(newName);
@@ -145,30 +147,7 @@ public class MissionEditor implements InventoryProvider {
                 }
         }));
 
-      /*  content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE)
-            .name("§7Цвет названия")
-            .addLore(TCUtils.format(mi.nameColor + "ТИПА НАЗВАНИЕ"))
-            .addLore("§7ЛКМ - менять цвет +")
-            .addLore("§7ПКМ - менять цвет -")
-            .addLore("§7")
-            .build(), e -> {
-                if (e.isLeftClick()) {
-                    //final ArrayList<NamedTextColor> ccs = new ArrayList<>(NamedTextColor.NAMES.values());
-                    final int current = TCUtils.ccs.indexOf(mi.nameColor) + 1;
-                    mi.nameColor = ccs.get(current<ccs.size() ? current : 0);
-                    mi.changed=true;
-                    reopen(p, content);
-                } else if (e.isRightClick()) {
-                    //final ArrayList<NamedTextColor> ccs = new ArrayList<>(NamedTextColor.NAMES.values());
-                    final int current = ccs.indexOf(mi.nameColor) + 1;
-                    mi.nameColor = ccs.get(current<ccs.size() ? current : 0);
-                    mi.changed = true;
-                    reopen(p, content);
-                }
-            }));  */          
-        
-        
-        
+
 
 
         content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.GOLD_INGOT)
@@ -377,7 +356,7 @@ public class MissionEditor implements InventoryProvider {
             displayName = MissionManager.customStatsDisplayNames.containsKey(requestName)?MissionManager.customStatsDisplayNames.get(requestName):requestName;
             showAmmount = MissionManager.customStatsShowAmmount.containsKey(requestName)?MissionManager.customStatsShowAmmount.get(requestName):true;
             
-            content.set(slot, ClickableItem.of(new ItemBuilder(Material.BOOK)
+            content.set(slot, ClickableItem.of(new ItemBuilder(MissionManager.customStatMat(requestName))
                 .name("§7Требование: §6customStat")
                 .addLore("§7значение String: §f"+requestName)
                 .addLore(showAmmount ? "§7колличество: §f"+currentAmmount : "§8колличество скрыто")
@@ -394,60 +373,61 @@ public class MissionEditor implements InventoryProvider {
                 .build(), e -> {
                     mi.changed = true;
                     switch (e.getClick()) {
-                        case LEFT:
+                        case LEFT -> {
                             SmartInventory.builder()
-                                .id("Выбор требования")
-                                .provider(new RequestSelect(mi))
-                                .size(6, 9)
-                                .title("Выбор требования")
-                                .build()
-                                .open(p);
+                                    .id("Выбор требования")
+                                    .provider(new RequestSelect(mi))
+                                    .size(6, 9)
+                                    .title("Выбор требования")
+                                    .build()
+                                    .open(p);
                             return;
-                        case SHIFT_LEFT:
+                        }
+                        case SHIFT_LEFT -> {
                             new AnvilGUI.Builder()
-                                .title("от 0 до 10000")
-                                .text("1")
-                                .onComplete( (p1, msg) -> {
-                                    if (!ApiOstrov.isInteger(msg)) {
-                                        p.sendMessage("§cДолжно быть число!");
+                                    .title("от 0 до 10000")
+                                    .text("1")
+                                    .onComplete( (p1, msg) -> {
+                                        if (!ApiOstrov.isInteger(msg)) {
+                                            p.sendMessage("§cДолжно быть число!");
+                                            return AnvilGUI.Response.text("");
+                                        }
+                                        final int value = Integer.parseInt(msg);
+                                        if (value<0 || value>10000) {
+                                            p.sendMessage("§cот 0 до 10000!");
+                                            return AnvilGUI.Response.text("");
+                                        }
+                                        mi.request.replace(requestName, value);
+                                        reopen(p, content);
                                         return AnvilGUI.Response.text("");
-                                    }
-                                    final int value = Integer.valueOf(msg);
-                                    if (value<0 || value>10000) {
-                                        p.sendMessage("§cот 0 до 10000!");
-                                        return AnvilGUI.Response.text("");
-                                    }
-                                    mi.request.replace(requestName, value);
-                                    reopen(p, content);
-                                    return AnvilGUI.Response.text(""); 
-                                })
-                                .open(p);
+                                    })
+                                    .open(p);
                             return;
-                        case RIGHT:
+                        }
+                        case RIGHT -> {
                             if (mi.request.get(requestName)<10000) {
                                 mi.request.replace(requestName, mi.request.get(requestName)+1);
                                 reopen(p, content);
                             }
-                            break;
-                        case SHIFT_RIGHT:
+                        }
+                        case SHIFT_RIGHT -> {
                             if (mi.request.get(requestName)>1) {
                                 mi.request.replace(requestName, mi.request.get(requestName)-1);
                                 reopen(p, content);
                             }
-                            break;
-                        case DROP:
+                        }
+                        case DROP -> {
                             mi.request.remove(requestName);
                             reopen(p, content);
-                            break;
-						default:
-							break;
+                        }
+                        default -> {}
                     }
                     //reopen(p, content);
             }));
             
         } else {
             
-            content.set(slot, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
+            content.set(slot, ClickableItem.of(new ItemBuilder(Material.matchMaterial(stat.game.mat))
                 .name("§7Требование: §3стата §b"+requestName)
                 .addLore("§7Игра: "+stat.game.displayName)
                 .addLore("")
@@ -462,33 +442,33 @@ public class MissionEditor implements InventoryProvider {
                 .build(), e -> {
                     mi.changed = true;
                     switch (e.getClick()) {
-                        case LEFT:
+                        case LEFT -> {
                             SmartInventory.builder()
-                                .id("Выбор требования")
-                                .provider(new RequestSelect(mi))
-                                .size(6, 9)
-                                .title("Выбор требования")
-                                .build()
-                                .open(p);
+                                    .id("Выбор требования")
+                                    .provider(new RequestSelect(mi))
+                                    .size(6, 9)
+                                    .title("Выбор требования")
+                                    .build()
+                                    .open(p);
                             return;
-                        case RIGHT:
+                        }
+                        case RIGHT -> {
                             if (mi.request.get(requestName)<100) {
                                 mi.request.replace(requestName, mi.request.get(requestName)+1);
                                 reopen(p, content);
                             }
-                            break;
-                        case SHIFT_RIGHT:
+                        }
+                        case SHIFT_RIGHT -> {
                             if (mi.request.get(requestName)>1) {
                                 mi.request.replace(requestName, mi.request.get(requestName)-1);
                                 reopen(p, content);
                             }
-                            break;
-                        case DROP:
+                        }
+                        case DROP -> {
                             mi.request.remove(requestName);
                             reopen(p, content);
-                            break;
-						default:
-							break;
+                        }
+                    default -> {}
                     }
                     //reopen(p, content);
             }));
@@ -624,7 +604,7 @@ public class MissionEditor implements InventoryProvider {
         
 
     }
-    
+
     
         
 }

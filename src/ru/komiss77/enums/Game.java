@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 // !!!!!!!  не ставить ничего от бакита, не грузит банжик!!!
@@ -130,16 +131,16 @@ public enum Game {
         
         //прямой поиск
         Game game = nameMap.get(serverName);
-//Ostrov.log_warn("serverName="+serverName+" game="+game);
+//Ostrov.log_warn("1 serverName="+serverName+" game="+game);
         if (game!=null) return game;
         
         //не получился прямой - обработка имени
-        serverName = serverName.toLowerCase();
+        //serverName = serverName.toLowerCase();
         if (serverName.length()==4) { //bw01 bb01 sg02 обрезать до bw bb sg
             serverName = serverName.substring(0, 2);
         }
-        game = nameMap.get(serverName); //прямой поиск
-//Ostrov.log_warn("serverName="+serverName+" game="+game);
+        game = nameMap.get(serverName);
+//Ostrov.log_warn("2 serverName="+serverName+"game="+game);
         if (game!=null) return game;
         
         if (serverName.startsWith("sedna_")) {
