@@ -10,14 +10,19 @@ import ru.komiss77.notes.ThreadSafe;
 
 //https://www.spigotmc.org/resources/nametagedit.3836/
 
+@Deprecated
 public interface INameTag {
+@Deprecated
 	@ThreadSafe
 	void updateTag(final Oplayer op, final Player to);
+@Deprecated
 	@ThreadSafe
 	void updateTag(final Oplayer op,  final Collection<? extends Player> to);
+@Deprecated
 	@ThreadSafe
 	void updateTag(final String name, final String pfx, final String sfx, 
 		final char clr, final Player to, final Predicate<Player> canSee);
+@Deprecated
 	@ThreadSafe
 	void updateTag(final String name, final String pfx, final String sfx, 
 		final char clr, final Collection<? extends Player> to, final Predicate<Player> canSee);

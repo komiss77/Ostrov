@@ -1,5 +1,8 @@
 package ru.komiss77.modules.player;
 
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -34,12 +37,9 @@ import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
-import ru.komiss77.version.v1_20_R1.CustomTag;
+import ru.komiss77.objects.CustomTag;
 import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
 
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
 
 
 public class Oplayer {
@@ -93,6 +93,11 @@ public class Oplayer {
         tag(tagPrefix, tagSuffix);
     }
   
+    @Deprecated
+    public void beforName(@Nullable final String beforeName, final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
+    	beforeName(beforeName, p);
+    }
+
     
     
     
@@ -185,9 +190,9 @@ public class Oplayer {
         firstJoin = (isGuest = nik.startsWith("guest_"));
         score = new CustomScore((Player) p);
         tag = new CustomTag(p);
-        tag(tagPreffix, ChatLst.NIK_COLOR, tagSuffix);
+        Oplayer.this.tag(tagPreffix, tagSuffix);
         packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
-    	VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
+    	//VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
     
     
@@ -221,7 +226,7 @@ public class Oplayer {
                     final Title t = delayTitles.remove(0);
                     p.showTitle(t);
                     final Title.Times tm = t.times();
-                    nextTitle = tm.fadeIn().toSecondsPart()+tm.stay().toSecondsPart()+tm.fadeOut().toSecondsPart() + 1;
+                    nextTitle = tm==null ? 0 : tm.fadeIn().toSecondsPart()+tm.stay().toSecondsPart()+tm.fadeOut().toSecondsPart() + 1;
                 }
             }
         }
@@ -281,16 +286,10 @@ public class Oplayer {
     }
     
     public boolean isPartyLeader() {
-//System.out.println("** isPartyLeader() party_members="+party_members+"  party_leader="+party_leader+" nik="+nik);
         return !party_members.isEmpty() && party_leader.equals(nik);
     }
 
 
-
-    @Deprecated
-    public void beforName(@Nullable final String beforeName, final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
-    	beforeName(beforeName, p);
-    }
 
     public void beforeName(@Nullable final String beforeName, final Player p) { //назвал так, поточто пвп режим, например, ставит "§c⚔ §4"
         this.beforeName = beforeName == null || beforeName.isBlank() ? ChatLst.NIK_COLOR : beforeName;
@@ -347,7 +346,7 @@ public class Oplayer {
                 ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
             }
     	}
-        if (giveTag) beforName("§4⚔ ", p);
+        if (giveTag) beforeName("§4⚔ ", p);
         pvp_time = time;
     }
     
@@ -363,7 +362,7 @@ public class Oplayer {
                 default -> allow_fly;
             });
     	}
-        if (giveTag) beforName(null, p);
+        if (giveTag) beforeName(null, p);
     }
     
     public String getDataString(final Data data) {

@@ -46,26 +46,31 @@ import ru.komiss77.version.INameTag;
     a,      b,          c,          d,           e,         f,      g,       h,     i,      j,      k,   l,    m,       n,          o,     p,       q,        r,        s,           t,        u,    v;
     BLACK, DARK_BLUE, DARK_GREEN, DARK_AQUA, DARK_RED, DARK_PURPLE, GOLD, GRAY, DARK_GRAY, BLUE, GREEN, AQUA, RED, LIGHT_PURPLE, YELLOW, WHITE, OBFUSCATED, BOLD, STRIKETHROUGH, UNDERLINE, ITALIC, RESET;
  */
+@Deprecated
 public class NameTag implements INameTag {
 
-    @Override
+ @Deprecated
+   @Override
     public void updateTag(final Oplayer op, final Player to) {
         //updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())),
          //       op.tagSuffix(), op.nameColor().charAt(1), to, p -> op.isTagVis(p));
     }
 
+@Deprecated
     @Override
     public void updateTag(final Oplayer op, final Collection<? extends Player> toPlayers) {
         //updateTag(op.nik, op.tagPrefix().append(TCUtils.format(op.nameColor())),
          //       op.tagSuffix(), op.nameColor().charAt(1), toPlayers, p -> op.isTagVis(p));
     }
 
+@Deprecated
     @Override
     public void updateTag(final String name, final String pfx, final String sfx,
             final char clr, final Player to, final Predicate<Player> canSee) {
        // updateTag(name, TCUtils.format(pfx), TCUtils.format(sfx), clr, to, canSee);
     }
 
+@Deprecated
     @Override
     public void updateTag(final String name, final String pfx, final String sfx,
             final char clr, final Collection<? extends Player> toPlayers, final Predicate<Player> canSee) {

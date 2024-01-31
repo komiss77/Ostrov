@@ -107,7 +107,7 @@ public class VM {
     public static IEntityGroup getNmsEntitygroup() {
         return nmsEntGroup;
     }
-
+    @Deprecated
     public static INameTag getNmsNameTag() {
         return nmsNameTag;
     }

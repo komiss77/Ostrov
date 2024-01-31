@@ -32,7 +32,7 @@ import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
-import ru.komiss77.version.v1_20_R1.CustomTag;
+import ru.komiss77.objects.CustomTag;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
