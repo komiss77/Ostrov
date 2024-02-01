@@ -36,10 +36,13 @@ import ru.komiss77.Timer;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.BsignLocalArenaClick;
+import ru.komiss77.modules.bots.AfkBot;
+import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameSign;
 import ru.komiss77.modules.games.GameSignEditor;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 
@@ -127,7 +130,7 @@ public class InteractLst implements Listener {
         }
     }
 
-//    private AfkBot bt = null;
+    private AfkBot bt = null;
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
     public void Interact (final PlayerInteractEvent e) {
@@ -148,14 +151,14 @@ public class InteractLst implements Listener {
                 ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
         }
 
-        /*if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
+        if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
             PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
             if (bt != null) {
                 bt.remove();
             }
             bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
-            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
-        }*/
+//            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
+        }
 
         //паспорт
         if (ItemUtils.compareItem(inHand, passport, true)) { //посмотреть свой паспорт

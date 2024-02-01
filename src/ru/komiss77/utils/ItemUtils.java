@@ -134,7 +134,7 @@ public class ItemUtils {
         return skullMeta;
     }
 
-    public static enum Texture {
+    public enum Texture {
         nextPage("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516"),
         previosPage("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc"),
         add("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19"),
@@ -158,7 +158,7 @@ public class ItemUtils {
 
         public final String texture;
 
-        private Texture(final String texture) {
+        Texture(final String texture) {
             this.texture = texture;
         }
     }
@@ -285,40 +285,22 @@ public class ItemUtils {
     }
 
     public static boolean giveItemTo(final Player p, final ItemStack item, final int pos, final boolean force) {  //просто выдать в нужный слот
-
         final PlayerInventory inv = p.getInventory();
 
-        //System.out.println("Выдаём "+item.getType()+" contains:"+inv.contains(item)+" duplicate:"+duplicate+"  >>> "+(inv.contains(item) && !duplicate));   
         final ItemStack there = inv.getItem(pos);
         if (isBlank(there, false)) {                                        //если требуемая позиция пустая, 
             inv.setItem(pos, item);                                            //ставим предмет и возврат
-            p.updateInventory();
             return true;
         } else if (force) {
             inv.setItem(pos, item);                                            //ставим предмет и возврат
-            p.updateInventory();
             giveItemsTo(p, there);
             return true;
+        } else if (compareItem(there, item, false)) {//уже есть в слоту
+            return true;
         } else {
-            p.getWorld().dropItemNaturally(p.getLocation(), item);      //кидаем предмет рядом
+            giveItemsTo(p, item);//кидаем предмет рядом
             return false;
         }
-        /*//System.out.println("2222");
-        //if (!found && !anycase) return false;                                       //если не найден и не принудительно, отказ
-        //ItemStack current = inv.getItem(position);                                  //берём предмет с требуемой позиции
-        if (found) {                                                                //если место было найдено,
-    //System.out.println("444 "+position+"  "+item);
-            //inv.setItem(empty_pos, inv.getItem(position));                                        //переносим 
-            inv.setItem(empty_pos, item);                                            //в нужный слот ставим предмет
-            p.updateInventory();
-            return true;                                                            //дело сделано
-        } else {                                                                    //если пустое место не найдено
-            p.getWorld().dropItemNaturally(p.getLocation(), item.clone());      //кидаем предмет рядом
-            //p.sendMessage("§4В Вашем инвентаре не было места, Дух Острова бросил выдаваемый предмет рядом!");
-            return false;                                                       //если не принудительно, отказ
-            
-
-        }*/
     }
 
     public static boolean getItems(Player player, int count, Material mat) {
@@ -540,7 +522,7 @@ public class ItemUtils {
             left = true;
         }
         if (left) {
-            p.sendMessage("§4В Вашем инвентаре не было места, Дух Острова бросил занятый слот рядом!");
+            ApiOstrov.sendActionBarDirect(p, "§4В твоем инвентаре не было места, предмет выпал рядом!");
         }
     }
     
@@ -1307,6 +1289,7 @@ public class ItemUtils {
                 case END_MIDLANDS -> builder.setType(Material.END_STONE_BRICKS);
                 case ERODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
                 case FLOWER_FOREST -> builder.setType(Material.ROSE_BUSH);
+                case WINDSWEPT_HILLS -> builder.setType(Material.GRANITE);
                 case FOREST -> builder.setType(Material.DARK_OAK_LOG);
                 case FROZEN_OCEAN -> builder.setType(Material.PACKED_ICE);
                 case FROZEN_RIVER -> builder.setType(Material.LIGHT_BLUE_DYE);
@@ -1315,6 +1298,7 @@ public class ItemUtils {
                 case LUKEWARM_OCEAN -> builder.setType(Material.LIGHT_BLUE_CONCRETE_POWDER);
                 case OCEAN -> builder.setType(Material.WATER_BUCKET);
                 case PLAINS -> builder.setType(Material.GRASS_BLOCK);
+                case MANGROVE_SWAMP -> builder.setType(Material.MANGROVE_ROOTS);
                 case RIVER -> builder.setType(Material.BLUE_DYE);
                 case SAVANNA -> builder.setType(Material.ACACIA_LOG);
                 case SAVANNA_PLATEAU -> builder.setType(Material.ACACIA_WOOD);
@@ -1324,11 +1308,35 @@ public class ItemUtils {
                 case SUNFLOWER_PLAINS -> builder.setType(Material.SUNFLOWER);
                 case SWAMP -> builder.setType(Material.LILY_PAD);
                 case TAIGA -> builder.setType(Material.SPRUCE_LOG);
+                case NETHER_WASTES -> builder.setType(Material.NETHERRACK);
                 case THE_END -> builder.setType(Material.END_STONE);
                 case THE_VOID -> builder.setType(Material.BEDROCK);
                 case WARM_OCEAN -> builder.setType(Material.CYAN_CONCRETE_POWDER);
-                default -> {
-                }
+                case SNOWY_PLAINS -> builder.setType(Material.SNOW);
+                case SPARSE_JUNGLE -> builder.setType(Material.VINE);
+                case STONY_SHORE -> builder.setType(Material.GRAVEL);
+                case OLD_GROWTH_PINE_TAIGA -> builder.setType(Material.SPRUCE_WOOD);
+                case WINDSWEPT_FOREST -> builder.setType(Material.STRIPPED_OAK_LOG);
+                case WOODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
+                case WINDSWEPT_GRAVELLY_HILLS -> builder.setType(Material.ANDESITE);
+                case OLD_GROWTH_BIRCH_FOREST -> builder.setType(Material.BIRCH_WOOD);
+                case OLD_GROWTH_SPRUCE_TAIGA -> builder.setType(Material.STRIPPED_SPRUCE_LOG);
+                case WINDSWEPT_SAVANNA -> builder.setType(Material.STRIPPED_ACACIA_LOG);
+                case SOUL_SAND_VALLEY -> builder.setType(Material.SOUL_SAND);
+                case CRIMSON_FOREST -> builder.setType(Material.CRIMSON_NYLIUM);
+                case WARPED_FOREST -> builder.setType(Material.WARPED_NYLIUM);
+                case BASALT_DELTAS -> builder.setType(Material.BASALT);
+                case DRIPSTONE_CAVES -> builder.setType(Material.DRIPSTONE_BLOCK);
+                case LUSH_CAVES -> builder.setType(Material.BIG_DRIPLEAF);
+                case DEEP_DARK -> builder.setType(Material.SCULK_CATALYST);
+                case MEADOW -> builder.setType(Material.BEE_NEST);
+                case GROVE -> builder.setType(Material.DIRT_PATH);
+                case SNOWY_SLOPES -> builder.setType(Material.POWDER_SNOW);
+                case FROZEN_PEAKS -> builder.setType(Material.PACKED_ICE);
+                case JAGGED_PEAKS -> builder.setType(Material.DIORITE);
+                case STONY_PEAKS -> builder.setType(Material.STONE);
+                case CHERRY_GROVE -> builder.setType(Material.CHERRY_LOG);
+                case CUSTOM -> builder.setType(Material.BEDROCK);
             }
         }
 

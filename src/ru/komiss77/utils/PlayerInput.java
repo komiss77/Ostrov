@@ -1,7 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.WeakHashMap;
-import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -10,13 +8,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.objects.InputData;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.version.AnvilGUI;
 import ru.komiss77.version.VM;
+
+import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 
 // НЕ ПЕРЕМЕЩАТЬ!! 
@@ -35,18 +35,17 @@ public class PlayerInput implements Listener {
                 
         switch (type) {
             case ANVILL -> {
-                
                 final ItemStack left = new ItemBuilder(Material.PAPER)
-                        //.name("§7Сейчас:")
-                        //.addLore("§7"+sugg)
-                        .addLore("Режим ввода текста")
-                        .addLore("§7Наберите в строке")
-                        .addLore("§7значение и нажмите")
-                        .addLore("§7на результат.")
-                        .addLore("")
-                        .addLore("§6Клик на левую бумагу - ")
-                        .addLore("§eоставить как есть")
-                        .build();
+                    //.name("§7Сейчас:")
+                    //.addLore("§7"+sugg)
+                    .addLore("Режим ввода текста")
+                    .addLore("§7Наберите в строке")
+                    .addLore("§7значение и нажмите")
+                    .addLore("§7на результат.")
+                    .addLore("")
+                    .addLore("§6Клик на левую бумагу - ")
+                    .addLore("§eоставить как есть")
+                    .build();
                 
                 new AnvilGUI.Builder()
                     .title("Введите значение")
@@ -55,8 +54,8 @@ public class PlayerInput implements Listener {
                     //.itemRight(right)
                     .onLeftInputClick( p1 -> consumer.accept(sugg))
                     .onComplete( (p1, msg) -> {
-                            consumer.accept(msg); 
-                            return AnvilGUI.Response.text(msg); 
+                            consumer.accept(msg);
+                            return AnvilGUI.Response.text(msg);
                         }
                     )
                     .open(p);
@@ -65,15 +64,14 @@ public class PlayerInput implements Listener {
             
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(Component.text()
-                    .append(Component.text("§fНаберите в чате значение "+(sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<")))
-                    .hoverEvent(HoverEvent.showText(Component.text("§7Клик - подставить текст для редактирования")))
-                    .clickEvent(ClickEvent.suggestCommand(sugg))
-                    .build());
+                p.sendMessage(TCUtils.format("§fНаберите в чате значение "+(sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
+                    .hoverEvent(HoverEvent.showText(TCUtils.format("§7Клик - подставить текст для редактирования")))
+                    .clickEvent(ClickEvent.suggestCommand(sugg)));
             	}
             
             case SIGN -> {
-                xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
+                xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(),
+                    p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
                 VM.getNmsServer().signInput(p, sugg, xyz);
             }
                 

@@ -76,10 +76,8 @@ public class ServerLst implements Listener {
     public void onPluginEnable(PluginEnableEvent e) {
 
         //if (e.getPlugin().getDescription().getCommands()!=null) {
-            e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
-                CMD.all_server_commands.add(command);
-//System.out.println("------------> Command add "+command); 
-            });
+        //System.out.println("------------> Command add "+command);
+        CMD.all_server_commands.addAll(e.getPlugin().getDescription().getCommands().keySet());
         //}
             
         switch ( e.getPlugin().getName() ) {

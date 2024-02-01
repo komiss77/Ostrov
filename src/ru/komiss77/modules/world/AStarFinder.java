@@ -3,6 +3,8 @@ package ru.komiss77.modules.world;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.jetbrains.annotations.Nullable;
+import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.version.IServer;
@@ -23,35 +25,36 @@ public class AStarFinder {//idea of UnAlike
 	
 	@ThreadSafe
 	private static LinkedList<Node> getPath(final WXYZ from, final WXYZ to, final int maxNodes, final boolean jump) {
-		if (from == null || to == null) return new LinkedList<>();
+		if (from == null || to == null) {
+			Ostrov.log_warn("Didnt find A* " + from + " or " + to);
+			return new LinkedList<>();
+		}
 		final Node bgn = new Node(from);
 		final Node end = new Node(to);
 		bgn.set(0, from.distAbs(to));
 		end.set(0, 0);
 		
 		final int fsl = end.getSLoc();
+//		final SortedList<Node> sls = new SortedList<>();
 		final HashMap<Integer, Node> open = new HashMap<>();
 		final HashSet<Integer> clsd = new HashSet<>();
 		open.put(bgn.getSLoc(), bgn);
-		
-//		final Map<Integer, XYZ[]> nodes;
-//		if (worldNodes.containsKey(from.w.getUID())) {
-//			nodes = worldNodes.get(from.w.getUID());
-//		} else {
-//			nodes = new HashMap<>();
-//			worldNodes.put(from.w.getUID(), nodes);
-//		}
-		
-		Node curr;
+
 		int ci = 0;
+		Node curr = null;
 		while (true) {
-			curr = null;
-			for (final Node nd : open.values()) {
-				if (curr == null || (curr.cost - nd.cost) >> 31 == 0)
-					curr = nd;
+			if (curr == null) {
+				for (final Node nd : open.values()) {
+					if (curr == null || nd.cost < curr.cost)
+						curr = nd;
+				}
+
+				if (curr == null) {
+					Ostrov.log_warn("No current A* values found");
+					return new LinkedList<>();
+				}
 			}
-			
-			if (curr == null) return new LinkedList<>();
+
 			final int csl = curr.getSLoc();
 			open.remove(csl);
 			clsd.add(csl);
@@ -72,28 +75,28 @@ public class AStarFinder {//idea of UnAlike
 						path.addFirst(curr);
 						break;
 					}
-					
+
 					if (curr.distAbs(crp) == 1) {
+//						Bukkit.getConsoleSender().sendMessage("c-" + curr.toString() + ", p-" + crp.toString() + ", d-" + curr.distAbs(crp));
 						final int d = ((curr.x - crp.x) << 1) + curr.z - crp.z;
 						if (d == dff) {
 							curr = crp;
 							continue;
-						} else dff = d;
+						}
+						dff = d;
 					} else {
 						dff = 0;
 						curr.jump = true;
 					}
-					
+
 					path.addFirst(curr);
 					curr = crp;
 				}
 				return path;
 			}
-			
-//			final XYZ[] nbs = nodes.get(curr.getSLoc());
-//			for (final XYZ near : nbs == null ? getNear(from.w, curr, nodes) : nbs) {
+
+			Node nxt = null;
 			for (final XYZ near : getNear(from.w, curr, jump)) {
-//				Bukkit.getOnlinePlayers().forEach(p -> p.sendBlockChange(near.getCenterLoc(p.getWorld()), Material.BLUE_CARPET.createBlockData()));
 				if (clsd.contains(near.getSLoc())) continue;
 				final Node nghNode = open.get(near.getSLoc());
 				final int hDst = curr.pitch + curr.distAbs(near);
@@ -101,11 +104,16 @@ public class AStarFinder {//idea of UnAlike
 					final Node nwNode = new Node(near).set(hDst, end.distAbs(near));
 					nwNode.prnt = curr;
 					open.put(nwNode.getSLoc(), nwNode);
+					if (nxt == null) nxt = nwNode.cost < curr.cost ? nwNode : null;
+					else nxt = nwNode.cost < nxt.cost ? nwNode : null;
 				} else if (nghNode.pitch > hDst) {
 					nghNode.set(hDst, nghNode.yaw);
 					nghNode.prnt = curr;
+					if (nxt == null) nxt = nghNode.cost < curr.cost ? nghNode : null;
+					else nxt = nghNode.cost < nxt.cost ? nghNode : null;
 				}
 			}
+			curr = nxt;
 		}
 	}
 	
@@ -134,7 +142,6 @@ public class AStarFinder {//idea of UnAlike
 			NETHER_BRICK_WALL, MOSSY_COBBLESTONE_WALL, MOSSY_STONE_BRICK_WALL, 
 			GRANITE_WALL, END_STONE_BRICK_WALL, DIORITE_WALL:
 				ndi.remove();
-				break;
 			default:
 				break;
 			}
@@ -144,42 +151,47 @@ public class AStarFinder {//idea of UnAlike
 	}
 
 	private static void lookNear(final XYZ sp, final Set<XYZ> nds, final World w, final int dx, final int dz, final boolean jump, final IServer is) {
-		WXYZ nxt = getIfWalk(new WXYZ(w, sp.x + dx, sp.y, sp.z + dz), is);
-		if (nxt == null) nxt = getIfWalk(new WXYZ(w, sp.x + dx, sp.y + 1, sp.z + dz), is);
-		if (nxt == null) nxt = getIfWalk(new WXYZ(w, sp.x + dx, sp.y - 1, sp.z + dz), is);
-			
-		if (nxt == null) {
-			for (int d = -2; d != 8; d++) {
-				if (is.getFastMat(w, dx + sp.x, sp.y - d, dz + sp.z).isCollidable()) {
-					if (d > 2) {
-						nds.add(new XYZ("", dx + sp.x, sp.y - d + 1, dz + sp.z));
+		final WXYZ nxt = new WXYZ(w, sp.x + dx, sp.y, sp.z + dz);
+		if (is.getFastMat(w, nxt.x, nxt.y + 1, nxt.z).isCollidable()) return;//?|? B ?
+		if (is.getFastMat(nxt).isCollidable()) {//?|B 0 ?
+			if (is.getFastMat(w, nxt.x, nxt.y + 2, nxt.z).isCollidable()) return;//?|B 0 B
+			if (is.getFastMat(w, sp.x, sp.y + 2, sp.z).isCollidable()) return;//?|B 0 v
+			nds.add(nxt.clone().add(0, 1, 0));//?|B 0 0
+		} else {//?|0 0 ?
+			if (is.getFastMat(w, nxt.x, nxt.y - 1, nxt.z).isCollidable()) {//B|0 0 ?
+				nds.add(nxt.clone());//B|0 0 ?
+			} else {//0|0 0 ?
+				for (int d = 2; d != 11; d++) {//? 6<-? 0|0 0 ?
+					if (is.getFastMat(w, nxt.x, nxt.y - d, nxt.z).isCollidable()) {
+						nds.add(nxt.clone().add(0, 1 - d, 0));//B 9<-.. 0|0 0 ?
 						break;
-					} else return;
+					}
 				}
-			}
 
-			if (jump) {
+				if (is.getFastMat(w, nxt.x, nxt.y + 2, nxt.z).isCollidable()) return;//.. 9<-.. 0|0 0 B
+				if (is.getFastMat(w, sp.x, sp.y + 2, sp.z).isCollidable() || !jump) return;//.. 9<-.. 0|0 0 v
+				//>0 block jump
+				WXYZ jmp;
 				for (int i = 2; i != 5; i++) {
 					for (int d = -2; d != 3; d++) {
-//						for (final Player p : w.getPlayers()) p.sendBlockChange(new WXYZ(w, dx * i + sp.x, sp.y - d + 1, dz * i + sp.z).getCenterLoc(), bd);
 						if (is.getFastMat(w, dx * i + sp.x, sp.y - d, dz * i + sp.z).isCollidable()) {
 							switch (d) {
-							case 0, 1, 2:
-								nxt = getIfWalk(new WXYZ(w, dx * i + sp.x, sp.y - d + 1, dz * i + sp.z), is);
-								if (nxt != null) nds.add(nxt);
-								break;
-							default:
-								break;
+								case 0, 1, 2:
+									jmp = getIfWalk(new WXYZ(w, dx * i + sp.x, sp.y - d + 1, dz * i + sp.z), is);
+									if (jmp != null) nds.add(jmp);
+									break;
+								default:
+									break;
 							}
 							return;
 						}
 					}
 				}
 			}
-		} else nds.add(nxt);
+		}
 	}
 	
-	private static WXYZ getIfWalk(final WXYZ lc, final IServer is) {
+	private static @Nullable WXYZ getIfWalk(final WXYZ lc, final IServer is) {
 		return isWalk(lc, is) ? lc : null;
 	}
 	
@@ -230,7 +242,7 @@ public class AStarFinder {//idea of UnAlike
 		return nodes.remove(lc.getSLoc()) != null;
 	}*/
 	
-	protected static class Node extends XYZ {
+	protected static class Node extends XYZ /*implements Comparable<Node> */{
 		
 		private int cost;
 		private Node prnt;
@@ -247,6 +259,11 @@ public class AStarFinder {//idea of UnAlike
 			cost = (pitch = home) + (yaw = far);
 			return this;
 		}
+
+		/*@Override
+		public int compareTo(@NotNull final Node n) {
+			return cost - n.cost;
+		}*/
 		
 		@Override
 		public boolean equals(final Object o) {

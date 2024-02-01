@@ -1,6 +1,5 @@
 package ru.komiss77.modules.bots;
 
-import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -21,10 +20,12 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.AStarPath;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.CustomScore;
@@ -358,9 +359,6 @@ public class BotEntity extends EntityPlayer {
         return tag.canSee(pl);
     }
 
-
-
-
     @Deprecated
     public void updateTag(final String pfx, final String sfx, final char clr) {
         tag(pfx, Character.toString(clr), sfx);
@@ -390,11 +388,13 @@ public class BotEntity extends EntityPlayer {
         final NetworkManager nm = VM.getNmsServer().toNMS(pl).c.h;
         nm.a(new PacketPlayOutEntityDestroy(this.af()));
         nm.a(remListPlayerPacket());
+        tag.hideTo(pl);
     }
 
     public void updateAll(final Player pl) {
+        pl.sendMessage("bot-" + name);
         updateAll(VM.getNmsServer().toNMS(pl).c.h);
-        updateTag(pl);
+        tag.showTo(pl);
     }
 
     @Deprecated(forRemoval = true)
@@ -431,6 +431,7 @@ public class BotEntity extends EntityPlayer {
         return Arrays.asList(its);
     }
 
+    @OverrideMe
     public void pickupIts(final Location loc) {
         /*for (final Item it : w.getEntitiesByClass(Item.class)) {
 			//rplc.getWorld().getPlayers().get(0).sendMessage(loc.distanceSquared(it.getLocation()) + "");
@@ -460,21 +461,38 @@ public class BotEntity extends EntityPlayer {
                 new PacketPlayOutRelEntityMoveLook(this.af(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096), (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
+    @OverrideMe
+    public void onInteract(final PlayerInteractAtEntityEvent e) {}
+
+    @OverrideMe
     public void onDamage(final EntityDamageEvent e) {
         hurt((LivingEntity) e.getEntity());
     }
 
+    @OverrideMe
     public void onDeath(final EntityDeathEvent e) {
-        die(e.getEntity());
+        e.getDrops().clear();
+        final LivingEntity le = e.getEntity();
+        le.getWorld().spawnParticle(Particle.CLOUD, le.getLocation()
+            .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
+        die(le);
     }
 
     public void onBug() {
         remove();
     }
 
-    private record BotGoal(BotEntity bot) implements Goal<Mob> {
+    private static class BotGoal implements Goal<Mob> {
 
         private static final GoalKey<Mob> key = GoalKey.of(Mob.class, new NamespacedKey(Ostrov.instance, "bot"));
+
+        private final BotEntity bot;
+        private final AStarPath arp;
+
+        private BotGoal(final BotEntity bot) {
+            this.bot = bot;
+            this.arp = new AStarPath((Mob) bot.getEntity(), 1000, true);
+        }
 
         @Override
         public boolean shouldActivate() {
@@ -492,18 +510,15 @@ public class BotEntity extends EntityPlayer {
 
         @Override
         public void stop() {
-            bot.die(bot.getEntity());
         }
 
         @Override
         public void tick() {
             final Mob rplc = (Mob) bot.getEntity();
             if (rplc == null || !rplc.isValid()) {
-                bot.die(rplc);
                 return;
             }
 
-            final Pathfinder pth = rplc.getPathfinder();
             //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
             final Location loc = rplc.getLocation();
             final Location eyel = rplc.getEyeLocation();
@@ -523,19 +538,11 @@ public class BotEntity extends EntityPlayer {
 
                     final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
                     if (pl == null) return;
-                    rplc.getPathfinder().moveTo(pl, 1.4d);
-                    /*if (path == null && PlayerLst.ar != null) {
-                        path = new AreaPath(rplc, PlayerLst.ar);
-                    }
 
-                    if (path != null) {
-                        path.setTgt(new WXYZ(pl.getLocation()));
-                        path.tickGo(1.5d);
-                    }*/
+                    if (!arp.hasTgt() || arp.isDone())
+                        arp.setTgt(new WXYZ(pl.getLocation()));
+                    arp.tickGo(1.5d);
 
-                } else {
-                    if (pth.hasPath()) pth.stopPathfinding();
-                    rplc.setVelocity(rplc.getVelocity().add(vc.multiply(0.05d)));
                 }
             }
         }

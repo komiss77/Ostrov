@@ -43,10 +43,6 @@ import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.VM;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class PlayerLst implements Listener {
@@ -140,39 +136,11 @@ public class PlayerLst implements Listener {
         final Oplayer op = PM.remove(p.getName());
 //Ostrov.log("PlayerQuit "+p.getName()+" op="+op);
         if (op!=null) { //сохраняем, если было реально загружено!
-            onLeave(p, op, true);
+            op.onLeave(p, true);
         }
     }
     
     //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable
-    public static void onLeave(final Player p, final Oplayer op, final boolean async) {
-        VM.getNmsServer().removePacketSpy(p);
-        
-        //в saveLocalData инвентарь не сохранит
-        if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) &&  PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && op.pvp_time>0) {      //если удрал во время боя
-            final List<ItemStack> drop = new ArrayList<>();
-            for (ItemStack is : p.getInventory().getContents()) {
-                if (is != null && !MenuItemsManager.isSpecItem(is)) {
-                    drop.add(is.clone());
-                }
-            }
-            Ostrov.sync( () -> {
-                for (ItemStack is : drop) {
-                    p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
-                }
-            }, 10);
-        }
-        
-    	if (!op.mysqlError && !op.mysqlData.isEmpty() && LocalDB.useLocalData) {
-            if (async) {
-                Ostrov.async(()->LocalDB.saveLocalData(p, op), 0); //op.mysqlData не должна быть пустой, если загружало!
-            } else {
-                LocalDB.saveLocalData(p, op);
-            }
-    	}
-        op.tag.visible(false);
-        op.score.remove();
-    }
     
  
     

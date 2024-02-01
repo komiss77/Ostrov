@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,7 @@ import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.ProfileManager;
@@ -745,11 +747,33 @@ public class Oplayer {
         setFlag(StatFlag.LocalChat, local);
         return true;
     }
+    public void onLeave(final Player p, final boolean async) {
+        VM.getNmsServer().removePacketSpy(p);
 
-    
+        //в saveLocalData инвентарь не сохранит
+        if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) &&  PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && pvp_time>0) {      //если удрал во время боя
+            final List<ItemStack> drop = new ArrayList<>();
+            for (ItemStack is : p.getInventory().getContents()) {
+                if (is != null && !MenuItemsManager.isSpecItem(is)) {
+                    drop.add(is.clone());
+                }
+            }
 
 
-
+            for (ItemStack is : drop) {
+                p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
+            }
+        }
+        if (!mysqlError && !mysqlData.isEmpty() && LocalDB.useLocalData) {
+            if (async) {
+                Ostrov.async(()->LocalDB.saveLocalData(p, this), 0); //op.mysqlData не должна быть пустой, если загружало!
+            } else {
+                LocalDB.saveLocalData(p, this);
+            }
+        }
+        tag.visible(false);
+        score.remove();
+    }
 }
  /*
     

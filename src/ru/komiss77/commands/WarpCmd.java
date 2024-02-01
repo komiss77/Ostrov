@@ -57,16 +57,14 @@ public class WarpCmd implements CommandExecutor, TabCompleter {
                     if (target!=null) {
                         target.sendMessage( "§6Перемещаемся на "+a[0]+"..." );
                         DelayTeleport.tp(target, WarpManager.getWarp(a[0]).getLocation(), 5, "§6Перемещение на "+a[0]+" прошло удачно.", true, true, DyeColor.YELLOW);
-                        return true;
                     } else {
                         se.sendMessage( "§cНе найден игрок "+a[1] );
-                        return true;
                     }
                 } else {
                     se.sendMessage( "§cТакого места не существует!" );
-                    return true;
                 }
-                
+                return true;
+
             }
             se.sendMessage( "§cwarp §eник название" );
             return true;
@@ -74,14 +72,12 @@ public class WarpCmd implements CommandExecutor, TabCompleter {
         
         
         
-        if ( !(se instanceof Player) ) {
+        if ( !(se instanceof final Player p) ) {
             se.sendMessage("§4команда только от игрока!"); 
             return false; 
         }
-        
-        
-        Player p= (Player) se;
-                
+
+
         //if (Ostrov.getWarpManager().сonsoleOnlyUse) {
            // if (ApiOstrov.isLocalBuilder(se, true)) {
            //     Ostrov.getWarpManager().openMenu(p);//se.sendMessage("§4Варпы командой отключены для игроков на этом сервере!");

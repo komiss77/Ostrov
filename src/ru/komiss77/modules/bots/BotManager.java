@@ -14,6 +14,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -21,7 +24,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
 
@@ -118,10 +120,24 @@ public class BotManager implements Initiable, Listener {
        // }
     }
 
-    @EventHandler
-    public void onBungeeData(final BungeeDataRecieved e) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onData(final PlayerJoinEvent e) {
         final Player pl = e.getPlayer();
-     //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
+        //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
+        final UUID id = pl.getWorld().getUID();
+        Ostrov.async(() -> {
+            for (final BotEntity be : botByName.values()) {
+                if (be.w.getUID().equals(id)) {
+                    be.updateAll(pl);
+                }
+            }
+        }, 4);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onWorld(final PlayerChangedWorldEvent e) {
+        final Player pl = e.getPlayer();
+        //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
             for (final BotEntity be : botByName.values()) {
@@ -138,6 +154,14 @@ public class BotManager implements Initiable, Listener {
   //  }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onInteract(final PlayerInteractAtEntityEvent e) {
+        final BotEntity be = botById.get(e.getRightClicked().getEntityId());
+        if (be != null) {
+            be.onInteract(e);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         final BotEntity be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
@@ -145,7 +169,7 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onDeath(final EntityDeathEvent e) {
         final BotEntity be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
@@ -153,7 +177,7 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onTrans(final EntityTransformEvent e) {
         if (e.getEntity() instanceof final LivingEntity le && isBot(le)) {
             e.setCancelled(true);
