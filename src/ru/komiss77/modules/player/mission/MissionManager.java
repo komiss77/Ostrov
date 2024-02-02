@@ -490,27 +490,29 @@ public class MissionManager {
                 
 
                 Ostrov.sync( ()-> {
-                    if (inProfile) {
-                        op.menu.stopLoadAnimations();
-                        if (op.menu.section==Section.МИССИИ){// && profileMode == ProfileManager.ProfileMode.АккаунтыБД) {
-    //System.out.println("rawData="+rawData);
-                        op.menu.current = SmartInventory
-                            .builder()
-                            .id(op.nik+op.menu.section.name())
-                            .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
-                            .size(6, 9)
-                            .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
-                            .build()
-                            .open(op.getPlayer());
-                        }// else p.sendMessage("уже другое меню"); }
-                    } else {
-                        SmartInventory
-                            .builder()
-                            .provider(new MissionManageMenu(buttonsCurrent, buttonsDone))
-                            .size(5, 9)
-                            .title("§b§lМиссионария")
-                            .build()
-                            .open(op.getPlayer());
+                    if (op.getPlayer()!=null) {
+                        if (inProfile) {
+                            op.menu.stopLoadAnimations();
+                            if (op.menu.section==Section.МИССИИ){// && profileMode == ProfileManager.ProfileMode.АккаунтыБД) {
+        //System.out.println("rawData="+rawData);
+                            op.menu.current = SmartInventory
+                                .builder()
+                                .id(op.nik+op.menu.section.name())
+                                .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
+                                .size(6, 9)
+                                .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
+                                .build()
+                                .open(op.getPlayer());
+                            }// else p.sendMessage("уже другое меню"); }
+                        } else {
+                            SmartInventory
+                                .builder()
+                                .provider(new MissionManageMenu(buttonsCurrent, buttonsDone))
+                                .size(5, 9)
+                                .title("§b§lМиссионария")
+                                .build()
+                                .open(op.getPlayer());
+                        }
                     }
                 }, 0);
 

@@ -16,11 +16,10 @@ public enum Chanell {
     Action_Sender_Int2_String2("ostrov:type6"),
     Action_Sender_Int3_String3("ostrov:type7"),
     Action_Sender_Int3_String6("ostrov:type8"),
-    @Deprecated
-    CHAT ("ostrov:chat"), 
     CHAT_RU ("ostrov:chatru"), 
     CHAT_EN ("ostrov:chaten"), 
     CHAT_PM ("ostrov:chatpm"), 
+    SKIN("sr:messagechannel"), 
     ;
     
     public final String name;

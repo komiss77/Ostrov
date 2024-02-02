@@ -20,10 +20,10 @@ import ru.komiss77.commands.WorldManagerCmd;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.DynmapFeatures;
+import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
 import ru.komiss77.utils.OstrovConfig;
-import ru.komiss77.utils.TransLiter;
 
 
 public class WorldManager implements Initiable {

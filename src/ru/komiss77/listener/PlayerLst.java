@@ -1,5 +1,7 @@
 package ru.komiss77.listener;
 
+import java.util.ArrayList;
+import java.util.List;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
@@ -44,9 +46,6 @@ import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.VM;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class PlayerLst implements Listener {

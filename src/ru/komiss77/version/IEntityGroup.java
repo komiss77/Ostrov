@@ -5,7 +5,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 
-
+@Deprecated
 public interface IEntityGroup {
 
 	@Deprecated

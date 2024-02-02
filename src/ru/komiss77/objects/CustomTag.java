@@ -1,7 +1,6 @@
 package ru.komiss77.objects;
 
 import javax.annotation.Nullable;
-import java.lang.invoke.MethodHandles;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
@@ -22,17 +21,16 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
-import ru.komiss77.version.remapper.ReflectionRemapper;
 
 //https://github.com/Owen1212055/CustomNames
 //https://github.com/jpenilla/reflection-remapper
 // мапы в файле \versions\1.20.х\paper-1.20.х.jar\META-INF\mappings\reobf.tiny
+
 public class CustomTag {
 
 //    public static final boolean SELF_VIEW = true; //удобно для отладки видеть свой тэг //пускай всегда будет вкл, пока что, чтоб люди видели как выглядит их тег
     private static final byte FLAGS = (/*shadow*/1 /*| seethrough 0*/) & /*background*/ ~4;
-    @Nullable
-    private final WeakReference<LivingEntity> target;
+    private final WeakReference<LivingEntity> target; //@Nullable может быть содержимое, но не контейнер
     private final boolean real;
     private final int tagEntId;
     private final int[] idArr;
@@ -42,36 +40,20 @@ public class CustomTag {
     private Predicate<Player> canSee = p -> true;
     private IChatBaseComponent name;
     private boolean visible = true;
+    
 
-//    public static DataWatcherObject<?> DATA_SHARED_FLAGS_ID, DATA_POSE,
-//            DATA_CUSTOM_NAME, DATA_CUSTOM_NAME_VISIBLE, DATA_WIDTH_ID, DATA_HEIGHT_ID;
     private static final DataWatcherObject<?> DATA_POSE, DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
             DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
 
     static {
-        final ReflectionRemapper reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar();
-//        DATA_SHARED_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_SHARED_FLAGS_ID");
-        DATA_POSE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_POSE");
-//        DATA_CUSTOM_NAME_VISIBLE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_CUSTOM_NAME_VISIBLE");
-        DATA_BILLBOARD_RENDER_CONSTRAINTS_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.class, "DATA_BILLBOARD_RENDER_CONSTRAINTS_ID");
-//        DATA_WIDTH_ID = get(reflectionRemapper, Interaction.class, "DATA_WIDTH_ID");
-//        DATA_HEIGHT_ID = get(reflectionRemapper, Interaction.class, "DATA_HEIGHT_ID");
-        DATA_TEXT_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_TEXT_ID");
-        DATA_LINE_WIDTH_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_LINE_WIDTH_ID");
-        DATA_BACKGROUND_COLOR_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_BACKGROUND_COLOR_ID");
-        DATA_STYLE_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Display.TextDisplay.class, "DATA_STYLE_FLAGS_ID");
+        DATA_POSE = VM.getDataWatcher( net.minecraft.world.entity.Entity.class, "DATA_POSE");
+        DATA_BILLBOARD_RENDER_CONSTRAINTS_ID = VM.getDataWatcher(net.minecraft.world.entity.Display.class, "DATA_BILLBOARD_RENDER_CONSTRAINTS_ID");
+        DATA_TEXT_ID = VM.getDataWatcher(net.minecraft.world.entity.Display.TextDisplay.class, "DATA_TEXT_ID");
+        DATA_LINE_WIDTH_ID = VM.getDataWatcher(net.minecraft.world.entity.Display.TextDisplay.class, "DATA_LINE_WIDTH_ID");
+        DATA_BACKGROUND_COLOR_ID = VM.getDataWatcher(net.minecraft.world.entity.Display.TextDisplay.class, "DATA_BACKGROUND_COLOR_ID");
+        DATA_STYLE_FLAGS_ID = VM.getDataWatcher(net.minecraft.world.entity.Display.TextDisplay.class, "DATA_STYLE_FLAGS_ID");
     }
 
-    private static DataWatcherObject<?> get(ReflectionRemapper reflectionRemapper, Class<?> clazz, String name) {
-        try {
-            return (DataWatcherObject<?>) MethodHandles
-                    .privateLookupIn(clazz, MethodHandles.lookup())
-                    .findStaticGetter(clazz, reflectionRemapper.remapFieldName(clazz, name), DataWatcherObject.class)
-                    .invoke();
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
-    }
 
     public CustomTag(final LivingEntity ent) {
         tagEntId = net.minecraft.world.entity.Entity.nextEntityId();//Bukkit.getUnsafe().nextEntityId();
@@ -90,11 +72,7 @@ public class CustomTag {
         }
     }
 
-    //Can contain \n for >1 lines
-    /*public void content(final String name, final @Nullable Boolean visible) {
-        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
-        visible(visible == null ? this.visible : visible);
-    }*/
+
     public void visible(final boolean visible) {
         this.visible = visible;
         sendTrackersPacket(visible ? spawnPacket() : killPacket());
@@ -111,19 +89,7 @@ public class CustomTag {
         return canSee.test(pl);
     }
 
-    /*public void sneaking(final boolean sneak) {
-        this.sneak = sneak;
-        if (visible) {
-            sendTrackersPacket(initialSpawnPacket());
-        }
-    }*/
 
- /*public void replaceName(boolean replace) {
-        this.replaceName = replace;
-        if (visible) {
-            sendTrackersPacket(initialSpawnPacket());
-        }
-    }*/
     private void sendTrackersPacket(final Packet<?> packet) {
         final LivingEntity tgt = target.get();
         if (tgt == null) {
@@ -178,7 +144,7 @@ public class CustomTag {
 
         final PacketPlayOutEntityMetadata initialCreatePacket = new PacketPlayOutEntityMetadata(
                 tagEntId,
-                List.of(ofData(DATA_POSE, EntityPose.i),
+                List.of(ofData(DATA_POSE, VM.POSE_CROAKING), //EntityPose.i
                         ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
         );
 
@@ -213,3 +179,47 @@ public class CustomTag {
     }
 
 }
+
+
+
+
+/*
+//    public static DataWatcherObject<?> DATA_SHARED_FLAGS_ID, DATA_POSE, DATA_CUSTOM_NAME, DATA_CUSTOM_NAME_VISIBLE, DATA_WIDTH_ID, DATA_HEIGHT_ID;
+        //final ReflectionRemapper reflectionRemapper = ReflectionRemapper.forReobfMappingsInPaperJar();
+//        DATA_SHARED_FLAGS_ID = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_SHARED_FLAGS_ID");
+//        DATA_CUSTOM_NAME_VISIBLE = get(reflectionRemapper, net.minecraft.world.entity.Entity.class, "DATA_CUSTOM_NAME_VISIBLE");
+//        DATA_WIDTH_ID = get(reflectionRemapper, Interaction.class, "DATA_WIDTH_ID");
+//        DATA_HEIGHT_ID = get(reflectionRemapper, Interaction.class, "DATA_HEIGHT_ID");
+
+    private static DataWatcherObject<?> get(ReflectionRemapper reflectionRemapper, Class<?> clazz, String name) {
+        try {
+            return (DataWatcherObject<?>) MethodHandles
+                    .privateLookupIn(clazz, MethodHandles.lookup())
+                    .findStaticGetter(clazz, reflectionRemapper.remapFieldName(clazz, name), DataWatcherObject.class)
+                    .invoke();
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    //Can contain \n for >1 lines
+    public void content(final String name, final @Nullable Boolean visible) {
+        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
+        visible(visible == null ? this.visible : visible);
+    }
+
+    public void sneaking(final boolean sneak) {
+        this.sneak = sneak;
+        if (visible) {
+            sendTrackersPacket(initialSpawnPacket());
+        }
+    }
+
+    public void replaceName(boolean replace) {
+        this.replaceName = replace;
+        if (visible) {
+            sendTrackersPacket(initialSpawnPacket());
+        }
+    }
+
+*/

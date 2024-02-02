@@ -1,8 +1,9 @@
-package ru.komiss77.utils;
+package ru.komiss77.modules.translate;
 
 import java.util.HashMap;
 import java.util.Map;
 
+//не перемещать, юзает прокси!!
 //для перекодировки названия мира с кирилицы
 public class TransLiter {
     

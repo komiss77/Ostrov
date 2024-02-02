@@ -41,21 +41,21 @@ import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 @SuppressWarnings("deprecation")
-public class CMD implements TabCompleter  {
+public class CMD  {
 
 
-    public static List <String> ostrov_commands;
-    public static Set <String> all_server_commands;
+    //public static List <String> ostrov_commands;
+    //public static Set <String> all_server_commands;
     
     static {
-        ostrov_commands = new ArrayList<>( Ostrov.instance.getDescription().getCommands().keySet() );
-        all_server_commands = new HashSet<>();
-        for (Plugin plugin:Bukkit.getServer().getPluginManager().getPlugins()){
-            all_server_commands.addAll(plugin.getDescription().getCommands().keySet());
-        }
+       // ostrov_commands = new ArrayList<>( Ostrov.instance.getDescription().getCommands().keySet() );
+       // all_server_commands = new HashSet<>();
+      //  for (Plugin plugin:Bukkit.getServer().getPluginManager().getPlugins()){
+      //      all_server_commands.addAll(plugin.getDescription().getCommands().keySet());
+      //  }
     }
     
-    @Override
+   /* @Override
     public List<String> onTabComplete(CommandSender cs, Command cmd, String string, String[] input) {
         List <String> sugg = new ArrayList<>();
         if (input.length==1) {
@@ -64,7 +64,7 @@ public class CMD implements TabCompleter  {
             //sugg.addAll(AM.getArenasNames());
         }
         return sugg;
-    }
+    }*/
     
 
 
@@ -539,7 +539,7 @@ public class CMD implements TabCompleter  {
             break;
 
                 
-        case "ohelp":
+/*        case "ohelp":
             if ( arg.length == 0 )  {
                 Help(p,0);
             } else {
@@ -552,7 +552,7 @@ public class CMD implements TabCompleter  {
                 } else p.sendMessage( "§cНаберите /help <страница> или просто  /help");
             } 
             break;
-
+*/
 
         case "sound":
             if ( ApiOstrov.isLocalBuilder(sender, true) )  {
@@ -590,7 +590,7 @@ public class CMD implements TabCompleter  {
 
 
 
-	public static void Help (Player p, int page ) {
+/*	public static void Help (Player p, int page ) {
 
         for (int i=0; i<20; i++) {
             p.sendMessage("");
@@ -626,7 +626,7 @@ public class CMD implements TabCompleter  {
         }
     }
 
-
+*/
 
 
 

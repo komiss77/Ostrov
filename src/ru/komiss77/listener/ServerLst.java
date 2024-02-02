@@ -71,15 +71,14 @@ public class ServerLst implements Listener {
     
     
     
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPluginEnable(PluginEnableEvent e) {
 
         //if (e.getPlugin().getDescription().getCommands()!=null) {
-            e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
-                CMD.all_server_commands.add(command);
+           // e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
+           //     CMD.all_server_commands.add(command);
 //System.out.println("------------> Command add "+command); 
-            });
+          //  });
         //}
             
         switch ( e.getPlugin().getName() ) {

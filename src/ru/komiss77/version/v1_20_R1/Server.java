@@ -51,6 +51,7 @@ import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ParticlePlay;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.IServer;
+import ru.komiss77.version.VM;
 
     // private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT; 
     // private static Method cC; //nmsWorld  //net.minecraft.world.entity.Entity public World cC()
@@ -66,7 +67,7 @@ public class Server implements IServer {
     public static final List<String> vanilaCommandToDisable ;
     protected static final MutableBlockPosition mutableBlockPosition;
     private static final DedicatedServer nmsServer;
-    private static final IChatBaseComponent emtc = IChatBaseComponent.a("");
+    private static final IChatBaseComponent EMPTY_ICHAT_COMPONENT = IChatBaseComponent.a("");
     private static final IBlockData signIbd;
     private static final Key chatKey;
     private static final Method CraftWorldMethod, CraftEntityMethod, CraftLivingEntityMethod, CraftPlayerMethod;
@@ -201,39 +202,15 @@ public class Server implements IServer {
     }
 
     @Override
-    public void signInput(final Player p, String suggest, final XYZ signXyz) {
-
+    public void signInput(final Player p, String suggest, final XYZ signXyz) { //suggest придёт с '&'
         mutableBlockPosition.d(signXyz.x, signXyz.y, signXyz.z);
+        
         PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(mutableBlockPosition, signIbd);
         sendPacket(p, packet);//ep.c.a(packet);
 
         final TileEntitySign sign = new TileEntitySign(mutableBlockPosition, signIbd);
-
-        EnumColor color = EnumColor.a;
-        if (suggest.length() >= 2 && suggest.charAt(0) == '§') {
-            switch (suggest.charAt(1)) {
-                case '0' -> color = EnumColor.a;
-                case '1' -> color = EnumColor.b;
-                case '2' -> color = EnumColor.c;
-                case '3' -> color = EnumColor.d;
-                case '4' -> color = EnumColor.e;
-                case '5' -> color = EnumColor.f;
-                case '6' -> color = EnumColor.g;
-                case '7' -> color = EnumColor.h;
-                case '8' -> color = EnumColor.i;
-                case '9' -> color = EnumColor.j;
-                case 'a' -> color = EnumColor.k;
-                case 'b' -> color = EnumColor.l;
-                case 'c' -> color = EnumColor.m;
-                case 'd' -> color = EnumColor.n;
-                case 'e' -> color = EnumColor.o;
-                case 'f' -> color = EnumColor.p;
-            }
-            suggest = suggest.substring(2);
-        }
-
         final IChatBaseComponent[] comps = new IChatBaseComponent[4];
-        Arrays.fill(comps, emtc);
+        Arrays.fill(comps, EMPTY_ICHAT_COMPONENT);
         boolean last = true;
         switch (suggest.length() >> 4) {
             default:
@@ -252,8 +229,8 @@ public class Server implements IServer {
                 break;
         }
 
-        final SignText signtext = new SignText(comps, comps, color, true);
-        sign.a(signtext, true);
+        final SignText signtext = new SignText(comps, comps, VM.COLOR_WHITE, true);
+        sign.a(signtext, true);//sign.c(signtext);//
         sendPacket(p, sign.j());//ep.c.a(sign.j());
 
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
@@ -311,7 +288,7 @@ public class Server implements IServer {
         SpigotConfig.movedTooQuicklyMultiplier = 10;//Double.MAX_VALUE;
         SpigotConfig.sendNamespaced = false;//Bukkit.spigot().getConfig().s
         SpigotConfig.whitelistMessage = "§cНа сервере включен список доступа, и вас там нет!";
-        SpigotConfig.unknownCommandMessage = "§c?? §fНаберите комадну §b§l/menu";
+        SpigotConfig.unknownCommandMessage = "§cКоманда не найдена. §a§l/menu §f-открыть меню.";
         SpigotConfig.serverFullMessage = "Слишком много народу!";
         SpigotConfig.outdatedClientMessage = "§cВаш клиент устарел! Пожалуйста, используйте §b{0}";
         SpigotConfig.outdatedServerMessage = "§cСервер старой версии {0}, вход невозможен.";
@@ -390,3 +367,31 @@ public class Server implements IServer {
     }
 
 }
+
+
+
+
+
+        //лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код
+        /*EnumColor color = EnumColor.a;
+        if (suggest.length() >= 2 && (suggest.charAt(0) == '§' || suggest.charAt(0) == '&')) {
+            switch (suggest.charAt(1)) {
+                case '0' -> color = EnumColor.a;
+                case '1' -> color = EnumColor.b;
+                case '2' -> color = EnumColor.c;
+                case '3' -> color = EnumColor.d;
+                case '4' -> color = EnumColor.e;
+                case '5' -> color = EnumColor.f;
+                case '6' -> color = EnumColor.g;
+                case '7' -> color = EnumColor.h;
+                case '8' -> color = EnumColor.i;
+                case '9' -> color = EnumColor.j;
+                case 'a' -> color = EnumColor.k;
+                case 'b' -> color = EnumColor.l;
+                case 'c' -> color = EnumColor.m;
+                case 'd' -> color = EnumColor.n;
+                case 'e' -> color = EnumColor.o;
+                case 'f' -> color = EnumColor.p;
+            }
+            suggest = suggest.substring(2);
+        }*/

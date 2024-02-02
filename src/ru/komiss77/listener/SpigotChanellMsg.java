@@ -11,6 +11,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
+import org.bukkit.Sound;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.SeenCmd;
@@ -323,7 +324,13 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s1);
                 } else {
                     Player p = Bukkit.getPlayerExact(senderInfo);
-                    if (p!=null) p.performCommand(s1);
+                    if (p!=null) {
+                        if (s1.equals("PMsound")) { //такой фикс, если от консоли то пишет 'воспроизведён звук'
+                            p.playSound(p, Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 1);
+                        } else {
+                            p.performCommand(s1);
+                        }
+                    }
                 }
             }
                 

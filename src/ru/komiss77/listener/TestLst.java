@@ -2,6 +2,8 @@ package ru.komiss77.listener;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -9,14 +11,18 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.bots.AfkBot;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.MaterialUtil;
+import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.version.VM;
 
 
 public class TestLst implements Listener {
 
     private AfkBot bot;
     
-    //@EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
+    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.isLocalBuilder(p) || e.getItem()==null) return;
@@ -27,15 +33,17 @@ public class TestLst implements Listener {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel!");
             
-            //MaterialUtil.toChar (e.getItem().getType());
-            p.sendMessage(e.getItem().getType()+"="+MaterialUtil.toChar (e.getItem().getType()));
-
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
+                PlayerInput.get(InputButton.InputType.SIGN, p, s-> {
+                    p.sendMessage(s);
+                }, "§babcdefgnnnnnnnnnnnnnnnnnvvvvvvvvvvv");
+                //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
+                //VM.getNmsServer().signInput(p, , xyz);
                 if (p.isSneaking()) {
-                    op.tag.visible(false);
-                    p.sendMessage("custom name off");
+                    //op.tag.visible(false);
+                    //p.sendMessage("custom name off");
                 } else {
-                    op.tag("§bdd☻§edfdsg", "§к|avvvddedrfer §edffffff");
+                    //op.tag("§bdd☻§edfdsg", "§к|avvvddedrfer §edffffff");
                     //op.upperName.visible(true);
                     //p.sendMessage("custom name on");
                 }
