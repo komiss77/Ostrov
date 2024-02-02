@@ -1,6 +1,5 @@
 package ru.komiss77.objects;
 
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
-import net.minecraft.world.entity.EntityPose;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
@@ -98,27 +96,27 @@ public class CustomTag {
         final PacketPlayOutEntityDestroy not = killPacket();
         if (real) {
             for (final Player p : tgt.getTrackedPlayers()) {
-                VM.getNmsServer().sendPacket(p, canSee.test(p) ? packet : not);
+                VM.server().sendPacket(p, canSee.test(p) ? packet : not);
             }
 
             if (tgt instanceof final Player pl) {
-                VM.getNmsServer().sendPacket(pl, packet);
+                VM.server().sendPacket(pl, packet);
             }
         } else {
             for (final Player p : tgt.getWorld().getPlayers()) {
-                VM.getNmsServer().sendPacket(p, canSee.test(p) ? packet : not);
+                VM.server().sendPacket(p, canSee.test(p) ? packet : not);
             }
         }
     }
 
     public void showTo(final Player p) {
         if (visible && canSee.test(p)) {
-            VM.getNmsServer().sendPacket(p, spawnPacket());
+            VM.server().sendPacket(p, spawnPacket());
         }
     }
 
     public void hideTo(final Player p) {
-        VM.getNmsServer().sendPacket(p, killPacket());
+        VM.server().sendPacket(p, killPacket());
     }
 
     public ClientboundBundlePacket spawnPacket() {

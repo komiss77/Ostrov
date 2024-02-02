@@ -5,18 +5,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.TimeZone;
+import java.util.*;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
+import static org.asynchttpclient.Dsl.config;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,17 +23,9 @@ import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
-import ru.komiss77.listener.ArcaimLst;
-import ru.komiss77.listener.ArmorEquipLst;
-import ru.komiss77.listener.ChatLst;
-import ru.komiss77.listener.InteractLst;
-import ru.komiss77.listener.PlayerLst;
-import ru.komiss77.listener.ServerLst;
-import ru.komiss77.listener.SpigotChanellMsg;
-import ru.komiss77.listener.TestLst;
+import ru.komiss77.listener.*;
 import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
@@ -77,7 +65,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
-        HTTP = Dsl.asyncHttpClient();
+        HTTP = Dsl.asyncHttpClient(config().);
         Config.init(); // 1 !
         new VM(this); // 2 !
     }
@@ -118,7 +106,7 @@ public class Ostrov extends JavaPlugin {
         
         log_ok ("§2Остров готов к работе!");
         
-        VM.getNmsServer().addPacketSpy();
+        VM.server().addPacketSpy();
     }
  
     
@@ -130,11 +118,14 @@ public class Ostrov extends JavaPlugin {
         HandlerList.unregisterAll(instance);
         OstrovDB.Disconnect();
         if (MOT_D.length()==3) return;
-        if (PM.hasOplayers()) {
-            for (Oplayer op : PM.getOplayers()) {
-                PlayerLst.onLeave(op.getPlayer(), op, false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
-            }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            PM.onLeave(p, false);
         }
+        //if (PM.hasOplayers()) {
+            //for (Oplayer op : PM.getOplayers()) {
+                //op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
+            //}
+        //}
         if (LocalDB.useLocalData) {
             LocalDB.Disconnect();
         }
@@ -224,7 +215,7 @@ public class Ostrov extends JavaPlugin {
         LocalDB.init();// выполнится синхронно, если нет коннекта-подвиснет! выше есть для auth
         for (final Module module : Module.values()) {
             try {
-                modules.put(module.name(), (Initiable) module.clazz.getDeclaredConstructor().newInstance());
+                modules.put(module.name(), module.clazz.getDeclaredConstructor().newInstance());
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NullPointerException | NoSuchMethodException ex) {
                 log_err("инициализацяя "+module+" : "+ex.getMessage());
                 ex.printStackTrace();
@@ -252,7 +243,7 @@ public class Ostrov extends JavaPlugin {
         return CMD.CommandHamdler(cs, comm, s, arg);
     }
      
-    public static final Ostrov getInstance() {
+    public static Ostrov getInstance() {
             return Ostrov.instance;
     }  
 

@@ -78,7 +78,7 @@ public class Schematic {
     //создание с местности - 
     private void create(final CommandSender cs, final String name, final String param, final XYZ min, final XYZ max, final Location spawn, final boolean save, final String folderPath, final String extension, List<Material> scipOnScan) {
         final World world = spawn.getWorld();
-        WorldServer worldServer = VM.getNmsServer().toNMS(world);
+        WorldServer worldServer = VM.server().toNMS(world);
         
         this.param = param;
         final boolean hasSkipMat = scipOnScan!=null && !scipOnScan.isEmpty();
@@ -133,7 +133,7 @@ public class Schematic {
 
                     case WATER -> { //запоминаем только воду с уровнем 0
                         
-                        blockData = VM.getNmsServer().getBlockData(iBlockData);//iBlockData.createCraftBlockData();//VM.getBlockData(iBlockData);//CraftBlockData.fromData(iBlockData);
+                        blockData = VM.server().getBlockData(iBlockData);//iBlockData.createCraftBlockData();//VM.getBlockData(iBlockData);//CraftBlockData.fromData(iBlockData);
                         lvl = (Levelled) blockData;
                         if (lvl.getLevel()==0) {
                             blocks.put(sLoc, mat);
@@ -152,7 +152,7 @@ public class Schematic {
                                 blockStates.put(sLoc, bsAsString);
                             }
                         }
-                        blockData = VM.getNmsServer().getBlockData(iBlockData);//iBlockData.createCraftBlockData();//VM.getBlockData(iBlockData);//CraftBlockData.fromData(iBlockData);
+                        blockData = VM.server().getBlockData(iBlockData);//iBlockData.createCraftBlockData();//VM.getBlockData(iBlockData);//CraftBlockData.fromData(iBlockData);
                         //if (blockData!=null && !getStringFromBlockData(blockData).isEmpty()) {
                         if (blockData!=null ) {
                             bdAsString = blockData.getAsString(true);
@@ -498,7 +498,7 @@ public class Schematic {
         final String worldName = world.getName();
         
         MutableBlockPosition mutableBlockPosition = new MutableBlockPosition(0, 0, 0);
-        WorldServer worldServer = VM.getNmsServer().toNMS(world);
+        WorldServer worldServer = VM.server().toNMS(world);
         IBlockData iBlockData;
         Material worldMaterial;
         Material schematicMaterial;

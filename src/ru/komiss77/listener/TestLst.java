@@ -9,37 +9,46 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.bots.AfkBot;
+import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.XYZ;
-import ru.komiss77.utils.MaterialUtil;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.version.VM;
+import ru.komiss77.modules.world.WXYZ;
 
 
 public class TestLst implements Listener {
 
-    private AfkBot bot;
+    private AfkBot bt;
     
     @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.isLocalBuilder(p) || e.getItem()==null) return;
-        
         final Oplayer op = PM.getOplayer(p);
         
+        if (e.getItem().getType() == Material.BLAZE_ROD) {
+            PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
+            if (bt != null) {
+                bt.remove();
+                bt = null;
+            }
+            bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
+//            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
+        }
+
+
         if (e.getItem().getType()==Material.STICK) {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel!");
             
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
-                PlayerInput.get(InputButton.InputType.SIGN, p, s-> {
-                    p.sendMessage(s);
-                }, "§babcdefgnnnnnnnnnnnnnnnnnvvvvvvvvvvv");
-                //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
+                 //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
                 //VM.getNmsServer().signInput(p, , xyz);
+                if (bt != null) {
+                    bt.remove();
+                    bt = null;
+                }
                 if (p.isSneaking()) {
+                    bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
                     //op.tag.visible(false);
                     //p.sendMessage("custom name off");
                 } else {

@@ -57,9 +57,9 @@ public class FakeItemDis extends BukkitRunnable {
 		anms = DisplayManager.animations.get(pl.getEntityId());
 		dv = at.toVector().subtract(pl.getEyeLocation().toVector());
 		
-		final WorldServer wm = VM.getNmsServer().toNMS(at.getWorld());
+		final WorldServer wm = VM.server().toNMS(at.getWorld());
 		tds = new ItemDisplay(EntityTypes.ae, wm);
-		tdId = tds.af();
+		tdId = tds.aj();
 		tds.a(BillboardConstraints.b);
 		tds.a(ItemDisplayContext.g);
 		tds.a(stn);
@@ -76,7 +76,7 @@ public class FakeItemDis extends BukkitRunnable {
 		final PacketPlayOutEntityDestroy dp = new PacketPlayOutEntityDestroy(ine.getEntityId());
 		for (final Player op : pl.getWorld().getPlayers()) {
 			if (op.getEntityId() != pl.getEntityId()) {
-				VM.getNmsServer().toNMS(op).c.a(dp);
+				VM.server().toNMS(op).c.a(dp);
 			}
 		}
 	}
@@ -136,7 +136,7 @@ public class FakeItemDis extends BukkitRunnable {
 	
 	public FakeItemDis setItem(final org.bukkit.inventory.ItemStack it) {
 		tds.a(ItemStack.fromBukkitCopy(it));
-		VM.getNmsServer().toNMS(pl).c.a(new PacketPlayOutEntityMetadata(tdId, tds.aj().c()));
+		VM.server().toNMS(pl).c.a(new PacketPlayOutEntityMetadata(tdId, tds.an().c()));
 		return this;
 	}
 	
@@ -147,14 +147,14 @@ public class FakeItemDis extends BukkitRunnable {
 	public void create() {
 		ine.setCustomNameVisible(showName);
 		ine.teleport(olc.clone().add(0d, -1d * scale - 0.1d, 0d));
-		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
+		final PlayerConnection pc = VM.server().toNMS(pl).c;
 		pc.a(new PacketPlayOutSpawnEntity(tds));
-		pc.a(new PacketPlayOutEntityMetadata(tdId, tds.aj().c()));
+		pc.a(new PacketPlayOutEntityMetadata(tdId, tds.an().c()));
 		this.runTaskTimer(Ostrov.instance, 2, 1);
 	}
 	
 	public void remove() {
-		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
+		final PlayerConnection pc = VM.server().toNMS(pl).c;
 		pc.a(new PacketPlayOutEntityDestroy(tdId));
 		tds.a(RemovalReason.a);
 //		if (setRem) anms.remove(this);
@@ -181,7 +181,7 @@ public class FakeItemDis extends BukkitRunnable {
 		break;*/
 		
 		if (!ine.isValid() || !pl.isValid() || isDone.test(i++)) anms.remove(this);
-		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
+		final PlayerConnection pc = VM.server().toNMS(pl).c;
 		if (!anms.contains(this)) {
 //			pl.sendMessage("remove ine- " + ine.isValid());
 			pc.a(new PacketPlayOutEntityDestroy(tdId));

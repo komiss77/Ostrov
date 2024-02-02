@@ -1,6 +1,7 @@
 package ru.komiss77.version;
 
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.PacketListenerPlayOut;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,9 +16,10 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.ThreadSafe;
-import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
+import ru.komiss77.version.v1_20_R3.PlayerPacketHandler;
 
 
 public interface IServer {
@@ -56,6 +58,9 @@ public interface IServer {
     
     @ThreadSafe
     Material getFastMat(final World w, final int x, final int y, final int z);
+
+    @ThreadSafe
+    Material getFastMat(final WXYZ loc);
     
     BlockData getBlockData(final IBlockData iBlockData);
    
@@ -69,4 +74,5 @@ public interface IServer {
 
     void sendPacket(final Player p, final Packet<?> packet);
     
+    void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps);
 }

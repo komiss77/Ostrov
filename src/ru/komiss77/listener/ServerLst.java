@@ -130,7 +130,7 @@ public class ServerLst implements Listener {
 
         
         if (GM.GAME.type==ServerType.LOBBY) {
-            VM.getNmsServer().pathWorld(w);
+            VM.server().pathWorld(w);
         }
         
         w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);

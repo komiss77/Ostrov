@@ -69,9 +69,9 @@ public class TeleportLoc {
     public static boolean isSafeLocation(final Location feetLoc) {
         if (feetLoc == null) return false;
         final World w = feetLoc.getWorld();
-        final Material headMat = VM.getNmsServer().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY()+1, feetLoc.getBlockZ());
-        final Material feetMat = VM.getNmsServer().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY(), feetLoc.getBlockZ());
-        final Material downMat = VM.getNmsServer().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY()-1, feetLoc.getBlockZ());
+        final Material headMat = VM.server().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY()+1, feetLoc.getBlockZ());
+        final Material feetMat = VM.server().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY(), feetLoc.getBlockZ());
+        final Material downMat = VM.server().getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY()-1, feetLoc.getBlockZ());
 
         return isSafePlace(headMat, feetMat, downMat);
 

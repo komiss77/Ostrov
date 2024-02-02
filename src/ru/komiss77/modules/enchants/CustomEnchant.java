@@ -239,7 +239,7 @@ public class CustomEnchant extends Enchantment {
             final Consumer<ProjectileHitEvent> onPrj,
             final Consumer<EntityShootBowEvent> onSht,
             final Consumer<BlockBreakEvent> onBrk) {
-        super(NamespacedKey.minecraft(nmkey));
+//super(NamespacedKey.minecraft(nmkey));
         this.nm = nm;
         this.mxlvl = mxlvl;
         this.chance = chance;
@@ -258,9 +258,9 @@ public class CustomEnchant extends Enchantment {
         this.onBrk = onBrk;
         
         if (VALUES.put(NamespacedKey.minecraft(nmkey), this) == null) {
-        	try {registerEnchantment(this);} catch (IllegalArgumentException e) {
-        		Ostrov.log_warn("Enchant " + nmkey + " is already registered!");
-			}
+        	//try {registerEnchantment(this);} catch (IllegalArgumentException e) {
+        	//	Ostrov.log_warn("Enchant " + nmkey + " is already registered!");
+		//	}
         }
     }
     
@@ -422,5 +422,20 @@ public class CustomEnchant extends Enchantment {
     
     public Consumer<BlockBreakEvent> getOnBrk() {
         return onBrk;
+    }
+
+    @Override
+    public int getMinModifiedCost(int i) {
+        return 1;
+    }
+
+    @Override
+    public int getMaxModifiedCost(int i) {
+        return 1;
+    }
+
+    @Override
+    public NamespacedKey getKey() {
+        return null;
     }
 }

@@ -1,5 +1,8 @@
 package ru.komiss77.listener;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.WeakHashMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,14 +46,8 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
-
 
 public class InteractLst implements Listener {
-    
-    
     
     public static final WeakHashMap<Player,List <Component>> signFrontCache;
     public static final WeakHashMap<Player,List <Component>> signBackCache;
@@ -127,7 +124,6 @@ public class InteractLst implements Listener {
         }
     }
 
-//    private AfkBot bt = null;
     
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
     public void Interact (final PlayerInteractEvent e) {
@@ -148,14 +144,7 @@ public class InteractLst implements Listener {
                 ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
         }
 
-        /*if (inHand!=null && inHand.getType() == Material.BLAZE_ROD) {
-            PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
-            if (bt != null) {
-                bt.remove();
-            }
-            bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
-            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
-        }*/
+        //для отладки есть специальный TestLst
 
         //паспорт
         if (ItemUtils.compareItem(inHand, passport, true)) { //посмотреть свой паспорт

@@ -1,22 +1,8 @@
 
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.concurrent.Future;
-import org.asynchttpclient.AsyncCompletionHandler;
-import org.asynchttpclient.AsyncHandler;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
-import org.asynchttpclient.HttpResponseBodyPart;
-import org.asynchttpclient.Request;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.Response;
-import org.asynchttpclient.util.HttpConstants;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import ru.komiss77.utils.DateUtil;
 
@@ -41,112 +27,7 @@ public class test {
     
     public static void main(String[] args) {
         
-        
-        
-        /*
-        https://www.baeldung.com/async-http-client
-После того как мы настроили и получили экземпляр HTTP-клиента, мы можем повторно использовать его во всем приложении. Нам не нужно создавать экземпляр для каждого запроса, поскольку внутри него создаются новые потоки и пулы соединений, что приведет к проблемам с производительностью.
-Также важно отметить, что как только мы закончим использовать клиент, нам следует вызвать метод close(), чтобы предотвратить любые утечки памяти или зависание ресурсов.
-        */
-        
-        //HttpClient httpClient = HttpClientBuilder.create().build();
-        //String result = "";
-        try (AsyncHttpClient client = Dsl.asyncHttpClient()){
-            
-          /*  HttpPost request = new HttpPost("https://translate.api.cloud.yandex.net/translate/v2/translate");
-            //String body = String.format("{\"targetLanguageCode\":\"en\",\"texts\":\"Остров готов к работе\",\"folderId\":\"aje8d83edl4ijvnu0aao\"}");
-            request.addHeader("Content-Type", "application/json");
-            request.addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa");
-            
-            String body = "{\"targetLanguageCode\":\"en\",\"texts\":\"Остров готов к работе\",\"folderId\":\"b1g583enhsdlegeb50uu\"}";
-            StringEntity params = new StringEntity(body, "UTF-8");
-            params.setContentType("charset=UTF-8");
-            request.setEntity(params);
-            
-            HttpResponse response = httpClient.execute(request);
-
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                String retSrc = EntityUtils.toString(entity);
-                Object jsob_obj = new JSONParser().parse(retSrc);
-                JSONObject json_res = (JSONObject) jsob_obj;
-                JSONArray res_translate = (JSONArray) json_res.get("translations");
-                JSONObject res_json_obj = (JSONObject) res_translate.get(0);
-                result = (String) res_json_obj.get("text");
-                //System.out.println(res_translate);
-                log(result);
-            } else {
-                log ("entity==null : "+response.getStatusLine().getStatusCode());
-            }*/
-
-            //AsyncHttpClient client = Dsl.asyncHttpClient();
-          //  AsyncHttpClient client = new AsyncHttpClient();
-            
-            Request request = new RequestBuilder(HttpConstants.Methods.POST)
-                .setUrl("https://translate.api.cloud.yandex.net/translate/v2/translate")
-                .setHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
-                .setBody("{\"targetLanguageCode\":\"en\",\"texts\":\"Остров готов к работе\",\"folderId\":\"b1g583enhsdlegeb50uu\"}")
-                .setCharset(Charset.forName("UTF-8"))
-                .build();
-//log("request="+request);            
-            
-            AsyncCompletionHandler ah = new AsyncCompletionHandler() {
-                //@Override
-                //public AsyncHandler.State onStatusReceived(HttpResponseStatus status) throws Exception {
-                //    log("status="+status);
-                //    return State.CONTINUE;
-                //}
-                @Override
-                public Object onCompleted(Response response) throws Exception {
-                    //log("response="+response);
-                    return response;
-                }
-                @Override
-                public AsyncHandler.State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
-                    //String b = new String(bodyPart.getBodyPartBytes());
-                    //log("bodyPart="+b);
-                        String retSrc = new String(bodyPart.getBodyPartBytes());//EntityUtils.toString(entity);
-                        Object jsob_obj = new JSONParser().parse(retSrc);
-                        JSONObject json_res = (JSONObject) jsob_obj;
-                        JSONArray res_translate = (JSONArray) json_res.get("translations");
-                        JSONObject res_json_obj = (JSONObject) res_translate.get(0);
-                        String result = (String) res_json_obj.get("text");
-                        log(result);
-                    return State.CONTINUE;
-               }
-            };
-            
-            Future f = client.executeRequest(request, ah);
-            //client.executeRequest(request, ah).done();
-            var r = f.get();
-log("f="+r);            
-            //client.close();
-            
-           /* client.executeRequest(request, rh);
-            
-            client.get("https://www.google.com", new AsyncHttpResponseHandler() {
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                    // called when response HTTP status is "200 OK"
-                }
-
-            }); */
-            
-            /*CompletableFuture<HttpResponse<String>> response = client.sendAsync(
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );*/
-            
-
-        } catch (Exception ex) {
-            log("error : "+ex.getMessage());
-        } finally {
-            //httpClient.getConnectionManager().shutdown();
-        }
-        
-
+ 
         
     }
     

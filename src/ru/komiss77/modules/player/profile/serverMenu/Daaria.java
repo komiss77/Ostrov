@@ -122,7 +122,6 @@ public class Daaria implements InventoryProvider {
             .addLore("§7зато будет найдено безопасное")
             .addLore("§7место, где нет чужих регионов.")
             .build(), e-> {
-                //p.closeInventory();
                 pm.current = null;
                 p.performCommand("tpa");
             }));

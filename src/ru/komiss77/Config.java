@@ -35,7 +35,7 @@ public class Config {
     //для PlayerListener
     public static boolean set_gm = false;
     public static GameMode gm_on_join = GameMode.ADVENTURE;
-    public static float walkspeed_on_join = 0.1F;
+    public static float walkspeed_on_join = 0.2F;
     public static boolean clear_stats = false;
     public static boolean disable_void;
     public static boolean disable_damage;

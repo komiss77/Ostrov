@@ -1,5 +1,5 @@
 package ru.komiss77.version.v1_20_R1;
-
+/*
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -303,3 +303,4 @@ public class EntityGroup implements IEntityGroup {
         }
     }
 }
+*/

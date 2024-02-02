@@ -168,6 +168,10 @@ public class VM {
     
 
 
+    public static IServer server() {
+        return nmsServer;
+    }
+    @Deprecated
     public static IServer getNmsServer() {
         return nmsServer;
     }

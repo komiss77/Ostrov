@@ -317,7 +317,7 @@ public class TprCmd implements CommandExecutor, TabCompleter{
                             
                             headMat = feetMat;
                             feetMat = downMat;
-                            downMat = VM.getNmsServer().getFastMat(world, find_x, feet_y-1, find_z);
+                            downMat = VM.server().getFastMat(world, find_x, feet_y-1, find_z);
                             
                             //в аду или при генерации как в аду (определяем потолок из бедрока)
                             if ( (world.getEnvironment()==World.Environment.NETHER || feet_y>0) && downMat==Material.BEDROCK ) {

@@ -19,7 +19,7 @@ public class MaterialUtil {
     
     
     static {
-        byInt = new IntHashMap();
+        byInt = new IntHashMap<>();
         byMat = new EnumMap<>(Material.class);
         config = Config.manager.getNewConfig("matToChar.yml", new String[]{"", "Material to character config", ""} );
         //config.addDefault("use", false);

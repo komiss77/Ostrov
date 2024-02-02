@@ -1,5 +1,5 @@
 package ru.komiss77.version.v1_20_R1;
-
+/*
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,6 +47,7 @@ import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ParticlePlay;
 import ru.komiss77.utils.TCUtils;
@@ -234,13 +235,20 @@ public class Server implements IServer {
         sendPacket(p, sign.j());//ep.c.a(sign.j());
 
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
-        sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);*/
+        sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);
     }
 
     @Override
     public Material getFastMat(final World w, int x, int y, int z) {
         final WorldServer worldServer = toNMS(w);
         final IBlockData iBlockData = worldServer.a_(mutableBlockPosition.d(x, y, z));
+        return iBlockData.getBukkitMaterial();
+    }
+
+    @Override
+    public Material getFastMat(final WXYZ loc) {
+        final WorldServer worldServer = toNMS(loc.w);
+        final IBlockData iBlockData = worldServer.a_(mutableBlockPosition.d(loc.x, loc.y, loc.z));
         return iBlockData.getBukkitMaterial();
     }
 
@@ -369,7 +377,7 @@ public class Server implements IServer {
 }
 
 
-
+*/
 
 
         //лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код

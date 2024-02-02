@@ -1,9 +1,8 @@
 package ru.komiss77.modules.bots;
 
-import net.minecraft.network.NetworkManager;
+import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.network.protocol.game.PacketListenerPlayOut;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -14,6 +13,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -21,9 +23,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
+import ru.komiss77.version.VM;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.bukkit.entity.EntityType;
 
 public class BotManager implements Initiable, Listener {
 
@@ -118,10 +121,10 @@ public class BotManager implements Initiable, Listener {
        // }
     }
 
-    @EventHandler
-    public void onBungeeData(final BungeeDataRecieved e) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onData(final PlayerJoinEvent e) {
         final Player pl = e.getPlayer();
-     //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
+        //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
             for (final BotEntity be : botByName.values()) {
@@ -132,10 +135,44 @@ public class BotManager implements Initiable, Listener {
         }, 4);
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onWorld(final PlayerChangedWorldEvent e) {
+        final Player pl = e.getPlayer();
+        //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
+        final UUID id = pl.getWorld().getUID();
+        Ostrov.async(() -> {
+            for (final BotEntity be : botByName.values()) {
+                if (be.w.getUID().equals(id)) {
+                    be.updateAll(pl);
+                }
+            }
+        }, 4);
+    }
+    
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void startTrack(final PlayerTrackEntityEvent e) {
+        final Player p = e.getPlayer();
+        if (e.getEntity().getType()==EntityType.HUSK) {
+            Ostrov.sync(() -> {
+                BotEntity be = botById.get(e.getEntity().getEntityId());
+Ostrov.log("startTrack HUSK be="+be);
+            }, 1);
+            
+        }
+    }
    // @EventHandler
    // public void onLeave(final PlayerQuitEvent e) {
    //     removePlayer(e.getPlayer());
   //  }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onInteract(final PlayerInteractAtEntityEvent e) {
+        final BotEntity be = botById.get(e.getRightClicked().getEntityId());
+        if (be != null) {
+            be.onInteract(e);
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
@@ -145,7 +182,7 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onDeath(final EntityDeathEvent e) {
         final BotEntity be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
@@ -153,7 +190,7 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onTrans(final EntityTransformEvent e) {
         if (e.getEntity() instanceof final LivingEntity le && isBot(le)) {
             e.setCancelled(true);
@@ -226,130 +263,15 @@ public class BotManager implements Initiable, Listener {
                 final InputStreamReader tsr = new InputStreamReader(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").openStream());
                 final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).get(0));
                 skin.put(name, new String []{ (String) ppt.get("value"), (String) ppt.get("signature")} );
-                //skinSignatures.put(name, (String) ppt.get("signature"));
             } catch (NullPointerException | IOException | ParseException e) {
-                //skin.put(name, new String []{"", ""}); зачем хранить пустышку, проще отдать пустышку по гет если нет ключа
-                //skinSignatures.put(name, "");
             }
         });
     }
-    
-    
-    
-    
- 
-    public static void sendWrldPckts(final net.minecraft.world.level.World w, final Packet<?>... ps) {
-        for (final EntityHuman e : w.v()) {
-            if (e instanceof EntityPlayer entityPlayer) {
-                final NetworkManager nm = entityPlayer.c.h;
-                for (final Packet<?> p : ps) {
-                    nm.a(p);
-                }
-            }
-        }
+
+    @Deprecated
+    @SafeVarargs
+    public static void sendWrldPckts(final net.minecraft.world.level.World w, final Packet<PacketListenerPlayOut>... ps) {
+        VM.server().sendWorldPackets(w.getWorld(), ps);
     }
-
-
-/*
-    public static void removePlayer(final Player p) {
-        final Channel channel = VM.getNmsServer().toNMS(p).c.h.m;
-        channel.eventLoop().submit(() -> {
-            channel.pipeline().remove("ostrov_bot_" + p.getName());
-            return null;
-        });
-    }
-
-    public static void injectPlayer(final Player p) {
-        final NetworkManager nm = VM.getNmsServer().toNMS(p).c.h;
-        nm.m.pipeline().addBefore("packet_handler", "ostrov_bot_" + p.getName(), new ChannelDuplexHandler() {
-            @Override
-            public void channelRead(final ChannelHandlerContext chc, final Object packet) throws Exception {
-                if (packet instanceof final PacketPlayInUseEntity uep) {
-                    if (uep.getActionType() == b.b) {
-                        final int id = uep.getEntityId();
-                        for (final BotEntity bt : BotManager.rIdBots.values()) {
-                            if (bt.af() == id) {
-                                useId.set(uep, bt.rid);
-                                break;
-                            }
-                        }
-                    }
-                }
-                super.channelRead(chc, packet);
-            }
-
-            @Override
-            public void write(final ChannelHandlerContext chc, final Object packet, final ChannelPromise channelPromise) throws Exception {
-
-//                if (packet instanceof PacketPlayOutScoreboardTeam) {
-//                	p.sendMessage(((PacketPlayOutScoreboardTeam) packet).toString());
-//                }
-                if (packet instanceof PacketPlayOutSpawnEntity) {
-                    if (BotManager.rIdBots.containsKey(((PacketPlayOutSpawnEntity) packet).a())) {
-                        return;
-                    }
-                } else if (packet instanceof PacketPlayOutEntityMetadata) {
-                    if (BotManager.rIdBots.containsKey(((PacketPlayOutEntityMetadata) packet).a())) {
-                        return;
-                    }
-                } else if (packet instanceof PacketPlayOutEntityTeleport) {
-                    if (BotManager.rIdBots.containsKey(((PacketPlayOutEntityTeleport) packet).a())) {
-                        return;
-                    }
-                } else if (packet instanceof PacketPlayOutUpdateAttributes) {
-                    if (BotManager.rIdBots.containsKey(((PacketPlayOutUpdateAttributes) packet).a())) {
-                        return;
-                    }
-                } else if (packet instanceof PacketPlayOutEntity) {
-                    if (BotManager.rIdBots.containsKey(entId.get(packet))) {
-                        return;
-                    }
-                } else if (packet instanceof ClientboundBundlePacket) {
-                    final Iterator<Packet<PacketListenerPlayOut>> pit = ((ClientboundBundlePacket) packet).a().iterator();
-                    while (pit.hasNext()) {
-                        final Packet<?> pc = pit.next();
-
-                        if (pc instanceof PacketPlayOutSpawnEntity) {
-                            if (BotManager.rIdBots.containsKey(((PacketPlayOutSpawnEntity) pc).a())) {
-                                pit.remove();
-                            }
-                        } else if (pc instanceof PacketPlayOutEntityMetadata) {
-                            if (BotManager.rIdBots.containsKey(((PacketPlayOutEntityMetadata) pc).a())) {
-                                pit.remove();
-                            }
-                        } else if (pc instanceof PacketPlayOutEntity) {
-                            if (BotManager.rIdBots.containsKey(entId.get(pc))) {
-                                pit.remove();
-                            }
-                        }
-                    }
-                }
-
-                /*if (packet instanceof PacketPlayOutKeepAlive 
-                	|| packet instanceof PacketPlayOutUnloadChunk
-                	|| packet instanceof ClientboundBundlePacket
-                	|| packet instanceof PacketPlayOutViewCentre
-                	|| packet instanceof ClientboundLevelChunkWithLightPacket
-                	|| packet instanceof PacketPlayOutEntity
-                	|| packet instanceof PacketPlayOutEntityDestroy) {
-                    super.write(chc, packet, channelPromise);
-                	return;
-                }
-                
-                if (packet instanceof PacketPlayOutEntityMetadata 
-                	|| packet instanceof ClientboundChunksBiomesPacket
-                	|| packet instanceof PacketPlayOutUpdateTime
-                	|| packet instanceof PacketPlayOutEntityHeadRotation
-                	|| packet instanceof ClientboundSetActionBarTextPacket
-                	|| packet instanceof PacketPlayOutEntityVelocity
-                	|| packet instanceof PacketPlayOutUpdateAttributes) {
-                	return;
-                }/
-//                Bukkit.getConsoleSender().sendMessage("p-" + packet);
-                super.write(chc, packet, channelPromise);
-            }
-        });
-    }
-*/
 
 }

@@ -1,19 +1,18 @@
 package ru.komiss77.modules.bots;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
-import java.util.EnumSet;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Mob;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.world.WXYZ;
+
+import java.util.EnumSet;
 
 public class AfkBot extends BotEntity {
 
@@ -24,26 +23,6 @@ public class AfkBot extends BotEntity {
         tag("§3А вот и ", ChatLst.NIK_COLOR, " §2заспавнен");
         //TCUtils.N + "[" + TCUtils.P + "Bot" + TCUtils.N + "]
 //        tag("Просто ", "стою", " и сосу лапу");
-    }
-
-    @Override
-    public Goal<Mob> getGoal(final Mob org) {
-        return new AfkGoal(this);
-    }
-
-    @Override
-    public void onDamage(final EntityDamageEvent e) {
-      //  if (e instanceof final EntityDamageByEntityEvent ee) {
-       //     if (ee.getDamager() instanceof final Player pl) {
-                //QuestManager.complete(pl, PM.getOplayer(pl, LobbyPlayer.class), Quests.greet);
-         //   }
-       // }
-        super.onDamage(e);
-    }
-
-    @Override
-    public void onDeath(EntityDeathEvent e) {
-        remove();
     }
     
     static class AfkGoal implements Goal<Mob> {

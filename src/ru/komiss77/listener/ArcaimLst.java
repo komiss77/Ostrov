@@ -12,7 +12,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -45,6 +44,7 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
+import ru.komiss77.version.VM;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -135,7 +135,7 @@ public class ArcaimLst implements Listener {
                     Ostrov.random.nextDouble() - 0.5d, Ostrov.random.nextDouble() - 0.5d)
                     .subtract(loc).toVector();
                 if (vc.lengthSquared() < 10) {
-                    BotManager.sendWrldPckts(bot.dI(), new PacketPlayOutAnimation(bot, 0));
+                    VM.server().sendWorldPackets(bot.w, new PacketPlayOutAnimation(bot, 0));
                     tgt.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 1f);
                 }
             } else vc = tgt.getLocation().subtract(loc).toVector();
@@ -340,10 +340,11 @@ public class ArcaimLst implements Listener {
                 if (!p.isValid() || !p.isOnline()) return;
                 final Location loc = new Location(p.getWorld(), 130, 73, -281);
                 p.teleport(loc);
-                final AdminBot ab = BotManager.createBot(admin, AdminBot.class, () -> new AdminBot(p));
+                final AdminBot ab = BotManager.createBot(admin, AdminBot.class, nm -> new AdminBot(p));
                 if (ab != null) {
                     ab.telespawn(loc, null);
-                    ab.updateTag("", " §7(§eСисАдмин§7)", '7');
+                    ab.tab("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
+                    ab.tag("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.getEntity().setGravity(false);
                     p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_AMBIENT, 2f, 0.8f);
                     p.sendMessage(GM.getLogo().append(TCUtils.format(

@@ -51,7 +51,7 @@ public class Area extends Cuboid {
 		long time = System.currentTimeMillis();
 		Ostrov.log_ok("Mapping area " + displayName);
 		
-		final IServer is = VM.getNmsServer();
+		final IServer is = VM.server();
 		final Iterator<XYZ> it = iteratorXYZ(Rotate.r0);
 		while (it.hasNext()) {
 			final XYZ lc = it.next();
@@ -136,7 +136,7 @@ public class Area extends Cuboid {
 		if (nxt == null) nxt = walkable.get(new XYZ("", sp.x + dx, sp.y - 1, sp.z + dz).getSLoc());
 			
 		if (nxt == null) {
-			final IServer is = VM.getNmsServer();
+			final IServer is = VM.server();
 			for (int i = 1; i != 4; i++) {
 				for (int d = -2; d != (i == 1 ? 8 : 2); d++) {
 					if (is.getFastMat(w, dx * i + sp.x, sp.y - d, dz * i + sp.z).isCollidable()) {

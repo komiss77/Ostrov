@@ -38,7 +38,7 @@ import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
 import ru.komiss77.objects.CustomTag;
-import ru.komiss77.version.v1_20_R1.PlayerPacketHandler;
+import ru.komiss77.version.v1_20_R3.PlayerPacketHandler;
 
 
 
@@ -191,7 +191,7 @@ public class Oplayer {
         score = new CustomScore((Player) p);
         tag = new CustomTag(p);
         Oplayer.this.tag(tagPreffix, tagSuffix);
-        packetSpy = VM.getNmsServer().addPacketSpy((Player) p, Oplayer.this);
+        packetSpy = VM.server().addPacketSpy((Player) p, Oplayer.this);
     	//VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    
     
@@ -745,10 +745,6 @@ public class Oplayer {
         setFlag(StatFlag.LocalChat, local);
         return true;
     }
-
-    
-
-
 
 }
  /*

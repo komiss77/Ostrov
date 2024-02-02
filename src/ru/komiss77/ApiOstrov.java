@@ -262,9 +262,9 @@ public class ApiOstrov {
         final int y_ori = feet_y;
         final int z = feetLoc.getBlockZ();
         
-        Material headMat = VM.getNmsServer().getFastMat(w, x, feet_y+1, z);
-        Material feetMat = VM.getNmsServer().getFastMat(w, x, feet_y, z);
-        Material downMat = VM.getNmsServer().getFastMat(w, x, feet_y-1, z);
+        Material headMat = VM.server().getFastMat(w, x, feet_y+1, z);
+        Material feetMat = VM.server().getFastMat(w, x, feet_y, z);
+        Material downMat = VM.server().getFastMat(w, x, feet_y-1, z);
         
         //проверка указанного места
         boolean safe = TeleportLoc.isSafePlace(headMat, feetMat, downMat);
@@ -272,7 +272,7 @@ public class ApiOstrov {
         //проверка на блок выше
         if (!safe) {
             feet_y = y_ori+1;//feetLoc.add(0, 1, 0);
-            final  Material upHead = VM.getNmsServer().getFastMat(w, x, y_ori+2, z);
+            final  Material upHead = VM.server().getFastMat(w, x, y_ori+2, z);
             safe =  TeleportLoc.isSafePlace(upHead, headMat, feetMat);
             //LocationUtil.isPassable(upHead) && LocationUtil.isPassable(headMat)  && (LocationUtil.canStand(feetMat) || feetMat==Material.WATER);
             if (safe) downMat = feetMat; //если норм, прописать что под ногами в таком варианте
@@ -281,7 +281,7 @@ public class ApiOstrov {
         //проверка на блок ниже
         if (!safe) {
             feet_y = y_ori-1;//feetLoc.subtract(0, 2, 0);
-            final Material subDown = VM.getNmsServer().getFastMat(w, x, y_ori-2, z);
+            final Material subDown = VM.server().getFastMat(w, x, y_ori-2, z);
             safe =  TeleportLoc.isSafePlace(feetMat, downMat, subDown);
             //safe = LocationUtil.isPassable(feetMat)  && LocationUtil.isPassable(downMat) && (LocationUtil.canStand(subDown) || subDown==Material.WATER);
             if (safe) downMat = subDown; //если норм, прописать что под ногами в таком варианте
@@ -298,7 +298,7 @@ public class ApiOstrov {
                 }
                 headMat = feetMat; //VM.getNmsServer().getFastMat(w, x, y-1, z);
                 feetMat = downMat;//VM.getNmsServer().getFastMat(w, x, y, z);
-                downMat = VM.getNmsServer().getFastMat(w, x, feet_y-1, z);
+                downMat = VM.server().getFastMat(w, x, feet_y-1, z);
 //Ostrov.log("find y="+y+" "+headMat+" "+feetMat+" "+downMat);
                 //если над нижним блоком нет 2 блока для тела, пропускаем ниже
                 //if (!LocationUtil.isPassable(headMat) || !LocationUtil.isPassable(feetMat)) {

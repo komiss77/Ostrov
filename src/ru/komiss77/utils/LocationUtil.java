@@ -198,7 +198,7 @@ public class LocationUtil {
         Material feetMat;
 
         for (; find_y > minY; find_y--) {
-            feetMat = VM.getNmsServer().getFastMat(loc.getWorld(), x, find_y, z);
+            feetMat = VM.server().getFastMat(loc.getWorld(), x, find_y, z);
 
             //в аду или при генерации как в аду (определяем потолок из бедрока)
             if ((loc.getWorld().getEnvironment() == World.Environment.NETHER || find_y > 0) && feetMat == Material.BEDROCK) {
@@ -206,7 +206,7 @@ public class LocationUtil {
             }
 
             //2 блока воды подряд - поверхность моря, не подходит
-            if (feetMat == Material.WATER && VM.getNmsServer().getFastMat(loc.getWorld(), x, find_y - 1, z) == Material.WATER) {
+            if (feetMat == Material.WATER && VM.server().getFastMat(loc.getWorld(), x, find_y - 1, z) == Material.WATER) {
                 //break;
                 return null;
             }
@@ -246,7 +246,7 @@ public class LocationUtil {
                 CHORUS_FLOWER, 
                 CHORUS_PLANT, 
                 TALL_GRASS, 
-                GRASS, 
+                SHORT_GRASS, 
                 FERN, 
                 LARGE_FERN, 
                 SWEET_BERRY_BUSH, 
@@ -402,7 +402,7 @@ public class LocationUtil {
             return true;
         }
         final Vector vec = ch.normalize().multiply(inc);
-        final IServer is = VM.getNmsServer();
+        final IServer is = VM.server();
         final World w = org.getWorld();
         while (true) {
             to.add(vec);
@@ -431,7 +431,7 @@ public class LocationUtil {
             return true;
         }
         final Vector vec = ch.normalize().multiply(inc);
-        final IServer is = VM.getNmsServer();
+        final IServer is = VM.server();
         final World w = org.getWorld();
         while (true) {
             to.add(vec);

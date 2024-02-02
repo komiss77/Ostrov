@@ -318,7 +318,7 @@ public class WorldSetupMenu implements InventoryProvider {
     private Material getWorldMat(final World w) {
         switch (w.getEnvironment()) {
             case NORMAL:
-                return Material.GRASS;
+                return Material.SHORT_GRASS;
             case NETHER:
                 return Material.NETHERRACK;
             case THE_END:

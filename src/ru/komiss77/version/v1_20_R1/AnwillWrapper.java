@@ -1,5 +1,5 @@
 package ru.komiss77.version.v1_20_R1;
-
+/*
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutCloseWindow;
@@ -37,7 +37,7 @@ public class AnwillWrapper implements IAnwillWrapper {
             Ostrov.log_warn("AnwillWrapper init : "+ex.getMessage());
         }
     }    
-    */
+    /
     
     
     
@@ -51,7 +51,7 @@ public class AnwillWrapper implements IAnwillWrapper {
      *
      * @param player The player to be converted
      * @return the NMS EntityPlayer
-     */
+     /
 
     @Override
     public int getNextContainerId(Player player, Object container) {
@@ -155,3 +155,4 @@ public class AnwillWrapper implements IAnwillWrapper {
 
 
 
+*/

@@ -82,7 +82,7 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
                         p.setAllowFlight(true);
                         p.setFlying(true);
                     }
-                    ItemUtils.giveItemTo(p, openBuildMenu.clone(), 0, false);
+                    ItemUtils.giveItemTo(p, openBuildMenu.clone(), p.getInventory().getHeldItemSlot(), false);
                     if (op.setup==null) {
                         final SetupMode sm = new SetupMode(p);
                         op.setup = sm;

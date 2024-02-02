@@ -222,7 +222,7 @@ public class OstrovDB {
        final String querry = "UPDATE "+Table.BUNGEE_SERVERS.table_name+" SET "
                     + "`online`='"+Bukkit.getOnlinePlayers().size()+"',"
                     + "`onlineLimit`='"+Bukkit.getMaxPlayers()+"',"
-                    + "`tps`='"+VM.getNmsServer().getTps()+"',"
+                    + "`tps`='"+VM.server().getTps()+"',"
                     + "`memory`='"+(int)(Runtime.getRuntime().totalMemory()/1024/1024 )+"',"
                     + "`memoryLimit`='"+(int)(Runtime.getRuntime().maxMemory()/1024/1024)+"',"
                     + "`freeMemory`='"+(int)(Runtime.getRuntime().freeMemory()/1024/1024)+"',"

@@ -1,5 +1,5 @@
 package ru.komiss77.version.v1_20_R1;
-
+/*
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -38,3 +38,4 @@ public class ServerInPacketHandler extends MessageToMessageDecoder<Object> {
 } 
     
     
+*/

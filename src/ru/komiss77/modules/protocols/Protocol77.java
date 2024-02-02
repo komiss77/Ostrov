@@ -230,7 +230,7 @@ public class Protocol77 implements Listener {
 							if (bi < 32) {
 								final int dl = dark ? bi : bi - 15;
 								final Collection<? extends Player> pls = Bukkit.getOnlinePlayers();
-								final IServer is = VM.getNmsServer();
+								final IServer is = VM.server();
 								final Map<Position, BlockData> bdm = new HashMap<>();
 								for (int x = -dl; x <= dl; x++) {
 									for (int y = -dl; y <= dl; y++) {

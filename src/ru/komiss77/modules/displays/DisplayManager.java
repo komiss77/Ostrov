@@ -147,24 +147,24 @@ public class DisplayManager implements Initiable, Listener {
 		final int ln = 20 * showForSec + msg.length();
 		Timer.add(pl, "FakeText", ln >> 5);
 		
-		final WorldServer wm = VM.getNmsServer().toNMS(loc.getWorld());
+		final WorldServer wm = VM.server().toNMS(loc.getWorld());
 		final TextDisplay tds = new TextDisplay(EntityTypes.aX, wm);
-		final int eid = tds.af();
+		final int eid = tds.aj();
 		tds.e(true);
 		tds.a(BillboardConstraints.b);
 		tds.b(160);
 		
-	    byte flagBits = tds.t();//getFlags
-	    flagBits = (byte)(shadow ? flagBits | 1 : flagBits & (1 ^ 0xFFFFFFFF));
-	    flagBits = (byte)(xray ? flagBits | 2 : flagBits & (2 ^ 0xFFFFFFFF));
+	    byte flagBits = tds.z();//getFlags
+	    flagBits = (byte)(shadow ? flagBits | 1 : flagBits & ~1);
+	    flagBits = (byte)(xray ? flagBits | 2 : flagBits & ~2);
 	    tds.d(flagBits);
 		
 		tds.setPosRaw(loc.getX(), loc.getY(), loc.getZ(), false);
 		tds.c(IChatBaseComponent.a(""));
 		
-		final PlayerConnection pc = VM.getNmsServer().toNMS(pl).c;
+		final PlayerConnection pc = VM.server().toNMS(pl).c;
 		pc.a(new PacketPlayOutSpawnEntity(tds));
-		pc.a(new PacketPlayOutEntityMetadata(eid, tds.aj().c()));
+		pc.a(new PacketPlayOutEntityMetadata(eid, tds.an().c()));
 		new BukkitRunnable() {
 			int i = 1;
 			@Override
@@ -179,7 +179,7 @@ public class DisplayManager implements Initiable, Listener {
 				
 				if (i <= msg.length()) {
 					tds.c(PaperAdventure.asVanilla(TCUtils.format(msg.substring(0, i))));
-					pc.a(new PacketPlayOutEntityMetadata(eid, tds.aj().c()));
+					pc.a(new PacketPlayOutEntityMetadata(eid, tds.an().c()));
 				}
 			}
 		}.runTaskTimer(Ostrov.instance, 0, 1);

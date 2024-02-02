@@ -50,11 +50,11 @@ public class MatrixLst implements Listener{
         final CheatType type = CheatType.valueOf(e.getHackType().name());
         
         if (type==CheatType.MOVE) {
-            if (VM.getNmsServer().getFastMat(p.getWorld(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-1, p.getLocation().getBlockZ()) != Material.AIR) {
+            if (VM.server().getFastMat(p.getWorld(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-1, p.getLocation().getBlockZ()) != Material.AIR) {
 Ostrov.log_warn("CheatType.MOVE, под ногами-1 не воздух!");
                 return;
             }
-            if (VM.getNmsServer().getFastMat(p.getWorld(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-2, p.getLocation().getBlockZ()) != Material.AIR) {
+            if (VM.server().getFastMat(p.getWorld(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-2, p.getLocation().getBlockZ()) != Material.AIR) {
 Ostrov.log_warn("CheatType.MOVE, под ногами-2 не воздух!");
                 return;
             }

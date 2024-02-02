@@ -267,7 +267,7 @@ public class Perm {
             }
             
             if (!pathPermissions) {
-                VM.getNmsServer().pathPermissions();
+                VM.server().pathPermissions();
                 pathPermissions = true;
             }
             
