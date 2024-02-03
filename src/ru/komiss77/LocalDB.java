@@ -150,7 +150,7 @@ public class LocalDB {
 
         final long l = System.currentTimeMillis();
 //Ostrov.log_warn("potion="+potion);
-        String build="";
+        StringBuilder build= new StringBuilder();
         
         if (!op.mysqlData.containsKey("name")) op.mysqlData.put("name", op.nik); //подстраховки - плагины могли очистить mysqlData
         if (!op.mysqlData.containsKey("id") && op.mysqRecordId>Integer.MIN_VALUE) op.mysqlData.put("id", String.valueOf(op.mysqRecordId));
@@ -160,12 +160,12 @@ public class LocalDB {
                 if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
                 op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
                 op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation())); //
-                if (p.getBedSpawnLocation()!=null) {
-                    op.world_positions.put("bedspawnLoc", LocationUtil.toString(p.getBedSpawnLocation()));
+                if (p.getRespawnLocation()!=null) {
+                    op.world_positions.put("bedspawnLoc", LocationUtil.toString(p.getRespawnLocation()));
                 }
             }
             for (String posName : op.world_positions.keySet()) {
-                build = build+LINE_SPLIT+posName+WORD_SPLIT+op.world_positions.get(posName);
+                build.append(LINE_SPLIT).append(posName).append(WORD_SPLIT).append(op.world_positions.get(posName));
             }
             op.mysqlData.put("positions", build.substring(LINE_SPLIT.length()));//final String positions = build.replaceFirst(bigSplit, "");
         } else {
@@ -173,25 +173,25 @@ public class LocalDB {
         }
         
         if (op.mysqlData.containsKey("homes")) { //при загрузке ключа не будат, добавляется пустой при изменении домов
-            build="";
+            build = new StringBuilder();
             for (String home : op.homes.keySet()) { //только при изменении!
-                build = build+LINE_SPLIT+home+WORD_SPLIT+op.homes.get(home);
+                build.append(LINE_SPLIT).append(home).append(WORD_SPLIT).append(op.homes.get(home));
             }
             op.mysqlData.put("homes", build.substring(LINE_SPLIT.length()));//final String homes = build.replaceFirst(bigSplit, "");
         }
         
         if (op.mysqlData.containsKey("kitsUseData")) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
-            build="";
+            build = new StringBuilder();
             for (String useTimeStamp : op.kits_use_timestamp.keySet()) {  //только при изменении!
-                build = build+LINE_SPLIT+useTimeStamp+WORD_SPLIT+op.kits_use_timestamp.get(useTimeStamp);
+                build.append(LINE_SPLIT).append(useTimeStamp).append(WORD_SPLIT).append(op.kits_use_timestamp.get(useTimeStamp));
             }
             op.mysqlData.put("kitsUseData", build.substring(LINE_SPLIT.length()));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
         
         if (!op.quests.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
-            build="";
+            build = new StringBuilder();
             for (final Entry<Quest, IProgress> en : op.quests.entrySet()) {  //только при изменении!
-                build = build+LINE_SPLIT+en.getKey().code+(en.getValue().isDone() ? "" : WORD_SPLIT + en.getValue().getSave());
+                build.append(LINE_SPLIT).append(en.getKey().code).append(en.getValue().isDone() ? "" : WORD_SPLIT + en.getValue().getSave());
             }
             op.mysqlData.put("quests", build.substring(LINE_SPLIT.length()));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
@@ -510,7 +510,7 @@ public class LocalDB {
             Ostrov.sync( () -> {
                 
                 if (bedspawnLoc!=null) {
-                    p.setBedSpawnLocation(bedspawnLoc, true);
+                    p.setRespawnLocation(bedspawnLoc, true);
 //p.sendMessage("load setBedSpawnLocation="+bedspawnLoc);            
                 }
                 boolean update = false;
@@ -591,7 +591,7 @@ public class LocalDB {
             Ostrov.log_err("loadLocalData error  "+op.nik+" -> "+ex.getMessage());
             op.mysqlError = true; //op.mysqlData = null; //c null не будет сохранять при выходе!
             Ostrov.sync( () -> {
-                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, false, null)); //при ошибке вызов с пустыми данными
+                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
                 op.updTabListName(p);
             }, 1 );
             

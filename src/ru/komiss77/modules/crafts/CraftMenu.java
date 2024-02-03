@@ -230,7 +230,7 @@ public class CraftMenu implements InventoryProvider {
                         final ItemStack ti = inv.getItem(cy * 9 + cx);
                         if (!ItemUtils.isBlank(ti, false)) {
                             lrs.addIngredient(CMDMatChoice.of(ti));
-                            cs.set("recipe." + String.valueOf(shp[cy].charAt(cx - 1)), ItemUtils.toString(ti, "="));
+                            cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtils.toString(ti, "="));
                         }
                     }
                 }
@@ -264,9 +264,9 @@ public class CraftMenu implements InventoryProvider {
                 }
                 
                 shp = makeShape(xMax + 1 - xMin, yMax + 1 - yMin);
-                final StringBuffer sb = new StringBuffer(shp.length * (xMax + 1 - xMin));
+                final StringBuilder sb = new StringBuilder(shp.length * (xMax + 1 - xMin));
                 for (final String s : shp) {
-                	sb.append(":" + s);
+                	sb.append(":").append(s);
                 }
                 cs.set("shape", sb.substring(1));
                 srs.shape(shp);
@@ -276,7 +276,7 @@ public class CraftMenu implements InventoryProvider {
                 		final ItemStack ti = rcs[cy*rad + cx];
                         if (!ItemUtils.isBlank(ti, false)) {
                         	srs.setIngredient(shp[cy-yMin].charAt(cx-xMin), CMDMatChoice.of(ti));
-                            cs.set("recipe." + String.valueOf(shp[cy-yMin].charAt(cx-xMin)), ItemUtils.toString(ti, "="));
+                            cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtils.toString(ti, "="));
                         }
                 	}
                 }
@@ -420,47 +420,29 @@ public class CraftMenu implements InventoryProvider {
 	}
     
     private ItemStack makeIcon(final Material mt) {
-        switch (mt) {
-            case CHEST:
-            default:
-            	return new ItemBuilder(Material.CHEST).name("§dФормированый").build();
-            case ENDER_CHEST:
-            	return new ItemBuilder(Material.ENDER_CHEST).name("§5Безформенный").build();
-            case FURNACE:
-            	return new ItemBuilder(Material.FURNACE).name("§6Печевой").build();
-            case SMOKER:
-            	return new ItemBuilder(Material.SMOKER).name("§cЗапекающий").build();
-            case BLAST_FURNACE:
-            	return new ItemBuilder(Material.BLAST_FURNACE).name("§7Плавильный").build();
-            case CAMPFIRE:
-            	return new ItemBuilder(Material.CAMPFIRE).name("§eКостерный").build();
-            case SMITHING_TABLE:
-            	return new ItemBuilder(Material.SMITHING_TABLE).name("§fКующий").build();
-            case STONECUTTER:
-            	return new ItemBuilder(Material.STONECUTTER).name("§7Режущий").build();
-        }
+        return switch (mt) {
+            default -> new ItemBuilder(Material.CHEST).name("§dФормированый").build();
+            case ENDER_CHEST -> new ItemBuilder(Material.ENDER_CHEST).name("§5Безформенный").build();
+            case FURNACE -> new ItemBuilder(Material.FURNACE).name("§6Печевой").build();
+            case SMOKER -> new ItemBuilder(Material.SMOKER).name("§cЗапекающий").build();
+            case BLAST_FURNACE -> new ItemBuilder(Material.BLAST_FURNACE).name("§7Плавильный").build();
+            case CAMPFIRE -> new ItemBuilder(Material.CAMPFIRE).name("§eКостерный").build();
+            case SMITHING_TABLE -> new ItemBuilder(Material.SMITHING_TABLE).name("§fКующий").build();
+            case STONECUTTER -> new ItemBuilder(Material.STONECUTTER).name("§7Режущий").build();
+        };
     }
     
 	private String getRecType(final Material m) {
-        switch (m) {
-            case SMOKER:
-                return "smoker";
-            case BLAST_FURNACE:
-                return "blaster";
-            case CAMPFIRE:
-                return "campfire";
-            case FURNACE:
-                return "furnace";
-            case SMITHING_TABLE:
-                return "smith";
-            case STONECUTTER:
-                return "cutter";
-            case ENDER_CHEST:
-                return "noshape";
-            case CHEST:
-            default:
-                return "shaped";
-        }
+        return switch (m) {
+            case SMOKER -> "smoker";
+            case BLAST_FURNACE -> "blaster";
+            case CAMPFIRE -> "campfire";
+            case FURNACE -> "furnace";
+            case SMITHING_TABLE -> "smith";
+            case STONECUTTER -> "cutter";
+            case ENDER_CHEST -> "noshape";
+            default -> "shaped";
+        };
     }
 
 

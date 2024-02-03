@@ -23,13 +23,13 @@ public class VM {
     public static final EntityPose POSE_CROAKING;
     public static final EnumColor COLOR_WHITE;
     //private static final Method SignFill;
-     
+
     //прогружаем всё нужное тут, чтобы потом не ловить внезапные ошибки при обращении к классам
     static {
         REMAPPER = ReflectionRemapper.forReobfMappingsInPaperJar();
         POSE_CROAKING = EntityPose.valueOf("CROAKING");//EntityPose.i final String nmsName = VM.REMAPPER.remapFieldName(EntityPose.class, "CROAKING"); //IllegalArgumentException
         COLOR_WHITE = EnumColor.valueOf("WHITE");// EnumColor.a
-        
+
         //for (EntityPose ep : EntityPose.values()) {
 //Ostrov.log("EntityPose."+ep.name());
         //}
@@ -42,9 +42,9 @@ public class VM {
         //}
 
     }
-    
-    
-    
+
+
+
     public static String mcVersion;
     private static IServer nmsServer;
     private static IEntityGroup nmsEntGroup;
@@ -65,11 +65,11 @@ public class VM {
     }
 
     public static Method getMethod(Class<?> clazz, String name) {
-        
+
         //final String runtimeName = REMAPPER.remapClassName("net.minecraft.server.level.ServerPlayer");
         //final Class<?> serverPlayerClass = Class.forName(runtimeName); // Exception handling omitted for brevity
         //final String runtimeFieldName = REMAPPER.remapFieldName(serverPlayerClass, "seenCredits");
-        
+
         //final String runtimeFieldName = REMAPPER.remapFieldName(net.minecraft.server.level.ServerPlayer., "seenCredits");
 
        /* try {
@@ -82,13 +82,13 @@ public class VM {
         }*/
        return null;
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     public VM(Ostrov plugin) {
 
         try {          

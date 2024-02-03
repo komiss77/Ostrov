@@ -65,7 +65,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
-        HTTP = Dsl.asyncHttpClient(config().);
+        HTTP = Dsl.asyncHttpClient(config().build());
         Config.init(); // 1 !
         new VM(this); // 2 !
     }

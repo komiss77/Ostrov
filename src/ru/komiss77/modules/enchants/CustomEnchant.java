@@ -1,10 +1,7 @@
 package ru.komiss77.modules.enchants;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-
+import io.papermc.paper.enchantments.EnchantmentRarity;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -16,12 +13,15 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-
-import io.papermc.paper.enchantments.EnchantmentRarity;
-import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.utils.TCUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class CustomEnchant extends Enchantment {
     
@@ -138,10 +138,8 @@ public class CustomEnchant extends Enchantment {
 //        Ostrov.async(() -> Collections.shuffle(css));
 //        return css;
 //    }
-
-    static {
 //    	openRegister();
-        
+
     	/*enchInfo.put(PHANTOMIC, new EnchantInfo("Туманность", 1, "Удары при низком освещении", "увеличивают урон оружия"));
     	enchInfo.put(AQUATIC, new EnchantInfo("Сырость", 1, "Нанасит больше вреда мобам,", "отторгающим или ненавидящим воду"));
     	enchInfo.put(ARROW_DAMAGE, new EnchantInfo("Сила", 2, "Наносит больший урон всеми", "видами стрел"));
@@ -153,7 +151,7 @@ public class CustomEnchant extends Enchantment {
     	enchInfo.put(IMPALING, new EnchantInfo("Пронзатель", 1, "Наносит больше урона всем", "подводным созданиям"));
     	enchInfo.put(REINSTATION, new EnchantInfo("Реституция", 1, "Дает шанс сохранить стрелу", "при выстреле из дальнего оружия"));
     	enchInfo.put(RESTORATION, new EnchantInfo("Обновление", 3, "Дает регенерацию сразу после", "получения урона, на короткое время"));
-    	
+
     	enchInfo.put(ARROW_KNOCKBACK, new EnchantInfo("Откидывание", 1680, "Откидывает цели снарядами", "при попадании"));
     	enchInfo.put(EXPANSION, new EnchantInfo("Экспансия", 1800, "Увеличивает радиус выкопки", "различных материалов"));
     	enchInfo.put(FIRE_ASPECT, new EnchantInfo("Заговор огня", 1640, "Поджигает цель при ударе", "на несколько секунд"));
@@ -161,7 +159,7 @@ public class CustomEnchant extends Enchantment {
     	enchInfo.put(KNOCKBACK, new EnchantInfo("Отдача", 1680, "Откидывает цели при", "ближних ударах"));
     	enchInfo.put(NINJA, new EnchantInfo("Ниндзя", 1760, "Снижает шанс что тебя заметят", "монстры при передвижении"));
     	enchInfo.put(BALOON, new EnchantInfo("Шарик", 1760, "Приклепляет шарик при попадании,", "дает левитацию на пару секунд"));
-    	
+
     	enchInfo.put(DISCHARGE, new EnchantInfo("Разряд", 220, "Взрывает снаряд при попадании", "по существу или блоку"));
     	enchInfo.put(DURABILITY, new EnchantInfo("Прочность", 240, "Делает вещь более устойчивой", "к стрессу при работе"));
     	enchInfo.put(FREEZE, new EnchantInfo("Заморозка", 240, "Замораживает цель в глыбу", "льда при ударе"));
@@ -184,7 +182,7 @@ public class CustomEnchant extends Enchantment {
     	enchInfo.put(VAMPIRISM, new EnchantInfo("Вампиризм", 240, "Возобновляет часть нанесенного", "урона как здоровье атакующему"));
     	enchInfo.put(VEINING, new EnchantInfo("Венозность", 240, "Позволяет выкапывать ближайние", "блоки одинакового типа"));
     	enchInfo.put(WITHERED, new EnchantInfo("Иссушение", 220, "Иссушает оппонента при", "ударе по броне"));
-    	
+
     	enchInfo.put(AEROWDYNAMIC, new EnchantInfo("Аэродинамика", 26, "Добавляет скорость, урон, и", "дистанцию всем снарядам"));
     	enchInfo.put(PIERCING, new EnchantInfo("Пронзающая стрела", 24, "Позволяет пронзить несколько", "поверхностей за выстрел"));
     	enchInfo.put(PROTECTION_ENVIRONMENTAL, new EnchantInfo("Защита", 28, "Дает больше защиты от", "всех типов урона"));
@@ -194,7 +192,7 @@ public class CustomEnchant extends Enchantment {
     	enchInfo.put(PROTECTION_POTIONS, new EnchantInfo("Анти-Магия", 24, "Защищает больше от вреда", "магии и зелий урона"));
     	enchInfo.put(PROTECTION_PROJECTILE, new EnchantInfo("Защита от снарядов", 26, "Дает больше защиты от всех", "типов дальних орудий"));
     	enchInfo.put(REPARATION, new EnchantInfo("Репарация", 28, "Шанс не потратить прочность", "при выкопке подходящего ресурса"));
-    	
+
     	enchInfo.put(ARROW_FIRE, new EnchantInfo("Воспламенение", 6800, "Поджег цели при попадании", "из дальнего оружия"));
     	enchInfo.put(CHANNELING, new EnchantInfo("Громовержец", 6400, "Призывает молнию при попадании,", "во время дождя или грозы"));
     	enchInfo.put(MULTISHOT, new EnchantInfo("Тройной выстрел", 7600, "Позволяет выстреливать три", "стрелы за раз, из арбалета"));
@@ -203,9 +201,9 @@ public class CustomEnchant extends Enchantment {
     	enchInfo.put(SMELTING_TOUCH, new EnchantInfo("Переплавка", 7200, "Переплавляет все плавимые", "ресурсы в их итоговый предмет"));
     	enchInfo.put(WATER_WORKER, new EnchantInfo("Подводник", 6800, "Дает возможность копать блоки", "под водой намного быстрее"));
         */
-    }
-    
+
     private final String nm;
+    private final NamespacedKey key;
     private final byte mxlvl;
     private final byte chance;
     private final ItemClass its;
@@ -239,7 +237,7 @@ public class CustomEnchant extends Enchantment {
             final Consumer<ProjectileHitEvent> onPrj,
             final Consumer<EntityShootBowEvent> onSht,
             final Consumer<BlockBreakEvent> onBrk) {
-//super(NamespacedKey.minecraft(nmkey));
+        super();
         this.nm = nm;
         this.mxlvl = mxlvl;
         this.chance = chance;
@@ -256,11 +254,10 @@ public class CustomEnchant extends Enchantment {
         this.onPrj = onPrj;
         this.onSht = onSht;
         this.onBrk = onBrk;
-        
-        if (VALUES.put(NamespacedKey.minecraft(nmkey), this) == null) {
-        	//try {registerEnchantment(this);} catch (IllegalArgumentException e) {
-        	//	Ostrov.log_warn("Enchant " + nmkey + " is already registered!");
-		//	}
+
+        this.key = NamespacedKey.minecraft(nmkey);
+        if (VALUES.put(key, this) == null) {
+            Ostrov.log_warn("Enchant " + nmkey + " is already registered!");
         }
     }
     
@@ -279,7 +276,7 @@ public class CustomEnchant extends Enchantment {
     
     @Override
     public boolean canEnchantItem(final ItemStack it) {
-        return it == null ? false : (its.equals(ItemClass.ALL) ? true : its.has(it.getType()));
+        return it != null && (its.equals(ItemClass.ALL) || its.has(it.getType()));
     }
     
     @Override
@@ -325,7 +322,7 @@ public class CustomEnchant extends Enchantment {
 
     @Override
     public Component displayName(final int lvl) {
-        final StringBuffer sb = new StringBuffer((isCrsd ? "§c" : "§7") + nm + " ");
+        final StringBuilder sb = new StringBuilder((isCrsd ? "§c" : "§7") + nm + " ");
         switch (lvl) {
             case 1:
                 sb.append(getMaxLevel() == 1 ? "" : "I");
@@ -358,7 +355,7 @@ public class CustomEnchant extends Enchantment {
                 sb.append("X");
                 break;
             default:
-                sb.append(String.valueOf(lvl));
+                sb.append(lvl);
                 break;
         }
         return TCUtils.format(sb.toString());
@@ -389,12 +386,22 @@ public class CustomEnchant extends Enchantment {
     }
 
     @Override
+    public int getMinModifiedCost(final int lvl) {
+        return 1 + ((lvl - 1) << 5) / getMaxLevel();
+    }
+
+    @Override
+    public int getMaxModifiedCost(final int lvl) {
+        return 11 + ((lvl - 1) << 6) / getMaxLevel();
+    }
+
+    @Override
     public boolean isTradeable() {
         return isTrdbl;
     }
     
     public static CustomEnchant[] values() {
-        return VALUES.values().toArray(new CustomEnchant[VALUES.size()]);
+        return VALUES.values().toArray(new CustomEnchant[0]);
     }
     
     public boolean noCnflcts(final Map<Enchantment, Integer> ens) {
@@ -425,17 +432,7 @@ public class CustomEnchant extends Enchantment {
     }
 
     @Override
-    public int getMinModifiedCost(int i) {
-        return 1;
-    }
-
-    @Override
-    public int getMaxModifiedCost(int i) {
-        return 1;
-    }
-
-    @Override
-    public NamespacedKey getKey() {
-        return null;
+    public @NotNull NamespacedKey getKey() {
+        return key;
     }
 }

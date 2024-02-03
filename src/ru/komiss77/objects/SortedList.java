@@ -423,7 +423,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
      * any subsequent elements to the right (adds one to their indices).
      *
      * @param index index at which the specified element is to be inserted
-     * @param element element to be inserted
+     * @param e element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(final int index, final E e) {
@@ -501,8 +501,8 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
     private boolean equalsArrayList(SortedList<?> other) {
         final int otherModCount = other.modCount;
         final int s = size;
-        boolean equal;
-        if (equal = (s == other.size)) {
+        boolean equal = s == other.size;
+        if (equal) {
             final Object[] otherEs = other.elementData;
             final Object[] es = elementData;
             if (s > es.length || s > otherEs.length) {
@@ -1318,7 +1318,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
                     }
                 }
 
-                final void checkForComodification() {
+                void checkForComodification() {
                     if (root.modCount != expectedModCount)
                         throw new ConcurrentModificationException();
                 }
@@ -1635,7 +1635,6 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
     @Override
     public void replaceAll(UnaryOperator<E> operator) {
         replaceAllRange(operator, 0, size);
-        // TODO(8203662): remove increment of modCount from ...
         modCount++;
     }
 

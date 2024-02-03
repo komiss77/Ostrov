@@ -266,20 +266,16 @@ public class WorldManager implements Initiable {
             
         final File configFile = new File(worldFoldersDirectory, "ostrov.cfg");
         if (configFile.exists() && !configFile.isDirectory()) {
-            StringBuilder sb = new StringBuilder (Ostrov.PREFIX);
-            sb.append("§aнайдена конфигурация для мира! ");
             //sender.sendMessage(Ostrov.prefix+"§aнайдена конфигурация для мира!");
             final YamlConfiguration yml = YamlConfiguration.loadConfiguration(configFile);
             
             for (World.Environment env : World.Environment.values()) {
                 if (env.toString().equalsIgnoreCase(yml.getString("environment", "NORMAL"))) {
                     environment=Environment.valueOf(yml.getString("environment", "NORMAL").toUpperCase());
-                    sb.append(environment.toString()).append(", ");
                     break;
                 }
             }
             generator = Generator.fromString( yml.getString("generator", "empty") );
-            sb.append(generator.toString()).append(", ");
         }
         
         if (environment==null) environment = Environment.NORMAL;
@@ -515,47 +511,47 @@ public class WorldManager implements Initiable {
     public static boolean delete(CommandSender sender, String world_name) {
         if (sender==null) sender = Bukkit.getConsoleSender();
         
-            final World world = Bukkit.getWorld(world_name.toLowerCase());
+        final World world = Bukkit.getWorld(world_name.toLowerCase());
 
-            final String translitName = TransLiter.cyr2lat(world_name);
-            if (!world_name.equalsIgnoreCase(translitName)) {
-                sender.sendMessage(Ostrov.PREFIX+"§e*Название перекодировано в "+translitName);
-                world_name=translitName;
-            }
-            
-            if (world != null) {
-                
-                if (!world.getPlayers().isEmpty()) {
-                    sender.sendMessage(Ostrov.PREFIX+"Все игроки должны покинуть мир перед удалением!");
-                    for (Player p : world.getPlayers()) {
-                        sender.sendMessage(Ostrov.PREFIX+"- " + p.getName());
-                    }
-                    return false;
+        final String translitName = TransLiter.cyr2lat(world_name);
+        if (!world_name.equalsIgnoreCase(translitName)) {
+            sender.sendMessage(Ostrov.PREFIX+"§e*Название перекодировано в "+translitName);
+            world_name=translitName;
+        }
+
+        if (world != null) {
+
+            if (!world.getPlayers().isEmpty()) {
+                sender.sendMessage(Ostrov.PREFIX+"Все игроки должны покинуть мир перед удалением!");
+                for (Player p : world.getPlayers()) {
+                    sender.sendMessage(Ostrov.PREFIX+"- " + p.getName());
                 }
-                Bukkit.unloadWorld(world, false); //тут не надо сохранять - на удаление!
-                
+                return false;
+            }
+            Bukkit.unloadWorld(world, false); //тут не надо сохранять - на удаление!
+
+            final long currentTimeMillis4 = System.currentTimeMillis();
+            WorldManagerCmd.deleteFile(world.getWorldFolder());
+            sender.sendMessage(Ostrov.PREFIX+"мир выгружен, его файлы удалёны за §5"+(System.currentTimeMillis() - currentTimeMillis4) + "ms!");
+            return true;
+
+
+        } else {
+
+            sender.sendMessage(Ostrov.PREFIX+"указанный мир не загружен, ищем файлы мира...");
+
+            final File worldFolder = new File(Bukkit.getWorldContainer().getPath()+"/"+world_name);
+
+            if (worldFolder.exists() && worldFolder.isDirectory()) {
                 final long currentTimeMillis4 = System.currentTimeMillis();
-                WorldManagerCmd.deleteFile(world.getWorldFolder());
-                sender.sendMessage(Ostrov.PREFIX+"мир выгружен, его файлы удалёны за §5"+(System.currentTimeMillis() - currentTimeMillis4) + "ms!");
+                WorldManagerCmd.deleteFile(worldFolder);
+                sender.sendMessage(Ostrov.PREFIX+"файлы мира удалёны за §5"+(System.currentTimeMillis() - currentTimeMillis4) + "ms!");
                 return true;
-
-                
             } else {
-                
-                sender.sendMessage(Ostrov.PREFIX+"указанный мир не загружен, ищем файлы мира...");
-                
-                final File worldFolder = new File(Bukkit.getWorldContainer().getPath()+"/"+world_name);
-                
-                if (worldFolder.exists() && worldFolder.isDirectory()) {
-                    final long currentTimeMillis4 = System.currentTimeMillis();
-                    WorldManagerCmd.deleteFile(worldFolder);
-                    sender.sendMessage(Ostrov.PREFIX+"файлы мира удалёны за §5"+(System.currentTimeMillis() - currentTimeMillis4) + "ms!");
-                    return true;
-                } else {
-                    sender.sendMessage(Ostrov.PREFIX+"папки мира с таким путём не найдена!");
-                    return false;
-                }
+                sender.sendMessage(Ostrov.PREFIX+"папки мира с таким путём не найдена!");
+                return false;
             }
+        }
             
     }
     
@@ -651,7 +647,6 @@ public class WorldManager implements Initiable {
                 wc.type(org.bukkit.WorldType.FLAT); //Void darkness - start at around Y=64, if you want them to start at Y=0, set the level-type in the server.properties file to FLAT. 
 //Ostrov.log("=================== applyGenerator generateStructures(false)");
                 wc.generateStructures(false);
-                return;
             }
                 
             case Empty -> { 
@@ -659,20 +654,15 @@ public class WorldManager implements Initiable {
                 wc.type(org.bukkit.WorldType.FLAT); //Void darkness - start at around Y=64, if you want them to start at Y=0, set the level-type in the server.properties file to FLAT. 
 //Ostrov.log("=================== applyGenerator generateStructures(false)");
                 wc.generateStructures(false);
-                return;
             }
                 
             case LavaOcean -> {
                 wc.generator(new LavaOceanGenerator(Ostrov.instance));
                 wc.type(org.bukkit.WorldType.FLAT);
                 wc.generateStructures(false);
-                return;
             }
                 
-            default -> {
-                wc.type(org.bukkit.WorldType.valueOf(generator.toString().toUpperCase()));
-                return;
-            }
+            default -> wc.type(org.bukkit.WorldType.valueOf(generator.toString().toUpperCase()));
                 
         }
 

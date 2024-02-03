@@ -355,6 +355,7 @@ public class PM {
     
     public static void onLeave(final Player p, final boolean async) {
         final Oplayer op = remove(p.getName());
+        op.preDataSave(p, async);
         VM.server().removePacketSpy(p);
 
         //в saveLocalData инвентарь не сохранит
@@ -380,6 +381,7 @@ public class PM {
         }
         op.tag.visible(false);
         op.score.remove();
+        op.postDataSave(p, async);
     }
 
 

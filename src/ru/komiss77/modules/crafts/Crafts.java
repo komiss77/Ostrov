@@ -237,21 +237,17 @@ public final class Crafts implements Initiable, Listener {
 	        		src.addIngredient(new ExactChoice(((CMDMatChoice) ch).getItemStack()));
 	        	}
 				return src;
-			} else if (rc instanceof FurnaceRecipe) {
-				final FurnaceRecipe src = (FurnaceRecipe) rc;
-				return new FurnaceRecipe(new NamespacedKey(space, ks), src.getResult(), 
+			} else if (rc instanceof final FurnaceRecipe src) {
+                return new FurnaceRecipe(new NamespacedKey(space, ks), src.getResult(),
 					new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-			} else if (rc instanceof SmokingRecipe) {
-				final SmokingRecipe src = (SmokingRecipe) rc;
-				return new SmokingRecipe(new NamespacedKey(space, ks), src.getResult(), 
+			} else if (rc instanceof final SmokingRecipe src) {
+                return new SmokingRecipe(new NamespacedKey(space, ks), src.getResult(),
 					new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-			} else if (rc instanceof BlastingRecipe) {
-				final BlastingRecipe src = (BlastingRecipe) rc;
-				return new BlastingRecipe(new NamespacedKey(space, ks), src.getResult(), 
+			} else if (rc instanceof final BlastingRecipe src) {
+                return new BlastingRecipe(new NamespacedKey(space, ks), src.getResult(),
 					new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-			} else if (rc instanceof CampfireRecipe) {
-				final CampfireRecipe src = (CampfireRecipe) rc;
-				return new CampfireRecipe(new NamespacedKey(space, ks), src.getResult(), 
+			} else if (rc instanceof final CampfireRecipe src) {
+                return new CampfireRecipe(new NamespacedKey(space, ks), src.getResult(),
 					new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
 			} else {
 				return null;
@@ -267,17 +263,8 @@ public final class Crafts implements Initiable, Listener {
 		}
 		p.discoverRecipes(rls);
 	}
-	
-	public static class Craft {
-		
-		public final Recipe rec;
-		public final Predicate<Player> canSee;
-		
-		public Craft(final Recipe rec, final Predicate<Player> canSee) {
-			this.rec = rec;
-			this.canSee = canSee;
-		}
-	}
+
+	public record Craft(Recipe rec, Predicate<Player> canSee) {}
 	
 	@EventHandler
 	public void onCraft(final PrepareItemCraftEvent e) {
@@ -348,8 +335,7 @@ public final class Crafts implements Initiable, Listener {
 						if (pl == null) return;
 						inv.setResult(Bukkit.craftItem(mtx, pl.getWorld(), (Player) pl));
 						Bukkit.addRecipe(src);
-						return;
-					}
+                    }
 				}
 			}
 		}
@@ -418,22 +404,17 @@ public final class Crafts implements Initiable, Listener {
 	@EventHandler
 	public void onSCut(final PlayerStonecutterRecipeSelectEvent e) {
 		final StonecuttingRecipe rc = e.getStonecuttingRecipe();
-		if (rc == null) return;
-		if (rc instanceof StonecuttingRecipe) {
-			final StonecuttingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), StonecuttingRecipe.class);
-			final StonecutterInventory sci = e.getStonecutterInventory();
-			if (src == null) {
-				if (ItemUtils.isBlank(sci.getInputItem(), true) || 
-					!sci.getInputItem().getItemMeta().hasCustomModelData()) return;
-				sci.setResult(ItemUtils.air);
-				e.setCancelled(true);
-			} else {
-				if (src.getInputChoice().test(sci.getInputItem())) return;
-				sci.setResult(ItemUtils.air);
-				e.setCancelled(true);
-			}
-		}
-	}
+        final StonecuttingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), StonecuttingRecipe.class);
+        final StonecutterInventory sci = e.getStonecutterInventory();
+        if (src == null) {
+            if (ItemUtils.isBlank(sci.getInputItem(), true) ||
+                !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
+        } else {
+            if (src.getInputChoice().test(sci.getInputItem())) return;
+        }
+        sci.setResult(ItemUtils.air);
+        e.setCancelled(true);
+    }
 	
 	@EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onRecipeBook(final PlayerRecipeBookClickEvent e) {
@@ -602,8 +583,7 @@ public final class Crafts implements Initiable, Listener {
 			break;
 		default:
 			e.setCancelled(false);
-			return;
-		}
+        }
 	}
 	
 	private static int getCharIx(final String shp, final int rl, final char c) {

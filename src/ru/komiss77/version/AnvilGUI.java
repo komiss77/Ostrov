@@ -156,7 +156,6 @@ public class AnvilGUI {
 /**
      * Create an AnvilGUI and open it for the player.
      *
-     * @param plugin           A {@link org.bukkit.plugin.java.JavaPlugin} instance
      * @param player           The {@link Player} to open the inventory for
      * @param inventoryTitle   What to have the text already set to
      * @param itemText         The name of the item in the first slot of the anvilGui

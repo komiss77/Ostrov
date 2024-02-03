@@ -54,7 +54,7 @@ public class BotEntity extends EntityPlayer {
 
     private static final DedicatedServer ds = VM.server().toNMS();
 
-    public final World w;
+    public final World world;
 //    public final CustomScore score;
     public final CustomTag tag;
 
@@ -71,7 +71,7 @@ public class BotEntity extends EntityPlayer {
         super(ds, VM.server().toNMS(world), getProfile(name), ClientInformation.a());
         this.name = name;
         rid = -1;
-        this.w = world;
+        this.world = world;
 
         lastBash = -BASH_TICKS;
         lastParry = -PARRY_TICKS;
@@ -133,8 +133,8 @@ public class BotEntity extends EntityPlayer {
 
     public void parry(final LivingEntity mb, final boolean set) {
         if (set) {
-            w.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
-            w.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
+            world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
+            world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
             lastParry = mb.getTicksLived();
         } else {
             lastParry = -PARRY_TICKS;
@@ -142,8 +142,8 @@ public class BotEntity extends EntityPlayer {
     }
 
     public void hurt(final LivingEntity mb) {
-        VM.server().sendWorldPackets(w, new ClientboundHurtAnimationPacket(this));
-        w.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
+        VM.server().sendWorldPackets(world, new ClientboundHurtAnimationPacket(this));
+        world.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
     }
 
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
@@ -152,27 +152,27 @@ public class BotEntity extends EntityPlayer {
             final ItemStack it = eq.getItemInMainHand();
             eq.setItemInMainHand(eq.getItemInOffHand(), true);
             from.attack(to);
-            w.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
+            world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
-            VM.server().sendWorldPackets(w, new PacketPlayOutAnimation(this, 3));
+            VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
         } else {
             from.attack(to);
-            w.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
-            VM.server().sendWorldPackets(w, new PacketPlayOutAnimation(this, 0));
+            world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
+            VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
         }
     }
 
     @OverrideMe
     public void telespawn(final Location to, @Nullable final LivingEntity le) {
-        VM.server().sendWorldPackets(w,
+        VM.server().sendWorldPackets(world,
                 new PacketPlayOutEntityDestroy(this.aj()),
                 remListPlayerPacket());
 
         if (le == null || !le.isValid() || isDead) {
             BotManager.botById.remove(rid);
             isDead = false;
-            final Husk hs = (Husk) w.spawnEntity(to, EntityType.HUSK, false);
+            final Husk hs = (Husk) world.spawnEntity(to, EntityType.HUSK, false);
             this.rplc = new WeakReference<>(hs);
             this.rid = hs.getEntityId();
             hs.setSilent(true);
@@ -193,7 +193,7 @@ public class BotEntity extends EntityPlayer {
 
         try {this.a(EnumGamemode.a);} catch (NullPointerException e) {}
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        VM.server().sendWorldPackets(w,
+        VM.server().sendWorldPackets(world,
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
             new PacketPlayOutSpawnEntity(this),
@@ -253,7 +253,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
         }
-        VM.server().sendWorldPackets(w, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
     }
 
     public void item(final ItemStack it, final EquipmentSlot slot) {
@@ -262,7 +262,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().setItem(slot, it);
         }
-        VM.server().sendWorldPackets(w, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
     }
 
     public void item(final ItemStack it, final int slot) {
@@ -272,7 +272,7 @@ public class BotEntity extends EntityPlayer {
             if (mb != null) {
                 mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
             }
-            VM.server().sendWorldPackets(w, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+            VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
         }
     }
 
@@ -286,7 +286,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().clear();
         }
-        VM.server().sendWorldPackets(w, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
     }
 
     @OverrideMe
@@ -312,7 +312,7 @@ public class BotEntity extends EntityPlayer {
             BotManager.botById.remove(rid);
             mb.remove();
         }
-        VM.server().sendWorldPackets(w,
+        VM.server().sendWorldPackets(world,
             new PacketPlayOutEntityDestroy(this.aj()),
             modListPlayerPacket(), tag.killPacket());
     }
@@ -321,7 +321,7 @@ public class BotEntity extends EntityPlayer {
         BotManager.botByName.remove(name);
         BotManager.botById.remove(rid);
         die(getEntity());
-        VM.server().sendWorldPackets(w,
+        VM.server().sendWorldPackets(world,
             remListPlayerPacket());
         CustomScore.allStopTrack(name);
         this.a(RemovalReason.a);
@@ -335,13 +335,13 @@ public class BotEntity extends EntityPlayer {
 
     public WXYZ getPos() {
         final BaseBlockPosition bp = dm();
-        return new WXYZ(w, bp.u(), bp.v(), bp.w());
+        return new WXYZ(world, bp.u(), bp.v(), bp.w());
     }
 
     public void tab(final String prefix, final String affix, final String suffix) {
 //        score.tab(prefix, affix, suffix);
         listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
-        VM.server().sendWorldPackets(w, updListPlayerPacket());
+        VM.server().sendWorldPackets(world, updListPlayerPacket());
     }
     
     public void tag(final boolean show) {
@@ -455,7 +455,7 @@ public class BotEntity extends EntityPlayer {
         this.b(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         //loc.getWorld().playSound(loc, Sound.ENTITY_SHEEP_STEP, 1f, 1.2f);
         final Vector dl = new Vector(loc.getX() - ps.c, loc.getY() - ps.d, loc.getZ() - ps.e);
-        VM.server().sendWorldPackets(w,
+        VM.server().sendWorldPackets(world,
             new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
             new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
                 (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
@@ -558,16 +558,3 @@ public class BotEntity extends EntityPlayer {
         }
     }
 }
-
-
-
-
-    /*@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
-	@Override
-	public boolean equals(final Object o) {
-		return o instanceof BotEntity ? ((BotEntity) o).name.equals(name) : false;
-	}*/

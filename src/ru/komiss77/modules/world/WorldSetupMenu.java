@@ -1,13 +1,10 @@
 package ru.komiss77.modules.world;
 
+import org.bukkit.*;
 import ru.komiss77.builder.menu.WorldSettings;
 import java.util.ArrayList;
 import java.util.TreeSet;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
@@ -32,9 +29,9 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 public class WorldSetupMenu implements InventoryProvider {
     
+
     
-    
-    private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build();;
+    private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build();
     
 
     
@@ -207,7 +204,7 @@ public class WorldSetupMenu implements InventoryProvider {
 
                 }
                 
-                pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+                pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
                 pagination.setItemsPerPage(45);
         
                 contents.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> 
@@ -250,7 +247,7 @@ public class WorldSetupMenu implements InventoryProvider {
                         }));
                 }
                 
-                pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+                pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
                 pagination.setItemsPerPage(9);
                 
                 contents.set( 2, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> 
@@ -316,16 +313,12 @@ public class WorldSetupMenu implements InventoryProvider {
     }
 
     private Material getWorldMat(final World w) {
-        switch (w.getEnvironment()) {
-            case NORMAL:
-                return Material.SHORT_GRASS;
-            case NETHER:
-                return Material.NETHERRACK;
-            case THE_END:
-                return Material.END_STONE;
-            default:
-                return Material.WHITE_GLAZED_TERRACOTTA;
-        }
+        return switch (w.getEnvironment()) {
+            case NORMAL -> Material.SHORT_GRASS;
+            case NETHER -> Material.NETHERRACK;
+            case THE_END -> Material.END_STONE;
+            default -> Material.WHITE_GLAZED_TERRACOTTA;
+        };
     }
     
     

@@ -1,16 +1,23 @@
-package ru.komiss77.version.v1_20_R1;
-/*
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+package ru.komiss77.version.v1_20_R3;
+
+import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.key.Key;
+import net.minecraft.commands.CommandListenerWrapper;
+import net.minecraft.core.BlockPosition.MutableBlockPosition;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.TileEntitySign;
+import net.minecraft.world.level.block.state.IBlockData;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -24,26 +31,6 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.spigotmc.SpigotConfig;
-import com.mojang.brigadier.tree.RootCommandNode;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.core.BlockPosition.MutableBlockPosition;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutOpenSignEditor;
-import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.item.EnumColor;
-import net.minecraft.world.level.block.entity.SignText;
-import net.minecraft.world.level.block.entity.TileEntitySign;
-import net.minecraft.world.level.block.state.IBlockData;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -54,11 +41,19 @@ import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.IServer;
 import ru.komiss77.version.VM;
 
-    // private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT; 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+// private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT;
     // private static Method cC; //nmsWorld  //net.minecraft.world.entity.Entity public World cC()
 
 public class Server implements IServer {
-    
+
     @Deprecated
     @Override
     public void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
@@ -188,14 +183,14 @@ public class Server implements IServer {
     @Override //добавляется в bungeeDataHandler
     public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op) {
         final PlayerPacketHandler packetSpy = new PlayerPacketHandler(op);
-        final ChannelPipeline pipeline = toNMS(p).c.h.m.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
+        final ChannelPipeline pipeline = toNMS(p).c.c.n.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
         pipeline.addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
         return packetSpy;
     }
     
     @Override
     public void removePacketSpy (final Player p) {  //при дисконнекте
-        final Channel channel = toNMS(p).c.h.m; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
+        final Channel channel = toNMS(p).c.c.n; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
         channel.eventLoop().submit(() -> {
             channel.pipeline().remove("ostrov_"+p.getName());
             return null;
@@ -348,7 +343,7 @@ public class Server implements IServer {
     @Override
     public void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack itemStack) {
         final EntityPlayer entityPlayer = toNMS(p);
-        net.minecraft.world.inventory.Container cont = entityPlayer.bQ;
+        net.minecraft.world.inventory.Container cont = entityPlayer.bR;
         final Packet<?> packet = new PacketPlayOutSetSlot(cont.j, playerInventorySlot, playerInventorySlot,
                 net.minecraft.world.item.ItemStack.fromBukkitCopy(itemStack));
         sendPacket(p, packet);//entityPlayer.c.a(packet);
@@ -359,7 +354,7 @@ public class Server implements IServer {
         chunk.getWorld().refreshChunk(chunk.getX(), chunk.getZ());
         final net.minecraft.world.level.World nmsWorld = toNMS(p.getWorld());
         final net.minecraft.world.level.chunk.Chunk nmsChunk = nmsWorld.getChunkIfLoaded(chunk.getX(), chunk.getZ());
-        final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(nmsChunk, nmsWorld.s_(), null, null, true);
+        final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(nmsChunk, nmsWorld.z_(), null, null, true);
         sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
     }
 
@@ -374,10 +369,26 @@ public class Server implements IServer {
         toNMS(p).c.a(packet);
     }
 
+    @Override
+    @SafeVarargs
+    public final void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps) {
+        if (ps.length == 1) {
+            final Packet<PacketListenerPlayOut> p = ps[0];
+            for (final EntityPlayer ep : ((WorldServer) w).x()) {
+                ep.c.c.a(p);
+            }
+        } else {
+            final ClientboundBundlePacket p = new ClientboundBundlePacket(Arrays.asList(ps));
+            for (final EntityPlayer ep : ((WorldServer) w).x()) {
+                ep.c.c.a(p);
+            }
+        }
+    }
+
 }
 
 
-*/
+
 
 
         //лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код

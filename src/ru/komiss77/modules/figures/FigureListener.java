@@ -8,20 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreeperPowerEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
-import org.bukkit.event.entity.EntityTameEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.Merchant;
-import org.spigotmc.event.entity.EntityMountEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -154,7 +145,7 @@ public class FigureListener implements Listener{
     
     
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onMount ( final EntityMountEvent e ) {
+    public void onMount (final EntityMountEvent e) {
 //Ostrov.log("onMount isFigure="+FigureManager.isFigure(e.getMount()));
         e.setCancelled(FigureManager.isFigure(e.getMount()));
     }

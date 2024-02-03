@@ -35,7 +35,7 @@ class SpeechTaskHD extends SpeechTask {
         
 //        boolean hasClick;
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         boolean timer = true;
         int letters = 0;
         int items = 0;
@@ -45,7 +45,7 @@ class SpeechTaskHD extends SpeechTask {
                 
                 final Material mat = Material.matchMaterial(line.replaceFirst("ITEM:", ""));
                 if (mat == null) {
-                	sb.append(" " + line);
+                	sb.append(" ").append(line);
                 } else {
                 	if (!sb.isEmpty()) {
                 		timer = !DisplayManager.fakeTextAnimate(p, pos.clone(), sb.substring(1), true, false, 2, timer);
@@ -60,7 +60,7 @@ class SpeechTaskHD extends SpeechTask {
                 }
                 
             } else {
-            	sb.append(" " + line);
+            	sb.append(" ").append(line);
                 
                 /*if (hasClick) {
                 final TextHologramLine tl = speach.hologram.getLines().appendText(line);

@@ -32,8 +32,7 @@ import java.nio.charset.Charset;
  * DatagramSocketClient creates for network communications.  This is
  * especially useful for adding things like proxy support as well as better
  * support for applets.  For
- * example, you could create a
- * {@link org.apache.commons.net.DatagramSocketFactory}
+ * example, you could create a DatagramSocketFactory
  *  that
  * requests browser security capabilities before creating a socket.
  * All classes derived from DatagramSocketClient should use the

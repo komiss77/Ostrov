@@ -1,18 +1,18 @@
-package ru.komiss77.version.v1_20_R1;
-/*
+package ru.komiss77.version.v1_20_R3;
+
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutCloseWindow;
 import net.minecraft.network.protocol.game.PacketPlayOutOpenWindow;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.IInventory;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
 import net.minecraft.world.inventory.Containers;
-
-import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.bukkit.inventory.Inventory;
 import ru.komiss77.version.IAnwillWrapper;
@@ -36,14 +36,13 @@ public class AnwillWrapper implements IAnwillWrapper {
         } catch (NoSuchFieldException | SecurityException | NoSuchMethodException ex) {
             Ostrov.log_warn("AnwillWrapper init : "+ex.getMessage());
         }
-    }    
-    /
+    }*/
     
     
     
     
     private int getRealNextContainerId(Player player) {
-        return VM.getNmsServer().toNMS(player).nextContainerCounter();
+        return VM.server().toNMS(player).nextContainerCounter();
     }
 
     /**
@@ -51,7 +50,7 @@ public class AnwillWrapper implements IAnwillWrapper {
      *
      * @param player The player to be converted
      * @return the NMS EntityPlayer
-     /
+     */
 
     @Override
     public int getNextContainerId(Player player, Object container) {
@@ -60,19 +59,22 @@ public class AnwillWrapper implements IAnwillWrapper {
 
     @Override
     public void handleInventoryCloseEvent(Player player) {
-        CraftEventFactory.handleInventoryCloseEvent(VM.getNmsServer().toNMS(player), Reason.PLAYER);
+        final EntityPlayer ep = VM.server().toNMS(player);
+        final InventoryCloseEvent event = new InventoryCloseEvent(ep.bS.getBukkitView(), Reason.PLAYER);
+        ep.dM().getCraftServer().getPluginManager().callEvent(event);
+        ep.bS.transferTo(ep.bR, ep.getBukkitEntity());
     }
 
     @Override
     public void sendPacketOpenWindow(Player player, int containerId, String inventoryTitle) {
         //VM.getNmsServer().sendPacket(player, new PacketPlayOutOpenWindow(containerId, Containers.h, IChatBaseComponent.a(inventoryTitle)));
-        VM.getNmsServer().toNMS(player).c.a(new PacketPlayOutOpenWindow(containerId, Containers.h, IChatBaseComponent.a(inventoryTitle)));
+        VM.server().toNMS(player).c.a(new PacketPlayOutOpenWindow(containerId, Containers.h, IChatBaseComponent.a(inventoryTitle)));
     }
 
     @Override
     public void sendPacketCloseWindow(Player player, int containerId) {
         //VM.getNmsServer().sendPacket(player, new PacketPlayOutCloseWindow(containerId));
-        VM.getNmsServer().toNMS(player).c.a(new PacketPlayOutCloseWindow(containerId));
+        VM.server().toNMS(player).c.a(new PacketPlayOutCloseWindow(containerId));
     }
 
     @Override
@@ -83,7 +85,7 @@ public class AnwillWrapper implements IAnwillWrapper {
       //  } catch (IllegalArgumentException | IllegalAccessException ex) {
      //       Ostrov.log_warn("setActiveContainerDefault : "+ex.getMessage());
      //   }
-        VM.getNmsServer().toNMS(player).bR = VM.getNmsServer().toNMS(player).bQ;
+        VM.server().toNMS(player).bS = VM.server().toNMS(player).bR;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class AnwillWrapper implements IAnwillWrapper {
       ///  } catch (IllegalArgumentException | IllegalAccessException ex) {
       //      Ostrov.log_warn("setActiveContainer : "+ex.getMessage());
       //  }
-        VM.getNmsServer().toNMS(player).bR = (Container) container;
+        VM.server().toNMS(player).bS = (Container) container;
     }
 
     @Override
@@ -103,7 +105,7 @@ public class AnwillWrapper implements IAnwillWrapper {
 
     @Override
     public void addActiveContainerSlotListener(Object container, Player player) {
-        VM.getNmsServer().toNMS(player).a((Container) container);
+        VM.server().toNMS(player).a((Container) container);
     }
 
     @Override
@@ -126,10 +128,10 @@ public class AnwillWrapper implements IAnwillWrapper {
     private static class AnvilContainer extends ContainerAnvil {
         public AnvilContainer(Player player, int containerId, String guiTitle)  {
             super(
-                    containerId,
-                    //(PlayerInventory)fN.invoke(((CraftPlayer) player).getHandle()),
-                    VM.getNmsServer().toNMS(player).fN(),
-                    ContainerAccess.a((VM.getNmsServer().toNMS(player.getWorld())), new BlockPosition(0, 0, 0)));
+                containerId,
+                //(PlayerInventory)fN.invoke(((CraftPlayer) player).getHandle()),
+                VM.server().toNMS(player).fS(),
+                ContainerAccess.a((VM.server().toNMS(player.getWorld())), new BlockPosition(0, 0, 0)));
             this.checkReachable = false;
             setTitle(IChatBaseComponent.a(guiTitle));
         }
@@ -151,8 +153,3 @@ public class AnwillWrapper implements IAnwillWrapper {
         }
     }
 }
-
-
-
-
-*/

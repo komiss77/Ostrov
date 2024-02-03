@@ -73,105 +73,106 @@ public class Protocol77 implements Listener {
 	"§cтоко",
 	"§cок"};
 	private static final String[] text = 
- ("public Protocol77(final Player p) {\n"
- + " active = true;\n"
- + " pid = p.getUniqueId();\n"
- + " Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);\n"
- + " immune = new HashSet<>();\n"
- + " for (final Player pl : Bukkit.getOnlinePlayers()) {\n"
- + "  if (PM.getOplayer(pl).hasGroup(ProtocolCmd.grp)) immune.add(pid);\n"
- + "  final PlayerInventory inv = pl.getInventory();\n"
- + "  final ItemStack it = inv.getItem(4);\n"
- + "  inv.setItem(4, sub);\n"
- + "  if (!ItemUtils.isBlank(it, false)) {\n"
- + "   ItemUtils.giveItemsTo(p, it);\n"
- + "  }\n"
- + "  inv.setHeldItemSlot(4);\n"
- + " }\n"
- + " \n"
- + " final Protocol77 pr = this;\n"
- + " final String[] text = \n"
- + " \"\".split(\"\\n\");\n"
- + " \n"
- + " new BukkitRunnable() {\n"
- + "  int i = 0;\n"
- + "  @Override\n"
- + "  public void run() {\n"
- + "   switch (i++) {\n"
- + "   case 1:\n"
- + "    for (final Player pl : Bukkit.getOnlinePlayers()) {\n"
- + "     \n"
- + "    }\n"
- + "    break;\n"
- + "   default:\n"
- + "    break;\n"
- + "   }\n"
- + "   \n"
- + "   if (!active) {\n"
- + "    HandlerList.unregisterAll(pr);\n"
- + "    cancel();\n"
- + "    return;\n"
- + "   }\n"
- + "   \n"
- + "   for (final Player pl : Bukkit.getOnlinePlayers()) {\n"
- + "    if (!immune.contains(pl.getUniqueId())) {\n"
- + "     pl.closeInventory();\n"
- + "    }\n"
- + "   }\n"
- + "  }\n"
- + " }.runTaskTimer(Ostrov.instance, 2, 1);\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onMove(final PlayerMoveEvent e) {\n"
- + " e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onInter(final PlayerInteractEvent e) {\n"
-	+ "	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
-	+ "}\n"
-	+ "\n"
-	+ "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
-	+ "public void onEnt(final PlayerInteractAtEntityEvent e) {\n"
-	+ "	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
-	+ "}\n"
-	+ "\n"
-	+ "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onDamage(final EntityDamageEvent e) {\n"
- + " e.setCancelled(e.getEntityType() == EntityType.PLAYER && !immune.contains(e.getEntity().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onSwap(final PlayerSwapHandItemsEvent e) {\n"
- + " e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onOpen(final InventoryOpenEvent e) {\n"
- + " e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onInv(final InventoryInteractEvent e) {\n"
- + " e.setCancelled(!immune.contains(e.getWhoClicked().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onHeld(final PlayerItemHeldEvent e) {\n"
- + " e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onQuit(final PlayerQuitEvent e) {\n"
- + " if (pid.equals(e.getPlayer().getUniqueId())) active = false;\n"
- + "}\n"
- + "\n"
- + "@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)\n"
- + "public void onDrop(final PlayerDropItemEvent e) {\n"
- + " final Player p = e.getPlayer();\n"
- + " if (pid.equals(p.getUniqueId()) && p.getInventory().getHeldItemSlot() == 4) active = false;\n"
- + " else e.setCancelled(!immune.contains(p.getUniqueId()));").split("\n");
+ ("""
+	public Protocol77(final Player p) {
+	  active = true;
+	  pid = p.getUniqueId();
+	  Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
+	  immune = new HashSet<>();
+	  for (final Player pl : Bukkit.getOnlinePlayers()) {
+	   if (PM.getOplayer(pl).hasGroup(ProtocolCmd.grp)) immune.add(pid);
+	   final PlayerInventory inv = pl.getInventory();
+	   final ItemStack it = inv.getItem(4);
+	   inv.setItem(4, sub);
+	   if (!ItemUtils.isBlank(it, false)) {
+		ItemUtils.giveItemsTo(p, it);
+	   }
+	   inv.setHeldItemSlot(4);
+	  }
+	 \s
+	  final Protocol77 pr = this;
+	  final String[] text =\s
+	  "".split("\\n");
+	 \s
+	  new BukkitRunnable() {
+	   int i = 0;
+	   @Override
+	   public void run() {
+		switch (i++) {
+		case 1:
+		 for (final Player pl : Bukkit.getOnlinePlayers()) {
+		 \s
+		 }
+		 break;
+		default:
+		 break;
+		}
+	   \s
+		if (!active) {
+		 HandlerList.unregisterAll(pr);
+		 cancel();
+		 return;
+		}
+	   \s
+		for (final Player pl : Bukkit.getOnlinePlayers()) {
+		 if (!immune.contains(pl.getUniqueId())) {
+		  pl.closeInventory();
+		 }
+		}
+	   }
+	  }.runTaskTimer(Ostrov.instance, 2, 1);
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onMove(final PlayerMoveEvent e) {
+	  e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onInter(final PlayerInteractEvent e) {
+		e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onEnt(final PlayerInteractAtEntityEvent e) {
+		e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onDamage(final EntityDamageEvent e) {
+	  e.setCancelled(e.getEntityType() == EntityType.PLAYER && !immune.contains(e.getEntity().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onSwap(final PlayerSwapHandItemsEvent e) {
+	  e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onOpen(final InventoryOpenEvent e) {
+	  e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onInv(final InventoryInteractEvent e) {
+	  e.setCancelled(!immune.contains(e.getWhoClicked().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onHeld(final PlayerItemHeldEvent e) {
+	  e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onQuit(final PlayerQuitEvent e) {
+	  if (pid.equals(e.getPlayer().getUniqueId())) active = false;
+	 }
+
+	 @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+	 public void onDrop(final PlayerDropItemEvent e) {
+	  final Player p = e.getPlayer();
+	  if (pid.equals(p.getUniqueId()) && p.getInventory().getHeldItemSlot() == 4) active = false;
+	  else e.setCancelled(!immune.contains(p.getUniqueId()));""").split("\n");
 	
 	private final UUID pid;
 	private final HashSet<UUID> immune;

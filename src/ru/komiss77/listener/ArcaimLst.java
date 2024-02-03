@@ -135,7 +135,7 @@ public class ArcaimLst implements Listener {
                     Ostrov.random.nextDouble() - 0.5d, Ostrov.random.nextDouble() - 0.5d)
                     .subtract(loc).toVector();
                 if (vc.lengthSquared() < 10) {
-                    VM.server().sendWorldPackets(bot.w, new PacketPlayOutAnimation(bot, 0));
+                    VM.server().sendWorldPackets(bot.world, new PacketPlayOutAnimation(bot, 0));
                     tgt.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 1f);
                 }
             } else vc = tgt.getLocation().subtract(loc).toVector();

@@ -135,10 +135,7 @@ public class MenuMain implements InventoryProvider {
             .addLore("")
             .build(), e -> {
                 if( e.isLeftClick()) {
-                    final Set<Figure> list = new HashSet<>();
-                    for (final Figure figure : FigureManager.getFigures()) {
-                        list.add(figure);
-                    }
+                    final Set<Figure> list = new HashSet<>(FigureManager.getFigures());
                     SmartInventory.builder()
                         .id("FugureSelectMenu"+p.getName())
                         .provider(new MenuFinded(list))
