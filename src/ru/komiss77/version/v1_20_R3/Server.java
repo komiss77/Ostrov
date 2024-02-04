@@ -384,14 +384,14 @@ public class Server implements IServer {
     @SafeVarargs
     public final void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps) {
         if (ps.length == 1) {
-            final Packet<PacketListenerPlayOut> p = ps[0];
-            for (final EntityPlayer ep : ((WorldServer) w).x()) {
-                ep.c.c.a(p);
+            final Packet<PacketListenerPlayOut> packet = ps[0];
+            for (Player p : w.getPlayers()) { //for (final EntityPlayer ep : ((WorldServer) w).x()) {
+                toNMS(p).c.c.a(packet);//ep.c.c.a(packet);
             }
         } else {
-            final ClientboundBundlePacket p = new ClientboundBundlePacket(Arrays.asList(ps));
-            for (final EntityPlayer ep : ((WorldServer) w).x()) {
-                ep.c.c.a(p);
+            final ClientboundBundlePacket packets = new ClientboundBundlePacket(Arrays.asList(ps));
+            for (Player p : w.getPlayers()) { //for (final EntityPlayer ep : ((WorldServer) w).x()) {
+                toNMS(p).c.c.a(packets);//ep.c.c.a(packets);
             }
         }
     }

@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.bots.AfkBot;
 import ru.komiss77.modules.bots.BotManager;
@@ -15,6 +16,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.version.VM;
 
 
 public class TestLst implements Listener {
@@ -56,6 +58,7 @@ public class TestLst implements Listener {
                     //op.tag.visible(false);
                     //p.sendMessage("custom name off");
                 } else {
+                    PlayerInput.get(InputButton.InputType.SIGN, p, s -> p.sendMessage(s), "лохлохолхолхолхо");
                     //op.tag("§bdd☻§edfdsg", "§к|avvvddedrfer §edffffff");
                     //op.upperName.visible(true);
                     //p.sendMessage("custom name on");
@@ -63,11 +66,12 @@ public class TestLst implements Listener {
             }
             
             if (e.getAction()==Action.LEFT_CLICK_AIR ) {
-                PlayerInput.get(InputButton.InputType.SIGN, p, s -> p.sendMessage(s), "лохлохолхолхолхо");
                 if (p.isSneaking()) {
+                    VM.server().sendFakeEquip(p, 5, new ItemStack(Material.STONE));
                     //op.upperName.replaceName(true);
                     //p.sendMessage("replaceName name on");
                 } else {
+                    VM.server().sendFakeEquip(p, 5, new ItemStack(Material.AIR));
                     //op.upperName.replaceName(false);
                     //p.sendMessage("replaceName name off");
                 }
