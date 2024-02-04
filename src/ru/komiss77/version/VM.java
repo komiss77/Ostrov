@@ -13,7 +13,7 @@ import ru.komiss77.version.remapper.ReflectionRemapper;
 // фикс чата https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
 // https://github.com/jpenilla/reflection-remapper
 // https://github.com/md-5/SpecialSource/blob/master/src/main/java/net/md_5/specialsource/RemapperProcessor.java
-
+// https://github.com/WesJD/AnvilGUI
 /*
 getFields предоставит все общедоступные поля во всей иерархии классов.
 getDeclaredFields предоставит все поля (независимо от доступности), но только текущего класса (а не каких-либо базовых классов).
@@ -49,7 +49,7 @@ public class VM {
     private static IServer nmsServer;
     private static IEntityGroup nmsEntGroup;
     private static INameTag nmsNameTag;
-    protected static IAnwillWrapper anwillWrapper;
+    //protected static IAnwillWrapper anwillWrapper;
     
     
     public static DataWatcherObject<?> getDataWatcher(Class<?> clazz, String name) {
@@ -99,7 +99,7 @@ public class VM {
             nmsServer = new ru.komiss77.version.empty.Server();
             nmsEntGroup = new ru.komiss77.version.empty.EntityGroup();
             nmsNameTag = new ru.komiss77.version.empty.NameTag();
-            anwillWrapper = new ru.komiss77.version.empty.AnwillWrapper();
+            //anwillWrapper = new ru.komiss77.version.empty.AnwillWrapper();
             return;
         }
         
@@ -134,14 +134,14 @@ public class VM {
             error = true;
         }
         
-        try {
-            anwillWrapper = (IAnwillWrapper)Class.forName("ru.komiss77.version."+mcVersion+".AnwillWrapper").getDeclaredConstructor().newInstance(); //loadModule("NameTag");
+        //try {
+            //anwillWrapper = (IAnwillWrapper)Class.forName("ru.komiss77.version."+mcVersion+".AnwillWrapper").getDeclaredConstructor().newInstance(); //loadModule("NameTag");
             //Ostrov.log_ok("VM : §fменеджер версий загрузил версию §e"+serverVersion);
-        } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            Ostrov.log_err("VM load module IAnwillWrapper: "+ ex.getMessage());
-            anwillWrapper = new ru.komiss77.version.empty.AnwillWrapper();
-            error = true;
-        }
+        //} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+        //    Ostrov.log_err("VM load module IAnwillWrapper: "+ ex.getMessage());
+            //anwillWrapper = new ru.komiss77.version.empty.AnwillWrapper();
+         //   error = true;
+       // }
         
 
         if (error) {

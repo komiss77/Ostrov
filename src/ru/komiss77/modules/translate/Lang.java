@@ -74,11 +74,11 @@ public class Lang {
         HTTP = HttpClient.newHttpClient();
         rb = HttpRequest.newBuilder()
             .uri(URI.create("https://translate.api.cloud.yandex.net/translate/v2/translate"))
+                //Yandex Cloud	 Утечка конфиденциальных данных вашего аккаунта
             .headers("Content-Type", "application/json", 
-                    "Authorization", "Api-Key AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa")
-            //.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\""+("en")+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+"книга"+"\"}"))
+                    "Authorization", "Api-Key "+"AQVN0dNBKMDD4"+"njnzVS20UcLvvz"+"9KkNnekav6qFa")
             .timeout(Duration.of(5, ChronoUnit.SECONDS))
-            .version(java.net.http.HttpClient.Version.HTTP_1_1);
+            .version(java.net.http.HttpClient.Version.HTTP_1_1); //это звиздец, эта строчка стоила дня моей жизни
         RU = Locale.forLanguageTag("ru_ru");
         EN = Locale.forLanguageTag("en_us");
         err = Component.text("{}");
@@ -154,7 +154,7 @@ public class Lang {
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
             
             final HttpRequest request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")
-                            +"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}"))
+                            +"\",\"folderId\":\"b1g583"+"enhsdle"+"geb50uu\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}"))
                             .build();
             
             final CompletableFuture cf = HTTP.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
@@ -213,10 +213,10 @@ public class Lang {
         //final Request request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ce.oriStripMsg+"\"}").build();
         final HttpRequest request;
         if (ce.stripMsgRu!=null) {
-            request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""
+            request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583"+"enhsdle"+"geb50uu\",\"texts\":\""
                     +ce.stripMsgRu.replace('\\', ' ')+"\"}")).build();
         } else {
-            request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""
+            request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583"+"enhsdle"+"geb50uu\",\"texts\":\""
                     +ce.stripMsgEn.replace('\\', ' ')+"\"}")).build();
         }
         

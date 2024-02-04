@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.Pagination;
@@ -65,7 +68,15 @@ public class CustomStatNameEditor implements InventoryProvider {
                     .build(), e-> {
                         switch (e.getClick()) {
                             case LEFT:
-                                new AnvilGUI.Builder()
+                                final String sugg = MissionManager.customStatsDisplayNames.get(name).replaceAll("§", "&");
+                                PlayerInput.get(InputButton.InputType.ANVILL, p, msg -> {
+                                    msg = msg.replaceAll("&", "§");
+                                        MissionManager.customStatsDisplayNames.put(name, msg);
+                                        OstrovDB.executePstAsync(p, "UPDATE `customStats` SET `displayName`='"+msg+"' WHERE `name`='"+name+"';");
+                                        reopen(p, content);
+                                }, sugg);
+                                    
+                               /* new AnvilGUI.Builder()
                                         .title("DisplayName для "+name)
                                         .text(MissionManager.customStatsDisplayNames.get(name).replaceAll("§", "&"))
                                         .onComplete( (p1, msg) -> {
@@ -75,7 +86,7 @@ public class CustomStatNameEditor implements InventoryProvider {
                                             reopen(p, content);
                                             return AnvilGUI.Response.text(""); 
                                         })
-                                        .open(p);
+                                        .open(p);*/
                                 /*new AnvilGUI(Ostrov.instance, p, MissionManager.customStatsDisplayNames.get(name).replaceAll("§", "&"), (p1, msg) -> {
                                     msg = msg.replaceAll("&", "§");
                                     MissionManager.customStatsDisplayNames.put(name, msg);

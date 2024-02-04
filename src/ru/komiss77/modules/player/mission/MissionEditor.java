@@ -14,6 +14,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.DateTimeEditGui;
 import ru.komiss77.utils.inventory.InputButton;
@@ -384,7 +385,18 @@ public class MissionEditor implements InventoryProvider {
                             return;
                         }
                         case SHIFT_LEFT -> {
-                            new AnvilGUI.Builder()
+                            PlayerInput.get(InputButton.InputType.ANVILL, p, (msg) -> {
+                                    if (!ApiOstrov.isInteger(msg)) {
+                                        p.sendMessage("§cДолжно быть число!");
+                                    }
+                                    final int value = Integer.parseInt(msg);
+                                    if (value<0 || value>10000) {
+                                        p.sendMessage("§cот 0 до 10000!");
+                                    }
+                                    mi.request.replace(requestName, value);
+                                    reopen(p, content);
+                                }, "1");
+                            /*new AnvilGUI.Builder()
                                     .title("от 0 до 10000")
                                     .text("1")
                                     .onComplete( (p1, msg) -> {
@@ -401,7 +413,7 @@ public class MissionEditor implements InventoryProvider {
                                         reopen(p, content);
                                         return AnvilGUI.Response.text("");
                                     })
-                                    .open(p);
+                                    .open(p);*/
                             return;
                         }
                         case RIGHT -> {

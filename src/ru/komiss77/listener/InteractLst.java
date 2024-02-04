@@ -84,24 +84,25 @@ public class InteractLst implements Listener {
             .build();
 
         passport = new ItemBuilder(Material.PAPER)
-             .name("§aПаспорт")
-             .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-             .addFlags(ItemFlag.HIDE_ENCHANTS)
-             .addFlags(ItemFlag.HIDE_UNBREAKABLE)
-             .setUnbreakable(true)
-             .addLore("")
-             .addLore("§7Держите паспорт в руке,")
-             .addLore("§7и окружающие смогут его")
-             .addLore("§7посмотреть,сделав правый")
-             .addLore("§7клик на Вас.")
-             .addLore("")
-             .addLore("§7Вы всегда можете")
-             .addLore("§7достать документ из кармана")
-             .addLore("§7набрав §b/passport get")
-             .addLore("§7Изменить паспортные данные")
-             .addLore("§7можно в профиле.")
-             .addLore("")
-             .build();
+            .name("§aПаспорт")
+            .setModelData(77)
+            .addFlags(ItemFlag.HIDE_ATTRIBUTES)
+            .addFlags(ItemFlag.HIDE_ENCHANTS)
+            .addFlags(ItemFlag.HIDE_UNBREAKABLE)
+            .setUnbreakable(true)
+            .addLore("")
+            .addLore("§7Держите паспорт в руке,")
+            .addLore("§7и окружающие смогут его")
+            .addLore("§7посмотреть,сделав правый")
+            .addLore("§7клик на Вас.")
+            .addLore("")
+            .addLore("§7Вы всегда можете")
+            .addLore("§7достать документ из кармана")
+            .addLore("§7набрав §b/passport get")
+            .addLore("§7Изменить паспортные данные")
+            .addLore("§7можно в профиле.")
+            .addLore("")
+            .build();
     }
         
     
@@ -117,7 +118,8 @@ public class InteractLst implements Listener {
         if ( e.getRightClicked().getType()==EntityType.PLAYER && PM.exist(e.getRightClicked().getName()) ) {
             final Player target=(Player) e.getRightClicked();
             //если у цели в руках паспорт - показать кликающему
-            if  (ItemUtils.compareItem(target.getInventory().getItemInMainHand(), passport, true) || ItemUtils.compareItem(target.getInventory().getItemInOffHand(), passport, true)) {
+            if  (isPassport(target.getInventory().getItemInMainHand()) 
+                    || isPassport(target.getInventory().getItemInOffHand())) {
                 e.setCancelled(true);
                 PassportCmd.showLocal(e.getPlayer(), target);
             }
@@ -142,117 +144,120 @@ public class InteractLst implements Listener {
                 p.closeInventory();
             }).run(new ItemClickData(p, new InventoryClickEvent(p.getOpenInventory(), InventoryType.SlotType.CONTAINER, 0,
                 ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
+            return;
         }
 
         //для отладки есть специальный TestLst
 
         //паспорт
-        if (ItemUtils.compareItem(inHand, passport, true)) { //посмотреть свой паспорт
+        if (isPassport(inHand)) { //посмотреть свой паспорт
             e.setUseItemInHand(Event.Result.DENY);
             if (e.getAction().isRightClick()) {
                 PassportCmd.showLocal(p, p);
-            } 
+            }
+            return;
         }
         
-        
-        //Клик по табличке
-//Ostrov.log("ALL_SIGNS?"+(e.getClickedBlock() != null && Tag.ALL_SIGNS.isTagged(e.getClickedBlock().getType())));
-        if (e.getClickedBlock() != null && 
-                (Tag.ALL_SIGNS.isTagged(e.getClickedBlock().getType()) || Tag.ALL_HANGING_SIGNS.isTagged(e.getClickedBlock().getType()) ) ) {
+        final Block b = e.getClickedBlock();
+        if (b!=null) {
             
-            //редактор таблички и серверные таблички
-            if ( ApiOstrov.isLocalBuilder(p, false) ) {
-                
-                if ( ItemUtils.compareItem(signEdit, inHand, false)) {
-                    signEdit(p, e);
-                    return;
-                    
-                } else if ( ItemUtils.compareItem(gameSignEdit, inHand, false)) {
-                    e.setCancelled(true);
-                    final String locAsString = LocationUtil.toString(e.getClickedBlock().getLocation());
-                    if (e.getAction()==Action.LEFT_CLICK_BLOCK) {
-                        if (GM.signs.containsKey(locAsString)) {
-                            ConfirmationGUI.open(p, "Удалить табличку?", (result)-> {
-                                    if(result) {
-                                        e.getClickedBlock().breakNaturally();
-                                        GM.deleteGameSign(p, locAsString);
-                                    }
-                                } 
-                            );
+            //Клик по табличке
+            if ( Tag.ALL_SIGNS.isTagged(b.getType()) || Tag.ALL_HANGING_SIGNS.isTagged(b.getType()) ) {
+
+                //редактор таблички и серверные таблички
+                if ( ApiOstrov.isLocalBuilder(p, false) ) {
+
+                    if ( ItemUtils.compareItem(signEdit, inHand, false)) {
+                        signEdit(p, e);
+                        return;
+
+                    } else if ( ItemUtils.compareItem(gameSignEdit, inHand, false)) {
+                        e.setCancelled(true);
+                        final String locAsString = LocationUtil.toString(b.getLocation());
+                        if (e.getAction()==Action.LEFT_CLICK_BLOCK) {
+                            if (GM.signs.containsKey(locAsString)) {
+                                ConfirmationGUI.open(p, "Удалить табличку?", (result)-> {
+                                        if(result) {
+                                            b.breakNaturally();
+                                            GM.deleteGameSign(p, locAsString);
+                                        }
+                                    } 
+                                );
+                            } else {
+                                p.sendMessage("§6Это на серверная табличка!");
+                            }
                         } else {
-                            p.sendMessage("§6Это на серверная табличка!");
+                            if (GM.signs.containsKey(locAsString)) {
+                                p.sendMessage("§6Это серверная табличка, сначала сломайте её!");
+                                return;
+                            }
+                            SmartInventory.builder()
+                            .type(InventoryType.CHEST)
+                            .id("GameSignEditor"+p.getName()) 
+                            .provider(new GameSignEditor( (Sign) b.getState() ))
+                            .title("§fНастройка серверной таблички")
+                            .size(6, 9)
+                            .build()
+                            .open(p);
                         }
+                        return;
+                    }
+                }
+
+                //клик по серверной табличке
+                final String locAsString = LocationUtil.toString(b.getLocation());
+                final GameSign gameSign = GM.signs.get(locAsString);
+
+                if (gameSign!=null) {
+                    if (Timer.has(p, "gameSign")) {
+                        p.sendMessage("§8подождите 2 секунды..");
+                        return;
+                    }
+                    Timer.add(p, "gameSign", 2);
+
+                    e.setUseInteractedBlock(Event.Result.DENY);
+                    e.setUseItemInHand(Event.Result.DENY); //если не отменять, то может сразу сработать слим выхода с арены
+
+                    if (GM.GAME.type==ServerType.ARENAS) {
+                        Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick( p, gameSign.arena ));
                     } else {
-                        if (GM.signs.containsKey(locAsString)) {
-                            p.sendMessage("§6Это серверная табличка, сначала сломайте её!");
+                        p.performCommand("server "+gameSign.server+" "+gameSign.arena);//ApiOstrov.sendToServer (p, gameSign.server, gameSign.arena);
+                    }
+                }
+
+                //командная табличка
+                if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {//if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType())) {
+                    final Sign sign = (Sign) b.getState();
+                    final SignSide ss = sign.getSide(Side.FRONT);
+                    final String line0=TCUtils.stripColor( ss.line(0)).toLowerCase();
+                    final String line1=TCUtils.stripColor( ss.line(1));
+                    if (line0.isEmpty() || line1.isEmpty()) return;
+        //System.out.println("Sign_click 222 "+line0);
+                    switch (line0) {
+                        case "[команда]" -> {
+                            //if (ServerListener.checkCommand(p, line1.toLowerCase())) return;
+                            p.performCommand(line1.toLowerCase());
                             return;
                         }
-                        SmartInventory.builder()
-                        .type(InventoryType.CHEST)
-                        .id("GameSignEditor"+p.getName()) 
-                        .provider(new GameSignEditor( (Sign) e.getClickedBlock().getState() ))
-                        .title("§fНастройка серверной таблички")
-                        .size(6, 9)
-                        .build()
-                        .open(p);
-                    }
-                    return;
-                }
-            }
-            
-            //клик по серверной табличке
-            final String locAsString = LocationUtil.toString(e.getClickedBlock().getLocation());
-            final GameSign gameSign = GM.signs.get(locAsString);
-
-            if (gameSign!=null) {
-                if (Timer.has(p, "gameSign")) {
-                    p.sendMessage("§8подождите 2 секунды..");
-                    return;
-                }
-                Timer.add(p, "gameSign", 2);
-
-                e.setUseInteractedBlock(Event.Result.DENY);
-                e.setUseItemInHand(Event.Result.DENY); //если не отменять, то может сразу сработать слим выхода с арены
-
-                if (GM.GAME.type==ServerType.ARENAS) {
-                    Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick( p, gameSign.arena ));
-                } else {
-                    p.performCommand("server "+gameSign.server+" "+gameSign.arena);//ApiOstrov.sendToServer (p, gameSign.server, gameSign.arena);
-                }
-            }
-            
-            //командная табличка
-            if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {//if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType())) {
-                final Sign sign = (Sign) e.getClickedBlock().getState();
-                final SignSide ss = sign.getSide(Side.FRONT);
-                final String line0=TCUtils.stripColor( ss.line(0)).toLowerCase();
-                final String line1=TCUtils.stripColor( ss.line(1));
-                if (line0.isEmpty() || line1.isEmpty()) return;
-    //System.out.println("Sign_click 222 "+line0);
-                switch (line0) {
-                    case "[команда]" -> {
-                        //if (ServerListener.checkCommand(p, line1.toLowerCase())) return;
-                        p.performCommand(line1.toLowerCase());
-                        return;
-                    }
-                    case "[место]" -> {
-                        p.performCommand( "warp "+TCUtils.stripColor(line1).toLowerCase() );
-                        return;
+                        case "[место]" -> {
+                            p.performCommand( "warp "+TCUtils.stripColor(line1).toLowerCase() );
+                            return;
+                        }
                     }
                 }
             }
-        }
-        
-        //блокировка лавы
-        if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {
             
-            if (Config.disable_lava && inHand!=null && inHand.getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(p, false)) {
-                e.setUseItemInHand(Event.Result.DENY);
-                ApiOstrov.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
-                //return;
+            //блокировка лавы
+            if ( e.getAction()==Action.RIGHT_CLICK_BLOCK) {
+                if (Config.disable_lava && inHand!=null && inHand.getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(p, false)) {
+                    e.setUseItemInHand(Event.Result.DENY);
+                    ApiOstrov.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
+                    //return;
+                }
             }
             
         }
+        
         
         
     }
@@ -284,10 +289,11 @@ public class InteractLst implements Listener {
 
     private void signEdit(final Player p, final PlayerInteractEvent e) {
         e.setCancelled(true);
-        Sign sign = (Sign) e.getClickedBlock().getState();
+        final Block b = e.getClickedBlock();
+        if (b==null) return; //тупо, но без этого подчёркивает желтым - бесит
+        Sign sign = (Sign) b.getState();
         if (e.getAction()==Action.LEFT_CLICK_BLOCK) {
             if (p.isSneaking()) { //шифт+лкм - сменить тип
-                final Block b = e.getClickedBlock();
                 final List <Component> linesFront = sign.getSide(Side.FRONT).lines();
                 final List <Component> linesBack = sign.getSide(Side.BACK).lines();
                 final List<Material> types = new ArrayList<>();// = new ArrayList<>( Tag.WALL_SIGNS.isTagged(b.getType()) ? Tag.WALL_SIGNS.getValues() : Tag.STANDING_SIGNS.getValues());
@@ -365,6 +371,12 @@ public class InteractLst implements Listener {
                 p.sendMessage("Содержимое таблички скопировано в буфер. Шифт+ПКМ на другую - вставить.");
             }
         }
+    }
+
+    //это намого быстрее чем через compareItem
+    private boolean isPassport(final ItemStack is) {
+        return is!=null && is.getType()==passport.getType() && is.hasItemMeta()
+                && is.getItemMeta().hasCustomModelData() && is.getItemMeta().getCustomModelData() == passport.getItemMeta().getCustomModelData();
     }
     
       

@@ -20,13 +20,6 @@ import org.bukkit.entity.Player;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
 
-import javax.annotation.Nullable;
-import java.lang.invoke.MethodHandles;
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
-
 //https://github.com/Owen1212055/CustomNames
 //https://github.com/jpenilla/reflection-remapper
 // мапы в файле \versions\1.20.х\paper-1.20.х.jar\META-INF\mappings\reobf.tiny
@@ -71,6 +64,7 @@ public class CustomTag {
 
     //Can contain \n for >1 lines
     public void content(final String name) {
+//Ostrov.log("CustomTag content="+name);
         this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
         if (visible) {
             sendTrackersPacket(spawnPacket());
@@ -107,10 +101,12 @@ public class CustomTag {
             }
 
             if (tgt instanceof final Player pl) {
+//Ostrov.log("CustomTag sendPacket real=true "+pl.getName());
                 VM.server().sendPacket(pl, packet);
             }
         } else {
             for (final Player p : tgt.getWorld().getPlayers()) {
+//Ostrov.log("CustomTag sendPacket real=false "+p.getName());
                 VM.server().sendPacket(p, canSee.test(p) ? packet : not);
             }
         }
@@ -141,7 +137,7 @@ public class CustomTag {
                 location.z(),
                 0.0F,
                 0.0F,
-                EntityTypes.aX, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
+                EntityTypes.aY, //1201 EntityTypes.aX, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
                 0,
                 Vec3D.b,
                 0.0D

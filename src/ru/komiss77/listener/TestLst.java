@@ -38,12 +38,13 @@ public class TestLst implements Listener {
         }
 
 
+        
+        
         if (e.getItem().getType()==Material.STICK) {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel!");
             
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
-                PlayerInput.get(InputButton.InputType.SIGN, p, s -> p.sendMessage(s), "лохлохолхолхолхо");
                  //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
                 //VM.getNmsServer().signInput(p, , xyz);
                 if (bt != null) {
@@ -60,7 +61,9 @@ public class TestLst implements Listener {
                     //p.sendMessage("custom name on");
                 }
             }
+            
             if (e.getAction()==Action.LEFT_CLICK_AIR ) {
+                PlayerInput.get(InputButton.InputType.SIGN, p, s -> p.sendMessage(s), "лохлохолхолхолхо");
                 if (p.isSneaking()) {
                     //op.upperName.replaceName(true);
                     //p.sendMessage("replaceName name on");
@@ -71,6 +74,8 @@ public class TestLst implements Listener {
             }
             return;
         }
+        
+        
         
         if (e.getItem().getType()==Material.WOODEN_PICKAXE) {
             e.setCancelled(true);

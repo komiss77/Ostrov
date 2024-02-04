@@ -1,5 +1,12 @@
 package ru.komiss77.version.v1_20_R3;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
@@ -41,13 +48,6 @@ import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.IServer;
 import ru.komiss77.version.VM;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 // private static Field bQ; //bU = net.minecraft.world.entity.player.EntityHuman -> public final ContainerPlayer bT;
     // private static Method cC; //nmsWorld  //net.minecraft.world.entity.Entity public World cC()
@@ -64,7 +64,6 @@ public class Server implements IServer {
     protected static final MutableBlockPosition mutableBlockPosition;
     private static final DedicatedServer nmsServer;
     private static final IChatBaseComponent EMPTY_ICHAT_COMPONENT = IChatBaseComponent.a("");
-    private static final IBlockData signIbd;
     private static final Key chatKey;
     private static final Method CraftWorldMethod, CraftEntityMethod, CraftLivingEntityMethod, CraftPlayerMethod;
     public static final Field useIdField, entityIdField;
@@ -76,7 +75,7 @@ public class Server implements IServer {
             "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf", "save-all", "save-off", "save-on", "setidletimeout", "publish");
         chatKey = Key.key("ostrov_chat", "listener");
         mutableBlockPosition = new MutableBlockPosition(0, 0, 0);
-        signIbd = getNmsBlockData();
+        //signIbd = getNmsBlockData();
         DedicatedServer dds = null;
         try {
             dds = (DedicatedServer) Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
@@ -93,6 +92,7 @@ public class Server implements IServer {
         entityIdField = getIdFld(PacketPlayOutEntity.class);
     }
 
+    
     private static Method getNmsMethod(final String path, final String methodName) {
         try {
             return Class.forName(Bukkit.getServer().getClass().getPackageName() + path).getDeclaredMethod(methodName);
@@ -103,15 +103,6 @@ public class Server implements IServer {
         }
     }
 
-    private static IBlockData getNmsBlockData() {
-        try {
-            return (IBlockData) getNmsMethod(".block.data.CraftBlockData", "getState").invoke(Material.ACACIA_SIGN.createBlockData());
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            Ostrov.log_err("Server getNmsBlockData : "+ex.getMessage());
-            //e.printStackTrace();
-            return null;
-        }
-    }
     
     private static Field getIdFld(final Class<?> cls) {
         final Field fld = cls.getDeclaredFields()[0];
@@ -129,6 +120,7 @@ public class Server implements IServer {
         }
     }
 
+    
     @Override
     public net.minecraft.world.entity.Entity toNMS(final Entity en) {
         try {
@@ -138,6 +130,7 @@ public class Server implements IServer {
         }
     }
 
+    
     @Override
     public EntityLiving toNMS(final LivingEntity le) {
         try {
@@ -147,6 +140,7 @@ public class Server implements IServer {
         }
     }
 
+    
     @Override
     public EntityPlayer toNMS(final Player p) {
         try {
@@ -156,11 +150,13 @@ public class Server implements IServer {
         }
     }
 
+    
     @Override
     public DedicatedServer toNMS() {
         return nmsServer;
     }
 
+    
     @Override
     public void chatFix() { // Chat Report fix  https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
         final ServerOutPacketHandler handler = new ServerOutPacketHandler();
@@ -172,13 +168,15 @@ public class Server implements IServer {
         Ostrov.log_ok("§bchatFix - блокировка уведомлений подписи чата");
     }
     
-     @Override
+    
+    @Override
     public void addPacketSpy () {
        // final In handler = new In();  -так слушает все пакеты, а не отдельного игрока
        // io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
        //         chatKey, channel -> channel.pipeline().addBefore("packet_handler", "ostrov_spy", handler)
        // );
     }
+    
     
     @Override //добавляется в bungeeDataHandler
     public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op) {
@@ -187,6 +185,7 @@ public class Server implements IServer {
         pipeline.addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
         return packetSpy;
     }
+    
     
     @Override
     public void removePacketSpy (final Player p) {  //при дисконнекте
@@ -197,14 +196,14 @@ public class Server implements IServer {
         });
     }
 
+    
     @Override
-    public void signInput(final Player p, String suggest, final XYZ signXyz) { //suggest придёт с '&'
-        mutableBlockPosition.d(signXyz.x, signXyz.y, signXyz.z);
-        
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(mutableBlockPosition, signIbd);
-        sendPacket(p, packet);//ep.c.a(packet);
+    public void signInput(final Player p, final String suggest, final XYZ signXyz) { //suggest придёт с '&'
+        final BlockData bd = Material.OAK_SIGN.createBlockData();
+        p.sendBlockChange(signXyz.getCenterLoc(), bd);
 
-        final TileEntitySign sign = new TileEntitySign(mutableBlockPosition, signIbd);
+        mutableBlockPosition.d(signXyz.x, signXyz.y, signXyz.z);
+        final TileEntitySign sign = new TileEntitySign(mutableBlockPosition, null);
         final IChatBaseComponent[] comps = new IChatBaseComponent[4];
         Arrays.fill(comps, EMPTY_ICHAT_COMPONENT);
         boolean last = true;
@@ -227,12 +226,15 @@ public class Server implements IServer {
 
         final SignText signtext = new SignText(comps, comps, VM.COLOR_WHITE, true);
         sign.a(signtext, true);//sign.c(signtext);//
-        sendPacket(p, sign.j());//ep.c.a(sign.j());
-
+        
+        PacketPlayOutTileEntityData packet = sign.m();
+        sendPacket(p, packet);// 1201 sendPacket(p, sign.j());
+        
         final PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(mutableBlockPosition, true);
         sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);
     }
 
+    
     @Override
     public Material getFastMat(final World w, int x, int y, int z) {
         final WorldServer worldServer = toNMS(w);
@@ -252,6 +254,7 @@ public class Server implements IServer {
         return org.apache.commons.codec.binary.Base64.encodeBase64(binaryData);
     }
 
+    
     @Override
     public void pathServer() {
         final MinecraftServer srv = toNMS();
@@ -313,6 +316,7 @@ public class Server implements IServer {
         Ostrov.log_ok("§bСервер сконфигурирован, отключено ванильных команд: " + vanilaCommandToDisable.size());
     }
 
+    
     @Override
     public void pathWorld(final World w) {
         WorldServer ws = toNMS(w);
@@ -320,6 +324,7 @@ public class Server implements IServer {
         ws.spigotConfig.entityMaxTickTime = 5;
     }
 
+    
     @Override
     public void pathPermissions() {
         final PluginManager spm = Bukkit.getPluginManager();
@@ -328,17 +333,20 @@ public class Server implements IServer {
         }
     }
 
+    
     @Override
     public int getTps() {
         return MinecraftServer.TPS;
     }
 
+    
     @Override
     public int getitemDespawnRate(final World w) { //skyworld
         //return SpigotConfig.itemDespawnRate;
         final WorldServer ws = toNMS(w);
         return ws.spigotConfig.itemDespawnRate;
     }
+    
 
     @Override
     public void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack itemStack) {
@@ -349,6 +357,7 @@ public class Server implements IServer {
         sendPacket(p, packet);//entityPlayer.c.a(packet);
     }
 
+    
     @Override
     public void sendChunkChange(final Player p, final Chunk chunk) {
         chunk.getWorld().refreshChunk(chunk.getX(), chunk.getZ());
@@ -364,11 +373,13 @@ public class Server implements IServer {
         return iBlockData.createCraftBlockData();
     }
 
+    
     @Override
     public void sendPacket(final Player p, final Packet<?> packet) {
-        toNMS(p).c.a(packet);
+        toNMS(p).c.b(packet);
     }
 
+    
     @Override
     @SafeVarargs
     public final void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps) {
