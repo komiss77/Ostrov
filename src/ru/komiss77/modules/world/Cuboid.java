@@ -332,15 +332,15 @@ public class Cuboid {
     }
 
     public Location getCenter(final Location current) {//??????? че за метод
-        int x = Math.round((minX + maxX) / 2);
-        int z = Math.round((minZ + maxZ) / 2);
+        int x = (minX + maxX) >> 1;
+        int z = (minZ + maxZ) >> 1;
         if (x > 0) {
             x += 1;
         }
         if (z > 0) {
             z += 1;
         }
-        int y = Math.round((minY + maxY) / 2);
+        int y = (minY + maxY) >> 1;
         final int yTop = BlockUtils.getHighestBlock(current.getWorld(), x, z).getY();
         if (y < yTop) {
             y = yTop;
@@ -627,7 +627,6 @@ public class Cuboid {
         private final int itY = sizeY();
         private final int itZ = sizeZ();
         private final int size = itX * itY * itZ;
-        ;
         private int x, y, z;
         private int count;
 
@@ -678,7 +677,6 @@ public class Cuboid {
         private final int itY = sizeY();
         private final int itZ = sizeZ();
         private final int size = itX * itY * itZ;
-        ;
         private int x, y, z;
         private int count;
         private int stage; //0-дно, 1,2,3,4 - стенки, 5-крышка
@@ -784,7 +782,7 @@ public class Cuboid {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
             sb.append(minX).append(", ")
             .append(minY).append(", ")
             .append(minZ).append(", ")
@@ -803,12 +801,11 @@ public class Cuboid {
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        } else if (!(obj instanceof Cuboid)) {
+        } else if (!(obj instanceof final Cuboid other)) {
             return false;
         } else {
-            Cuboid other = (Cuboid) obj;
             //return maxX) != Double.doubleToLongBits(other.maxX) ? false : (maxY) != Double.doubleToLongBits(other.maxY) ? false : (maxZ) != Double.doubleToLongBits(other.maxZ) ? false : (minX) != Double.doubleToLongBits(other.minX) ? false : (minY) != Double.doubleToLongBits(other.minY) ? false : minZ) == Double.doubleToLongBits(other.minZ)))));
-            return maxX != other.maxX ? false : (maxY != other.maxY ? false : (maxZ != other.maxZ ? false : (minX != other.minX ? false : (minY != other.minY ? false : minZ == other.minZ))));
+            return maxX == other.maxX && (maxY == other.maxY && (maxZ == other.maxZ && (minX == other.minX && (minY == other.minY && minZ == other.minZ))));
         }
     }
 

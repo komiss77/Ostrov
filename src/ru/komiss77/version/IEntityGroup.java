@@ -9,27 +9,27 @@ import org.bukkit.entity.Player;
 public interface IEntityGroup {
 
 	@Deprecated
-    public EntityGroup getEntytyType (final Entity entity);
+    EntityGroup getEntytyType(final Entity entity);
 	@Deprecated
-    public EntityGroup getEntytyGroup (final EntityType entityType);
+    EntityGroup getEntytyGroup(final EntityType entityType);
     
     
     //ПЕРЕЗЖАЕМ в EntitiUtil, один фиг мультивесии не поддерживаются
     
     @Deprecated
-    public EntityGroup getEntityType (final Entity entity);
+    EntityGroup getEntityType(final Entity entity);
     
     @Deprecated
-    public EntityGroup getEntityGroup (final EntityType entityType);
+    EntityGroup getEntityGroup(final EntityType entityType);
     
     @Deprecated
-    public EntityGroup byTag(final String tag_as_string);
+    EntityGroup byTag(final String tag_as_string);
     @Deprecated
-    public boolean isGroup(final String tag_as_string);    
+    boolean isGroup(final String tag_as_string);
 
     
     @Deprecated
-    public enum EntityGroup {
+    enum EntityGroup {
     	/**Монстры, могут агрится на игрока*/
         MONSTER ("§4Монстры"), //не переименовывать! или придётся переделывать конфиги лимитера!!
     	/**Животные, могут быть скрещеными*/
@@ -44,9 +44,9 @@ public interface IEntityGroup {
         UNDEFINED ("§6Прочие")
         ;
         
-        public String displayName;
+        public final String displayName;
         
-        private EntityGroup (final String displayName) {
+        EntityGroup(final String displayName) {
             this.displayName = displayName;
         }
 
@@ -56,11 +56,11 @@ public interface IEntityGroup {
     
     
     //ля фигур
-    public void sendLookAtPlayerPacket (final Player p, final Entity e);
+    void sendLookAtPlayerPacket(final Player p, final Entity e);
     
-    public void sendLookResetPacket (final Player p, final Entity e);
+    void sendLookResetPacket(final Player p, final Entity e);
     
-	public void colorGlow(final Entity le, final char cr, final boolean fakeGlow);
+	void colorGlow(final Entity le, final char cr, final boolean fakeGlow);
     
     
     

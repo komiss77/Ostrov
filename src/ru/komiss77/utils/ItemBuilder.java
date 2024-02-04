@@ -29,6 +29,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import net.kyori.adventure.text.Component;
+import org.bukkit.potion.PotionType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtils.Texture;
 
@@ -45,7 +46,7 @@ public class ItemBuilder {
     private List<Component> lore;
     private String skullOwnerUuid;
     private String skullTexture;
-    private PotionData basePotionData;
+    private PotionType basePotionType;
     private List<PotionEffect> customPotionEffects=null;
     private Map<Enchantment, Integer> enchants=null;
 
@@ -363,9 +364,14 @@ public class ItemBuilder {
    
    
    
-
+    @Deprecated
     public ItemBuilder setBasePotionData(final PotionData basePotionData) {
-        this.basePotionData = basePotionData;
+//        this.basePotionType = basePotionData.getType();//removal
+        return this;
+    }
+
+    public ItemBuilder setBasePotionType(final PotionType type) {
+        this.basePotionType = type;
         return this;
     }
 
@@ -402,9 +408,9 @@ public class ItemBuilder {
         switch (getType()) {
             
             case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
-                if (basePotionData!=null || customPotionEffects!=null) {
+                if (basePotionType!=null || customPotionEffects!=null) {
                     final PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-                    if (basePotionData!=null) potionMeta.setBasePotionData(basePotionData);
+                    if (basePotionType!=null) potionMeta.setBasePotionType(basePotionType);
                     if (customPotionEffects!=null && !customPotionEffects.isEmpty()) {
                         for (PotionEffect customPotionEffect : customPotionEffects) {
                             potionMeta.addCustomEffect(customPotionEffect,true);

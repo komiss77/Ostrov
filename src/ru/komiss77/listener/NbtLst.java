@@ -1,14 +1,10 @@
 package ru.komiss77.listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
@@ -22,26 +18,18 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.Repairable;
-import org.bukkit.inventory.meta.TropicalFishBucketMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.plugin.Plugin;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TranslatableComponent;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 
 
@@ -252,8 +240,7 @@ public class NbtLst implements Listener {
 
     public static boolean needCheck (final ItemStack item){
         if ( item == null || item.getType() == Material.AIR ) return false;
-        if (Tag.SIGNS.isTagged(item.getType())) return false;
-        return true;
+        return !Tag.SIGNS.isTagged(item.getType());
     }
     
     
@@ -292,10 +279,7 @@ public class NbtLst implements Listener {
     public static ItemStack Repair_enchant(ItemStack item) {
 //System.out.println(" 1111 Repair_enchant "+item);                    
         try{
-            List <Enchantment> ench_list=new ArrayList<>();
-            item.getEnchantments().keySet().stream().forEach((e) -> {
-                ench_list.add(e);
-            });
+            List<Enchantment> ench_list = new ArrayList<>(item.getEnchantments().keySet());
 //System.out.println(" 222 Repair_enchant "+ench_set);                    
             ench_list.stream().forEach((enchant) -> {
 //System.out.println(" ------- enchant "+enchant+"   "+enchant.getName()+"  lvl="+item.getEnchantments().get(enchant));                    
@@ -310,15 +294,12 @@ public class NbtLst implements Listener {
     
     
     public static boolean Invalid_anvill(final Player player, final ItemStack item){
-    	if (!ItemUtils.isBlank(item, false) && item.getType()==Material.ANVIL && item.getItemMeta() instanceof Damageable) {
-    		final Damageable dg = (Damageable) item.getItemMeta();
-    		if (dg.hasDamage()) {
-    			switch (dg.getDamage()) {
-				case 0, 1, 2:
-					return false;
-				default:
-					return true;
-				} 
+    	if (!ItemUtils.isBlank(item, false) && item.getType()==Material.ANVIL && item.getItemMeta() instanceof final Damageable dg) {
+            if (dg.hasDamage()) {
+                return switch (dg.getDamage()) {
+                    case 0, 1, 2 -> false;
+                    default -> true;
+                };
             }
     	}
 		return false;
@@ -395,28 +376,26 @@ public class NbtLst implements Listener {
                     
             //oldItem.getEnchantments().entrySet().stream().filter(entry -> entry.getValue() <= ((Enchantment)entry.getKey()).getMaxLevel()).forEach(entry -> newItem.addUnsafeEnchantment((Enchantment)entry.getKey(), (int)entry.getValue()));
             if (oldMeta.hasAttributeModifiers()) {
-                oldMeta.getAttributeModifiers().asMap().entrySet().forEach(entry -> entry.getValue().stream().filter(mod -> mod.getAmount() <= 10.0).forEach(atr -> newMeta.addAttributeModifier((Attribute)entry.getKey(), atr)));
+                oldMeta.getAttributeModifiers().asMap().forEach((key, value) -> value.stream().filter(mod -> mod.getAmount() <= 10.0).forEach(atr -> newMeta.addAttributeModifier(key, atr)));
             }
             
             if (oldItem.getItemMeta().hasCustomModelData()) {
-                newItem.getItemMeta().setCustomModelData(Integer.valueOf(oldItem.getItemMeta().getCustomModelData()));
+                newItem.getItemMeta().setCustomModelData(oldItem.getItemMeta().getCustomModelData());
             }
             
-            if (oldItem.getItemMeta() instanceof Damageable) {
-                final Damageable dOmeta = (Damageable)oldItem.getItemMeta();
+            if (oldItem.getItemMeta() instanceof Damageable dOmeta) {
                 final Damageable dNmeta = (Damageable)newItem.getItemMeta();
                 if (dOmeta.hasDamage()) {
                     dNmeta.setDamage(dOmeta.getDamage());
-                    newItem.setItemMeta((ItemMeta)dNmeta);
+                    newItem.setItemMeta(dNmeta);
                 }
             }
             
-            if (oldItem.getItemMeta() instanceof Repairable) {
-                final Repairable rOmeta = (Repairable)oldItem.getItemMeta();
+            if (oldItem.getItemMeta() instanceof Repairable rOmeta) {
                 final Repairable rNmeta = (Repairable)newItem.getItemMeta();
                 if (rOmeta.hasRepairCost()) {
                     rNmeta.setRepairCost(rOmeta.getRepairCost());
-                    newItem.setItemMeta((ItemMeta)rNmeta);
+                    newItem.setItemMeta(rNmeta);
                 }
             }
             
@@ -513,8 +492,7 @@ public class NbtLst implements Listener {
         public ItemMeta copyValidMeta(final BlockStateMeta oMeta, final Material material) {
             final BlockStateMeta nMeta = (BlockStateMeta)Bukkit.getItemFactory().getItemMeta(material);
             final BlockState state = oMeta.getBlockState();
-            if (state instanceof ShulkerBox) {
-                final ShulkerBox oldBox = (ShulkerBox)state;
+            if (state instanceof ShulkerBox oldBox) {
                 for (int i = 0; i < oldBox.getInventory().getSize(); ++i) {
                     final ItemStack stack = oldBox.getInventory().getItem(i);
                     if (stack != null) {
@@ -524,7 +502,7 @@ public class NbtLst implements Listener {
                 state.update();
                 nMeta.setBlockState(state);
             }
-            return (ItemMeta)nMeta;
+            return nMeta;
         }
     }    
     
@@ -537,7 +515,7 @@ public class NbtLst implements Listener {
 
         public static String clampString(String string, final int limit) {
             if (string.length()>limit) string = string.substring(0, limit);
-            return string.replaceAll("[^A-Za-zА-Яа-я0-9§\\s\\.]","");
+            return string.replaceAll("[^A-Za-zА-Яа-я0-9§\\s.]","");
             //(string.length() < limit) ? string : string.substring(0, limit);
         }
      } 
@@ -594,7 +572,7 @@ public class NbtLst implements Listener {
            else {
                newBookMeta.pages(new Component[] {Component.text(" ")});
            }
-           return (ItemMeta)newBookMeta;
+           return newBookMeta;
        }
    }   
 
@@ -615,9 +593,9 @@ public class NbtLst implements Listener {
        public ItemMeta copyValidMeta(final EnchantmentStorageMeta oldMeta, final Material material) {
            final EnchantmentStorageMeta newEnchBookMeta = (EnchantmentStorageMeta)Bukkit.getItemFactory().getItemMeta(material);
            if (oldMeta.hasStoredEnchants()) {
-               oldMeta.getStoredEnchants().entrySet().stream().filter(entry -> entry.getValue() <= ((Enchantment)entry.getKey()).getMaxLevel()).forEach(entry -> newEnchBookMeta.addStoredEnchant((Enchantment)entry.getKey(), (int)entry.getValue(), true));
+               oldMeta.getStoredEnchants().entrySet().stream().filter(entry -> entry.getValue() <= entry.getKey().getMaxLevel()).forEach(entry -> newEnchBookMeta.addStoredEnchant(entry.getKey(), entry.getValue(), true));
            }
-           return (ItemMeta)newEnchBookMeta;
+           return newEnchBookMeta;
        }
    }
    
@@ -640,7 +618,7 @@ public class NbtLst implements Listener {
            if (oldMeta.hasEffect()) {
                newMeta.setEffect(oldMeta.getEffect());
            }
-           return (ItemMeta)oldMeta;
+           return oldMeta;
        }
    }
 
@@ -682,7 +660,7 @@ public class NbtLst implements Listener {
         public ItemMeta copyValidMeta(final LeatherArmorMeta oldMeta, final Material material) {
             final LeatherArmorMeta newMeta = (LeatherArmorMeta)Bukkit.getItemFactory().getItemMeta(material);
             newMeta.setColor(oldMeta.getColor());
-            return (ItemMeta)newMeta;
+            return newMeta;
         }
     }
 
@@ -715,7 +693,7 @@ public class NbtLst implements Listener {
             if (oldMeta.isScaling()) {
                 newMeta.setScaling(true);
             }
-            return (ItemMeta)newMeta;
+            return newMeta;
         }
     }
 
@@ -754,11 +732,11 @@ public class NbtLst implements Listener {
         @Override
         public ItemMeta copyValidMeta(final PotionMeta oldMeta, final Material material) {
             final PotionMeta newMeta = (PotionMeta)Bukkit.getItemFactory().getItemMeta(material);
-            newMeta.setBasePotionData(oldMeta.getBasePotionData());
+            newMeta.setBasePotionType(oldMeta.getBasePotionType());
             if (oldMeta.hasCustomEffects()) {
                 oldMeta.getCustomEffects().stream().filter(effect -> effect.getAmplifier() < 2).filter(effect -> effect.getDuration() < 600).forEach(effect -> newMeta.addCustomEffect(effect, true));
             }
-            return (ItemMeta)newMeta;
+            return newMeta;
         }
     }    
 
@@ -781,7 +759,7 @@ public class NbtLst implements Listener {
             newMeta.setBodyColor(oldMeta.getBodyColor());
             newMeta.setPattern(oldMeta.getPattern());
             newMeta.setPatternColor(oldMeta.getPatternColor());
-            return (ItemMeta)newMeta;
+            return newMeta;
         }
     }    
 

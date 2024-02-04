@@ -42,7 +42,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	 *
 	 * @return A list of handlers handling this event.
 	 */
-	public final static HandlerList getHandlerList(){
+	public static HandlerList getHandlerList(){
 		return handlers;
 	}
 
@@ -52,7 +52,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	 * @return A list of handlers handling this event.
 	 */
 	@Override
-	public final HandlerList getHandlers(){
+	public HandlerList getHandlers(){
 		return handlers;
 	}
 
@@ -62,7 +62,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	 * @param cancel If this event should be cancelled.
 	 */
         @Override
-	public final void setCancelled(final boolean cancel){
+	public void setCancelled(final boolean cancel){
 		this.cancel = cancel;
 	}
 
@@ -72,35 +72,35 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
 	 * @return If this event is cancelled
 	 */
         @Override
-	public final boolean isCancelled(){
+	public boolean isCancelled(){
 		return cancel;
 	}
 
-	public final ArmorType getType(){
+	public ArmorType getType(){
 		return type;
 	}
 
 	/**
-	 * Returns the last equipped armor piece, could be a piece of armor, {@link Material#Air}, or null.
+	 * Returns the last equipped armor piece, could be a piece of armor, {@link Material#AIR}, or null.
         * @return 
 	 */
-	public final ItemStack getOldArmorPiece(){
+	public ItemStack getOldArmorPiece(){
 		return oldArmorPiece;
 	}
 
-	public final void setOldArmorPiece(final ItemStack oldArmorPiece){
+	public void setOldArmorPiece(final ItemStack oldArmorPiece){
 		this.oldArmorPiece = oldArmorPiece;
 	}
 
 	/**
-	 * Returns the newly equipped armor, could be a piece of armor, {@link Material#Air}, or null.
+	 * Returns the newly equipped armor, could be a piece of armor, {@link Material#AIR}, or null.
      * @return 
 	 */
-	public final ItemStack getNewArmorPiece(){
+	public ItemStack getNewArmorPiece(){
 		return newArmorPiece;
 	}
 
-	public final void setNewArmorPiece(final ItemStack newArmorPiece){
+	public void setNewArmorPiece(final ItemStack newArmorPiece){
 		this.newArmorPiece = newArmorPiece;
 	}
 
@@ -157,6 +157,5 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
              * When you die causing all armor to unequip
              */
             DEATH,
-            ;
 	}
 }

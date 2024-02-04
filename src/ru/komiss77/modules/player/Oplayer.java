@@ -1,8 +1,5 @@
 package ru.komiss77.modules.player;
 
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -16,7 +13,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.builder.SetupMode;
@@ -31,14 +27,19 @@ import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
+import ru.komiss77.objects.CustomTag;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
-import ru.komiss77.objects.CustomTag;
 import ru.komiss77.version.v1_20_R3.PlayerPacketHandler;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
 
 
 
@@ -307,7 +308,7 @@ public class Oplayer {
         updTabListName(p);
     }
     
-    public void updTabListName (@NotNull final Player p) {
+    public void updTabListName (final Player p) {
         if (Config.tablist_name) {
             final String displayName = isGuest ? beforeName + "§8(Гость) §7" + getDataString(Data.FAMILY) : beforeName + nik;
             p.playerListName(TCUtils.format(tabPreffix + displayName + tabSuffix));
@@ -543,11 +544,11 @@ public class Oplayer {
         } else {
             data.put(key, value);
         }
-        String build="";
+        StringBuilder build= new StringBuilder();
         for (String k : data.keySet()) {
-            build = build+"︙"+k+"。"+data.get(k);
+            build.append("︙").append(k).append("。").append(data.get(k));
         }
-        setData(Data.TEXTDATA, build.replaceFirst("︙", ""));
+        setData(Data.TEXTDATA, build.toString().replaceFirst("︙", ""));
     }
 
 
@@ -746,6 +747,13 @@ public class Oplayer {
         return true;
     }
 
+    /**Выполняется перед сохранением данных*/
+    @OverrideMe
+    public void preDataSave(final Player p, final boolean async) {}
+
+    /**Выполняется после сохранения данных*/
+    @OverrideMe
+    public void postDataSave(final Player p, final boolean async) {}
 }
  /*
     

@@ -38,7 +38,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -577,7 +576,7 @@ public class ItemUtils {
             if (im instanceof ArmorMeta am) {
                 //final ArmorMeta am = armorMeta;
                 if (am.hasTrim()) {
-                    res.append(spl).append("trim:").append(am.getTrim().getMaterial().getKey().getKey()).append(":").append(am.getTrim().getPattern().getKey().getKey());
+                    res.append(spl).append("trim:").append(am.getTrim().getMaterial().key().value()).append(":").append(am.getTrim().getPattern().key().value());
                 }
                 
                 if (im instanceof ColorableArmorMeta) {
@@ -598,11 +597,11 @@ public class ItemUtils {
                 }
             } else if (im instanceof PotionMeta pm) {
                 //final PotionMeta pm = potionMeta;
-                res.append(spl).append("basepot:").append(pm.getBasePotionData().getType().toString().toLowerCase()).append(":").append(pm.getBasePotionData().isExtended()).append(":").append(pm.getBasePotionData().isUpgraded());
+                res.append(spl).append("basepot:").append(pm.getBasePotionType().toString().toLowerCase());
 
                 if (pm.hasCustomEffects()) {
                     for (final PotionEffect cpe : pm.getCustomEffects()) {
-                        res.append(spl).append("effect:").append(cpe.getType().getName()).append(":").append(cpe.getDuration()).append(":").append(cpe.getAmplifier());
+                        res.append(spl).append("effect:").append(cpe.getType().key().value()).append(":").append(cpe.getDuration()).append(":").append(cpe.getAmplifier());
                     }
                 }
 
@@ -845,7 +844,7 @@ public class ItemUtils {
                     case "enchant":
                     case "bookenchant":
                         if (splittedParam.length == 3) {
-                            Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(splittedParam[1]));
+                            Enchantment enchant = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(splittedParam[1]));
                             if (enchant == null && Config.enchants) { //getBoolean("modules.enchants")) {
                                 enchant = CustomEnchant.getByKey(NamespacedKey.minecraft(splittedParam[1]));
                             }
@@ -869,14 +868,9 @@ public class ItemUtils {
                             switch (builder.getType()) {
                                 case TIPPED_ARROW, POTION, 
 							LINGERING_POTION, SPLASH_POTION:
-                                    final PotionType potionType = PotionType.valueOf(splittedParam[1].toUpperCase());
+                                    final PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(splittedParam[1].toUpperCase()));
                                     if (potionType != null) {
-                                        if ((splittedParam[2].equalsIgnoreCase("true") || splittedParam[2].equalsIgnoreCase("false"))
-                                                && (splittedParam[2].equalsIgnoreCase("true") || splittedParam[2].equalsIgnoreCase("false"))) {
-                                            builder.setBasePotionData(new PotionData(potionType, Boolean.parseBoolean(splittedParam[2].toLowerCase()), Boolean.parseBoolean(splittedParam[3].toLowerCase())));
-                                        } else {
-                                            Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, должно быть true/false §f" + splittedParam[2] + " " + splittedParam[3]);
-                                        }
+                                        builder.setBasePotionType(potionType);
                                     } else {
                                         Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + splittedParam[1].toUpperCase());
                                     }
@@ -896,7 +890,7 @@ public class ItemUtils {
                             switch (builder.getType()) {
                                 case TIPPED_ARROW, POTION, 
                                 LINGERING_POTION, SPLASH_POTION:
-                                    final PotionEffectType potionEffectType = PotionEffectType.getByName(splittedParam[1]);
+                                    final PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(splittedParam[1]));
                                     if (potionEffectType != null) {
                                         if (ApiOstrov.isInteger(splittedParam[2]) && ApiOstrov.isInteger(splittedParam[2])) {
                                             builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.parseInt(splittedParam[2].toLowerCase()), Integer.parseInt(splittedParam[3].toLowerCase())));

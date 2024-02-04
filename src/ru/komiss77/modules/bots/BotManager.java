@@ -1,6 +1,5 @@
 package ru.komiss77.modules.bots;
 
-import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketListenerPlayOut;
 import org.bukkit.Bukkit;
@@ -38,7 +37,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.bukkit.entity.EntityType;
 
 public class BotManager implements Initiable, Listener {
 
@@ -128,7 +126,7 @@ public class BotManager implements Initiable, Listener {
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
             for (final BotEntity be : botByName.values()) {
-                if (be.w.getUID().equals(id)) {
+                if (be.world.getUID().equals(id)) {
                     be.updateAll(pl);
                 }
             }
@@ -142,25 +140,13 @@ public class BotManager implements Initiable, Listener {
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
             for (final BotEntity be : botByName.values()) {
-                if (be.w.getUID().equals(id)) {
+                if (be.world.getUID().equals(id)) {
                     be.updateAll(pl);
                 }
             }
         }, 4);
     }
-    
-    
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void startTrack(final PlayerTrackEntityEvent e) {
-        final Player p = e.getPlayer();
-        if (e.getEntity().getType()==EntityType.HUSK) {
-            Ostrov.sync(() -> {
-                BotEntity be = botById.get(e.getEntity().getEntityId());
-Ostrov.log("startTrack HUSK be="+be);
-            }, 1);
-            
-        }
-    }
+
    // @EventHandler
    // public void onLeave(final PlayerQuitEvent e) {
    //     removePlayer(e.getPlayer());
@@ -271,7 +257,7 @@ Ostrov.log("startTrack HUSK be="+be);
     @Deprecated
     @SafeVarargs
     public static void sendWrldPckts(final net.minecraft.world.level.World w, final Packet<PacketListenerPlayOut>... ps) {
-        VM.server().sendWorldPackets(w.getWorld(), ps);
+        VM.getNmsServer().sendWorldPackets(w.getWorld(), ps);
     }
 
 }

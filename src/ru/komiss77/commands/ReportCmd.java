@@ -116,12 +116,12 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
             return true;
         } 
         
-        String text = "";
+        StringBuilder text = new StringBuilder();
         for (int i=1; i<arg.length; i++) {
-            text = text+" "+arg[i];
+            text.append(" ").append(arg[i]);
         }
         if (text.length()>128) {
-            text = text.substring(0, 128);
+            text = new StringBuilder(text.substring(0, 128));
         }
         final Player reporter = cs instanceof Player ? (Player) cs : null;
         final Player target = Bukkit.getPlayerExact(arg[0]);
@@ -139,11 +139,11 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
                 return true;
             }
             consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());
-            SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text);
+            SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text.toString());
             
         } else {
             
-            SpigotChanellMsg.sendMessage(reporter, Operation.REPORT_PLAYER, reporter.getName(), 0, 0, 0, Ostrov.MOT_D, LocationUtil.toString(reporter.getLocation()), arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text, "");
+            SpigotChanellMsg.sendMessage(reporter, Operation.REPORT_PLAYER, reporter.getName(), 0, 0, 0, Ostrov.MOT_D, LocationUtil.toString(reporter.getLocation()), arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text.toString(), "");
             //при жалобе от игрока ищем ИД предыдущей жалобы
         }
 

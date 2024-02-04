@@ -20,6 +20,13 @@ import org.bukkit.entity.Player;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.VM;
 
+import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
+
 //https://github.com/Owen1212055/CustomNames
 //https://github.com/jpenilla/reflection-remapper
 // мапы в файле \versions\1.20.х\paper-1.20.х.jar\META-INF\mappings\reobf.tiny
@@ -38,7 +45,7 @@ public class CustomTag {
     private Predicate<Player> canSee = p -> true;
     private IChatBaseComponent name;
     private boolean visible = true;
-    
+
 
     private static final DataWatcherObject<?> DATA_POSE, DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
             DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;

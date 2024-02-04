@@ -78,14 +78,14 @@ public class Mission {
     }
 
     protected static String getRequestString(final Mission mi) {
-        String request = "";
+        StringBuilder request = new StringBuilder();
         for (final Map.Entry<String,Integer> e : mi.request.entrySet()) {
-            request = request+"∫"+e.getKey()+":"+e.getValue();
+            request.append("∫").append(e.getKey()).append(":").append(e.getValue());
         }
         //for (String req:map.keySet()) {
         //    request = request+"∫"+req+":"+map.get(req);
         //}
-        return request.replaceFirst("∫", "");
+        return request.toString().replaceFirst("∫", "");
     }
 
 }

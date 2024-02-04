@@ -1,12 +1,10 @@
-package ru.komiss77.version.v1_20_R1;
-/*
+package ru.komiss77.version.v1_20_R3;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import net.minecraft.EnumChatFormat;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityHeadRotation;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
@@ -17,7 +15,6 @@ import net.minecraft.network.syncher.DataWatcher.b;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.ScoreboardServer;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.scores.ScoreboardTeam;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -271,36 +268,25 @@ public class EntityGroup implements IEntityGroup {
     	if (le != null && le.isValid()) {
     		Ostrov.async(() -> {
         		final net.minecraft.world.entity.Entity el = VM.getNmsServer().toNMS(le);
-				final ScoreboardServer sb = VM.getNmsServer().toNMS().aF();
-				final ScoreboardTeam st = sb.g(le.getUniqueId().toString());
-				st.a(EnumChatFormat.a(color));
+				final ScoreboardServer sb = VM.getNmsServer().toNMS().aH();
+				final ScoreboardTeam st = sb.c(le.getUniqueId().toString());
+                final EnumChatFormat clr = EnumChatFormat.a(color);
+				st.a(clr == null ? EnumChatFormat.p : clr);
     			
         		if (fakeGlow) {
-        			final PacketPlayOutEntityMetadata pem = new PacketPlayOutEntityMetadata(le.getEntityId(), el.aj().c());
-        			pem.c().add(new b<Byte>(0, DataWatcher.a(net.minecraft.world.entity.Entity.class, DataWatcherRegistry.a).b(), (byte) 64));
+        			final PacketPlayOutEntityMetadata pem = new PacketPlayOutEntityMetadata(le.getEntityId(), el.an().c());
+        			pem.d().add(new b<>(0, DataWatcher.a(net.minecraft.world.entity.Entity.class, DataWatcherRegistry.a).b(), (byte) 64));
 					
-        			sendWrldPckts(el.dI(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true), 
+        			VM.server().sendWorldPackets(le.getWorld(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true),
         				PacketPlayOutScoreboardTeam.a(st, le.getUniqueId().toString(), a.a), PacketPlayOutScoreboardTeam.a(st, false), pem);
         			return;
         		}
 
-    			sendWrldPckts(el.dI(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true), 
+                VM.server().sendWorldPackets(le.getWorld(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true),
     				PacketPlayOutScoreboardTeam.a(st, le.getUniqueId().toString(), a.a), PacketPlayOutScoreboardTeam.a(st, false));
 				sb.d(st);
     		});
 			if (!fakeGlow) le.setGlowing(true);
     	}
     }
-
-    public static void sendWrldPckts(final net.minecraft.world.level.World w, final Packet<?>... ps) {
-        for (final EntityHuman e : w.v()) {
-            if (e instanceof EntityPlayer) {
-                final NetworkManager nm = ((EntityPlayer) e).c.h;
-                for (final Packet<?> p : ps) {
-                    nm.a(p);
-                }
-            }
-        }
-    }
 }
-*/

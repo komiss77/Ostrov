@@ -1,5 +1,5 @@
-package ru.komiss77.version.v1_20_R1;
-/*
+package ru.komiss77.version.v1_20_R3;
+
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -32,7 +32,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             if (BotManager.enable.get()) {
                 final int id = useEntityPacket.getEntityId();
                 for (final BotEntity bot : BotManager.botById.values()) {
-                    if (bot.af() == id) {
+                    if (bot.aj() == id) {
                         Server.useIdField.set(useEntityPacket, bot.rid);
                         break;
                     }
@@ -43,7 +43,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
         } else if (packet instanceof PacketPlayInUpdateSign signPacket) {
             final Player p = op.getPlayer();//Bukkit.getPlayerExact(name);
             if (p!=null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
-                final String result = signPacket.d()[0] + " " + signPacket.d()[1] + " " + signPacket.d()[2] + " " + signPacket.d()[3];
+                final String result = signPacket.e()[0] + " " + signPacket.e()[1] + " " + signPacket.e()[2] + " " + signPacket.e()[3];
                 Ostrov.sync(  () -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0 );
                 return; //пакет ввода с таблички не отдаём в сервер!
             }
@@ -69,11 +69,11 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             } else if (packet instanceof PacketPlayOutEntity) {
                 id = (int) Server.entityIdField.get(packet);
             }
-            
+
             if (id != 0 && BotManager.botById.containsKey(id)) {
                 return; //не пропускать пакеты дальше
             }
-            
+
             if (packet instanceof ClientboundBundlePacket clientboundBundlePacket) {
                 final Iterator<Packet<PacketListenerPlayOut>> pit = clientboundBundlePacket.a().iterator();
                 while (pit.hasNext()) {
@@ -90,11 +90,12 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                         id = (int) Server.entityIdField.get(pc);
                     }
 
-                    if (id!=0 && BotManager.botById.containsKey(id)) {
+                    if (id != 0 && BotManager.botById.containsKey(id)) {
                         pit.remove(); //вырезать пакет из кучи
                     }
                 }
             }
+        }
 
                 /*if (packet instanceof PacketPlayOutKeepAlive
                 	|| packet instanceof PacketPlayOutUnloadChunk
@@ -129,7 +130,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
         d UPDATE_LISTED
         e 
         f UPDATE_DISPLAY_NAME
-        /
+        */
        // if (packet instanceof ClientboundPlayerInfoUpdatePacket  pip) {
 //Ostrov.log_warn("playerInfoPacket ="+pip.toString());
             //pip.
@@ -138,8 +139,6 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
         super.write(chc, packet, channelPromise);
     }
 }
-
-*/
 
 
 

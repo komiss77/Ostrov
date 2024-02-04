@@ -1,14 +1,8 @@
 package ru.komiss77.utils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -19,6 +13,11 @@ import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.version.IServer;
 import ru.komiss77.version.VM;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.function.Predicate;
 
 
 
@@ -90,13 +89,9 @@ public class LocationUtil {
                 return null;
             }
 
-            final Location loc;
-            //final Location loc = new Location ( world, Double.parseDouble(split[1])+0.5, Integer.valueOf(split[2]), Double.parseDouble(split[3])+0.5 ) ;
-            if (addHalfBlock) {
-                loc = new Location(world, Double.parseDouble(split[1]) + 0.5, Double.parseDouble(split[2]) + 0.5, Double.parseDouble(split[3]) + 0.5);
-            } else {
-                loc = new Location(world, Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
-            }
+            final Location loc = addHalfBlock ? new Location(world, Double.parseDouble(split[1]) + 0.5,
+                    Double.parseDouble(split[2]) + 0.5, Double.parseDouble(split[3]) + 0.5) :
+                new Location(world, Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
 
             if (split.length >= 5) {
                 try {
@@ -238,7 +233,7 @@ public class LocationUtil {
         if (mat.isAir()) {
             return true;
         }
-        switch (mat) {
+        return switch (mat) {
             case AIR, 
                 CAVE_AIR, 
                 VOID_AIR, 
@@ -246,7 +241,7 @@ public class LocationUtil {
                 CHORUS_FLOWER, 
                 CHORUS_PLANT, 
                 TALL_GRASS, 
-                SHORT_GRASS, 
+                SHORT_GRASS,
                 FERN, 
                 LARGE_FERN, 
                 SWEET_BERRY_BUSH, 
@@ -259,25 +254,16 @@ public class LocationUtil {
                 WHEAT,
                 PAINTING,
                 LADDER,
-                LILY_PAD -> {
-                return true;
-            }
-            default -> {
-                return false;
-            }
-
-        }
+                LILY_PAD -> true;
+            default -> false;
+        };
         //if (mat.name().endsWith("_BANNER") || mat.name().endsWith("_SIGN")) return true;
 
     }
 
     public static boolean isFeetAllow(final Material mat) {
-
-        if (isPassable(mat) || !mat.isOccluding()) {
-            return true;
-        }
+        return !isPassable(mat) && mat.isOccluding();
         //полублоки, снег!!!
-        return true;
     }
 
     public static boolean canStand(final Material mat) {
@@ -349,8 +335,8 @@ public class LocationUtil {
         final HashMap<Integer, G> hs = new HashMap<>();
         final int X = loc.x, Y = loc.y, Z = loc.z, dS = dst * dst;
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
-        for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
-            for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
+        for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
+            for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : loc.w.getChunkAt(cx, cz).getEntities()) {
                     if (ent.isAssignableFrom(e.getClass())) {
                         final Location el = e.getLocation();
@@ -375,8 +361,8 @@ public class LocationUtil {
 
         int dS = dst * dst;
         G fin = null;
-        for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
-            for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
+        for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
+            for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : loc.w.getChunkAt(cx, cz).getEntities()) {
                     if (ent.isAssignableFrom(e.getClass())) {
                         final Location el = e.getLocation();
@@ -394,6 +380,44 @@ public class LocationUtil {
             }
         }
         return fin;
+    }
+
+    public static void getDDABlocks(final Location org, final Vector dir, final double dst, final Predicate<Block> done) {
+        dir.normalize();
+        final int finX = (int) (dir.getX() * dst + org.getX()), finY = (int) (dir.getY() * dst + org.getY()), finZ = (int) (dir.getZ() * dst + org.getZ());
+        int mapX = (int)Math.floor(org.getX()), mapY = (int)Math.floor(org.getY()), mapZ = (int)Math.floor(org.getZ());
+        final double deltaDistX = Math.abs(1.0F / dir.getX()), deltaDistY = Math.abs(1.0F / dir.getY()), deltaDistZ = Math.abs(1.0F / dir.getZ());
+
+        final int stepX, stepY, stepZ;
+        double sideDistX, sideDistY, sideDistZ;
+        if (dir.getX() < 0.0F) {stepX = -1; sideDistX = (org.getX() - mapX) * deltaDistX;
+        } else {stepX = 1; sideDistX = (1.0F - org.getX() + mapX) * deltaDistX;}
+        if (dir.getY() < 0.0F) {stepY = -1; sideDistY = (org.getY() - mapY) * deltaDistY;
+        } else {stepY = 1; sideDistY = (1.0F - org.getY() + mapY) * deltaDistY;}
+        if (dir.getZ() < 0.0F) {stepZ = -1; sideDistZ = (org.getZ() - mapZ) * deltaDistZ;
+        } else {stepZ = 1; sideDistZ = (1.0F - org.getZ() + mapZ) * deltaDistZ;}
+
+        if (Double.isNaN(sideDistX)) sideDistX = Double.POSITIVE_INFINITY;
+        if (Double.isNaN(sideDistY)) sideDistY = Double.POSITIVE_INFINITY;
+        if (Double.isNaN(sideDistZ)) sideDistZ = Double.POSITIVE_INFINITY;
+
+        final World w = org.getWorld();
+        int step = 0;
+        while(true) {
+            if (sideDistZ < sideDistX && sideDistZ < sideDistY) {
+                sideDistZ += deltaDistZ;
+                mapZ += stepZ;
+            } else if (sideDistX < sideDistY) {
+                sideDistX += deltaDistX;
+                mapX += stepX;
+            } else {
+                sideDistY += deltaDistY;
+                mapY += stepY;
+            }
+
+            w.spawnParticle(Particle.FLAME, org.clone().add(sideDistX, sideDistY, sideDistZ), 2, 0d, 0d, 0d, 0d);
+            if (done.test(w.getBlockAt(mapX, mapY, mapZ)) || (mapX == finX && mapY == finY && mapZ == finZ)) return;
+        }
     }
 
     public static boolean rayThruAir(final Location org, final Vector to, final double inc) {
