@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-
 public class BotEntity extends EntityPlayer {
 
     public int rid;
@@ -64,8 +63,7 @@ public class BotEntity extends EntityPlayer {
     public static final double DHIT_DST_SQ = 4d;
     public static final int PARRY_TICKS = 40;
     public static final int BASH_TICKS = 40;
-    private static final String [] empty = new String []{"", ""};
-
+    private static final String[] empty = new String[]{"", ""};
 
     protected BotEntity(final String name, final World world) {
         super(ds, VM.server().toNMS(world), getProfile(name), ClientInformation.a());
@@ -79,9 +77,9 @@ public class BotEntity extends EntityPlayer {
         PlayerInventory pi = null;
         try {
             pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName()
-                + ".inventory.CraftInventoryPlayer").getConstructor(fS().getClass()).newInstance(fS());
+                    + ".inventory.CraftInventoryPlayer").getConstructor(fS().getClass()).newInstance(fS());
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-            | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+                | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
         inv = pi;
@@ -191,13 +189,16 @@ public class BotEntity extends EntityPlayer {
             le.teleportAsync(to);
         }
 
-        try {this.a(EnumGamemode.a);} catch (NullPointerException e) {}
+        try {
+            this.a(EnumGamemode.a);
+        } catch (NullPointerException e) {
+        }
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
         VM.server().sendWorldPackets(w,
-            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-            modListPlayerPacket(), //UPDATE_GAME_MODE
-            new PacketPlayOutSpawnEntity(this),
-            new PacketPlayOutEntityDestroy(rid));
+                addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+                modListPlayerPacket(), //UPDATE_GAME_MODE
+                new PacketPlayOutSpawnEntity(this),
+                new PacketPlayOutEntityDestroy(rid));
         swapToSlot(0);
 
 //		final Vector vc = to.toVector();
@@ -214,7 +215,7 @@ public class BotEntity extends EntityPlayer {
                 ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
                 ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
                 ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
-            List.of(this));
+                List.of(this));
     }
 
     private ClientboundPlayerInfoUpdatePacket modListPlayerPacket() {
@@ -290,13 +291,13 @@ public class BotEntity extends EntityPlayer {
     }
 
     @OverrideMe
-    public void dropInv(final Location loc) {}
+    public void dropInv(final Location loc) {
+    }
 
     public LivingEntity getEntity() {
         final LivingEntity mb = rplc.get();
         return mb == null || !mb.isValid() ? null : mb;
     }
-
 
     public boolean isDead() {
         return isDead;
@@ -313,8 +314,8 @@ public class BotEntity extends EntityPlayer {
             mb.remove();
         }
         VM.server().sendWorldPackets(w,
-            new PacketPlayOutEntityDestroy(this.aj()),
-            modListPlayerPacket(), tag.killPacket());
+                new PacketPlayOutEntityDestroy(this.aj()),
+                modListPlayerPacket(), tag.killPacket());
     }
 
     public void remove() {
@@ -322,7 +323,7 @@ public class BotEntity extends EntityPlayer {
         BotManager.botById.remove(rid);
         die(getEntity());
         VM.server().sendWorldPackets(w,
-            remListPlayerPacket());
+                remListPlayerPacket());
         CustomScore.allStopTrack(name);
         this.a(RemovalReason.a);
     }
@@ -343,11 +344,11 @@ public class BotEntity extends EntityPlayer {
         listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
         VM.server().sendWorldPackets(w, updListPlayerPacket());
     }
-    
+
     public void tag(final boolean show) {
         tag.visible(show);
     }
-    
+
     public void tag(final String prefix, final String affix, final String suffix) {
         tag.content(prefix + affix + name + suffix);
     }
@@ -401,9 +402,9 @@ public class BotEntity extends EntityPlayer {
     @Deprecated(forRemoval = true)
     public void updateAll(final NetworkManager nm) {
         nm.a(new ClientboundBundlePacket(
-            List.of(addListPlayerPacket(), modListPlayerPacket(), new PacketPlayOutSpawnEntity(this),
-                new PacketPlayOutEntityTeleport(this), new PacketPlayOutEntityDestroy(rid),
-                new PacketPlayOutEntityEquipment(this.aj(), updateIts()))));
+                List.of(addListPlayerPacket(), modListPlayerPacket(), new PacketPlayOutSpawnEntity(this),
+                        new PacketPlayOutEntityTeleport(this), new PacketPlayOutEntityDestroy(rid),
+                        new PacketPlayOutEntityEquipment(this.aj(), updateIts()))));
     }
 
     private List<Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>> updateIts() {
@@ -456,13 +457,14 @@ public class BotEntity extends EntityPlayer {
         //loc.getWorld().playSound(loc, Sound.ENTITY_SHEEP_STEP, 1f, 1.2f);
         final Vector dl = new Vector(loc.getX() - ps.c, loc.getY() - ps.d, loc.getZ() - ps.e);
         VM.server().sendWorldPackets(w,
-            new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
-            new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
-                (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
+                new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
+                new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
+                        (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
     @OverrideMe
-    public void onInteract(final PlayerInteractAtEntityEvent e) {}
+    public void onInteract(final PlayerInteractAtEntityEvent e) {
+    }
 
     @OverrideMe
     public void onDamage(final EntityDamageEvent e) {
@@ -474,7 +476,7 @@ public class BotEntity extends EntityPlayer {
         e.getDrops().clear();
         final LivingEntity le = e.getEntity();
         le.getWorld().spawnParticle(Particle.CLOUD, le.getLocation()
-            .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
+                .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
         die(le);
     }
 
@@ -529,7 +531,6 @@ public class BotEntity extends EntityPlayer {
             bot.move(loc, vc, true);
 
 //			if (bot.tryJump(loc, rplc, vc)) return;
-
             vc.setY(0d);
             if (rplc.isInWater()) {
                 rplc.setVelocity(rplc.getVelocity().setY(0.1d).add(vc.multiply(0.05d)));
@@ -537,10 +538,13 @@ public class BotEntity extends EntityPlayer {
                 if (rplc.isOnGround()) {
 
                     final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
-                    if (pl == null) return;
+                    if (pl == null) {
+                        return;
+                    }
 
-                    if (!arp.hasTgt() || arp.isDone())
+                    if (!arp.hasTgt() || arp.isDone()) {
                         arp.setTgt(new WXYZ(pl.getLocation()));
+                    }
                     arp.tickGo(1.5d);
 
                 }
@@ -548,12 +552,14 @@ public class BotEntity extends EntityPlayer {
         }
 
         @Override
-        public @NotNull GoalKey<Mob> getKey() {
+        public @NotNull
+        GoalKey<Mob> getKey() {
             return key;
         }
 
         @Override
-        public @NotNull EnumSet<GoalType> getTypes() {
+        public @NotNull
+        EnumSet<GoalType> getTypes() {
             return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
         }
     }

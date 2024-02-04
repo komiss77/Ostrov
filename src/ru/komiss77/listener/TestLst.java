@@ -13,6 +13,8 @@ import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.inventory.InputButton;
 
 
 public class TestLst implements Listener {
@@ -41,6 +43,7 @@ public class TestLst implements Listener {
             p.sendMessage("§8TestListener - interact cancel!");
             
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
+                PlayerInput.get(InputButton.InputType.SIGN, p, s -> p.sendMessage(s), "лохлохолхолхолхо");
                  //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
                 //VM.getNmsServer().signInput(p, , xyz);
                 if (bt != null) {

@@ -126,7 +126,7 @@ public class FigureManager implements Initiable {
             }
         } catch (Exception ex) {
             Ostrov.log_err("Ошибка загрузки фигуры "+ex.getMessage());
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
 
         

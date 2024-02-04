@@ -824,13 +824,20 @@ public class ItemUtils {
                         }
                         break;
 
-                    case "skull":
                     case "skulltexture":
-                    case "skullowneruuid":
                         if (splittedParam.length == 2) {
-                            builder.setSkullOwnerUuid(splittedParam[1]);
+                            builder.setCustomHeadTexture(splittedParam[1]);
                         } else {
-                            Ostrov.log_warn("Декодер skull : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+                            Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+                        }
+                        break;
+                    case "skull":
+                    case "skullowneruuid": //в итоге высерает java.lang.NullPointerException: Profile name must not be null
+                        if (splittedParam.length == 2) {
+                            //builder.setSkullOwnerUuid(splittedParam[1]);
+                            Ostrov.log_warn("Декодер skullowneruuid : с uuid больше не работает, нужно переделать на skulltexture!");
+                        } else {
+                            Ostrov.log_warn("Декодер skullowneruuid : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
                         }
                         break;
 

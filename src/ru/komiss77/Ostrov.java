@@ -1,14 +1,10 @@
 package ru.komiss77;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.Dsl;
-import static org.asynchttpclient.Dsl.config;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -48,7 +44,6 @@ public class Ostrov extends JavaPlugin {
     public static final Calendar calendar;
     private static final Date date;
     private static final SimpleDateFormat full_sdf;
-    public static AsyncHttpClient HTTP;
     
     static {
         random = new Random();
@@ -65,7 +60,6 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
-        HTTP = Dsl.asyncHttpClient(config().);
         Config.init(); // 1 !
         new VM(this); // 2 !
     }
@@ -136,12 +130,6 @@ public class Ostrov extends JavaPlugin {
         modules.values().stream().forEach( 
             (module) ->  (module).onDisable()
         );
-        
-        try {
-            HTTP.close();
-        } catch (IOException ex) {
-            log_err("HTTP : "+ex.getMessage());
-        }
         
         log_ok("§4Остров выгружен!");
     }  

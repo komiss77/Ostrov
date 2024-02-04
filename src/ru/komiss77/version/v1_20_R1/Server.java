@@ -379,27 +379,3 @@ public class Server implements IServer {
 
 */
 
-
-        //лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код
-        /*EnumColor color = EnumColor.a;
-        if (suggest.length() >= 2 && (suggest.charAt(0) == '§' || suggest.charAt(0) == '&')) {
-            switch (suggest.charAt(1)) {
-                case '0' -> color = EnumColor.a;
-                case '1' -> color = EnumColor.b;
-                case '2' -> color = EnumColor.c;
-                case '3' -> color = EnumColor.d;
-                case '4' -> color = EnumColor.e;
-                case '5' -> color = EnumColor.f;
-                case '6' -> color = EnumColor.g;
-                case '7' -> color = EnumColor.h;
-                case '8' -> color = EnumColor.i;
-                case '9' -> color = EnumColor.j;
-                case 'a' -> color = EnumColor.k;
-                case 'b' -> color = EnumColor.l;
-                case 'c' -> color = EnumColor.m;
-                case 'd' -> color = EnumColor.n;
-                case 'e' -> color = EnumColor.o;
-                case 'f' -> color = EnumColor.p;
-            }
-            suggest = suggest.substring(2);
-        }*/

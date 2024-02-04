@@ -75,8 +75,8 @@
     <target name="-post-jar">
         <jar destfile="${dist.jar}" update="true">
             <zipfileset src="${dist.jar}" includes="**/*.class" />
-            <zipfileset src="lib/async-http-client-3.jar" includes="**/*.class"/>
-            <zipfileset src="lib/async-http-client-3.jar" includes="**/*.properties"/>
+             <!--<zipfileset src="lib/async-http-client-3.jar" includes="**/*.class"/>
+            <zipfileset src="lib/async-http-client-3.jar" includes="**/*.properties"/>-->
             
             <!--<restrict> 
                 <archives>

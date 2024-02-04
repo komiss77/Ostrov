@@ -149,7 +149,7 @@ public class CustomTag {
         final PacketPlayOutEntityMetadata syncDataPacket = syncPacket();
 
         final PacketDataSerializer buf = new PacketDataSerializer(Unpooled.buffer());
-        buf.d(tgt.getEntityId());
+        buf.c(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
         buf.a(idArr);
         final PacketPlayOutMount mountPacket = new PacketPlayOutMount(buf);
 

@@ -18,17 +18,21 @@ import ru.komiss77.utils.DateUtil;
  */
 public class test {
     
-    private static final Calendar calendar;
-    static {
-        calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-        calendar.setTimeInMillis(System.currentTimeMillis());
-    }
+    private static final java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+    
+                    /*HttpClient.newBuilder()
+                    .version(Version.HTTP_2)
+                    .followRedirects(Redirect.NORMAL)
+                    //.proxy(ProxySelector.of(new InetSocketAddress("www-proxy.com", 8080)))
+                    .authenticator(Authenticator.getDefault())
+                    .build();*/
     
     public static void main(String[] args) {
         
- 
-        
+
+
+            
+
     }
     
 

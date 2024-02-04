@@ -11,6 +11,8 @@ final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
 https://multipaper.io/#pricing
 сохранение данных до перехода с сервера (по команде server??)
 
+opensign - TileEntitySign переделать на buff
+
 меню создания вложенных квестов + система отображения и хранения
 доделки WE: скан не сохран.текст табличек
 ресурспаки - на прокси?
