@@ -382,7 +382,7 @@ public class LocationUtil {
         return fin;
     }
 
-    public static void getDDABlocks(final Location org, final Vector dir, final double dst, final Predicate<Block> done) {
+    public static void traceBlocks(final Location org, final Vector dir, final double dst, final Predicate<Block> done) {
         dir.normalize();
         final int finX = (int) (dir.getX() * dst + org.getX()), finY = (int) (dir.getY() * dst + org.getY()), finZ = (int) (dir.getZ() * dst + org.getZ());
         int mapX = (int)Math.floor(org.getX()), mapY = (int)Math.floor(org.getY()), mapZ = (int)Math.floor(org.getZ());
@@ -402,7 +402,6 @@ public class LocationUtil {
         if (Double.isNaN(sideDistZ)) sideDistZ = Double.POSITIVE_INFINITY;
 
         final World w = org.getWorld();
-        int step = 0;
         while(true) {
             if (sideDistZ < sideDistX && sideDistZ < sideDistY) {
                 sideDistZ += deltaDistZ;
@@ -415,7 +414,7 @@ public class LocationUtil {
                 mapY += stepY;
             }
 
-            w.spawnParticle(Particle.FLAME, org.clone().add(sideDistX, sideDistY, sideDistZ), 2, 0d, 0d, 0d, 0d);
+//            w.spawnParticle(Particle.FLAME, org.clone().add(sideDistX, sideDistY, sideDistZ), 2, 0d, 0d, 0d, 0d);
             if (done.test(w.getBlockAt(mapX, mapY, mapZ)) || (mapX == finX && mapY == finY && mapZ == finZ)) return;
         }
     }

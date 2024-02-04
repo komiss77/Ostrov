@@ -57,15 +57,15 @@ public class CustomTag {
         tagEntId = net.minecraft.world.entity.Entity.nextEntityId();//Bukkit.getUnsafe().nextEntityId();
         idArr = new int[]{tagEntId};
         target = new WeakReference<>(ent);//entity;
-        passengerOffset = ent.getHeight() * 0.75d; //= ridingOffset;
+        passengerOffset = ent.getHeight(); //= ridingOffset;
         real = ent.isValid();
-        name = PaperAdventure.asVanilla(TCUtils.format(ent.getName() + "\n\n"));
+        name = PaperAdventure.asVanilla(TCUtils.format(ent.getName() + "\n"));
     }
 
     //Can contain \n for >1 lines
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
-        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
+        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n"));
         if (visible) {
             sendTrackersPacket(spawnPacket());
         }
@@ -96,7 +96,7 @@ public class CustomTag {
         }
         final PacketPlayOutEntityDestroy not = killPacket();
         if (real) {
-            for (final Player p : tgt.getTrackedPlayers()) {
+            for (final Player p : tgt.getTrackedBy()) {
                 VM.server().sendPacket(p, canSee.test(p) ? packet : not);
             }
 

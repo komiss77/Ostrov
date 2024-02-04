@@ -35,14 +35,14 @@ public class CustomScore {
         p.setScoreboard(ownerBoard);
     }
     
-    public CustomScore(final String botName) {
+    /*public CustomScore(final String botName) {
         name = botName;
         botBoard = true;
         ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
         sideBar = null;
         ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
         create();
-    }
+    }*/
     
     private void create() {
         //ownerTeam.addEntry(name);

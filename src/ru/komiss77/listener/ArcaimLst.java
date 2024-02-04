@@ -259,10 +259,8 @@ public class ArcaimLst implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSpawn(final EntitySpawnEvent e) {
         switch (e.getEntityType()) {
-            case ENDER_DRAGON ->
-                e.getEntity().remove();
-            //default -> 
-                //e.setCancelled(WGhook.getRegionsOnLocation(e.getEntity().getLocation()).size() == 0);
+            case ENDER_DRAGON -> e.getEntity().remove();
+            default -> e.setCancelled(WGhook.getRegionsOnLocation(e.getEntity().getLocation()).size() == 0);
         }
     }
 

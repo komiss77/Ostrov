@@ -1,7 +1,5 @@
 package ru.komiss77.modules.enchants;
 
-import java.lang.reflect.Field;
-import org.bukkit.enchantments.Enchantment;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
@@ -30,13 +28,13 @@ public class EnchantManager implements Initiable {
     		return;
     	}
     	
-        try {
+        /*try {
             final Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
             f.set(null, true);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
-        }
+        }*/
         CustomEnchant.values();
     }
 

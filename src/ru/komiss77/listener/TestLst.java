@@ -2,18 +2,14 @@ package ru.komiss77.listener;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.bots.AfkBot;
-import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.version.VM;
@@ -21,22 +17,29 @@ import ru.komiss77.version.VM;
 
 public class TestLst implements Listener {
 
-    private AfkBot bt;
+//    private AfkBot bt;
     
-    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
+//    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.isLocalBuilder(p) || e.getItem()==null) return;
         final Oplayer op = PM.getOplayer(p);
         
         if (e.getItem().getType() == Material.BLAZE_ROD) {
-            PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
+            /*PM.getOplayer(p).tag("§2Лох полный на\n", "\n§6Тут что-то натво(рил)");
             if (bt != null) {
                 bt.remove();
                 bt = null;
             }
-            bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
+            bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));*/
 //            Ostrov.sync(() -> bt.die(bt.getEntity()), 100);
+            LocationUtil.traceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, b -> {
+                if (b.getType().isAir()) {
+                    b.setType(Material.DIAMOND_BLOCK, false);
+                    return false;
+                }
+                return true;
+            });
         }
 
 
@@ -49,12 +52,12 @@ public class TestLst implements Listener {
             if (e.getAction()==Action.RIGHT_CLICK_AIR ) {
                  //XYZ xyz = new XYZ(p.getWorld().getName(), p.getLocation().getBlockX(), p.getLocation().getBlockY()-3, p.getLocation().getBlockZ());
                 //VM.getNmsServer().signInput(p, , xyz);
-                if (bt != null) {
-                    bt.remove();
-                    bt = null;
-                }
+//                if (bt != null) {
+//                    bt.remove();
+//                    bt = null;
+//                }
                 if (p.isSneaking()) {
-                    bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
+//                    bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
                     //op.tag.visible(false);
                     //p.sendMessage("custom name off");
                 } else {

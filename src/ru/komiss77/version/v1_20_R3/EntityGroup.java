@@ -22,7 +22,7 @@ import ru.komiss77.utils.FastMath;
 import ru.komiss77.version.IEntityGroup;
 import ru.komiss77.version.VM;
 
-@Deprecated
+//@Deprecated
 public class EntityGroup implements IEntityGroup { 
 
     
@@ -238,9 +238,9 @@ public class EntityGroup implements IEntityGroup {
         final byte yawByte = FastMath.toPackedByte(180f - FastMath.toDegree((float) Math.atan2(vx, vz)) + ApiOstrov.randInt(-10, 10) );
         final byte pitchByte = FastMath.toPackedByte(90 - FastMath.toDegree((float) Math.acos(vy)) + (ApiOstrov.randBoolean() ? 10 : -5) );
         
-        final EntityPlayer entityPlayer = VM.getNmsServer().toNMS(p);
+        final EntityPlayer entityPlayer = VM.server().toNMS(p);
         
-        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.getNmsServer().toNMS(e), yawByte);
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.server().toNMS(e), yawByte);
         entityPlayer.c.a(head);
         
         PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook(e.getEntityId(), yawByte, pitchByte, true);
@@ -254,9 +254,9 @@ public class EntityGroup implements IEntityGroup {
         final byte yawByte = FastMath.toPackedByte(e.getLocation().getYaw());//toPackedByte(f.yaw);
         final byte pitchByte = FastMath.toPackedByte(e.getLocation().getPitch());//toPackedByte(f.pitch);
         
-        final EntityPlayer entityPlayer = VM.getNmsServer().toNMS(p);
+        final EntityPlayer entityPlayer = VM.server().toNMS(p);
         
-        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.getNmsServer().toNMS(e), yawByte);
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.server().toNMS(e), yawByte);
         entityPlayer.c.a(head);
         
         PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook(e.getEntityId(), yawByte, pitchByte, true);
@@ -267,8 +267,8 @@ public class EntityGroup implements IEntityGroup {
 	public void colorGlow(final Entity le, final char color, final boolean fakeGlow) {
     	if (le != null && le.isValid()) {
     		Ostrov.async(() -> {
-        		final net.minecraft.world.entity.Entity el = VM.getNmsServer().toNMS(le);
-				final ScoreboardServer sb = VM.getNmsServer().toNMS().aH();
+        		final net.minecraft.world.entity.Entity el = VM.server().toNMS(le);
+				final ScoreboardServer sb = VM.server().toNMS().aH();
 				final ScoreboardTeam st = sb.c(le.getUniqueId().toString());
                 final EnumChatFormat clr = EnumChatFormat.a(color);
 				st.a(clr == null ? EnumChatFormat.p : clr);

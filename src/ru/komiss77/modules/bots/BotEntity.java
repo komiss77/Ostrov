@@ -7,8 +7,10 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
+import net.minecraft.Optionull;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.chat.RemoteChatSession;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -54,12 +56,12 @@ public class BotEntity extends EntityPlayer {
     private static final DedicatedServer ds = VM.server().toNMS();
 
     public final World world;
-//    public final CustomScore score;
+    //    public final CustomScore score;
     public final CustomTag tag;
 
     private boolean isDead;
     private WeakReference<LivingEntity> rplc;
-//    private String prefix, affix, suffix;
+    //    private String prefix, affix, suffix;
     public static final double DHIT_DST_SQ = 4d;
     public static final int PARRY_TICKS = 40;
     public static final int BASH_TICKS = 40;
@@ -79,7 +81,7 @@ public class BotEntity extends EntityPlayer {
             pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName()
                     + ".inventory.CraftInventoryPlayer").getConstructor(fS().getClass()).newInstance(fS());
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+                 | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
             ex.printStackTrace();
         }
         inv = pi;
@@ -210,20 +212,25 @@ public class BotEntity extends EntityPlayer {
         return new BotGoal(this);
     }
 
+    private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
+        return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
+                true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
+    }
+
     private ClientboundPlayerInfoUpdatePacket addListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
                 ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
                 ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
                 ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
-                List.of(this));
+                entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket modListPlayerPacket() {
-        return new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.a.c, this);
+        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.a.c), entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket updListPlayerPacket() {
-        return new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.a.f, this);
+        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.a.f), entryList());
     }
 
     private ClientboundPlayerInfoRemovePacket remListPlayerPacket() {
@@ -314,8 +321,8 @@ public class BotEntity extends EntityPlayer {
             mb.remove();
         }
         VM.server().sendWorldPackets(world,
-            new PacketPlayOutEntityDestroy(this.aj()),
-            modListPlayerPacket(), tag.killPacket());
+                new PacketPlayOutEntityDestroy(this.aj()),
+                modListPlayerPacket(), tag.killPacket());
     }
 
     public void remove() {
@@ -323,7 +330,7 @@ public class BotEntity extends EntityPlayer {
         BotManager.botById.remove(rid);
         die(getEntity());
         VM.server().sendWorldPackets(world,
-            remListPlayerPacket());
+                remListPlayerPacket());
         CustomScore.allStopTrack(name);
         this.a(RemovalReason.a);
     }
@@ -457,9 +464,9 @@ public class BotEntity extends EntityPlayer {
         //loc.getWorld().playSound(loc, Sound.ENTITY_SHEEP_STEP, 1f, 1.2f);
         final Vector dl = new Vector(loc.getX() - ps.c, loc.getY() - ps.d, loc.getZ() - ps.e);
         VM.server().sendWorldPackets(world,
-            new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
-            new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
-                (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
+                new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
+                new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
+                        (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
     @OverrideMe

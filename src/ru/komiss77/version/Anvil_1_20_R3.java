@@ -13,6 +13,7 @@ import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
 public final class Anvil_1_20_R3 implements AnvilWrapper {
@@ -37,7 +38,7 @@ public final class Anvil_1_20_R3 implements AnvilWrapper {
 
     @Override
     public void handleInventoryCloseEvent(Player player) {
-        CraftEventFactory.handleInventoryCloseEvent(toNMS(player));
+        CraftEventFactory.handleInventoryCloseEvent(toNMS(player), InventoryCloseEvent.Reason.PLAYER);
         toNMS(player).r(); // r -> doCloseContainer
     }
 

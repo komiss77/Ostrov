@@ -68,19 +68,9 @@ public class PlayerInput implements Listener {
                     .onClick( (slot, stateSnapshot) -> { // Either use sync or async variant, not both
 //Ostrov.log("AnvilGUI.Slot="+slot);
                         switch (slot) {
-                            case AnvilGUI.Slot.INPUT_LEFT -> {
-                                consumer.accept(sugg);
-                            }
-                            case AnvilGUI.Slot.INPUT_RIGHT -> {
-                                
-                            }
-                            case AnvilGUI.Slot.OUTPUT -> {
-                                consumer.accept(stateSnapshot.getText());
-                                //return Arrays.asList(AnvilGUI.ResponseAction.close());
-                            }
-                            default -> {
-                                //return Collections.emptyList();
-                            }
+                            case AnvilGUI.Slot.INPUT_LEFT -> consumer.accept(sugg);
+                            case AnvilGUI.Slot.INPUT_RIGHT -> {}
+                            case AnvilGUI.Slot.OUTPUT -> consumer.accept(stateSnapshot.getText());
                         }
                         return Arrays.asList(AnvilGUI.ResponseAction.close());
                         //if(stateSnapshot.getText().equalsIgnoreCase("you")) {

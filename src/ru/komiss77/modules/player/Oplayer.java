@@ -191,7 +191,8 @@ public class Oplayer {
         firstJoin = (isGuest = nik.startsWith("guest_"));
         score = new CustomScore((Player) p);
         tag = new CustomTag(p);
-        Oplayer.this.tag(tagPreffix, tagSuffix);
+        tag(tagPreffix, tagSuffix);
+        beforeName(ChatLst.NIK_COLOR, (Player) p);
         packetSpy = VM.server().addPacketSpy((Player) p, Oplayer.this);
     	//VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }    

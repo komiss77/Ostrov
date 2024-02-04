@@ -11,8 +11,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import net.md_5.bungee.api.chat.BaseComponent;
-import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,6 +22,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
+import ru.komiss77.utils.TCUtils;
 
 //прибить private Plugin plugin;
 // https://github.com/WesJD/AnvilGUI
@@ -37,7 +36,7 @@ import ru.komiss77.Ostrov;
 public class AnvilGUI {
 
     /**
-     * The local {@link VersionWrapper} object for the server's version
+     * The local {@link Anvil_1_20_R3} object for the server's version
      */
     private static final Anvil_1_20_R3 WRAPPER = new Anvil_1_20_R3();//new VersionMatcher().match();
 
@@ -118,7 +117,6 @@ public class AnvilGUI {
     /**
      * Create an AnvilGUI
      *
-     * @param plugin           A {@link org.bukkit.plugin.java.JavaPlugin} instance
      * @param player           The {@link Player} to open the inventory for
      * @param mainThreadExecutor An {@link Executor} that executes on the main server thread
      * @param titleComponent   What to have the text already set to
@@ -217,7 +215,6 @@ public class AnvilGUI {
      * @see Builder#title(String)
      */
     public void setTitle(String literalTitle, boolean preserveRenameText) {
-        Validate.notNull(literalTitle, "literalTitle cannot be null");
         setTitle(WRAPPER.literalChatComponent(literalTitle), preserveRenameText);
     }
 
@@ -230,7 +227,6 @@ public class AnvilGUI {
      * @see Builder#jsonTitle(String)
      */
     public void setJsonTitle(String json, boolean preserveRenameText) {
-        Validate.notNull(json, "json cannot be null");
         setTitle(WRAPPER.jsonChatComponent(json), preserveRenameText);
     }
 
@@ -385,8 +381,6 @@ public class AnvilGUI {
         private boolean preventClose = false;
         /** A set of integers containing the slot numbers that should be modifiable by the user. */
         private Set<Integer> interactableSlots = Collections.emptySet();
-        /** The {@link Plugin} that this anvil GUI is associated with */
-        //private Plugin plugin;
         /** The text that will be displayed to the user */
         private Object titleComponent = WRAPPER.literalChatComponent("Repair & Name");
         /** The starting text on the item */
@@ -406,7 +400,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the executor is null
          */
         public Builder mainThreadExecutor(Executor executor) {
-            Validate.notNull(executor, "Executor cannot be null");
             this.mainThreadExecutor = executor;
             return this;
         }
@@ -445,7 +438,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the closeListener is null
          */
         public Builder onClose(Consumer<StateSnapshot> closeListener) {
-            Validate.notNull(closeListener, "closeListener cannot be null");
             this.closeListener = closeListener;
             return this;
         }
@@ -465,7 +457,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the function supplied is null
          */
         public Builder onClickAsync(ClickHandler clickHandler) {
-            Validate.notNull(clickHandler, "click function cannot be null");
             this.clickHandler = clickHandler;
             return this;
         }
@@ -496,9 +487,8 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the function supplied is null
          */
         public Builder onClick(BiFunction<Integer, StateSnapshot, List<ResponseAction>> clickHandler) {
-            Validate.notNull(clickHandler, "click function cannot be null");
-            this.clickHandler =
-                    (slot, stateSnapshot) -> CompletableFuture.completedFuture(clickHandler.apply(slot, stateSnapshot));
+            this.clickHandler = (slot, stateSnapshot) ->
+                CompletableFuture.completedFuture(clickHandler.apply(slot, stateSnapshot));
             return this;
         }
 
@@ -514,7 +504,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException if the text is null
          */
         public Builder text(String text) {
-            Validate.notNull(text, "Text cannot be null");
             this.itemText = text;
             return this;
         }
@@ -529,7 +518,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException if the title is null
          */
         public Builder title(String title) {
-            Validate.notNull(title, "title cannot be null");
             this.titleComponent = WRAPPER.literalChatComponent(title);
             return this;
         }
@@ -542,10 +530,8 @@ public class AnvilGUI {
          * @param json The title that is to be displayed to the user
          * @return The {@link Builder} instance
          * @throws IllegalArgumentException if the title is null
-         * @see net.md_5.bungee.chat.ComponentSerializer#toString(BaseComponent)
          */
         public Builder jsonTitle(String json) {
-            Validate.notNull(json, "json cannot be null");
             this.titleComponent = WRAPPER.jsonChatComponent(json);
             return this;
         }
@@ -558,7 +544,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException if the {@link ItemStack} is null
          */
         public Builder itemLeft(ItemStack item) {
-            Validate.notNull(item, "item cannot be null");
             this.itemLeft = item;
             return this;
         }
@@ -593,8 +578,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the onClick function, plugin, or player is null
          */
         public AnvilGUI open(Player player) {
-            Validate.notNull(clickHandler, "click handler cannot be null");
-            Validate.notNull(player, "Player cannot be null");
 
             if (itemText != null) {
                 if (itemLeft == null) {
@@ -602,7 +585,7 @@ public class AnvilGUI {
                 }
 
                 ItemMeta paperMeta = itemLeft.getItemMeta();
-                paperMeta.setDisplayName(itemText);
+                paperMeta.displayName(TCUtils.format(itemText));
                 itemLeft.setItemMeta(paperMeta);
             }
 
@@ -643,7 +626,6 @@ public class AnvilGUI {
 
         /**
          * Replace the input text box value with the provided text value.
-         *
          * Before using this method, it must be verified by the caller that items are either in
          * {@link Slot#INPUT_LEFT} or {@link Slot#OUTPUT} present.
          *
@@ -652,8 +634,7 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the text is null
          * @throws IllegalStateException when the slots {@link Slot#INPUT_LEFT} and {@link Slot#OUTPUT} are <code>null</code>
          */
-        static ResponseAction replaceInputText(String text) {
-            Validate.notNull(text, "text cannot be null");
+        static ResponseAction replaceInputText(final String text) {
             return (anvilgui, player) -> {
                 ItemStack item = anvilgui.getInventory().getItem(Slot.OUTPUT);
                 if (item == null) {
@@ -667,7 +648,7 @@ public class AnvilGUI {
 
                 final ItemStack cloned = item.clone();
                 final ItemMeta meta = cloned.getItemMeta();
-                meta.setDisplayName(text);
+                meta.displayName(TCUtils.format(text));
                 cloned.setItemMeta(meta);
                 anvilgui.getInventory().setItem(Slot.INPUT_LEFT, cloned);
             };
@@ -682,7 +663,6 @@ public class AnvilGUI {
          * @see Builder#title(String)
          */
         static ResponseAction updateTitle(String literalTitle, boolean preserveRenameText) {
-            Validate.notNull(literalTitle, "literalTitle cannot be null");
             return (anvilGUI, player) -> anvilGUI.setTitle(literalTitle, preserveRenameText);
         }
 
@@ -695,7 +675,6 @@ public class AnvilGUI {
          * @see Builder#jsonTitle(String)
          */
         static ResponseAction updateJsonTitle(String json, boolean preserveRenameText) {
-            Validate.notNull(json, "json cannot be null");
             return (anvilGUI, player) -> anvilGUI.setJsonTitle(json, preserveRenameText);
         }
 
@@ -706,7 +685,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the otherInventory is null
          */
         static ResponseAction openInventory(Inventory otherInventory) {
-            Validate.notNull(otherInventory, "otherInventory cannot be null");
             return (anvilgui, player) -> player.openInventory(otherInventory);
         }
 
@@ -725,7 +703,6 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when the runnable is null
          */
         static ResponseAction run(Runnable runnable) {
-            Validate.notNull(runnable, "runnable cannot be null");
             return (anvilgui, player) -> runnable.run();
         }
     }
@@ -800,91 +777,77 @@ public class AnvilGUI {
         }
     }
 
-    /** Represents a snapshot of the state of an AnvilGUI */
-    public static final class StateSnapshot {
+    /**
+     * Represents a snapshot of the state of an AnvilGUI
+     *
+     * @param leftItem The {@link ItemStack} in the anvilGui slots
+     * @param player   The {@link Player} that clicked the output slot
+     */
+        public record StateSnapshot(ItemStack leftItem, ItemStack rightItem, ItemStack outputItem, Player player) {
 
-        /**
-         * Create an {@link StateSnapshot} from the current state of an {@link AnvilGUI}
-         * @param anvilGUI The instance to take the snapshot of
-         * @return The snapshot
-         */
-        private static StateSnapshot fromAnvilGUI(AnvilGUI anvilGUI) {
-            final Inventory inventory = anvilGUI.getInventory();
-            return new StateSnapshot(
-                    itemNotNull(inventory.getItem(Slot.INPUT_LEFT)).clone(),
-                    itemNotNull(inventory.getItem(Slot.INPUT_RIGHT)).clone(),
-                    itemNotNull(inventory.getItem(Slot.OUTPUT)).clone(),
-                    anvilGUI.player);
+            /**
+             * Create an {@link StateSnapshot} from the current state of an {@link AnvilGUI}
+             *
+             * @param anvilGUI The instance to take the snapshot of
+             * @return The snapshot
+             */
+            private static StateSnapshot fromAnvilGUI(AnvilGUI anvilGUI) {
+                final Inventory inventory = anvilGUI.getInventory();
+                return new StateSnapshot(
+                        itemNotNull(inventory.getItem(Slot.INPUT_LEFT)).clone(),
+                        itemNotNull(inventory.getItem(Slot.INPUT_RIGHT)).clone(),
+                        itemNotNull(inventory.getItem(Slot.OUTPUT)).clone(),
+                        anvilGUI.player);
+            }
+
+            /**
+             * It returns the item in the left combine slot of the gui
+             *
+             * @return The leftItem
+             */
+            @Override
+            public ItemStack leftItem() {
+                return leftItem;
+            }
+
+            /**
+             * It returns the item in the right combine slot of the gui
+             *
+             * @return The rightItem
+             */
+            @Override
+            public ItemStack rightItem() {
+                return rightItem;
+            }
+
+            /**
+             * It returns the output item that would have been the result
+             * by combining the left and right one
+             *
+             * @return The outputItem
+             */
+            @Override
+            public ItemStack outputItem() {
+                return outputItem;
+            }
+
+            /**
+             * It returns the player that clicked onto the output slot
+             *
+             * @return The player
+             */
+            @Override
+            public Player player() {
+                return player;
+            }
+
+            /**
+             * It returns the text the player typed into the rename field
+             *
+             * @return The text of the rename field
+             */
+            public String getText() {
+                return outputItem.hasItemMeta() ? TCUtils.toString(outputItem.getItemMeta().displayName()) : "";
+            }
         }
-
-        /**
-         * The {@link ItemStack} in the anvilGui slots
-         */
-        private final ItemStack leftItem, rightItem, outputItem;
-
-        /**
-         * The {@link Player} that clicked the output slot
-         */
-        private final Player player;
-
-        /**
-         * The event parameter constructor
-         * @param leftItem The left item in the combine slot of the anvilGUI
-         * @param rightItem The right item in the combine slot of the anvilGUI
-         * @param outputItem The item that would have been outputted, when the items would have been combined
-         * @param player The player that clicked the output slot
-         */
-        public StateSnapshot(ItemStack leftItem, ItemStack rightItem, ItemStack outputItem, Player player) {
-            this.leftItem = leftItem;
-            this.rightItem = rightItem;
-            this.outputItem = outputItem;
-            this.player = player;
-        }
-
-        /**
-         * It returns the item in the left combine slot of the gui
-         *
-         * @return The leftItem
-         */
-        public ItemStack getLeftItem() {
-            return leftItem;
-        }
-
-        /**
-         * It returns the item in the right combine slot of the gui
-         *
-         * @return The rightItem
-         */
-        public ItemStack getRightItem() {
-            return rightItem;
-        }
-
-        /**
-         * It returns the output item that would have been the result
-         * by combining the left and right one
-         *
-         * @return The outputItem
-         */
-        public ItemStack getOutputItem() {
-            return outputItem;
-        }
-
-        /**
-         * It returns the player that clicked onto the output slot
-         *
-         * @return The player
-         */
-        public Player getPlayer() {
-            return player;
-        }
-
-        /**
-         * It returns the text the player typed into the rename field
-         *
-         * @return The text of the rename field
-         */
-        public String getText() {
-            return outputItem.hasItemMeta() ? outputItem.getItemMeta().getDisplayName() : "";
-        }
-    }
 }
