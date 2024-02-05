@@ -82,7 +82,7 @@ public class PM {
         if (remake) {
             oplayersByName.clear();
             oplayersByUuid.clear();
-            Bukkit.getOnlinePlayers().stream().forEach(p -> PM.createOplayer(p));
+            Bukkit.getOnlinePlayers().forEach(p -> PM.createOplayer(p));
         }
     }
     
@@ -94,21 +94,23 @@ public class PM {
     }
     
     public static Collection<Oplayer> getOplayers() {
-        return oplayersByName.values();
+        return oplayersByUuid.values();
     }
     
     public static <O extends Oplayer> Collection<O> getOplayers(final Class<O> cls) {
-        return oplayersByName.values().stream().map(o -> cls.cast(o)).collect(Collectors.toList());
+        return oplayersByUuid.values().stream().map(o -> cls.cast(o)).collect(Collectors.toList());
     }
     
     public static Set<String> getOplayersNames() {
         return oplayersByName.keySet();
     }
 
+    @Deprecated
     public static Oplayer getOplayer(final String nik) {
         return getOplayer(nik, Oplayer.class);
     }
 
+    @Deprecated
     public static <O extends Oplayer> O getOplayer(final String nik, final Class<O> cls) {
         return cls.cast(oplayersByName.get(nik));
     }
@@ -121,7 +123,8 @@ public class PM {
         return oplayersByUuid.get(uuid);
     }    
     
-    //не убирать, посыпались все плагины!!  Caused by: java.lang.NoSuchMethodError: 'ru.komiss77.modules.player.Oplayer ru.komiss77.modules.player.PM.getOplayer(org.bukkit.entity.Player)'
+    //не убирать, посыпались все плагины!!  Caused by: java.lang.NoSuchMethodError:
+    //'ru.komiss77.modules.player.Oplayer ru.komiss77.modules.player.PM.getOplayer(org.bukkit.entity.Player)'
     public static Oplayer getOplayer(final Player p) {
         return getOplayer(p.getName(), Oplayer.class);
     }
@@ -133,11 +136,31 @@ public class PM {
     public static <O extends Oplayer> O getOplayer(final UUID uuid, final Class<O> cls) {
         return cls.cast(oplayersByUuid.get(uuid));
     }
-    
-    public static boolean exist (final String nik) {
-        return oplayersByName.containsKey(nik);// && Bukkit.getPlayerExact(nik)!=null;
-        //переделать на runable
+
+    public static boolean exists(final HumanEntity p) {
+        return oplayersByUuid.containsKey(p.getUniqueId());
     }
+
+    public static boolean exists(final UUID id) {
+        return oplayersByUuid.containsKey(id);
+    }
+
+    @Deprecated
+    public static boolean exist(final String nik) {
+        return oplayersByName.containsKey(nik);
+    }
+
+    public static Oplayer remove(final HumanEntity p) {
+        return remove(p.getUniqueId());
+    }
+
+    public static Oplayer remove(final UUID id) {
+        final Oplayer op = oplayersByUuid.remove(id);
+        if (op!=null) oplayersByName.remove(op.nik);
+        return op;
+    }
+
+    @Deprecated
     public static Oplayer remove (final String nik) {
         Oplayer op = oplayersByName.remove(nik);
         if (op!=null) {
@@ -147,10 +170,11 @@ public class PM {
     }
 
     public static int getOnlineCount() {
-        return oplayersByName.size();
+        return oplayersByUuid.size();
     }
+
     public static boolean hasOplayers() {
-        return !oplayersByName.isEmpty();
+        return !oplayersByUuid.isEmpty();
     }
 
 
