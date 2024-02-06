@@ -12,12 +12,16 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.key.Key;
+import net.minecraft.EnumChatFormat;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.core.BlockPosition.MutableBlockPosition;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ScoreboardServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
@@ -25,6 +29,7 @@ import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.entity.TileEntitySign;
 import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.world.scores.ScoreboardTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -37,12 +42,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.util.Vector;
 import org.spigotmc.SpigotConfig;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.ParticlePlay;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.IServer;
@@ -393,6 +401,71 @@ public class Server implements IServer {
             for (Player p : w.getPlayers()) { //for (final EntityPlayer ep : ((WorldServer) w).x()) {
                 toNMS(p).c.c.a(packets);//ep.c.c.a(packets);
             }
+        }
+    }
+
+
+    @Override
+    public void sendLookAtPlayerPacket(final Player p, final Entity e) {
+        if (p==null || !p.isOnline() || e==null) return;
+
+        final Vector direction = e.getLocation().toVector().subtract(p.getLocation().toVector()).normalize();
+        double vx = direction.getX();
+        double vy = direction.getY();
+        double vz = direction.getZ();
+
+        final byte yawByte = FastMath.toPackedByte(180f - FastMath.toDegree((float) Math.atan2(vx, vz)) + ApiOstrov.randInt(-10, 10) );
+        final byte pitchByte = FastMath.toPackedByte(90 - FastMath.toDegree((float) Math.acos(vy)) + (ApiOstrov.randBoolean() ? 10 : -5) );
+
+        final EntityPlayer entityPlayer = VM.server().toNMS(p);
+
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.server().toNMS(e), yawByte);
+        entityPlayer.c.a(head);
+
+        PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook(e.getEntityId(), yawByte, pitchByte, true);
+        entityPlayer.c.a(packet);
+    }
+
+    @Override
+    public void sendLookResetPacket(final Player p, final Entity e) {
+        if (p==null || !p.isOnline() || e==null) return;
+
+        final byte yawByte = FastMath.toPackedByte(e.getLocation().getYaw());//toPackedByte(f.yaw);
+        final byte pitchByte = FastMath.toPackedByte(e.getLocation().getPitch());//toPackedByte(f.pitch);
+
+        final EntityPlayer entityPlayer = VM.server().toNMS(p);
+
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(VM.server().toNMS(e), yawByte);
+        entityPlayer.c.a(head);
+
+        PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook(e.getEntityId(), yawByte, pitchByte, true);
+        entityPlayer.c.a(packet);
+    }
+
+    @Override
+    public void colorGlow(final Entity le, final char color, final boolean fakeGlow) {
+        if (le != null && le.isValid()) {
+            Ostrov.async(() -> {
+                final net.minecraft.world.entity.Entity el = VM.server().toNMS(le);
+                final ScoreboardServer sb = VM.server().toNMS().aH();
+                final ScoreboardTeam st = sb.c(le.getUniqueId().toString());
+                final EnumChatFormat clr = EnumChatFormat.a(color);
+                st.a(clr == null ? EnumChatFormat.p : clr);
+
+                if (fakeGlow) {
+                    final PacketPlayOutEntityMetadata pem = new PacketPlayOutEntityMetadata(le.getEntityId(), el.an().c());
+                    pem.d().add(new DataWatcher.b<>(0, DataWatcher.a(net.minecraft.world.entity.Entity.class, DataWatcherRegistry.a).b(), (byte) 64));
+
+                    VM.server().sendWorldPackets(le.getWorld(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true),
+                            PacketPlayOutScoreboardTeam.a(st, le.getUniqueId().toString(), PacketPlayOutScoreboardTeam.a.a), PacketPlayOutScoreboardTeam.a(st, false), pem);
+                    return;
+                }
+
+                VM.server().sendWorldPackets(le.getWorld(), PacketPlayOutScoreboardTeam.a(st), PacketPlayOutScoreboardTeam.a(st, true),
+                        PacketPlayOutScoreboardTeam.a(st, le.getUniqueId().toString(), PacketPlayOutScoreboardTeam.a.a), PacketPlayOutScoreboardTeam.a(st, false));
+                sb.d(st);
+            });
+            if (!fakeGlow) le.setGlowing(true);
         }
     }
 

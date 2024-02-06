@@ -557,7 +557,16 @@ public class Oplayer {
     protected void showOstrovBoard() {
         //if (!Config.ostrovStatScore || hideScore) return;
         if (eng) {
-            score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
+            score.getSideBar().reset().title("§7Total online: §f§l"+GM.bungee_online)
+                .line("§a--------------")
+                .line("lvl", "§7Total online: §f§l"+GM.bungee_online)
+                .line("exp", "Exp §5"+getStat(Stat.EXP))
+                .line("rep", "Reputation "+getReputationDisplay())
+                .line("kar", "Karma "+getKarmaDisplay())
+                .line("loni", "Loni §6"+getDataInt(Data.LONI))
+                .line("ril", "Ril §e"+getDataInt(Data.RIL))
+                .line("§a--------------").build();
+            /*score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
             score.getSideBar().updateLine(8, "§a--------------");
             score.getSideBar().updateLine(7, "Level §b"+getStat(Stat.LEVEL));
             score.getSideBar().updateLine(6, "Exp §5"+getStat(Stat.EXP));
@@ -565,7 +574,7 @@ public class Oplayer {
             score.getSideBar().updateLine(4, "Karma "+getKarmaDisplay());
             score.getSideBar().updateLine(3, "Loni §6"+getDataInt(Data.LONI));
             score.getSideBar().updateLine(2, "Ril §e"+getDataInt(Data.RIL));
-            score.getSideBar().updateLine(1, "§a--------------");
+            score.getSideBar().updateLine(1, "§a--------------");*/
         } else {
             score.getSideBar().setTitle("§7Общий онлайн: §f§l"+GM.bungee_online);//"§a-----------------"
             score.getSideBar().updateLine(8, "§a--------------");

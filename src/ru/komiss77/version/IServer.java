@@ -75,4 +75,10 @@ public interface IServer {
     void sendPacket(final Player p, final Packet<?> packet);
     
     void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps);
+
+    void sendLookAtPlayerPacket(final Player p, final Entity e);
+
+    void sendLookResetPacket(final Player p, final Entity e);
+
+    void colorGlow(final Entity le, final char color, final boolean fakeGlow);
 }

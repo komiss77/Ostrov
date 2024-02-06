@@ -135,4 +135,13 @@ public class Server implements IServer {
     @SafeVarargs
     public final void sendWorldPackets(final World w, final Packet<PacketListenerPlayOut>... ps) {}
 
+    @Override
+    public void sendLookAtPlayerPacket(final Player p, final Entity e) {}
+
+    @Override
+    public void sendLookResetPacket(final Player p, final Entity e) {}
+
+    @Override
+    public void colorGlow(final Entity le, final char color, final boolean fakeGlow) {}
+
 }

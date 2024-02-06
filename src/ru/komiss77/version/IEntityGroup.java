@@ -5,7 +5,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 
-//@Deprecated
+@Deprecated
 public interface IEntityGroup {
 
 	@Deprecated
@@ -56,10 +56,13 @@ public interface IEntityGroup {
     
     
     //ля фигур
+    @Deprecated
     void sendLookAtPlayerPacket(final Player p, final Entity e);
-    
+
+    @Deprecated
     void sendLookResetPacket(final Player p, final Entity e);
-    
+
+    @Deprecated
 	void colorGlow(final Entity le, final char cr, final boolean fakeGlow);
     
     
