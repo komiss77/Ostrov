@@ -27,7 +27,6 @@ import ru.komiss77.listener.ChatLst;
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file
 //https://github.com/AsyncHttpClient/async-http-client
 
-//Идентификатор ключа: ajehqd0ihg63s9sefjak Ваш секретный ключ: AQVN0dNBKMDD4njnzVS20UcLvvz9KkNnekav6qFa
 //добавить локальный буфер в файлике
 //https://docs.papermc.io/paper/dev/component-api/i18n
 
