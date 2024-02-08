@@ -558,14 +558,14 @@ public class Oplayer {
         //if (!Config.ostrovStatScore || hideScore) return;
         if (eng) {
             score.getSideBar().reset().title("§7Total online: §f§l"+GM.bungee_online)
-                .line("§a--------------")
-                .line("lvl", "§7Total online: §f§l"+GM.bungee_online)
-                .line("exp", "Exp §5"+getStat(Stat.EXP))
-                .line("rep", "Reputation "+getReputationDisplay())
-                .line("kar", "Karma "+getKarmaDisplay())
-                .line("loni", "Loni §6"+getDataInt(Data.LONI))
-                .line("ril", "Ril §e"+getDataInt(Data.RIL))
-                .line("§a--------------").build();
+                .add("§a--------------")
+                .add("lvl", "§7Total online: §f§l"+GM.bungee_online)
+                .add("exp", "Exp §5"+getStat(Stat.EXP))
+                .add("rep", "Reputation "+getReputationDisplay())
+                .add("kar", "Karma "+getKarmaDisplay())
+                .add("loni", "Loni §6"+getDataInt(Data.LONI))
+                .add("ril", "Ril §e"+getDataInt(Data.RIL))
+                .add("§a--------------").build();
             /*score.getSideBar().setTitle("§7Total online: §f§l"+GM.bungee_online);//"§a-----------------"
             score.getSideBar().updateLine(8, "§a--------------");
             score.getSideBar().updateLine(7, "Level §b"+getStat(Stat.LEVEL));

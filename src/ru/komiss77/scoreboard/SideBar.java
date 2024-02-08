@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import ru.komiss77.Ostrov;
 import ru.komiss77.objects.Duo;
 import ru.komiss77.utils.TCUtils;
 
@@ -15,6 +16,8 @@ import java.util.LinkedList;
 
 
 public class SideBar {
+
+    public final String ext = "_";
     
     private final CustomScore board;
     private final String name;
@@ -86,27 +89,43 @@ public class SideBar {
         } else l.update(value);
     }
 
-    public SideBar line(final String name) {
-        return line(name, null);
+    public SideBar add(final String name) {
+        return add(name, null);
     }
 
-    public SideBar line(final String name, final @Nullable String value) {
+    public SideBar add(final String name, final @Nullable String value) {
+        toAdd.addFirst(new Duo<>(name, value));
+        return this;
+    }
+
+    public SideBar update(final String name, final @Nullable String value) {
         final Line l = lines.get(name);
-        if (l == null) toAdd.addFirst(new Duo<>(name, value));
+        if (l == null) {
+            Ostrov.log_warn("Tried updating null line " + name);
+            return this;
+        }
         else l.update(value);
         return this;
     }
 
     public SideBar build() {
-        for (final Duo<String, String> pr : toAdd) {
-            final Line l = lines.get(pr.key);
-            if (l==null) {
-                final Line nl = pr.val == null ? new Line(board, pr.key)
-                    : new Line(board, TCUtils.getColor(nextLine) + "§r", pr.val);
-                nl.getScore().setScore(nextLine++);
-                lines.put(pr.key, nl);
-            } else l.update(pr.val);
-        }
+        for (final Duo<String, String> pr : toAdd)
+            putLine(pr.key, pr.val);
         return this;
+    }
+
+    private void putLine(final String name, final String value) {
+        final Line l = lines.get(name);
+        if (l==null) {
+            final Line nl = value == null ? new Line(board, name)
+                    : new Line(board, TCUtils.getColor(nextLine) + "§r", value);
+            nl.getScore().setScore(nextLine++);
+            lines.put(name, nl);
+            return;
+        }
+
+        if (value == null) {
+            putLine(name + ext, null);
+        } else l.update(value);
     }
 }
