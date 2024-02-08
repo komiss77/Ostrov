@@ -76,7 +76,7 @@ public class Lang {
             .uri(URI.create("https://translate.api.cloud.yandex.net/translate/v2/translate"))
                 //Yandex Cloud	 Утечка конфиденциальных данных вашего аккаунта
             .headers("Content-Type", "application/json", 
-                    "Authorization", "Api-Key "+"AQVN0dNBKMDD4"+"njnzVS20UcLvvz"+"9KkNnekav6qFa")
+                    "Authorization", "Api-Key "+"")
             .timeout(Duration.of(5, ChronoUnit.SECONDS))
             .version(java.net.http.HttpClient.Version.HTTP_1_1); //это звиздец, эта строчка стоила дня моей жизни
         RU = Locale.forLanguageTag("ru_ru");
@@ -154,7 +154,7 @@ public class Lang {
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
             
             final HttpRequest request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")
-                            +"\",\"folderId\":\"b1g583"+"enhsdle"+"geb50uu\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}"))
+                            +"\",\"folderId\":\"\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}"))
                             .build();
             
             final CompletableFuture cf = HTTP.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
@@ -273,7 +273,7 @@ public class Lang {
         //        .setCharset(StandardCharsets.UTF_8);
 
 
-        /* final Request request = rb.setBody("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")+"\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}").build();
+        /* final Request request = rb.setBody("{\"targetLanguageCode\":\""+(locale==RU?"ru":"en")+"\",\"folderId\":\"\",\"texts\":\""+ruMsg.replace('\\', ' ')+"\"}").build();
             final AsyncCompletionHandler<Response> ah = new AsyncCompletionHandler<>() {
                 @Override
                 public @Nullable Response onCompleted(final @Nullable Response response) {
@@ -302,9 +302,9 @@ public class Lang {
 
         final Request request;
         if (ce.stripMsgRu!=null) {
-            request = rb.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ce.stripMsgRu+"\"}").build();
+            request = rb.setBody("{\"targetLanguageCode\":\"en\",\"folderId\":\"\",\"texts\":\""+ce.stripMsgRu+"\"}").build();
         } else {
-            request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"b1g583enhsdlegeb50uu\",\"texts\":\""+ce.stripMsgEn+"\"}").build();
+            request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"\",\"texts\":\""+ce.stripMsgEn+"\"}").build();
         }
         
         final AsyncCompletionHandler<Response> ah = new AsyncCompletionHandler<>() {
