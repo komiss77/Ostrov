@@ -17,7 +17,7 @@ import java.util.LinkedList;
 
 public class SideBar {
 
-    public final String ext = "_";
+    public final String ext = " ";
     
     private final CustomScore board;
     private final String name;
