@@ -16,10 +16,8 @@ public class CustomScore {
     private Scoreboard ownerBoard;
     private final SideBar sideBar;
     private final Team ownerTeam;
-    //private final CaseInsensitiveMap<Team>registeredTeams = new CaseInsensitiveMap<>(); //всосанные тимы других игроков для префиксов и тд
-    
-//    private boolean visible;
-    
+
+
     static {
         boards = new CaseInsensitiveMap<>();
     }
@@ -35,15 +33,7 @@ public class CustomScore {
         p.setScoreboard(ownerBoard);
     }
     
-    /*public CustomScore(final String botName) {
-        name = botName;
-        botBoard = true;
-        ownerBoard = Bukkit.getScoreboardManager().getNewScoreboard();
-        sideBar = null;
-        ownerTeam = regTeam(name);//ownerBoard.registerNewTeam("_" + name);
-        create();
-    }*/
-    
+
     private void create() {
         //ownerTeam.addEntry(name);
         ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER); //кого добавить в эту тиму, его ник скроется
@@ -61,23 +51,7 @@ public class CustomScore {
         boards.put(name, this); //добавлять после перебора других борд!
     }
 
-    //при дисконнекте владельца борды
-   /* public void onQuit() {
-        boards.remove(name);
-        Team team;
-        for (CustomScore otherScore : boards.values()) {
-            if (!visible) { //владелец этой борды был скрыт
-                otherScore.ownerTeam.removeEntry(name); //удалить его запись
-            } else { //вычистить данные этой борды у других
-                team = otherScore.ownerBoard.getTeam("_"+name);
-                if ( team !=null) {//if (otherScore.registeredTeams.remove( name)!=null) {
-                    team.unregister();//otherScore.unregTeam(name);//score.ownerBoard.getTeam("_"+name).unregister();
-                }
-            }
-        }
-        remove();
-        ownerBoard = null;
-    }*/
+
     
     public void remove() {
         if (ownerBoard==null) {
@@ -95,7 +69,6 @@ public class CustomScore {
             } else { //вычистить данные этой борды у других
             }*/
         }
-        below(false);//removeBelow();
         for (final Objective ob : ownerBoard.getObjectives()) {
             ob.unregister();
         }
@@ -215,58 +188,6 @@ public class CustomScore {
 
 
 
-
-
-    @Deprecated
-    public ScoreBoardBelow getBelow() {
-        return new ScoreBoardBelow(this, name, 0);//below;
-    }
-
-    @Deprecated
-    public void below(final String text, final int value) {
-        //хз, коряво работает - показывает у другит вместо своей борды
-        /*if (belowObj==null) {
-            belowObj = ownerBoard.registerNewObjective("below", Criteria.DUMMY, TCUtils.format(text));
-            belowObj.setDisplaySlot(DisplaySlot.BELOW_NAME);
-            belowObj.displayName(TCUtils.format(text));
-            //below = new ScoreBoardBelow(this, below_line, value);
-        } else if (belowScore!=null && belowText!=null && !belowText.equals(text)) { //текст изменился
-            ownerBoard.resetScores(belowScore.getEntry());
-        }
-        belowText = text;
-        belowValue = value;
-        belowScore = belowObj.getScore(text);
-        belowScore.setScore(value);
-Ostrov.log("belowObj="+belowObj+"belowScore="+belowScore);
-        // else {
-        //    below.update(below_line, value);
-        //}*/
-    }
-
-    @Deprecated
-    public void below(final boolean show) {
-       /* if (show) {
-            if (belowText!=null) {
-                below(belowText, belowValue);
-            }
-        } else {
-            if (belowObj!=null) {
-                if (belowScore!=null) {
-                    ownerBoard.resetScores(belowScore.getEntry());
-                    belowScore = null;
-                }
-                belowObj.unregister();
-                belowObj = null;
-            }
-        }*/
-    }
-
-
-    
-    
-
-
-
     
     
     
@@ -284,41 +205,7 @@ Ostrov.log("belowObj="+belowObj+"belowScore="+belowScore);
     }
 
 
-    
-    
-    @Deprecated
-    public void removeBelow() {
-        //if (below != null) {
-       //     below.scores.stream().forEach( sc -> ownerBoard.resetScores(sc.getEntry()));
-       //     below.scores.clear();
-       //     //final Iterator<Score> iterator = below.getScores().iterator();
-            //while (iterator.hasNext()) {
-            //    ownerBoard.resetScores(iterator.next().getEntry());
-            //}
-          //  below.getObjective().unregister();
-         //   below = null;
-        //}
-    }
-    
 
-    
-    
-    
-        
-   
-    @Deprecated
-    public void hideNameTags() { //скрыть ники остальных игроков от владельца борды
-        //ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-        //ownerTeam.addEntries(PM.getOplayersNames());
-        //hideNameTags = true;
-    }
-    
-    @Deprecated
-    public void showNameTags() { //показать ники остальных игроков владельцу борды
-        //ownerTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-        //ownerTeam.removeEntries(ownerTeam.getEntries());//team.removeEntries(PM.getOplayersNames());
-        //hideNameTags = false;
-    }
 
 
 
@@ -326,25 +213,3 @@ Ostrov.log("belowObj="+belowObj+"belowScore="+belowScore);
     
 }
 
-
-   /* 
-    //при входе на серв в каждую скору прилетит входящий оплеер
-    public void onJoin(Oplayer joinOp) {
-        if (hideNameTags) {
-            ownerTeam.addEntry(joinOp.nik); //если в этой борде включено скрытие ников, добавить входящего в тиму
-        } else {
-            joinOp.score.addTeam(name, ownerTeam); //приходящему закинуть данные с этой борды
-        }
-    }
-
-    //при дисконнектев каждую скору прилетит уходящий оплеер
-    public void onQuit(Oplayer quitOp) {
-        if (hideNameTags) {
-            ownerTeam.removeEntry(quitOp.nik); //если в этой борде включено скрытие ников, убрать уходящего из тимы
-        } else {
-            if (registeredTeams.remove(quitOp.nik)!=null) { //в этой борде была типа выходящего игрока
-                board.getTeam("_"+quitOp.nik).unregister();
-            }
-        }
-    }*/
-    
