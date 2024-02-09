@@ -1,7 +1,17 @@
 package ru.komiss77.modules.bots;
 
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketListenerPlayOut;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -24,19 +34,7 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
-import ru.komiss77.version.VM;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class BotManager implements Initiable, Listener {
 
@@ -254,10 +252,6 @@ public class BotManager implements Initiable, Listener {
         });
     }
 
-    @Deprecated
-    @SafeVarargs
-    public static void sendWrldPckts(final net.minecraft.world.level.World w, final Packet<PacketListenerPlayOut>... ps) {
-        VM.getNmsServer().sendWorldPackets(w.getWorld(), ps);
-    }
+
 
 }

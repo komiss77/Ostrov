@@ -1,5 +1,12 @@
 package ru.komiss77.modules.bots;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -8,18 +15,19 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.Optionull;
-import net.minecraft.core.BaseBlockPosition;
-import net.minecraft.network.NetworkManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.RemoteChatSession;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
-import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.level.EnumGamemode;
-import net.minecraft.world.phys.Vec3D;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -30,34 +38,29 @@ import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AStarPath;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.version.CustomTag;
 import ru.komiss77.notes.OverrideMe;
-import ru.komiss77.objects.CustomTag;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.version.VM;
+import ru.komiss77.version.Nms;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 
-public class BotEntity extends EntityPlayer {
+public class BotEntity extends ServerPlayer {
 
     public int rid;
     private static final net.minecraft.world.item.ItemStack air
             = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtils.air);
 
-    private static final DedicatedServer ds = VM.server().toNMS();
+    //private static final DedicatedServer ds = ((CraftServer)Bukkit.getServer()).getServer(); //VM.server().toNMS();
 
     public final World world;
     //    public final CustomScore score;
     public final CustomTag tag;
+
+    //private final PlayerInventory inv;
+    private final CraftInventoryPlayer inv;
 
     private boolean isDead;
     private WeakReference<LivingEntity> rplc;
@@ -68,7 +71,8 @@ public class BotEntity extends EntityPlayer {
     private static final String[] empty = new String[]{"", ""};
 
     protected BotEntity(final String name, final World world) {
-        super(ds, VM.server().toNMS(world), getProfile(name), ClientInformation.a());
+      super(MinecraftServer.getServer(), ((CraftWorld)world).getHandle(), getProfile(name), ClientInformation.createDefault());
+      //super(ds, VM.server().toNMS(world), getProfile(name), ClientInformation.a());
         this.name = name;
         rid = -1;
         this.world = world;
@@ -76,15 +80,18 @@ public class BotEntity extends EntityPlayer {
         lastBash = -BASH_TICKS;
         lastParry = -PARRY_TICKS;
         rplc = new WeakReference<>(null);
-        PlayerInventory pi = null;
-        try {
-            pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName()
-                    + ".inventory.CraftInventoryPlayer").getConstructor(fS().getClass()).newInstance(fS());
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                 | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        inv = pi;
+
+        //PlayerInventory pi = null;
+        inv = new CraftInventoryPlayer(getInventory());
+        //try {
+        //    pi = (PlayerInventory) Class.forName(Bukkit.getServer().getClass().getPackageName()
+        //            + ".inventory.CraftInventoryPlayer").getConstructor(fS().getClass()).newInstance(fS());
+       // } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+         //        | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+         //   ex.printStackTrace();
+        //}
+        //inv = pi;
+
 //        prefix = ""; suffix = ""; affix = ChatLst.NIK_COLOR;
         tag = new CustomTag(getBukkitEntity());
         CustomScore.allStartTrack(name);
@@ -142,11 +149,15 @@ public class BotEntity extends EntityPlayer {
     }
 
     public void hurt(final LivingEntity mb) {
-        VM.server().sendWorldPackets(world, new ClientboundHurtAnimationPacket(this));
+      final ClientboundHurtAnimationPacket packet = new ClientboundHurtAnimationPacket(this);
+      Nms.sendWorldPackets(world, packet);
+        //VM.server().sendWorldPackets(world, new ClientboundHurtAnimationPacket(this));
         world.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
     }
 
-    public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
+
+
+  public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
         if (ofh) {
             final EntityEquipment eq = from.getEquipment();
             final ItemStack it = eq.getItemInMainHand();
@@ -155,19 +166,21 @@ public class BotEntity extends EntityPlayer {
             world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
-            VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
+          Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 3));// VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
         } else {
             from.attack(to);
             world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
-            VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
+          Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 0));//VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
         }
     }
 
     @OverrideMe
     public void telespawn(final Location to, @Nullable final LivingEntity le) {
-        VM.server().sendWorldPackets(world,
-                new PacketPlayOutEntityDestroy(this.aj()),
-                remListPlayerPacket());
+      ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(this.hashCode());
+      Nms.sendWorldPackets(world, packet, remListPlayerPacket());
+        //VM.server().sendWorldPackets(world,
+        //        new PacketPlayOutEntityDestroy(this.aj()),
+        //        remListPlayerPacket());
 
         if (le == null || !le.isValid() || isDead) {
             BotManager.botById.remove(rid);
@@ -192,15 +205,15 @@ public class BotEntity extends EntityPlayer {
         }
 
         try {
-            this.a(EnumGamemode.a);
+            this.setGameMode(GameType.SURVIVAL); //?? setGameMode просто отправляет пакет игроку причём с эвентом (follow usage), переделать на нужные методы
         } catch (NullPointerException e) {
         }
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        VM.server().sendWorldPackets(world,
+      Nms.sendWorldPackets( world,
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
-            new PacketPlayOutSpawnEntity(this),
-            new PacketPlayOutEntityDestroy(rid));
+          new ClientboundAddEntityPacket(this),
+            new ClientboundRemoveEntitiesPacket(rid));
         swapToSlot(0);
 
 //		final Vector vc = to.toVector();
@@ -212,32 +225,35 @@ public class BotEntity extends EntityPlayer {
         return new BotGoal(this);
     }
 
-    private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
-        return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
-                true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
+  private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
+    //private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
+    return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(),
+      true, 1, gameMode.getGameModeForPlayer(), getTabListDisplayName(), Optionull.map(getChatSession(), RemoteChatSession::asData)));
+    //return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
+                //true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
     }
 
     private ClientboundPlayerInfoUpdatePacket addListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
-                ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
-                ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
-                ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+          ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
+          ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
+          ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
                 entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket modListPlayerPacket() {
-        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.a.c), entryList());
+        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE), entryList()); //ClientboundPlayerInfoUpdatePacket.Action.c
     }
 
     private ClientboundPlayerInfoUpdatePacket updListPlayerPacket() {
-        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.a.f), entryList());
+        return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME), entryList());//ClientboundPlayerInfoUpdatePacket.a.f)
     }
 
     private ClientboundPlayerInfoRemovePacket remListPlayerPacket() {
-        return new ClientboundPlayerInfoRemovePacket(Arrays.asList(this.ay));
+        return new ClientboundPlayerInfoRemovePacket(Arrays.asList(this.uuid));
     }
 
-    private final PlayerInventory inv;
+
 
     public ItemStack item(final EquipmentSlot slot) {
         final LivingEntity mb = getEntity();
@@ -261,7 +277,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
         }
-        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+      Nms.sendWorldPacket( world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
     public void item(final ItemStack it, final EquipmentSlot slot) {
@@ -270,7 +286,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().setItem(slot, it);
         }
-        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+      Nms.sendWorldPacket( world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
     public void item(final ItemStack it, final int slot) {
@@ -280,7 +296,7 @@ public class BotEntity extends EntityPlayer {
             if (mb != null) {
                 mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
             }
-            VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+          Nms.sendWorldPacket( world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         }
     }
 
@@ -294,7 +310,7 @@ public class BotEntity extends EntityPlayer {
         if (mb != null) {
             mb.getEquipment().clear();
         }
-        VM.server().sendWorldPackets(world, new PacketPlayOutEntityEquipment(this.aj(), updateIts()));
+      Nms.sendWorldPacket( world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
     @OverrideMe
@@ -312,7 +328,7 @@ public class BotEntity extends EntityPlayer {
 
     public void die(@Nullable final LivingEntity mb) {
         try {
-            this.a(EnumGamemode.d);
+            this.setGameMode(GameType.SPECTATOR); //?? setGameMode просто отправляет пакет игроку причём с эвентом (follow usage), переделать на нужные методы
         } catch (NullPointerException e) {
         }
         isDead = true;
@@ -320,19 +336,17 @@ public class BotEntity extends EntityPlayer {
             BotManager.botById.remove(rid);
             mb.remove();
         }
-        VM.server().sendWorldPackets(world,
-                new PacketPlayOutEntityDestroy(this.aj()),
-                modListPlayerPacket(), tag.killPacket());
+      Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()),
+                modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId) );
     }
 
     public void remove() {
         BotManager.botByName.remove(name);
         BotManager.botById.remove(rid);
         die(getEntity());
-        VM.server().sendWorldPackets(world,
-                remListPlayerPacket());
+      Nms.sendWorldPackets(world, remListPlayerPacket());// VM.server().sendWorldPackets(world, remListPlayerPacket());
         CustomScore.allStopTrack(name);
-        this.a(RemovalReason.a);
+        this.remove(RemovalReason.KILLED);//this.a(RemovalReason.a);
     }
 
     private final String name;
@@ -342,14 +356,14 @@ public class BotEntity extends EntityPlayer {
     }
 
     public WXYZ getPos() {
-        final BaseBlockPosition bp = dm();
-        return new WXYZ(world, bp.u(), bp.v(), bp.w());
+        final BlockPos bp = this.blockPosition();//dm();
+        return new WXYZ(world, bp.getX(), bp.getY(), bp.getZ());
     }
 
     public void tab(final String prefix, final String affix, final String suffix) {
 //        score.tab(prefix, affix, suffix);
         listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
-        VM.server().sendWorldPackets(world, updListPlayerPacket());
+      Nms.sendWorldPacket( world, updListPlayerPacket());
     }
 
     public void tag(final boolean show) {
@@ -373,15 +387,6 @@ public class BotEntity extends EntityPlayer {
         tag(pfx, Character.toString(clr), sfx);
     }
 
-    @Deprecated
-    public void updateTag(final char clr, final Player pl) {
-        //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr = clr, pl, p -> isTagVisFor(p));
-    }
-
-    @Deprecated
-    public void updateTag(final Player pl) {
-        //VM.getNmsNameTag().updateTag(name, prefix, suffix, nameClr, pl, p -> isTagVisFor(p));
-    }
 
     @OverrideMe
     public boolean isTagVisFor(final Player p) {
@@ -394,33 +399,33 @@ public class BotEntity extends EntityPlayer {
     }
 
     public void removeAll(final Player pl) {
-        final NetworkManager nm = VM.server().toNMS(pl).c.c;
-        nm.a(new PacketPlayOutEntityDestroy(this.aj()));
-        nm.a(remListPlayerPacket());
+      Connection conn = ((CraftPlayer)pl).getHandle().connection.connection;//final NetworkManager nm = VM.server().toNMS(pl).c.c;
+      conn.send(new ClientboundRemoveEntitiesPacket(this.hashCode()));//nm.a(new PacketPlayOutEntityDestroy(this.aj()));
+      conn.send(remListPlayerPacket());//nm.a(remListPlayerPacket());
         tag.hideTo(pl);
     }
 
     public void updateAll(final Player pl) {
         pl.sendMessage("bot-" + name);
-        updateAll(VM.server().toNMS(pl).c.c);
+        updateAll( ((CraftPlayer)pl).getHandle().connection.connection );
         tag.showTo(pl);
     }
 
     @Deprecated(forRemoval = true)
-    public void updateAll(final NetworkManager nm) {
-        nm.a(new ClientboundBundlePacket(
-                List.of(addListPlayerPacket(), modListPlayerPacket(), new PacketPlayOutSpawnEntity(this),
-                        new PacketPlayOutEntityTeleport(this), new PacketPlayOutEntityDestroy(rid),
-                        new PacketPlayOutEntityEquipment(this.aj(), updateIts()))));
+    public void updateAll(final Connection conn) {
+      conn.send(new ClientboundBundlePacket(
+                List.of(addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this),
+                        new ClientboundTeleportEntityPacket(this), new ClientboundRemoveEntitiesPacket(rid),
+                        new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()))));
     }
 
-    private List<Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>> updateIts() {
+    private List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> updateIts() {
         final LivingEntity le = getEntity();
-        final EnumItemSlot[] eis = EnumItemSlot.values();
+        final net.minecraft.world.entity.EquipmentSlot[] eis = net.minecraft.world.entity.EquipmentSlot.values();
         if (le == null) {
             @SuppressWarnings("unchecked")
-            final Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>[] its
-                    = (Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
+            final Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[] its
+                    = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
             for (int i = its.length - 1; i >= 0; i--) {
                 its[i] = Pair.of(eis[i], air);
             }
@@ -429,8 +434,8 @@ public class BotEntity extends EntityPlayer {
         final EquipmentSlot[] ess = EquipmentSlot.values();
         final EntityEquipment eq = le.getEquipment();
         @SuppressWarnings("unchecked")
-        final Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>[] its
-                = (Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
+        final Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[] its
+                = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
         for (int i = its.length - 1; i >= 0; i--) {
             final ItemStack it = eq.getItem(ess[i]);
             its[i] = Pair.of(eis[i], net.minecraft.world.item.ItemStack.fromBukkitCopy(it));
@@ -456,17 +461,13 @@ public class BotEntity extends EntityPlayer {
     }
 
     public void move(final Location loc, final Vector vc, final boolean look) {
-        if (look) {
-            loc.setDirection(vc);
-        }
-        final Vec3D ps = this.dk();
-        this.b(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-        //loc.getWorld().playSound(loc, Sound.ENTITY_SHEEP_STEP, 1f, 1.2f);
-        final Vector dl = new Vector(loc.getX() - ps.c, loc.getY() - ps.d, loc.getZ() - ps.e);
-        VM.server().sendWorldPackets(world,
-                new PacketPlayOutEntityHeadRotation(this, (byte) (loc.getYaw() * 256 / 360)),
-                new PacketPlayOutRelEntityMoveLook(this.aj(), (short) (dl.getX() * 4096), (short) (dl.getY() * 4096),
-                        (short) (dl.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
+        if (look) loc.setDirection(vc);
+        final Vec3 ps = this.position();
+        this.moveTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+        final Vector vector = new Vector(loc.getX() - ps.x, loc.getY() - ps.y, loc.getZ() - ps.z);
+        Nms.sendWorldPackets( world, new ClientboundRotateHeadPacket(this, (byte) (loc.getYaw() * 256 / 360)),
+            new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
+            (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
     @OverrideMe
@@ -570,4 +571,9 @@ public class BotEntity extends EntityPlayer {
             return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
         }
     }
+
+
+
+
+
 }
