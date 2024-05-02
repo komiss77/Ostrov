@@ -1,0 +1,270 @@
+package ru.komiss77.builder.menu;
+
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import org.bukkit.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.modules.world.Cuboid;
+import ru.komiss77.objects.IntHashMap;
+import ru.komiss77.objects.ValueSortedMap;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.EntityUtil.EntityGroup;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.inventory.*;
+import ru.komiss77.utils.inventory.InputButton.InputType;
+import ru.komiss77.version.Craft;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+public class EntityGroupMenu implements InventoryProvider {
+
+    private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
+    private final IntHashMap<Chunk> chunks;
+    private final World world;
+    private int radius;
+    private final EntityGroup group;
+
+
+    public EntityGroupMenu(final Location loc, final int radius, final EntityGroup group) {
+      chunks = getChunks(loc, radius);
+      this.world = loc.getWorld();
+      this.group = group;
+    }
+
+    public EntityGroupMenu(final IntHashMap<Chunk> chunks, final EntityGroup group) {
+        this.world = chunks.values().stream().findAny().get().getWorld();
+        this.chunks = chunks;
+        this.group = group;
+    }
+
+    public static IntHashMap<Chunk> getChunks (final Location loc, final int radius) {
+      final IntHashMap<Chunk> chunks = new IntHashMap<>();
+      if (radius>0) {
+        final Cuboid c = new Cuboid(loc, radius * 2, 1, radius * 2);
+        c.allign(loc);
+        for (Chunk ch : c.getChunks(loc.getWorld())) {
+          chunks.put(LocationUtil.cLoc(ch), ch);
+        }
+      } else {
+        for (Chunk ch : loc.getWorld().getLoadedChunks()) {
+          chunks.put(LocationUtil.cLoc(ch), ch);
+        }
+      }
+      return chunks;
+    }
+
+    public static void toChunk (final Player p, final World world, final int cloc) {
+      final Chunk c = LocationUtil.getChunk(world.getName(), cloc);
+      toChunk(p, c);
+    }
+    public static void toChunk (final Player p, final Chunk chunk) {
+      p.teleport(chunk.getWorld().getHighestBlockAt(chunk.getX()*16+8, chunk.getZ()*16+8).getLocation());
+    }
+
+    @Override
+    public void init(final Player p, final InventoryContent contents) {
+        p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
+        contents.fillRow(4, ClickableItem.empty(EntityGroupMenu.fill));
+
+
+      final Pagination pagination = contents.pagination();
+      final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
+
+
+      if (group == EntityGroup.TILE) {
+
+        final ValueSortedMap<Material,Integer>count=new ValueSortedMap<>(true);
+        Material mat;
+        for (ChunkHolder visibleChunk : io.papermc.paper.chunk.system.ChunkSystem.getVisibleChunkHolders(Craft.toNMS(world)) ) {
+          net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
+          if (lc == null) {
+            continue;
+          }
+          int cLoc = LocationUtil.cLoc("", lc.locX, lc.locZ);
+          if (!chunks.containsKey(cLoc)) {
+            continue;
+          }
+          for (BlockEntity be : lc.blockEntities.values()) {
+            mat = be.getBlockState().getBukkitMaterial();
+            if (count.containsKey(mat)) {
+              count.replace(mat, count.get(mat) + 1);
+            } else {
+              count.put(mat, 1);
+            }
+          }
+
+        }
+
+        for (final Map.Entry <Material, Integer> entry : count.entrySet()) {
+          menuEntry.add(ClickableItem.of(new ItemBuilder(entry.getKey())
+            .name(Lang.t(entry.getKey(), p))
+            .setAmount(entry.getValue()>64 ? 1 : entry.getValue())
+            .addLore("§7Найдено: §e"+ entry.getValue() )
+            .addLore(chunks.size()==1? "§7ЛКМ - ТП в чанк" : "" )
+            .build(), e-> {
+            toChunk(p, chunks.values().stream().findAny().get());
+          }));
+        }
+
+
+      } else if (group == EntityGroup.TICKABLE_TILE) {
+
+        final ValueSortedMap<String,Integer>count=new ValueSortedMap<>(true);
+
+        for (TickingBlockEntity tbe : Craft.toNMS(world).blockEntityTickers) {
+          int cLoc = LocationUtil.cLoc("", tbe.getPos().getX()>>4, tbe.getPos().getZ()>>4);
+          if (!chunks.containsKey(cLoc)) {
+            continue;
+          }
+          if (count.containsKey(tbe.getType())) {
+            count.replace(tbe.getType(), count.get(tbe.getType()) + 1);
+          } else {
+            count.put(tbe.getType(), 1);
+          }
+        }
+        Material mat;
+        for (final Map.Entry <String, Integer> entry : count.entrySet()) {
+          mat = Material.matchMaterial(entry.getKey().substring(10));
+          menuEntry.add(ClickableItem.of(new ItemBuilder(mat == null ? Material.ENDER_CHEST : mat)
+            .name(entry.getKey())
+            .setAmount(entry.getValue()>64 ? 1 : entry.getValue())
+            .addLore("§7Найдено: §e"+ entry.getValue() )
+            .addLore(chunks.size()==1? "§7ЛКМ - ТП в чанк" : "" )
+            .build(), e-> {
+            toChunk(p, chunks.values().stream().findAny().get());
+
+          }));
+        }
+
+      } else {
+
+        final ValueSortedMap<EntityType,Integer>count=new ValueSortedMap<>(true);
+
+        for (final Chunk chunk : chunks.values()) {
+          if (!chunk.isLoaded() || !chunk.isEntitiesLoaded()) continue;
+          for (final Entity e : chunk.getEntities()) {
+            if (EntityUtil.group(e.getType()) == group) {
+              if (count.containsKey(e.getType())) {
+                count.replace(e.getType(), count.get(e.getType()) + 1);
+              } else {
+                count.put(e.getType(), 1);
+              }
+            }
+          }
+        }
+
+        for (final Map.Entry <EntityType, Integer> entry : count.entrySet()) {
+          menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(entry.getKey())
+            .name(Lang.t(entry.getKey(), p))
+            .setAmount(entry.getValue()>64 ? 1 : entry.getValue())
+            .addLore("§7")
+            .addLore("§7Найдено: §e"+ entry.getValue() )
+            .addLore("§7")
+            .addLore("§7ЛКМ - подробно по типу")
+            .addLore("§7")
+            .addLore("§7Шифт+ПКМ - удалить всё этого типа" )
+            .build(), e -> {
+            if (e.isLeftClick()) {
+              SmartInventory.builder()
+                .id("EntityByType"+p.getName())
+                .provider(new EntityTypeMenu(world, radius, entry.getKey()))
+                .size(6, 9)
+                .title("§2"+world.getName()+", §6"+entry.getKey()+", §1r="+radius).build()
+                .open(p);
+            } else if (e.getClick()==ClickType.SHIFT_RIGHT ) {
+              for (final Entity entity : world.getEntities()) {
+                if (entity.getType()==entry.getKey()) {
+                  entity.remove();
+                }
+              }
+              reopen(p, contents);
+            }
+          }));
+        }
+
+
+      }
+
+
+
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+        contents.set(5, 2, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
+            .name("§7Группа"+group.toString()+" в мире §a"+world.getName()+ (radius>0 ? " §7r=§a"+radius : "") )
+            .addLore("§7")
+            .addLore("§7ЛКМ - изменить радиус")
+            .addLore("§7(0 - весь мир)")
+            .addLore("§7")
+            .build(), ""+radius, imput -> {
+
+                if (!ApiOstrov.isInteger(imput)) {
+                    p.sendMessage("§cДолжно быть число!");
+                    return;
+                }
+                final int r = Integer.parseInt(imput);
+                if (r<0 || r>100000) {
+                    p.sendMessage("§cот 0 до 100000!");
+                    return;
+                }
+                radius=r;
+                reopen(p, contents);
+            }));
+
+
+
+
+
+            
+            
+       
+        contents.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
+            PM.getOplayer(p).setup.openEntityWorldMenu(p, world, radius)
+        ));
+
+
+      pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+      pagination.setItemsPerPage(36);
+
+        if (!pagination.isLast()) {
+            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e 
+                    -> contents.getHost().open(p, pagination.next().getPage()) )
+            );
+        }
+
+        if (!pagination.isFirst()) {
+            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e 
+                    -> contents.getHost().open(p, pagination.previous().getPage()) )
+            );
+        }
+
+      pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
+        
+
+    }
+    
+    
+
+    
+}

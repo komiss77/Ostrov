@@ -1,0 +1,238 @@
+package ru.komiss77.utils;
+
+import java.util.List;
+import java.util.Set;
+
+import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import net.kyori.adventure.text.Component;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.Cuboid;
+import ru.komiss77.modules.world.XYZ;
+
+public class ParticlePlay {
+
+    public Particle particleEffect;
+    private final Location location;
+    
+    public ParticlePlay(final Particle particleeffect, final Location location) {
+        this.particleEffect = particleeffect;
+        this.location = location;
+
+    }
+    
+
+    public static void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
+        final Oplayer op = PM.getOplayer(p);
+        final Cuboid cuboid = new Cuboid(minPoint, maxPoint);
+
+        if (op.displayCube != null && !op.displayCube.isCancelled()) {
+            op.displayCube.cancel();
+        }
+
+        op.displayCube = new BukkitRunnable() {
+            final Set<XYZ> border = cuboid.getBorder();
+            final Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
+            final String name = p.getName();
+            Player pl;
+            @Override
+            public void run() {
+              pl = Bukkit.getPlayerExact(name);
+                if (pl == null || !pl.isOnline()) {
+                    this.cancel();
+                    return;
+                }
+                if (pl.isDead() || pl.isSneaking() || !pl.getWorld().equals(particleLoc.getWorld())) {
+                    pl.resetTitle();
+                    this.cancel();
+                    return;
+                }
+                border.stream().forEach(
+                        (xyz) -> {
+                            particleLoc.set(xyz.x, xyz.y, xyz.z);
+                            if (xyz.pitch >= 5) { //стенки
+                                pl.spawnParticle(Particle.FIREWORK, particleLoc, 0);
+                            } else {
+                                pl.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
+                            }
+                        }
+                );
+                ApiOstrov.sendTitleDirect(pl, "", "§7Шифт - остановить показ", 0, 30, 0);
+            }
+        }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
+
+        if (tpToCenter && !cuboid.contains(p.getLocation())) {
+            final Location center = cuboid.getCenter(p.getLocation());
+            p.teleport(center);
+        }
+    }
+
+
+    public void display() {
+        if (particleEffect.getDataType() == Void.class) {
+            
+            location.getWorld().spawnParticle(particleEffect, location, 6, 1, 1, 1);
+            
+        } else if (particleEffect.getDataType() == Particle.DustOptions.class) {
+            
+            location.getWorld().spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtils.randomCol(), 1));
+            
+        } else if ( particleEffect.getDataType()== BlockData.class ) {
+            
+            
+            
+        }
+        //location.getWorld().playEffect(location, particleEffect, 0, 24 );
+        //this.particleEffect.display(0.2F, 0.2F, 0.2F, 0.0F, 5, location, 64);
+    }
+
+    public void display(final List <Player> player_list) {
+        for (Player p:player_list) {
+            if (particleEffect.getDataType() == Void.class) {
+                p.spawnParticle(particleEffect, location, 6, 1, 1, 1);
+            } else if (particleEffect.getDataType() == Particle.DustOptions.class) {
+                p.spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtils.randomCol(), 1));
+            }
+            
+        }
+    }
+
+
+
+
+    public static void openParticleMenu(final Player p) {
+        final Inventory particle_menu = Bukkit.createInventory(null, 27, Component.text("§1Выбор частиц"));
+        particle_menu.setItem(10, new ItemBuilder(Material.REDSTONE_BLOCK).name("Сердечки").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(11, new ItemBuilder(Material.NOTE_BLOCK).name("Ноты").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(12, new ItemBuilder(Material.EMERALD).name("Изумруды").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(13, new ItemBuilder(Material.FIRE).name("Огонь").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(14, new ItemBuilder(Material.DIAMOND_AXE).name("Удар магии").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(15, new ItemBuilder(Material.ENCHANTED_BOOK).name("Удар").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(16, new ItemBuilder(Material.ARROW).name("Злой Житель").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(19, new ItemBuilder(Material.OBSIDIAN).name("Портал").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(20, new ItemBuilder(Material.REDSTONE).name("Редстоун").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(21, new ItemBuilder(Material.TNT).name("Дымок").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(22, new ItemBuilder(Material.LAVA_BUCKET).name("Лава").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(23, new ItemBuilder(Material.ENCHANTING_TABLE).name("Магия").addLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+
+        p.openInventory(particle_menu);
+    }
+
+    
+
+
+
+
+    public static Particle effectFromItemName(final String item_name) {
+        return switch (item_name) {
+            case "Сердечки" -> Particle.HEART;
+            case "Ноты" -> Particle.NOTE;
+            case "Изумруды" -> Particle.HAPPY_VILLAGER;
+            case "Огонь" -> Particle.FLAME;
+            case "Удар магии" -> Particle.ENCHANTED_HIT;
+            case "Удар" -> Particle.CRIT;
+            case "Злой Житель" -> Particle.ANGRY_VILLAGER;
+            case "Портал" -> Particle.PORTAL;
+            case "Редстоун" -> Particle.DUST;
+            case "Дымок" -> Particle.CLOUD;
+            case "Лава" -> Particle.LAVA;
+            case "Магия" -> Particle.ENCHANT;
+            default -> null;
+        };
+    }
+
+
+
+
+  public static void deathEffect (final Player player, final boolean epic) {
+
+    final Location loc = player.getLocation().clone().add(0, 0.5, 0);
+    final BlockData bd = Material.OBSIDIAN.createBlockData();
+    int circleElements = 8;
+    double radius = 0.4;
+
+    for(int i = 0; i < 20; i++) {
+      double alpha = (360.0/circleElements)*i;
+      double x = radius * Math.sin(Math.toRadians(alpha));
+      double z = radius * Math.cos(Math.toRadians(alpha));
+      Location particleFrom = new Location(loc.getWorld(), loc.getX()+x, loc.getY(), loc.getZ()+z);
+      particleFrom.getWorld().spawnParticle(Particle.FALLING_DUST, particleFrom, 1, 0, 0, 0, bd);
+      particleFrom.getWorld().spawnParticle(Particle.FALLING_DUST, particleFrom.clone().add(0, 0.5, 0), 1, 0, 0, 0,bd);
+      particleFrom.getWorld().spawnParticle(Particle.FALLING_DUST, particleFrom.clone().add(0, 1, 0), 1, 0, 0, 0, bd);
+    }
+
+    loc.getWorld().spawnParticle(Particle.FALLING_DUST, loc.clone().add(0, 2, 0), 1, 0, 0, 0, bd);
+    loc.getWorld().spawnParticle(Particle.FALLING_DUST, getLeftRaisedHandLocation(player), 1, 0, 0, 0, bd);
+    loc.getWorld().spawnParticle(Particle.FALLING_DUST, getLeftLoweredHandLocation(player), 1, 0, 0, 0, bd);
+    loc.getWorld().spawnParticle(Particle.FALLING_DUST, getLeftRaisedHandLocation(player), 1, 0, 0, 0, bd);
+    loc.getWorld().spawnParticle(Particle.FALLING_DUST, getRightLoweredHandLocation(player), 1, 0, 0, 0, bd);
+
+    if (epic) {
+      player.getWorld().playSound(player.getLocation(), "quake.random.meat", 1, 1);
+      final Firework firework = loc.getWorld().spawn(loc, Firework.class);
+      final FireworkMeta fireworkMeta = firework.getFireworkMeta();
+      fireworkMeta.addEffect(FireworkEffect.builder().flicker(ApiOstrov.randBoolean()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(ApiOstrov.randBoolean()).build());
+      fireworkMeta.setPower(0);
+      firework.setFireworkMeta(fireworkMeta);
+    }
+  }
+
+
+  public static Location getRightLoweredHandLocation(final Player player) {
+    return getRightSide(player.getEyeLocation(), 0.45).subtract(0, .6, 0); // right hand
+  }
+
+  public static Location getRightRaisedHandLocation(final Player player) {
+    final Location loc = player.getLocation().clone();
+
+    double a = loc.getYaw() / 180D * Math.PI + Math.PI / 2;
+    double l = Math.sqrt(0.8D * 0.8D + 0.4D * 0.4D);
+
+    loc.setX(loc.getX() + l * Math.cos(a) - 0.2D * Math.sin(a));
+    loc.setY(loc.getY() + player.getEyeHeight() - 0.4D);
+    loc.setZ(loc.getZ() + l * Math.sin(a) + 0.2D * Math.cos(a));
+    //if (player.isSneaking()) {
+    //     loc.subtract(0.0, 0.03, 0.0);
+    //}
+    return loc;
+  }
+
+  public static Location getLeftLoweredHandLocation(final Player player) {
+    return getLeftSide(player.getEyeLocation(), 0.45).subtract(0, .6, 0); // right hand
+  }
+
+  public static Location getLeftRaisedHandLocation(final Player player) {
+    final Location loc = player.getLocation().clone();
+
+    double a = loc.getYaw() / 180D * Math.PI + Math.PI / 2;
+    double l = Math.sqrt(0.8D * 0.8D + 0.4D * 0.4D);
+
+    loc.setX(loc.getX() + l * Math.cos(a) + 0.2D * Math.sin(a));
+    loc.setY(loc.getY() + player.getEyeHeight() - 0.4D);
+    loc.setZ(loc.getZ() + l * Math.sin(a) - 0.2D * Math.cos(a));
+
+    return loc;
+  }
+
+  public static Location getRightSide(Location location, double distance) {
+    float angle = location.getYaw() / 60;
+    return location.clone().subtract(new Vector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(distance));
+  }
+
+  public static Location getLeftSide(Location location, double distance) {
+    float angle = location.getYaw() / 60;
+    return location.clone().add(new Vector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(distance));
+  }
+
+
+
+}

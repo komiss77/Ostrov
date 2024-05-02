@@ -1,0 +1,5 @@
+package ru.komiss77.enums;
+
+    public enum CheatType {
+        KILLAURA, DELAY, CHAT, CLICK, VELOCITY, MOVE, JESUS, HITBOX, PHASE, BLOCK, SCAFFOLD, INTERACT, ELYTRA, VEHICLE, BADPACKETS, AUTOBOT
+    }
