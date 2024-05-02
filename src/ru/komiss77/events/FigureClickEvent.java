@@ -1,6 +1,5 @@
 package ru.komiss77.events;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -69,7 +68,7 @@ public class FigureClickEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
+        return getHandlerList();
     }
 
     public static HandlerList getHandlerList() {
