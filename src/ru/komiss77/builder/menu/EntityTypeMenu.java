@@ -33,7 +33,7 @@ public class EntityTypeMenu implements InventoryProvider {
 
 
     private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-    ;
+
     private final World world;
     private int radius;
     private final EntityType type;
@@ -107,11 +107,7 @@ public class EntityTypeMenu implements InventoryProvider {
                         switch (e.getClick()) {
                             case LEFT -> p.teleport(entity);
                             case RIGHT -> {
-                                SmartInventory.builder()
-                                        .provider(new EntitySetup(entity))
-                                        .size(6, 9)
-                                        .title("§2Характеристики сущности").build()
-                                        .open(p);
+                                EntitySetup.openSetupMenu(p, entity);
                             }
                             case SHIFT_LEFT -> entity.teleport(p);
                             case SHIFT_RIGHT -> entity.remove();

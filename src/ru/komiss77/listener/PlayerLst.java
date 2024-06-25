@@ -42,7 +42,6 @@ import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TeleportLoc;
-import ru.komiss77.utils.inventory.SmartInventory;
 
 
 public class PlayerLst implements Listener {
@@ -84,7 +83,11 @@ public class PlayerLst implements Listener {
         if (p == null) { //данные пришли раньше PlayerJoinEvent
             bungeeDataCache.put(name, raw);
         } else { //если уже был PlayerJoinEvent
-            PM.bungeeDataHandle(p, PM.getOplayer(p), raw); //просто прогрузить данные
+            final Oplayer op = PM.getOplayer(p);
+            PM.bungeeDataHandle(p, op, raw); //просто прогрузить данные
+            if (!LocalDB.useLocalData) { //чтобы игры без локальной БД получали WANT_ARENA_JOIN - отсылать эвент после bungeeDataHandle
+                Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //длф миниигр, которые не юзают локальную БД
+            }
         }
     }
 
@@ -109,17 +112,22 @@ public class PlayerLst implements Listener {
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
             Ostrov.async(() -> {
                 LocalDB.loadLocalData(p.getName());//локальные данные на загрузку независимо от данных с банжи!
-            }, 10);
+            }, 10); //в таком варианте WANT_ARENA_JOIN будет точно после данных с прокси!
 
-        } else {
-            Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //длф миниигр, которые не юзают локальную БД
-            if (Config.set_gm && !p.isOp()) p.setGameMode(Config.gm_on_join);
-            if (Config.walkspeed_on_join > 0) p.setWalkSpeed(Config.walkspeed_on_join);
-        }
+        }// else {
+        //    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //длф миниигр, которые не юзают локальную БД
+        //    if (Config.set_gm && !p.isOp()) p.setGameMode(Config.gm_on_join);
+        //    if (Config.walkspeed_on_join > 0) p.setWalkSpeed(Config.walkspeed_on_join);
+        //}
 
         final String bungeeData = bungeeDataCache.remove(p.getName());
         if (bungeeData != null) { //данные пришли ранее, берём из кэша
-            Ostrov.sync(() -> PM.bungeeDataHandle(p, op, bungeeData), 1); //- без задержки не выдавало предметы лобби!
+            Ostrov.sync(() -> {
+                PM.bungeeDataHandle(p, op, bungeeData);
+                if (!LocalDB.useLocalData) { //чтобы игры без локальной БД получали WANT_ARENA_JOIN - отсылать эвент после bungeeDataHandle
+                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //длф миниигр, которые не юзают локальную БД
+                }
+            }, 1); //- без задержки не выдавало предметы лобби!
         }
 
         //for (final Oplayer otherOp : PM.getOplayers()) {
@@ -257,11 +265,7 @@ public class PlayerLst implements Listener {
         if (ApiOstrov.isLocalBuilder(p, false)) {
             if (p.isSneaking()) {
                 Ostrov.sync(() -> {
-                    SmartInventory.builder()
-                            .provider(new EntitySetup(e.getRightClicked()))
-                            .size(6, 9)
-                            .title("§2Характеристики сущности").build()
-                            .open(p);
+                    EntitySetup.openSetupMenu(p, e.getRightClicked());
                 }, 1); //через тик, илил открывает меню торговли
             }
         }

@@ -754,7 +754,7 @@ public class ApiOstrov {
         if (cs == null) return false;
         if ((cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder")) return true;
         final Oplayer op = PM.getOplayer(cs.getName());
-        return op != null && op.hasGroup("supermoder");
+        return op != null && op.hasGroup("owner");
     }
 
     public static boolean isLocalBuilder(final CommandSender cs) {

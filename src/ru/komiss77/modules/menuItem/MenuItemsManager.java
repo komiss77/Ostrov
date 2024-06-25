@@ -397,11 +397,13 @@ public final class MenuItemsManager implements Initiable, Listener {
     }
 
     public static MenuItem fromItemStack(final ItemStack is) {
-        if (isSpecItem(is)) {
-            return itemById.get(is.getItemMeta().getCustomModelData());
-        }
+        if (is == null || !possibleMat.contains(is.getType()) || !is.hasItemMeta() || !is.getItemMeta().hasCustomModelData())
+            return null;
+        //if (isSpecItem(is)) {
+        return itemById.get(is.getItemMeta().getCustomModelData());
+        //}
 //System.out.println("--fromItemStack si="+si+" is dcec?"+si.isSpecItem(is));
-        return null;
+        //return null;
     }
 
     public static int idFromItemStack(final ItemStack is) {

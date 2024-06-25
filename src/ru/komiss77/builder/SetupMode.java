@@ -1,7 +1,6 @@
 package ru.komiss77.builder;
 
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -10,16 +9,10 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.Ostrov;
@@ -33,7 +26,6 @@ import ru.komiss77.modules.world.Schematic;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
-import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.Nms;
 
@@ -41,7 +33,7 @@ import ru.komiss77.version.Nms;
 public class SetupMode implements Listener {
 
     public final GameMode before; //гм строителя до начала режима
-    public boolean canRaset = false; //хз что это
+    //public boolean canRaset = false; //хз что это
     public String lastEdit = ""; //режим последнего открытого меню
     public final String builderName; //ник строителя
 
@@ -101,7 +93,7 @@ public class SetupMode implements Listener {
 
     public void clearArea() {
         if (cuboid == null || cuboidWorld == null) return;
-        cuboid.getBlocks(cuboidWorld).stream().forEach((b) -> {
+        cuboid.getBlocks(cuboidWorld).forEach((b) -> {
             if (Nms.getFastMat(cuboidWorld, b.getX(), b.getY(), b.getZ()) != Material.AIR) {
                 b.setType(Material.AIR);
             }

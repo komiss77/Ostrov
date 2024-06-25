@@ -45,8 +45,6 @@ class PasteJob implements Runnable {
     private int current; //счётчик блоков между тиками вставки
     private int ticks = 0; //тики вставки
     protected int percent;
-
-    private Block block;
     private final World world;
     final long l = System.currentTimeMillis() + 50; //начнёт через два тика
 
@@ -61,7 +59,7 @@ class PasteJob implements Runnable {
 
         task = Bukkit.getScheduler().runTaskTimer(Ostrov.instance, PasteJob.this, 2, 1);
 
-        WE.getChunks(cuboid.getLowerLocation(world), cuboid.getHightesLocation(world)).stream().forEach((chunk) -> {
+        WE.getChunks(cuboid.getLowerLocation(world), cuboid.getHightesLocation(world)).forEach((chunk) -> {
             for (Entity e : chunk.getEntities()) {
                 if (cuboid.contains(e.getLocation()) && e.getType() != EntityType.PLAYER && (e instanceof LivingEntity)) {
                     e.remove();
@@ -105,16 +103,16 @@ class PasteJob implements Runnable {
         while (it.hasNext() && current < WE.getBlockPerTick()) {
             xyz = it.next();
 
-            block = world.getBlockAt(xyz.x, xyz.y, xyz.z); //тут уже готовые координаты блока!
-//Ostrov.log("***paste xz="+xyz.x+","+xyz.z+" sLoc="+xyz.yaw+" mat="+schem.blocks.get(xyz.yaw));
+            Block block = world.getBlockAt(xyz.x, xyz.y, xyz.z); //тут уже готовые координаты блока!
 
-            int sLoc = xyz.yaw; //берём соответствующий адрес блока
+            int xyzOffset = xyz.yaw; //берём соответствующий адрес блока НЕ брать offSet(), в Iterator<XYZ> координаты уже другие!!
+//Ostrov.log("***paste xyz="+xyz.x+","+xyz.y+","+xyz.z+" xyzOffset="+xyzOffset+" mat="+schem.blocks.get(xyzOffset));
 
-            mat = schem.blocks.get(sLoc);
+            mat = schem.blocks.get(xyzOffset);
             if (mat != null) {//(schem.blocks.containsKey(xyz.yaw)) {
 
-                blockDataAsString = schem.blockDatas.get(sLoc);
-                if (blockDataAsString != null) {//if (schem.blockDatas.containsKey(sLoc)) { //есть блокдата\
+                blockDataAsString = schem.blockDatas.get(xyzOffset);
+                if (blockDataAsString != null) {//if (schem.blockDatas.containsKey(xyzOffset)) { //есть блокдата\
 //Ostrov.log("bd="+blockDataAsString);
 
                     //200124 серануло java.lang.IllegalArgumentException: Could not parse data: CraftBlockData{minecraft:bamboo_slab[type=bottom,waterlogged=false]}
@@ -130,30 +128,30 @@ class PasteJob implements Runnable {
                     }
 
 
-                    if (mat == block.getType()) {//if (schem.blocks.get(sLoc) == block.getType()) { //тип такой же - обновить блокдату?
+                    if (mat == block.getType()) {//if (schem.blocks.get(xyzOffset) == block.getType()) { //тип такой же - обновить блокдату?
 
-                        if (!bd.equals(block.getBlockData())) {//if (schem.blockDatas.get(sLoc)!=block.getBlockData()) { //сравнить блокдату??
-                            block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false); //block.setBlockData(schem.blockDatas.get(sLoc), false); 
+                        if (!bd.equals(block.getBlockData())) {//if (schem.blockDatas.get(xyzOffset)!=block.getBlockData()) { //сравнить блокдату??
+                            block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false); //block.setBlockData(schem.blockDatas.get(xyzOffset), false);
                             current++;
                         }
 
                     } else { //тип разный - поставить тип и дату
 
-                        block.setType(mat, false);// block.setType(schem.blocks.get(sLoc), false);
-                        block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false);//block.setBlockData(schem.blockDatas.get(sLoc), false);
+                        block.setType(mat, false);// block.setType(schem.blocks.get(xyzOffset), false);
+                        block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false);//block.setBlockData(schem.blockDatas.get(xyzOffset), false);
                         current++;
 
                     }
 
-                } else if (mat != block.getType()) {//} else if (schem.blocks.get(sLoc) != block.getType()) { //блокдатф не запомнено - заменить если не совпадает тип
+                } else if (mat != block.getType()) {//} else if (schem.blocks.get(xyzOffset) != block.getType()) { //блокдатф не запомнено - заменить если не совпадает тип
 
-                    block.setType(mat, false);//block.setType(schem.blocks.get(sLoc), false);
+                    block.setType(mat, false);//block.setType(schem.blocks.get(xyzOffset), false);
                     current++;
 
                 }
-                blockState = schem.blockStates.get(sLoc);
-                if (blockState != null) {//if (schem.blockStates.containsKey(sLoc)) {
-                    setBlockState(block, schem.blockStates.get(sLoc));
+                blockState = schem.blockStates.get(xyzOffset);
+                if (blockState != null) {//if (schem.blockStates.containsKey(xyzOffset)) {
+                    setBlockState(block, schem.blockStates.get(xyzOffset));
                     current++;
                 }
 
@@ -197,13 +195,12 @@ class PasteJob implements Runnable {
         }
 
         if (bd instanceof MultipleFacing multipleFacing) {
-            final MultipleFacing mf = multipleFacing;
-            final Set<BlockFace> bfs = mf.getFaces();
+            final Set<BlockFace> bfs = multipleFacing.getFaces();
             for (final BlockFace bf : bfs) {
-                mf.setFace(bf, false);
+                multipleFacing.setFace(bf, false);
             }
             for (final BlockFace bf : bfs) {
-                mf.setFace(rotateFace(bf, rt), true);
+                multipleFacing.setFace(rotateFace(bf, rt), true);
             }
         }
 
@@ -219,246 +216,152 @@ class PasteJob implements Runnable {
     }
 
     private static Axis rotateAxis(final Axis ax, final Rotate rotate) {
-        switch (ax) {
-            case Y:
-            default:
-                return ax;
-            case X:
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return ax;
-                    case r90:
-                        return Axis.Z;
-                    case r180:
-                        return Axis.X;
-                    case r270:
-                        return Axis.Z;
-                }
-            case Z:
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return ax;
-                    case r90:
-                        return Axis.X;
-                    case r180:
-                        return Axis.Z;
-                    case r270:
-                        return Axis.X;
-                }
-        }
+        return switch (ax) {
+            case Y -> ax;
+            case X -> switch (rotate) {
+                case r0 -> ax;
+                case r90 -> Axis.Z;
+                case r180 -> Axis.X;
+                case r270 -> Axis.Z;
+            };
+            case Z -> switch (rotate) {
+                case r0 -> ax;
+                case r90 -> Axis.X;
+                case r180 -> Axis.Z;
+                case r270 -> Axis.X;
+            };
+        };
     }
 
     private static BlockFace rotateFace(final BlockFace bf, final Rotate rotate) {
         switch (bf) {
             case EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.SOUTH;
-                    case r180:
-                        return BlockFace.WEST;
-                    case r270:
-                        return BlockFace.NORTH;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.SOUTH;
+                    case r180 -> BlockFace.WEST;
+                    case r270 -> BlockFace.NORTH;
+                };
             }
             case EAST_NORTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.SOUTH_SOUTH_EAST;
-                    case r180:
-                        return BlockFace.WEST_NORTH_WEST;
-                    case r270:
-                        return BlockFace.NORTH_NORTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.SOUTH_SOUTH_EAST;
+                    case r180 -> BlockFace.WEST_NORTH_WEST;
+                    case r270 -> BlockFace.NORTH_NORTH_WEST;
+                };
             }
             case EAST_SOUTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.SOUTH_SOUTH_WEST;
-                    case r180:
-                        return BlockFace.WEST_NORTH_WEST;
-                    case r270:
-                        return BlockFace.NORTH_NORTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.SOUTH_SOUTH_WEST;
+                    case r180 -> BlockFace.WEST_NORTH_WEST;
+                    case r270 -> BlockFace.NORTH_NORTH_EAST;
+                };
             }
             case NORTH -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.EAST;
-                    case r180:
-                        return BlockFace.SOUTH;
-                    case r270:
-                        return BlockFace.WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.EAST;
+                    case r180 -> BlockFace.SOUTH;
+                    case r270 -> BlockFace.WEST;
+                };
             }
             case NORTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.SOUTH_EAST;
-                    case r180:
-                        return BlockFace.SOUTH_WEST;
-                    case r270:
-                        return BlockFace.NORTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.SOUTH_EAST;
+                    case r180 -> BlockFace.SOUTH_WEST;
+                    case r270 -> BlockFace.NORTH_WEST;
+                };
             }
             case NORTH_NORTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.EAST_SOUTH_EAST;
-                    case r180:
-                        return BlockFace.SOUTH_SOUTH_WEST;
-                    case r270:
-                        return BlockFace.WEST_NORTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.EAST_SOUTH_EAST;
+                    case r180 -> BlockFace.SOUTH_SOUTH_WEST;
+                    case r270 -> BlockFace.WEST_NORTH_WEST;
+                };
             }
             case NORTH_NORTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.EAST_NORTH_EAST;
-                    case r180:
-                        return BlockFace.SOUTH_SOUTH_EAST;
-                    case r270:
-                        return BlockFace.WEST_SOUTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.EAST_NORTH_EAST;
+                    case r180 -> BlockFace.SOUTH_SOUTH_EAST;
+                    case r270 -> BlockFace.WEST_SOUTH_WEST;
+                };
             }
             case NORTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.NORTH_EAST;
-                    case r180:
-                        return BlockFace.SOUTH_EAST;
-                    case r270:
-                        return BlockFace.SOUTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.NORTH_EAST;
+                    case r180 -> BlockFace.SOUTH_EAST;
+                    case r270 -> BlockFace.SOUTH_WEST;
+                };
             }
             case SOUTH -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.WEST;
-                    case r180:
-                        return BlockFace.NORTH;
-                    case r270:
-                        return BlockFace.EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.WEST;
+                    case r180 -> BlockFace.NORTH;
+                    case r270 -> BlockFace.EAST;
+                };
             }
             case SOUTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.SOUTH_WEST;
-                    case r180:
-                        return BlockFace.NORTH_WEST;
-                    case r270:
-                        return BlockFace.NORTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.SOUTH_WEST;
+                    case r180 -> BlockFace.NORTH_WEST;
+                    case r270 -> BlockFace.NORTH_EAST;
+                };
             }
             case SOUTH_SOUTH_EAST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.WEST_SOUTH_WEST;
-                    case r180:
-                        return BlockFace.NORTH_NORTH_WEST;
-                    case r270:
-                        return BlockFace.EAST_NORTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.WEST_SOUTH_WEST;
+                    case r180 -> BlockFace.NORTH_NORTH_WEST;
+                    case r270 -> BlockFace.EAST_NORTH_EAST;
+                };
             }
             case SOUTH_SOUTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.WEST_NORTH_WEST;
-                    case r180:
-                        return BlockFace.NORTH_NORTH_EAST;
-                    case r270:
-                        return BlockFace.EAST_SOUTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.WEST_NORTH_WEST;
+                    case r180 -> BlockFace.NORTH_NORTH_EAST;
+                    case r270 -> BlockFace.EAST_SOUTH_EAST;
+                };
             }
             case SOUTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.NORTH_WEST;
-                    case r180:
-                        return BlockFace.NORTH_EAST;
-                    case r270:
-                        return BlockFace.SOUTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.NORTH_WEST;
+                    case r180 -> BlockFace.NORTH_EAST;
+                    case r270 -> BlockFace.SOUTH_EAST;
+                };
             }
             case WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.NORTH;
-                    case r180:
-                        return BlockFace.EAST;
-                    case r270:
-                        return BlockFace.SOUTH;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.NORTH;
+                    case r180 -> BlockFace.EAST;
+                    case r270 -> BlockFace.SOUTH;
+                };
             }
             case WEST_NORTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.NORTH_NORTH_EAST;
-                    case r180:
-                        return BlockFace.EAST_SOUTH_EAST;
-                    case r270:
-                        return BlockFace.SOUTH_SOUTH_WEST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.NORTH_NORTH_EAST;
+                    case r180 -> BlockFace.EAST_SOUTH_EAST;
+                    case r270 -> BlockFace.SOUTH_SOUTH_WEST;
+                };
             }
             case WEST_SOUTH_WEST -> {
-                switch (rotate) {
-                    case r0:
-                    default:
-                        return bf;
-                    case r90:
-                        return BlockFace.NORTH_NORTH_WEST;
-                    case r180:
-                        return BlockFace.EAST_NORTH_EAST;
-                    case r270:
-                        return BlockFace.SOUTH_SOUTH_EAST;
-                }
+                return switch (rotate) {
+                    case r0 -> bf;
+                    case r90 -> BlockFace.NORTH_NORTH_WEST;
+                    case r180 -> BlockFace.EAST_NORTH_EAST;
+                    case r270 -> BlockFace.SOUTH_SOUTH_EAST;
+                };
             }
             default -> {
                 return bf;

@@ -226,19 +226,19 @@ public class InteractLst implements Listener {
                     } else {
                         p.performCommand("server " + gameSign.server + " " + gameSign.arena);//ApiOstrov.sendToServer (p, gameSign.server, gameSign.arena);
                     }
+                } else if (GM.GAME.type == ServerType.ARENAS) {
+                    e.setUseInteractedBlock(Event.Result.DENY); //на минииграх редактируют таблички
                 }
 
                 //командная табличка
-                if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {//if (Tag.WALL_SIGNS.isTagged(e.getClickedBlock().getType())) {
+                if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final Sign sign = (Sign) b.getState();
                     final SignSide ss = sign.getSide(Side.FRONT);
                     final String line0 = TCUtils.stripColor(ss.line(0)).toLowerCase();
                     final String line1 = TCUtils.stripColor(ss.line(1));
                     if (line0.isEmpty() || line1.isEmpty()) return;
-                    //System.out.println("Sign_click 222 "+line0);
                     switch (line0) {
                         case "[команда]" -> {
-                            //if (ServerListener.checkCommand(p, line1.toLowerCase())) return;
                             p.performCommand(line1.toLowerCase());
                             return;
                         }
@@ -266,7 +266,7 @@ public class InteractLst implements Listener {
 
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void Sign_create(SignChangeEvent e) {
+    public void Sign_edit(SignChangeEvent e) {
         final Player p = e.getPlayer();
         final String line0 = TCUtils.stripColor(TCUtils.toString(e.line(0)));
 

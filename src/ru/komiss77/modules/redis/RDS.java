@@ -1,6 +1,10 @@
 package ru.komiss77.modules.redis;
 
-import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.*;
@@ -10,13 +14,6 @@ import redis.clients.jedis.providers.PooledConnectionProvider;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 //Redis Database, база данных Redis) для организации постоянного хранения снепшотов (снимков) данных
 // Установка, настройка и работа с Redis https://www.dmosk.ru/miniinstruktions.php?mini=redis-ubuntu
@@ -124,7 +121,7 @@ public class RDS implements Initiable {
                         try {
                             final long value = Long.parseLong(unifiedJedis.hget("heartbeats", Ostrov.MOT_D));
                             final long redisTime = getRedisTime(unifiedJedis);
-                            if (redisTime < value + PROXY_TIMEOUT) {
+                            if (redisTime > 0 && redisTime < value + PROXY_TIMEOUT) {
                                 Ostrov.log_err("You have launched a possible impostor Velocity / Bungeecord instance. Another instance is already running.");
                                 Ostrov.log_err("For data consistency reasons, RedisBungee will now disable itself.");
                                 Ostrov.log_err("If this instance is coming up from a crash, create a file in your RedisBungee plugins directory with the name 'restarted_from_crash.txt' and RedisBungee will not perform this check.");
@@ -141,9 +138,7 @@ public class RDS implements Initiable {
     protected static void subscribe() {
         unsubscribe();
         subscriber = new Subscriber();
-        Bukkit.getScheduler().runTaskAsynchronously(Ostrov.getInstance(), () -> {
-            subscriber.run();
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(Ostrov.getInstance(), () -> subscriber.run());
     }
 
     protected static void unsubscribe() {
@@ -167,7 +162,9 @@ public class RDS implements Initiable {
             public Void unifiedJedisTask(UnifiedJedis unifiedJedis) {
                 try {
                     long redisTime = getRedisTime(unifiedJedis);
-                    unifiedJedis.hset("heartbeats", Ostrov.MOT_D, String.valueOf(redisTime));
+                    if (redisTime > 0) {
+                        unifiedJedis.hset("heartbeats", Ostrov.MOT_D, String.valueOf(redisTime));
+                    }
 //poolProvider.testConnection();
                     if (subscriber == null) {
                         subscribe();
@@ -193,7 +190,7 @@ public class RDS implements Initiable {
     }
 
 
-    private static List<String> getCurrentProxiesIds(boolean lagged) {
+   /* private static List<String> getCurrentProxiesIds(boolean lagged) {
         return new RedisTask<List<String>>() {
             @Override
             public List<String> unifiedJedisTask(UnifiedJedis unifiedJedis) {
@@ -221,7 +218,7 @@ public class RDS implements Initiable {
                 }
             }
         }.execute();
-    }
+    }*/
 
 
     public static void sendMessage(final String channel, final String message) {
@@ -243,10 +240,20 @@ public class RDS implements Initiable {
 
 
     private static Long getRedisTime(UnifiedJedis unifiedJedis) {
-        @SuppressWarnings("unchecked") final List<Object> data = (List<Object>) unifiedJedis.sendCommand(Protocol.Command.TIME);
-        final List<String> times = new ArrayList<>();
-        data.forEach((o) -> times.add(new String((byte[]) o)));
-        return Long.parseLong(times.get(0));//getRedisTime(times);
+        try {
+            final List<Object> data = (List<Object>) unifiedJedis.sendCommand(Protocol.Command.TIME);
+            if (!data.isEmpty()) {
+                final String s = new String((byte[]) data.get(0));
+                return Long.parseLong(s);//getRedisTime(times);
+            }
+            //final List<String> times = new ArrayList<>();
+            //data.forEach( o -> times.add(new String((byte[]) o)));
+            //return Long.parseLong(times.get(0));//getRedisTime(times);
+        } catch (Exception ex) {
+            Ostrov.log_err("RDS getRedisTime : " + ex.getMessage());
+            return 0L;
+        }
+        return 0L;
     }
 
 

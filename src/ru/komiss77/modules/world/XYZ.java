@@ -1,6 +1,5 @@
 package ru.komiss77.modules.world;
 
-import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -164,6 +163,10 @@ public class XYZ implements Cloneable {
 
     public int getSLoc() { //координата в одном int для небольших значений, работает с '-'
         return y >> 31 << 30 ^ x >> 31 << 29 ^ z >> 31 << 28 ^ y << 20 ^ x << 10 ^ z;
+    }
+
+    public int offSet() { //координата кубоиде, используется в схематике. НЕ могут быть '-' !!
+        return x << 20 | y << 10 | z;
     }
 
     public long asLong() {

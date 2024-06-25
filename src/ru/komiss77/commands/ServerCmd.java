@@ -155,7 +155,7 @@ public class ServerCmd implements CommandExecutor, TabCompleter {
             }
 
             final Game game = Game.fromServerName(serverName);
-//Ostrov.log("onCommand serverName="+serverName+" game="+game);
+//Ostrov.log("onCommand arg.length="+arg.length+" serverName="+serverName+" game="+game);
 
             if (arg.length == 1
                     || game.type == ServerType.ONE_GAME //для больших аргументы не имеют значения

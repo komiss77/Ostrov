@@ -6,13 +6,11 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -24,11 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import ru.komiss77.*;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
-import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
 import ru.komiss77.events.BsignLocalArenaClick;
-import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.LocationUtil;
@@ -78,7 +74,7 @@ public final class GM {
 
     public enum State {STARTUP, COMPLETE, RELOAD, ERROR}
 
-    ;
+
 
     public static void setLogo(final String logo) {
         chatLogo = Component.text()
@@ -251,7 +247,7 @@ public final class GM {
                 Ostrov.log_ok("§2GM - Загружены данные игр: " + games.size() + ", арен: " + a);
                 if (state == State.RELOAD) {//if (reload) {
                     //reload = false;
-                    Ostrov.sync(() -> onWorldsLoadDone());
+                    Ostrov.sync(GM::onWorldsLoadDone);
                 }
             }
             state = State.COMPLETE;//fromStamp = ApiOstrov.currentTimeSec();
@@ -301,7 +297,7 @@ public final class GM {
             Ostrov.log_warn("writeThisServerStateToOstrovDB - нет соединения с БД!");
             return;
         }
-        final int id = game.ordinal() + Ostrov.MOT_D.hashCode() + arenaName.hashCode();
+        //final int id = game.ordinal() + Ostrov.MOT_D.hashCode() + arenaName.hashCode();
 
   /*  final StringBuffer sb = new StringBuffer("INSERT INTO `arenaData` (`id`, `g`,`s`,`a`, `ts`) VALUES ('")
       .append(id).append("','").append(game.name()).append("','").append(Ostrov.MOT_D).append("','").append(arenaName)
@@ -383,7 +379,7 @@ public final class GM {
             gi.update(Ostrov.MOT_D, arenaName, state, players, line0, line1, line2, line3);
         }
 
-        final StringBuffer sb = new StringBuffer(game.name()).append(LocalDB.W_SPLIT)
+        final StringBuilder sb = new StringBuilder(game.name()).append(LocalDB.W_SPLIT)
                 .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
                 .append(arenaName).append(LocalDB.W_SPLIT)
                 .append(state.name()).append(LocalDB.W_SPLIT)
@@ -406,7 +402,7 @@ public final class GM {
             writeArenaStateToMySql(game, arenaName, state, players, line0, line1, line2, line3);
             //Ostrov.async( () -> writeArenaStateToMySql(game, arenaName, state, players, line0, line1, line2, line3), 0);
 
-        } else {
+        } //else {
 //Ostrov.log("SpigotChanellMsg.sendMessage");
             // SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
             //   Operation.GAME_INFO_TO_BUNGEE,
@@ -414,7 +410,7 @@ public final class GM {
             //   state.tag, players, 0,
             //    arenaName, line0, line1, line2, line3, game.name() );
 
-        }
+        //  }
 
 
     }
@@ -433,22 +429,25 @@ public final class GM {
     public static void randomPlay(final Player p, final Game game, @Nullable final String serverName) {
         if (Timer.has(p, "randomPlay")) return;
         Timer.add(p, "randomPlay", 2);
-
         final GameInfo gi = getGameInfo(game);
         String serv = game.defaultServer;
-        String arena = "";
+        String arenaName = "";
+//Ostrov.log_warn("randomPlay "+game+"/"+serverName+" gi="+gi);
 
         if (gi == null) {
             p.sendMessage("§cНет данных для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             serv = game.defaultServer;
         } else {
+//Ostrov.log_warn("gi.count="+gi.count());
             if (gi.count() == 0) {
                 p.sendMessage("§cНе найдено арен для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             } else {
                 ArenaInfo arenaInfo = null;
                 int max = -1;
                 for (ArenaInfo ai : gi.arenas()) {
-                    if (serverName != null && !ai.server.equalsIgnoreCase(serverName)) continue;
+//Ostrov.log_warn("ai="+ai.server+"/"+ai.arenaName+" state="+ai.state+" players="+ai.players);
+                    if (serverName != null && !ai.server.equalsIgnoreCase(serverName))
+                        continue; //указан желаемый сервер - пропускаем арены на других
                     if (ai.state == GameState.СТАРТ) {
                         arenaInfo = ai;
                         break;
@@ -460,18 +459,25 @@ public final class GM {
                         }
                     }
                 }
+//Ostrov.log_warn("arenaInfo1="+arenaInfo);
                 if (arenaInfo == null) {
                     //p.sendMessage("§cНе найдено арены, подходящей для быстрой игры, попробуйте найти на табличке!");
                     arenaInfo = gi.arenas().stream().findAny().get();
-                    arena = arenaInfo.arenaName;
+                }
+//Ostrov.log_warn("arenaInfo2="+arenaInfo);
+                if (arenaInfo != null) {
+                    arenaName = arenaInfo.arenaName;
                 }
             }
+//Ostrov.log_warn("arenaName="+arenaName);
         }
 
         if (serv.equalsIgnoreCase(Ostrov.MOT_D)) {
-            if (!arena.isEmpty()) Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(p, arena));
+            if (!arenaName.isEmpty()) {
+                Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(p, arenaName));
+            }
         } else {
-            ApiOstrov.sendToServer(p, serv, arena);
+            ApiOstrov.sendToServer(p, serv, arenaName);
             //p.performCommand("server "+arenaInfo.server+" "+arenaInfo.arenaName);
         }
 

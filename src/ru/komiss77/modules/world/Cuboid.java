@@ -367,7 +367,7 @@ public class Cuboid {
 
     public Location getSpawnLocation(final World world) { //спавн должен быть в блоке,
 //Ostrov.log("---getSpawnLocation minY="+minY+" spawnAddY="+spawnAddY);
-        Ostrov.log_warn(toString());
+        //Ostrov.log_warn(toString());
         return new Location(world, minX + spawnAddX, minY + spawnAddY, minZ + spawnAddZ);//world.getBlockAt(minX + spawnAddX, minY + spawnAddY, minZ + spawnAddZ).getLocation();
     }
 
@@ -511,7 +511,7 @@ public class Cuboid {
         private final int x_min = minX, y_min = minY, z_min = minZ; //начальная позиция
         private final int x_max = maxX, z_max = maxZ; //начальная позиция
         private final int itX, itY, itZ; //размеры по осям +1 блок (типа включительно)
-        private int x, y, z; //счетчики по осям, от 0 до размера по оси
+        private int a, b, c; //счетчики по осям, от 0 до размера по оси
         private int count; //счётчик блоков для отпеделения hasNext()
         private final int size;
 
@@ -553,43 +553,42 @@ public class Cuboid {
             switch (rotate) {
 
                 case r90 -> {
-                    xyz.x = x_max - z;
-                    xyz.z = z_min + x;//xyz.x = z_min + x;
+                    xyz.x = x_max - c;
+                    xyz.z = z_min + a;//xyz.x = z_min + x;
                 }
 
                 case r180 -> {
-                    xyz.x = x_max - x;
-                    xyz.z = z_max - z;
+                    xyz.x = x_max - a;
+                    xyz.z = z_max - c;
                 }
 
                 case r270 -> {
-                    xyz.x = x_min + z;
-                    xyz.z = z_max - x;
+                    xyz.x = x_min + c;
+                    xyz.z = z_max - a;
                 }
 
                 default -> {
-                    xyz.x = x_min + x;
-                    xyz.z = z_min + z;
+                    xyz.x = x_min + a;
+                    xyz.z = z_min + c;
                 }
 
             }
 
-            xyz.y = y_min + y;
+            xyz.y = y_min + b;
 
             //(x & 0xF) << 20 | (z & 0xF) << 16 | (y + 16384);
             //xyz.yaw = x<<19 | y<<11 | z; //тут отдаём коорд.блока в кубоиде, всегда начиная с 0,0,0 для одинаковой переборки
             //x = 00xxxxxx xxxx0000 00000000 00000000   лимит 1024
             //y = 00000000 0000yyyy yyyyyy00 00000000   лимит 1024
             //z = 00000000 00000000 000000zz zzzzzzzz   лимит 1024
-            //xyz.yaw = xyz.getSLoc();//x<<20 | y<<10 | z; //тут отдаём коорд.блока в кубоиде, всегда начиная с 0,0,0 для одинаковой переборки
-            xyz.yaw = x << 20 | y << 10 | z; //тут отдаём коорд.блока в кубоиде, всегда начиная с 0,0,0 для одинаковой переборки
-//if (log) Ostrov.log("iterator x="+x+"/"+itX+", z="+z+"/"+itZ+" coord="+xyz.x+","+xyz.z+" sLoc="+xyz.yaw);
+            xyz.yaw = a << 20 | b << 10 | c; //тут отдаём коорд.блока в кубоиде, всегда начиная с 0,0,0 для одинаковой переборки
+            //внимание! используются счётчики a,b,c, не из xyz!!
 
-            if (++x >= itX) {
-                x = 0;
-                if (++z >= itZ) {
-                    z = 0;
-                    ++y;
+            if (++a >= itX) {
+                a = 0;
+                if (++c >= itZ) {
+                    c = 0;
+                    ++b;
                 }
             }
 

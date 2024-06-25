@@ -1,5 +1,10 @@
 package ru.komiss77.modules.player;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.function.Predicate;
+
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -22,7 +27,6 @@ import ru.komiss77.builder.SetupMode;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
-import ru.komiss77.listener.LimiterLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM.Gender;
@@ -40,10 +44,7 @@ import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.function.Predicate;
+
 
 
 public class Oplayer {
@@ -209,7 +210,7 @@ public class Oplayer {
         if (Config.tablist_header_footer) {
             ApiOstrov.sendTabList(p, (eng ? "§7Server: §5" : "§7Сервер: §5") + GM.GAME.displayName + "§7 §6" + ApiOstrov.getCurrentHourMin(), (eng ? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
         }
-
+//Ostrov.log_warn("op tick WANT_ARENA_JOIN="+dataString.get(Data.WANT_ARENA_JOIN));
         if (onlineSecond == 4) {
             setData(Data.WANT_ARENA_JOIN, "");
         }
@@ -510,24 +511,24 @@ public class Oplayer {
         //if (!Config.ostrovStatScore || hideScore) return;
         if (eng) {
             score.getSideBar().setTitle("§7Total online: §f§l" + GM.bungee_online);//"§a-----------------"
-            score.getSideBar().updateLine(8, "§a--------------");
-            score.getSideBar().updateLine(7, "Level §b" + getStat(Stat.LEVEL));
-            score.getSideBar().updateLine(6, "Exp §5" + getStat(Stat.EXP));
-            score.getSideBar().updateLine(5, "Reputation " + getReputationDisplay());
-            score.getSideBar().updateLine(4, "Karma " + getKarmaDisplay());
-            score.getSideBar().updateLine(3, "Loni §6" + getDataInt(Data.LONI));
-            score.getSideBar().updateLine(2, "Ril §e" + getDataInt(Data.RIL));
-            score.getSideBar().updateLine(1, "§a--------------");
+            score.getSideBar().update(8, "§a--------------");
+            score.getSideBar().update(7, "Level §b" + getStat(Stat.LEVEL));
+            score.getSideBar().update(6, "Exp §5" + getStat(Stat.EXP));
+            score.getSideBar().update(5, "Reputation " + getReputationDisplay());
+            score.getSideBar().update(4, "Karma " + getKarmaDisplay());
+            score.getSideBar().update(3, "Loni §6" + getDataInt(Data.LONI));
+            score.getSideBar().update(2, "Ril §e" + getDataInt(Data.RIL));
+            score.getSideBar().update(1, "§a--------------");
         } else {
             score.getSideBar().setTitle("§7Общий онлайн: §f§l" + GM.bungee_online);//"§a-----------------"
-            score.getSideBar().updateLine(8, "§a--------------");
-            score.getSideBar().updateLine(7, "Уровень §b" + getStat(Stat.LEVEL));
-            score.getSideBar().updateLine(6, "Опыт §5" + getStat(Stat.EXP));
-            score.getSideBar().updateLine(5, "Репутация " + getReputationDisplay());
-            score.getSideBar().updateLine(4, "Карма " + getKarmaDisplay());
-            score.getSideBar().updateLine(3, "Лони §6" + getDataInt(Data.LONI));
-            score.getSideBar().updateLine(2, "Рил §e" + getDataInt(Data.RIL));
-            score.getSideBar().updateLine(1, "§a--------------");
+            score.getSideBar().update(8, "§a--------------");
+            score.getSideBar().update(7, "Уровень §b" + getStat(Stat.LEVEL));
+            score.getSideBar().update(6, "Опыт §5" + getStat(Stat.EXP));
+            score.getSideBar().update(5, "Репутация " + getReputationDisplay());
+            score.getSideBar().update(4, "Карма " + getKarmaDisplay());
+            score.getSideBar().update(3, "Лони §6" + getDataInt(Data.LONI));
+            score.getSideBar().update(2, "Рил §e" + getDataInt(Data.RIL));
+            score.getSideBar().update(1, "§a--------------");
         }
     }
 

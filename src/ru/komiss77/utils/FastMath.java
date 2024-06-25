@@ -6,6 +6,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
 
+import java.lang.reflect.Method;
+
 public class FastMath {
 
     private static final float R_TO_D = 57.3f;
@@ -43,6 +45,17 @@ public class FastMath {
 	public static int signOf(long i) {
 		return (int) ((i >> 63) | 1);
 	}*/
+    public static <T extends Enum> T rotateEnum(T t) {
+        try {
+            Method values = t.getClass().getMethod("values");
+            if (t.ordinal() == ((T[]) values.invoke(t)).length - 1)
+                return ((T[]) values.invoke(t))[0];
+            else
+                return ((T[]) values.invoke(t))[t.ordinal() + 1];
+        } catch (Exception ex) {
+            return t;
+        }
+    }
 
     public static int sqrtAprx(final int of) {
         return 512 / (-of - 32) + 16;//max sqrt - 16

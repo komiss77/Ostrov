@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -22,6 +21,7 @@ import ru.komiss77.events.RestartWarningEvent;
 import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.Informator;
+import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.player.PM;
@@ -31,7 +31,7 @@ import ru.komiss77.utils.TCUtils;
 
 public class Timer {
 
-    private static BukkitTask timer, playerTimer, timerAsync;
+    private static BukkitTask timer, playerTimer;
     private static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
 
     public static boolean auto_restart, to_restart;
@@ -91,7 +91,7 @@ public class Timer {
 
         if (timer != null) timer.cancel();
         if (playerTimer != null) playerTimer.cancel();
-        if (timerAsync != null) timerAsync.cancel();
+        //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
             authMode = true; //startAuthMode();
@@ -193,8 +193,8 @@ public class Timer {
                                             ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
                                         } else {
                                             op.score.getSideBar().setTitle("§4Чистилище");
-                                            op.score.getSideBar().updateLine(9, "§7До разбана:");
-                                            op.score.getSideBar().updateLine(8, "§e" + ApiOstrov.secondToTime(banLeft));
+                                            op.score.getSideBar().update(9, "§7До разбана:");
+                                            op.score.getSideBar().update(8, "§e" + ApiOstrov.secondToTime(banLeft));
                                         }
                                     }
                                 }
@@ -213,125 +213,82 @@ public class Timer {
 
     private static void asyncSecondJob(final int second) {
 
-        // if (asyncTick % 20==0) {
-
-        if (!authMode) {
-            if (second % 11 == 0 && PM.hasOplayers()) {  //11*20
-                SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.GET_ONLINE);
+        try {
+            if (!authMode) {
+                if (second % 11 == 0 && PM.hasOplayers()) {  //11*20
+                    SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.GET_ONLINE);
+                }
+                Informator.tickAsync();
             }
-            Informator.tickAsync();
-        }
 
-        RDS.heartbeats();
+            RDS.heartbeats();
 
-        if (second % 43 == 0) {
-            GM.getGames().stream().forEach((gi -> {
-                gi.arenas().stream().filter(ai -> ai.server == Ostrov.MOT_D).forEach(ai -> ai.sendData());
-            }));
-        }
+            if (second % 43 == 0) {
+                GM.getGames().stream().forEach((gi -> {
+                    gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
+                }));
+            }
 
-        if (OstrovDB.useOstrovData) {//if (OstrovDB.useOstrovData && OstrovDB.connection!=null) {-не поставт флаг ostrovDbErrors!
+            if (OstrovDB.useOstrovData) {
 
-            if (second % 15 == 0) {   //checkOstrovDBConnection(asyncSecondCounter);
+                if (second % 15 == 0) {
+                    try {
+                        final Connection conn = OstrovDB.getConnection();
+                        if (conn == null || conn.isClosed() || !conn.isValid(1)) { //(!OstrovDB.ready) {
+                            Ostrov.log_warn("Timer - восстанавливаем соединение с Ostrov DB...");
+                            OstrovDB.connect();
+                        }
+                    } catch (SQLException ex) {
+                        Ostrov.log_warn("Timer - проверка соединения с Ostrov DB : " + ex.getMessage());
+                    }
+                }
+
+                if (OstrovDB.ready) {
+                    if (Ostrov.server_id > 0 && second % 10 == 0) { //нашел себя в таблице - писать состояние каждые 10 сек
+                        OstrovDB.writeThisServerStateToOstrovDB();
+                    }
+
+                    if (!authMode) {
+
+                        if (perms_autoupdate && !to_restart && second % reloadPermIntervalSec == 0) {
+                            Perm.loadGroupsDB(false);
+                        }
+
+                        //если игры еще не пытались грузиться, fromStamp = 0
+                        //если игры уже прогрузились, fromStamp > 0
+                        //если была ошибка при первой загрузке, fromStamp = -1
+                        if (GM.state != GM.State.STARTUP && second % GM.LOAD_INTERVAL == 0) {//if (GM.fromStamp!=0 && second%GM.LOAD_INTERVAL==0) {
+                            GM.loadArenaInfo(); //там же подгрузит обновы Lang
+                        }
+
+                        if (mission_tick) {
+                            if (second % 63 == 0 || second == 10) { //на 10 секунде после старта и каждую минуту
+                                MissionManager.loadMissions();
+                            }
+                            MissionManager.tickAsync();
+                        }
+
+                    }
+                }
+            }
+
+            if (LocalDB.useLocalData && second % 14 == 0) {
                 try {
-                    final Connection conn = OstrovDB.getConnection();
-                    if (conn == null || conn.isClosed() || !conn.isValid(1)) { //(!OstrovDB.ready) {
-                        Ostrov.log_warn("Timer - восстанавливаем соединение с Ostrov DB...");
-                        OstrovDB.connect();
+                    if (LocalDB.connection == null || LocalDB.connection.isClosed() || !LocalDB.connection.isValid(1)) {
+                        Ostrov.log_warn("Timer - восстанавливаем соединение с Local DB...");
+                        LocalDB.connect();
                     }
                 } catch (SQLException ex) {
-                    Ostrov.log_warn("Timer - проверка соединения с Ostrov DB : " + ex.getMessage());
+                    Ostrov.log_err("Timer - соединение с Local DB восстановить не удалось!");
                 }
             }
 
-            if (OstrovDB.ready) {
-
-                if (Ostrov.server_id > 0 && second % 10 == 0) { //нашел себя в таблице - писать состояние каждые 10 сек
-                    OstrovDB.writeThisServerStateToOstrovDB();
-                }
-
-                if (!authMode) {
-
-                    if (perms_autoupdate && !to_restart && second % reloadPermIntervalSec == 0) {
-                        Perm.loadGroupsDB(false);
-                    }
-
-                    //если игры еще не пытались грузиться, fromStamp = 0
-                    //если игры уже прогрузились, fromStamp > 0
-                    //если была ошибка при первой загрузке, fromStamp = -1
-                    if (GM.state != GM.State.STARTUP && second % GM.LOAD_INTERVAL == 0) {//if (GM.fromStamp!=0 && second%GM.LOAD_INTERVAL==0) {
-                        GM.loadArenaInfo(); //там же подгрузит обновы Lang
-                    }
-
-                    if (mission_tick) {
-                        if (second % 63 == 0 || second == 10) { //на 10 секунде после старта и каждую минуту
-                            MissionManager.loadMissions();
-                        }
-                        MissionManager.tickAsync();
-                    }
-
-                }
-            }
-
+        } catch (Exception ex) { //обязательно все Exception - надо вернуть флаг lockSecond, или блокируется запись!
+            Ostrov.log_err("Timer asyncSecondJob : " + ex.getMessage());
+        } finally {
+            lockSecond.set(false);
         }
 
-
-        if (LocalDB.useLocalData && second % 14 == 0) {  //checkLocalDBConnection(asyncSecondCounter);
-            try {
-                if (LocalDB.connection == null || LocalDB.connection.isClosed() || !LocalDB.connection.isValid(1)) {
-                    Ostrov.log_warn("Timer - восстанавливаем соединение с Local DB...");
-                    LocalDB.connect();
-                }
-            } catch (SQLException ex) {
-                Ostrov.log_err("Timer - соединение с Local DB восстановить не удалось!");
-            }
-
-        }
-        //asyncSecond++;
-
-        // }
-
-       /* if (OstrovDB.useOstrovData && OstrovDB.ready && !OstrovDB.QUERY.isEmpty()) {
-//final long l = System.currentTimeMillis();
-
-            try (Statement stmt = OstrovDB.getConnection().createStatement()) {
-                while ((qInfo = OstrovDB.QUERY.poll()) != null) {
-                    stmt.addBatch(qInfo.query);
-                    map.put(count, qInfo);
-                    count++;
-                }
-                stmt.executeBatch();
-
-            } catch (BatchUpdateException  ex) {
-//Ostrov.log_warn("BatchUpdateException!! "+ex.getMessage());
-                int[] batchArray = ex.getUpdateCounts();
-                count = 0;
-                for (int batchResult : batchArray) {
-//Ostrov.log_warn("count="+count+" batchResult="+batchResult);
-                    if (batchResult == Statement.EXECUTE_FAILED) {
-                        qInfo = map.get(count);
-                        cs = qInfo.senderName==null ? null : qInfo.senderName.equals("console") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(qInfo.senderName);
-                        if (cs!=null) cs.sendMessage("§cОшибка выполнения запроса "+qInfo.query);
-                        Ostrov.log_err("Timer querry executePstAsync "+qInfo.query+" : "+ex.getMessage());
-                    } else {
-                        //запрос выполнен, batchResult=колл-во изменённых строк
-                    }
-                    count++;
-                }
-            } catch (SQLException ex) {
-                Ostrov.log_err("Timer querry executePstAsync : "+ex.getMessage());
-            }
-            
-            count=0;
-            map.clear();
-//Ostrov.log_ok("POLL time:"+(System.currentTimeMillis()-l)+"мс.");
-        }*/
-
-        //asyncTick++;
-        lockSecond.set(false);//lock = false;
-
-//Ostrov.log("tick="+asyncTick+" asyncSecondCounter="+asyncSecond);
-        // lock.set(false);//lock = false;
 
     }
 
@@ -342,28 +299,18 @@ public class Timer {
         OstrovDB.Qinfo qInfo;
         try {
             stmt = OstrovDB.getConnection().createStatement();
-
             while ((qInfo = OstrovDB.QUERY.poll()) != null) {
-
                 try {
-
                     stmt.execute(qInfo.query);
-//Ostrov.log_warn("execute "+qInfo.query);
-
                 } catch (SQLException | NullPointerException ex) {
-
                     CommandSender cs = qInfo.senderName == null ? null : qInfo.senderName.equals("console") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(qInfo.senderName);
                     if (cs != null)
                         cs.sendMessage("§cОшибка выполнения запроса " + qInfo.query + " : " + ex.getMessage());
                     Ostrov.log_err("Timer executeQuery " + qInfo.query + " : " + ex.getMessage());
-
                 }
             }
-
-        } catch (SQLException ex) {
-
+        } catch (Exception ex) {
             Ostrov.log_err("Timer sendQuery createStatement : " + ex.getMessage());
-
         } finally {
             try {
                 if (stmt != null && !stmt.isClosed()) {
@@ -372,41 +319,8 @@ public class Timer {
             } catch (SQLException ex) {
                 Ostrov.log_err("Timer sendQuery stmt.close : " + ex.getMessage());
             }
-            lockQuery.set(false);//lock = false;
+            lockQuery.set(false);
         }
-
-
-      /*try (Statement stmt = OstrovDB.getConnection().createStatement()) {
-            while ((qInfo = OstrovDB.QUERY.poll()) != null) {
-                stmt.addBatch(qInfo.query);
-                map.put(count, qInfo);
-                count++;
-            }
-            stmt.executeBatch();
-
-        } catch (BatchUpdateException  ex) {
-//Ostrov.log_warn("BatchUpdateException!! "+ex.getMessage());
-            int[] batchArray = ex.getUpdateCounts();
-            count = 0;
-            for (int batchResult : batchArray) {
-//Ostrov.log_warn("count="+count+" batchResult="+batchResult);
-                if (batchResult == Statement.EXECUTE_FAILED) {
-                    qInfo = map.get(count);
-                    cs = qInfo.senderName==null ? null : qInfo.senderName.equals("console") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(qInfo.senderName);
-                    if (cs!=null) cs.sendMessage("§cОшибка выполнения запроса "+qInfo.query);
-                    Ostrov.log_err("Timer querry executePstAsync "+qInfo.query+" : "+ex.getMessage());
-                } else {
-                    //запрос выполнен, batchResult=колл-во изменённых строк
-                }
-                count++;
-            }
-        } catch (SQLException ex) {
-            Ostrov.log_err("Timer querry executePstAsync : "+ex.getMessage());
-        }
-        count=0;
-        map.clear();*/
-
-//Ostrov.log_ok("POLL time:"+(System.currentTimeMillis()-l)+"мс.");
 
     }
 

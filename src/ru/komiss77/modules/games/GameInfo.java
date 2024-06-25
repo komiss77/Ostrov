@@ -2,17 +2,13 @@ package ru.komiss77.modules.games;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
-import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.GameInfoUpdateEvent;
 import ru.komiss77.modules.player.Oplayer;
@@ -97,7 +93,7 @@ public class GameInfo {
     public void update(final String serverName, final String arenaName, final GameState state, final int players,
                        final String line0, final String line1, final String line2, final String line3) {
         ArenaInfo ai = arenas.get(serverName + arenaName);//getArena(serverName, arenaName);
-//Ostrov.log("update "+serverName+","+arenaName+" contains?"+ arenas.containsKey(serverName+arenaName));
+//if(serverName.equals("bb01")) Ostrov.log("update "+serverName+","+arenaName+" contains?"+ arenas.containsKey(serverName+arenaName)+" size="+arenas.size());
         if (ai == null) {
             //неи инфо - кинуть пустышку для обновы табличек
             ai = new ArenaInfo(this, serverName, arenaName, 0, -100, Material.BEDROCK, arenas.size());
@@ -106,8 +102,7 @@ public class GameInfo {
         }
 
         switch (game.type) {
-
-            case ONE_GAME:
+            case ONE_GAME -> {
                 if (game == Game.SE) {
                     gameOnline -= ai.players;
                     gameOnline += players;
@@ -117,23 +112,20 @@ public class GameInfo {
                 ai.update(state, players,
                         game.displayName,
                         arenaName, players >= 0 ? GameState.РАБОТАЕТ.displayColor + GameState.РАБОТАЕТ.name() : GameState.ВЫКЛЮЧЕНА.displayColor + GameState.ВЫКЛЮЧЕНА.name(), players > 0 ? "§1" + players : "");
-                break;
-
-            case LOBBY:
+            }
+            case LOBBY -> {
                 gameOnline -= ai.players;
                 gameOnline += players;
                 ai.update(state, players, game.displayName, arenaName, players >= 0 ? GameState.РАБОТАЕТ.displayColor + GameState.РАБОТАЕТ.name() : GameState.ВЫКЛЮЧЕНА.displayColor + GameState.ВЫКЛЮЧЕНА.name(), players > 0 ? "§1" + players : "");
-                break;
-
-            case ARENAS:
+            }
+            case ARENAS -> {
                 gameOnline -= ai.players; //убавить на старый онлайн арены
                 if (gameOnline < 0) gameOnline = 0;
                 gameOnline += players; //добавить новый онлайн арены
                 ai.update(state, players, line0, line1, line2, line3);
-                break;
-            default:
-                break;
-
+            }
+            default -> {
+            }
         }
 
         if (Bukkit.isPrimaryThread()) {
@@ -189,6 +181,7 @@ public class GameInfo {
     }
 
     public int count() {
+//Ostrov.log_warn("arenas.size="+arenas.size());
         return arenas.size();
     }
 

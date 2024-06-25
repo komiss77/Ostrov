@@ -2,13 +2,10 @@ package ru.komiss77.utils;
 
 import java.util.List;
 import java.util.Set;
-
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -19,6 +16,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.Cuboid;
 import ru.komiss77.modules.world.XYZ;
 
+//https://www.spigotmc.org/resources/playerparticles.40261/
 public class ParticlePlay {
 
     public Particle particleEffect;
@@ -30,6 +28,38 @@ public class ParticlePlay {
 
     }
 
+    public enum particle {
+        HEART("Сердечки", Material.REDSTONE_BLOCK, Particle.HEART),
+        NOTE("Ноты", Material.NOTE_BLOCK, Particle.NOTE),
+        VILLAGER_HAPPY("Изумруды", Material.EMERALD, Particle.VILLAGER_HAPPY),
+        FLAME("Огонь", Material.FIRE, Particle.FLAME),
+        CRIT_MAGIC("Удар магии", Material.DIAMOND_AXE, Particle.CRIT_MAGIC),
+        CRIT("Удар", Material.ENCHANTED_BOOK, Particle.CRIT),
+        VILLAGER_ANGRY("Злой Житель", Material.ARROW, Particle.VILLAGER_ANGRY),
+        PORTAL("Портал", Material.OBSIDIAN, Particle.PORTAL),
+        REDSTONE("Редстоун", Material.REDSTONE, Particle.REDSTONE),
+        CLOUD("Дымок", Material.TNT, Particle.CLOUD),
+        LAVA("Лава", Material.LAVA_BUCKET, Particle.LAVA),
+        ENCHANTMENT_TABLE("Магия", Material.ENCHANTING_TABLE, Particle.ENCHANTMENT_TABLE),
+        CAMPFIRE_SIGNAL_SMOKE("Сигнальный дым", Material.CAMPFIRE, Particle.CAMPFIRE_SIGNAL_SMOKE),
+        END_ROD("Стержень энда", Material.END_ROD, Particle.END_ROD),
+        SCULK_CHARGE_POP("Скалк", Material.SCULK_SENSOR, Particle.SCULK_CHARGE_POP),
+        BUBBLE_COLUMN_UP("Пузыри", Material.SCULK_SHRIEKER, Particle.BUBBLE_COLUMN_UP),
+        SPELL_WITCH("Ведьма", Material.POTION, Particle.SPELL_WITCH),
+        ;
+
+        public final String displayName;
+        public final Material mat;
+        public final Particle particle;
+
+
+        private particle(final String displayName, final Material mat, final Particle particle) {
+            this.displayName = displayName;
+            this.mat = mat;
+            this.particle = particle;
+        }
+
+    }
 
     public static void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
         final Oplayer op = PM.getOplayer(p);
@@ -106,7 +136,7 @@ public class ParticlePlay {
         }
     }
 
-
+/*
     public static void openParticleMenu(final Player p) {
         final Inventory particle_menu = Bukkit.createInventory(null, 27, Component.text("§1Выбор частиц"));
         particle_menu.setItem(10, new ItemBuilder(Material.REDSTONE_BLOCK).name("Сердечки").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
@@ -154,7 +184,7 @@ public class ParticlePlay {
                 return Particle.ENCHANTMENT_TABLE;
         }
         return null;
-    }
+    }*/
 
 
     public static void deathEffect(final Player player, final boolean epic) {

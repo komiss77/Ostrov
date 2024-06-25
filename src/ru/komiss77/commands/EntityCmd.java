@@ -482,11 +482,7 @@ class EntityTypeView implements InventoryProvider {
                         if (!ApiOstrov.isLocalBuilder(p, true)) return;
                         switch (e.getClick()) {
                             case LEFT -> p.teleport(entity);
-                            case RIGHT -> SmartInventory.builder()
-                                    .provider(new EntitySetup(entity))
-                                    .size(6, 9)
-                                    .title("§2Характеристики сущности").build()
-                                    .open(p);
+                            case RIGHT -> EntitySetup.openSetupMenu(p, entity);
                             case SHIFT_LEFT -> entity.teleport(p);
                             case SHIFT_RIGHT -> entity.remove();
                             default -> {

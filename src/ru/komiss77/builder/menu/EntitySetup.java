@@ -4,44 +4,51 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Villager.Profession;
-import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Colorable;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 
 public class EntitySetup implements InventoryProvider {
 
 
-    private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-    ;
-    private final Entity entity;
+    private final ClickableItem c = ClickableItem.empty(new ItemStack(Material.GLOW_LICHEN));
+    private final Entity en;
 
     public EntitySetup(final Entity e) {
-        this.entity = e;
+        this.en = e;
+    }
+
+    public static void openSetupMenu(final Player p, final Entity entity) {
+        SmartInventory.builder()
+                .provider(new EntitySetup(entity))
+                .size(6, 9)
+                .title("§2Характеристики сущности").build()
+                .open(p);
     }
 
 
     @Override
     public void init(final Player p, final InventoryContent content) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-        content.fillBorders(ClickableItem.empty(EntitySetup.fill));
+        content.fillBorders(c);
 
 
-        if (entity instanceof LivingEntity le) {
+        if (en instanceof LivingEntity le) {
 
-            content.add(ClickableItem.of(new ItemBuilder(Material.COMMAND_BLOCK)
+            content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
                     .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
                     .addLore("")
                     .addLore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
@@ -55,10 +62,26 @@ public class EntitySetup implements InventoryProvider {
 
         }
 
+        if (en instanceof Ageable) {
+            content.add(ClickableItem.of(new ItemBuilder(((Ageable) en).isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Ageable) en).isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    if (((Ageable) en).isAdult()) {
+                        ((Ageable) en).setBaby();
+                    } else {
+                        ((Ageable) en).setAdult();
+                    }
+                    reopen(p, content);
+                }
+            }));
+        } //else if (en instanceof Zombie) {
+        //    ((Zombie) en).setBaby(!((Zombie) en).isBaby());
+        //}
 
-        if (entity.getType() == EntityType.VILLAGER) {
+        if (en.getType() == EntityType.VILLAGER) {
 
-            final Profession prof = ((Villager) entity).getProfession();
+            final Profession prof = ((Villager) en).getProfession();
             final Profession prof_prev = Profession.values()[(prof.ordinal() - 1 + Profession.values().length) % Profession.values().length];
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
 
@@ -71,14 +94,14 @@ public class EntitySetup implements InventoryProvider {
                     .addLore("")
                     .build(), e -> {
                 if (e.isLeftClick()) {
-                    ((Villager) entity).setProfession(prof_next);
+                    ((Villager) en).setProfession(prof_next);
                 } else if (e.isRightClick()) {
-                    ((Villager) entity).setProfession(prof_prev);
+                    ((Villager) en).setProfession(prof_prev);
                 }
                 reopen(p, content);
             }));
 
-            final Villager.Type type = ((Villager) entity).getVillagerType();
+            final Villager.Type type = ((Villager) en).getVillagerType();
             final Villager.Type type_prev = Villager.Type.values()[(type.ordinal() - 1 + Villager.Type.values().length) % Villager.Type.values().length];
             final Villager.Type type_next = Villager.Type.values()[type.ordinal() + 1 % Villager.Type.values().length];
 
@@ -91,16 +114,16 @@ public class EntitySetup implements InventoryProvider {
                     .addLore("")
                     .build(), e -> {
                 if (e.isLeftClick()) {
-                    ((Villager) entity).setVillagerType(type_next);
+                    ((Villager) en).setVillagerType(type_next);
                 } else if (e.isRightClick()) {
-                    ((Villager) entity).setVillagerType(type_prev);
+                    ((Villager) en).setVillagerType(type_prev);
                 }
                 reopen(p, content);
             }));
 
-        } else if (entity.getType() == EntityType.ZOMBIE_VILLAGER) {
+        } else if (en.getType() == EntityType.ZOMBIE_VILLAGER) {
 
-            final Profession prof = ((ZombieVillager) entity).getVillagerProfession();
+            final Profession prof = ((ZombieVillager) en).getVillagerProfession();
             final Profession prof_prev = Profession.values()[(prof.ordinal() - 1 + Profession.values().length) % Profession.values().length];
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
 
@@ -113,40 +136,282 @@ public class EntitySetup implements InventoryProvider {
                     .addLore("")
                     .build(), e -> {
                 if (e.isLeftClick()) {
-                    ((ZombieVillager) entity).setVillagerProfession(prof_next);
+                    ((ZombieVillager) en).setVillagerProfession(prof_next);
                 } else if (e.isRightClick()) {
-                    ((ZombieVillager) entity).setVillagerProfession(prof_prev);
+                    ((ZombieVillager) en).setVillagerProfession(prof_prev);
                 }
                 reopen(p, content);
             }));
-        } 
+        }
 
 
-
-
-            
-            
-        /*    
-        contents.add(ClickableItem.of( new ItemBuilder(Material.SUNFLOWER)
-            .name("§eПКМ - показать все миры")
-            .addLore("")
-            .addLore("")
-            .build(), e -> {
-                if (e.isLeftClick()) {
-
+        if (en.getType() == EntityType.SLIME || en.getType() == EntityType.MAGMA_CUBE) {
+            Slime sl = (Slime) en;
+            content.add(ClickableItem.of(new ItemBuilder(en.getType() == EntityType.SLIME ? Material.SLIME_BLOCK : Material.MAGMA_BLOCK)
+                    .name("§fРазмер")
+                    .addLore("")
+                    .addLore("§fСейчас : §e§l" + sl.getSize())
+                    .addLore(sl.getSize() < 120 ? "§7ЛКМ - §a+10" : "")
+                    .addLore(sl.getSize() > 10 ? "§7ПКМ - сделать §c-10" : "")
+                    .addLore("")
+                    .build(), e -> {
+                if (e.isLeftClick() && sl.getSize() < 120) {
+                    sl.setSize(sl.getSize() + 10);
+                } else if (e.isRightClick()) {
+                    sl.setSize(sl.getSize() - 10);
                 }
-            }));  
-        
-     */
-        /*
-        content.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> 
-            SmartInventory.builder()
-                    .id("EntityByGroup"+p.getName())
-                    . provider(new EntityByGroup(world, radius, EntityUtil.group(type)))
-                    . size(6, 9)
-                    . title("§2"+world.getName()+" "+type+" §1r="+radius).build() .open(p)
-        )); */
+                reopen(p, content);
+            }));
+        }
 
+        if (en.getType() == EntityType.WOLF) {
+            content.add(ClickableItem.of(new ItemBuilder(((Wolf) en).isSitting() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Wolf) en).isSitting() ? "§6Сидит" : "§6стоит")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    ((Wolf) en).setSitting(!((Wolf) en).isSitting());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+        if (en.getType() == EntityType.CREEPER) {
+            content.add(ClickableItem.of(new ItemBuilder(((Creeper) en).isPowered() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Creeper) en).isPowered() ? "§6Заряжен" : "§6спокоен")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    ((Creeper) en).setPowered(!((Creeper) en).isPowered());
+                    reopen(p, content);
+                }
+            }));
+            ((Creeper) en).setPowered(!((Creeper) en).isPowered());
+        }
+
+        if (en.getType() == EntityType.RABBIT) {
+            final Rabbit.Type rt = ((Rabbit) en).getRabbitType();
+            content.add(ClickableItem.of(new ItemBuilder(Material.RABBIT_HIDE)
+                    .name("§fТип зайчика")
+                    .addLore("§fСейчас : §e§l" + rt.name())
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final Rabbit.Type rt2 = FastMath.rotateEnum(rt);//Rabbit.Type.values()[rt.ordinal() + 1 % Rabbit.Type.values().length];
+                    ((Rabbit) en).setRabbitType(rt2);//rabbitTypeNext(((Rabbit) en).getRabbitType()));
+                    if (((Rabbit) en).getRabbitType() != Rabbit.Type.THE_KILLER_BUNNY) {
+                        en.setCustomNameVisible(false);
+                    }
+                    reopen(p, content);
+                }
+            }));
+        }
+
+        if (en.getType() == EntityType.SHEEP) {
+            content.add(ClickableItem.of(new ItemBuilder(((Sheep) en).isSheared() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Sheep) en).isSheared() ? "§6Стриженная" : "§6Мохнатая")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    ((Sheep) en).setSheared(!((Sheep) en).isSheared());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+
+        if (en instanceof Colorable) {
+            DyeColor dc = ((Colorable) en).getColor();
+            content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
+                    .name("§fЦвет")
+                    .addLore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
+                    ((Colorable) en).setColor(dc2);
+                    reopen(p, content);
+                }
+            }));
+        }
+
+        if (en.getType() == EntityType.WOLF) {
+            DyeColor dc = ((Wolf) en).getCollarColor();
+            content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
+                    .name("§fЦвет")
+                    .addLore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
+                    ((Wolf) en).setCollarColor(dc2);
+                    reopen(p, content);
+                }
+            }));
+            //int curr_color = ((Wolf) en).getCollarColor().ordinal();
+            // curr_color++;
+            //if (curr_color >= DyeColor.values().length) {
+            //    curr_color = 0;
+            //}
+            //((Wolf) en).setCollarColor(DyeColor.values()[curr_color]);
+        }
+
+
+        if (en.getType() == EntityType.LLAMA || en.getType() == EntityType.LLAMA_SPIT) {
+            Llama.Color dc = ((Llama) en).getColor();
+            content.add(ClickableItem.of(new ItemBuilder(Material.RABBIT_HIDE)
+                    .name("§fЦвет")
+                    .addLore("§fСейчас : " + dc.name())
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final Llama.Color dc2 = FastMath.rotateEnum(dc);//Llama.Color.values()[dc.ordinal() + 1 % Llama.Color.values().length];
+                    ((Llama) en).setColor(dc2);
+                    reopen(p, content);
+                }
+            }));
+            //switch (((Llama) en).getColor()) {
+            //     case BROWN ->
+            //            ((Llama) en).setColor(Llama.Color.CREAMY);
+            //    case CREAMY ->
+            //            ((Llama) en).setColor(Llama.Color.GRAY);
+            //    case GRAY ->
+            //            ((Llama) en).setColor(Llama.Color.WHITE);
+            //    case WHITE ->
+            //             ((Llama) en).setColor(Llama.Color.BROWN);
+            // }
+        }
+
+
+        if (en.getType() == EntityType.HORSE) {
+            Horse.Color dc = ((Horse) en).getColor();
+            content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
+                    .name("§fЦвет")
+                    .addLore("§fСейчас : " + dc.name())
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final Horse.Color dc2 = FastMath.rotateEnum(dc);//Horse.Color.values()[dc.ordinal() + 1 % Horse.Color.values().length];
+                    ((Horse) en).setColor(dc2);
+                    reopen(p, content);
+                }
+            }));
+        }
+
+
+        if (en instanceof Steerable) {
+            Steerable st = (Steerable) en;
+            content.add(ClickableItem.of(new ItemBuilder(st.hasSaddle() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(st.hasSaddle() ? "§6Осёдланная" : "§6Дикая")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    st.setSaddle(!st.hasSaddle());//(Sheep) en).setSheared(!((Sheep) en).isSheared());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+        if (en instanceof ChestedHorse) {
+            ChestedHorse st = (ChestedHorse) en;
+            content.add(ClickableItem.of(new ItemBuilder(st.isCarryingChest() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(st.isCarryingChest() ? "§6Грузовая" : "§6Пустая")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    st.setCarryingChest(!st.isCarryingChest());//(Sheep) en).setSheared(!((Sheep) en).isSheared());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+        //switch (en.getType()) {
+        //     case PIG ->
+        //            ((Pig) en).setSaddle(!((Pig) en).hasSaddle());
+        //    case HORSE -> {
+        //       if (((Horse) en).getInventory().getSaddle() != null && ((Horse) en).getInventory().getSaddle().getType() == Material.SADDLE) {
+        //           ((Horse) en).getInventory().setSaddle(new ItemStack(Material.AIR));
+        //       } else {
+        //           ((Horse) en).getInventory().setSaddle(new ItemStack(Material.SADDLE));
+        //       }
+        //    }
+        //    case MULE, DONKEY ->
+        //           ((ChestedHorse) en).setCarryingChest(!((ChestedHorse) en).isCarryingChest());
+        // }
+
+
+        if (en.getType() == EntityType.WOLF) {
+            content.add(ClickableItem.of(new ItemBuilder(((Wolf) en).isTamed() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Wolf) en).isTamed() ? "§6Ручной" : "§6Дикий")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    ((Wolf) en).setTamed(!((Wolf) en).isTamed());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+
+        if (en.getType() == EntityType.OCELOT) {
+            Cat.Type dc = ((Cat) en).getCatType();
+            content.add(ClickableItem.of(new ItemBuilder(Material.PUFFERFISH)
+                    .name("§fТип")
+                    .addLore("§fСейчас : " + dc.name())
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final Cat.Type dc2 = FastMath.rotateEnum(dc);//Cat.Type.values()[dc.ordinal() + 1 % Cat.Type.values().length];
+                    ((Cat) en).setCatType(dc2);
+                    reopen(p, content);
+                }
+            }));
+            //switch (((Cat) en).getCatType()) {
+            //    case BLACK ->
+            //            ((Cat) en).setCatType(Cat.Type.RED);
+            //    case RED ->
+            //           ((Cat) en).setCatType(Cat.Type.SIAMESE);
+            //   case SIAMESE ->
+            //           ((Cat) en).setCatType(Cat.Type.RAGDOLL);
+            //   case RAGDOLL ->
+            //           ((Cat) en).setCatType(Cat.Type.BLACK);
+            //}
+        }
+
+        if (en.getType() == EntityType.PARROT) {
+            Parrot.Variant dc = ((Parrot) en).getVariant();
+            content.add(ClickableItem.of(new ItemBuilder(Material.PUFFERFISH)
+                    .name("§fТип")
+                    .addLore("§fСейчас : " + dc.name())
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    final Parrot.Variant dc2 = FastMath.rotateEnum(dc);//Parrot.Variant.values()[dc.ordinal() + 1 % Parrot.Variant.values().length];
+                    ((Parrot) en).setVariant(dc2);
+                    reopen(p, content);
+                }
+            }));
+            //switch (((Parrot) en).getVariant()) {
+            //   case BLUE ->
+            //           ((Parrot) en).setVariant(Parrot.Variant.CYAN);
+            //  case CYAN ->
+            //          ((Parrot) en).setVariant(Parrot.Variant.GRAY);
+            //  case GRAY ->
+            //           ((Parrot) en).setVariant(Parrot.Variant.GREEN);
+            //   case GREEN ->
+            //            ((Parrot) en).setVariant(Parrot.Variant.RED);
+            //    case RED ->
+            //            ((Parrot) en).setVariant(Parrot.Variant.BLUE);
+            //}
+        }
+
+        if (en.getType() == EntityType.SNOWMAN) {
+            content.add(ClickableItem.of(new ItemBuilder(((Snowman) en).isDerp() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(((Snowman) en).isDerp() ? "§6Тающий" : "§6Свежий")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
+                    ((Snowman) en).setDerp(!((Snowman) en).isDerp());
+                    reopen(p, content);
+                }
+            }));
+        }
+
+
+        content.set(5, 8, ClickableItem.of(new ItemBuilder(Material.REDSTONE)
+                .name("§4Убрать моба")
+                .build(), e -> {
+            if (e.isLeftClick()) {
+                en.remove();
+                p.closeInventory();
+            }
+        }));
 
     }
 

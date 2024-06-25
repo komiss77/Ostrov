@@ -1,0 +1,35 @@
+public void placeBlock(Block block, boolean flag) {
+        if (flag && !LBMain.getInstance().if.if(block.getType())) {
+            if (LBMain.isDebug()) {
+                LBMain.do("Operation LuckyBlock.placeBlock(block, true) canceled because " + block.getType() + " not a skull");
+            }
+
+        } else {
+            block.setType(Material.AIR);
+            ArmorStand armorstand = (ArmorStand)block.getWorld().spawnEntity(block.getLocation().add(0.5D, -1.2D, 0.5D), EntityType.ARMOR_STAND);
+
+            armorstand.setArms(false);
+            armorstand.setCanPickupItems(false);
+            armorstand.setCustomNameVisible(false);
+            armorstand.setGravity(false);
+            armorstand.setVisible(false);
+            armorstand.setMarker(true);
+            armorstand.setCustomName(this.type.getLocatedName(armorstand.getLocation()));
+            armorstand.getEquipment().setHelmet(this.getSkull());
+            if (LBMain.getInstance().isLightSource()) {
+                if (LBMain.getInstance().if instanceof me.DenBeKKer.ntdLuckyBlock.util.b.b) {
+                    Bukkit.getScheduler().runTaskLater(LBMain.getInstance(), () -> {
+                        armorstand.setFireTicks(Integer.MAX_VALUE);
+                    }, 2L);
+                } else {
+                    armorstand.setFireTicks(Integer.MAX_VALUE);
+                }
+            }
+
+            block.setType(this.type.getMaterial());
+            if (LBMain.getInstance().if instanceof me.DenBeKKer.ntdLuckyBlock.util.b.b && this.type.isColoredGlass()) {
+                me.DenBeKKer.ntdLuckyBlock.util.b.a.do(block, this.type.asColor().getData());
+            }
+
+        }
+    }

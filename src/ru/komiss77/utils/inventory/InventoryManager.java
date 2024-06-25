@@ -104,16 +104,24 @@ public class InventoryManager {
     }
 
     protected static void scheduleUpdateTask(Player p, SmartInventory inv) {
-        PlayerInvTask task = new PlayerInvTask(p, inv.getProvider(), contents.get(p.getName()));
+        BukkitRunnable task = updateTasks.get(p.getName());
+//Ostrov.log_warn("+++ scheduleUpdateTask task="+task );
+        if (task != null) { //при reopen плодит задачки
+            task.cancel();
+        }
+        task = new PlayerInvTask(p, inv.getProvider(), contents.get(p.getName()));
         task.runTaskTimer(Ostrov.instance, 1, inv.getUpdateFrequency());
         updateTasks.put(p.getName(), task);
     }
 
     protected static void cancelUpdateTask(Player p) {
-        if (updateTasks.containsKey(p.getName())) {
-            int bukkitTaskId = updateTasks.get(p.getName()).getTaskId();
-            Bukkit.getScheduler().cancelTask(bukkitTaskId);
-            updateTasks.remove(p.getName());
+        final BukkitRunnable task = updateTasks.remove(p.getName());
+//Ostrov.log_warn("--- cancelUpdateTask task="+task );
+        if (task != null) {//updateTasks.containsKey(p.getName())) {
+            task.cancel();
+            //int bukkitTaskId = updateTasks.get(p.getName()).getTaskId();
+            //Bukkit.getScheduler().cancelTask(bukkitTaskId);
+            //updateTasks.remove(p.getName());
         }
     }
 
@@ -259,21 +267,21 @@ public class InventoryManager {
         @EventHandler(priority = EventPriority.LOW)
         public void onInventoryClose(InventoryCloseEvent e) {
             Player p = (Player) e.getPlayer();
+            final SmartInventory si = inventories.get(p.getName());
+//Ostrov.log_warn("InventoryCloseEvent si="+si);
 
-            if (!inventories.containsKey(p.getName())) return;
-
-            final SmartInventory inv = inventories.get(p.getName());
+            if (si == null) return;
 
             try {
-                inv.getListeners().stream()
+                si.getListeners().stream()
                         .filter(listener -> listener.getType() == InventoryCloseEvent.class)
                         .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener).accept(e));
             } finally {
-                if (inv.isCloseable()) {
+                if (si.isCloseable()) {
                     e.getInventory().clear();
                     cancelUpdateTask(p);
                     //fix - old
-                    inv.getProvider().onClose(p, contents.get(p.getName()));
+                    si.getProvider().onClose(p, contents.get(p.getName()));
                     //
                     inventories.remove(p.getName());
                     contents.remove(p.getName());

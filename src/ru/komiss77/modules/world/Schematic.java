@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.core.BlockPos;
@@ -94,7 +93,7 @@ public class Schematic {
         String bdAsString;
         Levelled lvl;
         String bsAsString;
-        int sLoc;
+        int xyzOffset;
         int count = 0;
 
         BlockState blockState;
@@ -117,19 +116,19 @@ public class Schematic {
             if (mat != Material.AIR) {
                 if (hasSkipMat && scipOnScan.contains(mat)) continue;
 
-                sLoc = xyz.yaw;
+                xyzOffset = xyz.yaw; //НЕ брать offSet(), в Iterator<XYZ> координаты уже другие!!
 
                 switch (mat) {
 
                     case STRUCTURE_VOID -> //принудительно ставим воздух
-                            blocks.put(sLoc, Material.AIR);
+                            blocks.put(xyzOffset, Material.AIR);
 
                     case WATER -> { //запоминаем только воду с уровнем 0
 
                         blockData = Craft.fromNMS(nmsBlockState);//VM.server().getBlockData(nmsBlockState);//nmsBlockState.createCraftBlockData();//VM.getBlockData(nmsBlockState);//CraftBlockData.fromData(nmsBlockState);
                         lvl = (Levelled) blockData;
                         if (lvl.getLevel() == 0) {
-                            blocks.put(sLoc, mat);
+                            blocks.put(xyzOffset, mat);
                         }
                     }
 
@@ -142,7 +141,7 @@ public class Schematic {
                             blockState = world.getBlockState(xyz.x, xyz.y, xyz.z);
                             bsAsString = getStringFromBlockState(blockState); //BlockState не даёт ASYNC если что!
                             if (!bsAsString.isEmpty()) {
-                                blockStates.put(sLoc, bsAsString);
+                                blockStates.put(xyzOffset, bsAsString);
                             }
                         }
                         blockData = Craft.fromNMS(nmsBlockState);//VM.server().getBlockData(nmsBlockState);//nmsBlockState.createCraftBlockData();//VM.getBlockData(nmsBlockState);//CraftBlockData.fromData(nmsBlockState);
@@ -150,10 +149,10 @@ public class Schematic {
                         if (blockData != null) {
                             bdAsString = blockData.getAsString(true);
                             if (bdAsString.endsWith("]")) { //пишем только реальную дату!
-                                blockDatas.put(sLoc, getStringFromBlockData(blockData));
+                                blockDatas.put(xyzOffset, getStringFromBlockData(blockData));
                             }
                         }
-                        blocks.put(sLoc, mat);
+                        blocks.put(xyzOffset, mat);
                     }
 
                 }
@@ -283,17 +282,17 @@ public class Schematic {
                             if (line + 4 > lines.size()) {
                                 break;
                             }
-                            int xyz = Integer.parseInt(lines.get(line));
+                            int xyzOffset = Integer.parseInt(lines.get(line));
                             if (version <= 3) { //переконвертировать координату!!
                                 //в версии 3 делалось так: xyz.yaw = x<<19 | y<<11 | z; - было переполнение Y !!!
-                                x = (xyz >> 19) & 0x7FF; //xxxxxxxx xxxxx000 00000000 00000000   лимит 2047
-                                y = (xyz >> 11) & 0xFF;  //00000000 00000yyy yyyyy000 00000000   лимит 256
-                                z = xyz & 0x7FF;       //00000000 00000000 00000zzz zzzzzzzz   лимит 2047
-                                xyz = x << 20 | y << 10 | z;  //переконвертировать по новой
+                                x = (xyzOffset >> 19) & 0x7FF; //xxxxxxxx xxxxx000 00000000 00000000   лимит 2047
+                                y = (xyzOffset >> 11) & 0xFF;  //00000000 00000yyy yyyyy000 00000000   лимит 256
+                                z = xyzOffset & 0x7FF;       //00000000 00000000 00000zzz zzzzzzzz   лимит 2047
+                                xyzOffset = x << 20 | y << 10 | z;  //переконвертировать по новой, как в методе XYZ.offSet()
                             }
                             mat = Material.matchMaterial(lines.get(line + 1));
                             if (mat != null) {
-                                blocks.put(xyz, mat);
+                                blocks.put(xyzOffset, mat);
                                 if (!lines.get(line + 2).isEmpty()) {
                                     blockDataAsString = lines.get(line + 2);
                                     //фикс - создавал с bds.substring(bds.indexOf("[")+1).replaceFirst("]", "");
@@ -303,11 +302,11 @@ public class Schematic {
                                         //fix = true;
 //Ostrov.log_warn("============"+bd);
                                     }
-                                    blockDatas.put(xyz, blockDataAsString);
+                                    blockDatas.put(xyzOffset, blockDataAsString);
                                     //blockDatas.put(xyz, Bukkit.createBlockData(bd));
                                 }
                                 if (!lines.get(line + 3).isEmpty()) {
-                                    blockStates.put(xyz, lines.get(line + 3));
+                                    blockStates.put(xyzOffset, lines.get(line + 3));
                                 }
                             }
                         }
@@ -463,14 +462,21 @@ public class Schematic {
     }
 
 
-    public BlockData getBlockData(final XYZ shemCoord) {
-        final String str = blockDatas.get(shemCoord.getSLoc());
+    public BlockData getBlockData(final XYZ xyzOffset) {
+        final String str = blockDatas.get(xyzOffset.offSet());
         return str == null ? null : Bukkit.createBlockData(str);
     }
 
     public Material getMaterial(final XYZ shemCoord) {
-        final Material mat = blocks.get(shemCoord.getSLoc());
+        final Material mat = blocks.get(shemCoord.offSet());
         return mat == null ? Material.AIR : mat;
+    }
+
+    public Material setMaterial(final XYZ xyzOffset, final Material mat) {
+        final int sLoc = xyzOffset.offSet();
+        blockDatas.remove(sLoc);
+        blockStates.remove(sLoc);
+        return blocks.replace(sLoc, mat);
     }
 
 
@@ -489,7 +495,7 @@ public class Schematic {
         net.minecraft.world.level.block.state.BlockState nmsBlockState;//IBlockData iBlockData;
         Material worldMaterial;
         Material schematicMaterial;
-        int sLoc;
+        int xyzOffset;
         XYZ xyz;
 
         final CompareResult cr = new CompareResult(cuboid, blocks.size());
@@ -503,8 +509,8 @@ public class Schematic {
             worldMaterial = nmsBlockState.getBukkitMaterial();//= iBlockData.getBukkitMaterial();
 //Ostrov.log("xyz= "+xyz.x+","+xyz.y+","+xyz.z);
 
-            sLoc = xyz.yaw;
-            schematicMaterial = blocks.get(sLoc);
+            xyzOffset = xyz.yaw; //НЕ брать offSet(), в Iterator<XYZ> координаты уже другие!!
+            schematicMaterial = blocks.get(xyzOffset);
 
             if (schematicMaterial == null) { //на этом месте долже быть воздух, но AIR не будет в blocks, т.е. чекаем на null!
                 if (!ignoreAir && worldMaterial != Material.AIR) {
@@ -577,6 +583,30 @@ public class Schematic {
         }
     }
 
+
+    public Schematic copy() {
+        final Schematic s = new Schematic(this.name);
+        s.param = this.param;
+        s.blocks.putAll(this.blocks);
+        s.blockDatas.putAll(this.blockDatas);
+        s.blockStates.putAll(this.blockStates);
+        s.createdEnvironment = this.createdEnvironment;
+        s.createdBiome = this.createdBiome;
+        s.dX = this.dX;
+        s.dY = this.dY;
+        s.dZ = this.dZ;
+        s.spawnAddX = this.spawnAddX;
+        s.spawnAddY = this.spawnAddY;
+        s.spawnAddZ = this.spawnAddZ;
+        s.spawnYaw = this.spawnYaw;
+        s.spawnPitch = this.spawnPitch;
+        s.ready = true;
+        return s;
+    }
+
+    private Schematic(final String name) {
+        this.name = name;
+    }
 
 }
 

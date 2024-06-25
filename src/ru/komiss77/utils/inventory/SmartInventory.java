@@ -17,6 +17,14 @@ import org.bukkit.event.inventory.InventoryType;
 //слоты сундука https://wiki.vg/Inventory
 //https://github.com/MinusKube/SmartInvs
 
+//Обнова открытых менюшек
+//for (Player p : BB.globalLobby.getWorld().getPlayers()) { //обнова только тем, кто открыл меню в лобби
+//            InventoryManager.getInventory(p).filter(si -> si.getId().equals("arenaSelect")).ifPresent(si -> {
+//                si.getHandle().setItem(slot, icon);
+//            });
+//        }
+
+
 public class SmartInventory {
 
 
@@ -33,6 +41,9 @@ public class SmartInventory {
     protected Inventory handle;
     //private final InventoryManager manager;
 
+    public Inventory getHandle() {
+        return handle;
+    }
 
     private SmartInventory() {
         //this.manager = InventoryManager;//manager;

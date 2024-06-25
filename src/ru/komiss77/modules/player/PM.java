@@ -165,7 +165,7 @@ public class PM {
 
     //-создать оп сразу, пермишены и прочее зависимое от player пересчитать когда player будет не null, или бывает так:
     public static void bungeeDataHandle(final Player p, final Oplayer op, final String raw) { //всё сразу
-
+//Ostrov.log_warn("bungeeDataHandle raw="+raw);
         op.dataString.put(Data.NAME, op.nik);
 
         int enumTag;
