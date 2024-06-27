@@ -1,5 +1,6 @@
 package ru.komiss77;
 
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
@@ -133,19 +134,20 @@ public class Ostrov extends JavaPlugin {
     public static void registerChanels() {
         log_ok ("§5===== Регистрация каналов Proxy =====");
         for (final Chanell ch : Chanell.values()) {
-            instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name );
-            instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg() );
+            instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
+            instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
         }
     }
 
     public static void regCommand(final OCommand cmd) {
       mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
         event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
-        /*
-        final String player = "player", xp = "xp";
-        commands.register(
+        /*final String player = "player", xp = "xp";
+        event.registrar().register(
           Commands.literal("tellxp")
-            .then(Resolver.player(player)
+            .then(Resolver.player(player).suggests((cntx, sb) -> {
+              return CompletableFuture.completedFuture(sb.suggest(cntx.getSource().getSender().getName()).build());
+              })
               .executes(cntx-> {
                 if (cntx.getSource().getExecutor() instanceof final Player pl) {
                   final Player opl = Resolver.player(cntx, player);
@@ -172,8 +174,9 @@ public class Ostrov extends JavaPlugin {
 
   public static void regCommands(final OCommand... cmds) {
     mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+      final Commands commands = event.registrar();
       for (final OCommand cmd : cmds) {
-        event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
+        commands.register(cmd.command(), cmd.description(), cmd.aliases());
       }
     });
   }
