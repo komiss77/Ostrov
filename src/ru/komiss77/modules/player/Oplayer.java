@@ -393,7 +393,7 @@ public class Oplayer {
         int curr_level = getStat(Stat.LEVEL);
         int lvlAdd = 0; //расчёт, сколько добавится уровня
         int xpCache = value + getStat(Stat.EXP);
-//System.out.println("addExp "+p.getName()+":"+value+" curr_level="+curr_level+" xpCache="+xpCache);
+//System.out.println("addExp "+p.name()+":"+value+" curr_level="+curr_level+" xpCache="+xpCache);
         if (xpCache>=curr_level*25) { //опыта достаточно для след.уровня
 	        for ( ;xpCache >= (curr_level+lvlAdd)*25; lvlAdd++ ) { //делаем грубый расчёт добавленных уровней
                 xpCache -= (curr_level+lvlAdd)*25; //сначала убавить опыт со старым lvlAdd!

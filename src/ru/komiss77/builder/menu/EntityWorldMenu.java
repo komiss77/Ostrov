@@ -158,10 +158,10 @@ public class EntityWorldMenu implements InventoryProvider {
             group = en.getKey();
             reopen(p, contents);
             /*SmartInventory.builder()
-              .id("EntityByGroup" + p.getName())
+              .id("EntityByGroup" + p.name())
               .provider(new EntityChunkMenu(world, radius, en.getKey()))
               .size(6, 9)
-              .title("§2" + world.getName() + " " + en.getKey().displayName + " §1r=" + radius)
+              .title("§2" + world.name() + " " + en.getKey().displayName + " §1r=" + radius)
               .build()
               .open(p);*/
           } else {
@@ -410,10 +410,10 @@ public class EntityWorldMenu implements InventoryProvider {
             .build(), e -> {
                 if (e.isLeftClick()) {
                     SmartInventory.builder()
-                            .id("EntityByGroup"+p.getName())
+                            .id("EntityByGroup"+p.name())
                             . provider(new EntityByGroup(world, radius, EntityGroup.MONSTER))
                             . size(6, 9)
-                            . title("§2"+world.getName()+" "+EntityGroup.MONSTER.displayName+" §1r="+radius).build()
+                            . title("§2"+world.name()+" "+EntityGroup.MONSTER.displayName+" §1r="+radius).build()
                             .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
@@ -440,7 +440,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.CREATURE)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.CREATURE.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, EntityGroup.CREATURE)). size(6, 9). title("§2"+world.name()+" "+EntityGroup.CREATURE.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.CREATURE) {
@@ -464,7 +464,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_CREATURE)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.WATER_CREATURE.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_CREATURE)). size(6, 9). title("§2"+world.name()+" "+EntityGroup.WATER_CREATURE.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.WATER_CREATURE) {
@@ -490,7 +490,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.AMBIENT)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.AMBIENT.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, EntityGroup.AMBIENT)). size(6, 9). title("§2"+world.name()+" "+EntityGroup.AMBIENT.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.AMBIENT) {
@@ -514,7 +514,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_AMBIENT)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.WATER_AMBIENT.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, EntityGroup.WATER_AMBIENT)). size(6, 9). title("§2"+world.name()+" "+EntityGroup.WATER_AMBIENT.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.WATER_AMBIENT) {
@@ -536,7 +536,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .addLore("§7")
             .build(), e -> {
                 if (e.isLeftClick()) {
-                    SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, EntityGroup.UNDEFINED)). size(6, 9). title("§2"+world.getName()+" "+EntityGroup.UNDEFINED.displayName+" §1r="+radius).build() .open(p);
+                    SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, EntityGroup.UNDEFINED)). size(6, 9). title("§2"+world.name()+" "+EntityGroup.UNDEFINED.displayName+" §1r="+radius).build() .open(p);
                 } else if (e.getClick()==ClickType.SHIFT_RIGHT && ApiOstrov.isLocalBuilder(p, false)) {
                     for (final Entity entity : world.getEntities()) {
                         if (EntityUtil.group(entity)==EntityGroup.UNDEFINED) {

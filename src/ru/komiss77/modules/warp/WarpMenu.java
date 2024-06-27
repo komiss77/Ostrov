@@ -345,7 +345,7 @@ public class WarpMenu implements InventoryProvider {
            /*     
             case 2:
                 if (Warps.Warp_exist(a[0])) {
-                    if ( ApiOstrov.isLocalBuilder(p, true) || Warps.Get_owner(a[0]).equals(p.getName()) ) {
+                    if ( ApiOstrov.isLocalBuilder(p, true) || Warps.Get_owner(a[0]).equals(p.name()) ) {
                        /* switch (a[1]) {
                             case "on":
                             case "off":

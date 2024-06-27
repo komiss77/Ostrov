@@ -116,7 +116,7 @@ public class Nms {
     //io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
     //  chatKey, ch -> {
 //Ostrov.log_warn("afterInitChannel ="+ch.remoteAddress());
-        //channel.pipeline().addBefore("packet_handler", "ostrov_"+p.getName(), in);
+        //channel.pipeline().addBefore("packet_handler", "ostrov_"+p.name(), in);
      // }
    // );
 
@@ -208,7 +208,7 @@ public class Nms {
 
   public static void pathServer() {
     final MinecraftServer srv = MinecraftServer.getServer();
-    final com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher = srv.vanillaCommandDispatcher.getDispatcher();
+    final com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher = srv.getCommands().getDispatcher();
     final RootCommandNode<CommandSourceStack> root = dispatcher.getRoot();
 
     try {

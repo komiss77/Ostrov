@@ -210,7 +210,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
         	final World nw = WorldManager.create(sender, arg[1], env, Generator.fromString(arg[3]), true);
         	if (nw == null) {
                     sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был создан... ");
-                } //else wnames.put(arg[1], nw.getName());
+                } //else wnames.put(arg[1], nw.name());
             return true;
             
             
@@ -348,7 +348,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
         	if (nw == null) {
                     sender.sendMessage(Ostrov.PREFIX+"Мир "+arg[1]+" не был загружен... ");
                 }
-        	//else wnames.put(arg[1], nw.getName());
+        	//else wnames.put(arg[1], nw.name());
             return true;
             
             
@@ -439,7 +439,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
                     	if (nw == null) {
                             sender.sendMessage(Ostrov.PREFIX+"Мир "+wfile.getName()+" не был восстановлен... ");
                         }
-                    	//else wnames.put("backup-" + world.getName(), nw.getName());
+                    	//else wnames.put("backup-" + world.name(), nw.name());
                         sender.sendMessage(Ostrov.PREFIX+"Мир §b"+wfile.getName()+"§aвосстановлен из копии за §5"+(System.currentTimeMillis() - currentTimeMillis) + "ms!");
                     });
                 }
@@ -526,7 +526,7 @@ public class WorldManagerCmd implements CommandExecutor, TabCompleter {
     
 
     public static void copyFile(final File source, final File destination) {
-        //if (!new ArrayList(Arrays.asList("session.dat")).contains(source.getName())) {
+        //if (!new ArrayList(Arrays.asList("session.dat")).contains(source.name())) {
         if (source.isDirectory()) {
             if (!destination.exists()) {
                 destination.mkdirs();

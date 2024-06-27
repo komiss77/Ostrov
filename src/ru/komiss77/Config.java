@@ -8,6 +8,7 @@ import java.util.Calendar;
 import org.bukkit.GameMode;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.entities.EntityManager;
+import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.OstrovConfigManager;
@@ -141,6 +142,7 @@ public class Config {
         quests= ostrovConfig.getBoolean("modules.quests");
         BotManager.enable= ostrovConfig.getBoolean("modules.bots");
         EntityManager.enable= ostrovConfig.getBoolean("modules.entities");
+        ItemManager.enable= ostrovConfig.getBoolean("modules.materials");
         SignProtectLst.enable= ostrovConfig.getBoolean("modules.signProtect");
 
     }    
@@ -206,6 +208,7 @@ public static void loadConfigs () {
     ostrovConfig.addDefault("modules.quests", false);
     ostrovConfig.addDefault("modules.bots", false);
     ostrovConfig.addDefault("modules.entities", false);
+    ostrovConfig.addDefault("modules.materials", false);
     ostrovConfig.addDefault("modules.signProtect", false);
 
 

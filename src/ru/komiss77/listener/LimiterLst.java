@@ -193,7 +193,7 @@ public final class LimiterLst implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDisconnect(PlayerQuitEvent e) {
-        //if (vehicleInfo.containsKey(e.getPlayer().getName())) {
+        //if (vehicleInfo.containsKey(e.getPlayer().name())) {
             //final VehicleInfo vi = getVehicleInfo(e.getPlayer());
             vehicleInfo.remove(e.getPlayer().getName());
         //}

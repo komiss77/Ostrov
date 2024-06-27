@@ -37,11 +37,11 @@ public class EntityCmd implements Listener, CommandExecutor {
      /* if (ApiOstrov.isLocalBuilder(cs, false)) { только через билдера!
         SmartInventory
           .builder()
-          .id("EntityMain"+p.getName())
+          .id("EntityMain"+p.name())
           .provider(new EntityWorldMenu(p.getWorld(), -1))
           .size(6, 9)
           .title("§2Сущности "+p.getWorld()
-          .getName())
+          .name())
           .build()
           .open(p);
         return true;
@@ -588,10 +588,10 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.MONSTER))
           . size(6, 9)
-          . title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.MONSTER.displayName+" §1r="+radius)
+          . title("§2"+world.name()+" "+ EntityUtil.EntityGroup.MONSTER.displayName+" §1r="+radius)
           .build()
           .open(p);
       }
@@ -610,9 +610,9 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.CREATURE))
-          . size(6, 9). title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.CREATURE.displayName+" §1r="+radius)
+          . size(6, 9). title("§2"+world.name()+" "+ EntityUtil.EntityGroup.CREATURE.displayName+" §1r="+radius)
           .build()
           .open(p);
       }
@@ -631,9 +631,9 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.WATER_CREATURE))
-          . size(6, 9). title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.WATER_CREATURE.displayName+" §1r="+radius)
+          . size(6, 9). title("§2"+world.name()+" "+ EntityUtil.EntityGroup.WATER_CREATURE.displayName+" §1r="+radius)
           .build()
           .open(p);
       }
@@ -652,10 +652,10 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.AMBIENT))
           . size(6, 9)
-          . title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.AMBIENT.displayName+" §1r="+radius)
+          . title("§2"+world.name()+" "+ EntityUtil.EntityGroup.AMBIENT.displayName+" §1r="+radius)
           .build()
           .open(p);
       }
@@ -674,10 +674,10 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.WATER_AMBIENT))
           . size(6, 9)
-          . title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.WATER_AMBIENT.displayName+" §1r="+radius)
+          . title("§2"+world.name()+" "+ EntityUtil.EntityGroup.WATER_AMBIENT.displayName+" §1r="+radius)
           .build()
           .open(p);
       }
@@ -694,10 +694,10 @@ class EntityTypeView implements InventoryProvider {
       .build(), e -> {
       if (e.isLeftClick()) {
         SmartInventory.builder()
-          .id("EntityByGroup"+p.getName())
+          .id("EntityByGroup"+p.name())
           . provider(new EntityGroupView(world, radius, EntityUtil.EntityGroup.UNDEFINED))
           . size(6, 9)
-          . title("§2"+world.getName()+" "+ EntityUtil.EntityGroup.UNDEFINED.displayName+" §1r="+radius)
+          . title("§2"+world.name()+" "+ EntityUtil.EntityGroup.UNDEFINED.displayName+" §1r="+radius)
           .build()
           .open(p);
       }

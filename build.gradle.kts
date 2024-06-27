@@ -1,7 +1,7 @@
 plugins {
   `java-library`
   //`maven-publish`
-  id("io.papermc.paperweight.userdev") version "1.7.0"
+  id("io.papermc.paperweight.userdev") version "1.7.1"
   id("xyz.jpenilla.run-paper") version "2.3.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -11,7 +11,7 @@ version = "3.0"
 description = "ostrov77"
 
 dependencies {
-  paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+  paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
   compileOnly(fileTree("libs"))// api(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.1.1")
   annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
@@ -75,8 +75,9 @@ tasks {
       exclude(dependency("org.slf4j:slf4j-api:.*"))
       exclude(dependency("com.google.code.gson:gson:.*"))
     }
-    relocate("redis.clients.jedis", "ru.komiss77.modules.redis.jedis")
-    relocate("redis.clients.util", "ru.komiss77.modules.redis.jedisutil")
+    mergeServiceFiles()
+    /*relocate("redis.clients.jedis", "ru.komiss77.modules.redis.jedis")
+    relocate("redis.clients.util", "ru.komiss77.modules.redis.jedisutil")*/
     //minimize()
   }
 }

@@ -793,13 +793,13 @@ public class ProfileManager {
 
         final List<ClickableItem> buttons = new ArrayList<>();
 
-        //ItemUtils.Set_lore(bed, "§fВ этом привате вы пользователь!",   "§6Название: §b"+rg.getId(),   "§6Координаты: §7"+h_loc.getWorld().getName()+", "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - подробно" );
-        // ItemUtils.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().getName()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), (allow_rg_tp)?"§aЛевый клик - §2ТП В ЭТОТ ПРИВАТ":"§aЛевый клик - подробно", "§6Правый клик - §4УДАЛИТЬ" );
+        //ItemUtils.Set_lore(bed, "§fВ этом привате вы пользователь!",   "§6Название: §b"+rg.getId(),   "§6Координаты: §7"+h_loc.getWorld().name()+", "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - подробно" );
+        // ItemUtils.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().name()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), (allow_rg_tp)?"§aЛевый клик - §2ТП В ЭТОТ ПРИВАТ":"§aЛевый клик - подробно", "§6Правый клик - §4УДАЛИТЬ" );
         final Map<ProtectedRegion, String> regions = WGhook.findPlayerRegions(p, null, true, true);
         final LocalPlayer lp = WorldGuardPlugin.inst().wrapPlayer(p);
 
         for (final ProtectedRegion rg : regions.keySet()) {
-            //buttons.add( ClickableItem.empty(new ItemBuilder( rg.isOwner(p.getName()) ? Material.WARPED_FENCE : Material.CHAINMAIL_BOOTS )
+            //buttons.add( ClickableItem.empty(new ItemBuilder( rg.isOwner(p.name()) ? Material.WARPED_FENCE : Material.CHAINMAIL_BOOTS )
             buttons.add(ClickableItem.empty(new ItemBuilder(rg.isOwner(lp) ? Material.WARPED_FENCE : Material.CHAINMAIL_BOOTS)
                     .name("§e" + rg.getId())
                     .addLore("")

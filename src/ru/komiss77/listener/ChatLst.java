@@ -93,7 +93,7 @@ public class ChatLst implements Listener {
     //режим ввода из чата
     if ( (senderOp!=null && PlayerInput.inputData.containsKey(sender)  && PlayerInput.inputData.get(sender).type==InputButton.InputType.CHAT) ) {
       e.viewers().clear();
-      //PlayerInput.onInput(sender.getName(), InputButton.InputType.CHAT, TCUtils.toString(e.message()));
+      //PlayerInput.onInput(sender.name(), InputButton.InputType.CHAT, TCUtils.toString(e.message()));
       //Could not pass event AsyncChatEvent to Ostrov v2.0 java.lang.IllegalStateException: InventoryOpenEvent may only be triggered synchronously.
       Ostrov.sync( ()-> PlayerInput.onInput(sender, InputButton.InputType.CHAT, TCUtils.toString(e.message())));
       return;

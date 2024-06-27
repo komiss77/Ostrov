@@ -257,7 +257,7 @@ public final class KitManager implements Initiable {
 
     //System.out.println("Kit_delay "+(Kit_delay(kit))); 
     //System.out.println("Curr time "+(System.currentTimeMillis()/1000)); 
-    //System.out.println("Kit_last_acces "+PM.Kit_last_acces(p.getName(),kit)); 
+    //System.out.println("Kit_last_acces "+PM.Kit_last_acces(p.name(),kit));
         int secondLeft = getSecondLetf(player, kit);
     //System.out.println("left "+left); 
 
@@ -272,7 +272,7 @@ public final class KitManager implements Initiable {
 
         }
     //System.out.println("Is_need_get_payment "+Is_need_get_payment(kit)); 
-    //System.out.println("bal "+PM.OP_GetBalance(p.getName())); 
+    //System.out.println("bal "+PM.OP_GetBalance(p.name()));
     //System.out.println("Kit_give_cost "+Kit_give_cost(kit)); 
 
         if ( kit.getPrice>0 && (ApiOstrov.moneyGetBalance(player.getName()) < kit.getPrice )) {
@@ -288,9 +288,9 @@ public final class KitManager implements Initiable {
     }
 
     public static int getSecondLetf(final Player player, final Kit kit) {
-//System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) )+
-        //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) ))) ); 
-        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name)  ) ;
+//System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) )+
+        //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) ))) );
+        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.name(), kit.name)  ) ;
         final Oplayer op = PM.getOplayer(player);
         return kit.delaySec - ( ApiOstrov.currentTimeSec() - op.getKitUseStamp(kit.name) )  ;
     }

@@ -1,19 +1,17 @@
 package ru.komiss77;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.RegisterCommands;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.GlobalLogType;
@@ -23,22 +21,28 @@ import ru.komiss77.listener.*;
 import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.Nms;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 
 public class Ostrov extends JavaPlugin {
-    
+
     public static Ostrov instance;
+    public static LifecycleEventManager<Plugin> mgr;
     public static final Random random;
     public static final String L = "Ł";
     public static final String PREFIX = "§2[§aОстров§2] §f";
     public static final String MOT_D;
     public static int server_id = -1;
-    
+
     private static final Map <String, Initiable> modules;
     public static boolean newDay, vault, dynmap, wg, advance;
     public static boolean SHUT_DOWN; //по этому плагу другие плагины не будут сохранять данные асинх   org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled
@@ -47,29 +51,25 @@ public class Ostrov extends JavaPlugin {
     private static final Date date;
     private static final SimpleDateFormat full_sdf;
 
-
-  static {
-        random = new Random();
-        modules = new HashMap<>();//EnumMap(Object.class);
-        calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-        date = new java.util.Date(System.currentTimeMillis());
-        full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
-        MOT_D = TCUtils.toString(Bukkit.motd());
+    static {
+      random = new Random();
+      modules = new HashMap<>();//EnumMap(Object.class);
+      calendar = Calendar.getInstance();
+      calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+      date = new java.util.Date(System.currentTimeMillis());
+      full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
+      MOT_D = TCUtils.deform(Bukkit.motd());
     }
-
-    
     
     @Override
     public void onLoad() {
         instance = this;
+        mgr = instance.getLifecycleManager();
         Config.init(); // 1 !
         Nms.pathServer();
         Nms.chatFix();
     }
-    
-  
-    
+
     @Override
     public void onEnable() {
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
@@ -94,9 +94,9 @@ public class Ostrov extends JavaPlugin {
             return;
         }
 
-        registerListeners();
+        regListeners();
         
-        Bukkit.getOnlinePlayers().stream().forEach(PM::createOplayer);
+        Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
 
         LocalDB.init();// выполнится синхронно, если нет коннекта-подвиснет! выше есть для auth
 
@@ -107,10 +107,6 @@ public class Ostrov extends JavaPlugin {
         log_ok ("§2Остров готов к работе!");
 
     }
- 
-    
-    
-    
     
     @Override
     public void onDisable() {
@@ -118,14 +114,9 @@ public class Ostrov extends JavaPlugin {
         HandlerList.unregisterAll(instance);
         OstrovDB.Disconnect();
         if (MOT_D.length()==3) return;
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (final Player p : Bukkit.getOnlinePlayers()) {
             PM.onLeave(p, false);
         }
-        //if (PM.hasOplayers()) {
-            //for (Oplayer op : PM.getOplayers()) {
-                //op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
-            //}
-        //}
         if (LocalDB.useLocalData) {
             LocalDB.Disconnect();
         }
@@ -137,21 +128,58 @@ public class Ostrov extends JavaPlugin {
             (module) ->  (module).onDisable()
         );
         log_ok("§4Остров выгружен!");
-    }  
-
+    }
     
-    
-    
-    public static void registerChanels () {
+    public static void registerChanels() {
         log_ok ("§5===== Регистрация каналов Proxy =====");
         for (final Chanell ch : Chanell.values()) {
             instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name );
             instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg() );
         }
     }
+
+    public static void regCommand(final OCommand cmd) {
+      mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+        event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
+        /*
+        final String player = "player", xp = "xp";
+        commands.register(
+          Commands.literal("tellxp")
+            .then(Resolver.player(player)
+              .executes(cntx-> {
+                if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                  final Player opl = Resolver.player(cntx, player);
+
+                  pl.sendMessage("Player " + opl + " has " + opl.getTotalExperience() + " exp points!");
+                }
+                return Command.SINGLE_SUCCESS;
+              })
+              .then(Resolver.integer(xp, 0)
+                .executes(cntx -> {
+                  if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                    final Player opl = Resolver.player(cntx, player);
+                    final int value = Resolver.integer(cntx, xp);
+
+                    pl.sendMessage("Player " + opl + " needs " + value + " exp points!");
+                  }
+                  return Command.SINGLE_SUCCESS;
+              }))).build(),
+          "Experience tell command",
+          List.of("texp")
+        );*/
+      });
+    }
+
+  public static void regCommands(final OCommand... cmds) {
+    mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+      for (final OCommand cmd : cmds) {
+        event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
+      }
+    });
+  }
+
     
-    
-    public static void registerListeners() {
+    public static void regListeners() {
         log_ok ("");
         log_ok ("§5===== Регистрация слушателей : onEnable =====");
         Bukkit.getPluginManager().registerEvents(new ChatLst(), instance);
@@ -181,7 +209,7 @@ public class Ostrov extends JavaPlugin {
         GM.onWorldsLoadDone(); //прописать состояние серверов на таблички
         //Bukkit.getPluginManager().registerEvents(GM.gmListener, Ostrov.instance);
         
-        modules.values().stream().forEach( 
+        modules.values().forEach(
             (module) ->  {
                 try {
                     (module).postWorld();
@@ -191,7 +219,7 @@ public class Ostrov extends JavaPlugin {
             }
         );
 
-        Bukkit.getPluginManager().callEvent(new WorldsLoadCompleteEvent()); // оповестить остальные плагины
+        new WorldsLoadCompleteEvent().callEvent(); // оповестить остальные плагины
         Ostrov.STARTUP = false;
         
         switch (GM.GAME) {
@@ -232,7 +260,7 @@ public class Ostrov extends JavaPlugin {
 
      
     @Override
-    public boolean onCommand(CommandSender cs, Command comm, String s, String[] arg) {
+    public boolean onCommand(CommandSender cs, org.bukkit.command.Command comm, String s, String[] arg) {
         return CMD.CommandHamdler(cs, comm, s, arg);
     }
      
@@ -310,15 +338,6 @@ public class Ostrov extends JavaPlugin {
     public static Calendar getCalendar() {
         return calendar;
     }
-
-
-
-
-
-
-
-
-
 
 
 

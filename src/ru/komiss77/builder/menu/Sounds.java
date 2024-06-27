@@ -260,7 +260,7 @@ public class Sounds implements InventoryProvider {
        
         content.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e -> 
             p.closeInventory()
-            //SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntytyGroup(type))). size(6, 9). title("§2"+world.getName()+" "+VM.getNmsEntitygroup().getEntytyGroup(type).displayName+" §1r="+radius).build() .open(p)
+            //SmartInventory.builder().id("EntityByGroup"+p.name()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntytyGroup(type))). size(6, 9). title("§2"+world.name()+" "+VM.getNmsEntitygroup().getEntytyGroup(type).displayName+" §1r="+radius).build() .open(p)
         ));
         
 

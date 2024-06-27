@@ -111,7 +111,7 @@ public class FigureListener implements Listener{
                 case COMMAND:
                     runCmd(p, figure.leftclickcommand);
                     SpeachManager.animate(p, figure);
-    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.getName()) );
+    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.name()) );
                     break;
 
                 case EVENT:
@@ -219,13 +219,13 @@ public class FigureListener implements Listener{
                             runCmd(p, figure.rightclickcommand);
                         }
                     });
-    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.getName()) );
+    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.name()) );
                     break;
 
                 case COMMAND:
                     runCmd(p, figure.rightclickcommand);
                     SpeachManager.animate(p, figure);
-    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.getName()) );
+    //System.out.println( "rightclickcommand="+rightclickcommand.replaceAll("%player%",p.name()) );
                     break;
 
                 case EVENT:
@@ -362,7 +362,7 @@ public class FigureListener implements Listener{
         //final Figure fig = FigureManager.getFigure(e.getEntity());
 //System.out.println("-onLeftClick fig="+fig);   
         Figure figure = FigureManager.getFigure(e.getEntity());
-//System.out.println(figure==null ? "figure==null" : "EntityTeleportEvent  figure="+figure.getName()+" allow?"+figure.allowTp);
+//System.out.println(figure==null ? "figure==null" : "EntityTeleportEvent  figure="+figure.name()+" allow?"+figure.allowTp);
         if (figure==null || figure.allowTp) return; //обработчик могли удалить
         final Location loc = figure.getSpawnLocation();
         if (loc!=null) e.setTo(loc);

@@ -70,7 +70,7 @@ public class KitGuiMain implements InventoryProvider{
                 
             } else if ( kit.accesBuyPrice==0 ) {
                 
-                //if (PM.Kit_has_acces(player.getName(), kit.name)) {
+                //if (PM.Kit_has_acces(player.name(), kit.name)) {
                     
                     final int secondLeft = KitManager.getSecondLetf(player, kit);
                     if (secondLeft>0) {

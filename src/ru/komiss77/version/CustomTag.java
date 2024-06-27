@@ -103,12 +103,12 @@ public class CustomTag {
             }
 
             if (tgt instanceof final Player pl) {
-//Ostrov.log("CustomTag sendPacket real=true "+pl.getName());
+//Ostrov.log("CustomTag sendPacket real=true "+pl.name());
               Nms.sendPacket(pl, packet);
             }
         } else {
             for (final Player p : tgt.getWorld().getPlayers()) {
-//Ostrov.log("CustomTag sendPacket real=false "+p.getName());
+//Ostrov.log("CustomTag sendPacket real=false "+p.name());
               Nms.sendPacket(p, canSee.test(p) ? packet : not);
             }
         }

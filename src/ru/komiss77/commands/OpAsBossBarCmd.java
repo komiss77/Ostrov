@@ -131,10 +131,10 @@ public class OpAsBossBarCmd implements Listener, CommandExecutor, TabCompleter {
 
             for (final Player p : Bukkit.getOnlinePlayers()) {
                 
-                if ( p.getName().equals(player.getName()) || p.getGameMode()==GameMode.SPECTATOR ||  p.hasPermission("ostrov.spy")) continue;
+                if ( p.name().equals(player.name()) || p.getGameMode()==GameMode.SPECTATOR ||  p.hasPermission("ostrov.spy")) continue;
 
                 final ItemStack icon = new ItemBuilder(Material.PLAYER_HEAD)
-                        .name("§f"+p.getName())
+                        .name("§f"+p.name())
                         .lore("")
                         .lore("")
                         .build();
@@ -142,7 +142,7 @@ public class OpAsBossBarCmd implements Listener, CommandExecutor, TabCompleter {
                 menuEntry.add(ClickableItem.of(icon, e -> {
                     if (e.isLeftClick() ) {
                         player.closeInventory();
-                        player.performCommand("spy "+p.getName());
+                        player.performCommand("spy "+p.name());
                     } else {
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                     }

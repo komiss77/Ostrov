@@ -351,7 +351,7 @@ public class Schematic {
             ready = true;
             if (deleteFile) {
                 schemFile.delete();
-//Ostrov.log("schemFile delete "+schemFile.getName()+":"+schemFile.getAbsolutePath());
+//Ostrov.log("schemFile delete "+schemFile.name()+":"+schemFile.getAbsolutePath());
             }
         }
         

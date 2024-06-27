@@ -92,7 +92,7 @@ public class HomeCmd implements CommandExecutor, TabCompleter {
                 p.sendMessage( "§c"+Lang.t(p, "У Вас нет дома! Установите его командой")+" /sethome");
                 return true;
             } else  if (op.homes.size()>1) {
-            //p.sendMessage( "§bУ Вас несколько домов, выберите нужный: §6"+PM.OP_GetHomeList(p.getName()).toString().replaceAll("\\[|\\]", "") );
+            //p.sendMessage( "§bУ Вас несколько домов, выберите нужный: §6"+PM.OP_GetHomeList(p.name()).toString().replaceAll("\\[|\\]", "") );
             	final TextComponent.Builder homes = Component.text().content("§a"+Lang.t(p, "В какой дом вернуться? "));
                 for (final String homeName : op.homes.keySet()) {
                     homes.append(Component.text("§b- §e"+homeName+" ")
@@ -179,7 +179,7 @@ public class HomeCmd implements CommandExecutor, TabCompleter {
     
     /*private static void openMenu(final Player p) {
         SmartInventory.builder()
-            .id("WarpMenu"+p.getName())
+            .id("WarpMenu"+p.name())
             .provider(new WarpMenu())
             .size(6, 9)
             .title("§fМеста")

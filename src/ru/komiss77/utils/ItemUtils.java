@@ -1,23 +1,10 @@
 package ru.komiss77.utils;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.function.BiPredicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import java.net.URI;
 import com.google.gson.Gson;
+import io.papermc.paper.registry.RegistryKey;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Color;
-import org.bukkit.EntityEffect;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -29,31 +16,29 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.ColorableArmorMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.Bukkit;
 import org.bukkit.profile.PlayerTextures;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.enchants.CustomEnchant;
-import ru.komiss77.modules.items.ItemClass;
+import ru.komiss77.modules.items.ItemTypes;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
+
+import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.BiPredicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 public class ItemUtils {
@@ -743,12 +728,11 @@ public class ItemUtils {
       return builder.build();
     }
 
-//System.out.println("2 itemstack="+itemstack);
     for (int i = 1; i < splittedParametrs.size(); ++i) {
 
-      final String[] splittedParam = splittedParametrs.get(i).trim().split(":");
-      if (splittedParam.length == 1) {
-        switch (splittedParam[0].trim().toLowerCase()) {
+      final String[] parameter = splittedParametrs.get(i).trim().split(":");
+      if (parameter.length == 1) {
+        switch (parameter[0].trim().toLowerCase()) {
           case "end", "unbreakable":
             break;
           default:
@@ -757,72 +741,64 @@ public class ItemUtils {
         }
       }
 
-      //System.out.println("--"+temp[j]);
       try {
 
-        switch (splittedParam[0].trim().toLowerCase()) {
+        switch (parameter[0].trim().toLowerCase()) {
 
           case "name":
-            if (splittedParam.length == 2) {
-              builder.name(splittedParam[1].replace('&', '§'));
+            if (parameter.length == 2) {
+              builder.name(parameter[1].replace('&', '§'));
             } else {
-              Ostrov.log_warn("Декодер name : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер name : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
 
           case "lore":
-            if (splittedParam.length > 1) {
-              final List<Component> lrs = new ArrayList<>();
-              for (int j = 1; j < splittedParam.length; j++) {
-                lrs.add(TCUtils.format(splittedParam[j].replace('&', '§')));
-              }
-              builder.addLore(lrs);
-              //builder.addLore(splittedParametrs.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
-            } else {
-              Ostrov.log_warn("Декодер lore : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+            final List<Component> lrs = new ArrayList<>();
+            for (int j = 1; j < parameter.length; j++) {
+              lrs.add(TCUtils.form(parameter[j].replace('&', '§')));
             }
+            builder.addLore(lrs);
             break;
 
           case "color":
-            if (splittedParam.length == 4) {
-              if (ApiOstrov.isInteger(splittedParam[1]) && ApiOstrov.isInteger(splittedParam[2]) && ApiOstrov.isInteger(splittedParam[3])) {
-                builder.setColor(Color.fromRGB(Integer.parseInt(splittedParam[1]), Integer.parseInt(splittedParam[2]), Integer.parseInt(splittedParam[3])));
+            if (parameter.length == 4) {
+              if (ApiOstrov.isInteger(parameter[1]) && ApiOstrov.isInteger(parameter[2]) && ApiOstrov.isInteger(parameter[3])) {
+                builder.setColor(Color.fromRGB(Integer.parseInt(parameter[1]), Integer.parseInt(parameter[2]), Integer.parseInt(parameter[3])));
               } else {
-                Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[1] + " " + splittedParam[2] + " " + splittedParam[3]);
+                Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, должны быть числа §f" + parameter[1] + " " + parameter[2] + " " + parameter[3]);
               }
             } else {
-              Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
 
           case "model", "custommodeldata":
-            if (splittedParam.length == 2) {
-              if (ApiOstrov.isInteger(splittedParam[1])) {
-                int modelData = Integer.parseInt(splittedParam[1]);
+            if (parameter.length == 2) {
+              if (ApiOstrov.isInteger(parameter[1])) {
+                int modelData = Integer.parseInt(parameter[1]);
                 if (modelData < 0) {
                   modelData = 0;
                 }
                 builder.setModelData(modelData);
               } else {
-                Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[1]);
+                Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, должны быть числа §f" + parameter[1]);
               }
             } else {
-              Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
 
           case "itemflag":
-            if (splittedParam.length > 1) {
-              for (int j = 1; j < splittedParam.length; j++) {
-                final ItemFlag itemFlag = ItemFlag.valueOf(splittedParam[j]);
-                if (itemFlag == null) {
-                  Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, нет такого флага §f" + splittedParam[j]);
-                  continue;
-                }
-                builder.addFlags(itemFlag);
+            for (int j = 1; j < parameter.length; j++) {
+              final ItemFlag itemFlag;
+              try {
+                itemFlag = ItemFlag.valueOf(parameter[j]);
+              } catch (IllegalArgumentException e) {
+                Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, нет такого флага §f" + parameter[j]);
+                continue;
               }
-            } else {
-              Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              builder.addFlags(itemFlag);
             }
             break;
 
@@ -831,66 +807,60 @@ public class ItemUtils {
             break;
 
           case "attribute":
-            if (splittedParam.length == 5) {
+            if (parameter.length == 5) {
               final double mod;
               final int op;
               try {
-                mod = Double.parseDouble(splittedParam[2]);
-                op = Integer.parseInt(splittedParam[3]);
+                mod = Double.parseDouble(parameter[2]);
+                op = Integer.parseInt(parameter[3]);
               } catch (NumberFormatException e) {
                 Ostrov.log_warn("Декодер attribute : §7строка >§f" + item + "§7<, неверные числа §f");
                 break;
               }
-              builder.setAttribute(Attribute.valueOf(splittedParam[1]), mod, Operation.values()[op],
-                splittedParam[4].equals("ANY") ? null : EquipmentSlot.valueOf(splittedParam[4]));
+              final EquipmentSlotGroup esg = EquipmentSlotGroup.getByName(parameter[4]);
+              builder.setAttribute(Attribute.valueOf(parameter[1]), mod, Operation.values()[op],
+                esg == null ? EquipmentSlotGroup.ANY : esg);
             }
             break;
 
           case "skulltexture":
-            if (splittedParam.length == 2) {
-              builder.setCustomHeadTexture(splittedParam[1]);
+            if (parameter.length == 2) {
+              builder.setCustomHeadTexture(parameter[1]);
             } else {
-              Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
           case "skull", "skullowneruuid": //в итоге высерает java.lang.NullPointerException: Profile name must not be null
-            if (splittedParam.length == 2) {
+            if (parameter.length == 2) {
               //builder.setSkullOwnerUuid(splittedParam[1]);
               Ostrov.log_warn("Декодер skullowneruuid : с uuid больше не работает, нужно переделать на skulltexture!");
             } else {
-              Ostrov.log_warn("Декодер skullowneruuid : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер skullowneruuid : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
 
           //enchant:silk_touch:1
           case "enchant", "bookenchant":
-            if (splittedParam.length == 3) {
-              Enchantment enchant = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(splittedParam[1]));
-              if (enchant == null && Config.enchants) { //getBoolean("modules.enchants")) {
-                enchant = CustomEnchant.getByKey(NamespacedKey.minecraft(splittedParam[1]));
-              }
+            if (parameter.length == 3) {
+              final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(parameter[1]));
               if (enchant != null) {
-                if (ApiOstrov.isInteger(splittedParam[2])) {
-                  builder.addEnchant(enchant, Integer.parseInt(splittedParam[2]));
-                } else {
-                  Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[2]);
-                }
+                builder.addEnchant(enchant, ApiOstrov.getInteger(parameter[2], 1));
               } else {
-                Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, нет таких чар §f" + splittedParam[1]);
+                Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, нет таких чар §f" + parameter[1]);
               }
             } else {
-              Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toUpperCase());
+              Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toUpperCase());
             }
             break;
 
           case "basepot", "basepotiondata":
-            if (splittedParam.length == 4 || splittedParam.length == 2) {
+            if (parameter.length == 4 || parameter.length == 2) {
               switch (builder.getType()) {
                 case TIPPED_ARROW, POTION, LINGERING_POTION, SPLASH_POTION:
-                  PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(splittedParam[1].toLowerCase()));
+                  PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(parameter[1].toLowerCase()));
                   if (potionType == null) {
                     @SuppressWarnings("deprecation")
-                    final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(splittedParam[1]));
+                    final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(parameter[1]));
                     potionType = npt;
                   }
                   /*try { //по ключу найдёт не все, например для SPEED key=minecraft:swiftness. Сначала ищем по енум обычные, потом по ключу кастомные
@@ -902,7 +872,7 @@ public class ItemUtils {
                   if (potionType != null) {
                     builder.setBasePotionType(potionType);
                   } else {
-                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + splittedParam[1].toLowerCase());
+                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + parameter[1].toLowerCase());
                   }
                   break;
                 default:
@@ -910,28 +880,28 @@ public class ItemUtils {
                   break;
               }
             } else {
-              Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1].toLowerCase());
+              Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1].toLowerCase());
             }
             break;
 
           case "effect", "custompotioneffect":
-            if (splittedParam.length == 4) {
+            if (parameter.length == 4) {
               switch (builder.getType()) {
                 case TIPPED_ARROW, POTION, LINGERING_POTION, SPLASH_POTION:
-                  PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(splittedParam[1].toLowerCase()));
+                  PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(parameter[1].toLowerCase()));
                   if (potionEffectType == null) {
                     @SuppressWarnings("deprecation")
-                    final PotionEffectType npe = PotionEffectType.getByName(splittedParam[1]);
+                    final PotionEffectType npe = PotionEffectType.getByName(parameter[1]);
                     potionEffectType = npe;
                   }
                   if (potionEffectType != null) {
-                    if (ApiOstrov.isInteger(splittedParam[2]) && ApiOstrov.isInteger(splittedParam[3])) {
-                      builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.parseInt(splittedParam[2].toLowerCase()), Integer.parseInt(splittedParam[3].toLowerCase())));
+                    if (ApiOstrov.isInteger(parameter[2]) && ApiOstrov.isInteger(parameter[3])) {
+                      builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.parseInt(parameter[2].toLowerCase()), Integer.parseInt(parameter[3].toLowerCase())));
                     } else {
-                      Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + splittedParam[2] + " " + splittedParam[3]);
+                      Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + parameter[2] + " " + parameter[3]);
                     }
                   } else {
-                    Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, нет PotionType §f" + splittedParam[1]);
+                    Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, нет PotionType §f" + parameter[1]);
                   }
                   break;
                 default:
@@ -939,53 +909,53 @@ public class ItemUtils {
                   break;
               }
             } else {
-              Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1]);
+              Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1]);
             }
             break;
           case "trim":
-            if (splittedParam.length == 3) {
-              builder.setTrim(Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(splittedParam[1])),
-                Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(splittedParam[2])));
+            if (parameter.length == 3) {
+              builder.setTrim(OStrap.retrieve(RegistryKey.TRIM_MATERIAL, Key.key(parameter[1])),
+                OStrap.retrieve(RegistryKey.TRIM_PATTERN, Key.key(parameter[2])));
             } else {
-              Ostrov.log_warn("Декодер trim : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1]);
+              Ostrov.log_warn("Декодер trim : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1]);
             }
             break;
           case "firework":
-            if (splittedParam.length == 2) {
+            if (parameter.length == 2) {
               if (builder.getType() == Material.FIREWORK_ROCKET) {
-                builder.applyCustomMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(splittedParam[1])));
+                builder.applyCustomMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(parameter[1])));
               } else {
                 Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неприменима к §f" + builder.getType());
               }
             } else {
-              Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1]);
+              Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1]);
             }
             break;
           case "burst":
-            if (splittedParam.length == 6) {
+            if (parameter.length == 6) {
               switch (builder.getType()) {
                 case FIREWORK_ROCKET:
                   builder.applyCustomMeta(FireworkMeta.class, fm -> fm.addEffect(FireworkEffect.builder()
-                    .with(FireworkEffect.Type.valueOf(splittedParam[1])).withColor(Color.fromRGB(Integer.parseInt(splittedParam[2])))
-                    .withFade(Color.fromRGB(Integer.parseInt(splittedParam[3]))).flicker(Boolean.parseBoolean(splittedParam[4]))
-                    .trail(Boolean.parseBoolean(splittedParam[5])).build()));
+                    .with(FireworkEffect.Type.valueOf(parameter[1])).withColor(Color.fromRGB(Integer.parseInt(parameter[2])))
+                    .withFade(Color.fromRGB(Integer.parseInt(parameter[3]))).flicker(Boolean.parseBoolean(parameter[4]))
+                    .trail(Boolean.parseBoolean(parameter[5])).build()));
                   break;
                 case FIREWORK_STAR:
                   builder.applyCustomMeta(FireworkEffectMeta.class, fm -> fm.setEffect(FireworkEffect.builder()
-                    .with(FireworkEffect.Type.valueOf(splittedParam[1])).withColor(Color.fromRGB(Integer.parseInt(splittedParam[2])))
-                    .withFade(Color.fromRGB(Integer.parseInt(splittedParam[3]))).flicker(Boolean.parseBoolean(splittedParam[4]))
-                    .trail(Boolean.parseBoolean(splittedParam[5])).build()));
+                    .with(FireworkEffect.Type.valueOf(parameter[1])).withColor(Color.fromRGB(Integer.parseInt(parameter[2])))
+                    .withFade(Color.fromRGB(Integer.parseInt(parameter[3]))).flicker(Boolean.parseBoolean(parameter[4]))
+                    .trail(Boolean.parseBoolean(parameter[5])).build()));
                   break;
                 default:
                   Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неприменима к §f" + builder.getType());
                   break;
               }
             } else {
-              Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неверные параметры §f" + splittedParam[1]);
+              Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неверные параметры §f" + parameter[1]);
             }
             break;
           default:
-            Ostrov.log_warn("Декодер ОБЩИЙ : §7строка >§f" + item + "§7<, параметр не распознан §f" + splittedParam[0]);
+            Ostrov.log_warn("Декодер ОБЩИЙ : §7строка >§f" + item + "§7<, параметр не распознан §f" + parameter[0]);
             break;
         }
       } catch (IllegalArgumentException | SecurityException | NullPointerException ex) {
@@ -1068,12 +1038,12 @@ public class ItemUtils {
     final SignSide sd = sign.getSide(Side.FRONT);
     for (int ln = 0; !suggest.isEmpty() && ln < 4; ln++) {
       if (suggest.length() > 15) {
-        sd.line(ln, TCUtils.format(suggest.substring(0, 15)));
+        sd.line(ln, TCUtils.form(suggest.substring(0, 15)));
         suggest = suggest.substring(15);
         continue;
       }
 
-      sd.line(ln, TCUtils.format(suggest));
+      sd.line(ln, TCUtils.form(suggest));
       break;
     }
         /*int line = 0;
@@ -1233,6 +1203,7 @@ public class ItemUtils {
   }
 
 
+  @Deprecated //скоро уберут енумы
   public static ItemBuilder buildBiomeIcon(final Biome b) {
     final ItemBuilder builder = new ItemBuilder(Material.TROPICAL_FISH_BUCKET);
 //System.out.println("getBiomeIcon "+b.toString());       
@@ -1314,6 +1285,7 @@ public class ItemUtils {
     return builder;
   }
 
+  @Deprecated //скоро уберут енумы
   public static ItemBuilder buildEntityIcon(final EntityType type) {
     final ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
 
@@ -1331,8 +1303,9 @@ public class ItemUtils {
     return builder;
   }
 
-  public static boolean isItemA(final ItemStack is, final ItemClass cls) {
-    return cls.has(is == null ? Material.AIR : is.getType());
+  @Deprecated
+  public static boolean isItemA(final @Nullable ItemStack is, final ItemTypes cls) {
+    return cls.has(is == null ? ItemType.AIR : is.getType().asItemType());
   }
 
 }

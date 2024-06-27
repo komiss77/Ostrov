@@ -1,37 +1,27 @@
 package ru.komiss77.modules.enchants;
-import io.papermc.paper.enchantments.EnchantmentRarity;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
+
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
+import io.papermc.paper.registry.set.RegistryKeySet;
+import net.kyori.adventure.key.Key;
+import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentTarget;
-import org.bukkit.entity.EntityCategory;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EquipmentSlotGroup;
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.items.ItemClass;
-import ru.komiss77.notes.OverrideMe;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.modules.items.ItemTypes;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public abstract class CustomEnchant extends Enchantment {
+public abstract class CustomEnchant implements Keyed {
 
-    protected static final Map<NamespacedKey, CustomEnchant> CUSTOM = new HashMap<>();
-    protected static final Enchantment MASK = Enchantment.CHANNELING;
+    public static final Map<Key, CustomEnchant> VALUES = new HashMap<>();
+//    protected static final Enchantment MASK = Enchantment.CHANNELING;
     
     /*public static final ItemClass RANGED_OTHER = new ItemClass("RANGED_OTHER", 
     	Material.BOW, Material.CROSSBOW, Material.TRIDENT, Material.IRON_HOE, Material.GOLDEN_HOE, 
@@ -204,201 +194,66 @@ public abstract class CustomEnchant extends Enchantment {
     	enchInfo.put(WATER_WORKER, new EnchantInfo("Подводник", 6800, "Дает возможность копать блоки", "под водой намного быстрее"));
         */
 
-    private final String name;
-    private final NamespacedKey key;
-    private final byte mxlvl;
-    private final ItemClass its;
-    private final Enchantment[] cnfls;
-    private final EnchantInfo info;
-    private final boolean isCursed;
-    private final boolean isTreasure;
-    private final boolean isTraded;
-    private final boolean isDisc;
+  private final NamespacedKey key;
     
-    protected CustomEnchant(final String name, final int mxlvl,
-      final ItemClass its, final Enchantment[] cnfls, final EnchantInfo info,
-      final boolean isCursed, final boolean isTreasure, final boolean isTraded, final boolean isDisc) {
-        super();
-        this.mxlvl = (byte) mxlvl;
-        this.its = its;
-        this.cnfls = cnfls;
-        this.info = info;
-        this.isCursed = isCursed;
-        this.isTreasure = isTreasure;
-        this.isTraded = isTraded;
-        this.isDisc = isDisc;
-
-        this.name = ApiOstrov.nrmlzStr(name);
-        this.key = NamespacedKey.minecraft(name.toLowerCase());
-        if (Config.enchants && CUSTOM.put(this.key, this) != null) {
-            Ostrov.log_warn("Enchant " + name + " could not be registered!");
-        }
+    protected CustomEnchant() {
+      this.key = OStrap.key(this.getClass().getSimpleName());
+      if (VALUES.put(this.key, this) != null) {
+          Ostrov.log_warn("Enchant " + key.value() + " is already registered!");
+      }
     }
 
-    @Override
     public NamespacedKey getKey() {
       return key;
     }
 
-    @Deprecated(forRemoval = true)
-    public String getTranslationKey() {
-      return key.value();
+    public abstract String name();
+
+    public abstract Set<EquipmentSlotGroup> slots();
+
+    public abstract ItemTypes targets();
+
+    public abstract RegistryKeySet<Enchantment> conflicts();
+
+    public static CustomEnchant get(final Key key) {
+        return VALUES.get(key);
+    }
+
+    public EnchantmentRegistryEntry.EnchantmentCost minCost() {
+      return EnchantmentRegistryEntry.EnchantmentCost.of(1, 25 / maxLevel());
+    }
+
+    public EnchantmentRegistryEntry.EnchantmentCost maxCost() {
+      return EnchantmentRegistryEntry.EnchantmentCost.of(11, 60 / maxLevel());
+    }
+
+    public abstract int anvilCost();
+
+    public abstract int maxLevel();
+
+    public abstract int weight();
+
+    public abstract boolean isCommon();
+
+    public Enchantment getEnch() {
+      return OStrap.retrieve(RegistryKey.ENCHANTMENT, getKey());
+    }
+
+    public abstract List<EnchData> act(final Event e, final List<EnchData> data);
+
+    @Override
+    public boolean equals(final Object o) {
+      if (this == o) return true;
+      return o instanceof CustomEnchant
+        && ((CustomEnchant) o).key.equals(key);
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-    
-    public EnchantInfo getInfo() {
-        return info;
-    }
-    
-    public abstract int getChance(final ItemStack it);
-
-    @Override
-    public boolean canEnchantItem(final ItemStack it) {
-        return it != null && (its.equals(ItemClass.ALL) || its.has(it.getType()));
+    public int hashCode() {
+      return key.hashCode();
     }
 
-    @Override
-    public boolean conflictsWith(final Enchantment en) {
-        final NamespacedKey k = en.getKey();
-        for (final Enchantment e : cnfls) {
-            if (k.equals(e.getKey())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Deprecated(forRemoval = true)
-    public EnchantmentTarget getItemTarget() {
-        return EnchantmentTarget.BREAKABLE;
-    }
-
-    @Override
-    public int getMaxLevel() {
-        return mxlvl;
-    }
-
-    @Override
-    public int getStartLevel() {
-        return 1;
-    }
-
-    @Override
-    public boolean isCursed() {
-        return isCursed;
-    }
-
-    @Override
-    public boolean isTreasure() {
-        return isTreasure;
-    }
-
-    @Override
-    public String translationKey() {
-        return "enchantment.minecraft." + getKey().getKey();
-    }
-
-    @Override
-    public Component displayName(final int lvl) {
-        final StringBuilder sb = new StringBuilder((isCursed ? "§c" : "§7") + info.rusName + " ");
-        switch (lvl) {
-            case 1:
-                sb.append(getMaxLevel() == 1 ? "" : "I");
-                break;
-            case 2:
-                sb.append("II");
-                break;
-            case 3:
-                sb.append("III");
-                break;
-            case 4:
-                sb.append("IV");
-                break;
-            case 5:
-                sb.append("V");
-                break;
-            case 6:
-                sb.append("VI");
-                break;
-            case 7:
-                sb.append("VII");
-                break;
-            case 8:
-                sb.append("VIII");
-                break;
-            case 9:
-                sb.append("IX");
-                break;
-            case 10:
-                sb.append("X");
-                break;
-            default:
-                sb.append(lvl);
-                break;
-        }
-        return TCUtils.format(sb.toString());
-    }
-
-    public static CustomEnchant getByKey(final NamespacedKey key) {
-        return CUSTOM.get(key);
-    }
-
-    @Override
-    public Set<EquipmentSlot> getActiveSlots() {
-        return Set.of(EquipmentSlot.values());
-    }
-
-    @Deprecated(forRemoval = true)
-    public float getDamageIncrease(final int lvl, final EntityCategory ec) {
-        return 0;
-    }
-
-    @Override
-    public float getDamageIncrease(final int lvl, final EntityType ec) {
-    return 0;
-  }
-
-    @Deprecated(forRemoval = true)
-    public EnchantmentRarity getRarity() {
-        return EnchantmentRarity.COMMON;
-    }
-
-    @Override
-    public boolean isDiscoverable() {
-        return isDisc;
-    }
-
-    @Override
-    public int getMinModifiedCost(final int lvl) {
-        return 1 + ((lvl - 1) << 5) / mxlvl;
-    }
-
-    @Override
-    public int getMaxModifiedCost(final int lvl) {
-        return 11 + ((lvl - 1) << 6) / mxlvl;
-    }
-
-    @Override
-    public boolean isTradeable() {
-        return isTraded;
-    }
-    
-    public static CustomEnchant[] values() {
-        return CUSTOM.values().toArray(new CustomEnchant[0]);
-    }
-    
-    public boolean noCnflcts(final Map<Enchantment, Integer> ens) {
-        for (final Enchantment e : ens.keySet()) {
-            if (conflictsWith(e)) return false;
-        }
-        return true;
-    }
-
-    private void lore(final ItemMeta im, final int lvl) {
+    /*private void lore(final ItemMeta im, final int lvl) {
       final List<Component> lrs = im.lore();
       if (lrs == null) {
         im.lore(Arrays.asList(displayName(lvl)));
@@ -554,55 +409,53 @@ public abstract class CustomEnchant extends Enchantment {
         .get(EnchantManager.key, EnchantManager.data);
       if (eds == null) return 0;
       return eds.enchs.getOrDefault(this, 0);
-    }
+    }*/
 
-    @OverrideMe
-    public void getOnHit(final EntityDamageByEntityEvent e) {}
-    @OverrideMe
-    public void getOnArm(final EntityDamageEvent e) {}
-    @OverrideMe
-    public void getOnPrj(final ProjectileHitEvent e) {}
-    @OverrideMe
-    public void getOnSht(final EntityShootBowEvent e) {}
-    @OverrideMe
-    public void getOnInt(final PlayerInteractEvent e) {}
-    @OverrideMe
-    public void getOnBrk(final BlockBreakEvent e) {}
-
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    return o instanceof CustomEnchant
-      && ((CustomEnchant) o).key.equals(key);
-  }
-
-  @Override
-  public int hashCode() {
-    return key.hashCode();
-  }
-
-  public static final CustomEnchant GLINT = new CustomEnchant("Glint", 1,
-      ItemClass.ALL, new Enchantment[]{}, new EnchantInfo("§0.", 0),
-      false, false, false, false) {
-
-      @Override
-      public int getChance(final ItemStack it) {return 0;}
-    };
-
-  private static final ItemClass LAUNCH = new ItemClass("LAUNCH", Material.BOW, Material.CROSSBOW, Material.TRIDENT);
-
-  public static final CustomEnchant CHANNELING = new CustomEnchant("Channeling", 5,
-    LAUNCH, new Enchantment[]{RIPTIDE}, new EnchantInfo("Молния", 0),
-    false, false, false, false) {
+    protected static class Glint extends CustomEnchant {
 
     @Override
-    public int getChance(final ItemStack it) {return getMaxLevel() + 1 - level(it);}
+    public String name() {
+      return "§0.";
+    }
 
     @Override
-    public void getOnPrj(final ProjectileHitEvent e) {
-      if (e.getHitEntity() instanceof LivingEntity) {
-        e.getEntity().getWorld().strikeLightning(e.getEntity().getLocation());
-      }
+    public Set<EquipmentSlotGroup> slots() {
+      return Set.of(EquipmentSlotGroup.ANY);
     }
-  };
+
+    @Override
+    public ItemTypes targets() {
+      return ItemTypes.EMPTY;
+    }
+
+    @Override
+    public RegistryKeySet<Enchantment> conflicts() {
+      return OStrap.regSetOf(RegistryKey.ENCHANTMENT, List.of());
+    }
+
+    @Override
+    public int anvilCost() {
+      return 0;
+    }
+
+    @Override
+    public int maxLevel() {
+      return 1;
+    }
+
+    @Override
+    public int weight() {
+      return 1;
+    }
+
+    @Override
+    public boolean isCommon() {
+      return false;
+    }
+
+    @Override
+    public List<EnchData> act(final Event e, final List<EnchData> data) {
+      return List.of();
+    }
+  }
 }

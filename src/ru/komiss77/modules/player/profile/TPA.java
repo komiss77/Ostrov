@@ -131,9 +131,9 @@ public class TPA implements InventoryProvider {
         
         //final TreeSet <String> sort = new TreeSet(PM.getOplayersNames());
             //for (Player p : Bukkit.getOnlinePlayers()) {
-            //    sort.addAll(p.getName());
+            //    sort.addAll(p.name());
             //}
-        //sort.remove(p.getName());
+        //sort.remove(p.name());
         final boolean moder = p.hasPermission("ostrov.tpo");
             
 //System.out.println("tpa1 moder?"+moder+" tpa_command="+Config.tpa_command);        

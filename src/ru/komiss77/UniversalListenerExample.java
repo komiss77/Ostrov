@@ -138,7 +138,7 @@ public class UniversalListenerExample implements Listener  {
                //         (AM.getGRplayer(partyLeaderName).arena.gameState==GameState.ОЖИДАНИЕ || AM.getGRplayer(partyLeaderName).arena.gameState==GameState.СТАРТ) ) {
                 //    wantArena = AM.getGRplayer(partyLeaderName).arena.name;
                     e.getPlayer().sendMessage("§aВы перенаправлены к арене лидера вашей Команды.");
-                //    AM.getGRplayer(partyLeaderName).getPlayer().sendMessage("§aУчастиник вашей Команды "+(ApiOstrov.isFemale(e.getPlayer().getName())?"зашла":"зашел")+" на арену.");
+                //    AM.getGRplayer(partyLeaderName).getPlayer().sendMessage("§aУчастиник вашей Команды "+(ApiOstrov.isFemale(e.getPlayer().name())?"зашла":"зашел")+" на арену.");
                 //}
             }
         }
@@ -162,7 +162,7 @@ public class UniversalListenerExample implements Listener  {
         
     @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBsignLocalArenaClick (final BsignLocalArenaClick e) {
-//System.out.println(" ---- BsignLocalArenaClick --- "+e.player.getName()+" "+e.arenaName);
+//System.out.println(" ---- BsignLocalArenaClick --- "+e.player.name()+" "+e.arenaName);
          //Kitbattle.join(e.player, , 10);
          e.player.performCommand(joinCommad+e.arenaName);
     }
@@ -365,14 +365,14 @@ public class UniversalListenerExample implements Listener  {
     
     private Inventory getTeleporterInventory(final Player p) {
         final Inventory inventory = Bukkit.createInventory(null, 54, Component.text("§6ТП к игроку"));
-        //final Arena arena = AM.getArenaByWorld(p.getWorld().getName());
+        //final Arena arena = AM.getArenaByWorld(p.getWorld().name());
         //if (arena!=null) {
             //for (final Player player : arena.getPlayers(false)) {
             for (final Player player : p.getWorld().getPlayers()) {
                 if (player.getGameMode()==GameMode.SPECTATOR ) {
                     continue;
                 }
-                inventory.addItem( new ItemBuilder(Material.PLAYER_HEAD).name("§b"+player.getName()).setSkullOwnerUuid(player.getUniqueId().toString()).build() );//plugin.getSkull(player.getName(), ChatColor.AQUA + player.getName()) );
+                inventory.addItem( new ItemBuilder(Material.PLAYER_HEAD).name("§b"+player.getName()).setSkullOwnerUuid(player.getUniqueId().toString()).build() );//plugin.getSkull(player.name(), ChatColor.AQUA + player.name()) );
             }
         //}
         return inventory;
@@ -436,7 +436,7 @@ public class UniversalListenerExample implements Listener  {
         
     @EventHandler (ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onWorldChange (final PlayerChangedWorldEvent e) {
-//System.out.println("PlayerChangedWorldEvent from="+e.getFrom().getName());
+//System.out.println("PlayerChangedWorldEvent from="+e.getFrom().name());
         //final Player p = e.getPlayer();
         new BukkitRunnable() {
             final String name = e.getPlayer().getName();
@@ -540,7 +540,7 @@ public class UniversalListenerExample implements Listener  {
     
   // @EventHandler
   //  public void onPlayerSwapoffHand(PlayerSwapHandItemsEvent e) {
-  //      if (e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
+  //      if (e.getPlayer().getWorld().name().equals("lobby") ) e.setCancelled(true);
   //  }
     
     
@@ -582,7 +582,7 @@ public class UniversalListenerExample implements Listener  {
     
     @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)    
 	public void onPlace(BlockPlaceEvent e) {
-            //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
+            //PM.getOplayer(e.getPlayer().name()).last_breack=Timer.Единое_время();
             if ( !ApiOstrov.isLocalBuilder(e.getPlayer(), false) && e.getPlayer().getWorld().getName().equals("lobby") ) e.setCancelled(true);
         }
     

@@ -42,7 +42,7 @@ public class CMD  {
         int limit;
         
         //if ( pvp_battle_time > 1 && PM.inBattle(s) ) {            -- перенёс в PlayerCommandPreprocessEvent
-        //    p.sendMessage( "§cРежим боя - команды заблокированы! Осталось " + Timer.CD_left(p.getName(), "pvp") + " сек." );
+        //    p.sendMessage( "§cРежим боя - команды заблокированы! Осталось " + Timer.CD_left(p.name(), "pvp") + " сек." );
         //    return false;
        // }
         
@@ -333,7 +333,7 @@ public class CMD  {
                         //    return false;
                         //} else {
                             DelayTeleport.tp(p, op.last_death, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
-                            op.last_death = b1;//PM.OP_Set_back_location(p.getName(), b1);
+                            op.last_death = b1;//PM.OP_Set_back_location(p.name(), b1);
                         //}
                     } else p.sendMessage("§c"+Lang.t(p, "У Вас нет пава ostrov.back !"));
                 }else p.sendMessage( "§c"+Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
@@ -408,7 +408,7 @@ public class CMD  {
                     if (arg.length == 3) {
                         if ( ApiOstrov.isInteger(arg[0]) && ApiOstrov.isInteger(arg[1]) && ApiOstrov.isInteger(arg[2]) ) {
                             DelayTeleport.tp(p, new Location(p.getWorld(), Double.parseDouble(arg[0]), Double.parseDouble(arg[1]), Double.parseDouble(arg[2])), 3, "Вы вернулись на указанную локацию", true, true, DyeColor.BROWN);
-                            //Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp "+p.getName()+" "+arg[0]+" "+arg[1]+" "+arg[2] );
+                            //Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp "+p.name()+" "+arg[0]+" "+arg[1]+" "+arg[2] );
                         } else {
                             p.sendMessage( "§c"+Lang.t(p, "Координаты должны быть числами!"));
                             return false;

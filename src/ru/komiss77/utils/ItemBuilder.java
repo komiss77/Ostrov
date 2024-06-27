@@ -7,6 +7,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -17,7 +18,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.utils.ItemUtils.Texture;
 
 import javax.annotation.Nullable;
@@ -27,7 +27,8 @@ import java.util.function.Consumer;
         //im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         //Validate.isTrue(item.getType() == Material.PLAYER_HEAD, "skullOwner() only applicable for skulls!", new Object[0]);
 
-
+@Deprecated
+//use StackBuilder
 public class ItemBuilder {
     
     
@@ -76,8 +77,6 @@ public class ItemBuilder {
       meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.INTEGER, data);
       return this;
     }
-    
-    
 
     @Deprecated //в будующем тип менять нельзя будет
     public ItemBuilder setType(final Material material) {
@@ -307,15 +306,22 @@ public class ItemBuilder {
       meta.addItemFlags(flag);
       return this;
     }
-    
+
     public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op) {
-    	setAttribute(attribute, amount, op, item.getType().getEquipmentSlot());
+      setAttribute(attribute, amount, op, item.getType().getEquipmentSlot().getGroup());
       return this;
     }
-    
+
+    public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slot) {
+      if (meta == null) meta = item.getItemMeta();
+      meta.addAttributeModifier(attribute, new AttributeModifier(attribute.getKey(), amount, op, slot));
+      return this;
+    }
+
+    @Deprecated
     public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlot slot) {
       if (meta == null) meta = item.getItemMeta();
-      meta.addAttributeModifier(attribute, new AttributeModifier(UUID.randomUUID(), "atbuilder", amount, op, slot));
+      meta.addAttributeModifier(attribute, new AttributeModifier(attribute.getKey(), amount, op, slot.getGroup()));
       return this;
     }
     
@@ -495,10 +501,6 @@ public class ItemBuilder {
                   if (meta == null) meta = item.getItemMeta();
                   final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) meta;
                   for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {//ignoreLevelRestriction
-                    if (en.getKey() instanceof final CustomEnchant ce) {
-                      ce.level(meta, en.getValue(), false);
-                      continue;
-                    }
                     enchantedBookMeta.addStoredEnchant(en.getKey(), en.getValue(), false);
                   }
                 }
@@ -511,10 +513,6 @@ public class ItemBuilder {
         if (enchants!=null && !enchants.isEmpty()) {
           if (meta == null) meta = item.getItemMeta();
           for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {
-            if (en.getKey() instanceof final CustomEnchant ce) {
-              ce.level(meta, en.getValue(), false);
-              continue;
-            }
             meta.addEnchant(en.getKey(), en.getValue(), true);
           }
         }

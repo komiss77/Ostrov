@@ -235,7 +235,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.MONITOR )
     public static void onPlayerResourcePackStatusEvent(PlayerResourcePackStatusEvent e) {
 //System.out.println("onPlayerResourcePackStatusEvent "+e.getStatus());         
-        //if ( !PM.exist(e.getPlayer().getName()) || !e.getPlayer().isOnline()) return;
+        //if ( !PM.exist(e.getPlayer().name()) || !e.getPlayer().isOnline()) return;
         final Player p = e.getPlayer();
         final Oplayer op =  PM.getOplayer(p);
         
@@ -307,7 +307,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
         op.resourcepack_locked=false;
         //String hash=hash;
         //op.setData(Data.RESOURCE_PACK_HASH, hash);
-        //Ostrov.sendMessage( p, "Bauth_getdata", p.getName()+"<:>RP_HASH<:>"+hash+"<:> " );
+        //Ostrov.sendMessage( p, "Bauth_getdata", p.name()+"<:>RP_HASH<:>"+hash+"<:> " );
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
         p.sendMessage("§2Пакет ресурсов установлен!");
     }

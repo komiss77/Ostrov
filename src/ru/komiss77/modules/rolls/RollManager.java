@@ -1,4 +1,4 @@
-package ru.komiss77.modules.drops;
+package ru.komiss77.modules.rolls;
 
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;

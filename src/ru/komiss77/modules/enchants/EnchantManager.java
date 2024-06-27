@@ -1,55 +1,40 @@
 package ru.komiss77.modules.enchants;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.Repairable;
-import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.TCUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 
 public class EnchantManager implements Initiable, Listener {
 
-    protected static class Data {
+    /*protected static class Data {
       public final Map<CustomEnchant, Integer> enchs = new HashMap<>();
-    }
+    }*/
 
-    protected static final int BASE_COST = 12;
-    protected static final char sep_lvl = '=';
-    protected static final String sep_ench = ":";
-    protected static final NamespacedKey key = NamespacedKey.minecraft("o.ench");
+//    protected static final int BASE_COST = 12;
+//    protected static final char sep_lvl = '=';
+//    protected static final String sep_ench = ":";
+    /*protected static final NamespacedKey key = NamespacedKey.minecraft("o.ench");
     protected static final PersistentDataType<String, Data> data = new PersistentDataType<>() {
 
     @Override
@@ -86,9 +71,13 @@ public class EnchantManager implements Initiable, Listener {
       }
       return cds;
     }
-  };
+  };*/
 
-  public static final Map<Entity, ItemStack> projWeapons = new WeakHashMap<>();
+  public static final CustomEnchant GLINT = new CustomEnchant.Glint();
+
+  public static void init() {
+    //doesnt actually do shit
+  }
 
   public EnchantManager() {
       reload();
@@ -115,105 +104,39 @@ public class EnchantManager implements Initiable, Listener {
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onDamage (final EntityDamageEvent e) {
-    if (e instanceof final EntityDamageByEntityEvent ee && ee.getDamager() instanceof LivingEntity) {
-        final EntityEquipment eq = ((LivingEntity) ee.getDamager()).getEquipment();
-        final ItemStack it = eq.getItemInMainHand();
-        if (!ItemUtils.isBlank(it, true)) {
-          final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-            .get(EnchantManager.key, EnchantManager.data);
-          if (eds == null || eds.enchs.isEmpty()) return;
-          for (final CustomEnchant en : eds.enchs.keySet()) {
-            final int ch = en.getChance(it);
-            if (ch > 0 && Ostrov.random.nextInt(ch) == 0) en.getOnHit(ee);
-          }
-        }
-
+    if (e instanceof final EntityDamageByEntityEvent ee
+        && ee.getDamager() instanceof LivingEntity) {
+      enchAct(((LivingEntity) ee.getDamager()).getEquipment(), ee);
     }
 
     if (e.getEntity() instanceof LivingEntity) {
-      final EntityEquipment eq = ((LivingEntity) e.getEntity()).getEquipment();
-      final HashSet<CustomEnchant> active = new HashSet<>();
-      for (final ItemStack it : eq.getArmorContents()) {
-        if (!ItemUtils.isBlank(it, true)) {
-          final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-            .get(EnchantManager.key, EnchantManager.data);
-          if (eds == null || eds.enchs.isEmpty()) return;
-          for (final CustomEnchant en : eds.enchs.keySet()) {
-            final int ch = en.getChance(it);
-            if (ch > 0 && Ostrov.random.nextInt(ch) == 0) active.add(en);
-          }
-        }
-      }
-
-      for (final CustomEnchant ce : active) {
-        ce.getOnArm(e);
-      }
+      enchAct(((LivingEntity) e.getEntity()).getEquipment(), e);
     }
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onProj (final ProjectileHitEvent e) {
-    if (e.getHitEntity() != null && e.getEntity().getShooter() instanceof LivingEntity) {
-      final ItemStack it = projWeapons.get(e.getEntity());
-      if (!ItemUtils.isBlank(it, true)) {
-        final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-          .get(EnchantManager.key, EnchantManager.data);
-        if (eds == null || eds.enchs.isEmpty()) return;
-        for (final CustomEnchant en : eds.enchs.keySet()) {
-          final int ch = en.getChance(it);
-          if (ch > 0 && Ostrov.random.nextInt(ch) == 0) en.getOnPrj(e);
-        }
-      }
+    if (e.getEntity().getShooter() instanceof final LivingEntity le) {
+      enchAct(le.getEquipment(), e);
     }
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onShoot (final EntityShootBowEvent e) {
-    final ItemStack it = e.getBow();
-    if (!ItemUtils.isBlank(it, true)) {
-      projWeapons.put(e.getProjectile(), it);
-      Ostrov.async(() -> projWeapons.remove(e.getProjectile()), 200);
-      final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-        .get(EnchantManager.key, EnchantManager.data);
-      if (eds == null || eds.enchs.isEmpty()) return;
-      for (final CustomEnchant en : eds.enchs.keySet()) {
-        final int ch = en.getChance(it);
-        if (ch > 0 && Ostrov.random.nextInt(ch) == 0) en.getOnSht(e);
-      }
-    }
+    enchAct(e.getEntity().getEquipment(), e);
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onBreak (final BlockBreakEvent e) {
-    final Player p = e.getPlayer();
-    final ItemStack it = p.getInventory().getItemInMainHand();
-    if (!ItemUtils.isBlank(it, true)) {
-      final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-        .get(EnchantManager.key, EnchantManager.data);
-      if (eds == null || eds.enchs.isEmpty()) return;
-      for (final CustomEnchant en : eds.enchs.keySet()) {
-        final int ch = en.getChance(it);
-        if (ch > 0 && Ostrov.random.nextInt(ch) == 0) en.getOnBrk(e);
-      }
-    }
+    enchAct(e.getPlayer().getEquipment(), e);
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onInt (final PlayerInteractEvent e) {
-    final Player p = e.getPlayer();
-    final ItemStack it = p.getInventory().getItemInMainHand();
-    if (!ItemUtils.isBlank(it, true)) {
-      final EnchantManager.Data eds = it.getItemMeta().getPersistentDataContainer()
-        .get(EnchantManager.key, EnchantManager.data);
-      if (eds == null || eds.enchs.isEmpty()) return;
-      for (final CustomEnchant en : eds.enchs.keySet()) {
-        final int ch = en.getChance(it);
-        if (ch > 0 && Ostrov.random.nextInt(ch) == 0) en.getOnInt(e);
-      }
-    }
+    enchAct(e.getPlayer().getEquipment(), e);
   }
 
-  @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+  /*@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
   public void onGrind (final PrepareGrindstoneEvent e) {
     final ItemStack it = e.getResult();
     if (!ItemUtils.isBlank(it, true)) {
@@ -324,5 +247,41 @@ public class EnchantManager implements Initiable, Listener {
     }
 
     e.setResult(it);
+  }*/
+
+  private void enchAct(final EntityEquipment eq, final Event e) {
+    final Map<CustomEnchant, List<EnchData>> active = new HashMap<>();
+    for (final EquipmentSlot es : EquipmentSlot.values()) {
+
+      final ItemStack it = eq.getItem(es);
+      if (!ItemUtils.isBlank(it, true)) {
+
+        for (final Map.Entry<Enchantment, Integer> en : it.getEnchantments().entrySet()) {
+          final Enchantment ench = en.getKey();
+          final CustomEnchant ce = CustomEnchant.get(ench.getKey());
+          if (ce == null) continue;
+
+          for (final EquipmentSlotGroup gr : ench.getActiveSlotGroups()) {
+            if (gr.test(es)) {
+              final List<EnchData> eds = active.get(ce);
+              if (eds == null) {
+                final List<EnchData> neds = new ArrayList<>();
+                neds.add(new EnchData(es, it, en.getValue()));
+                active.put(ce, neds);
+              } else {
+                eds.add(new EnchData(es, it, en.getValue()));
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    for (final Map.Entry<CustomEnchant, List<EnchData>> en : active.entrySet()) {
+      for (final EnchData ed : en.getKey().act(e, en.getValue())) {
+        eq.setItem(ed.es(), ed.it(), true);
+      }
+    }
   }
 }

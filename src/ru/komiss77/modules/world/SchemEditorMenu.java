@@ -47,7 +47,7 @@ public class SchemEditorMenu implements InventoryProvider{
 
         final SetupMode sm = PM.getOplayer(p).setup;
         
-        //SetupManager.setPosition(p, style.getPos1(p.getWorld().getName()), style.getPos2(p.getWorld().getName()));
+        //SetupManager.setPosition(p, style.getPos1(p.getWorld().name()), style.getPos2(p.getWorld().name()));
 
         if (sm.getCuboid()==null) {
             contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.PAPER)
@@ -232,7 +232,7 @@ public class SchemEditorMenu implements InventoryProvider{
                     reopen(p, contents);
                 }));
         } else {
-            //p.sendBlockChange(style.getPos1(p.getWorld().getName()), Material.EMERALD_BLOCK.createBlockData());
+            //p.sendBlockChange(style.getPos1(p.getWorld().name()), Material.EMERALD_BLOCK.createBlockData());
             contents.set(4, 1, ClickableItem.of( new ItemBuilder(Material.OAK_FENCE)
                 .name("§7нижняя точка кубоида.")
                 .addLore("§7")
@@ -312,7 +312,7 @@ public class SchemEditorMenu implements InventoryProvider{
                 p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 5);
                 ConfirmationGUI.open( p, "§4Вставить ?", result -> {
                     if (result) {
-                        style.build(p.getWorld().getName());
+                        style.build(p.getWorld().name());
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                     } else {
                         reopen(p, contents);

@@ -107,7 +107,7 @@ public class BuilderInv__ implements InventoryProvider {
                     p.sendMessage(Ostrov.PREFIX + "§cНужно держать что-то в левой руке!");
                     p.closeInventory();
                 } else {
-                    SmartInventory.builder().id("Item " + p.getName()).provider(new ItemMenu(it.hasItemMeta() ? it : new ItemStack(it)))
+                    SmartInventory.builder().id("Item " + p.name()).provider(new ItemMenu(it.hasItemMeta() ? it : new ItemStack(it)))
                         .size(3, 9).title("      §6Создание Предмета").build().open(p);
                 }
             }));
@@ -171,7 +171,7 @@ public class BuilderInv__ implements InventoryProvider {
                 		return;
                 	}
                 	
-            		SmartInventory.builder().id(p.getName() + " Display").title("     §яНастройки Дисплея")
+            		SmartInventory.builder().id(p.name() + " Display").title("     §яНастройки Дисплея")
             			.provider(new DisplayMenu(tds)).size(3, 9).build().open(p);
                 }));
         }

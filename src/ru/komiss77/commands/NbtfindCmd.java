@@ -64,7 +64,7 @@ public class NbtfindCmd implements CommandExecutor {
                             }
                             //if (NbtListener.isInvalidItem(p, item)) {
                               //  p.getInventory().remove(item);
-                              //  sender.sendMessage("§eУдалён предмет "+item.getType()+" из инвентаря игрока "+p.getName());
+                              //  sender.sendMessage("§eУдалён предмет "+item.getType()+" из инвентаря игрока "+p.name());
                            // }
                         }
                         
@@ -80,7 +80,7 @@ public class NbtfindCmd implements CommandExecutor {
                             }
                             //if (NbtListener.isInvalidItem(p, item)) {
                             //    p.getInventory().remove(item);
-                             //   sender.sendMessage("§eУдалён предмет "+item.getType()+" из эндэр-сундука игрока "+p.getName());
+                             //   sender.sendMessage("§eУдалён предмет "+item.getType()+" из эндэр-сундука игрока "+p.name());
                             //}
                         }*/
 

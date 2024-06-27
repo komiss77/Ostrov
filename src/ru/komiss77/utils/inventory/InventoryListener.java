@@ -56,7 +56,7 @@ public class InventoryAPIListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onInventoryClick(final InventoryClickEvent e) {
         final Player player = (Player)e.getWhoClicked();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
         if (e.getAction() == InventoryAction.NOTHING || e.getClickedInventory() == null) {
@@ -74,11 +74,11 @@ public class InventoryAPIListener implements Listener {
             if (row < 0 || column < 0) {
                 return;
             }
-            final SmartInventory smartInventory = manager.getInventories().get(player.getName());
+            final SmartInventory smartInventory = manager.getInventories().get(player.name());
             if (row >= smartInventory.getRows() || column >= smartInventory.getColumns()) {
                 return;
             }
-            manager.getContents().get(player.getName()).get(row, column).ifPresent(clickableItem -> clickableItem.run(e));
+            manager.getContents().get(player.name()).get(row, column).ifPresent(clickableItem -> clickableItem.run(e));
             player.updateInventory();
         }
     }
@@ -88,7 +88,7 @@ public class InventoryAPIListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onInventoryDrag(final InventoryDragEvent e) {
         final Player player = (Player)e.getWhoClicked();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
         final Iterator<Integer> iterator = e.getRawSlots().iterator();
@@ -106,30 +106,30 @@ public class InventoryAPIListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onInventoryClose(final InventoryCloseEvent e) {
         final Player player = (Player)e.getPlayer();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
-        manager.getInventories().get(player.getName()).getProvider().onClose(player, manager.getContents().get(player.getName()));
-        manager.getInventories().remove(player.getName());
-        manager.getContents().remove(player.getName());
+        manager.getInventories().get(player.name()).getProvider().onClose(player, manager.getContents().get(player.name()));
+        manager.getInventories().remove(player.name());
+        manager.getContents().remove(player.name());
     }
     
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerQuit(final PlayerQuitEvent e) {
         final Player player = e.getPlayer();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
-        manager.getInventories().get(player.getName()).getProvider().onClose(player, manager.getContents().get(player.getName()));
-        manager.getInventories().remove(player.getName());
-        manager.getContents().remove(player.getName());
+        manager.getInventories().get(player.name()).getProvider().onClose(player, manager.getContents().get(player.name()));
+        manager.getInventories().remove(player.name());
+        manager.getContents().remove(player.name());
     }
     
     
     
     @EventHandler(priority = EventPriority.LOW)
     public void onPluginDisable(final PluginDisableEvent e) {
-        if (!e.getPlugin().getName().equals(host.getName())) {
+        if (!e.getPlugin().name().equals(host.name())) {
             return;
         }
         manager.getInventories().clear();

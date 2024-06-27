@@ -65,7 +65,7 @@ public class KitPrewiev implements InventoryProvider{
         
         contents.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("гл.меню").build(), e ->
                 KitManager.openGuiMain(player)
-                //-> SmartInventory.builder().id("KitGuiMain:"+player.getName()). provider(new KitGuiMain(Ostrov.kitManager)). size(6, 9). title("§2Наборы"). build() .open(player)
+                //-> SmartInventory.builder().id("KitGuiMain:"+player.name()). provider(new KitGuiMain(Ostrov.kitManager)). size(6, 9). title("§2Наборы"). build() .open(player)
         
         ) );
         

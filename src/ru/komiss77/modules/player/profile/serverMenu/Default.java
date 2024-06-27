@@ -133,7 +133,7 @@ public class Default implements InventoryProvider {
         /*
         if ( Config.home_command && itemname.equals("§bМои дома")) {
                             Res(p,"ok");
-                            Set <String> homes = PM.OP_GetHomeList(p.getName());
+                            Set <String> homes = PM.OP_GetHomeList(p.name());
                            if (homes.isEmpty()) {
                                e.getInventory().setItem( 18, ItemUtils.no_homes);
                                return;
@@ -145,7 +145,7 @@ public class Default implements InventoryProvider {
                                 h_loc = PM.OP_GetHomeLocation(p, h);
                                 ItemStack bed = new ItemBuilder(Material.RED_BED).name(h).build();
                                 //ItemUtils.Set_name(bed, h);
-                                if (h_loc != null) ItemUtils.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().getName()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - §2ТП В ЭТОТ ДОМ", "§6Правый клик - §4УДАЛИТЬ" );
+                                if (h_loc != null) ItemUtils.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().name()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - §2ТП В ЭТОТ ДОМ", "§6Правый клик - §4УДАЛИТЬ" );
                                 else ItemUtils.Set_lore(bed, "§6Координаты:", "§cНеисправность,", "§cНужно установить заново.", "§6Правый клик - §4УДАЛИТЬ");
                                 bed.addUnsafeEnchantment(Enchantment.LUCK, pos);
                                 e.getInventory().setItem(pos, bed);

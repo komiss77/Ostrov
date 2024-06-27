@@ -1,7 +1,7 @@
 package ru.komiss77.modules.items;
 
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.modules.drops.Roll;
+import ru.komiss77.modules.rolls.Roll;
 import ru.komiss77.utils.ItemUtils;
 
 public class ItemRoll extends Roll<ItemStack> {

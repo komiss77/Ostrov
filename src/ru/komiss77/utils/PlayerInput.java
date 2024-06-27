@@ -145,7 +145,7 @@ public class PlayerInput implements Listener {
 
     
     public static void onInput(final Player p, final InputButton.InputType type, final String result) { //вызов только SUNC !!!
-//Ostrov.log_warn("onInput "+p.getName()+" result="+result);
+//Ostrov.log_warn("onInput "+p.name()+" result="+result);
         final InputData data = inputData.remove(p);
 
         if (data==null || data.type != type) {

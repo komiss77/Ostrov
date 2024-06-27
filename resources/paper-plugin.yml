@@ -1,0 +1,7 @@
+name: Ostrov
+version: '3.4'
+main: ru.komiss77.Ostrov
+description: Main Ostrov plugin
+api-version: '1.21'
+bootstrapper: ru.komiss77.OStrap
+loader: ru.komiss77.OLoader

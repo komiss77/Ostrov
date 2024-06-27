@@ -21,7 +21,7 @@ public class ChatListenerExample implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
-//System.out.println("---AsyncPlayerChatEvent sender="+e.getPlayer().getName()+" msg="+e.getMessage()+" reciep="+e.getRecipients());
+//System.out.println("---AsyncPlayerChatEvent sender="+e.getPlayer().name()+" msg="+e.getMessage()+" reciep="+e.getRecipients());
 
         final Player sender = e.getPlayer();
         Player recipient;
@@ -54,9 +54,9 @@ public class ChatListenerExample implements Listener {
  /*   @EventHandler 
     public void chat(DeluxeChatEvent e) {
         final Player p = e.getPlayer();
-//System.out.println("1 DeluxeChatEvent name="+p.getName()+" local?"+DeluxeChat.isLocal(p.getUniqueId().toString())+" arena="+arena);
+//System.out.println("1 DeluxeChatEvent name="+p.name()+" local?"+DeluxeChat.isLocal(p.getUniqueId().toString())+" arena="+arena);
 
-        if (!p.getWorld().getName().equalsIgnoreCase("lobby")) {
+        if (!p.getWorld().name().equalsIgnoreCase("lobby")) {
 //System.out.println("2 DeluxeChatEvent cancel!!");
             e.setCancelled(true);
             return;
@@ -67,7 +67,7 @@ public class ChatListenerExample implements Listener {
         Iterator<Player> recipients = e.getRecipients().iterator();
         while (recipients.hasNext()) {
             recipient = recipients.next(); //если получатель в другом мире, ему не отправляем
-            if ( !recipient.getWorld().getName().equalsIgnoreCase(p.getWorld().getName()) ) {
+            if ( !recipient.getWorld().name().equalsIgnoreCase(p.getWorld().name()) ) {
                 recipients.remove();
             }
         }

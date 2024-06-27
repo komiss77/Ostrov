@@ -15,14 +15,14 @@ import org.bukkit.event.HandlerList;
 
 public class WorldsLoadCompleteEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     
     public WorldsLoadCompleteEvent() {
     }
     
     @Override
     public HandlerList getHandlers() {
-        return handlers;
+        return getHandlerList();
     }
 
     public static HandlerList getHandlerList() {

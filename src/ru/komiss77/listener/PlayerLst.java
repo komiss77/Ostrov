@@ -134,8 +134,8 @@ public class PlayerLst implements Listener {
         e.quitMessage(null);
         PM.onLeave(e.getPlayer(), true);
         //final Player p = e.getPlayer();
-        //final Oplayer op = PM.remove(p.getName());
-//Ostrov.log("PlayerQuit "+p.getName()+" op="+op);
+        //final Oplayer op = PM.remove(p.name());
+//Ostrov.log("PlayerQuit "+p.name()+" op="+op);
         //if (op!=null) { //сохраняем, если было реально загружено!
        //     op.onLeave(p, true);
        // }
@@ -224,16 +224,16 @@ public class PlayerLst implements Listener {
             
     @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onPlace(BlockPlaceEvent e) {
-        //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
+        //PM.getOplayer(e.getPlayer().name()).last_breack=Timer.Единое_время();
         if ( Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
-        //else if (!clear_stats) PM.Addbplace(e.getPlayer().getName());
+        //else if (!clear_stats) PM.Addbplace(e.getPlayer().name());
     }
     
     @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)    
     public void onBreak(BlockBreakEvent e) {
-      //  PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
+      //  PM.getOplayer(e.getPlayer().name()).last_breack=Timer.Единое_время();
         if ( Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer()) ) e.setCancelled(true);
-        //else if (!clear_stats) PM.get(e.getPlayer().getName());
+        //else if (!clear_stats) PM.get(e.getPlayer().name());
     }
  
         
@@ -447,7 +447,7 @@ public class PlayerLst implements Listener {
             if (MenuItemsManager.hasItem("tpbow")) {
                 final MenuItem si = MenuItemsManager.fromItemStack(e.getBow());
                 if (si!=null) {
-                    if (Timer.has(p, "bow_teleport")) {//if (PM.getOplayer(p.getName()).bow_teleport_cooldown>0) {
+                    if (Timer.has(p, "bow_teleport")) {//if (PM.getOplayer(p.name()).bow_teleport_cooldown>0) {
                         p.sendMessage("§cПерезарядка лука.. осталось §4"+Timer.getLeft(p, "bow_teleport")+" сек.");
                         e.setCancelled(true);
                         e.getProjectile().remove();

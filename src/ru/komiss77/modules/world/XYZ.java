@@ -1,6 +1,5 @@
 package ru.komiss77.modules.world;
 
-import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -73,19 +72,19 @@ public class XYZ implements Cloneable {
     }
 	
     public int distAbs(final Location to) {
-        return FastMath.absInt(to.getBlockX() - x) + FastMath.absInt(to.getBlockY() - y) + FastMath.absInt(to.getBlockZ() - z);
+        return FastMath.abs(to.getBlockX() - x) + FastMath.abs(to.getBlockY() - y) + FastMath.abs(to.getBlockZ() - z);
     }
 	
     public int distAbs(final XYZ to) {
-        return FastMath.absInt(x - to.x) + FastMath.absInt(y - to.y) + FastMath.absInt(z - to.z);
+        return FastMath.abs(x - to.x) + FastMath.abs(y - to.y) + FastMath.abs(z - to.z);
     }
     
     public int distAprx(final Location to) {
-        return FastMath.sqrtAprx(distSq(to));
+        return FastMath.sqrt(distSq(to));
     }
 	
     public int distAprx(final XYZ to) {
-        return FastMath.sqrtAprx(distSq(to));
+        return FastMath.sqrt(distSq(to));
     }
 	
 
@@ -147,9 +146,9 @@ public class XYZ implements Cloneable {
     public int hashCode() {
       long l = asLong();
       if (worldName == null) {
-        return (int) (l ^ (l >>> 32));//return toString().hashCode();
+        return Long.hashCode(l);
       } else {
-        return (int) (l ^ (l >>> 32)) ^ worldName.hashCode();
+        return Long.hashCode(l) ^ worldName.hashCode();
       }
     }
     

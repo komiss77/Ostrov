@@ -1,7 +1,6 @@
 package ru.komiss77.listener;
 
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -22,9 +21,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
+import ru.komiss77.enums.ArmorType;
 import ru.komiss77.events.ArmorEquipEvent;
 import ru.komiss77.events.ArmorEquipEvent.EquipMethod;
-import ru.komiss77.enums.ArmorType;
 
 // https://github.com/Arnuh/ArmorEquipEvent/blob/master/src/com/codingforcookies/armorequip/ArmorListener.java
 
@@ -40,7 +39,7 @@ public class ArmorEquipLst implements Listener {
     @EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
     public final void onArmorChange(final PlayerArmorChangeEvent e){
 //System.out.println("onArmorChange="+e.getOldItem()+" ->"+e.getNewItem()+" getSlotType="+e.getSlotType());
-        if (set.remove(e.getPlayer().getName())) return;
+        if (set.remove(e.getPlayer().name())) return;
         final Player p = e.getPlayer();
         
         if (e.)
@@ -64,7 +63,7 @@ public class ArmorEquipLst implements Listener {
         Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
 
         if (armorEquipEvent.isCancelled()) {
-            set.add(p.getName());
+            set.add(p.name());
             Ostrov.sync( ()-> {
                 
                 if (e.getOldItem()!=null && e.getOldItem().getType()!=Material.AIR)  {

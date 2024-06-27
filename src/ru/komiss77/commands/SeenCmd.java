@@ -39,7 +39,7 @@ public class SeenCmd implements CommandExecutor {
             
             
 
-        /*    sender.sendMessage( "§6Информация по §b"+offline_player.getName()+" §6от сервера §b"+Bukkit.getMotd() +  ((offline_player.isOnline())? " §2- сейчас на сервере!":" §4- сейчас офф.") );
+        /*    sender.sendMessage( "§6Информация по §b"+offline_player.name()+" §6от сервера §b"+Bukkit.getMotd() +  ((offline_player.isOnline())? " §2- сейчас на сервере!":" §4- сейчас офф.") );
 
             sender.sendMessage( "§7Первый вход: §f"+ApiOstrov.dateFromStamp(offline_player.getFirstPlayed())+"§7, Последний выход: §f"+( sender.hasPermission("ostrov.seen.full")? ApiOstrov.dateFromStamp(offline_player.getLastPlayed()) : "****" ) );
             
@@ -62,7 +62,7 @@ public class SeenCmd implements CommandExecutor {
                 //NBTCompound nbt = PowerNBT.getApi().readOfflinePlayer(offline_player);
                 final Player online = VM.getNmsServer().getOfflinePlayer( args[0], offline_player.getUniqueId(), ((Player)sender).getLocation() );
                     sender.sendMessage ( "§7Режим: §6"+online.getGameMode().toString()+"§5, Здоровье: §3"+online.getHealth()+"§5, Уровень: §3"+online.getLevel()  );             
-                    sender.sendMessage ( "§7Координаты выхода §6"+online.getWorld().getName()+", "+ (sender.hasPermission("ostrov.seen.full")? online.getLocation().getBlockX()+" x "+online.getLocation().getBlockY()+" x "+online.getLocation().getBlockZ() : "(нет права просмотра)") );
+                    sender.sendMessage ( "§7Координаты выхода §6"+online.getWorld().name()+", "+ (sender.hasPermission("ostrov.seen.full")? online.getLocation().getBlockX()+" x "+online.getLocation().getBlockY()+" x "+online.getLocation().getBlockZ() : "(нет права просмотра)") );
                 
               /*  try {
                     sender.sendMessage ( "§7Режим: §6"+EnumGamemode.getById(nbt.getInt("playerGameType")).toString()+"§5, Здоровье: §3"+((int)nbt.getFloat("Health"))+"§5, Уровень: §3"+((int)nbt.getInt("Level"))  );             

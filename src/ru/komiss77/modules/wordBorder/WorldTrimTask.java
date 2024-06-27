@@ -26,9 +26,8 @@ public class WorldTrimTask implements Runnable {
     private transient boolean readyToGo = false;
     private transient boolean paused = false;
     private transient int taskID = -1;
-    private transient int chunksPerRun = 250;//1;
 
-    // values for what chunk in the current region we're at
+  // values for what chunk in the current region we're at
     private transient int currentRegion = -1;  // region(file) we're at in regionFiles
     private transient int regionX = 0;  // X location value of the current region
     private transient int regionZ = 0;  // X location value of the current region
@@ -121,7 +120,9 @@ public class WorldTrimTask implements Runnable {
         long loopStartTime = System.currentTimeMillis();
 
         counter = 0;
-        while (counter <= chunksPerRun) {
+      //1;
+      int chunksPerRun = 250;
+      while (counter <= chunksPerRun) {
             // in case the task has been paused while we're repeating...
             if (paused) {
                 return;
@@ -166,7 +167,7 @@ public class WorldTrimTask implements Runnable {
                     wipeChunks();
                 } else {
                     // if DynMap is installed, re-render the trimmed region ... disabled since it's not currently working, oh well
-//					DynMapFeatures.renderRegion(world.getName(), new CoordXZ(regionX, regionZ));
+//					DynMapFeatures.renderRegion(world.name(), new CoordXZ(regionX, regionZ));
                 }
 
                 nextFile();
@@ -314,7 +315,7 @@ public class WorldTrimTask implements Runnable {
             unChunk.close();
 
             // if DynMap is installed, re-render the trimmed chunks ... disabled since it's not currently working, oh well
-//			DynMapFeatures.renderChunks(world.getName(), trimChunks);
+//			DynMapFeatures.renderChunks(world.name(), trimChunks);
             reportTrimmedChunks += chunkCount;
         } catch (FileNotFoundException ex) {
             sendMessage("Error! Could not open region file to wipe individual chunks: " + regionFile.getName());

@@ -4,13 +4,13 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.util.BoundingBox;
-import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.version.Nms;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class AStarFinder {//idea of UnAlike
@@ -228,8 +228,7 @@ public class AStarFinder {//idea of UnAlike
         }
     }
 
-    private static @Nullable
-    WXYZ getIfWalk(final WXYZ lc) {
+    private static @Nullable WXYZ getIfWalk(final WXYZ lc) {
         return isWalk(lc) ? lc : null;
     }
 
@@ -240,7 +239,7 @@ public class AStarFinder {//idea of UnAlike
     }
 
     @Slow(priority = 2)
-    public static WXYZ getClsWlk(final WXYZ to) {
+    public static @Nullable WXYZ getClsWlk(final WXYZ to) {
         if (isWalk(to)) {
             return to;
         }
@@ -259,10 +258,8 @@ public class AStarFinder {//idea of UnAlike
             }
 
             for (final WXYZ lc : step) {
-                if (last.add(lc)) {
-                    if (isWalk(lc)) {
-                        return lc;
-                    }
+                if (last.add(lc) && isWalk(lc)) {
+                    return lc;
                 }
             }
         }

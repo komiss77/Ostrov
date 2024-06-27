@@ -265,7 +265,7 @@ public class SchemMainMenu implements InventoryProvider {
             
                 //schem.paste(p, p.getLocation(), true);
                 //sm.setCuboid(p, new Cuboid (  p.getLocation(), schem.getCuboid().getSizeX(), schem.getCuboid().getSizeY(), schem.getCuboid().getSizeZ() ));
-                //sm.openSchemEditMenu(p, schem.getName());
+                //sm.openSchemEditMenu(p, schem.name());
                 //p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, .5f, 2);
             
             

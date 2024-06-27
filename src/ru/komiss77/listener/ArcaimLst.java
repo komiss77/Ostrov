@@ -298,7 +298,7 @@ public class ArcaimLst implements Listener {
         bot.remove();
         return;
       }
-      //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+      //Bukkit.broadcast(Component.text("le-" + rplc.name()));
       final Location loc = rplc.getLocation();
 
       final Vector vc;

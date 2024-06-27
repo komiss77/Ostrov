@@ -186,7 +186,7 @@ public class InventoryManager {
         }
         /*
         final Player player = (Player)e.getWhoClicked();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
         if (e.getAction() == InventoryAction.NOTHING || e.getClickedInventory() == null) {
@@ -204,11 +204,11 @@ public class InventoryManager {
             if (row < 0 || column < 0) {
                 return;
             }
-            final SmartInventory smartInventory = manager.getInventories().get(player.getName());
+            final SmartInventory smartInventory = manager.getInventories().get(player.name());
             if (row >= smartInventory.getRows() || column >= smartInventory.getColumns()) {
                 return;
             }
-            manager.getContents().get(player.getName()).get(row, column).ifPresent(clickableItem -> clickableItem.run(e));
+            manager.getContents().get(player.name()).get(row, column).ifPresent(clickableItem -> clickableItem.run(e));
             player.updateInventory();
         }
         */
@@ -218,7 +218,7 @@ public class InventoryManager {
         @EventHandler(priority = EventPriority.LOW)
         public void onInventoryDrag(InventoryDragEvent e) {
             Player p = (Player) e.getWhoClicked();
-            //if(!inventories.containsKey(p.getName())) return;
+            //if(!inventories.containsKey(p.name())) return;
             final SmartInventory inv = inventories.get(p.getName());
             if(inv == null) return;
             
@@ -239,7 +239,7 @@ public class InventoryManager {
         }
         /*
         final Player player = (Player)e.getWhoClicked();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
         final Iterator<Integer> iterator = e.getRawSlots().iterator();
@@ -295,12 +295,12 @@ public class InventoryManager {
         }
         /*
         final Player player = (Player)e.getPlayer();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
-        manager.getInventories().get(player.getName()).getProvider().onClose(player, manager.getContents().get(player.getName()));
-        manager.getInventories().remove(player.getName());
-        manager.getContents().remove(player.getName());
+        manager.getInventories().get(player.name()).getProvider().onClose(player, manager.getContents().get(player.name()));
+        manager.getInventories().remove(player.name());
+        manager.getContents().remove(player.name());
         */
         
         
@@ -326,12 +326,12 @@ public class InventoryManager {
         }
         /*
         final Player player = e.getPlayer();
-        if (!manager.getInventories().containsKey(player.getName())) {
+        if (!manager.getInventories().containsKey(player.name())) {
             return;
         }
-        manager.getInventories().get(player.getName()).getProvider().onClose(player, manager.getContents().get(player.getName()));
-        manager.getInventories().remove(player.getName());
-        manager.getContents().remove(player.getName());
+        manager.getInventories().get(player.name()).getProvider().onClose(player, manager.getContents().get(player.name()));
+        manager.getInventories().remove(player.name());
+        manager.getContents().remove(player.name());
         */
         
         
@@ -354,7 +354,7 @@ public class InventoryManager {
         }
         /*
         public void onPluginDisable(final PluginDisableEvent e) {
-        if (!e.getPlugin().getName().equals(host.getName())) {
+        if (!e.getPlugin().name().equals(host.name())) {
             return;
         }
         manager.getInventories().clear();
@@ -488,28 +488,28 @@ public class InventoryManager {
     }
     
     public Optional<SmartInventory> getInventory(final Player p) {
-        return Optional.ofNullable(inventories.get(p.getName()));
+        return Optional.ofNullable(inventories.get(p.name()));
     }
     
     protected void setInventory(final Player p, final SmartInventory inv) {
         if (inv == null) {
-            inventories.remove(p.getName());
+            inventories.remove(p.name());
         }
         else {
-            inventories.put(p.getName(), inv);
+            inventories.put(p.name(), inv);
         }
     }
     
     public Optional<InventoryContent> getContents(final Player p) {
-        return Optional.ofNullable(contents.get(p.getName()));
+        return Optional.ofNullable(contents.get(p.name()));
     }
     
     protected void setContents(final Player p, final InventoryContent contents) {
         if (contents == null) {
-            this.contents.remove(p.getName());
+            this.contents.remove(p.name());
         }
         else {
-            this.contents.put(p.getName(), contents);
+            this.contents.put(p.name(), contents);
         }
     }
     
@@ -525,7 +525,7 @@ public class InventoryManager {
     
     
     public boolean hasContent(final Player p) {
-        return contents.containsKey(p.getName());
+        return contents.containsKey(p.name());
     }
 }
 */

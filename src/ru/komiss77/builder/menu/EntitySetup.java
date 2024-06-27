@@ -144,10 +144,10 @@ public class EntitySetup implements InventoryProvider {
         /*
         content.set( 5, 4, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> 
             SmartInventory.builder()
-                    .id("EntityByGroup"+p.getName())
+                    .id("EntityByGroup"+p.name())
                     . provider(new EntityByGroup(world, radius, EntityUtil.group(type)))
                     . size(6, 9)
-                    . title("§2"+world.getName()+" "+type+" §1r="+radius).build() .open(p)
+                    . title("§2"+world.name()+" "+type+" §1r="+radius).build() .open(p)
         )); */       
         
         

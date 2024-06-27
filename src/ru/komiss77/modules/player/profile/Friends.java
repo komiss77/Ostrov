@@ -81,11 +81,11 @@ public class Friends {
     }
 
     public static void suggestParty(final Player p1, final Oplayer op, final Player p2) {
-        //p1.sendMessage(friendsPrefix+" §fВы отправили предложение дружать §f"+p2.getName());
+        //p1.sendMessage(friendsPrefix+" §fВы отправили предложение дружать §f"+p2.name());
         PM.getOplayer(p2).partyInvite.add(p1.getName());
         ApiOstrov.executeBungeeCmd(p1, "party invite "+p2.getName());
         //принятие пока по /party accept
-        //p2.sendMessage(friendsPrefix+" §f"+p1.getName()+" §7предлагает дружить. Принять предложение можно в меню друзей.");
+        //p2.sendMessage(friendsPrefix+" §f"+p1.name()+" §7предлагает дружить. Принять предложение можно в меню друзей.");
     }
 
 
@@ -139,7 +139,7 @@ public class Friends {
         
         Oplayer targetOp;
         for (Player target : Bukkit.getOnlinePlayers()) {
-            //if (target.getName().equals(p.getName())) continue;
+            //if (target.name().equals(p.name())) continue;
             targetOp = PM.getOplayer(p);
             if (targetOp!=null && !targetOp.nik.equals(op.nik)) {
                 //друзья

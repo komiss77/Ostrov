@@ -82,10 +82,10 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
         //}
         
         if (cs instanceof Player) {
-            //if (ApiOstrov.isLocalBuilder(cs, false) || ApiOstrov.hasGroup(cs.getName(), "moder")) {
-                //PM.getOplayer(cs.getName()).menu.openAllReports((Player) cs, 0);//openReportMenuAll((Player)cs, 0 );
+            //if (ApiOstrov.isLocalBuilder(cs, false) || ApiOstrov.hasGroup(cs.name(), "moder")) {
+                //PM.getOplayer(cs.name()).menu.openAllReports((Player) cs, 0);//openReportMenuAll((Player)cs, 0 );
             //} else {
-            //    openPlayerReports( (Player)cs, cs.getName(), 0 );
+            //    openPlayerReports( (Player)cs, cs.name(), 0 );
             //}
                 if (arg.length==0) {
                     
@@ -94,7 +94,7 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
                     
                 } else if (arg.length==1) {
                     
-                    //if (arg[0].equalsIgnoreCase(cs.getName())) {
+                    //if (arg[0].equalsIgnoreCase(cs.name())) {
                    // } else {
                         openPlayerReports(cs, PM.getOplayer(cs.getName()), cs.getName(), 0);  //report ник - просмотр данных по игроку
                         return true;
@@ -112,7 +112,7 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
         
         if (arg[0].equalsIgnoreCase(cs.getName())) {
             cs.sendMessage("§cНа себя жалобы не принимаются!");
-        //    PM.getOplayer(cs.getName()).menu.openPlayerReports((Player) cs, cs.getName(), 0);
+        //    PM.getOplayer(cs.name()).menu.openPlayerReports((Player) cs, cs.name(), 0);
             return true;
         } 
         
@@ -224,7 +224,7 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
                             .addLore("§5Административная комисиия.")
                             .addLore("")
                             //.addLore("§7ПКМ - разобраться на месте")
-                            //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.getName(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
+                            //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.name(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
                             .build(), e -> {
                                 if (e.isLeftClick()) {
                                     openPlayerReports(cs, op, name, 0);

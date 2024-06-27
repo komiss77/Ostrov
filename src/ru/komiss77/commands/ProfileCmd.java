@@ -25,7 +25,7 @@ public class ProfileCmd implements CommandExecutor {
         }
         final Oplayer op = PM.getOplayer(p);
 //System.out.println("Profile.onCommand()");
-        //p.openInventory(PM.getOplayer(p.getName()).profile);
+        //p.openInventory(PM.getOplayer(p.name()).profile);
         if (op.menu==null) {
             p.sendMessage("§eПодождите, данные ещё не получены..");
             return true;

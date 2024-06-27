@@ -1,6 +1,7 @@
-package ru.komiss77.modules.drops;
+package ru.komiss77.modules.rolls;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.OstrovConfig;
@@ -68,6 +69,18 @@ public abstract class Roll<R> {
     return this;
   }
 
+  public static boolean roll(final int chance) {
+    return Ostrov.random.nextInt(Math.max(chance, 1)) == 0;
+  }
+
+  public static boolean rollIn(final float chance) {
+    return Ostrov.random.nextFloat() < Math.clamp(chance, 0f, 1f);
+  }
+
+  public static boolean rollOut(final float chance) {
+    return Ostrov.random.nextFloat() > Math.clamp(chance, 0f, 1f);
+  }
+
   public static Roll<?> getRoll(final String id) {
     return rolls.get(id);
   }
@@ -78,6 +91,7 @@ public abstract class Roll<R> {
   }
 
   protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
+    rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
     final OstrovConfig irc = Config.manager.getNewConfig(CON_NAME);
     final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
     if (cs == null) return;

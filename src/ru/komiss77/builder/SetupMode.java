@@ -123,7 +123,7 @@ public class SetupMode implements Listener{
 
 
     public void checkPosition(final Player p) {
-//System.out.println("setPosition "+p.getName());
+//System.out.println("setPosition "+p.name());
         if (min!=null && max!=null
                 && min.getWorld().getName().equals(max.getWorld().getName())
                 && p.getWorld().getName().equals(min.getWorld().getName()) ) {
@@ -253,7 +253,7 @@ public class SetupMode implements Listener{
     
     public void openMainSetupMenu(final Player p) {
         lastEdit = "";
-        //if (p.getName().equals("komiss77") || p.getName().equals("semen")) {
+        //if (p.name().equals("komiss77") || p.name().equals("semen")) {
             SmartInventory.builder()
             .id("Builder"+p.getName())
             .provider(new BuilderMain())
@@ -262,7 +262,7 @@ public class SetupMode implements Listener{
             .build().open(p);
       /*  } else {
             SmartInventory.builder()
-                    .id("Build " + p.getName())
+                    .id("Build " + p.name())
                     .provider(new BuilderInv())
                     .size(3, 9)
                     .title("§eМеню Строителя")
@@ -336,7 +336,7 @@ public class SetupMode implements Listener{
 //System.out.println("!!! ArmorStanddamage 3"); 
                e.setCancelled(true);
                 final Player player = (Player) e.getDamager();
-                Arena arena = GameManager.getArenabyWorld(player.getWorld().getName());
+                Arena arena = GameManager.getArenabyWorld(player.getWorld().name());
 
                 if (arena == null) {
                    player.sendMessage("§cНе найдено арены в этом мире");
@@ -425,8 +425,8 @@ public class SetupMode implements Listener{
         
    // @EventHandler (ignoreCancelled = true, priority = EventPriority.LOWEST)
    // public void onWorldChange (final PlayerChangedWorldEvent e) {
-       //? if(e.getPlayer().getName().equals(name))  Builder.end(name);
-        //if (builders.get(e.getPlayer().getName()).canRaset) end(e.getPlayer()); //(e.getPlayer()); смена мира проиходит через 10тик после начала и сразу вырубит, так нельзя!
+       //? if(e.getPlayer().name().equals(name))  Builder.end(name);
+        //if (builders.get(e.getPlayer().name()).canRaset) end(e.getPlayer()); //(e.getPlayer()); смена мира проиходит через 10тик после начала и сразу вырубит, так нельзя!
         //ItemUtils.substractAllItems(e.getPlayer(), openBuildMenu.getType());
     //}    
     

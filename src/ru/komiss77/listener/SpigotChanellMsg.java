@@ -122,7 +122,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
     }
 
     public static boolean sendMessage(final Player msgTransport, final Operation action, final String senderInfo, final int int1, final int int2, final String s1, final String s2) {
-//Bukkit.broadcastMessage("sendMessage msgTransport="+msgTransport.getName()+" op="+action+"  sendr="+senderInfo+" tag="+int1+" amm="+int2+" target="+s1+" param="+s2);
+//Bukkit.broadcastMessage("sendMessage msgTransport="+msgTransport.name()+" op="+action+"  sendr="+senderInfo+" tag="+int1+" amm="+int2+" target="+s1+" param="+s2);
         try {
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
             final DataOutputStream out = new DataOutputStream(stream);
@@ -198,7 +198,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
 	@Override
     public void onPluginMessageReceived(final String chanelName, Player msgTransport, byte[] msg) {
         final Chanell ch = Chanell.fromName(chanelName);
-//Ostrov.log_warn("1 >>>>MessageReceived: chanelName="+chanelName+" Chanell="+ch+" msgTransport="+msgTransport.getName());
+//Ostrov.log_warn("1 >>>>MessageReceived: chanelName="+chanelName+" Chanell="+ch+" msgTransport="+msgTransport.name());
         if (ch == null) {
             Ostrov.log_err("onPluginMessage Chanell=null : "+chanelName);
             return; 
@@ -223,7 +223,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 Ostrov.log_err("onPluginMessage Action="+operation+" chanel="+chanelName);
                 return; 
             }
-//Ostrov.log_warn("chanel="+ch+" action="+action+" msgTransport="+msgTransport.getName());
+//Ostrov.log_warn("chanel="+ch+" action="+action+" msgTransport="+msgTransport.name());
             switch (ch) {
                 
                 case Action -> onChanelMsg(operation);

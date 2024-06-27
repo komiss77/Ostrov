@@ -256,7 +256,7 @@ public class AnalyticsCmd implements CommandExecutor, TabCompleter {
                             .addLore("")
                             .addFlags(ItemFlag.HIDE_ATTRIBUTES)
                             //.addLore("§7ПКМ - разобраться на месте")
-                            //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.getName(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
+                            //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.name(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
                             .build()
                         ));
                         

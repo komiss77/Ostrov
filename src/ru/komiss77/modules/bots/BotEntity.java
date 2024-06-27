@@ -205,7 +205,7 @@ public class BotEntity extends ServerPlayer {
       Nms.sendWorldPackets( world,
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
-          new ClientboundAddEntityPacket(this));
+          new ClientboundAddEntityPacket(this, 0, blockPosition()));
         swapToSlot(0);
 
 //		final Vector vc = to.toVector();
@@ -417,7 +417,7 @@ public class BotEntity extends ServerPlayer {
 
     public void updateAll(final Player pl) {
 //      pl.sendMessage("bot-" + name);
-      Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this),
+      Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this, 0, blockPosition()),
         new ClientboundTeleportEntityPacket(this), new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
       team.send(pl);
       tag.showTo(pl);
@@ -533,7 +533,7 @@ public class BotEntity extends ServerPlayer {
                 return;
             }
 
-            //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+            //Bukkit.broadcast(Component.text("le-" + rplc.name()));
             final Location loc = rplc.getLocation();
             final Location eyel = rplc.getEyeLocation();
             final Vector vc = eyel.getDirection();

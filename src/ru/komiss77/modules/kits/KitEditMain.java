@@ -85,7 +85,7 @@ public class KitEditMain implements InventoryProvider{
                     kitClone.modifyed=true;
                     KitManager.kits.put(kitClone.name, kitClone);
 //System.out.println("KitEditMain isShiftClick kit="+kit.name+" new kit="+kitClone.name);            
-                    //SmartInventory.builder().id("KitSettingsEditor:"+player.getName()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kitClone.name). build() .open(player);
+                    //SmartInventory.builder().id("KitSettingsEditor:"+player.name()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kitClone.name). build() .open(player);
                             
                     //player.performCommand("kit sellacces "+clickedKit.name);
                     //player.closeInventory();

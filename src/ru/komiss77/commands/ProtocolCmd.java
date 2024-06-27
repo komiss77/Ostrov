@@ -65,7 +65,7 @@ public class ProtocolCmd implements CommandExecutor, TabCompleter {
         }
 
         NBTList list = PowerNBT.getApi().readOfflinePlayer(player).getList(name);
-        Inventory inventory = Bukkit.createInventory((InventoryHolder) null, 36, type + player.getName() + " §4[Только просмотр]");
+        Inventory inventory = Bukkit.createInventory((InventoryHolder) null, 36, type + player.name() + " §4[Только просмотр]");
 
         if (player != null) {
             for (int inc = 0; inc < list.size(); ++inc) {

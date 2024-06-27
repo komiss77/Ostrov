@@ -289,13 +289,13 @@ public class WorldManager implements Initiable {
 
         for (final File f : worldFoldersDirectory.listFiles()) {
             if (f.isDirectory()) {
-//Ostrov.log("folder="+f.getName());
+//Ostrov.log("folder="+f.name());
                 if (f.getName().equals(regionFolderName) && f.listFiles().length!=0) {
                     valid_regions = true;
                 }
 
             } else {
-//Ostrov.log("file="+f.getName());
+//Ostrov.log("file="+f.name());
                 if (f.getName().equals("level.dat")) {
                     valid_level_dat = true;
                 }
@@ -607,11 +607,11 @@ public class WorldManager implements Initiable {
                             Files.copy(path, zipFile);
                             zipFile.closeEntry();
                         } catch (IOException e) {
-                            SW.log_err("ошибка добавления "+is.getWorld(type).getName()+" в архив : "+e.getMessage());
+                            SW.log_err("ошибка добавления "+is.getWorld(type).name()+" в архив : "+e.getMessage());
                         }
                     });
         } catch (IOException ex) {
-            SW.log_err("не удалось добавить копию мира "+is.getWorld(type).getName()+" в архив : "+ex.getMessage());
+            SW.log_err("не удалось добавить копию мира "+is.getWorld(type).name()+" в архив : "+ex.getMessage());
             //is.broadcastMessage("§cНе удалось создать резервную копию - сообщите администрации!");
         }
     }

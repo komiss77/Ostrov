@@ -236,7 +236,7 @@ public class Passport implements InventoryProvider {
                     }
                     if (!parseMail(msg)) {
                         p.sendMessage(Ostrov.PREFIX+"§сЭлектронная почта должна иметь вид "+p.getName()+"@ostrov77.ru");
-                        return;// "пример: "+player.getName()+"@ostrov77.ru";
+                        return;// "пример: "+player.name()+"@ostrov77.ru";
                     }
                     op.setData(Data.EMAIL, msg);
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);

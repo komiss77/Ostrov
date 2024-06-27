@@ -9,7 +9,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.enchants.CustomEnchant;
+import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.version.Nms;
 
@@ -29,7 +29,7 @@ public class TestLst implements Listener {
 
         if (it.getType() == Material.ENCHANTED_BOOK) {
           p.sendMessage("b-" + Nms.getBiomeKey(new WXYZ(p.getLocation())));
-          CustomEnchant.CHANNELING.level(it, 1, false);
+          it.addEnchantment(EnchantManager.GLINT.getEnch(), 1);
           p.getInventory().setItemInMainHand(it);
           return;
         }

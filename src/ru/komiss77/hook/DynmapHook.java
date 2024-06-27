@@ -119,11 +119,11 @@ public class DynmapHook {
             boolean disable = true;
             
             final Listener lst = rl.getListener();
-//Ostrov.log("RegisteredListener="+lst.getClass().getName()+" priority="+rl.getPriority());
+//Ostrov.log("RegisteredListener="+lst.getClass().name()+" priority="+rl.getPriority());
 
             Method[] methods =  lst.getClass().getDeclaredMethods();
             for (Method m : methods) {
-//Ostrov.log("Method="+m.getName());
+//Ostrov.log("Method="+m.name());
                 switch (m.getName()) {
                     case "onPlayerJoin",
                             "onPlayerQuit",
@@ -169,8 +169,8 @@ public class DynmapHook {
             //for (RegisteredListener rl : HandlerList.getRegisteredListeners(dynmap)) {    
             //for (RegisteredListener rl : WorldLoadEvent.getHandlerList().getRegisteredListeners(dynmap)) {    
                 //RegisteredListener rl = hl.getRegisteredListeners()[i];
-//Ostrov.log_warn("rl="+rl.getListener().getClass().getName()+" plugin="+rl.getPlugin().getName()+" priority="+rl.getPriority());
-             //   if (rl.getPlugin().getName().equals("dynmap")) {
+//Ostrov.log_warn("rl="+rl.getListener().getClass().name()+" plugin="+rl.getPlugin().name()+" priority="+rl.getPriority());
+             //   if (rl.getPlugin().name().equals("dynmap")) {
 //Ostrov.log_warn("------");
                     //if (rl.getListener() instanceof )
                // }
@@ -191,7 +191,7 @@ public class DynmapHook {
     }
     
     public static void show(final World world, final String displayName) {
-//Ostrov.log_ok(" ========= showWorld "+world.getName());
+//Ostrov.log_ok(" ========= showWorld "+world.name());
         if (core == null) {
             Ostrov.log_warn("dynmap show "+world.getName()+" : core == null!");
             return;

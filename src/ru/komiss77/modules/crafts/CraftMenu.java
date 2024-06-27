@@ -28,6 +28,7 @@ import org.bukkit.inventory.SmithingTransformRecipe;
 import org.bukkit.inventory.SmokingRecipe;
 import org.bukkit.inventory.StonecuttingRecipe;
 
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.crafts.Crafts.Craft;
 import ru.komiss77.utils.ItemBuilder;
@@ -72,7 +73,7 @@ public class CraftMenu implements InventoryProvider {
     public CraftMenu(final String key, final boolean view) {
     	this.key = key;
         this.view = view;
-        final Recipe rc = Crafts.getRecipe(new NamespacedKey(Crafts.space, key), Recipe.class);
+        final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
         if (rc instanceof ShapelessRecipe) {
         	tp = Material.ENDER_CHEST;
 		} else if (rc instanceof FurnaceRecipe) {
@@ -96,7 +97,7 @@ public class CraftMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent its) {
         final Inventory inv = its.getInventory();
         if (inv != null) inv.setContents(invIts);
-        final Recipe rc = Crafts.getRecipe(new NamespacedKey(Crafts.space, key), Recipe.class);
+        final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
 //        p.sendMessage("k=" + new NamespacedKey(Crafts.space, key) + ", f=" + rc + ", " + Crafts.crafts.toString());
         its.set(9, rc == null ? ClickableItem.of(makeIcon(tp), e -> {
 	        switch (tp) {
@@ -146,7 +147,7 @@ public class CraftMenu implements InventoryProvider {
         	//craftConfig.set(key + ".world", Ostrov.subServer.toString());
         	craftConfig.set(key + ".type", getRecType(tp));
             final ConfigurationSection cs = craftConfig.getConfigurationSection(key);
-            final NamespacedKey nKey = new NamespacedKey(Crafts.space, key);
+            final NamespacedKey nKey = new NamespacedKey(OStrap.space, key);
         	Bukkit.getConsoleSender().sendMessage(cs.getName());
             final Recipe nrc;
             final ItemStack it;

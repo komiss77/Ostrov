@@ -85,8 +85,8 @@ public class DelayTeleport {
         check.addAll(tpData.keySet());
         for (final String name:check) {
             if (Bukkit.getPlayer(name)==null) {
-                if (tpData.containsKey(p.getName()) && tpData.get(p.getName())!=null && !tpData.get(p.getName()).isCancelled()) {
-                    tpData.get(p.getName()).cancel();
+                if (tpData.containsKey(p.name()) && tpData.get(p.name())!=null && !tpData.get(p.name()).isCancelled()) {
+                    tpData.get(p.name()).cancel();
                 }
                 tpData.remove(name);
             }

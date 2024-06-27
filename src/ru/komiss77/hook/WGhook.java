@@ -197,7 +197,7 @@ public class WGhook {
 
             RegionManager rm = getRegionManager(p.getWorld());  
             rm.getRegions().values().stream().forEach((rg) -> {
-                if ( rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.getName()) ) regions.add(rg.getId());
+                if ( rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.name()) ) regions.add(rg.getId());
             });
                                 
             return regions;
@@ -211,7 +211,7 @@ public class WGhook {
 
             RegionManager rm = getRegionManager(p.getWorld()); 
             rm.getRegions().values().stream().forEach((rg) -> {
-                if ( rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.getName()) ) regions.add(rg.getId());
+                if ( rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.name()) ) regions.add(rg.getId());
             });
                                 
             return regions;
@@ -230,7 +230,7 @@ public class WGhook {
             Bukkit.getWorlds().stream().forEach( (w) -> {
                 RegionManager rm = getRegionManager(w); 
                 rm.getRegions().values().stream().forEach((rg) -> {
-                    if ( rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.getName()) ) regions.add(rg);
+                    if ( rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.name()) ) regions.add(rg);
                 });
             });
                return regions;
@@ -247,7 +247,7 @@ public class WGhook {
         Bukkit.getWorlds().stream().forEach((w) -> {
             RegionManager rm = getRegionManager(w); 
             rm.getRegions().values().stream().forEach((rg) -> {
-                if ( rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.getName()) ) regions.add(rg);
+                if ( rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.name()) ) regions.add(rg);
             });
         });
            return regions;

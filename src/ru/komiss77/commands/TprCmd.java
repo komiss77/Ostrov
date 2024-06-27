@@ -192,7 +192,7 @@ public class TprCmd implements CommandExecutor, TabCompleter{
     public static void runCommand(final Player p, final World world, final int radiusLimit, final boolean ignoreMove, final boolean anyCase, final Consumer<Player> onDone) {
 
         //if ( !p.hasPermission("ostrov.tpr.free")) {
-        //    if (ApiOstrov.moneyGetBalance(p.getName())<100) {
+        //    if (ApiOstrov.moneyGetBalance(p.name())<100) {
         //        p.sendMessage("§cНедостаточно денег для перемещения! Стоимость: 100 лони");
         //        return;
         //    }
@@ -247,7 +247,7 @@ public class TprCmd implements CommandExecutor, TabCompleter{
             int find_try=100; //если делать меньше, то изменить ниже Поиск места: §3"+(100-find_try)+"%
             int tryPereTick = TRY_PER_TICK;
             int find_x, find_z, feet_y;
-            Location feetLoc = new Location(world, 0, 0, 0);
+            final Location feetLoc = new Location(world, 0, 0, 0);
             //Location temp;
             
             Material headMat = Material.AIR;

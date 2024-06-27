@@ -635,7 +635,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         if (op == null) {
             return;
         }
-        op.last_death = p.getLocation();//PM.OP_Set_back_location(p.getName(), p.getLocation());
+        op.last_death = p.getLocation();//PM.OP_Set_back_location(p.name(), p.getLocation());
 
         if (flags.get(PvpFlag.enable)) {
 
@@ -1053,7 +1053,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 content.add(ClickableItem.of(is, e -> {
                     //if (e.isLeftClick() ) {
                     //    player.closeInventory();
-                    //    player.performCommand("spy "+p.getName());
+                    //    player.performCommand("spy "+p.name());
                     //} else {
                     flags.put(f, !b);
                     saveConfig();

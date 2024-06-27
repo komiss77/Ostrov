@@ -92,7 +92,7 @@ public class SpyCmd implements CommandExecutor, TabCompleter {
   //  }
     
 
-//        if ( !p.isFlying() && ( spy_gamemodes.get(p.getName()).equals("SURVIVAL") || spy_gamemodes.get(p.getName()).equals("ADVENTURE")) ) ApiOstrov.teleportSave(p, p.getLocation());
+//        if ( !p.isFlying() && ( spy_gamemodes.get(p.name()).equals("SURVIVAL") || spy_gamemodes.get(p.name()).equals("ADVENTURE")) ) ApiOstrov.teleportSave(p, p.getLocation());
 
     
     

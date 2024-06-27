@@ -172,7 +172,7 @@ public class KitComponentEditor implements InventoryProvider{
         
         contents.set( 5, 2, ClickableItem.of( new ItemBuilder(Material.GRINDSTONE).name("§eредактировать настройки").build(), e ->
                 KitManager.openKitSettingsEditor(player, kit)
-                // SmartInventory.builder().id("KitSettingsEditor:"+player.getName()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kit.name). build() .open(player)
+                // SmartInventory.builder().id("KitSettingsEditor:"+player.name()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kit.name). build() .open(player)
         ) );
         
         
@@ -187,7 +187,7 @@ public class KitComponentEditor implements InventoryProvider{
                     .addLore("§cпосле перезагрузки сервера.")
                     .build(), e ->
                             KitManager.openKitEditMain(player)
-                    //-> SmartInventory.builder().id("KitEditMain:"+player.getName()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
+                    //-> SmartInventory.builder().id("KitEditMain:"+player.name()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
             ) );
             
                 contents.set( 5, 6, ClickableItem.of( new ItemBuilder(Material.NETHER_STAR).name("сохранить на диск").build(), e -> {
@@ -202,7 +202,7 @@ public class KitComponentEditor implements InventoryProvider{
                     .name("гл.меню")
                     .build(), e ->
                             KitManager.openKitEditMain(player)
-                    //-> SmartInventory.builder().id("KitEditMain:"+player.getName()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
+                    //-> SmartInventory.builder().id("KitEditMain:"+player.name()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
             ) );
             
         }

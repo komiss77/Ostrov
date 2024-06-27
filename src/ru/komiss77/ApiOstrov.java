@@ -8,6 +8,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -43,10 +44,7 @@ import ru.komiss77.version.Nms;
 
 import java.sql.Connection;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 
@@ -95,7 +93,7 @@ public class ApiOstrov {
      * отправить добавление локальной статы (для выплат лони и missionsManager)
      */
     public static void addCustomStat(final Player p, final String customStatName, final int ammount) {
-        //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.getName(), ammount, customStatName);
+        //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.name(), ammount, customStatName);
         final Oplayer op = PM.getOplayer(p);
         if (op!=null) {
             StatManager.onCustomStat(p, op, customStatName, ammount);
@@ -114,7 +112,7 @@ public class ApiOstrov {
      */
     public static void reachCustomStat(final Player p, final String customStatName, final int value) {
       if (StatManager.DEBUG) Ostrov.log("reachCustomStat "+(p==null?"null":p.getName())+" stat="+customStatName+" val="+value);
-      //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.getName(), ammount, customStatName);
+      //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.name(), ammount, customStatName);
       final Oplayer op = PM.getOplayer(p);
       if (op!=null) MissionManager.onCustomStat(op, customStatName, value, true);
     }
@@ -435,8 +433,8 @@ public class ApiOstrov {
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI)+value);//moneySet(curr+value, send_update);
 //System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));
         if (value>9 || value<-9) { //по копейкам не уведомляем
-            target.sendMessage(TCUtils.format(Ostrov.PREFIX+"§7"+(value>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(value>9?"§2":"§4")+value+" "+Ostrov.L+" §7! §8<клик-баланс")
-            .hoverEvent(HoverEvent.showText(TCUtils.format("§5Клик - сколько стало?")))
+            target.sendMessage(TCUtils.form(Ostrov.PREFIX+"§7"+(value>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(value>9?"§2":"§4")+value+" "+Ostrov.L+" §7! §8<клик-баланс")
+            .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
             .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
@@ -488,7 +486,7 @@ public class ApiOstrov {
     // сообщения сохраняются и выводятся поочерёдно
     public static void sendTitle(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout ) {
         final Times times =  Title.Times.times(Duration.ofMillis(fadein* 50L), Duration.ofMillis(stay* 50L), Duration.ofMillis(fadeout* 50L));
-    	sendTitle(p, TCUtils.format(title), TCUtils.format(subtitle), times);
+    	sendTitle(p, TCUtils.form(title), TCUtils.form(subtitle), times);
     }
 
     public static void sendTitle(final Player p, final Component title, final Component subtitle, final int fadein, final int stay, final int fadeout  ) {
@@ -518,7 +516,7 @@ public class ApiOstrov {
 
     public static void sendTitleDirect(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout ) {
         final Times times = Title.Times.times(Duration.ofMillis(fadein* 50L), Duration.ofMillis(stay* 50L), Duration.ofMillis(fadeout* 50L));
-        p.showTitle( Title.title(TCUtils.format(title), TCUtils.format(subtitle), times) );
+        p.showTitle( Title.title(TCUtils.form(title), TCUtils.form(subtitle), times) );
     }
 
     // сообщения сохраняются и выводятся поочерёдно
@@ -529,16 +527,16 @@ public class ApiOstrov {
                 op.delayActionbars.add(text);
             } else {
                 op.nextAb = Oplayer.ACTION_BAR_INTERVAL;
-                p.sendActionBar(TCUtils.format(text));
+                p.sendActionBar(TCUtils.form(text));
             }
         } else {
-            p.sendActionBar(TCUtils.format(text));
+            p.sendActionBar(TCUtils.form(text));
         }
     }
 
     public static void sendActionBarDirect(final Player p, final String text) {
         if (p!=null) {
-            p.sendActionBar(TCUtils.format(text));
+            p.sendActionBar(TCUtils.form(text));
         }
     }
 
@@ -583,7 +581,7 @@ public class ApiOstrov {
     }
 
     public static void sendTabList(final Player p, final String header, final String footer) {
-        p.sendPlayerListHeaderAndFooter(TCUtils.format(header), TCUtils.format(footer));
+        p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
     }
 
 
@@ -604,7 +602,7 @@ public class ApiOstrov {
     //    числа
     public static int randInt(final int num1, final int num2) {
         if (num1==num2) return num1;
-        return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.absInt(num2 - num1));
+        return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
     }
 
     public static boolean randBoolean() {
@@ -792,11 +790,18 @@ public class ApiOstrov {
       GM.sendArenaData(Game.fromServerName(Ostrov.MOT_D), arenaName, (state==null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3);
     }
 
+    public static String[] wrap(final String msg, final int length, final String newLine) {
+      if (msg.length() < 2) return new String[] {msg};
+      final char split = '\n';
+      final String line = split + newLine;
+      return WordUtils.wrap(msg, length, line, false).substring(1).split(line);
+    }
 
     public static boolean checkString (String message, final boolean allowNumbers, final boolean allowRussian) {
         return checkString(message, false, allowNumbers, allowRussian);
     }
-    public static boolean checkString (String message, final boolean allowSpace,  final boolean allowNumbers,final boolean allowRussian) {
+
+    public static boolean checkString (String message, final boolean allowSpace, final boolean allowNumbers, final boolean allowRussian) {
         if (allowNumbers && allowRussian) {
             message = message.replaceAll(PATTERN_ENG_NUM_RUS, "");
         } else if (allowNumbers) {
@@ -810,7 +815,7 @@ public class ApiOstrov {
    }
 
     public static boolean canBeBuilder(final CommandSender cs) {
-        //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
+        //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.name(), "supermoder");
         if (cs == null) return false;
         if ( (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder") ) return true;
         final Oplayer op = PM.getOplayer(cs.getName());
@@ -831,8 +836,8 @@ public class ApiOstrov {
                     return true;
                 } else if (message) {
                     final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                    p.sendMessage(TCUtils.format(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                            .hoverEvent(HoverEvent.showText(TCUtils.format(eng ? "§7Click - enable" : "§7Клик - включить")))
+                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
                             .clickEvent(ClickEvent.runCommand("/builder")));
                 }  //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
                 break;
@@ -850,7 +855,7 @@ public class ApiOstrov {
     }
 
     public static boolean isSpyMode(final Player p) {
-        return PM.getOplayer(p).spyTask != null;//SpyCmd.isSpy(p.getName());
+        return PM.getOplayer(p).spyTask != null;//SpyCmd.isSpy(p.name());
     }
 
     @SuppressWarnings("unchecked")
@@ -858,22 +863,36 @@ public class ApiOstrov {
         return arr[Ostrov.random.nextInt(arr.length)];
     }
 
-  public static <G> G[] shuffle(final G[] ar) {
-    int chs = ar.length >> 2;
-    for (int i = ar.length - 1; i > chs; i--) {
-      final int ni = Ostrov.random.nextInt(i);
-      final G ne = ar[ni];
-      ar[ni] = ar[i];
-      ar[i] = ne;
-      chs += ((chs-ni) >> 31) + 1;
+    public static <G> G[] shuffle(final G[] ar) {
+      int chs = ar.length >> 2;
+      if (chs == 0) {
+        if (ar.length > 1) {
+          final G ne = ar[0];
+          ar[0] = ar[ar.length - 1];
+          ar[ar.length - 1] = ne;
+        }
+        return ar;
+      }
+      for (int i = ar.length - 1; i > chs; i--) {
+        final int ni = Ostrov.random.nextInt(i);
+        final G ne = ar[ni];
+        ar[ni] = ar[i];
+        ar[i] = ne;
+        chs += ((chs-ni) >> 31) + 1;
+      }
+      return ar;
     }
-    return ar;
-  }
 
-	public static String toSigFigs(final float n, final byte sf) {
-		final String nm = String.valueOf(n);
-		return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
-	}
+    public static String toSigFigs(final double n, final byte sf) {
+      final String nm = String.valueOf(n);
+      return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
+    }
+
+    @Deprecated
+    public static String toSigFigs(final float n, final byte sf) {
+      final String nm = String.valueOf(n);
+      return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
+    }
 
     public static int currentTimeSec() {
         return Timer.getTime();

@@ -245,7 +245,7 @@ public final class Pandora implements Initiable, Listener {
     
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.MONITOR )
     public void onFigureActivateEntity (final FigureActivateEntityEvent e) {
-//System.out.println("--onFigureActivateEntity "+e.getFigure().getName()+" "+e.getFigure().getTag());          
+//System.out.println("--onFigureActivateEntity "+e.getFigure().name()+" "+e.getFigure().getTag());
         if (e.getFigure().getTag().equals("pandora") && e.getFigure().getEntityType()==EntityType.ARMOR_STAND) {
             figure = e.getFigure();
             as = (ArmorStand) figure.getEntity();
@@ -264,7 +264,7 @@ public final class Pandora implements Initiable, Listener {
     
     @EventHandler ( ignoreCancelled = true, priority = EventPriority.MONITOR )
     public void onFigureClick (final FigureClickEvent e) {
-//System.out.println("--onFigureClick "+e.getFigure().getName()+" "+e.getFigure().getTag());          
+//System.out.println("--onFigureClick "+e.getFigure().name()+" "+e.getFigure().getTag());
         if (e.getFigure().getTag().equals("pandora")) {
              clickPandora(e.getPlayer());
         }
@@ -355,12 +355,12 @@ public final class Pandora implements Initiable, Listener {
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 1, p.getName(), "get");
                 broadcastBossBar(p.getWorld(), " §4-10 лони!");
                 luck = false;
-                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "prefix");
-                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, false, null);
-                //Database.addDonatGroup(Auth.getInstance().getProxy().getConsole(), "pandora", pp.getName(), Main.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, null);
+                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.name(), "prefix");
+                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.name(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, false, null);
+                //Database.addDonatGroup(Auth.getInstance().getProxy().getConsole(), "pandora", pp.name(), Main.getHostIp(pp.getPendingConnection()), Database.groups.get("prefix"),  24, false, null);
                 ApiOstrov.sendTitle(p, "§2Ну хоть что-то..", "§eПрефиксер на день!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,1);
-                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
+                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.name(), "add");
                 broadcastBossBar(p.getWorld(), " §eПрефиксер на день!");*/
                 break;
 
@@ -369,22 +369,22 @@ public final class Pandora implements Initiable, Listener {
                 //StatManager.karmaBaseChange(op,2);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D+":пандора", RewardType.KARMA.tag, 2, p.getName(), "add");
                 broadcastBossBar(p.getWorld(), " §eКарма +2!");
-                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "fly");
-                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("fly"),  24, false, false, null);
+                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.name(), "fly");
+                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.name(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("fly"),  24, false, false, null);
                 ApiOstrov.sendTitle(p, "§2Неплохо!", "§eАнгел на день!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,1);
-                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
+                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.name(), "add");
                 broadcastBossBar(p.getWorld(), " §eАнгел на день!");*/
                 break;
 
-                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.getName(), "gamer");
-                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("gamer"),  24, false, false, null);
+                /*ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":pandora", RewardType.GROUP.tag, 24*60*60, p.name(), "gamer");
+                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.name(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("gamer"),  24, false, false, null);
                 ApiOstrov.sendTitle(p, "§2Пригодится.", "§eИгроман на день!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,1);
-                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.getName(), "add");
+                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 1, p.name(), "add");
                 broadcastBossBar(p.getWorld(), " §eИгроман на день!");*/
 
-                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.getName(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("skills"),  24, false, false, null);
+                //GroupCommand.checkGroupAndGive(Auth.getInstance().getProxy().getConsole(), "pandora", pp.name(), Auth.getHostIp(pp.getPendingConnection()), Database.groups.get("skills"),  24, false, false, null);
                 //ApiOstrov.sendTitle(p, "§2Скорее на Седну!", "§eПросвящённый на день!", 10, 40, 60);
                 //StatManager.karmaBaseChange(op,2);
                 //broadcastBossBar(p.getWorld(), " §eПросвящённый на день!");
@@ -415,10 +415,10 @@ public final class Pandora implements Initiable, Listener {
                 luck = false;
                 /*ApiOstrov.sendTitle(p, "§4Ооо щит..", "§cБан на 5 минут..", 10, 40, 60);
                 p.sendMessage("§6[§eПандора§6] §cСейчас прольётся чья-то кровь!");
-                //ApiOstrov.sendMessage(p, Operation.GBAN, GM.this_server_name+":pandora",  5*60, 0, p.getName(), "§eШкатулка Пандоры - §cнеудача");
-                Ostrov.sync( ()-> ApiOstrov.sendMessage(p, Operation.GBAN, GM.this_server_name+":pandora",  5*60, 0, p.getName(), "§eШкатулка Пандоры - §cнеудача") , 100);
+                //ApiOstrov.sendMessage(p, Operation.GBAN, GM.this_server_name+":pandora",  5*60, 0, p.name(), "§eШкатулка Пандоры - §cнеудача");
+                Ostrov.sync( ()-> ApiOstrov.sendMessage(p, Operation.GBAN, GM.this_server_name+":pandora",  5*60, 0, p.name(), "§eШкатулка Пандоры - §cнеудача") , 100);
                 //StatManager.karmaBaseChange(op,-3);
-                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 3, p.getName(), "add");
+                ApiOstrov.sendMessage(p, Operation.REWARD, GM.this_server_name+":пандора", RewardType.KARMA.tag, 3, p.name(), "add");
                 broadcastBossBar(p.getWorld(), " §cБан на 5 минут..");
                 luck = false;*/
                 break;

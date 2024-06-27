@@ -265,7 +265,7 @@ public class NbtLst implements Listener {
             try{
                 if (item.getEnchantments().isEmpty()) return false;
                 for ( Enchantment enchant : item.getEnchantments().keySet() ) {
-//System.out.println(" ------- enchant "+enchant+"   "+enchant.getName()+"  lvl="+item.getEnchantments().get(enchant)+"  start="+enchant.getStartLevel()+"  max="+enchant.getMaxLevel());                    
+//System.out.println(" ------- enchant "+enchant+"   "+enchant.name()+"  lvl="+item.getEnchantments().get(enchant)+"  start="+enchant.getStartLevel()+"  max="+enchant.getMaxLevel());
                     if (item.getEnchantments().get(enchant)<0 || item.getEnchantments().get(enchant)>enchant.getMaxLevel()) return true;
                 }
             } catch (IllegalArgumentException | NullPointerException ex) {
@@ -282,7 +282,7 @@ public class NbtLst implements Listener {
             List<Enchantment> ench_list = new ArrayList<>(item.getEnchantments().keySet());
 //System.out.println(" 222 Repair_enchant "+ench_set);                    
             ench_list.stream().forEach((enchant) -> {
-//System.out.println(" ------- enchant "+enchant+"   "+enchant.getName()+"  lvl="+item.getEnchantments().get(enchant));                    
+//System.out.println(" ------- enchant "+enchant+"   "+enchant.name()+"  lvl="+item.getEnchantments().get(enchant));
                 item.removeEnchantment(enchant);
                 item.addEnchantment(enchant, enchant.getStartLevel());
             });
