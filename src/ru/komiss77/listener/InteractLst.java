@@ -3,7 +3,6 @@ package ru.komiss77.listener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -110,11 +109,10 @@ public class InteractLst implements Listener {
 
     @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
     public void onInteractEntity(PlayerInteractEntityEvent e) {
-        if (e.getRightClicked().getType() == EntityType.PLAYER && PM.exist(e.getRightClicked().getName())) {
+        if (e.getRightClicked().getType() == EntityType.PLAYER) {
             final Player target = (Player) e.getRightClicked();
             //если у цели в руках паспорт - показать кликающему
-            if (isPassport(target.getInventory().getItemInMainHand())
-                    || isPassport(target.getInventory().getItemInOffHand())) {
+            if (isPassport(target.getInventory().getItem(e.getHand()))) {
                 e.setCancelled(true);
                 PassportCmd.showLocal(e.getPlayer(), target);
             }
@@ -131,6 +129,7 @@ public class InteractLst implements Listener {
             if (p.getOpenInventory().getType() != InventoryType.CHEST) {
                 if (PM.getOplayer(p.getUniqueId()).setup != null) {
                     PM.getOplayer(p.getUniqueId()).setup.openSetupMenu(p);
+                    return;
                 } //else {
                 //p.performCommand("menu"); может перекрыть в минииграх
                 //}

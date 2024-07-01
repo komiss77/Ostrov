@@ -2,7 +2,6 @@ package ru.komiss77.modules.menuItem;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -10,7 +9,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
@@ -86,7 +84,7 @@ public final class MenuItemsManager implements Initiable, Listener {
             addItem(pipboy);
         }
 
-        if (Config.getConfig().getBoolean("player.give_bow_teleport")) {
+      /*  if (Config.getConfig().getBoolean("player.give_bow_teleport")) {
 
             final ItemStack is = new ItemBuilder(Material.BOW)
                     .name("§eЛук-Телепортер")
@@ -116,7 +114,7 @@ public final class MenuItemsManager implements Initiable, Listener {
             addItem(tparrow);
             //}
 
-        }
+        }*/
 
         Bukkit.getPluginManager().registerEvents(MenuItemsManager.this, Ostrov.instance);
 
@@ -241,11 +239,11 @@ public final class MenuItemsManager implements Initiable, Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent e) {
 
 //Ostrov.log("Lobbyitems PlayerInteractEvent="+e.getAction()+" useItemInHand="+e.useItemInHand());
-        if (e.getItem() == null || e.getAction() == Action.PHYSICAL) return;
+        if (e.getAction() == Action.PHYSICAL) return;
 
         final MenuItem menuItem = fromItemStack(e.getItem());
 //Ostrov.log("menuItem="+menuItem);
@@ -298,6 +296,15 @@ public final class MenuItemsManager implements Initiable, Listener {
         }
     }
 
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onInteractEntity(PlayerInteractAtEntityEvent e) {
+        final Player p = e.getPlayer();
+        final MenuItem menuItem = fromItemStack(p.getInventory().getItem(e.getHand()));
+        if (menuItem != null && menuItem.on_interact_at_entity != null) {
+            menuItem.on_interact_at_entity.accept(e);
+        }
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLocalDataLoadEvent(final LocalDataLoadEvent e) {

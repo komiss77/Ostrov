@@ -3,6 +3,7 @@ package ru.komiss77.modules.menuItem;
 import java.util.function.Consumer;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -103,6 +104,11 @@ public class MenuItemBuilder {
 
     public MenuItemBuilder interact(final Consumer<PlayerInteractEvent> consumer) {
         si.on_interact = consumer;
+        return this;
+    }
+
+    public MenuItemBuilder interactAtEntity(final Consumer<PlayerInteractAtEntityEvent> consumer) {
+        si.on_interact_at_entity = consumer;
         return this;
     }
 

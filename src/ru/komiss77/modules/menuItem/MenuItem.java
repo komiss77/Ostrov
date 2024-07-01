@@ -4,6 +4,7 @@ import com.destroystokyo.paper.ClientOption;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,6 +31,7 @@ public class MenuItem {
     public Consumer<Player> on_left_click, on_right_click, on_left_sneak_click, on_right_sneak_click;
     protected Consumer<InventoryClickEvent> on_inv_click;
     protected Consumer<PlayerInteractEvent> on_interact;
+    protected Consumer<PlayerInteractAtEntityEvent> on_interact_at_entity;
 
     public MenuItem(final String name, final ItemStack is) {
         this.name = name;

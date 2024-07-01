@@ -4,16 +4,21 @@ import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Perm;
+import ru.komiss77.builder.menu.BannerEditor;
+import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
@@ -32,14 +37,37 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
     public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();
 
     static {
-        final ItemStack buildMenu = new ItemBuilder(Material.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE).name("§aМеню билдера").build();
+        final ItemStack buildMenu = new ItemBuilder(Material.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
+                .name("§aМеню билдера")
+                .addLore("§6ПКМ на баннер, голову, энтити -")
+                .addLore("§e настроить")
+                .build();
         bmi = new MenuItemBuilder("bmi", buildMenu)
                 .slot(0)
-                .rightClickCmd("builder")
-                .leftClickCmd("builder")
+                //.rightClickCmd("builder")
+                //.leftClickCmd("builder")
                 .giveOnJoin(false)
                 .giveOnWorld_change(false)
                 .giveOnRespavn(false)
+                .interact(e -> {
+                    e.setCancelled(true);
+                    if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                        if (e.getClickedBlock().getType() == Material.PLAYER_HEAD) {
+                            e.getPlayer().sendMessage("SETUP PLAYER_HEAD");
+                            return;
+                        } else if (Tag.BANNERS.isTagged(e.getClickedBlock().getType())) {
+                            BannerEditor.edit(e.getPlayer(), e.getClickedBlock());
+                            return;
+                        }
+                    }
+                    e.getPlayer().performCommand("builder");
+                })
+                .interactAtEntity(e -> {
+                    e.setCancelled(true);
+                    if (e.getRightClicked() instanceof LivingEntity) {
+                        EntitySetup.openSetupMenu(e.getPlayer(), e.getRightClicked());
+                    }
+                })
                 .create();
     }
 

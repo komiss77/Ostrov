@@ -1,17 +1,18 @@
 package ru.komiss77.modules.world;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.BlockUtils;
+import ru.komiss77.version.Nms;
 
 //https://gist.github.com/ursinn/871525236408e33d4cbee607f7eff8ae
 public class Cuboid {
@@ -371,6 +372,33 @@ public class Cuboid {
         return new Location(world, minX + spawnAddX, minY + spawnAddY, minZ + spawnAddZ);//world.getBlockAt(minX + spawnAddX, minY + spawnAddY, minZ + spawnAddZ).getLocation();
     }
 
+    public void setBiome(final World world, final Biome biome) {
+        for (int x = minX; x <= maxX; x += 4) {
+            for (int y = minY; y <= maxY; y += 4) {
+                for (int z = minZ; z <= maxZ; z += 4) {
+                    world.getBlockAt(x, y, z).setBiome(biome);
+                }
+            }
+        }
+        //XYZ xyz;
+        //final Iterator <XYZ> it = iteratorXYZ(Schematic.Rotate.r0);
+        //while (it.hasNext()) {
+        //    xyz = it.next();
+        //    if (xyz.x%4==0 && xyz.y%4==0 && xyz.z%4==0) {
+        //        world.getBlockAt(xyz.x, xyz.y, xyz.z).setBiome(biome);
+        //    }
+        //}
+        final Set<Chunk> chunks = getChunks(world);
+        for (Player p : getPlayers(world)) {
+            if (contains(p.getLocation())) {
+                for (Chunk c : chunks) {
+                    Nms.sendChunkChange(p, c);
+                }
+            }
+        }
+
+    }
+
     public Set<Chunk> getChunks(final World world) {
         final Set<Chunk> res = new HashSet<>();
         int x1 = minX() & ~0xf;
@@ -383,6 +411,16 @@ public class Cuboid {
             }
         }
         return res;
+    }
+
+    public List<Player> getPlayers(final World world) {
+        final List<Player> list = new ArrayList<>();
+        for (Player p : world.getPlayers()) {
+            if (contains(p.getLocation())) {
+                list.add(p);
+            }
+        }
+        return list;
     }
 
     public Cuboid rotate(final Rotate rotate) { //повернуть вокруг точки спавна

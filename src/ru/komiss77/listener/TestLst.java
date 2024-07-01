@@ -1,62 +1,53 @@
 package ru.komiss77.listener;
 
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.bots.AfkBot;
 import ru.komiss77.modules.enchants.CustomEnchant;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.redis.RDS;
-import ru.komiss77.modules.world.XYZ;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.inventory.InputButton;
-
-import java.util.HashSet;
-import java.util.Set;
-
 
 public class TestLst implements Listener {
-
 
     //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
+//p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
+        if (!ApiOstrov.isLocalBuilder(p)) return;
+
+
         final ItemStack it = e.getItem();
         if (it == null) return;
 
-        //if (!ApiOstrov.isLocalBuilder(p)) return;
 //Ostrov.log("PlayerInteractEvent "+e.getMaterial());
 
 
         if (it.getType() == Material.WOODEN_PICKAXE) {
-//            e.setCancelled(true);
+            e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel!");
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+
                 //PlayerInput.get(p, 100, 0, 200, i->{
                 //});
                 //RDS.sendMessage("ostrov", "ostrov");
                 //RDS.sendMessage("arenadata", "arenadata");
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
+                if (p.isSneaking()) {
+
+                } else {
+
+                }
 
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                // op.addCd("test", count++);
+
                 if (p.isSneaking()) {
-                    //forEntity(bot.getBukkitEntity()).setName(TCUtils.format("§bdd☻§edfdsg §gк|avvvddedrfer §edffffff"));
-                    // bot.tag(true);
-                    // p.sendMessage("tag on");
-                    //Lang.sendMessage(p, "ВСТАВЛЕНО");
-                    // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
+
                 } else {
+
                     //   bot.tag(false);
                     //forEntity(bot.getBukkitEntity()).setHidden(true);
                     // p.sendMessage("tag off");
@@ -120,10 +111,6 @@ public class TestLst implements Listener {
 
 
 
-
-    
-    
-    
     
     
     

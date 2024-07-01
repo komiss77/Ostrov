@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
-
 import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
