@@ -1,6 +1,7 @@
 https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uGnK7ZD.Qx_EaqorlySXLSSDZOXVw2EDYBodSfTA4-1633813124-0-gqNtZGzNAlCjcnBszQrR
 !!!!! если в идее пропали мавен зависимости, в билд.градле.ктс закоментить paperweight.paperDevBundle, рестарт,раскоментить,рестарт и прогрузит
 
+база композиций стоек для брони https://minecraft-heads.com/armor-stands
 кастомные биомы тема https://www.spigotmc.org/threads/how-to-create-custom-biomes.512105/page-2
 генератор биомов https://github.com/VolmitSoftware/Iris https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/
 https://github.com/erikzimmermann/discord-verification-bot

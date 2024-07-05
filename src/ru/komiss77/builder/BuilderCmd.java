@@ -19,6 +19,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.Perm;
 import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
+import ru.komiss77.builder.menu.HeadSetup;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
@@ -52,8 +53,8 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
                 .interact(e -> {
                     e.setCancelled(true);
                     if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                        if (e.getClickedBlock().getType() == Material.PLAYER_HEAD) {
-                            e.getPlayer().sendMessage("SETUP PLAYER_HEAD");
+                        if (e.getClickedBlock().getType() == Material.PLAYER_HEAD || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD) {
+                            HeadSetup.openSetupMenu(e.getPlayer(), e.getClickedBlock());
                             return;
                         } else if (Tag.BANNERS.isTagged(e.getClickedBlock().getType())) {
                             BannerEditor.edit(e.getPlayer(), e.getClickedBlock());
