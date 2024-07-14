@@ -5,18 +5,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import ru.komiss77.modules.world.WXYZ;
 
 
 public class RandomTpFindEvent extends Event implements Cancellable {
 
     private static HandlerList handlers = new HandlerList();
     private final Player p;
-    private Location loc;
+    private WXYZ xyz;
     private boolean cancel = false;
 
-    public RandomTpFindEvent(final Player p, final Location loc) {
+    public RandomTpFindEvent(final Player p, final WXYZ xyz) {
         this.p = p;
-        this.loc = loc;
+        this.xyz = xyz;
     }
 
     public Player getPlayer() {
@@ -24,7 +25,7 @@ public class RandomTpFindEvent extends Event implements Cancellable {
     }
 
     public Location getFoundLocation() {
-        return loc;
+        return xyz.getCenterLoc();
     }
 
 

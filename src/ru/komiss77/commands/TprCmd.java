@@ -29,6 +29,7 @@ import ru.komiss77.events.RandomTpFindEvent;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.version.Nms;
 
@@ -243,14 +244,14 @@ public class TprCmd implements CommandExecutor, TabCompleter {
                     final String name = p.getName();
                     int find_try = 100; //если делать меньше, то изменить ниже Поиск места: §3"+(100-find_try)+"%
                     int tryPereTick = TRY_PER_TICK;
-                    int find_x, find_z, feet_y;
-                    Location feetLoc = new Location(world, 0, 0, 0);
+                    //int find_x, find_z, feet_y;
+                    WXYZ feetLoc = new WXYZ(p.getLocation());//Location(world, 0, 0, 0);
                     //Location temp;
 
-                    Material headMat = Material.AIR;
-                    Material feetMat = Material.AIR;
+                    //Material headMat = Material.AIR;
+                    //Material feetMat = Material.AIR;
                     ;
-                    Material downMat;
+                    //Material downMat;
                     //final boolean wg = Ostrov.getWorldGuard()!=null;
 
                     @Override
@@ -290,12 +291,17 @@ public class TprCmd implements CommandExecutor, TabCompleter {
 
                         for (; tryPereTick > 0; tryPereTick--) {
 
-                            find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
-                            find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
+                            //find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
+                            //find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
+                            feetLoc.x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
+                            feetLoc.z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
 
-                            feet_y = maxY;
+                            feetLoc.y = maxY;
 
-                            feetLoc.set(find_x + 0.5, feet_y, find_z + 0.5);//=world.getBlockAt(find_x, world.getHighestBlockYAt(find_x, find_z), find_z).getLocation();
+                            //feetLoc.set(find_x + 0.5, feet_y, find_z + 0.5);//=world.getBlockAt(find_x, world.getHighestBlockYAt(find_x, find_z), find_z).getLocation();
+                            //feetLoc.x = find_x;
+                            //feetLoc.y = feet_y;
+                            //feetLoc.z = find_z;
 
                             //в кланах приват чанками, поэтому можно чекнуть не определяя y
                             // if (faction && ApiFactions.geFaction(feetLoc) !=null) {
@@ -308,10 +314,12 @@ public class TprCmd implements CommandExecutor, TabCompleter {
                             }
 
 //Ostrov.log("                                    find_try="+find_try+" tryPereTick="+tryPereTick);
+                            //feetLoc = TeleportLoc.findSafeLocation(p, feetLoc);
+                            //if (feetLoc == null) {
+                            //    continue;
+                            //}
 
-
-                            for (; feet_y >= minY; feet_y--) {
-
+                            /*for (; feet_y >= minY; feet_y--) {
                                 headMat = feetMat;
                                 feetMat = downMat;
                                 downMat = Nms.getFastMat(world, find_x, feet_y - 1, find_z);
@@ -333,8 +341,7 @@ public class TprCmd implements CommandExecutor, TabCompleter {
                                 if (TeleportLoc.isSafePlace(headMat, feetMat, downMat)) {
                                     break;
                                 }
-
-                            }
+                            }*/
 
 
                             //if (feet_y<=minY) { //это будет в энде скорее всего
@@ -343,14 +350,14 @@ public class TprCmd implements CommandExecutor, TabCompleter {
 
                             //feetLoc.setY(feet_y+0.6);//приподнять на пол блока
 
-                            if (Ostrov.wg && !WGhook.canBuild(p, feetLoc)) {
+                            if (Ostrov.wg && !WGhook.canBuild(p, feetLoc.getCenterLoc())) {
                                 continue;
                             }
 
-                            if (downMat == Material.WATER) { //была найдена поверхность воды - ставим кувшинку
+                            //if (Nms.getFastMat(feetLoc) == Material.WATER) { //была найдена поверхность воды - ставим кувшинку
 //Ostrov.log("WATER!!!!"+feetLoc.getBlock().getType()+"->LILY_PAD");
-                                feetLoc.getBlock().setType(Material.LILY_PAD);
-                            }
+                            //    feetLoc.getBlock().setType(Material.LILY_PAD);
+                            //}
 
                             done();
                             return;
@@ -375,31 +382,33 @@ public class TprCmd implements CommandExecutor, TabCompleter {
                                 return;
                             }
                         }
-
+//Ostrov.log("TPR feetLoc="+feetLoc+" ignoreMove?"+ignoreMove);
                         if (ignoreMove) {
-                            p.teleport(feetLoc);//ApiOstrov.teleportSave(p, feetLoc, true);
+                            //p.teleport(feetLoc.getCenterLoc());
+                            ApiOstrov.teleportSave(p, feetLoc.getCenterLoc(), true);
                         } else {
-                            DelayTeleport.tp(p, feetLoc, 3, Lang.t(p, "Вы в рандомной локации."), true, true, DyeColor.WHITE);
+                            DelayTeleport.tp(p, feetLoc.getCenterLoc(), 3, Lang.t(p, "Вы в рандомной локации."), true, true, DyeColor.WHITE);
                         }
                         if (onDone != null) {
                             onDone.accept(p);
                         }
 
-                        if (downMat == Material.WATER) { //была поставлена кувшинка на воде
+                       /* if (Nms.getFastMat(feetLoc) == Material.WATER) { //была поставлена кувшинка на воде
                             tpData.put(p.getName(), new BukkitRunnable() { //чтобы не давало новое ТПР пока не сошел с места
                                 final String name = p.getName();
 
                                 @Override
                                 public void run() {
                                     final Player pl = Bukkit.getPlayerExact(name);
-                                    if (pl == null || !pl.isOnline() || pl.isDead() || pl.getLocation().getBlockX() != find_x || pl.getLocation().getBlockZ() != find_z) {
+                                    //if (pl == null || !pl.isOnline() || pl.isDead() || pl.getLocation().getBlockX() != find_x || pl.getLocation().getBlockZ() != find_z) {
+                                    if (pl == null || !pl.isOnline() || pl.isDead() || pl.getLocation().getBlockX() != feetLoc.x || pl.getLocation().getBlockZ() != feetLoc.z) {
                                         tpData.remove(name);
                                         this.cancel();
                                         feetLoc.getBlock().setType(Material.AIR);
                                     }
                                 }
                             }.runTaskTimer(Ostrov.instance, 30 + (ignoreMove ? 60 : 0), 10));
-                        }
+                        }*/
 
                     }
 

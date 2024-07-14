@@ -13,6 +13,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -20,11 +21,19 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.monster.breeze.LongJump;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -51,6 +60,7 @@ import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TeleportLoc;
 
 
 public class Nms {
@@ -191,6 +201,74 @@ public class Nms {
     final ServerLevel sl = Craft.toNMS(loc.getWorld());
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
     return iBlockData.getBukkitMaterial();
+  }
+
+
+  public enum PlaceType {
+    SAFELY, FLUID, AIR, DANGEROUS;
+  }
+
+  public static PlaceType isSafeLocation(Player p, WXYZ feetXYZ) {
+    final ServerLevel sl = Craft.toNMS(feetXYZ.w);
+    //final ServerPlayer sp = p==null ? null : Craft.toNMS(p);
+    BlockState state = sl.getBlockState(mutableBlockPosition.set(feetXYZ.x, feetXYZ.y + 1, feetXYZ.z));//голова
+    boolean headOk = !canStandOnCenter(sl, state) && state.getFluidState().isEmpty();
+//info (p, "§7голова §6", state, sl, sp, headOk);
+    if (!headOk) return PlaceType.DANGEROUS;
+    //state.entityCanStandOn(sl, mutableBlockPosition, sp);
+    state = sl.getBlockState(mutableBlockPosition.setY(feetXYZ.y));//ноги
+    boolean feetOk = !canStandOnCenter(sl, state);//можно стоять в воде высотой в 1 блок   && state.getFluidState().isEmpty() ;
+//info (p, "§7ноги §6", state, sl, sp, feetOk);
+    if (!feetOk) return PlaceType.DANGEROUS;
+    state = sl.getBlockState(mutableBlockPosition.setY(feetXYZ.y - 1));//под ногами
+    boolean underFeetOk = state.getBlock().hasCollision && canStandOnCenter(sl, state);
+//info (p, "§7под §6", state, sl, sp, underFeetOk);
+    if (!underFeetOk) {
+      if (state.isAir()) {
+        return PlaceType.AIR;
+      } else if (!state.getFluidState().isEmpty()) {
+        return PlaceType.FLUID;
+      } else {
+        return PlaceType.DANGEROUS;
+      }
+    }
+    return PlaceType.SAFELY;
+  }
+
+  private static VoxelShape faceShape;
+
+  private static boolean canStandOnCenter(final ServerLevel sl, final BlockState state) {
+    if (state.isAir() || !state.getBlock().hasCollision) return false;
+    faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+    return (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
+            (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
+  }
+
+  private static void info(Player p, String prefix, BlockState state, ServerLevel sl, ServerPlayer sp, boolean result) {
+    VoxelShape faceShape = null;// = state.getShape(sl, mutableBlockPosition);
+    boolean hasCollision = state.getBlock().hasCollision;
+    boolean canStandOnCenter = false;
+    if (hasCollision) {
+      faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+      canStandOnCenter = (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
+              (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
+      //final BlockHitResult hitResult = this.clipWithInteractionOverride(start, end, pos, voxelshape, state);
+    }
+    //double d = shape.collide(Direction.Axis.Y, sp.getBoundingBox(), 1);
+    Ostrov.log_warn(prefix
+            + state.getBukkitMaterial()
+            + (hasCollision ? " §a" : " §c") + "hasCollision"
+            + (canStandOnCenter ? " §a" : " §c") + "canStandOnCenter"
+            //+(hasCollision? (" §acollision UP X="+faceShape.min(Direction.Axis.X)+"/"+faceShape.max(Direction.Axis.X)
+            //+" Y="+faceShape.min(Direction.Axis.Y)+"/"+faceShape.max(Direction.Axis.Y)
+            //+" Z="+faceShape.min(Direction.Axis.Z)+"/"+faceShape.max(Direction.Axis.Z)):" §chasCollision")
+            //+(full?" §a":" §c")+"fullBlock"
+            //+(state.entityCanStandOn(sl, mutableBlockPosition, sp)?" §a":" §c")+"canStand"юзает isFaceFull - это громоздко
+            + (!state.getFluidState().isEmpty() ? " §a" : " §c") + "fluidState=" + state.getFluidState().getOwnHeight()
+            //+" §7collide=§3"+d
+            + (result ? " §a" : " §c") + "result"
+    );
+
   }
 
 
@@ -414,7 +492,46 @@ public class Nms {
 
 
 }
+/*
+    //if (!state.getFluidState().isEmpty()) {
+    //}
+    /*
+        private static BlockPos snapToSurface(LivingEntity breeze, Vec3 pos) {
+          ClipContext clipContext = new ClipContext(pos, pos.relative(Direction.DOWN, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze);
+          HitResult hitResult = breeze.level().clip(clipContext);
+          if (hitResult.getType() == HitResult.Type.BLOCK) {
+              return BlockPos.containing(hitResult.getLocation()).above();
+          } else {
+              ClipContext clipContext2 = new ClipContext(pos, pos.relative(Direction.UP, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze);
+              HitResult hitResult2 = breeze.level().clip(clipContext2);
+              return hitResult2.getType() == HitResult.Type.BLOCK ? BlockPos.containing(hitResult.getLocation()).above() : null;
+          }
+      }
+      @VisibleForTesting
+      public static boolean hasLineOfSight(Breeze breeze, Vec3 jumpPos) {
+          Vec3 vec3 = new Vec3(breeze.getX(), breeze.getY(), breeze.getZ());
+          return !(jumpPos.distanceTo(vec3) > 50.0)
+              && breeze.level().clip(new ClipContext(vec3, jumpPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze)).getType() == HitResult.Type.MISS;
+      }
 
+//Vec3 vec3 = LongJump.randomPointBehindTarget(sp, sp.getRandom());
+//ClipContext clipContext = new ClipContext(vec3, vec3.relative(Direction.DOWN, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, sp);
+//HitResult hitResult = sp.level().clip(clipContext);
+
+//final net.minecraft.world.phys.shapes.VoxelShape blockCollision = clipContext.getBlockShape(state, sl, mutableBlockPosition);
+//final net.minecraft.world.phys.BlockHitResult blockHit = blockCollision.isEmpty() ? null : sl.clipWithInteractionOverride(from, to, mutableBlockPosition, blockCollision, state);
+
+    /*if (hasCollision) {
+      VoxelShape cs = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+      //shape = state.getInteractionShape(sl, mutableBlockPosition);//.clip(start, end, pos);//state.getShape(sl, mutableBlockPosition);
+      p.sendMessage("collision UP"
+              +" X="+cs.min(Direction.Axis.X)+"/"+cs.max(Direction.Axis.X)
+              +" Y="+cs.min(Direction.Axis.Y)+"/"+cs.max(Direction.Axis.Y)
+              +" Z="+cs.min(Direction.Axis.Z)+"/"+cs.max(Direction.Axis.Z)
+      );
+    }/
+
+ */
 
 //лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код
         /*EnumColor color = EnumColor.a;

@@ -1,6 +1,14 @@
 package ru.komiss77;
 
 
+import java.sql.Connection;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.StreamSupport;
+
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -33,6 +41,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.utils.FastMath;
@@ -40,14 +49,6 @@ import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.TeleportLoc;
 import ru.komiss77.version.Nms;
-
-import java.sql.Connection;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.StreamSupport;
 
 
 public class ApiOstrov {
@@ -231,154 +232,8 @@ public class ApiOstrov {
     }
 
 
-    public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSavePlace) {
-//Ostrov.log("teleportSave feetBlock="+feetLoc);
-//сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
-        if (!Bukkit.isPrimaryThread()) {
-            Ostrov.sync(() -> teleportSave(p, feetLoc, buildSavePlace));
-            return true;
-        }
-
-//        if (!new PlayerTeleportEvent(p, p.getLocation(), feetLoc, PlayerTeleportEvent.TeleportCause.PLUGIN).callEvent()) {
-//          p.sendMessage(Ostrov.prefixWARN + "§cТелепорт был отменен!");
-//          return false;
-//        }
-
-        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
-            p.teleport(feetLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-            return true;
-        }
-
-        final World w = feetLoc.getWorld();
-
-        if (w.getEnvironment() == World.Environment.NETHER) { //фикс - тэпешит над верхним бедроком
-            int y_max = w.getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3;
-            if (feetLoc.getBlockY() > y_max) {
-                feetLoc.setY(y_max);
-            }
-        }
-        final int x = feetLoc.getBlockX();
-        int feet_y = feetLoc.getBlockY();
-        final int y_ori = feet_y;
-        final int z = feetLoc.getBlockZ();
-
-
-        Material headMat = Nms.getFastMat(w, x, feet_y + 1, z);
-        Material feetMat = Nms.getFastMat(w, x, feet_y, z);
-        Material downMat = Nms.getFastMat(w, x, feet_y - 1, z);
-
-
-        //проверка указанного места
-        boolean safe = TeleportLoc.isSafePlace(headMat, feetMat, downMat);
-
-        //проверка на блок выше
-        if (!safe) {
-            feet_y = y_ori + 1;//feetLoc.add(0, 1, 0);
-            final Material upHead = Nms.getFastMat(w, x, y_ori + 2, z);
-            safe = TeleportLoc.isSafePlace(upHead, headMat, feetMat);
-            //LocationUtil.isPassable(upHead) && LocationUtil.isPassable(headMat)  && (LocationUtil.canStand(feetMat) || feetMat==Material.WATER);
-            if (safe) downMat = feetMat; //если норм, прописать что под ногами в таком варианте
-        }
-
-        //проверка на блок ниже
-        if (!safe) {
-            feet_y = y_ori - 1;//feetLoc.subtract(0, 2, 0);
-            final Material subDown = Nms.getFastMat(w, x, y_ori - 2, z);
-            safe = TeleportLoc.isSafePlace(feetMat, downMat, subDown);
-            //safe = LocationUtil.isPassable(feetMat)  && LocationUtil.isPassable(downMat) && (LocationUtil.canStand(subDown) || subDown==Material.WATER);
-            if (safe) downMat = subDown; //если норм, прописать что под ногами в таком варианте
-        }
-
-        //сканируем с самого верха до самого низа
-        if (!safe) {
-            final boolean nether = w.getEnvironment() == World.Environment.NETHER;
-            feet_y = w.getMaxHeight() - 2;
-            for (; feet_y > w.getMinHeight() + 1; feet_y--) {
-                //в аду или при генерации как в аду (определяем потолок из бедрока)
-
-                headMat = feetMat; //VM.getNmsServer().getFastMat(w, x, y-1, z);
-                feetMat = downMat;//VM.getNmsServer().getFastMat(w, x, y, z);
-                downMat = Nms.getFastMat(w, x, feet_y - 1, z);
-//Ostrov.log("find y="+y+" "+headMat+" "+feetMat+" "+downMat);
-                if ((nether || feet_y > 0) && downMat == Material.BEDROCK) {
-                    continue;
-                }                //если над нижним блоком нет 2 блока для тела, пропускаем ниже
-                //if (!LocationUtil.isPassable(headMat) || !LocationUtil.isPassable(feetMat)) {
-                //    continue;
-                //}
-                //if (LocationUtil.canStand(downMat) || downMat==Material.WATER) { //вода или подходит для стояния - сойдёт
-                feetLoc.setY(feet_y);
-                if (TeleportLoc.isSafePlace(headMat, feetMat, downMat)) { //вода или подходит для стояния - сойдёт
-                    safe = true;
-                    break;
-                }
-            }
-        }
-
-        if (safe) {
-            feetLoc.setY(feet_y + 0.6);
-//Ostrov.log("safe feetLoc="+feetLoc);
-            if (downMat == Material.WATER) { //была найдена поверхность воды - ставим кувшинку
-//Ostrov.log("WATER!!!!"+feetLoc.getBlock().getType()+"->LILY_PAD");
-                feetLoc.getBlock().setType(Material.LILY_PAD);
-                new BukkitRunnable() { //чтобы не давало новое ТПР пока не сошел с места
-                    final String name = p.getName();
-
-                    @Override
-                    public void run() {
-                        final Player pl = Bukkit.getPlayerExact(name);
-                        if (pl == null || !pl.isOnline() || pl.isDead() || pl.getLocation().getBlockX() != x || pl.getLocation().getBlockZ() != z) {
-                            this.cancel();
-                            feetLoc.getBlock().setType(Material.AIR);
-                        }
-                    }
-                }.runTaskTimer(Ostrov.instance, 30, 10);
-            }
-
-        } else if (buildSavePlace) {
-
-            feet_y = (y_ori > w.getMinHeight() + 2 && y_ori > w.getMaxHeight() - 2) ? y_ori : w.getSpawnLocation().getBlockY();
-            feetLoc.setY(feet_y + 0.5);
-
-            final Block upHeadBlock = feetLoc.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP);
-            final Block headBlock = feetLoc.getBlock().getRelative(BlockFace.UP);
-            final Block feetBlock = feetLoc.getBlock();
-            final Block downBlock = feetLoc.getBlock().getRelative(BlockFace.DOWN);
-            final Material upHeadMat = upHeadBlock.getType(); //headMat, feetMat, downMat уже есть выше
-            final Material headMat1 = headMat;
-            final Material feetMat1 = headMat;
-            final Material downMat1 = headMat;
-
-            new BukkitRunnable() { //чтобы не давало новое ТПР пока не сошел с места
-                final String name = p.getName();
-
-                @Override
-                public void run() {
-                    final Player pl = Bukkit.getPlayerExact(name);
-                    if (pl == null || !pl.isOnline() || pl.isDead() || pl.getLocation().getBlockX() != x || pl.getLocation().getBlockZ() != z) {
-                        this.cancel();
-                        upHeadBlock.setType(upHeadMat);
-                        headBlock.setType(headMat1);
-                        feetBlock.setType(feetMat1);
-                        downBlock.setType(downMat1);
-                    }
-                }
-            }.runTaskTimer(Ostrov.instance, 30, 10);
-
-//Ostrov.log("!safe y_ori="+y+" feetLoc="+feetLoc);
-            upHeadBlock.setType(Material.GLASS);
-            headBlock.setType(Material.AIR);
-            feetBlock.setType(Material.AIR);
-            downBlock.setType(Material.GLASS);
-            p.setVelocity(p.getVelocity().zero());
-            p.setFallDistance(0);
-
-        } else {
-            feetLoc.setY(y_ori + 0.5);
-        }
-
-        p.teleport(feetLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-        return true;
+    public static boolean teleportSave(final Player p, Location feetLoc, final boolean buildSafePlace) {
+        return TeleportLoc.teleportSave(p, feetLoc, buildSafePlace);
     }
 
     //ентити

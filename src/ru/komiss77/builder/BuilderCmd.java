@@ -1,5 +1,8 @@
 package ru.komiss77.builder;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -13,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -25,11 +29,6 @@ import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-
-import java.util.Arrays;
-import java.util.List;
-
 
 public class BuilderCmd implements CommandExecutor, TabCompleter {
 
@@ -42,6 +41,7 @@ public class BuilderCmd implements CommandExecutor, TabCompleter {
                 .name("§aМеню билдера")
                 .addLore("§6ПКМ на баннер, голову, энтити -")
                 .addLore("§e настроить")
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS)
                 .build();
         bmi = new MenuItemBuilder("bmi", buildMenu)
                 .slot(0)

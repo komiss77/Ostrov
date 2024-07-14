@@ -150,8 +150,12 @@ public class SignProtectLst implements Initiable, Listener {
                         return; //владельцу точно открыть
                     }
                     if (!pd.canUse((Player) e.getPlayer())) {
-                        e.setCancelled(true);
-                        ApiOstrov.sendActionBarDirect((Player) e.getPlayer(), "§eДоступ к сундуку ограничен!");
+                        if (e.getPlayer().isOp()) {
+                            e.getPlayer().sendMessage("§eДоступ к сундуку в режиме ОП");
+                        } else {
+                            e.setCancelled(true);
+                            ApiOstrov.sendActionBarDirect((Player) e.getPlayer(), "§cДоступ к сундуку ограничен!");
+                        }
                         //e.getPlayer().sendMessage("Защищено");
                     }
                 }

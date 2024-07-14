@@ -2,20 +2,24 @@ package ru.komiss77.listener;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.enchants.CustomEnchant;
+import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.version.Nms;
 
 public class TestLst implements Listener {
 
-    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    // @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
-        if (!ApiOstrov.isLocalBuilder(p)) return;
+        //if (!ApiOstrov.isLocalBuilder(p)) return;
 
 
         final ItemStack it = e.getItem();
@@ -30,11 +34,13 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-                //PlayerInput.get(p, 100, 0, 200, i->{
-                //});
-                //RDS.sendMessage("ostrov", "ostrov");
-                //RDS.sendMessage("arenadata", "arenadata");
+                Nms.isSafeLocation(p, new WXYZ(p.getLocation()));
+
+
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+                Nms.PlaceType pt = Nms.isSafeLocation(p, new WXYZ(e.getClickedBlock().getLocation()));
+                p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
 
@@ -58,18 +64,15 @@ public class TestLst implements Listener {
             } else if (e.getAction() == Action.LEFT_CLICK_AIR) {
                 // op.addCd("test", count++);
                 if (p.isSneaking()) {
-                    // bot.score.below("aaaaaa"+ApiOstrov.randInt(0, 10), 1);
-                    //op.score.below("xxxxx"+ApiOstrov.randInt(0, 10), 1);
 
-                    // p.sendMessage("below add");
-                    //Lang.sendMessage(p, "ВСТАВЛЕНО");
-                    // ApiOstrov.sendBossbar(p, "§7bar="+ ++count, 5, BarColor.BLUE, BarStyle.SOLID, true);
+                    p.sendMessage("§3teleportSave DOWN");
+                    ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, -100, 0), false);
+
                 } else {
-                    //  bot.score.below(false);
-                    //op.score.below(false);
-                    //  p.sendMessage("below off");
-                    // Lang.sendMessage(p, "Изменить паспортные данные");
-                    //  ApiOstrov.sendTitle(p, "§7title=", ""+ ++count, 10, 40, 10);
+
+                    p.sendMessage("§3teleportSave UP");
+                    ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, 100, 0), false);
+
                 }
                 //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));
             }
