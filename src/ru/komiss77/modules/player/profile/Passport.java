@@ -368,22 +368,6 @@ public class Passport implements InventoryProvider {
         );
 
 
-        content.add(ClickableItem.of(new ItemBuilder(op.hasFlag(StatFlag.InformatorOff) ? Material.BUCKET : Material.WATER_BUCKET)
-                                .name("§7Сообщения автоинформатора")
-                                .addLore("")
-                                .addLore("§7сейчас: ")
-                                .addLore(op.hasFlag(StatFlag.InformatorOff) ? "§cвыключены" : "§aвключены")
-                                .addLore("")
-                                .addLore("§7ЛКМ - §eизменить")
-                                .addLore("")
-                                .build()
-                        , e -> {
-                            op.setFlag(StatFlag.InformatorOff, !op.hasFlag(StatFlag.InformatorOff));
-                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
-                            reopen(p, content);
-                        }
-                )
-        );
 
 
         content.add(ClickableItem.of(new ItemBuilder(Material.FLETCHING_TABLE)

@@ -6,11 +6,13 @@ import org.bukkit.WeatherType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.PvpCmd;
+import ru.komiss77.enums.StatFlag;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
@@ -23,6 +25,7 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 public class LocalSettings implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ВОЗМОЖНОСТИ.glassMat).name("§8.").build());
+    private final ClickableItem c = ClickableItem.empty(new ItemStack(Material.GLOW_LICHEN));
 
 
     @Override
@@ -41,7 +44,7 @@ public class LocalSettings implements InventoryProvider {
 
         //линия - разделитель
         content.fillRow(4, fill);
-
+        content.fillRect(0, 35, c);
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
@@ -67,7 +70,7 @@ public class LocalSettings implements InventoryProvider {
 
         } else {
 
-            content.set(1, 1, ClickableItem.empty(new ItemBuilder(Material.WOODEN_SWORD)
+            content.set(1, 1, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
                     .name("§7Разрешение ПВП")
                     .addLore("§7Выключено")
                     .addLore("§7на этом сервере")
@@ -84,7 +87,7 @@ public class LocalSettings implements InventoryProvider {
         int ammount = (int) (p.getAllowFlight() ? p.getFlySpeed() * 10f : p.getWalkSpeed() * 10f);
         ammount++;
 
-        content.set(1, 2, ClickableItem.of(new ItemBuilder(p.getAllowFlight() ? Material.FEATHER : Material.IRON_BOOTS)
+        content.set(1, 3, ClickableItem.of(new ItemBuilder(p.getAllowFlight() ? Material.FEATHER : Material.IRON_BOOTS)
                 .name(p.getAllowFlight() ? "§6Крылья" : "§bНоги")
                 .setAmount(ammount)
                 .addLore("")
@@ -125,7 +128,7 @@ public class LocalSettings implements InventoryProvider {
 
         if (ApiOstrov.isLocalBuilder(p) || (Config.ptime_command && p.hasPermission("ostrov.ptime"))) {
 
-            content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.CLOCK)
+            content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.CLOCK)
                     .name("§7Личное время")
                     .setAmount(p.isPlayerTimeRelative() && p.getPlayerTimeOffset() > 1000 ? (int) p.getPlayerTimeOffset() / 1000 : 1)
                     .addLore("")
@@ -158,7 +161,7 @@ public class LocalSettings implements InventoryProvider {
 
         } else {
 
-            content.set(1, 3, ClickableItem.empty(new ItemBuilder(Material.CLOCK)
+            content.set(1, 5, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
                     .name("§7Личное время")
                     .addLore(Config.ptime_command ? "§7нет права §costrov.ptime" : "§8Недоступно на этом сервере")
                     //.addLore("§7на этом сервере")
@@ -170,7 +173,7 @@ public class LocalSettings implements InventoryProvider {
 
         if (ApiOstrov.isLocalBuilder(p) || (Config.pweather_command && p.hasPermission("ostrov.pweather"))) {
 
-            content.set(1, 4, ClickableItem.of(new ItemBuilder(p.getPlayerWeather() == null ? Material.NAUTILUS_SHELL : p.getPlayerWeather() == WeatherType.CLEAR ? Material.SUNFLOWER : Material.WATER_BUCKET)
+            content.set(1, 7, ClickableItem.of(new ItemBuilder(p.getPlayerWeather() == null ? Material.NAUTILUS_SHELL : p.getPlayerWeather() == WeatherType.CLEAR ? Material.SUNFLOWER : Material.WATER_BUCKET)
                     .name("§7Личная погода")
                     .addLore("")
                     .addLore("§7ЛКМ - менять")
@@ -196,7 +199,7 @@ public class LocalSettings implements InventoryProvider {
 
         } else {
 
-            content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.SUNFLOWER)
+            content.set(1, 7, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
                     .name("§7Личная погода")
                     .addLore(Config.pweather_command ? "§7нет права §costrov.pweather" : "§8Недоступно на этом сервере")
                     .addLore("§7на этом сервере")
@@ -209,7 +212,7 @@ public class LocalSettings implements InventoryProvider {
         if (ApiOstrov.isLocalBuilder(p) || (Config.heal_command && p.hasPermission("ostrov.heal"))) {
 
             if (op.pvp_time > 0) {
-                content.set(1, 5, ClickableItem.empty(new ItemBuilder(Material.APPLE)
+                content.set(2, 3, ClickableItem.empty(new ItemBuilder(Material.APPLE)
                         .name("§7Исцеление")
                         .addLore("")
                         .addLore("§eРежим битвы!")
@@ -218,7 +221,7 @@ public class LocalSettings implements InventoryProvider {
                         .build()
                 ));
             } else {
-                content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.GOLDEN_APPLE)
+                content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.GOLDEN_APPLE)
                         .name("§7Исцеление")
                         .addLore("")
                         .addLore("§7ЛКМ - восстановить здоровье")
@@ -244,7 +247,7 @@ public class LocalSettings implements InventoryProvider {
 
         } else {
 
-            content.set(1, 5, ClickableItem.empty(new ItemBuilder(Material.APPLE)
+            content.set(2, 3, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
                     .name("§7Исцеление")
                     .addLore(Config.heal_command ? "§7нет права §costrov.heal" : "§8Недоступно на этом сервере")
                     .build()
@@ -257,7 +260,7 @@ public class LocalSettings implements InventoryProvider {
         if (ApiOstrov.isLocalBuilder(p) || (Config.repair_command && p.hasPermission("ostrov.repair"))) {
 
             if (Timer.has(p, "repair")) {
-                content.set(1, 6, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
+                content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
                         .name("§7Кузня")
                         .addLore("")
                         .addLore("")
@@ -266,7 +269,7 @@ public class LocalSettings implements InventoryProvider {
                         .build()
                 ));
             } else if (op.pvp_time > 0) {
-                content.set(1, 6, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
+                content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
                         .name("§7Кузня")
                         .addLore("")
                         .addLore("")
@@ -276,24 +279,24 @@ public class LocalSettings implements InventoryProvider {
                         .build()
                 ));
             } else {
-                content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                                .name("§7Кузня")
-                                .addLore("")
-                                .addLore("§7ЛКМ - починка всего")
-                                .addLore("§7в инвентаре")
-                                .addLore("")
-                                .build(), e -> {
-                            Timer.add(p, "repair", 60);
-                            p.sendMessage("§aОтремонтировано предметов: " + ItemUtils.repairAll(p));
-                            //p.sendMessage( "§aОтремонтировано: "+ItemUtils.Repair_all(p).toString().replaceAll("\\[|\\]", "") );
-                            reopen(p, content);
+                content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.ANVIL)
+                        .name("§7Кузня")
+                        .addLore("")
+                        .addLore("§7ЛКМ - починка всего")
+                        .addLore("§7в инвентаре")
+                        .addLore("")
+                        .build(), e -> {
+                    Timer.add(p, "repair", 60);
+                    p.sendMessage("§aОтремонтировано предметов: " + ItemUtils.repairAll(p));
+                    //p.sendMessage( "§aОтремонтировано: "+ItemUtils.Repair_all(p).toString().replaceAll("\\[|\\]", "") );
+                    reopen(p, content);
                         }
                 ));
             }
 
         } else {
 
-            content.set(1, 6, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
+            content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
                     .name("§7Кузня")
                     .addLore(Config.repair_command ? "§7нет права §costrov.repair" : "§8Недоступно на этом сервере")
                     .build()
@@ -302,9 +305,8 @@ public class LocalSettings implements InventoryProvider {
         }
 
 
-        //  if (Ostrov.deluxeChat) {
         final boolean local = op.isLocalChat();//= op.hasFlag(StatFlag.LocalChat); //Ostrov.deluxechatPlugin.isLocal(p.getUniqueId().toString());
-        content.set(1, 7, ClickableItem.of(new ItemBuilder(local ? Material.SCUTE : Material.GUNPOWDER)
+        content.set(3, 2, ClickableItem.of(new ItemBuilder(local ? Material.SCUTE : Material.GUNPOWDER)
                         .name("§7Режим чата")
                         .addLore(local ? "§7Сейчас: §bлокальный" : "§7Сейчас: §eглобальный")
                         .addLore(local ? "§7ЛКМ - сделать глобальным" : "§7ЛКМ - сделать локальным")
@@ -322,26 +324,28 @@ public class LocalSettings implements InventoryProvider {
                         .addLore("§eможно начать личный диалог.")
                         .build(), e -> {
                     op.setLocalChat(!local);
-                    //if (local) {
-                    //DchatHook.setGlobal(p);
-                    //   op.setFlag(StatFlag.LocalChat, false);
-                    // } else {
-                    //DchatHook.setLocal(p);
-                    //    op.setFlag(StatFlag.LocalChat, true);
-                    // }
                     reopen(p, content);
                 }
         ));
-      /*  } else {
-            content.set(1, 7, ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
-                .name("§7Режим чата")
-                .addLore( "§7Сейчас: §bлокальный" )
-                .addLore("")
-                .addLore( "§cИзменение невозможно" )
-                .addLore("")
-                .build()
-            ));
-        }*/
+
+
+        content.set(3, 6, ClickableItem.of(new ItemBuilder(op.hasFlag(StatFlag.InformatorOff) ? Material.BUCKET : Material.WATER_BUCKET)
+                                .name("§7Сообщения автоинформатора")
+                                .addLore("")
+                                .addLore("§7сейчас: ")
+                                .addLore(op.hasFlag(StatFlag.InformatorOff) ? "§cвыключены" : "§aвключены")
+                                .addLore("")
+                                .addLore("§7ЛКМ - §eизменить")
+                                .addLore("")
+                                .build()
+                        , e -> {
+                            op.setFlag(StatFlag.InformatorOff, !op.hasFlag(StatFlag.InformatorOff));
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+                            reopen(p, content);
+                        }
+                )
+        );
+
                
         
         
