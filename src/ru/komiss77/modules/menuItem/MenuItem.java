@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemUtils;
@@ -72,6 +73,14 @@ public class MenuItem {
     }
 
     public void giveForce(final Player p) {
+        if (!duplicate) { //чекать тут отдельно, или ItemUtils.giveItemTo делает дубль при force
+            final PlayerInventory inv = p.getInventory();
+            final ItemStack curr = inv.getItem(slot);
+            final MenuItem mi = MenuItemsManager.fromItemStack(curr);
+            if (mi != null && mi.id == id) {
+                return;
+            }
+        }
         ItemUtils.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
                 .equals("ru_ru") ? itemRu : itemEn, slot, true);
     }

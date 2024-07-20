@@ -1,6 +1,8 @@
 package ru.komiss77.listener;
 
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,11 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.version.Nms;
+
+import java.util.UUID;
 
 public class TestLst implements Listener {
 
-    // @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
@@ -34,13 +40,20 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-                Nms.isSafeLocation(p, new WXYZ(p.getLocation()));
+                //Nms.isSafeLocation(p, new WXYZ(p.getLocation()));
+                PlayerInput.get(p, 10, 0, 20, i -> {
+                    // p.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(i);
+                    p.sendMessage("§3GENERIC_ARMOR BaseValue=" + p.getAttribute(Attribute.GENERIC_ARMOR).getBaseValue());
+                    p.sendMessage("§3GENERIC_ARMOR Value=" + p.getAttribute(Attribute.GENERIC_ARMOR).getValue());
+                    p.sendMessage("§3GENERIC_ARMOR Modifiers=" + p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers());
+
+                });
 
 
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-                Nms.PlaceType pt = Nms.isSafeLocation(p, new WXYZ(e.getClickedBlock().getLocation()));
-                p.sendMessage("§3" + pt);
+                //Nms.PlaceType pt = Nms.isSafeLocation(p, new WXYZ(e.getClickedBlock().getLocation()));
+                //p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
 

@@ -335,7 +335,10 @@ public class Timer {
     }
 
     public static boolean has(final String name, final String type) {
+        //final int id = name.hashCode() ^ type.hashCode();
+        //Integer endStamp = cd.get(id);
         return cd.containsKey(name.hashCode() ^ type.hashCode());
+        //return endStamp == null ? false : currentTime > endStamp;
     }
 
     public static int getLeft(final String name, final String type) {

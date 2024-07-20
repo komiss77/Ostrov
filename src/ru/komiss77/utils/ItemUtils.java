@@ -318,7 +318,6 @@ public class ItemUtils {
 
     public static boolean giveItemTo(final Player p, final ItemStack item, final int pos, final boolean force) {  //просто выдать в нужный слот
         final PlayerInventory inv = p.getInventory();
-
         final ItemStack there = inv.getItem(pos);
         if (isBlank(there, false)) {                                        //если требуемая позиция пустая,
             inv.setItem(pos, item);                                            //ставим предмет и возврат
