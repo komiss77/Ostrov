@@ -16,7 +16,7 @@ dependencies {
   compileOnly("com.velocitypowered:velocity-api:3.1.1")
   annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
   //implementation("redis.clients:jedis:4.3.1")
-  api("redis.clients:jedis:4.3.1")
+  //api("redis.clients:jedis:4.3.1")
   //extraLibs group: 'net.java.dev.jna', name: 'jna-platform', version: '4.2.2'
 }
 
@@ -93,7 +93,7 @@ tasks {
   //}
 
   jar {
-    from(fileTree("jedis"))
+    from(fileTree("libs/jedis"))
     //from {
     //configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     //}
