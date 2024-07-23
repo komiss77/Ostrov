@@ -10,7 +10,7 @@ import org.bukkit.Material;
 
 public enum GameState {
 
-    РАБОТАЕТ(1, "§2", DyeColor.GREEN, Material.SCUTE, false),
+    РАБОТАЕТ(1, "§2", DyeColor.GREEN, Material.TURTLE_SCUTE, false),
     ОЖИДАНИЕ(2, "§2", DyeColor.GREEN, Material.BUCKET, true),
     СТАРТ(3, "§6", DyeColor.YELLOW, Material.CLOCK, true),
     ЭКИПИРОВКА(4, "§6", DyeColor.ORANGE, Material.ENDER_CHEST, true),

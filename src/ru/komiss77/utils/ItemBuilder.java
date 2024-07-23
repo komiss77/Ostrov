@@ -1,12 +1,15 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -17,12 +20,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.utils.ItemUtils.Texture;
-
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Consumer;
 
 //im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 //Validate.isTrue(item.getType() == Material.PLAYER_HEAD, "skullOwner() only applicable for skulls!", new Object[0]);
@@ -304,13 +302,13 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op) {
-        setAttribute(attribute, amount, op, mat.getEquipmentSlot());//setAttribute(attribute, amount, op, item.getType().getEquipmentSlot());
+        setAttribute(attribute, amount, op, mat.getEquipmentSlot().getGroup());//setAttribute(attribute, amount, op, item.getType().getEquipmentSlot());
         return this;
     }
 
-    public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlot slot) {
+    public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slotGroup) {
         if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//item.getItemMeta();
-        meta.addAttributeModifier(attribute, new AttributeModifier(UUID.randomUUID(), "atbuilder", amount, op, slot));
+        meta.addAttributeModifier(attribute, new AttributeModifier(attribute.getKey(), amount, op, slotGroup));
         return this;
     }
 
@@ -459,14 +457,11 @@ public class ItemBuilder {
                     if (meta == null) meta = item.getItemMeta();
                     final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) meta;
                     for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {//ignoreLevelRestriction
-                        if (en.getKey() instanceof final CustomEnchant ce) {
-                            ce.level(meta, en.getValue(), false);
-                            continue;
-                        }
                         enchantedBookMeta.addStoredEnchant(en.getKey(), en.getValue(), false);
                     }
                 }
-                return item;
+                enchants = null;
+                break;
 
             default:
                 break; //для обычных предметов просто кидаем чары - а для дригих не кидаем????? не заслужили тип????
@@ -475,15 +470,7 @@ public class ItemBuilder {
         if (enchants != null && !enchants.isEmpty()) {
             if (meta == null) meta = item.getItemMeta();
             for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {
-                if (en.getKey() instanceof final CustomEnchant ce) {
-                    ce.level(meta, en.getValue(), false);
-                    continue;
-                }
                 meta.addEnchant(en.getKey(), en.getValue(), true);
-            /*try {
-            } catch (IllegalArgumentException ex) {
-                Ostrov.log_err("ItemBuilder: невозможно добавить чары "+en.getKey().getKey()+" к предмету "+item.getType().toString()+" : "+ex.getMessage());
-            }*/
             }
         }
 

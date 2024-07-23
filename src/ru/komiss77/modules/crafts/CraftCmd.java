@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
@@ -14,8 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -65,8 +64,8 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
                                     new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
                             if (craftConfig.getKeys(false).contains(args[1])) {
                                 craftConfig.set(args[1], null);
-                                Bukkit.removeRecipe(new NamespacedKey(Crafts.space, args[1]));
-                                Crafts.rmvRecipe(new NamespacedKey(Crafts.space, args[1]));
+                                Bukkit.removeRecipe(new NamespacedKey(OStrap.space, args[1]));
+                                Crafts.rmvRecipe(new NamespacedKey(OStrap.space, args[1]));
                                 p.sendMessage("§7Крафт §e" + args[1] + " §7убран!");
                                 try {
                                     craftConfig.save(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
@@ -79,7 +78,7 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
                         }
                         break;
                     case "view":
-                        if (Bukkit.getRecipe(new NamespacedKey(Crafts.space, args[1])) == null) {
+                        if (Bukkit.getRecipe(new NamespacedKey(OStrap.space, args[1])) == null) {
                             p.sendMessage("§cТакого крафта не существует!");
                         } else {
                             SmartInventory

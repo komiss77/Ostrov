@@ -20,7 +20,6 @@ public class EntityUtil {
         //EnumCreatureType enumcreaturetype = (net.minecraft.world.Entiti)entity.(net.minecraft.world.EntityTypes)ae().(net.minecraft.world.EnumCreatureType)f();
         //  EntityTypes et = EntityTypes.a("").get();
         switch (type) {
-
             case RAVAGER:
             case PILLAGER:
             case ZOGLIN:
@@ -57,6 +56,8 @@ public class EntityUtil {
             case PIGLIN_BRUTE:
             case WARDEN:
             case ELDER_GUARDIAN:
+            case BREEZE:
+            case BOGGED:
                 return EntityGroup.MONSTER;
 
 
@@ -68,7 +69,7 @@ public class EntityUtil {
             case HORSE:
             case OCELOT:
             case FOX:
-            case MUSHROOM_COW:
+            case MOOSHROOM:
             case WOLF:
             case COW:
             case SHEEP:
@@ -80,7 +81,7 @@ public class EntityUtil {
             case VILLAGER:
             case WANDERING_TRADER:
             case IRON_GOLEM:
-            case SNOWMAN:
+            case SNOW_GOLEM:
             case DONKEY:
             case MULE:
             case SKELETON_HORSE:
@@ -93,6 +94,7 @@ public class EntityUtil {
             case TRADER_LLAMA:
             case ALLAY:
             case STRIDER:
+            case ARMADILLO:
                 return EntityGroup.CREATURE;
 
 
@@ -121,41 +123,46 @@ public class EntityUtil {
             case ARROW:
             case BOAT:
             case DRAGON_FIREBALL:
-            case DROPPED_ITEM:
+            case ITEM:
             case EGG:
-            case ENDER_CRYSTAL:
+            case END_CRYSTAL:
             case ENDER_PEARL:
-            case ENDER_SIGNAL:
+                //case ENDER_SIGNAL: ЧТО ЭТО????
+            case EYE_OF_ENDER:
+            case WIND_CHARGE:
+            case BREEZE_WIND_CHARGE:
+                break;
             case EVOKER_FANGS:
             case EXPERIENCE_ORB:
             case FALLING_BLOCK:
             case FIREBALL:
-            case FIREWORK:
-            case FISHING_HOOK:
+            case FIREWORK_ROCKET:
+            case FISHING_BOBBER:
             case ITEM_FRAME:
-            case LEASH_HITCH:
-            case LIGHTNING:
+            case LEASH_KNOT:
+            case LIGHTNING_BOLT:
             case MINECART:
-            case MINECART_CHEST:
-            case MINECART_COMMAND:
-            case MINECART_FURNACE:
-            case MINECART_HOPPER:
-            case MINECART_MOB_SPAWNER:
-            case MINECART_TNT:
+            case CHEST_MINECART:
+            case COMMAND_BLOCK_MINECART:
+            case FURNACE_MINECART:
+            case HOPPER_MINECART:
+            case SPAWNER_MINECART:
+            case TNT_MINECART:
             case PAINTING:
-            case PRIMED_TNT:
+            case TNT:
             case SHULKER_BULLET:
             case SMALL_FIREBALL:
             case SNOWBALL:
             case SPECTRAL_ARROW:
-            case SPLASH_POTION:
-            case THROWN_EXP_BOTTLE:
+            case POTION:
+            case EXPERIENCE_BOTTLE:
             case TRIDENT:
             case UNKNOWN:
             case WITHER_SKULL:
             case PLAYER:
             case GLOW_ITEM_FRAME:
             case CHEST_BOAT:
+            case OMINOUS_ITEM_SPAWNER:
 
             case MARKER:
             case INTERACTION:
@@ -163,8 +170,6 @@ public class EntityUtil {
             case TEXT_DISPLAY:
             case BLOCK_DISPLAY:
                 break;
-
-
         }
 
         //если выше ничего не выстрелило, то определяем о старинке

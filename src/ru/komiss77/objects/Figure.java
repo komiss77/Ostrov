@@ -10,7 +10,6 @@ import net.kyori.adventure.text.Component;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
-import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
 
 

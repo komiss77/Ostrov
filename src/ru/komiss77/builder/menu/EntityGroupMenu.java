@@ -3,11 +3,12 @@ package ru.komiss77.builder.menu;
 import java.util.ArrayList;
 import java.util.Map;
 
+import ca.spottedleaf.moonrise.common.util.ChunkSystem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -94,7 +95,7 @@ public class EntityGroupMenu implements InventoryProvider {
 
             final ValueSortedMap<Material, Integer> count = new ValueSortedMap<>(true);
             Material mat;
-            for (ChunkHolder visibleChunk : io.papermc.paper.chunk.system.ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
+            for (ChunkHolder visibleChunk : ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
                 net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
                 if (lc == null) {
                     continue;

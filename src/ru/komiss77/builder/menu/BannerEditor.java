@@ -304,7 +304,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case 'D':
                     invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
@@ -394,7 +394,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case 'R':
                     invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
@@ -406,7 +406,7 @@ public class BannerEditor implements InventoryProvider {
                     list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     break;
                 case 'T':
@@ -435,7 +435,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case 'Y':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
                     break;
                 case 'Z':
@@ -444,7 +444,7 @@ public class BannerEditor implements InventoryProvider {
                     list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_LEFT));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
                     break;
                 case '1':
@@ -469,10 +469,10 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '5':
                     invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_MIRROR));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
                     break;
@@ -491,7 +491,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '9':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
@@ -505,7 +505,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '?':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
@@ -514,7 +514,7 @@ public class BannerEditor implements InventoryProvider {
                     list.add(new Pattern(dyeColor, PatternType.HALF_HORIZONTAL));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
                     break;
                 case '.':
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
@@ -602,7 +602,7 @@ public class BannerEditor implements InventoryProvider {
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.CROSS));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
                     break;
@@ -620,7 +620,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case 'N':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
@@ -652,7 +652,7 @@ public class BannerEditor implements InventoryProvider {
                 case 'R':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
@@ -660,7 +660,7 @@ public class BannerEditor implements InventoryProvider {
                 case 'S':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
                     list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
@@ -698,7 +698,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case 'Y':
                     list.add(new Pattern(dyeColor, PatternType.CROSS));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
                     break;
@@ -716,7 +716,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '2':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
@@ -747,7 +747,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '6':
                     invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
                     list.add(new Pattern(baseColor, PatternType.STRIPE_TOP));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
@@ -780,7 +780,7 @@ public class BannerEditor implements InventoryProvider {
                     break;
                 case '?':
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
@@ -790,7 +790,7 @@ public class BannerEditor implements InventoryProvider {
                     list.add(new Pattern(dyeColor, PatternType.HALF_HORIZONTAL));
                     list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
                     list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_MIRROR));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
                     list.add(new Pattern(baseColor, PatternType.BORDER));
                     break;
                 case '.':

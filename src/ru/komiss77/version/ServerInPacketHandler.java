@@ -1,13 +1,12 @@
 package ru.komiss77.version;
 
+import java.util.List;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import ru.komiss77.Ostrov;
 
-import java.util.List;
 
 //ловит все ходящие пакеты на сервер
 @Sharable

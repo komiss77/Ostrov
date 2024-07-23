@@ -1,5 +1,12 @@
 package ru.komiss77.modules.bots;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -38,13 +45,6 @@ import ru.komiss77.version.Craft;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 
 
 public class BotEntity extends ServerPlayer {
@@ -146,6 +146,7 @@ public class BotEntity extends ServerPlayer {
     }
 
 
+
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
         if (ofh) {
             final EntityEquipment eq = from.getEquipment();
@@ -205,7 +206,7 @@ public class BotEntity extends ServerPlayer {
         Nms.sendWorldPackets(world,
                 addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
                 modListPlayerPacket(), //UPDATE_GAME_MODE
-                new ClientboundAddEntityPacket(this));
+                new ClientboundAddEntityPacket(this, 0, blockPosition()));
         swapToSlot(0);
 
 //		final Vector vc = to.toVector();
@@ -258,6 +259,7 @@ public class BotEntity extends ServerPlayer {
     private ClientboundPlayerInfoRemovePacket remListPlayerPacket() {
         return new ClientboundPlayerInfoRemovePacket(Arrays.asList(this.uuid));
     }
+
 
 
     public ItemStack item(final EquipmentSlot slot) {
@@ -418,7 +420,7 @@ public class BotEntity extends ServerPlayer {
 
     public void updateAll(final Player pl) {
 //      pl.sendMessage("bot-" + name);
-        Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this),
+        Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this, 0, blockPosition()),
                 new ClientboundTeleportEntityPacket(this), new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         team.send(pl);
         tag.showTo(pl);
@@ -532,7 +534,7 @@ public class BotEntity extends ServerPlayer {
                 return;
             }
 
-            //Bukkit.broadcast(Component.text("le-" + rplc.getName()));
+            //Bukkit.broadcast(Component.text("le-" + rplc.name()));
             final Location loc = rplc.getLocation();
             final Location eyel = rplc.getEyeLocation();
             final Vector vc = eyel.getDirection();

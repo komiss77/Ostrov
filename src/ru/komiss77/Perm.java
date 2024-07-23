@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;

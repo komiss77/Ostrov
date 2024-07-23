@@ -2,7 +2,6 @@ package ru.komiss77.modules.redis;
 
 import java.io.Closeable;
 import java.io.IOException;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPooled;

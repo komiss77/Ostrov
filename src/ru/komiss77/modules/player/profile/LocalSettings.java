@@ -306,7 +306,7 @@ public class LocalSettings implements InventoryProvider {
 
 
         final boolean local = op.isLocalChat();//= op.hasFlag(StatFlag.LocalChat); //Ostrov.deluxechatPlugin.isLocal(p.getUniqueId().toString());
-        content.set(3, 2, ClickableItem.of(new ItemBuilder(local ? Material.SCUTE : Material.GUNPOWDER)
+        content.set(3, 2, ClickableItem.of(new ItemBuilder(local ? Material.TURTLE_SCUTE : Material.GUNPOWDER)
                         .name("§7Режим чата")
                         .addLore(local ? "§7Сейчас: §bлокальный" : "§7Сейчас: §eглобальный")
                         .addLore(local ? "§7ЛКМ - сделать глобальным" : "§7ЛКМ - сделать локальным")

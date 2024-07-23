@@ -1,7 +1,6 @@
 package ru.komiss77;
 
 import java.util.Iterator;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;

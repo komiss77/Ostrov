@@ -9,6 +9,10 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -29,6 +33,7 @@ public class TCUtils {
     private static final BiMap<DyeColor, TextColor> dyeIx;
     private static final BiMap<Character, TextColor> chrIx;
     private static final BiMap<Color, TextColor> clrIx;
+    private static final MiniMessage msg;
 
     public static final char STYLE = '§';
     //    public static final char form = '᨟';
@@ -122,6 +127,21 @@ public class TCUtils {
         clrIx.put(Color.fromRGB(CustomTextColor.STALE.value()), CustomTextColor.STALE);
         chrIx.put('м', CustomTextColor.MITHRIL);//durability
         clrIx.put(Color.fromRGB(CustomTextColor.MITHRIL.value()), CustomTextColor.MITHRIL);
+
+        msg = MiniMessage.builder().tags(
+                TagResolver.builder()
+                        .resolver(StandardTags.defaults())
+                        .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))//Янтарный
+                        .resolver(TagResolver.resolver("apple", Tag.styling(TextColor.color(0x88BB44))))//Салатовый
+                        .resolver(TagResolver.resolver("beige", Tag.styling(TextColor.color(0xDDCCAA))))//Бежевый
+                        .resolver(TagResolver.resolver("maroon", Tag.styling(TextColor.color(0xBB2244))))//Кардинный
+                        .resolver(TagResolver.resolver("indigo", Tag.styling(TextColor.color(0xAAAADD))))//Сиреневый
+                        .resolver(TagResolver.resolver("olive", Tag.styling(TextColor.color(0xBBDDAA))))//Оливковый
+                        .resolver(TagResolver.resolver("orchid", Tag.styling(TextColor.color(0xDDAABB))))//Малиновый
+                        .resolver(TagResolver.resolver("sky", Tag.styling(TextColor.color(0xAADDDD))))//Небесный
+                        .resolver(TagResolver.resolver("stale", Tag.styling(TextColor.color(0x446666))))//Черствый
+                        .resolver(TagResolver.resolver("mithril", Tag.styling(TextColor.color(0xB0C0C0))))//Мифриловый
+                        .build()).build();
     }
 
     public static ItemStack changeColor(ItemStack source, byte new_color) {
@@ -148,9 +168,8 @@ public class TCUtils {
     }
 
     public static ItemStack changeColor(final ItemStack source, final DyeColor color) {
-        if (source == null || color == null) {
-            return source;
-        }
+        if (source == null || color == null) return source;
+        final ItemStack it;
         if (source.getType().isBlock()) {
             String matName = source.getType().name();
             String stripMatName = stripMaterialName(matName);
@@ -159,17 +178,16 @@ public class TCUtils {
             }                //return source;
             //}
             final Material newMat = Material.matchMaterial(color.name() + "_" + stripMatName);
-            if (newMat != null) {
-                source.setType(newMat);//Material.matchMaterial(new_color.toString() + "_" + base_mat_name));
-            }
+            it = newMat == null ? source : source.withType(newMat);
         } else {
             final ItemMeta im = source.getItemMeta();
             if (im instanceof final Colorable c) {
                 c.setColor(color);
                 source.setItemMeta(im);
             }
+            it = source;
         }
-        return source;
+        return it;
     }
 
     public static Material changeColor(final Material source, final DyeColor color) {
@@ -505,14 +523,49 @@ public class TCUtils {
         return setColorChar(ch, toString(str));
     }
 
+    @Slow(priority = 1)
+    public static Component form(final String str) {
+        if (str == null || str.isEmpty()) return EMPTY;
+        String fin = str;
+        for (final Entry<Character, TextColor> en : chrIx.entrySet()) {
+            final TextColor tc = en.getValue();
+            final String rpl;
+            switch (tc) {
+                case final NamedTextColor nc:
+                    rpl = nc.toString();
+                    break;
+                case final CustomTextColor cc:
+                    rpl = cc.toString();
+                    break;
+                default:
+                    continue;
+            }
+
+            fin = fin.replace(STYLE + en.getKey().toString(), "<" + rpl + ">");
+        }
+        fin = fin.replace(STYLE + "k", "<obfuscated>");
+        fin = fin.replace(STYLE + "l", "<bold>");
+        fin = fin.replace(STYLE + "m", "<strikethrough>");
+        fin = fin.replace(STYLE + "n", "<underlined>");
+        fin = fin.replace(STYLE + "o", "<italic>");
+        fin = fin.replace(STYLE + "r", "<reset>");
+        return msg.deserialize(fin);
+    }
+
+    public static String deform(final Component cmp) {
+        if (cmp == null) return "";
+        return msg.serialize(cmp);
+    }
+
     //"§[^\s]"
     @Slow(priority = 1)
-    public static TextComponent format(final String msg) {
-        if (msg == null || msg.isEmpty()) {
+    @Deprecated
+    public static TextComponent format(final String str) {
+        if (str == null || str.isEmpty()) {
             return EMPTY;//Component.text("");
         }
         final ArrayList<TextComponent> comps = new ArrayList<>();
-        final char[] chMsg = msg.toCharArray();
+        final char[] chMsg = str.toCharArray();
 
         StringBuilder sb = new StringBuilder();
         TextColor color = null, gradTo = null;
@@ -829,6 +882,7 @@ public class TCUtils {
     }
 
     @Slow(priority = 1)
+    @Deprecated
     public static String toString(final Component cmp) {
         lstClr = null;
         gradient = null;
@@ -953,7 +1007,7 @@ public class TCUtils {
     }
 
     public static boolean compare(final Component of, final Component to) {
-        return toString(of).equals(toString(to));
+        return deform(of).equals(deform(to));
     }
 
     //надо для скайблока

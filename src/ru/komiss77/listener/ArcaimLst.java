@@ -2,7 +2,6 @@ package ru.komiss77.listener;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
-
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;

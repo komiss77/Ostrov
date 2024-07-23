@@ -1,5 +1,16 @@
 package ru.komiss77.modules.bots;
 
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,24 +34,10 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 
 public class BotManager implements Initiable, Listener {
 
-    @Deprecated
-    public static boolean enable; //переделать на AtomicBoolean!!
-    //public static AtomicBoolean enable;
+    public static boolean enable;
     public static final IntHashMap<BotEntity> botById;
     protected static final CaseInsensitiveMap<BotEntity> botByName;
     protected static final CaseInsensitiveMap<String[]> skin;
@@ -199,7 +196,6 @@ public class BotManager implements Initiable, Listener {
             return null;
         }
     }
-
     @Nullable
     @Deprecated
     public static <B extends BotEntity> B createBot(final String name, final Class<B> botClass, final Supplier<B> onCreate) {

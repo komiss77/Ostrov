@@ -423,7 +423,7 @@ public class MissionManager {
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
                                                         .name(mission.displayName())
                                                         .setLore(lore)
-                                                        .addEnchant(Enchantment.LUCK)
+                                                .addEnchant(Enchantment.FORTUNE)
                                                         .addFlags(ItemFlag.HIDE_ENCHANTS)
                                                         .build(), e -> {
                                                     op.getPlayer().performCommand("mission complete " + missionId);

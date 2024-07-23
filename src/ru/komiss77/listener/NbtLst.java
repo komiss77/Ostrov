@@ -2,7 +2,6 @@ package ru.komiss77.listener;
 
 import java.util.HashMap;
 import java.util.stream.Collectors;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.Bukkit;

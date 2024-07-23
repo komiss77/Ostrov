@@ -1,23 +1,9 @@
 package ru.komiss77.modules.crafts;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Tag;
+import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
+import com.google.common.collect.Multimap;
+import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -36,40 +22,26 @@ import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.BlastingRecipe;
-import org.bukkit.inventory.CampfireRecipe;
-import org.bukkit.inventory.CookingRecipe;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.FurnaceInventory;
-import org.bukkit.inventory.FurnaceRecipe;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.RecipeChoice.ExactChoice;
 import org.bukkit.inventory.meta.ItemMeta;
-import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
-import com.google.common.collect.Multimap;
-import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.SmithingInventory;
-import org.bukkit.inventory.SmithingRecipe;
-import org.bukkit.inventory.SmithingTransformRecipe;
-import org.bukkit.inventory.SmokingRecipe;
-import org.bukkit.inventory.StonecutterInventory;
-import org.bukkit.inventory.StonecuttingRecipe;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+
 
 
 public final class Crafts implements Initiable, Listener {
 
     public static final Map<NamespacedKey, Craft> crafts = new HashMap<>();
-    public static final String space = "ostrov";
 
     public Crafts() {
         if (!Config.crafts) {
@@ -130,7 +102,7 @@ public final class Crafts implements Initiable, Listener {
             final YamlConfiguration otherCrafts = YamlConfiguration.loadConfiguration(cfg);
             css.sendMessage("Found file " + cfg.getName());
             final Set<String> crfts = otherCrafts.getKeys(false);
-            if (crfts == null || crfts.isEmpty()) {
+            if (crfts.isEmpty()) {
                 css.sendMessage("File empty...");
                 return;
             }
@@ -140,14 +112,14 @@ public final class Crafts implements Initiable, Listener {
             }
         }
         //} catch (IOException ex) {
-        //    Logger.getLogger(Crafts.class.getName()).log(Level.SEVERE, null, ex);
+        //    Logger.getLogger(Crafts.class.name()).log(Level.SEVERE, null, ex);
         //}
     }
 
     public static void readCraft(final ConfigurationSection cs) {
         //ConfigurationSection cs = craftConfig.getConfigurationSection("crafts");
         final ItemStack resultItem = ItemUtils.parseItem(cs.getString("result"), "=");
-        final NamespacedKey nsk = new NamespacedKey(space, cs.getName());
+        final NamespacedKey nsk = new NamespacedKey(OStrap.space, cs.getName());
         //cs = craftConfig.getConfigurationSection("crafts." + c + ".recipe");
         final Recipe recipe;
         final ItemStack it;
@@ -206,7 +178,7 @@ public final class Crafts implements Initiable, Listener {
 
     @SuppressWarnings("unchecked")
     public static <G extends Recipe> G getRecipe(final NamespacedKey key, final Class<G> cls) {
-        if (!key.getNamespace().equals(Crafts.space)) return null;
+        if (!key.getNamespace().equals(OStrap.space)) return null;
         final Craft rc = crafts.get(key);
         if (rc != null && cls.isAssignableFrom(rc.rec.getClass())) return (G) rc.rec;
         return null;
@@ -219,35 +191,36 @@ public final class Crafts implements Initiable, Listener {
     public static Recipe fakeRec(final Recipe rc) {
         if (rc instanceof Keyed) {
             final String ks = ((Keyed) rc).getKey().getKey();
-            if (rc instanceof ShapedRecipe) {
-                final ShapedRecipe src = new ShapedRecipe(new NamespacedKey(space, ks), rc.getResult());
-                src.shape(((ShapedRecipe) rc).getShape());
-                for (final Entry<Character, RecipeChoice> en : ((ShapedRecipe) rc).getChoiceMap().entrySet()) {
-                    if (en.getValue() == null) continue;
-                    src.setIngredient(en.getKey(), new ExactChoice(((CMDMatChoice) en.getValue()).getItemStack()));
-                }
-                return src;
-            } else if (rc instanceof ShapelessRecipe) {
-                final ShapelessRecipe src = new ShapelessRecipe(new NamespacedKey(space, ks), rc.getResult());
-                for (final RecipeChoice ch : ((ShapelessRecipe) rc).getChoiceList()) {
-                    if (ch == null) continue;
-                    src.addIngredient(new ExactChoice(((CMDMatChoice) ch).getItemStack()));
-                }
-                return src;
-            } else if (rc instanceof final FurnaceRecipe src) {
-                return new FurnaceRecipe(new NamespacedKey(space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-            } else if (rc instanceof final SmokingRecipe src) {
-                return new SmokingRecipe(new NamespacedKey(space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-            } else if (rc instanceof final BlastingRecipe src) {
-                return new BlastingRecipe(new NamespacedKey(space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-            } else if (rc instanceof final CampfireRecipe src) {
-                return new CampfireRecipe(new NamespacedKey(space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
-            } else {
-                return null;
+            switch (rc) {
+                case ShapedRecipe src:
+                    final ShapedRecipe drc = new ShapedRecipe(new NamespacedKey(OStrap.space, ks), rc.getResult());
+                    drc.shape(src.getShape());
+                    for (final Entry<Character, RecipeChoice> en : src.getChoiceMap().entrySet()) {
+                        if (en.getValue() == null) continue;
+                        drc.setIngredient(en.getKey(), new ExactChoice(((CMDMatChoice) en.getValue()).getItemStack()));
+                    }
+                    return drc;
+                case ShapelessRecipe src:
+                    final ShapelessRecipe lrc = new ShapelessRecipe(new NamespacedKey(OStrap.space, ks), rc.getResult());
+                    for (final RecipeChoice ch : src.getChoiceList()) {
+                        if (ch == null) continue;
+                        lrc.addIngredient(new ExactChoice(((CMDMatChoice) ch).getItemStack()));
+                    }
+                    return lrc;
+                case final FurnaceRecipe src:
+                    return new FurnaceRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                case final SmokingRecipe src:
+                    return new SmokingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                case final BlastingRecipe src:
+                    return new BlastingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                case final CampfireRecipe src:
+                    return new CampfireRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                default:
+                    return null;
             }
         }
         return null;
@@ -297,7 +270,7 @@ public final class Crafts implements Initiable, Listener {
                     if (rcs.size() != 0) {
                         inv.setResult(ItemUtils.air);
                         Bukkit.removeRecipe(src.getKey());
-                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().get(0);
+                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
                         if (pl == null) return;
                         inv.setResult(Bukkit.craftItem(mtx, pl.getWorld(), (Player) pl));
                         Bukkit.addRecipe(src);
@@ -329,7 +302,7 @@ public final class Crafts implements Initiable, Listener {
                     if (rcs.size() != 0) {
                         inv.setResult(ItemUtils.air);
                         Bukkit.removeRecipe(src.getKey());
-                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().get(0);
+                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
                         if (pl == null) return;
                         inv.setResult(Bukkit.craftItem(mtx, pl.getWorld(), (Player) pl));
                         Bukkit.addRecipe(src);
@@ -612,6 +585,7 @@ public final class Crafts implements Initiable, Listener {
             if (tr != null && Tag.ITEMS_TRIM_TEMPLATES.isTagged(tr.getType())) {
                 final Material mt = it.getType();
                 final EquipmentSlot es = mt.getEquipmentSlot();
+                final EquipmentSlotGroup esg = es.getGroup();
                 final Multimap<Attribute, AttributeModifier> amt = mt.getDefaultAttributeModifiers(es);
                 final ItemMeta im = it.getItemMeta();
                 im.removeAttributeModifier(es);
@@ -650,29 +624,29 @@ public final class Crafts implements Initiable, Listener {
                 }
 
                 final ItemStack add = ci.getInputMineral();
-                im.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor", arm * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, es));
+                im.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(NamespacedKey.minecraft("generic.armor"),
+                        arm * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_toughness", ath * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, es));
+                im.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("generic.armor_toughness"),
+                        ath * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_anticnockback", akb * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, es));
+                im.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_anticnockback"),
+                        akb * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_max_health", ItemUtils.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, es));
+                im.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(NamespacedKey.minecraft("generic.armor_max_health"),
+                        ItemUtils.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_attack_damage", ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, es));
+                im.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_damage"),
+                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_attack_knockback", ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, es));
+                im.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_knockback"),
+                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_attack_speed", ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, es));
+                im.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_speed"),
+                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(),
-                        "generic.armor_move_speed", ItemUtils.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, es));
+                im.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_move_speed"),
+                        ItemUtils.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
                 it.setItemMeta(im);
                 e.setResult(it);

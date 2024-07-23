@@ -71,7 +71,7 @@ public class InteractLst implements Listener {
                 .addLore("§7ПКМ - скопировать")
                 .addLore("§7Шифт+ПКМ - вставить")
                 .addLore("")
-                .addEnchant(Enchantment.LUCK)
+                .addEnchant(Enchantment.CHANNELING)
                 .build();
 
         gameSignEdit = new ItemBuilder(Material.CRIMSON_SIGN)
@@ -81,7 +81,7 @@ public class InteractLst implements Listener {
                 .addLore("")
                 .addLore("§7ПКМ по табличке - ")
                 .addLore("§7настроить отображаемую игру")
-                .addEnchant(Enchantment.LUCK)
+                .addEnchant(Enchantment.CHANNELING)
                 .build();
 
         passport = new ItemBuilder(Material.PAPER)

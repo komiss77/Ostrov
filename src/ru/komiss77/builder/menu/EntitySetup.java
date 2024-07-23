@@ -318,7 +318,7 @@ public class EntitySetup implements InventoryProvider {
                     .addLore("§fСейчас : " + dc.name())
                     .build(), e -> {
                 if (e.isLeftClick()) {
-                    final Cat.Type dc2 = FastMath.rotateEnum(dc);//Cat.Type.values()[dc.ordinal() + 1 % Cat.Type.values().length];
+                    final Cat.Type dc2 = nextCat(dc);//Cat.Type.values()[dc.ordinal() + 1 % Cat.Type.values().length];
                     ((Cat) en).setCatType(dc2);
                     reopen(p, content);
                 }
@@ -339,7 +339,7 @@ public class EntitySetup implements InventoryProvider {
             }));
         }
 
-        if (en.getType() == EntityType.SNOWMAN) {
+        if (en.getType() == EntityType.SNOW_GOLEM) {
             content.add(ClickableItem.of(new ItemBuilder(((Snowman) en).isDerp() ? Material.LIME_DYE : Material.CLAY_BALL)
                     .name(((Snowman) en).isDerp() ? "§6Тающий" : "§6Свежий")
                     .build(), e -> {
@@ -360,6 +360,20 @@ public class EntitySetup implements InventoryProvider {
             }
         }));
 
+    }
+
+    private Cat.Type nextCat(Cat.Type dc) {
+        if (dc == Cat.Type.TABBY) return Cat.Type.BLACK;
+        else if (dc == Cat.Type.BLACK) return Cat.Type.RED;
+        else if (dc == Cat.Type.RED) return Cat.Type.SIAMESE;
+        else if (dc == Cat.Type.SIAMESE) return Cat.Type.BRITISH_SHORTHAIR;
+        else if (dc == Cat.Type.BRITISH_SHORTHAIR) return Cat.Type.CALICO;
+        else if (dc == Cat.Type.CALICO) return Cat.Type.PERSIAN;
+        else if (dc == Cat.Type.PERSIAN) return Cat.Type.RAGDOLL;
+        else if (dc == Cat.Type.RAGDOLL) return Cat.Type.WHITE;
+        else if (dc == Cat.Type.WHITE) return Cat.Type.JELLIE;
+        //else if (dc == Cat.Type.JELLIE) return Cat.Type.ALL_BLACK;
+        return Cat.Type.ALL_BLACK;
     }
 
 

@@ -95,7 +95,7 @@ public class DonatEffect {
                     double x = radius * Math.cos(Math.pow(y, 2) * 10);
                     double z = radius * Math.sin(Math.pow(y, 2) * 10);
                     loc.add(x, y, z);
-                    loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc, 1, 0, 0, 0);
+                    loc.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, loc, 1, 0, 0, 0);
                     loc.subtract(x, y, z);
                 }
                 if ((in && y <= 0) || y >= 4) {

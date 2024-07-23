@@ -44,7 +44,7 @@ public class QuestViewMenu implements InventoryProvider {
 
             if (pr != null) {
                 if (pr.isDone()) {
-                    buttons.add(ClickableItem.empty(new ItemBuilder(Material.SCUTE)
+                    buttons.add(ClickableItem.empty(new ItemBuilder(Material.TURTLE_SCUTE)
                             .name(q.displayName).addLore("§8Завершено").build()));
                 } else {
                     final ItemStack is = new ItemBuilder(Material.RAW_GOLD)

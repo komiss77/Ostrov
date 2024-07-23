@@ -1,6 +1,18 @@
 package ru.komiss77.version;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
@@ -22,16 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.TCUtils;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
+
 
 //прибить private Plugin plugin;
 // https://github.com/WesJD/AnvilGUI
@@ -928,7 +931,7 @@ final class CustomAnvil {
 
     //@Override
     public Object jsonChatComponent(String json) {
-        return Component.Serializer.fromJson(json);
+        return Component.Serializer.fromJson(json, RegistryAccess.EMPTY);
     }
 
     protected static class AnvilContainer extends AnvilMenu {
@@ -976,7 +979,8 @@ final class CustomAnvil {
             // If an item is present in the left input slot change its hover name to the literal text.
             Slot inputLeft = getSlot(0);
             if (inputLeft.isFake()) {
-                inputLeft.getItem().setHoverName(Component.literal(text));
+                //inputLeft.getItem().setHoverName(Component.literal(text));
+                inputLeft.getItem().set(DataComponents.CUSTOM_NAME, Component.literal(text));
             }
         }
 

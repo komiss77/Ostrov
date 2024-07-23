@@ -217,10 +217,10 @@ public final class LimiterLst implements Initiable, Listener {
 
                     EntityType mineType = EntityType.MINECART;
                     switch (mat) {
-                        case CHEST_MINECART -> mineType = EntityType.MINECART_CHEST;
-                        case FURNACE_MINECART -> mineType = EntityType.MINECART_FURNACE;
-                        case TNT_MINECART -> mineType = EntityType.MINECART_TNT;
-                        case HOPPER_MINECART -> mineType = EntityType.MINECART_HOPPER;
+                        case CHEST_MINECART -> mineType = EntityType.CHEST_MINECART;
+                        case FURNACE_MINECART -> mineType = EntityType.FURNACE_MINECART;
+                        case TNT_MINECART -> mineType = EntityType.TNT_MINECART;
+                        case HOPPER_MINECART -> mineType = EntityType.HOPPER_MINECART;
                         //MINECART_COMMAND и MINECART_MOB_SPAWNER будут обычными MINECART
                     }
                     //if (Tag.RAILS.isTagged(e.getClickedBlock().getType())) {

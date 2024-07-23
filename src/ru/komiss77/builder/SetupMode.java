@@ -166,9 +166,9 @@ public class SetupMode implements Listener {
                             particleLoc.set(xyz.x, xyz.y, xyz.z);
                             //p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
                             if (xyz.pitch >= 5) { //стенки
-                                p.spawnParticle(Particle.FIREWORKS_SPARK, particleLoc, 0);
+                                p.spawnParticle(Particle.FIREWORK, particleLoc, 0);
                             } else {
-                                p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                                p.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
                                 //p.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0);
                             }
                             //p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);

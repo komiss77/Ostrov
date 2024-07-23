@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.*;
@@ -96,6 +95,7 @@ public class RDS implements Initiable {
                     .ssl(false)
                     .build();
             final ConnectionFactory connectionFactory = new ConnectionFactory(hostAndPort, jedisClientConfig);
+            //final PooledConnectionProvider pooledConnectionProvider = new PooledConnectionProvider(connectionFactory, connectionGenericObjectPoolConfig);
             final PooledConnectionProvider pooledConnectionProvider = new PooledConnectionProvider(connectionFactory, connectionGenericObjectPoolConfig);
 
             poolProvider = new JedisPoolProvider(pooledConnectionProvider, jedisPool);

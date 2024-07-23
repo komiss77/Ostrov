@@ -31,21 +31,21 @@ public class ParticlePlay {
     public enum particle {
         HEART("Сердечки", Material.REDSTONE_BLOCK, Particle.HEART),
         NOTE("Ноты", Material.NOTE_BLOCK, Particle.NOTE),
-        VILLAGER_HAPPY("Изумруды", Material.EMERALD, Particle.VILLAGER_HAPPY),
+        HAPPY_VILLAGER("Изумруды", Material.EMERALD, Particle.HAPPY_VILLAGER),
         FLAME("Огонь", Material.FIRE, Particle.FLAME),
-        CRIT_MAGIC("Удар магии", Material.DIAMOND_AXE, Particle.CRIT_MAGIC),
+        ENCHANTED_HIT("Удар магии", Material.DIAMOND_AXE, Particle.ENCHANTED_HIT),
         CRIT("Удар", Material.ENCHANTED_BOOK, Particle.CRIT),
-        VILLAGER_ANGRY("Злой Житель", Material.ARROW, Particle.VILLAGER_ANGRY),
+        ANGRY_VILLAGER("Злой Житель", Material.ARROW, Particle.ANGRY_VILLAGER),
         PORTAL("Портал", Material.OBSIDIAN, Particle.PORTAL),
-        REDSTONE("Редстоун", Material.REDSTONE, Particle.REDSTONE),
+        DUST("Редстоун", Material.REDSTONE, Particle.DUST),
         CLOUD("Дымок", Material.TNT, Particle.CLOUD),
         LAVA("Лава", Material.LAVA_BUCKET, Particle.LAVA),
-        ENCHANTMENT_TABLE("Магия", Material.ENCHANTING_TABLE, Particle.ENCHANTMENT_TABLE),
+        ENCHANT("Магия", Material.ENCHANTING_TABLE, Particle.ENCHANT),
         CAMPFIRE_SIGNAL_SMOKE("Сигнальный дым", Material.CAMPFIRE, Particle.CAMPFIRE_SIGNAL_SMOKE),
         END_ROD("Стержень энда", Material.END_ROD, Particle.END_ROD),
         SCULK_CHARGE_POP("Скалк", Material.SCULK_SENSOR, Particle.SCULK_CHARGE_POP),
         BUBBLE_COLUMN_UP("Пузыри", Material.SCULK_SHRIEKER, Particle.BUBBLE_COLUMN_UP),
-        SPELL_WITCH("Ведьма", Material.POTION, Particle.SPELL_WITCH),
+        WITCH("Ведьма", Material.POTION, Particle.WITCH),
         ;
 
         public final String displayName;
@@ -91,9 +91,9 @@ public class ParticlePlay {
                         (xyz) -> {
                             particleLoc.set(xyz.x, xyz.y, xyz.z);
                             if (xyz.pitch >= 5) { //стенки
-                                pl.spawnParticle(Particle.FIREWORKS_SPARK, particleLoc, 0);
+                                pl.spawnParticle(Particle.FIREWORK, particleLoc, 0);
                             } else {
-                                pl.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                                pl.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
                             }
                         }
                 );

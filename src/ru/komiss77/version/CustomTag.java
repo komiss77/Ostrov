@@ -1,8 +1,10 @@
 package ru.komiss77.version;
 
-import io.netty.buffer.Unpooled;
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 import io.papermc.paper.adventure.PaperAdventure;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -17,11 +19,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.TCUtils;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 
 //https://github.com/Owen1212055/CustomNames
 //https://wiki.vg/Entity_metadata#Display
@@ -154,15 +151,17 @@ public class CustomTag {
 
         final ClientboundSetEntityDataPacket syncDataPacket = syncPacket();
 
-        final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
-        buf.writeVarIntArray(idArray);
-        final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(buf);
+        //final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        //buf.writeVarInt(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
+        //buf.writeVarIntArray(idArray);
+        //final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(buf);
+        final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(Craft.toNMS(tgt));
 
         return new ClientboundBundlePacket(
                 List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)
         );
     }
+
 
     public ClientboundSetEntityDataPacket syncPacket() {
         return new ClientboundSetEntityDataPacket(tagEntityId,

@@ -1,5 +1,11 @@
 package ru.komiss77;
 
+import java.sql.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -21,13 +27,6 @@ import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocationUtil;
-
-import java.sql.*;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 
 
 public class LocalDB {

@@ -21,23 +21,16 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.monster.breeze.LongJump;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -60,7 +53,6 @@ import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.TeleportLoc;
 
 
 public class Nms {
@@ -274,7 +266,7 @@ public class Nms {
 
   public static void pathServer() {
     final MinecraftServer srv = MinecraftServer.getServer();
-    final com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher = srv.vanillaCommandDispatcher.getDispatcher();
+      final com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher = srv.getCommands().getDispatcher();
     final RootCommandNode<CommandSourceStack> root = dispatcher.getRoot();
 
     try {
@@ -436,7 +428,7 @@ public class Nms {
 
       if (fakeGlow) {
         final ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(e.getEntityId(), Craft.toNMS(e).getEntityData().getNonDefaultValues());
-        packet.packedItems().add(new SynchedEntityData.DataValue<>(0, BotEntity.flags.getSerializer(), (byte) 64));
+          packet.packedItems().add(new SynchedEntityData.DataValue<>(0, BotEntity.flags.serializer(), (byte) 64));
         Nms.sendWorldPackets(e.getWorld(), packet);
       } else {
         e.setGlowing(true);
@@ -450,7 +442,7 @@ public class Nms {
 //      final Entity e = be == null ? ent : be.getBukkitEntityRaw();
       final SubTeam st = new SubTeam(e.getUniqueId().toString()).include(e).color(color);
       final ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(e.getEntityId(), Craft.toNMS(e).getEntityData().getNonDefaultValues());
-      packet.packedItems().add(new SynchedEntityData.DataValue<>(0, BotEntity.flags.getSerializer(), (byte) 64));
+        packet.packedItems().add(new SynchedEntityData.DataValue<>(0, BotEntity.flags.serializer(), (byte) 64));
 
       for (final Player p : e.getWorld().getPlayers()) {
         if (to.test(p)) {

@@ -1,5 +1,9 @@
 package ru.komiss77.listener;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 import com.destroystokyo.paper.ClientOption;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
@@ -34,10 +38,6 @@ import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.InputButton;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
 
 //https://docs.advntr.dev/serializer/gson.html
 

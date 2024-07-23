@@ -92,7 +92,7 @@ public class TestLst implements Listener {
         }
 
         if (it.getType() == Material.ENCHANTED_BOOK) {
-            CustomEnchant.CHANNELING.level(it, 1, false);
+            //CustomEnchant.CHANNELING.level(it, 1, false);
             p.getInventory().setItemInMainHand(it);
             return;
         }

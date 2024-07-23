@@ -2,7 +2,6 @@ package ru.komiss77.builder;
 
 import java.util.Arrays;
 import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;

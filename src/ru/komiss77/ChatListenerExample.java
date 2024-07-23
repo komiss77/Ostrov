@@ -2,7 +2,6 @@ package ru.komiss77;
 
 
 import java.util.Iterator;
-
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

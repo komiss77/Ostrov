@@ -1,7 +1,6 @@
 package ru.komiss77.commands;
 
 import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -47,6 +46,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
@@ -64,8 +64,8 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
     private static Listener advancedListener;
 
     private static final String PVP_NOTIFY = "§cТы в режиме боя!";
-    private static final PotionEffect spd = new PotionEffect(PotionEffectType.FAST_DIGGING, 2, 255, true, false, false);
-    private static final PotionEffect slw = new PotionEffect(PotionEffectType.SLOW_DIGGING, 32, 255, true, false, false);
+    private static final PotionEffect spd = new PotionEffect(PotionEffectType.HASTE, 2, 255, true, false, false);
+    private static final PotionEffect slw = new PotionEffect(PotionEffectType.MINING_FATIGUE, 32, 255, true, false, false);
     private static final HashSet<Integer> noClds = new HashSet<>();
     private static final int DHIT_CLD = 4;
 
@@ -78,8 +78,8 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         potion_pvp_type = Lists.newArrayList(
                 PotionEffectType.POISON,
                 PotionEffectType.BLINDNESS,
-                PotionEffectType.CONFUSION,
-                PotionEffectType.HARM,
+                PotionEffectType.NAUSEA,
+                PotionEffectType.INSTANT_DAMAGE,
                 PotionEffectType.HUNGER
         );
     }
@@ -173,7 +173,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                         if (!e.isCritical()) {
                                             e.setDamage(0d);
                                             e.setCancelled(true);
-                                            targetPlayer.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+                                            targetPlayer.removePotionEffect(PotionEffectType.MINING_FATIGUE);
                                             noClds.add(targetPlayer.getEntityId());
                                             targetPlayer.swingMainHand();
                                             targetPlayer.attack(damagerPlayer);
@@ -230,7 +230,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                                             if (!e.isCritical()) {
                                                 e.setDamage(0d);
                                                 e.setCancelled(true);
-                                                targetPlayer.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+                                                targetPlayer.removePotionEffect(PotionEffectType.MINING_FATIGUE);
                                                 noClds.add(targetPlayer.getEntityId());
                                                 targetPlayer.swingMainHand();
                                                 targetPlayer.attack(e.getDamager());
@@ -451,7 +451,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 }
 
                 private boolean isParying(final Player dp) {
-                    final PotionEffect pre = dp.getPotionEffect(PotionEffectType.SLOW_DIGGING);
+                    final PotionEffect pre = dp.getPotionEffect(PotionEffectType.MINING_FATIGUE);
                     return pre != null && pre.getAmplifier() == slw.getAmplifier();
                 }
 
@@ -488,27 +488,26 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                     // if ( e.getPlayer().isOp() ) return;
                     //System.err.println(">>>>
                     final Player p = e.getPlayer();
-                    if (battle_time > 1 && PM.inBattle(p.getName())) {
-                        if (p.getAllowFlight() && p.isFlying()) {
-                            p.setFlying(false);
-                            p.setAllowFlight(false);
-                            ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
-                            e.setCancelled(true);
-                        }
+                    if (battle_time > 1 && PM.inBattle(p.getName())
+                            && p.getAllowFlight() && p.isFlying()) {
+                        p.setFlying(false);
+                        p.setAllowFlight(false);
+                        ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
+                        e.setCancelled(true);
                     }
                 }
             };
             Bukkit.getPluginManager().registerEvents(flyListener, Ostrov.instance);
         }
 
-        if (flags.get(PvpFlag.block_elytra_on_pvp_mode)) {
+        if (Boolean.TRUE.equals(flags.get(PvpFlag.block_elytra_on_pvp_mode))) {
             elytraListener = new Listener() {
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
                 public void onElytra(EntityToggleGlideEvent e) {
                     if (!e.isGliding() || e.getEntity().getType() != EntityType.PLAYER) {
                         return;
                     }
-                    //System.err.println(">>>>>>>>>>> 2");  
+                    //System.err.println(">>>>>>>>>>> 2");
                     final Player p = (Player) e.getEntity();
                     if (battle_time > 1 && PM.inBattle(p.getName())) {
                         ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
@@ -519,7 +518,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
             Bukkit.getPluginManager().registerEvents(elytraListener, Ostrov.instance);
         }
 
-        if (flags.get(PvpFlag.block_command_on_pvp_mode)) {
+        if (Boolean.TRUE.equals(flags.get(PvpFlag.block_command_on_pvp_mode))) {
             cmdListener = new Listener() {
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
                 public void Command(PlayerCommandPreprocessEvent e) throws CommandException {
@@ -594,7 +593,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                         if (pl.hasCooldown(mt) && ItemClass.MELEE_AXE.has(mt)) {
                             e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(-0.6d));
                             pl.getWorld().playSound(pl.getLocation(), Sound.BLOCK_CHAIN_FALL, 2f, 0.8f);
-                            pl.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+                            pl.removePotionEffect(PotionEffectType.MINING_FATIGUE);
                             pl.setCooldown(mt, 0);
                             pl.swingMainHand();
                             e.setCancelled(true);
@@ -636,7 +635,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         if (op == null) {
             return;
         }
-        op.last_death = p.getLocation();//PM.OP_Set_back_location(p.getName(), p.getLocation());
+        op.last_death = p.getLocation();//PM.OP_Set_back_location(p.name(), p.getLocation());
 
         if (flags.get(PvpFlag.enable)) {
 
@@ -680,7 +679,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         }
         //0- пустой (то,что уже введено)
 
-        return ImmutableList.of();
+        return List.of();
     }
 
     @Override
@@ -762,7 +761,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
     }
 
     private static boolean disablePvpDamage(final Entity atackEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
-//System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");        
+//System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");
 
         Player damager = null;
         Player target = null;
@@ -810,7 +809,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
             }
         }
 
-        if (damager != null) { //атакует игрок 
+        if (damager != null) { //атакует игрок
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
                 if (target != null && PM.exist(target.getName()) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
                     ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
@@ -845,7 +844,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                     return false;
                 }
                 pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр 
+            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
                 if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
                     return false;
                 }
@@ -869,12 +868,12 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 op.allow_fly = p.getAllowFlight();
                 op.in_fly = p.isFlying();
                 //не убирай p.isFlying(), из-за этого помню ловил баги - типа игрок не в полёте, флай блокируется, потом пытаешься включить полёт и ничего не получается
-                if (flags.get(PvpFlag.block_fly_on_pvp_mode) && p.isFlying()) { 
-                    p.setFlying(false); 
+                if (flags.get(PvpFlag.block_fly_on_pvp_mode) && p.isFlying()) {
+                    p.setFlying(false);
                     p.setAllowFlight(false);
                     p.setFlySpeed(0.1F);
                 }
-                
+
 //                p.setWalkSpeed(0.2F); // хз если вообще нужно, просто откл. локальные настройки на пвп серверах...
 
                 if (flags.get(PvpFlag.display_pvp_tag)) {
@@ -1053,7 +1052,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 content.add(ClickableItem.of(is, e -> {
                             //if (e.isLeftClick() ) {
                             //    player.closeInventory();
-                            //    player.performCommand("spy "+p.getName());
+                    //    player.performCommand("spy "+p.name());
                             //} else {
                             flags.put(f, !b);
                             saveConfig();
@@ -1111,11 +1110,12 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         //config.set("allow_pvp_command", allow_pvp_command);
         config.set("battle_time", battle_time);
         config.set("no_damage_on_tp", no_damage_on_tp);
-        for (PvpFlag f : flags.keySet()) {
+        for (final Map.Entry<PvpFlag, Boolean> en : flags.entrySet()) {
+            final PvpFlag f = en.getKey();
             if (f == PvpFlag.enable) {
                 continue;
             }
-            config.set(f.name(), flags.get(f));
+            config.set(f.name(), en.getValue());
         }
         config.saveConfig();
     }

@@ -1,10 +1,10 @@
 package ru.komiss77.modules.items;
 
+import org.bukkit.Material;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.Material;
 
 public class ItemClass {
 
@@ -75,6 +75,7 @@ public class ItemClass {
     private final String name;
     private final Material[] mts;
 
+    @Deprecated
     public ItemClass(final String name, final Material... mts) {
         Arrays.sort(mts);
         this.name = name;

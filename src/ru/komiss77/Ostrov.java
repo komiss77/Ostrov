@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -209,11 +208,13 @@ public class Ostrov extends JavaPlugin {
     public static void initModules() {
         log_ok("§5===== Инициализация модулей =====");
         for (final Module module : Module.values()) {
+//Ostrov.log_warn("module="+module);
             try {
                 modules.put(module.name(), module.clazz.getDeclaredConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-                     InvocationTargetException | NullPointerException | NoSuchMethodException ex) {
-                log_err("инициализацяя " + module + " : " + ex.getMessage());
+                //} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+                //InvocationTargetException | NullPointerException | NoSuchMethodException | NoClassDefFoundError ex) {
+            } catch (Exception ex) {
+                log_err("**** инициализацяя " + module + " : " + ex.getMessage());
                 ex.printStackTrace();
             }
         }

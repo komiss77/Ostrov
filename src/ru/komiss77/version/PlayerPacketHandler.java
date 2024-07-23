@@ -4,16 +4,14 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
@@ -113,7 +111,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
 
             if (packet instanceof ServerboundContainerClickPacket p) {
                 is = p.getCarriedItem();
-                if (is != null && is.hasTag()) {
+                if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.getSlotNum())) {
                         //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
                         //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
@@ -122,9 +120,9 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                     }
                 }
             } else if (packet instanceof ServerboundSetCreativeModeSlotPacket p) {
-                is = p.getItem();
-                if (is != null && is.hasTag()) {
-                    if (hacked(is, p.getSlotNum())) {
+                is = p.itemStack();
+                if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                    if (hacked(is, p.slotNum())) {
                         //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
                         //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
                         creativeSlotItem.set(p, ItemStack.EMPTY);
@@ -189,9 +187,9 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             }
 
             if (packet instanceof ClientboundBundlePacket clientboundBundlePacket) {
-                final Iterator<Packet<ClientGamePacketListener>> pit = clientboundBundlePacket.subPackets().iterator();
+                final Iterator pit = clientboundBundlePacket.subPackets().iterator();
                 while (pit.hasNext()) {
-                    final Packet<?> pc = pit.next();
+                    final Object pc = pit.next();
                     if (pc instanceof final ClientboundAddEntityPacket p) {
                         id = p.getId();
                     } else if (pc instanceof final ClientboundSetEntityDataPacket p) {
@@ -221,7 +219,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             if (packet instanceof ClientboundContainerSetSlotPacket p) {
                 if (p.getContainerId() == 0) {// check if window is not player inventory and we are ignoring non-player inventories
                     is = p.getItem();
-                    if (is != null && is.hasTag()) {
+                    if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                         if (hacked(is, p.getSlot())) {
                             containerSetSlotItem.set(p, ItemStack.EMPTY);
                             //return;
@@ -236,7 +234,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                     List<ItemStack> items = p.getItems();
                     for (int i = 0; i < items.size(); i++) {
                         is = items.get(i);
-                        if (is != null && is.hasTag()) {
+                        if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                             if (hacked(is, i)) {
                                 items.set(0, ItemStack.EMPTY);
                             }

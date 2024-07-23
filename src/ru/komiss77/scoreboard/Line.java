@@ -1,17 +1,10 @@
 package ru.komiss77.scoreboard;
 
 import javax.annotation.Nullable;
-
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
-import net.minecraft.world.scores.PlayerTeam;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.scoreboard.CraftScoreboard;
-import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.version.Nms;
 
 
 //чтобы строчки были с цветом, они дрбавляются как тимы

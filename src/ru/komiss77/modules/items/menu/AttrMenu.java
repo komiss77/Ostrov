@@ -75,18 +75,15 @@ public class AttrMenu implements InventoryProvider {
                         switch (msg.charAt(0)) {
                             case '+':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.ADD_NUMBER, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.ADD_NUMBER, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             case '*':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.MULTIPLY_SCALAR_1, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.MULTIPLY_SCALAR_1, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             case '%':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.ADD_SCALAR, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.ADD_SCALAR, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             default:
                                 p.sendMessage(Ostrov.PREFIX + "§cФормат: +|*|% число");
@@ -98,7 +95,6 @@ public class AttrMenu implements InventoryProvider {
                     } else {
                         p.sendMessage(Ostrov.PREFIX + "§cФормат: +|*|% число");
                         reopen(p, its);
-                        return;
                     }
                 }));
             } else {
@@ -119,18 +115,15 @@ public class AttrMenu implements InventoryProvider {
                         switch (msg.charAt(0)) {
                             case '+':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.ADD_NUMBER, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.ADD_NUMBER, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             case '*':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.MULTIPLY_SCALAR_1, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.MULTIPLY_SCALAR_1, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             case '%':
                                 im.removeAttributeModifier(at);
-                                im.addAttributeModifier(at, new AttributeModifier(UUID.randomUUID(),
-                                        at.name().substring(8).toLowerCase(), amt, Operation.ADD_SCALAR, it.getType().getEquipmentSlot()));
+                                im.addAttributeModifier(at, new AttributeModifier(at.getKey(), amt, Operation.ADD_SCALAR, it.getType().getEquipmentSlot().getGroup()));
                                 break;
                             default:
                                 p.sendMessage(Ostrov.PREFIX + "§cФормат: +|*|% число");
@@ -142,7 +135,6 @@ public class AttrMenu implements InventoryProvider {
                     } else {
                         p.sendMessage(Ostrov.PREFIX + "§cФормат: +|*|% число");
                         reopen(p, its);
-                        return;
                     }
                 }));
             }
@@ -150,13 +142,10 @@ public class AttrMenu implements InventoryProvider {
     }
 
     private String getAtrStr(final AttributeModifier atm) {
-        switch (atm.getOperation()) {
-            case ADD_SCALAR:
-                return "§a%" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
-            case MULTIPLY_SCALAR_1:
-                return "§b*" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
-            default:
-                return "§e+" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
-        }
+        return switch (atm.getOperation()) {
+            case ADD_SCALAR -> "§a%" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
+            case MULTIPLY_SCALAR_1 -> "§b*" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
+            default -> "§e+" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
+        };
     }
 }

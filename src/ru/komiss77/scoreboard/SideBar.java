@@ -3,7 +3,6 @@ package ru.komiss77.scoreboard;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedList;
-
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
