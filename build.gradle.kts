@@ -93,10 +93,9 @@ tasks {
   //}
 
   jar {
-    from(fileTree("libs/jedis"))
-    //from {
-    //configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
-    //}
+    //from(fileTree("libs/jedis"))
+    //from(files("libs/jedis-4.3.1.jar"))
+    from(zipTree("libs/jedis-4.3.1.zip"))
   }
 
   // jar {
