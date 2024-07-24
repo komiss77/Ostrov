@@ -1,0 +1,5 @@
+
+в папке libs должны быть два файла: jedis-4.3.1.jar и jedis-4.3.1.zip
+
+reids.jar копировать и переименовать в redis.zip
+в архив закинуть либу org.apache.commons.pool2.impl

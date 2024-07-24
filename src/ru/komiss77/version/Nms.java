@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 import com.mojang.brigadier.tree.RootCommandNode;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
@@ -14,6 +16,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -22,6 +28,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,6 +38,7 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -140,12 +148,17 @@ public class Nms {
   }
 
 
+  private static final net.minecraft.world.level.block.state.BlockState sign = ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState();
   public static void signInput(final Player p, final String suggest, final XYZ signXyz) { //suggest придёт с '&'
-    final BlockData bd = Material.OAK_SIGN.createBlockData();
-    p.sendBlockChange(signXyz.getCenterLoc(), bd);
+    //final BlockData bd = Material.OAK_SIGN.createBlockData();
 
     mutableBlockPosition.set(signXyz.x, signXyz.y, signXyz.z);
-    final SignBlockEntity sign = new SignBlockEntity(mutableBlockPosition, null);
+
+    ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(mutableBlockPosition, sign); //p.sendBlockChange(signXyz.getCenterLoc(), bd);
+    sendPacket(p, packet);
+
+    //final SignBlockEntity sign = new SignBlockEntity(mutableBlockPosition, null);
+    //sign.setLevel(Craft.toNMS(p.getWorld()));
     final Component[] comps = new Component[4];
     Arrays.fill(comps, Component.empty());
     boolean last = true;
@@ -167,10 +180,26 @@ public class Nms {
     }
 
     final SignText signtext = new SignText(comps, comps, DyeColor.WHITE, true);
-    sign.setText(signtext, true);//sign.c(signtext);//
+    //sign.setText(signtext, true);//sign.c(signtext);//
 
-    ClientboundBlockEntityDataPacket packet = sign.getUpdatePacket();
-    sendPacket(p, packet);// 1201 sendPacket(p, sign.j());
+    CompoundTag nbt = new CompoundTag();
+    nbt.putString("id", BlockEntityType.getKey(BlockEntityType.SIGN).toString());
+    nbt.putInt("x", signXyz.x);
+    nbt.putInt("y", signXyz.y);
+    nbt.putInt("z", signXyz.z);
+    //tag.remove("PublicBukkitValues");
+    HolderLookup.Provider registryLookup = Craft.toNMS(p.getWorld()).registryAccess();
+    DynamicOps<Tag> dynamicops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
+    DataResult<Tag> dataresult = SignText.DIRECT_CODEC.encodeStart(dynamicops, signtext);
+    dataresult.result().ifPresent((nbtbase) -> {
+      nbt.put("front_text", nbtbase);
+    });
+
+    ClientboundBlockEntityDataPacket entityDataPacket = new ClientboundBlockEntityDataPacket(mutableBlockPosition, BlockEntityType.SIGN, nbt);
+    //new ClientboundBlockEntityDataPacket( mutableBlockPosition,  BlockEntityType.SIGN,
+    //blockEntity.sanitizeSentNbt(nbtGetter.apply(blockEntity, registryAccess)));
+    //sign.getUpdatePacket();
+    sendPacket(p, entityDataPacket);// 1201 sendPacket(p, sign.j());
 
     final ClientboundOpenSignEditorPacket outOpenSignEditor = new ClientboundOpenSignEditorPacket(mutableBlockPosition, true);
     sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);

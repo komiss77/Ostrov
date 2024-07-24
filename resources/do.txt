@@ -3,8 +3,9 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 
 
 121 чекнуть
-EntityWorldMenu
 BannerEditor цифры
+вроде нет тэга
++ввод с таблички
 
 
 база композиций стоек для брони https://minecraft-heads.com/armor-stands
