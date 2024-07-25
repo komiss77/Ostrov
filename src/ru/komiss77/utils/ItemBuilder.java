@@ -42,14 +42,14 @@ public class ItemBuilder {
     private List<PotionEffect> customPotionEffects=null;
     private Map<Enchantment, Integer> enchants=null;
 
-   
+  //use StackBuilder
     public ItemBuilder(final Material material) {
        item = new ItemStack(material);
        meta = null;
        lore = new ArrayList<>();
     }
-   
 
+  //use StackBuilder
     public ItemBuilder(final ItemStack from) {
         item = from==null ? new ItemStack(Material.AIR) : new ItemStack(from.getType(), from.getAmount());
         meta = from != null && from.hasItemMeta() ? from.getItemMeta() : null;

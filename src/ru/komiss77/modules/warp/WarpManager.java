@@ -49,7 +49,7 @@ public final class WarpManager implements Initiable {
     
     @Override
     public void reload() {
-        if (LocalDB.useLocalData && LocalDB.getConnection()!=null) {
+        if (LocalDB.useLocalData || LocalDB.getConnection()!=null) {
           if (LocalDB.getConnection()!=null) {
             warps.clear();
             Ostrov.async( ()-> load(), 0 );

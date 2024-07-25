@@ -15,25 +15,26 @@ public class RegisterCommands {
         //RegisterCommands.plugin=plugin;
 
         Ostrov.log_ok("§5Регистрация команд:");
-        
-        plugin.getCommand("prefix").setExecutor(new Prefix());
-        plugin.getCommand("suffix").setExecutor(new Suffix());
-        plugin.getCommand("profile").setExecutor(new ProfileCmd());
-        plugin.getCommand("invsee").setExecutor(new InvseeCmd());
-        plugin.getCommand("seen").setExecutor(new SeenCmd());
-        plugin.getCommand("warp").setExecutor(new WarpCmd());
-        plugin.getCommand("kit").setExecutor(new KitCmd());
-        plugin.getCommand("pvp").setExecutor(new PvpCmd());
-        plugin.getCommand("server").setExecutor(new ServerCmd());
-        plugin.getCommand("passport").setExecutor(new PassportCmd());
-        plugin.getCommand("reward").setExecutor(new RewardCmd());
+        Ostrov.regCommand(new AdminCmd());
+        Ostrov.regCommand(new Prefix());
+        Ostrov.regCommand(new Suffix());
+        Ostrov.regCommand(new ProfileCmd());
+        Ostrov.regCommand(new InvseeCmd());
+        Ostrov.regCommand(new SeenCmd());
+        Ostrov.regCommand(new WarpCmd());
+        Ostrov.regCommand(new KitCmd());
+        Ostrov.regCommand(new PvpCmd());
+        Ostrov.regCommand(new ServerCmd());
+        Ostrov.regCommand(new EntityCmd());
+        Ostrov.regCommand(new PassportCmd());
+        Ostrov.regCommand(new RewardCmd());
+
         plugin.getCommand("statadd").setExecutor(new StatAddCmd());
         plugin.getCommand("statreach").setExecutor(new StatReachCmd());
         plugin.getCommand("wm").setExecutor(new WorldManagerCmd());
         plugin.getCommand("spy").setExecutor(new SpyCmd());
         plugin.getCommand("bossbar").setExecutor(new OpAsBossBarCmd());
         plugin.getCommand("world").setExecutor(new WorldCmd());
-        plugin.getCommand("entity").setExecutor(new EntityCmd());
         plugin.getCommand("oreload").setExecutor(new OreloadCmd());
         plugin.getCommand("report").setExecutor(new ReportCmd());
         plugin.getCommand("nbtfind").setExecutor(new NbtfindCmd(plugin));
@@ -45,7 +46,6 @@ public class RegisterCommands {
         plugin.getCommand("skin").setExecutor(new SkinCmd());
 
         plugin.getCommand("builder").setExecutor(new BuilderCmd());
-        plugin.getCommand("admin").setExecutor(new AdminCmd());
         plugin.getCommand("moder").setExecutor(new ModerCmd());
         plugin.getCommand("donate").setExecutor(new DonateCmd());
         plugin.getCommand("protocol").setExecutor(new ProtocolCmd());
@@ -55,13 +55,14 @@ public class RegisterCommands {
     }
 
     public static void registerAuth(final Ostrov plugin) {
+      Ostrov.regCommand(new EntityCmd());
+
         plugin.getCommand("bossbar").setExecutor(new OpAsBossBarCmd());
         plugin.getCommand("world").setExecutor(new WorldCmd());
-        plugin.getCommand("entity").setExecutor(new EntityCmd());   
     }
     
     public static void registerPay(final Ostrov plugin) {
-        plugin.getCommand("reward").setExecutor(new RewardCmd());
+      Ostrov.regCommand(new RewardCmd());
     }
     
 }

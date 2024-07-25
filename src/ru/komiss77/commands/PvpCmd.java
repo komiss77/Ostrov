@@ -2,12 +2,17 @@ package ru.komiss77.commands;
 
 import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent;
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.*;
 import org.bukkit.block.Container;
-import org.bukkit.command.*;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -19,15 +24,13 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.bots.BotManager;
@@ -47,8 +50,115 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
+public final class PvpCmd implements OCommand, Listener {
+
+  //запрос банжи, если есть - разкодировать raw
+  //если пустой - выкачать из снапшота БД
+
+  @Override
+  public LiteralCommandNode<CommandSourceStack> command() {
+    final String act = "action";
+    return Commands.literal("pvp")
+      .executes(cntx->{
+        final CommandSender cs = cntx.getSource().getExecutor();
+        if (!(cs instanceof final Player pl)) {
+          cs.sendMessage("§eНе консольная команда!");
+          return 0;
+        }
+
+        if (!flags.get(PvpFlag.allow_pvp_command)) {
+          pl.sendMessage("§cУправление режимом ПВП отключено!");
+          return 0;
+        }
+
+        final Component msg;
+        if (PM.getOplayer(pl).pvp_allow) {
+          msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <dark_red>Разрешен<gray>  <gold>[<gray>Клик - <green>ВЫКЛЮЧИТЬ<gold>]"))
+            .hoverEvent(HoverEvent.showText(Component.text("Клик - выключить")))
+            .clickEvent(ClickEvent.runCommand("/pvp off"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
+        } else {
+          msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <green>Запрещён<gray> <gold>[<gray>Клик - <dark_red>ВКЛЮЧИТЬ<gold>]"))
+            .hoverEvent(HoverEvent.showText(Component.text("Клик - включить")))
+            .clickEvent(ClickEvent.runCommand("/pvp on"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
+        }
+        pl.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+      })
+      .then(Resolver.player(act)
+        .suggests((cntx, sb)->{
+          final CommandSender cs = cntx.getSource().getExecutor();
+          if (!(cs instanceof final Player pl)) {
+            return CompletableFuture.completedFuture(sb.build());
+          }
+          if (ApiOstrov.isStaff(pl)) {
+            sb.suggest("setup");
+            sb.suggest("reload");
+          }
+          sb.suggest("on");
+          sb.suggest("off");
+          return CompletableFuture.completedFuture(sb.build());
+        })
+        .executes(cntx->{
+          final CommandSender cs = cntx.getSource().getExecutor();
+          if (!(cs instanceof final Player pl)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
+
+          final Oplayer op = PM.getOplayer(pl);
+          switch (Resolver.string(cntx, act)) {
+            case "on":
+              if (!flags.get(PvpFlag.allow_pvp_command)) {
+                pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
+                return 0;
+              }
+              op.pvp_allow = true;
+              pvpOn(op);
+              pl.sendMessage(Lang.t(pl, "§4ПВП включен!"));
+              return Command.SINGLE_SUCCESS;
+            case "of":
+              if (!flags.get(PvpFlag.allow_pvp_command)) {
+                pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
+                return 0;
+              }
+              pvpOff(op);
+              pl.sendMessage(Lang.t(pl, "§2ПВП выключен!"));
+              return Command.SINGLE_SUCCESS;
+            case "reload":
+              if (ApiOstrov.isLocalBuilder(cs, true)) {
+                init();
+                pl.sendMessage("§aНастройки ПВП режима загружены из файла pvp.yml");
+              }
+              return Command.SINGLE_SUCCESS;
+            case "setup":
+              if (ApiOstrov.isLocalBuilder(cs, true)) {
+                SmartInventory.builder()
+                  .id("PVPsetup" + pl.getName())
+                  .provider(new PvpSetupMenu())
+                  .size(6, 9)
+                  .title("§fНастройки ПВП режима")
+                  .build()
+                  .open(pl);
+              }
+              return Command.SINGLE_SUCCESS;
+            default:
+              return 0;
+          }
+        }))
+      .build();
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("пвп");
+  }
+
+  @Override
+  public String description() {
+    return "Вкл/Выкл ПВП Режим";
+  }
 
     private static OstrovConfig config;
 
@@ -669,98 +779,6 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
         }
     }
 
-    private static final List<String> sugg = Lists.newArrayList("on", "of", "reload", "setup");
-
-    @Override
-    public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] arg) {
-//System.out.println("l="+strings.length+" 0="+strings[0]);
-        if (arg.length == 1) {
-            return PvpCmd.sugg;
-        }
-        //0- пустой (то,что уже введено)
-
-        return List.of();
-    }
-
-    @Override
-    public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
-
-        if (!(cs instanceof final Player p)) {
-            if (arg.length == 1 && arg[0].equals("reload")) {
-                init();
-            } else {
-                cs.sendMessage("§e/" + this.getClass().getSimpleName() + " reload §7- перезагрузить настройки команды");
-            }
-            return true;
-        }
-
-        final Oplayer op = PM.getOplayer(p);
-
-        if (arg.length == 0) {
-            if (!flags.get(PvpFlag.allow_pvp_command)) {
-                p.sendMessage("§cУправление режимом ПВП отключено!");
-                return true;
-            }
-            final Component msg;
-            if (op.pvp_allow) {
-                msg = TCUtils.format(Lang.t(p, "§7Сейчас ПВП §4Разрешен§7  §6[§7Клик - §2ВЫКЛЮЧИТЬ§6]"))
-                  .hoverEvent(HoverEvent.showText(Component.text("Клик - выключить")))
-                  .clickEvent(ClickEvent.runCommand("/pvp off"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
-            } else {
-                msg = TCUtils.format(Lang.t(p, "§7Сейчас ПВП §2Запрещён§7 §6[§7Клик - §4ВКЛЮЧИТЬ§6]"))
-                  .hoverEvent(HoverEvent.showText(Component.text("Клик - включить")))
-                  .clickEvent(ClickEvent.runCommand("/pvp on"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
-            }
-            p.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
-            return true;
-        }
-
-        switch (arg[0]) {
-            case "on" -> {
-                if (!flags.get(PvpFlag.allow_pvp_command)) {
-                    p.sendMessage(Lang.t(p, "§cУправление режимом ПВП отключено!"));
-                    return true;
-                }
-                op.pvp_allow = true;
-                pvpOn(op);
-                p.sendMessage(Lang.t(p, "§4ПВП включен!"));
-                return true;
-            }
-            case "off" -> {
-                if (!flags.get(PvpFlag.allow_pvp_command)) {
-                    p.sendMessage(Lang.t(p, "§cУправление режимом ПВП отключено!"));
-                    return true;
-                }
-                pvpOff(op);
-                p.sendMessage(Lang.t(p, "§2ПВП выключен!"));
-                return true;
-            }
-            case "reload" -> {
-                if (ApiOstrov.isLocalBuilder(cs, true)) {
-                    init();
-                    p.sendMessage("§aНастройки ПВП режима загружены из файла pvp.yml");
-                }
-                return true;
-            }
-            case "setup" -> {
-                if (ApiOstrov.isLocalBuilder(cs, true)) {
-                    SmartInventory.builder()
-                            .id("PVPsetup" + p.getName())
-                            .provider(new PvpSetupMenu())
-                            .size(6, 9)
-                            .title("§fНастройки ПВП режима")
-                            .build()
-                            .open(p);
-                }
-                return true;
-            }
-            default ->
-                p.sendMessage("§c ?   §f/pvp,  §f/pvp on,  §f/pvp off");
-        }
-
-        return true;
-    }
-
     private static boolean disablePvpDamage(final Entity atackEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
 //System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");        
 
@@ -812,7 +830,7 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
         if (damager != null) { //атакует игрок 
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
-                if (target != null && PM.exist(target.getName()) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
+                if (target != null && PM.exists(target) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
                     ApiOstrov.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
                     return true;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {
@@ -921,10 +939,10 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
             if (!flags.get(PvpFlag.enable)) {
 
-                final ItemStack is = new ItemBuilder(Material.REDSTONE_BLOCK)
-                        .name("§8Модуль неактивен")
-                        .addLore("§aВключить")
-                        .build();
+                final ItemStack is = StackBuilder.of(ItemType.REDSTONE_BLOCK)
+                    .name("§8Модуль неактивен")
+                    .lore("§aВключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
                     flags.put(PvpFlag.enable, true);
                     saveConfig();
@@ -936,10 +954,10 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
 
             } else {
 
-                final ItemStack is = new ItemBuilder(Material.EMERALD_BLOCK)
-                        .name("§fМодуль активен")
-                        .addLore("§cВыключить")
-                        .build();
+                final ItemStack is = StackBuilder.of(ItemType.EMERALD_BLOCK)
+                    .name("§fМодуль активен")
+                    .lore("§cВыключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
                     flags.put(PvpFlag.enable, false);
                     saveConfig();
@@ -1023,7 +1041,6 @@ public final class PvpCmd implements Listener, CommandExecutor, TabCompleter {
                 ));
 
             } else {
-
                 final ItemStack is = new ItemBuilder(Material.FIREWORK_STAR)
                         .name("§7Иммунитет при ТП и респавне")
                         .addLore("§7ЛКМ - включить")

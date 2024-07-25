@@ -1,5 +1,6 @@
 package ru.komiss77;
 
+import com.mojang.brigadier.Command;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -14,6 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.commands.CMD;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.RegisterCommands;
+import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
@@ -32,6 +34,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 public class Ostrov extends JavaPlugin {

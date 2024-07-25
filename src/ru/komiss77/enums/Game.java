@@ -22,6 +22,7 @@ public enum Game {
     SD      ("§f✜ ", 7, 0, 39, "Скай-Грид", "skygrid", ServerType.ONE_GAME, "SPAWNER", "§bSkyGrid", Arrays.asList("§нВыживи в брутальной сетке", "§нблоков, собери всё, чтобы", "§нпостроить собственный островок", "§ни пройти игру.", "§eПострой свою империю с нуля!"), 0, -77),
     PA      ("§5❖ ", 8, 0, 33, "Паркуры", "parkur", ServerType.ONE_GAME, "FEATHER", "§b§lПаркуры", Arrays.asList("§мОтточи свое мастерство паркура", "§мна нашем захватывающем режиме", "§мс 60+ различных карт.", "§eПородемонстрируй свое проворство!"), 0, -77),
     EN      ("E", 7, 0, 0, "Энигма", "enigma", ServerType.ONE_GAME, "END_PORTAL_FRAME", "§d§lЭнигма", Arrays.asList("§5Сервер тайн и загадок"), 0, -77),
+    JL      ("§5☭ ", 10, 0, 41, "Чистилище", "jail", ServerType.ONE_GAME, "SOUL_LANTERN", "§ф§lЧистилище", Arrays.asList(" "), 0, -99),
     FA      ("§5🤓 ", 9, 0, 41, "Фатта", "fatta", ServerType.ONE_GAME, "LECTERN", "§ф§lФатта", Arrays.asList("§фБанды, оружие, работы, и", "§фмногое другое ждет тебя.", "§eНовый и интересный РП режим!", " ", "§к§n[В Разработке]"), 0, -99),
     
     BW      ("§e☢ ", 18, 1, 10, "бедварс", "bw01", ServerType.ARENAS, "RED_BED", "§e§lБедВарс", Arrays.asList(""), 0, -77),
@@ -108,7 +109,7 @@ public enum Game {
         nameMap.put("lobby2", LOBBY);
         nameMap.put("lobby3", LOBBY);
         nameMap.put("lobby4", LOBBY);
-        nameMap.put("skyblock", SK); //фикс-портал в лобби отпраляет на skyblock
+//        nameMap.put("skyblock", SK); //фикс-портал в лобби отпраляет на skyblock
 
     }
     
@@ -123,14 +124,14 @@ public enum Game {
         
         //не получился прямой - обработка имени
         //serverName = serverName.toLowerCase();
-        if (serverName.length()==4) { //bw01 bb01 sg02 обрезать до bw bb sg
-            serverName = serverName.substring(0, 2);
-        }
+//        if (serverName.length()==4) { //bw01 bb01 sg02 обрезать до bw bb sg
+//            serverName = serverName.substring(0, 2);
+//        }
         game = nameMap.get(serverName);
 //Ostrov.log_warn("2 serverName="+serverName+" game="+game);
         if (game!=null) return game;
         
-        if (serverName.startsWith("sedna_")) {
+        if (serverName.startsWith("sedna")) {
             return SE;
         }
 

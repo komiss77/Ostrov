@@ -817,9 +817,21 @@ public class ApiOstrov {
     public static boolean canBeBuilder(final CommandSender cs) {
         //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.name(), "supermoder");
         if (cs == null) return false;
-        if ( (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder") ) return true;
-        final Oplayer op = PM.getOplayer(cs.getName());
-        return op != null && op.hasGroup("supermoder");
+        if (!(cs instanceof Player pl) || cs.isOp() || cs.hasPermission("builder") ) return true;
+        final Oplayer op = PM.getOplayer(pl);
+        return op != null && op.hasGroup("xpanitely");
+    }
+
+    public static boolean isStaff(final CommandSender cs) {
+      return switch (cs) {
+        case null -> false;
+        case ConsoleCommandSender cns -> true;
+        case Player p -> {
+          final Oplayer op = PM.getOplayer(p);
+          yield op != null && op.isStaff;
+        }
+        default -> false;
+      };
     }
 
     public static boolean isLocalBuilder(final CommandSender cs) {
@@ -829,22 +841,22 @@ public class ApiOstrov {
         switch (cs) {
             case null:
                 return false;
-            case ConsoleCommandSender consoleCommandSender:
+            case ConsoleCommandSender cns:
                 return true;
             case Player p when canBeBuilder(p)://!! фиксить права в CDM case "gm", или не даст перейти в гм1
                 if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
                     return true;
-                } else if (message) {
-                    final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
-                            .clickEvent(ClickEvent.runCommand("/builder")));
-                }  //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
-                break;
+                }
+                if (message) {
+                  final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+                  p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                    .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                    .clickEvent(ClickEvent.runCommand("/builder")));
+                }
+              return false;
             default:
-                break;
+              return false;
         }
-        return false;
     }
 
 
@@ -938,7 +950,5 @@ public class ApiOstrov {
     public static boolean isFemale(final String name) {
         return PM.exist(name) && PM.getOplayer(name).gender==PM.Gender.FEMALE;
     }
-
-    
 
 }

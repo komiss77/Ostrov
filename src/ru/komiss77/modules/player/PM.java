@@ -105,8 +105,9 @@ public class PM {
         return oplayersByName.keySet();
     }
 
-
-    public static Oplayer getOplayer(final String nik) { //@Dep иногда очень надо найти по имени, напр. при сообщении, или когда UUID передавать неудобно
+    @Deprecated //иногда очень надо найти по имени, напр. при сообщении, или когда UUID передавать неудобно
+    //но от этой системы надо отходить, так что либо переделываем, либо страдаем)
+    public static Oplayer getOplayer(final String nik) {
         return oplayersByName.get(nik);
     }
 
@@ -138,6 +139,8 @@ public class PM {
         return oplayersByUuid.containsKey(id);
     }
 
+    @Deprecated //иногда очень надо найти по имени, напр. при сообщении, или когда UUID передавать неудобно
+    //но от этой системы надо отходить, так что либо переделываем, либо страдаем)
     public static boolean exist(final String nik) {
         return oplayersByName.containsKey(nik);
     }

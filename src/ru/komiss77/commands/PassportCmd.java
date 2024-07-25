@@ -1,176 +1,133 @@
 package ru.komiss77.commands;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.meta.BookMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.listener.InteractLst;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.E_Pass;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.StackBuilder;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
+public class PassportCmd implements OCommand {
 
-
-public class PassportCmd implements CommandExecutor {
-    
-    
-
-   // public PassportCmd() {
- //       init();
-//    }
-//    
-    private void help(final Player p) {
-        p.sendMessage(Component.text("§3/passport see <ник> - §7посмотреть паспорт игрока §8<<клик")
-            	.hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
-            	.clickEvent(ClickEvent.suggestCommand("/passport see ")));
-        
-        p.sendMessage(Component.text("§3/passport get - §7получить копию паспорта §8<<клик")
-            	.hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
-            	.clickEvent(ClickEvent.suggestCommand("/passport get")));
-    }
-
-    
-    
-    
-    
-    
-    
-    @Override
-    public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
-        
-        if ( ! (cs instanceof Player) ) {
-            if (arg.length==1 && arg[0].equals("reload")) {
-        //        reload();
-            } else {
-                cs.sendMessage("§e/"+this.getClass().getSimpleName()+" reload §7- перезагрузить настройки команды");
-            }
-            return true;
+  @Override
+  public LiteralCommandNode<CommandSourceStack> command() {
+    final String act = "action";
+    return Commands.literal("passport").executes(cntx-> {
+        final CommandSender cs = cntx.getSource().getExecutor();
+        if (!(cs instanceof final Player pl)) {
+          cs.sendMessage("§eНе консольная команда!");
+          return 0;
         }
 
-        final Player p=(Player) cs;
-        final Oplayer op = PM.getOplayer(p);
-        //if (!allow_command) {
-        //    p.sendMessage( "");
-        //    return true;
-        //}
-            
-            switch (arg.length) { 
-                
-                case 0 -> {
-                }
-                    
-                case 1 -> {
-                    
-                    switch (arg[0]) {
-                        
-                        case "get" -> {
-                            p.closeInventory();
-                            final int slot = ItemUtils.findItem(p, InteractLst.passport);
-                            if (slot>0) {
-                                //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
-                                cs.sendMessage(Ostrov.PREFIX+"§cУ вас уже есть копия паспотра, слот "+slot+"!");
-                                return true;
-                            }
-                            if (ItemUtils.giveItemTo(p, InteractLst.passport.clone(), 4, false)) {
-                                p.sendMessage("§7Вот Ваш паспорт!");
-                            }
-                        }
-                        
-                        case "see" -> {
-                            p.closeInventory();
-                            cs.sendMessage(Ostrov.PREFIX+"§cУкажите ник!");
-                            return true;
-                        }
-                        
-                        case "edit" -> {
-                            if (op.isGuest) {
-                                cs.sendMessage(Ostrov.PREFIX+"§cГостям паспорт не выдавался! Зарегайтесь!");
-                            } else {
-                                op.menu.openPassport(op.getPlayer());
-                            }
-                            return true;
-                        }
+        final Oplayer op = PM.getOplayer(pl);
+        if (op.isGuest) {
+          cs.sendMessage(Ostrov.PREFIX+"§cГостям паспорт не выдавался! Зарегайтесь!");
+          return 0;
+        }
+        op.menu.openPassport(op.getPlayer());
+        return Command.SINGLE_SUCCESS;
+      })
+      .then(Resolver.string(act).suggests((cntx, sb) -> {
+          sb.suggest("give");
+          sb.suggest("edit");
+          Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+          return CompletableFuture.completedFuture(sb.build());
+        })
+        .executes(cntx-> {
+          final CommandSender cs = cntx.getSource().getExecutor();
+          if (!(cs instanceof final Player pl)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
 
-                    }
-                }
-                    
-                case 2 -> {
-                    if (arg[0].equals("see")) {
-                        if (arg[0].equals(cs.getName()) || PM.getOplayer(cs.getName()).hasGroup("moder") || p.hasPermission("pasport.see")|| op.getStat(Stat.PLAY_TIME)>18000) { 
-                            //PassportHandler.showPasport(p,arg[1]);
-                            //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
-                            p.sendMessage("не готово");
-                        } else {
-                            cs.sendMessage(Ostrov.PREFIX+"§cПросматривать чужой паспорт могут модераторы,вип,премиум или наигравшие боьльше 300 часов!");
-                        }
-                        return true;
-                    }
-                }
-                    
-                    
-            }
+          final Oplayer op = PM.getOplayer(pl);
+          final String arg = Resolver.string(cntx, act);
+          switch (arg) {
+            case "give":
+              pl.closeInventory();
+              final int slot = ItemUtils.findItem(pl, InteractLst.passport);
+              if (slot>=0) {
+                //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
+                cs.sendMessage(Ostrov.PREFIX+"§cУ вас уже есть копия паспотра, слот "+slot+"!");
+                return 0;
+              }
+              if (ItemUtils.giveItemTo(pl, InteractLst.passport.clone(), 4, false)) {
+                pl.sendMessage("§7Вот твой паспорт!");
+              }
+              return Command.SINGLE_SUCCESS;
+            case "edit":
+              if (op.isGuest) {
+                cs.sendMessage(Ostrov.PREFIX+"§cГостям паспорт не выдавался! Зарегайтесь!");
+                return 0;
+              }
+              op.menu.openPassport(op.getPlayer());
+              return Command.SINGLE_SUCCESS;
+            default:
+              final Player tgt = Bukkit.getPlayerExact(arg);
+              if (tgt == null) {
+                pl.sendMessage(Ostrov.PREFIX+"§cТакой игрок не онлайн");
+                return 0;
+              }
 
-        help(p);
-        return true;
-    }
-    
+              if (ApiOstrov.isStaff(pl) || op.getStat(Stat.PLAY_TIME)>18000) {
+                //PassportHandler.showPasport(p,arg[1]);
+                //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
+                pl.sendMessage("не готово");
+                return Command.SINGLE_SUCCESS;
+              }
+              cs.sendMessage(Ostrov.PREFIX+"§cПросматривать чужой паспорт может персонал или люди наигравшие боьлее 5 часов!");
+              return 0;
+          }
+        }))
+      .build();
+  }
 
+  @Override
+  public List<String> aliases() {
+    return List.of("пасспорт");
+  }
 
+  @Override
+  public String description() {
+    return "Присмотр паспорта";
+  }
 
-    
-    
-    
-    
+  /*private void help(final Player p) {
+    p.sendMessage(Component.text("§3/passport see <ник> - §7посмотреть паспорт игрока §8<<клик")
+      .hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
+      .clickEvent(ClickEvent.suggestCommand("/passport see ")));
 
- //   public void init() {
-  //      try {
-            //allow_command = Conf.GetCongig().getBoolean("modules.command.pvp.use");
-     
-            //if (!allow_command) {
-             //   Ostrov.log_ok ("§e"+this.getClass().getSimpleName()+" выключен.");
-            //    return;
-            //}
-            
-            //Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
-            
-    //        Ostrov.log_ok ("§2"+this.getClass().getSimpleName()+" активен!");
-            
-    //    } catch (Exception ex) { 
-    //        Ostrov.log_err("§4Не удалось загрузить настройки "+this.getClass().getSimpleName()+" : "+ex.getMessage());
-    //    }
-  //  }
-
-  //  public void reload () {
-        //HandlerList.unregisterAll(this);
-    //    Config.loadConfigs();
-     //   init();
- //   }
+    p.sendMessage(Component.text("§3/passport get - §7получить копию паспорта §8<<клик")
+      .hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
+      .clickEvent(ClickEvent.suggestCommand("/passport get")));
+  }*/
     
-    
-    
-    
-    
-    
-    
-    
-    @SuppressWarnings("deprecation")
     public static void showLocal(final Player owner, final Player target) {
         createBook(owner, PM.getPassportData(PM.getOplayer(target), false));
     }
@@ -198,7 +155,7 @@ public class PassportCmd implements CommandExecutor {
         
         for (final E_Pass pass : pass_data.keySet()) {
             value = pass_data.get(pass);//pass.default_value;
-            int_value=ApiOstrov.getInteger(value);
+            int_value=ApiOstrov.getInteger(value, 0);
                 
                 switch (pass) {
                         
@@ -269,7 +226,7 @@ public class PassportCmd implements CommandExecutor {
         }
         
          
-        final ItemStack book = new ItemBuilder(Material.WRITTEN_BOOK)
+        final ItemStack book = StackBuilder.of(ItemType.WRITTEN_BOOK)
                 .name("Паспорт Островитянина")
                 .build();
         
