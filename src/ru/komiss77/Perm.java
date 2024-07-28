@@ -251,7 +251,7 @@ public class Perm {
                 if (perm.startsWith("limit.")) {
                     int idx = perm.lastIndexOf(".");
                     if (idx<=0) continue;
-                    int limit = ApiOstrov.getInteger(perm.substring(idx+1));
+                    int limit = ApiOstrov.getInteger(perm.substring(idx+1), 0);
                     if (limit<0) continue;
                     perm = perm.replaceFirst("limit.","").replaceFirst("."+limit,"");   // limit.home.5 -> home.5
                     //perm = perm.substring(0, idx-1);    // home.5 -> home
@@ -346,16 +346,24 @@ public class Perm {
         return final_res;
     }
 
+    @Deprecated
     public static boolean hasPermissions(final Oplayer op, final String worldName, String perm) { //при первом поиске worldName должен игнорироваться. Если мир указан, то право только для этого мира
-            if( op.user_perms.contains(perm)) return true; //|| op.getPlayer().hasPermission(perm) ) return true; в op.user_perms будут все права!
-            int lastDot  = perm.lastIndexOf(".");//проверяем, заменяя концовку после точки на *
-            if (lastDot > 0) {
-            	perm = perm.substring(0, lastDot)+".*";
-                return op.user_perms.contains(perm);
-            }
-            return false;
-        //}
-         
+      if( op.user_perms.contains(perm)) return true; //|| op.getPlayer().hasPermission(perm) ) return true; в op.user_perms будут все права!
+      int lastDot  = perm.lastIndexOf(".");//проверяем, заменяя концовку после точки на *
+      if (lastDot > 0) {
+        perm = perm.substring(0, lastDot)+".*";
+        return op.user_perms.contains(perm);
+      }
+      return false;
+      //}
+
+    }
+
+    public static boolean hasPerms(final Oplayer op, final String perm) { //при первом поиске worldName должен игнорироваться. Если мир указан, то право только для этого мира
+        if(op.user_perms.contains(perm)) return true; //|| op.getPlayer().hasPermission(perm) ) return true; в op.user_perms будут все права!
+        int lastDot  = perm.lastIndexOf(".");//проверяем, заменяя концовку после точки на *
+        if (lastDot < 0) return false;
+        return op.user_perms.contains(perm.substring(0, lastDot)+".*");
      }
 
 

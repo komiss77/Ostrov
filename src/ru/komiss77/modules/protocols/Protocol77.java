@@ -232,8 +232,8 @@ public class Protocol77 implements Listener {
 								for (int x = -dl; x <= dl; x++) {
 									for (int y = -dl; y <= dl; y++) {
 										for (int z = -dl; z <= dl; z++) {
-											if (((FastMath.absInt(x) - dl) >> 31) + ((FastMath.absInt(y) - dl) >> 31) 
-												+ ((FastMath.absInt(z) - dl) >> 31) + 2 < 0) continue;
+											if (((FastMath.abs(x) - dl) >> 31) + ((FastMath.abs(y) - dl) >> 31)
+												+ ((FastMath.abs(z) - dl) >> 31) + 2 < 0) continue;
 											final WXYZ cl = new WXYZ(lc).add(x, y, z);
 											if (Nms.getFastMat(lc.getWorld(), cl.x, cl.y, cl.z).isCollidable()) {
 												bdm.put(cl.getCenterLoc(), dark ? ApiOstrov.rndElmt(bds) : cl.w.getBlockData(cl.x, cl.y, cl.z));

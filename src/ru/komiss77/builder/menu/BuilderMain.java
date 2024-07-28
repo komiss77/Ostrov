@@ -9,6 +9,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.util.Transformation;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
@@ -22,10 +23,7 @@ import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -33,7 +31,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 public class BuilderMain implements InventoryProvider {
 
-    private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build();
+    private static final ItemStack fill = StackBuilder.of(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build();
 
     ;
     
@@ -69,7 +67,7 @@ public class BuilderMain implements InventoryProvider {
             description: Менеджер миров
 
          */
-        content.set(0, 4, ClickableItem.of(new ItemBuilder(Material.ANVIL)
+        content.set(0, 4, ClickableItem.of(StackBuilder.of(ItemType.ANVIL)
                 .name("§6Меню локального сервера")
                 .build(), e -> {
                     PM.getOplayer(p).setup.lastEdit = "LocalGame";
@@ -86,41 +84,41 @@ public class BuilderMain implements InventoryProvider {
         
         
         
-        content.set(1, 1, ClickableItem.of(new ItemBuilder(Material.PAPER)
+        content.set(1, 1, ClickableItem.of(StackBuilder.of(ItemType.PAPER)
                 .name("§6Репорты")
-                .addLore("§7Модерация")
-                .addLore("")
-                .addLore("§7Просмотр репортов")
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("§7Модерация")
+                .lore("")
+                .lore("§7Просмотр репортов")
+                .lore("")
+                .lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("report");
                 }));
 
-        content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+        content.set(1, 2, ClickableItem.of(StackBuilder.of(ItemType.ENDER_EYE)
                 .name("§7шпионаж")
-                .addLore("§7Модерация")
-                .addLore("")
-                .addLore("§7Скрытый контроль")
-                .addLore("§7действий игроков.")
-                .addLore("")
-                .addLore(p.hasPermission("ostrov.spy") ? "§7ЛКМ - открыть" : "§cv=нет права ostrov.spy")
-                .addLore("")
+                .lore("§7Модерация")
+                .lore("")
+                .lore("§7Скрытый контроль")
+                .lore("§7действий игроков.")
+                .lore("")
+                .lore(p.hasPermission("ostrov.spy") ? "§7ЛКМ - открыть" : "§cv=нет права ostrov.spy")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("spy");
                 }));
 
-        content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.LIME_DYE)
+        content.set(1, 3, ClickableItem.of(StackBuilder.of(ItemType.LIME_DYE)
                 .name("§7Пермишены")
-                .addLore("")
-                .addLore("§7ЛКМ - Проверить права игрока")
-                .addLore("")
-                .addLore("§7ПКМ - Показать загруженные")
-                .addLore("§7группы и пермишены для")
-                .addLore("§7этого сервера")
-                //.addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("")
+                .lore("§7ЛКМ - Проверить права игрока")
+                .lore("")
+                .lore("§7ПКМ - Показать загруженные")
+                .lore("§7группы и пермишены для")
+                .lore("§7этого сервера")
+                //.lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     if (e.isLeftClick()) {
                         SmartInventory.builder()
@@ -142,11 +140,11 @@ public class BuilderMain implements InventoryProvider {
 
                 }));
 
-        content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.GOLD_INGOT)
+        content.set(1, 4, ClickableItem.of(StackBuilder.of(ItemType.GOLD_INGOT)
                 .name("§7Редактор миссий")
-          .addLore("§7ЛКМ - редактор")
-          //.addLore("§7ПКМ - debug addCustomStat")
-                .addLore(StatManager.DEBUG ? "§7ПКМ - §cdisable §7addCustomStat debug" : "§7ПКМ - §aenable §7addCustomStat debug")
+          .lore("§7ЛКМ - редактор")
+          //.lore("§7ПКМ - debug addCustomStat")
+                .lore(StatManager.DEBUG ? "§7ПКМ - §cdisable §7addCustomStat debug" : "§7ПКМ - §aenable §7addCustomStat debug")
                 .build(), e -> {
                   if (e.isLeftClick()) {
                     MissionManager.openMissionsEditMenu(p);
@@ -157,10 +155,10 @@ public class BuilderMain implements InventoryProvider {
 
                 }));
 
-        content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.TURTLE_HELMET)
+        content.set(1, 5, ClickableItem.of(StackBuilder.of(ItemType.TURTLE_HELMET)
                 .name("§7Аналитика регистраций")
-                //.addLore("§7ЛКМ - открыть")
-                .addLore("")
+                //.lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("analytics");
                 }));
@@ -197,41 +195,41 @@ public class BuilderMain implements InventoryProvider {
 
 
 
-        content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
+        content.set(2, 1, ClickableItem.of(StackBuilder.of(ItemType.GRASS_BLOCK)
                 .name("§7Миры")
-                .addLore("§7Управление")
-                .addLore("")
-                .addLore("§7- перемещение в миры")
-                .addLore("§7- настройки миров")
-                .addLore("")
-                .addLore("§6Вы находитесь в биоме:")
-                .addLore("§e" + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("§7Управление")
+                .lore("")
+                .lore("§7- перемещение в миры")
+                .lore("§7- настройки миров")
+                .lore("")
+                .lore("§6Вы находитесь в биоме:")
+                .lore("§e" + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))
+                .lore("")
+                .lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("world");
                 }));
 
-        content.set(2, 2, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
+        content.set(2, 2, ClickableItem.of(StackBuilder.of(ItemType.ENDER_PEARL)
                 .name("§7места")
-                .addLore("§7Управление")
-                .addLore("")
-                .addLore("§7Настройка варпов")
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("§7Управление")
+                .lore("")
+                .lore("§7Настройка варпов")
+                .lore("")
+                .lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("warp");
                 }));
 
-        content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.GOLDEN_SWORD)
+        content.set(2, 3, ClickableItem.of(StackBuilder.of(ItemType.GOLDEN_SWORD)
                 .name("§6Наборы")
-                .addLore("§7Настройки")
-                .addLore("")
-                .addLore("§7ЛКМ - получение")
-                .addLore("§7ПКМ - редактировать")
-                .addLore("")
+                .lore("§7Настройки")
+                .lore("")
+                .lore("§7ЛКМ - получение")
+                .lore("§7ПКМ - редактировать")
+                .lore("")
                 .build(), e -> {
                     if (e.isLeftClick()) {
                         p.performCommand("kit");
@@ -240,41 +238,41 @@ public class BuilderMain implements InventoryProvider {
                     }
                 }));
 
-        content.set(2, 4, ClickableItem.of(new ItemBuilder(Material.COW_SPAWN_EGG)
+        content.set(2, 4, ClickableItem.of(StackBuilder.of(ItemType.COW_SPAWN_EGG)
                 .name("§7Сущности")
-                .addLore("§7Управление")
-                .addLore("")
-                .addLore("§7поиск, просмотр и удаление")
-                .addLore("§7сущностей")
-                .addLore("§fЛКМ - открыть")
-                .addLore("")
-                .addLore("§fБИЛДЕР!! §eПрисесть + ПКМ")
-                .addLore("§eна сущность - §bнастроить§e!")
-                .addLore("")
+                .lore("§7Управление")
+                .lore("")
+                .lore("§7поиск, просмотр и удаление")
+                .lore("§7сущностей")
+                .lore("§fЛКМ - открыть")
+                .lore("")
+                .lore("§fБИЛДЕР!! §eПрисесть + ПКМ")
+                .lore("§eна сущность - §bнастроить§e!")
+                .lore("")
                 .build(), e -> {
                   PM.getOplayer(p).setup.openEntityWorldMenu(p, p.getWorld(), -1);
                 }));
 
-        content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.ARMOR_STAND)
+        content.set(2, 5, ClickableItem.of(StackBuilder.of(ItemType.ARMOR_STAND)
                 .name("§7Фигуры")
-                .addLore("§7Управление")
-                .addLore("")
-                .addLore("§7Открыть главное")
-                .addLore("§7меню фигур")
-                .addLore("")
-                .addLore("§7ЛКМ - получить")
-                .addLore("")
+                .lore("§7Управление")
+                .lore("")
+                .lore("§7Открыть главное")
+                .lore("§7меню фигур")
+                .lore("")
+                .lore("§7ЛКМ - получить")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("figure");
                 }));
 
-        content.set(2, 6, ClickableItem.of(new ItemBuilder(Material.LEATHER_HORSE_ARMOR)
+        content.set(2, 6, ClickableItem.of(StackBuilder.of(ItemType.LEATHER_HORSE_ARMOR)
                 .name("§7Просмотр Model Data")
-                .addLore("§7Перетащи сюда предмет,")
-                .addLore("§7будут показаны все его")
-                .addLore("§7вариации,")
-                .addLore("§7или ЛКМ - показать для")
-                .addLore("§7кожаной конской брони.")
+                .lore("§7Перетащи сюда предмет,")
+                .lore("§7будут показаны все его")
+                .lore("§7вариации,")
+                .lore("§7или ЛКМ - показать для")
+                .lore("§7кожаной конской брони.")
                 .build(), e -> {
                     if (e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
                         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
@@ -323,63 +321,63 @@ public class BuilderMain implements InventoryProvider {
         
         
         
-        content.set(3, 1, ClickableItem.of(new ItemBuilder(Material.NOTE_BLOCK)
+        content.set(3, 1, ClickableItem.of(StackBuilder.of(ItemType.NOTE_BLOCK)
                 .name("§7Прослушивание звуков")
-                .addLore("§7Утилита")
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("§7Утилита")
+                .lore("")
+                .lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     p.performCommand("sound");
                 }));
 
-        content.set(3, 2, ClickableItem.of(new ItemBuilder(Material.WARPED_SIGN)
+        content.set(3, 2, ClickableItem.of(StackBuilder.of(ItemType.WARPED_SIGN)
                 .name("§7Таблички")
-                .addLore("§7Утилита")
-                .addLore("")
-                .addLore("§7Получить предмет")
-                .addLore("§7помогающий в работе")
-                .addLore("§7с табличками")
-                .addLore("")
-                .addLore("§7ЛКМ - получить")
-                .addLore("")
+                .lore("§7Утилита")
+                .lore("")
+                .lore("§7Получить предмет")
+                .lore("§7помогающий в работе")
+                .lore("§7с табличками")
+                .lore("")
+                .lore("§7ЛКМ - получить")
+                .lore("")
                 .build(), e -> {
                     p.getInventory().addItem(InteractLst.signEdit.clone());
                 }));
 
-        content.set(3, 3, ClickableItem.of(new ItemBuilder(Material.CRIMSON_SIGN)
+        content.set(3, 3, ClickableItem.of(StackBuilder.of(ItemType.CRIMSON_SIGN)
                 .name("§7Серверные таблички")
-                .addLore("§7Утилита")
-                .addLore("")
-                .addLore("§7Получить предмет")
-                .addLore("§7для настройки")
-                .addLore("§7серверных табличек")
-                .addLore("")
-                .addLore("§7ЛКМ - получить")
-                .addLore("")
+                .lore("§7Утилита")
+                .lore("")
+                .lore("§7Получить предмет")
+                .lore("§7для настройки")
+                .lore("§7серверных табличек")
+                .lore("")
+                .lore("§7ЛКМ - получить")
+                .lore("")
                 .build(), e -> {
                     p.getInventory().addItem(InteractLst.gameSignEdit.clone());
                 }));
 
-        content.set(3, 4, ClickableItem.of(new ItemBuilder(Material.CARTOGRAPHY_TABLE)
+        content.set(3, 4, ClickableItem.of(StackBuilder.of(ItemType.CARTOGRAPHY_TABLE)
                 .name("§7Схематики")
-                .addLore("")
-                .addLore("§7Создание/редактирование/удаление")
-                .addLore("§7схематиков")
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
+                .lore("")
+                .lore("§7Создание/редактирование/удаление")
+                .lore("§7схематиков")
+                .lore("")
+                .lore("§7ЛКМ - открыть")
+                .lore("")
                 .build(), e -> {
                     PM.getOplayer(p).setup.openSchemMainMenu(p);
                 }));
 
-        content.set(3, 5, ClickableItem.of(new ItemBuilder(Material.SMITHING_TABLE)
+        content.set(3, 5, ClickableItem.of(StackBuilder.of(ItemType.SMITHING_TABLE)
                 .name("§7Создание предмета")
-                .addLore("§7Утилита")
-                .addLore("")
-                .addLore("§7Клик - выдать / изменить")
-                .addLore("§7предмет в левой руке")
-                .addLore("")
+                .lore("§7Утилита")
+                .lore("")
+                .lore("§7Клик - выдать / изменить")
+                .lore("§7предмет в левой руке")
+                .lore("")
                 .build(), e -> {
                     final ItemStack it = p.getInventory().getItemInOffHand();
                     if (ItemUtils.isBlank(it, false)) {
@@ -393,11 +391,11 @@ public class BuilderMain implements InventoryProvider {
 
 
 
-        content.set(3, 6, ClickableItem.of(new ItemBuilder(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE)
+        content.set(3, 6, ClickableItem.of(StackBuilder.of(ItemType.RIB_ARMOR_TRIM_SMITHING_TEMPLATE)
                 .name("§7Редактор переводиков")
-                .addLore("§7Утилита")
-                .addLore("§7В редакторе сортировка")
-                .addLore("§7по свежести")
+                .lore("§7Утилита")
+                .lore("§7В редакторе сортировка")
+                .lore("§7по свежести")
                 .build(), e -> {
                     LangEditor.edit(p, 0);
                 }));
@@ -435,15 +433,15 @@ public class BuilderMain implements InventoryProvider {
 
 
       if (Config.displays) {
-        content.set(4, 1, ClickableItem.of(new ItemBuilder(Material.POPPED_CHORUS_FRUIT)
+        content.set(4, 1, ClickableItem.of(StackBuilder.of(ItemType.POPPED_CHORUS_FRUIT)
           .name("§7Дисплеи §aВКЛЮЧЕНЫ")
-          .addLore("§7Утилита")
-          .addLore("§7Q - §cВЫКЛЮЧИТЬ")
-          .addLore("")
-          .addLore("§7ЛКМ - настройка ближайшего дисплея")
-          .addLore("§7Шифт + ЛКМ - тп дисплей рядом")
-          .addLore("§7ПКМ - создать дисплей")
-          .addLore("§7Шифт + ПКМ - клон дисплея рядом")
+          .lore("§7Утилита")
+          .lore("§7Q - §cВЫКЛЮЧИТЬ")
+          .lore("")
+          .lore("§7ЛКМ - настройка ближайшего дисплея")
+          .lore("§7Шифт + ЛКМ - тп дисплей рядом")
+          .lore("§7ПКМ - создать дисплей")
+          .lore("§7Шифт + ПКМ - клон дисплея рядом")
           .build(), e -> {
           final Location loc = p.getLocation();
 
@@ -476,7 +474,7 @@ public class BuilderMain implements InventoryProvider {
             }
             case RIGHT -> {
               tds = p.getWorld().spawn(new WXYZ(p.getLocation()).getCenterLoc(), TextDisplay.class);
-              ((TextDisplay) tds).text(TCUtils.format("§оКекст"));
+              ((TextDisplay) tds).text(TCUtils.form("§оКекст"));
             }
             case SHIFT_RIGHT -> {
               final Display oldDis = LocationUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
@@ -522,12 +520,12 @@ public class BuilderMain implements InventoryProvider {
             .build().open(p);
         }));
       } else {
-        content.set(4, 1, ClickableItem.of(new ItemBuilder(Material.POPPED_CHORUS_FRUIT)
+        content.set(4, 1, ClickableItem.of(StackBuilder.of(ItemType.POPPED_CHORUS_FRUIT)
           .name("§7Дисплеи §сВЫКЛЮЧЕНЫ")
-          .addLore("§7Утилита")
-          .addLore("")
-          .addLore("§7ЛКМ - §aВКЛЮЧИТТЬ")
-          .addLore("")
+          .lore("§7Утилита")
+          .lore("")
+          .lore("§7ЛКМ - §aВКЛЮЧИТТЬ")
+          .lore("")
           .build(), e -> {
           if (e.isLeftClick()) {
             Config.displays = true;
@@ -540,11 +538,11 @@ public class BuilderMain implements InventoryProvider {
 
 
       if (SignProtectLst.enable) {
-        content.set(4, 2, ClickableItem.of(new ItemBuilder(Material.WARPED_HANGING_SIGN)
+        content.set(4, 2, ClickableItem.of(StackBuilder.of(ItemType.WARPED_HANGING_SIGN)
           .name("§7SignProtect §aВКЛЮЧЕН")
-          .addLore("")
-          .addLore("§7ПКМ - §cВЫКЛЮЧИТЬ")
-          .addLore("")
+          .lore("")
+          .lore("§7ПКМ - §cВЫКЛЮЧИТЬ")
+          .lore("")
           .build(), e -> {
           if (e.isRightClick()) {
             SignProtectLst.enable = false;
@@ -555,11 +553,11 @@ public class BuilderMain implements InventoryProvider {
           }
         }));
       } else {
-        content.set(4, 2, ClickableItem.of(new ItemBuilder(Material.CRIMSON_HANGING_SIGN)
+        content.set(4, 2, ClickableItem.of(StackBuilder.of(ItemType.CRIMSON_HANGING_SIGN)
           .name("§7SignProtect §сВЫКЛЮЧЕН")
-          .addLore("")
-          .addLore("§7ЛКМ - §aВКЛЮЧИТТЬ")
-          .addLore("")
+          .lore("")
+          .lore("§7ЛКМ - §aВКЛЮЧИТТЬ")
+          .lore("")
           .build(), e -> {
           if (e.isLeftClick()) {
             SignProtectLst.enable = true;
@@ -592,7 +590,7 @@ public class BuilderMain implements InventoryProvider {
         
         
         
-        content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.CRIMSON_FENCE).name("Закрыть режим строителя").build(), e
+        content.set(5, 4, ClickableItem.of(StackBuilder.of(ItemType.CRIMSON_FENCE).name("Закрыть режим строителя").build(), e
                 -> {
             p.performCommand("builder end");
         }

@@ -169,8 +169,13 @@ public class LocalDB {
         if (GM.GAME.type!=ServerType.ARENAS) {
             if (p!=null) {
                 if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
-                op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
-                op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation())); //
+                if (op.spyOrigin == null) {
+                  op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
+                  op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation()));
+                } else {
+                  op.world_positions.put("logoutLoc", LocationUtil.toDirString(op.spyOrigin));
+                  op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(op.spyOrigin));
+                }
                 if (p.getRespawnLocation()!=null) {
                     op.world_positions.put("bedspawnLoc", LocationUtil.toString(p.getRespawnLocation()));
                 }

@@ -29,69 +29,69 @@ public class StatManager {
 
     public static void addStat(final Player p, final Stat stat, int ammount) {
       if (DEBUG) Ostrov.log("addStat "+(p==null?"null":p.getName())+" stat="+stat+" amm="+ammount);
-        if (p==null || ammount<0) {
-            Ostrov.log_warn("addStat ammount<0 для "+(p==null? "null":p.getName())+", stat="+stat.name()+", ammount="+ammount);
-            return;
-        }
-        final Oplayer op = PM.getOplayer(p.getName());
-        if (op.isGuest) return;
-        if (op==null) {
-            Ostrov.log_warn("addStat op==null для "+p.getName()+", stat="+stat.name()+", ammount="+ammount);
-            return;
-        }
-        int currentStatValue = op.getStat(stat);
-        int newStatValue = currentStatValue + ammount;
-        
-        //**** Эвент. Можно отменить или изменить ammount ****
-        final StatChangeEvent e = new StatChangeEvent (p, op, stat, currentStatValue, ammount);
-        Bukkit.getPluginManager().callEvent(e);
-        if (e.isCancelled()) return;
-        
-        if (e.getAmmount()<=0) {
-            Ostrov.log_err("addStat StatChangeEvent: установлена ammount<=0 для "+p.getName()+", "+stat);
-            return;
-        }
-        ammount = e.getAmmount();
-        //*************************
-        
-        op.addStat(stat, ammount); //делать через адд, чтобы добавило дневную!
-        
-        //**** награда лони ****
-        RewardLoni.onStatAdd(p, op, stat, ammount);
-        //*************************
+      if (p==null || ammount<0) {
+          Ostrov.log_warn("addStat ammount<0 для "+(p==null? "null":p.getName())+", stat="+stat.name()+", ammount="+ammount);
+          return;
+      }
+      final Oplayer op = PM.getOplayer(p);
+      if (op.isGuest) return;
+      if (op==null) {
+          Ostrov.log_warn("addStat op==null для "+p.getName()+", stat="+stat.name()+", ammount="+ammount);
+          return;
+      }
+      int currentStatValue = op.getStat(stat);
+      int newStatValue = currentStatValue + ammount;
 
-        //**** Изменение кармы ****
-        karmaCalc(op);
-        //*************************
-        
-        //**** Проверка на ачивку ****
-        if (stat.achiv!=null) {
-            final int currentLevel = getLevel(stat, currentStatValue);
-            final int newLevel = getLevel(stat, newStatValue);
-            if (newLevel>currentLevel) {
-                //final String achiv = descFromAchiv(stat, 0);
-                //ApiOstrov.sendBossbar(p, stat.game.displayName+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
-                //ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, stat.game.displayName+"§7, "+stat.desc+newStatValue, 20, 40, 20);
-                ApiOstrov.sendBossbar(p, Lang.t(p, stat.game.displayName)+" : §d"+(newLevel==5 ? "Достижение!" : topAdv(stat))+"§7, "+Lang.t(p, stat.desc)+newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
-                ApiOstrov.sendTitle(p, newLevel==5 ? "§e"+topAdv(stat) : "§fДостижение!" , Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+newStatValue, 20, 40, 20);
-                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
-            }
-        }
-        //*************************
-        
-        
-        //**** Накинуть опыт ****
-        if (stat.exp_per_point>0) {
-            op.addExp(p, stat.exp_per_point * ammount);
-        }
-        //*************************
+      //**** Эвент. Можно отменить или изменить ammount ****
+      final StatChangeEvent e = new StatChangeEvent (p, op, stat, currentStatValue, ammount);
+      Bukkit.getPluginManager().callEvent(e);
+      if (e.isCancelled()) return;
+
+      if (e.getAmmount()<=0) {
+          Ostrov.log_err("addStat StatChangeEvent: установлена ammount<=0 для "+p.getName()+", "+stat);
+          return;
+      }
+      ammount = e.getAmmount();
+      //*************************
+
+      op.addStat(stat, ammount); //делать через адд, чтобы добавило дневную!
+
+      //**** награда лони ****
+      RewardLoni.onStatAdd(p, op, stat, ammount);
+      //*************************
+
+      //**** Изменение кармы ****
+      karmaCalc(op);
+      //*************************
+
+      //**** Проверка на ачивку ****
+      if (stat.achiv!=null) {
+          final int currentLevel = getLevel(stat, currentStatValue);
+          final int newLevel = getLevel(stat, newStatValue);
+          if (newLevel>currentLevel) {
+              //final String achiv = descFromAchiv(stat, 0);
+              //ApiOstrov.sendBossbar(p, stat.game.displayName+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
+              //ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, stat.game.displayName+"§7, "+stat.desc+newStatValue, 20, 40, 20);
+              ApiOstrov.sendBossbar(p, Lang.t(p, stat.game.displayName)+" : §d"+(newLevel==5 ? "Достижение!" : topAdv(stat))+"§7, "+Lang.t(p, stat.desc)+newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
+              ApiOstrov.sendTitle(p, newLevel==5 ? "§e"+topAdv(stat) : "§fДостижение!" , Lang.t(p, stat.game.displayName)+"§7, "+Lang.t(p, stat.desc)+newStatValue, 20, 40, 20);
+              p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
+          }
+      }
+      //*************************
+
+
+      //**** Накинуть опыт ****
+      if (stat.exp_per_point>0) {
+          op.addExp(p, stat.exp_per_point * ammount);
+      }
+      //*************************
         
     }
     
 
     public static void onCustomStat(final Player p, final Oplayer op, final String customStatName, final int ammount) {
       if (DEBUG) Ostrov.log("addCustomStat "+(p==null?"null":p.getName())+" stat="+customStatName+" amm="+ammount);
-         RewardLoni.onCustomStat(p, op, customStatName, ammount);
+      RewardLoni.onCustomStat(p, op, customStatName, ammount);
     }
     
     
@@ -211,14 +211,13 @@ public class StatManager {
     
     
     public static String topAdv (final Stat stat) {
-        switch(stat) {
-            case BW_game: return "Любитель БедВарс";
-            case BW_kill: return "Злой БедВарсер";
-            case BW_win: return "Бедварсер-победитель";
-            case BW_bed: return "Разоритель гнёзд";
-            
-            default: return "Предел";
-        }
+      return switch (stat) {
+        case BW_game -> "Любитель БедВарс";
+        case BW_kill -> "Злой БедВарсер";
+        case BW_win -> "БедВарсер-победитель";
+        case BW_bed -> "Разоритель гнёзд";
+        default -> "Предел";
+      };
     }
 
     public static int getLevel(final Stat st, final int value) {

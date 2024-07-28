@@ -57,7 +57,7 @@ public class PassportCmd implements OCommand {
           sb.suggest("give");
           sb.suggest("edit");
           Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         })
         .executes(cntx-> {
           final CommandSender cs = cntx.getSource().getExecutor();

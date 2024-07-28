@@ -1,22 +1,17 @@
 package ru.komiss77.commands;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
+import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.ReportStage;
 import ru.komiss77.listener.SpigotChanellMsg;
@@ -25,144 +20,96 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.player.profile.ShowReports;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.StackBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class ReportCmd implements CommandExecutor, TabCompleter {
-    
-    private static final Map <String,Integer> consoleReportStamp = new HashMap<>(); 
-    
-    @Override
-    public List<String> onTabComplete(CommandSender cs, Command cmnd, String command, String[] arg) {
-        final List <String> sugg = new ArrayList<>();
-        switch (arg.length) {
-            
-            case 1:
-                //0- пустой (то,что уже введено)
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p.getName().startsWith(arg[0])) sugg.add(p.getName());
-                }
-                break;
 
-            case 2:
-                //1-то,что вводится (обновляется после каждой буквы
-                sugg.add("читы");
-                sugg.add("гриф");
-                sugg.add("неадекват");
-                break;
+public class ReportCmd implements OCommand {
+
+  //запрос банжи, если есть - разкодировать raw
+  //если пустой - выкачать из снапшота БД
+
+//    private static final Map <String,Integer> consoleReportStamp = new HashMap<>();
+
+  @Override
+  public LiteralCommandNode<CommandSourceStack> command() {
+    final String player = "player", reason = "reason";
+    return Commands.literal("report").executes(cntx->{
+        final CommandSender cs = cntx.getSource().getExecutor();
+        if (!(cs instanceof final Player pl)) {
+          cs.sendMessage("§eНе консольная команда!");
+          return 0;
         }
-        
-       return sugg;
-    }    
-    
 
-
-
-   // public Report() {
-        //init();
-   // }
-    
-
-    @Override
-    public boolean onCommand(CommandSender cs, Command cmd, String string, String[] arg) {
-        
-        //if ( !OstrovDB.useOstrovData ) {
-        //    cs.sendMessage("§cСоединение с БД Острова отключено в конфиге!");
-        //    return true;
-        //}
-        
-        //if ( ApiOstrov.getOstrovConnection()==null) {
-        //    cs.sendMessage("§cНет соединения с БД Острова!");
-        //    return true;
-        //}
-        
-        if (cs instanceof Player) {
-            //if (ApiOstrov.isLocalBuilder(cs, false) || ApiOstrov.hasGroup(cs.name(), "moder")) {
-                //PM.getOplayer(cs.name()).menu.openAllReports((Player) cs, 0);//openReportMenuAll((Player)cs, 0 );
-            //} else {
-            //    openPlayerReports( (Player)cs, cs.name(), 0 );
-            //}
-                if (arg.length==0) {
-                    
-                    openAllReports(cs, PM.getOplayer(cs.getName()), 0);//openReportMenuAll((Player)cs, 0 );
-                    return true;
-                    
-                } else if (arg.length==1) {
-                    
-                    //if (arg[0].equalsIgnoreCase(cs.name())) {
-                   // } else {
-                        openPlayerReports(cs, PM.getOplayer(cs.getName()), cs.getName(), 0);  //report ник - просмотр данных по игроку
-                        return true;
-                      //  cs.sendMessage("§cНа себя жалобы не принимаются!"); 
-                   // }
-                    
-                }
-            //return true;
+        openAllReports(cs, PM.getOplayer(pl), 0);
+        return Command.SINGLE_SUCCESS;
+      })
+      .then(Resolver.string(player).suggests((cntx, sb)->{
+        Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+        return sb.buildFuture();
+      }).executes(cntx -> {
+        final CommandSender cs = cntx.getSource().getExecutor();
+        if (!(cs instanceof final Player p)) {
+          cs.sendMessage("§eНе консольная команда!");
+          return 0;
         }
-        
-        if (arg.length<2) {
-            cs.sendMessage("§creport <ник> текст жалобы");
-            return true;
-        }
-        
-        if (arg[0].equalsIgnoreCase(cs.getName())) {
-            cs.sendMessage("§cНа себя жалобы не принимаются!");
-        //    PM.getOplayer(cs.name()).menu.openPlayerReports((Player) cs, cs.name(), 0);
-            return true;
-        } 
-        
-        StringBuilder text = new StringBuilder();
-        for (int i=1; i<arg.length; i++) {
-            text.append(" ").append(arg[i]);
-        }
-        if (text.length()>128) {
-            text = new StringBuilder(text.substring(0, 128));
-        }
-        final Player reporter = cs instanceof Player ? (Player) cs : null;
-        final Player target = Bukkit.getPlayerExact(arg[0]);
-        
-//cs.sendMessage("жалоба на "+arg[0]+", сервер "+Bukkit.getServer().getMotd()+" : "+text);
-//cs.sendMessage("Где вы: "+ (cs instanceof ConsoleCommandSender ? "консоль" : LocationUtil.StringFromLoc(((Player) cs).getLocation())) );
-//cs.sendMessage( "Где нарушитель: "+( target==null? "нет на сервере" : LocationUtil.StringFromLoc(target.getLocation()) ) );
 
-        
+        openPlayerReports(cs, PM.getOplayer(p), Resolver.string(cntx, player), 0);
+        return Command.SINGLE_SUCCESS;
+      }).then(Resolver.string(reason).suggests((cntx, sb)->{
+        sb.suggest("читы");
+        sb.suggest("гриф");
+        sb.suggest("неадекват");
+        return sb.buildFuture();
+      }).executes(cntx -> {
+        final CommandSender cs = cntx.getSource().getExecutor();
+        final String tnm = Resolver.string(cntx, player);
+        if (tnm.equalsIgnoreCase(cs.getName())) {
+          cs.sendMessage("§cНа себя жалобы не принимаются!");
+          return 0;
+        }
+
+        final String rsn = Resolver.string(cntx, reason);
+        final Player pl = cs instanceof Player ? (Player) cs : null;
+        final Player target = Bukkit.getPlayer(tnm);
+
         //вычитывать из локальной копии!!
-        if (reporter == null) { //консоль
-            
-            if ( consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
-                cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
-                return true;
-            }
-            consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());
-            SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text.toString());
-            
+        if (pl == null) { //консоль
+          /*if (consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
+            cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
+            return true;
+          }
+          consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());*/
+          SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
+            Ostrov.MOT_D, 0, 0, 0, tnm, target==null? "" : LocationUtil.toString(target.getLocation()), rsn);
         } else {
-            
-            SpigotChanellMsg.sendMessage(reporter, Operation.REPORT_PLAYER, reporter.getName(), 0, 0, 0, Ostrov.MOT_D, LocationUtil.toString(reporter.getLocation()), arg[0], target==null? "" : LocationUtil.toString(target.getLocation()), text.toString(), "");
-            //при жалобе от игрока ищем ИД предыдущей жалобы
+          SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
+            LocationUtil.toString(pl.getLocation()), tnm, target==null? "" : LocationUtil.toString(target.getLocation()), rsn, "");
         }
+        return Command.SINGLE_SUCCESS;
+      })))
+      .build();
+  }
 
+  @Override
+  public List<String> aliases() {
+    return List.of("репорт");
+  }
 
-
-        return true;
-
-    }
-
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
+  @Override
+  public String description() {
+    return "Репорты игрока";
+  }
     
     public static void openAllReports (final CommandSender cs, final Oplayer op, final int page) {
         op.menu.section = Section.ПРОФИЛЬ;
@@ -205,31 +152,30 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
 
     //System.out.println("+++ rs name="+rs.getString("toName"));
                         final String name = rs.getString("toName");
-                        reports.add( ClickableItem.of( new ItemBuilder( Material.PLAYER_HEAD )
+                        reports.add( ClickableItem.of(StackBuilder.of(ItemType.PLAYER_HEAD)
                             .name(name)
-                            .addLore("§7Последняя запись:")
-                            .addLore("§f"+ApiOstrov.dateFromStamp(rs.getInt("lastTime")))
-                            .addLore("")
-                            //.addLore("§7Консоль : §c"+rs.getInt("fromConsole")+"§7, Игроки : §4"+rs.getInt("fromPlayers"))
-                            .addLore("§7Записей от консоли : §c"+rs.getInt("fromConsole"))
-                            .addLore("§7Жалоб от игроков: §4"+rs.getInt("fromPlayers"))
-                            .addLore("")
-                            .addLore("§7Наказания:")
-                            .addLore(list)
-                            .addLore("")
-                            .addLore("§7ЛКМ - показать записи")
-                            .addLore("")
-                            .addLore("* §5Дела модераторов")
-                            .addLore("§5рассматривает")
-                            .addLore("§5Административная комисиия.")
-                            .addLore("")
+                            .lore("§7Последняя запись:")
+                            .lore("§f"+ApiOstrov.dateFromStamp(rs.getInt("lastTime")))
+                            .lore("")
+                            .lore("§7Записей от консоли : §c"+rs.getInt("fromConsole"))
+                            .lore("§7Жалоб от игроков: §4"+rs.getInt("fromPlayers"))
+                            .lore("")
+                            .lore("§7Наказания:")
+                            .lore(list)
+                            .lore("")
+                            .lore("§7ЛКМ - показать записи")
+                            .lore("")
+                            .lore("* §5Дела модераторов")
+                            .lore("§5рассматривает")
+                            .lore("§5Административная комисиия.")
+                            .lore("")
                             //.addLore("§7ПКМ - разобраться на месте")
                             //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.name(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
                             .build(), e -> {
                                 if (e.isLeftClick()) {
-                                    openPlayerReports(cs, op, name, 0);
+                                  openPlayerReports(cs, op, name, 0);
                                 } else if (e.isRightClick()) {
-    op.getPlayer().sendMessage("jump не доделан");
+                                  op.getPlayer().sendMessage("jump не доделан");
                                     //ApiOstrov.sendToServer(p, , name);
                                 }
                             }
@@ -314,22 +260,22 @@ public class ReportCmd implements CommandExecutor, TabCompleter {
                         
                         console = rs.getString("fromName").equals("консоль");
 
-                        reports.add( ClickableItem.empty(new ItemBuilder( console ? Material.BOOK : Material.PAPER )
+                        reports.add( ClickableItem.empty(StackBuilder.of(console ? ItemType.BOOK : ItemType.PAPER)
                             .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
-                            .addLore("")
-                            .name("§7От: "+( console ? "§bконсоль" : "§6"+rs.getString("fromName")))
-                            .addLore("")
-                            .addLore("§7Сервер: "+rs.getString("server"))
+                            .lore("")
+                            .lore("§7От: "+( console ? "§bконсоль" : "§6"+rs.getString("fromName")))
+                            .lore("")
+                            .lore("§7Сервер: "+rs.getString("server"))
                             //палит где находятся игроки на Даарии / Седне при репорте
-                            .addLore(console ? "" : "Локция источника:")
-                            .addLore(console ? "" : rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
-                            .addLore("")
-                            .addLore("Локция нарушителя:")
-                            .addLore(rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ?  "не определена" : rs.getString("toLocation"))
-                            .addLore("")
-                            .addLore("§7Основание:")
-                            .addLore( ItemUtils.genLore(null, rs.getString("text"), "§e") )
-                            .addLore("")
+                            .lore(console ? "" : "Локция источника:")
+                            .lore(console ? "" : rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
+                            .lore("")
+                            .lore("Локция нарушителя:")
+                            .lore(rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ?  "не определена" : rs.getString("toLocation"))
+                            .lore("")
+                            .lore("§7Основание:")
+                            .lore( ItemUtils.genLore(null, rs.getString("text"), "§e") )
+                            .lore("")
                             .build()
                         ));
                         

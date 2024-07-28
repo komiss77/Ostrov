@@ -33,7 +33,7 @@ public class KitCmd implements OCommand {
       .then(Resolver.string(act).suggests((cntx, sb) -> {
           final CommandSender cs = cntx.getSource().getExecutor();
           if (!(cs instanceof final Player pl)) {
-            return CompletableFuture.completedFuture(sb.build());
+            return sb.buildFuture();
           }
           if (ApiOstrov.isStaff(pl)) {
             sb.suggest("give");
@@ -42,7 +42,7 @@ public class KitCmd implements OCommand {
           sb.suggest("buyaccess");
           sb.suggest("sellaccess");
           sb.suggest("gui");
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         })
         .executes(cntx-> {
           final CommandSender cs = cntx.getSource().getExecutor();
@@ -74,9 +74,9 @@ public class KitCmd implements OCommand {
           return switch (Resolver.string(cntx, act)) {
             case "buyaccess", "sellaccess", "give" -> {
               KitManager.getKitsNames().forEach(s -> sb.suggest(s));
-              yield CompletableFuture.completedFuture(sb.build());
+              yield sb.buildFuture();
             }
-            default -> CompletableFuture.completedFuture(sb.build());
+            default -> sb.buildFuture();
           };
         }).executes(cntx-> {
           final CommandSender cs = cntx.getSource().getExecutor();

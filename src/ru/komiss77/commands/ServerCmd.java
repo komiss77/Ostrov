@@ -60,7 +60,7 @@ public class ServerCmd implements OCommand {
       })
       .then(Resolver.string(server).suggests((cntx, sb) -> {
           displayNames.forEach(s -> sb.suggest(s));
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         })
         .executes(cntx-> {
           final CommandSender cs = cntx.getSource().getExecutor();
@@ -120,7 +120,7 @@ public class ServerCmd implements OCommand {
           final Game game = Game.fromServerName(Resolver.string(cntx, server));
           final GameInfo gi = GM.getGameInfo(game);
           gi.arenas().forEach(a -> sb.suggest(a.arenaName));
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         }).executes(cntx->{
           final CommandSender cs = cntx.getSource().getExecutor();
           if (!(cs instanceof final Player pl)) {

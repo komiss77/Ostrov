@@ -19,7 +19,7 @@ import ru.komiss77.modules.player.mission.MissionManager;
 
 
 
-
+@Deprecated //есть StatCmd...
 public class StatReachCmd implements Listener, CommandExecutor, TabCompleter {
     
 

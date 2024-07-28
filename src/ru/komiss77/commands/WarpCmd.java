@@ -33,7 +33,7 @@ public class WarpCmd implements OCommand {
       })
       .then(Resolver.string(warp).suggests((cntx, sb) -> {
           WarpManager.getWarpNames().forEach(s -> sb.suggest(s));
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         })
         .executes(cntx-> {
           final CommandSender cs = cntx.getSource().getExecutor();

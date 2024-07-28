@@ -187,14 +187,14 @@ public class PM {
         for (String s:raw.split("∫")) {
             if ( s.length()<4) continue;
 
-            enumTag = ApiOstrov.getInteger(s.substring(0, 3));
+            enumTag = ApiOstrov.getInteger(s.substring(0, 3), 0);
             value = s.substring(3);
 
             if (enumTag>=100 && enumTag<=299) {
                     final Data _data = Data.byTag(enumTag);
                     if (_data!=null) {
                         if (_data.is_integer) {
-                            v = ApiOstrov.getInteger(value);
+                            v = ApiOstrov.getInteger(value, 0);
                             if (v>Integer.MIN_VALUE) {
                                 op.dataInt.put (_data, v);
                             }
@@ -204,13 +204,13 @@ public class PM {
                     } 
             } else if (enumTag>=300 && enumTag<=599) {
                 final Stat e_stat = Stat.byTag(enumTag);
-                v = ApiOstrov.getInteger(value);
+                v = ApiOstrov.getInteger(value, 0);
                 if (e_stat!=null && v>Integer.MIN_VALUE) {
                     op.stat.put(e_stat, v);
                 }
             } else if (enumTag>=600 && enumTag<=899) {
                 final Stat e_stat = Stat.byTag(enumTag-Stat.diff);
-                v = ApiOstrov.getInteger(value);
+                v = ApiOstrov.getInteger(value, 0);
                 if (e_stat!=null && v>Integer.MIN_VALUE) {
                     op.dailyStat.put(e_stat, v);
                 }

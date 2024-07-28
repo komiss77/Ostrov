@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -40,7 +41,7 @@ public class Resolver {
     return Commands.argument(name, ArgumentTypes.players());
   }
 
-  public static @Nullable List<Player> players(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+  public static List<Player> players(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
     return cntx.getArgument(name, PlayerSelectorArgumentResolver.class).resolve(cntx.getSource());
   }
 
@@ -83,8 +84,12 @@ public class Resolver {
     return Commands.argument(name, IntegerArgumentType.integer(min, max));
   }
 
-  public static int integer(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return IntegerArgumentType.getInteger(cntx, name);
+  public static int integer(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return IntegerArgumentType.getInteger(cntx, name);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, Double> descimal(final String name) {
@@ -99,40 +104,60 @@ public class Resolver {
     return Commands.argument(name, DoubleArgumentType.doubleArg(min, max));
   }
 
-  public static double descimal(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return DoubleArgumentType.getDouble(cntx, name);
+  public static double descimal(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return DoubleArgumentType.getDouble(cntx, name);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, String> string(final String name) {
     return Commands.argument(name, StringArgumentType.string());
   }
 
-  public static String string(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return StringArgumentType.getString(cntx, name);
+  public static String string(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return StringArgumentType.getString(cntx, name);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, Boolean> bool(final String name) {
     return Commands.argument(name, BoolArgumentType.bool());
   }
 
-  public static boolean bool(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return BoolArgumentType.getBool(cntx, name);
+  public static boolean bool(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return BoolArgumentType.getBool(cntx, name);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, Key> key(final String name) {
     return Commands.argument(name, ArgumentTypes.key());
   }
 
-  public static Key key(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return cntx.getArgument(name, Key.class);
+  public static Key key(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return cntx.getArgument(name, Key.class);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, World> world(final String name) {
     return Commands.argument(name, ArgumentTypes.world());
   }
 
-  public static World world(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return cntx.getArgument(name, World.class);
+  public static World world(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return cntx.getArgument(name, World.class);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 
   public static RequiredArgumentBuilder<CommandSourceStack, Integer> time(final String name) {
@@ -143,7 +168,11 @@ public class Resolver {
     return Commands.argument(name, ArgumentTypes.time(min));
   }
 
-  public static int time(final CommandContext<CommandSourceStack> cntx, final String name) {
-    return cntx.getArgument(name, Integer.TYPE);
+  public static int time(final CommandContext<CommandSourceStack> cntx, final String name) throws CommandSyntaxException {
+    try {
+      return cntx.getArgument(name, Integer.TYPE);
+    } catch (final IllegalArgumentException e) {
+      throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
+    }
   }
 }

@@ -157,10 +157,15 @@ public class ApiOstrov {
         }
     }
 
-
-    public static boolean hasPermission(final String worldName, final String nik, String perm) {
+    @Deprecated
+    public static boolean hasPermission(final String worldName, final String nik, final String perm) {
         final Oplayer op = PM.getOplayer(nik);
         return op!=null && Perm.hasPermissions(op, worldName, perm);
+    }
+
+    public static boolean hasPerm(final Player pl, final String perm) {
+      final Oplayer op = PM.getOplayer(pl);
+      return op!=null && Perm.hasPerms(op, perm);
     }
 
 
@@ -195,8 +200,9 @@ public class ApiOstrov {
         return PM.exists(p.getUniqueId()) && PM.getOplayer(p.getUniqueId()).isPartyLeader();
     }
     public static boolean isFriend(final Player p1, final Player p2) {
-        return isFriend(p1.getName(), p2.getName());
+        return PM.exists(p1) && PM.getOplayer(p1).friends.contains(p2.getName());
     }
+    @Deprecated
     public static boolean isFriend(final String p1, final String p2) {
         return PM.exist(p1) && PM.getOplayer(p1).friends.contains(p2);
     }
@@ -422,6 +428,9 @@ public class ApiOstrov {
 
 
     //   деньги
+
+  private static final int SMALL = 9;
+
     /**
      *
      * @param target только онлайн игроки!
@@ -432,14 +441,11 @@ public class ApiOstrov {
         final Oplayer targetOp = PM.getOplayer(target.getUniqueId());
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI)+value);//moneySet(curr+value, send_update);
 //System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));
-        if (value>9 || value<-9) { //по копейкам не уведомляем
+        if (value>SMALL || value<-SMALL) { //по копейкам не уведомляем
             target.sendMessage(TCUtils.form(Ostrov.PREFIX+"§7"+(value>9?"Поступление":"Расход")+" средств: "+source+" §7-> "+(value>9?"§2":"§4")+value+" "+Ostrov.L+" §7! §8<клик-баланс")
             .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
             .clickEvent(ClickEvent.runCommand("/money balance")));
-        } else {
-            //?? писать ли что-нибудь??
         }
-
     }
     /**
      *
@@ -447,19 +453,21 @@ public class ApiOstrov {
      * @param value изменение, если убавить, то с минусом
      * @param who кто изменяет
      */
-    public static void moneyChange ( final String name, final int value, final String who ) {
-//Ostrov.log_warn("moneyChange "+name+" "+value);
-        if (PM.exist(name)) {
-            moneyChange(Bukkit.getPlayer(name), value, who);
+    public static void moneyChange( final String name, final int value, final String who ) {
+      final Player pl = Bukkit.getPlayer(name);
+        if (pl == null) {
+          LocalDB.moneyOffline(name, value, who);
         } else {//запомнить и дать при входе - оффлайн перевод
-            LocalDB.moneyOffline(name, value, who);
+          moneyChange(pl, value, who);
         }
     }
     public static int moneyGetBalance ( final String name ) {
-        final Oplayer op = PM.getOplayer(name);
-        return op==null ? 0 : op.getDataInt(Data.LONI);
-        //if (PM.exists(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
-        //else return 0;
+      final Player pl = Bukkit.getPlayer(name);
+      if (pl == null) return 0;
+      final Oplayer op = PM.getOplayer(pl);
+      return op==null ? 0 : op.getDataInt(Data.LONI);
+      //if (PM.exists(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
+      //else return 0;
     }
 
 
@@ -867,7 +875,7 @@ public class ApiOstrov {
     }
 
     public static boolean isSpyMode(final Player p) {
-        return PM.getOplayer(p).spyTask != null;//SpyCmd.isSpy(p.name());
+        return PM.getOplayer(p).spyOrigin != null;//SpyCmd.isSpy(p.name());
     }
 
     @SuppressWarnings("unchecked")
@@ -947,8 +955,9 @@ public class ApiOstrov {
         return Perm.getLimit(op, perm);
     }
 
+    @Deprecated // устаревшее, просто пишем обшим образом, типо "при открытии инвентаря" вместо "когда ты открыла инвентарь"
     public static boolean isFemale(final String name) {
-        return PM.exist(name) && PM.getOplayer(name).gender==PM.Gender.FEMALE;
+      return PM.exist(name) && PM.getOplayer(name).gender==PM.Gender.FEMALE;
     }
 
 }

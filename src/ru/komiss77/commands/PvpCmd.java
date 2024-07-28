@@ -90,7 +90,7 @@ public final class PvpCmd implements OCommand, Listener {
         .suggests((cntx, sb)->{
           final CommandSender cs = cntx.getSource().getExecutor();
           if (!(cs instanceof final Player pl)) {
-            return CompletableFuture.completedFuture(sb.build());
+            return sb.buildFuture();
           }
           if (ApiOstrov.isStaff(pl)) {
             sb.suggest("setup");
@@ -98,7 +98,7 @@ public final class PvpCmd implements OCommand, Listener {
           }
           sb.suggest("on");
           sb.suggest("off");
-          return CompletableFuture.completedFuture(sb.build());
+          return sb.buildFuture();
         })
         .executes(cntx->{
           final CommandSender cs = cntx.getSource().getExecutor();
