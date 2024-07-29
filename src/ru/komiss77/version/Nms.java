@@ -29,7 +29,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -38,7 +37,7 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.util.CraftLocation;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -67,6 +66,8 @@ public class Nms {
   public static final List<String> vanilaCommandToDisable;
   protected static final BlockPos.MutableBlockPos mutableBlockPosition; //не юзать при отправке пакетов напрямую! Пакет отправляется с задержкой, значение может уже измениться!
   private static final Key chatKey;
+  private static final net.minecraft.world.level.block.state.BlockState sign;
+  private static final String signId;
 
   static {
     vanilaCommandToDisable = Arrays.asList("execute",
@@ -75,6 +76,8 @@ public class Nms {
             "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf", "save-all", "save-off", "save-on", "setidletimeout", "publish");
     chatKey = Key.key("ostrov_chat", "listener");
     mutableBlockPosition = new BlockPos.MutableBlockPos(0, 0, 0);
+    sign = ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState();
+    signId = BlockEntityType.getKey(BlockEntityType.SIGN).toString();
   }
 
   public static boolean isServerStopped() {
@@ -148,17 +151,12 @@ public class Nms {
   }
 
 
-  private static final net.minecraft.world.level.block.state.BlockState sign = ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState();
   public static void signInput(final Player p, final String suggest, final XYZ signXyz) { //suggest придёт с '&'
     //final BlockData bd = Material.OAK_SIGN.createBlockData();
-
     mutableBlockPosition.set(signXyz.x, signXyz.y, signXyz.z);
-
-    ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(mutableBlockPosition, sign); //p.sendBlockChange(signXyz.getCenterLoc(), bd);
+    final ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(mutableBlockPosition, sign); //p.sendBlockChange(signXyz.getCenterLoc(), bd);
     sendPacket(p, packet);
-
     //final SignBlockEntity sign = new SignBlockEntity(mutableBlockPosition, null);
-    //sign.setLevel(Craft.toNMS(p.getWorld()));
     final Component[] comps = new Component[4];
     Arrays.fill(comps, Component.empty());
     boolean last = true;
@@ -178,31 +176,24 @@ public class Nms {
         comps[0] = PaperAdventure.asVanilla(TCUtils.format(suggest.substring(0, last ? suggest.length() : 15)));
         break;
     }
-
     final SignText signtext = new SignText(comps, comps, DyeColor.WHITE, true);
     //sign.setText(signtext, true);//sign.c(signtext);//
-
-    CompoundTag nbt = new CompoundTag();
-    nbt.putString("id", BlockEntityType.getKey(BlockEntityType.SIGN).toString());
+    final CompoundTag nbt = new CompoundTag();
+    nbt.putString("id", signId);
     nbt.putInt("x", signXyz.x);
     nbt.putInt("y", signXyz.y);
     nbt.putInt("z", signXyz.z);
-    //tag.remove("PublicBukkitValues");
-    HolderLookup.Provider registryLookup = Craft.toNMS(p.getWorld()).registryAccess();
-    DynamicOps<Tag> dynamicops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
-    DataResult<Tag> dataresult = SignText.DIRECT_CODEC.encodeStart(dynamicops, signtext);
-    dataresult.result().ifPresent((nbtbase) -> {
+    final HolderLookup.Provider registryLookup = Craft.toNMS(p.getWorld()).registryAccess();
+    final DynamicOps<Tag> dynamicops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
+    final DataResult<Tag> dataresult = SignText.DIRECT_CODEC.encodeStart(dynamicops, signtext);
+    dataresult.result().ifPresent(nbtbase -> {
       nbt.put("front_text", nbtbase);
     });
-
-    ClientboundBlockEntityDataPacket entityDataPacket = new ClientboundBlockEntityDataPacket(mutableBlockPosition, BlockEntityType.SIGN, nbt);
-    //new ClientboundBlockEntityDataPacket( mutableBlockPosition,  BlockEntityType.SIGN,
-    //blockEntity.sanitizeSentNbt(nbtGetter.apply(blockEntity, registryAccess)));
+    final ClientboundBlockEntityDataPacket entityDataPacket = new ClientboundBlockEntityDataPacket(mutableBlockPosition, BlockEntityType.SIGN, nbt);
     //sign.getUpdatePacket();
     sendPacket(p, entityDataPacket);// 1201 sendPacket(p, sign.j());
-
     final ClientboundOpenSignEditorPacket outOpenSignEditor = new ClientboundOpenSignEditorPacket(mutableBlockPosition, true);
-    sendPacket(p, outOpenSignEditor);//ep.c.a(outOpenSignEditor);//sendPacket(outOpenSignEditor);
+    sendPacket(p, outOpenSignEditor);
   }
 
 
@@ -393,11 +384,16 @@ public class Nms {
     return Craft.toNMS(w).spigotConfig.itemDespawnRate;
   }
 
-
-  public static void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack itemStack) {
-    final ServerPlayer sp = Craft.toNMS(p);
+  /*
+  Slots 0-8 are as follows: 0 crafting output, 1-4 crafting input,
+  5 helmet, 6 chestplate, 7 leggings, and 8 boots. Then, 9-35 work exactly the same as setItem(). The hotbar
+  for PacketPlayOutSetSlot starts at index 36, and continues to index 44. Items placed where index is < 0 or > 44 have no action.
+   */
+  public static void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack item) {
+    Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
+    final ServerPlayer sp = Craft.toNMS(p); //5-шлем
     sp.connection.send(new ClientboundContainerSetSlotPacket(sp.inventoryMenu.containerId,
-            playerInventorySlot, playerInventorySlot, net.minecraft.world.item.ItemStack.fromBukkitCopy(itemStack)));
+            sp.inventoryMenu.getStateId(), playerInventorySlot, CraftItemStack.asNMSCopy(item)));
   }
 
 

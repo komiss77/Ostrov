@@ -18,13 +18,13 @@ import ru.komiss77.version.Nms;
 
 
 public class MatrixLst implements Listener {
-
+    
     //public static final Map<String,Integer> viol = new HashMap<>();
 
 
 //    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
 //    public void onViolationCommand(final PlayerViolationCommandEvent e) {
-//Ostrov.log("============ViolationCommand "+e.getPlayer().getName()+" "+e.getHackType()+":"+e.getCommand());
+//Ostrov.log("============ViolationCommand "+e.getPlayer().name()+" "+e.getHackType()+":"+e.getCommand());
 //    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -64,22 +64,22 @@ public class MatrixLst implements Listener {
             int count = op.cheats.get(type);
             count++;
             op.cheats.put(type, count);
-//Ostrov.log("cheat "+p.getName()+" "+type+":"+count);
+//Ostrov.log("cheat "+p.name()+" "+type+":"+count);
             if (count % 10 == 0) {
                 //ApiOstrov.sendMessage(Operation.REPORT_SERVER, GM.this_server_name, 0, 0, 0, arg[0], LocationUtil.StringFromLoc(p.getLocation()), text);
                 SpigotChanellMsg.sendMessage(p, Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, p.getName(), LocationUtil.toString(p.getLocation()), "Подтверждён чит " + type + "," + count);
             }
         } else {
             op.cheats.put(type, 1);
-//Ostrov.log("cheat "+p.getName()+" "+type+":"+1);
+//Ostrov.log("cheat "+p.name()+" "+type+":"+1);
         }
-       /* if (!viol.containsKey(p.getName())) {
-            viol.put(p.getName(), 1);
+       /* if (!viol.containsKey(p.name())) {
+            viol.put(p.name(), 1);
         } else {
-            int count = viol.get(p.getName())+1;
-            viol.replace(p.getName(), count);
+            int count = viol.get(p.name())+1;
+            viol.replace(p.name(), count);
             if (count==10) {
-                Ostrov.log_warn("пока просто лог : 10 замечаний античита для "+p.getName());
+                Ostrov.log_warn("пока просто лог : 10 замечаний античита для "+p.name());
             }
         }*/
     }
@@ -87,7 +87,7 @@ public class MatrixLst implements Listener {
 
     // @EventHandler (priority = EventPriority.MONITOR)
     // public void onCheat(final PlayerQuitEvent e) {
-    //     viol.remove(e.getPlayer().getName());
+    //     viol.remove(e.getPlayer().name());
     // }
 
 

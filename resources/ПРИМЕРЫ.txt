@@ -81,7 +81,7 @@ ConnectionPool.init().comebackConnection(conn);
 
 
 
-+(ApiOstrov.isFemale(p.getName())?" §fразрешила ":" §fразрешил ") +(ApiOstrov.isFemale(player.getName())?"вошла":"вошел")
++(ApiOstrov.isFemale(p.name())?" §fразрешила ":" §fразрешил ") +(ApiOstrov.isFemale(player.getName())?"вошла":"вошел")
 Bukkit.isPrimaryThread()
 ApiOstrov.sendMessage(lp.p, Action.AUTH_NOTYFY_MODER, msg); для античита и ОП
 
@@ -180,7 +180,7 @@ if(e.getRawSlot()==e.getSlot()) {  //действия в сундуке
 
 
 p.sendMessage("§a☆ "+killer.getName()+" §2(+20) §e->  §c☠ "+target.getName() + " §4(-250) ");
-p.sendMessage("§aПобедитель: §f" + winner.getName() + "§6, награда: §b" + ((Ostrov.HasGroup(p.getName(), "gamer" ))? "500 §a+ 500 ✔§8(игроман)":"500 §4+ 0 ✖§8(игроман)" ) );
+p.sendMessage("§aПобедитель: §f" + winner.getName() + "§6, награда: §b" + ((Ostrov.HasGroup(p.name(), "gamer" ))? "500 §a+ 500 ✔§8(игроман)":"500 §4+ 0 ✖§8(игроман)" ) );
 
 !!векторный угол
         double theta = Math.atan2(-stored_vector.getX(), stored_vector.getZ());

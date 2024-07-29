@@ -159,8 +159,13 @@ public class LocalDB {
         if (GM.GAME.type != ServerType.ARENAS) {
             if (p != null) {
                 if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
-                op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
-                op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation())); //
+                if (op.spyOrigin == null) {
+                    op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
+                    op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation()));
+                } else {
+                    op.world_positions.put("logoutLoc", LocationUtil.toDirString(op.spyOrigin));
+                    op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(op.spyOrigin));
+                }
                 if (p.getRespawnLocation() != null) {
                     op.world_positions.put("bedspawnLoc", LocationUtil.toString(p.getRespawnLocation()));
                 }
@@ -646,7 +651,7 @@ public class LocalDB {
                 }
             case 17:
                 try {
-                    p.setSaturation(Integer.parseInt(s[16]) / 1000);
+                    p.setSaturation(Integer.parseInt(s[16]) / 1000f);
                 } catch (NumberFormatException ex) {
                     Ostrov.log_err("applyLocalSettings " + p.getName() + " setSaturation");
                 }
@@ -656,6 +661,21 @@ public class LocalDB {
                 } catch (NumberFormatException ex) {
                     Ostrov.log_err("applyLocalSettings " + p.getName() + " setTotalExperience");
                 }
+//            p.giveExpLevels() - Gives the player the amount of experience levels specified. Levels can be taken by specifying a negative amount. - any
+//            p.getLevel() - Gets the players current experience level. - any
+//            p.setLevel() - Sets the players current experience level. - any
+
+//            p.giveExp() - Gives the player the amount of experience specified. - def
+//            p.getTotalExperience() - Gets the players total experience points the player has collected over time and is not currently displayed to the client. - any
+//            p.setTotalExperience() - Sets the players total experience points the player has collected over time and is not currently displayed to the client. - any
+//            calculateTotalExperiencePoints() - This differs from getTotalExperience() as it returns an up-to-date value that reflects level and progress. - def
+//            setExperienceLevelAndProgress() - Updates the players level and progress to what would be reached when the experience had been collected. - def
+
+//            p.getExp() - Gets the players current experience points towards the next level. 0 is "no progress" and 1 is "next level". - any
+//            p.setExp() - Sets the players current experience points towards the next level. 0 is "no progress" and 1 is "next level". - any
+//            p.getExperiencePointsNeededForNextLevel() - Gets the total amount of experience needed to reach the next level from zero. - def
+
+//            p.sendExperienceChange() - Send an experience change. This fakes an experience change packet for a user. - any
             case 15:
                 try {
                     healthScale = (Double.parseDouble(s[14]) / 1000);

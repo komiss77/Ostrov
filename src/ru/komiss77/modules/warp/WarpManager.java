@@ -48,7 +48,7 @@ public final class WarpManager implements Initiable {
 
     @Override
     public void reload() {
-        if (LocalDB.useLocalData && LocalDB.getConnection() != null) {
+        if (LocalDB.useLocalData && LocalDB.getConnection() != null) { //тут должно быть &&. Зачем чекать соединение, если локальная БД выключена??
             if (LocalDB.getConnection() != null) {
                 warps.clear();
                 Ostrov.async(() -> load(), 0);

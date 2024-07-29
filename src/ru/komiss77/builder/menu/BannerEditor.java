@@ -39,22 +39,29 @@ public class BannerEditor implements InventoryProvider {
     private List<Pattern> patterns;
     private int editIdx; //индекс редактируемого слоя
     private EditMode mode = EditMode.Нет;
+    private boolean bordered = true;
     private static final String symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.";
 
     //если хоть раз меню откроется, статичные мапы прогрузятся и меню у всех будет работать быстрее
-    private static final HashMap<Character, Pattern[]> alphabet;
+    private static final HashMap<Character, Pattern[]> alphabetBordered;
+    private static final HashMap<Character, Pattern[]> alphabetNotBordered;
     private static final EnumMap<PatternType, ItemStack> patternExample;
 
     static {
-        alphabet = new HashMap<>();
+        alphabetBordered = new HashMap<>();
         for (char c : symbols.toCharArray()) {
-            final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c);
-            alphabet.put(c, list.toArray(new Pattern[list.size()]));
+            final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, true);
+            alphabetBordered.put(c, list.toArray(new Pattern[list.size()]));
+        }
+        alphabetNotBordered = new HashMap<>();
+        for (char c : symbols.toCharArray()) {
+            final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, false);
+            alphabetNotBordered.put(c, list.toArray(new Pattern[list.size()]));
         }
         patternExample = new EnumMap<>(PatternType.class);
         for (PatternType patternType : PatternType.values()) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
-            patternExample.put(patternType, genBanner(null,
+            patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
                     List.of(Component.text("§7ЛКМ - §aвыбрать")),
                     pattern));
         }
@@ -102,13 +109,20 @@ public class BannerEditor implements InventoryProvider {
         content.set(0, 0, ClickableItem.of(new ItemBuilder(mat)
                 .name("Основа")
                 .addLore("§fЛКМ §7- §6изменить цвет")
-                .addLore("§fПКМ §7- §9наложить символ")
+                .addLore("")
+                .addLore("§fПКМ §7- §9символ в рамке")
+                .addLore("§fШифт+ПКМ §7- §9символ без рамки")
                 .build(), e -> {
             if (e.getClick() == ClickType.LEFT) {
                 mode = EditMode.Основа;
                 reopen(p, content);
             } else if (e.getClick() == ClickType.RIGHT) {
                 mode = EditMode.Символ;
+                bordered = true;
+                reopen(p, content);
+            } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
+                mode = EditMode.Символ;
+                bordered = false;
                 reopen(p, content);
             }
         }));
@@ -119,9 +133,8 @@ public class BannerEditor implements InventoryProvider {
         for (final Pattern pt : patterns) {
             final int idx = slot - 1;
             content.set(0, slot, ClickableItem.of(
-                    genBanner("Слой " + slot,
-                            List.of(
-                                    Component.text("§fЛКМ §7- §6настроить Маску"),
+                    genBanner(Material.WHITE_BANNER, "Слой " + slot,
+                            List.of(Component.text("§fЛКМ §7- §6настроить Маску"),
                                     Component.text("§fПКМ §7- §6настроить Цвет"),
                                     Component.text(idx == 0 ? "§3Верхний слой" : "§fШифт+ПКМ §7- §3переместить выше"),
                                     Component.text("§cКлав.Q - удалить")), pt), e -> {
@@ -212,10 +225,11 @@ public class BannerEditor implements InventoryProvider {
             case Символ:
 
                 for (char c : symbols.toCharArray()) {
-                    content.add(ClickableItem.of(genBanner("§f" + String.valueOf(c),
+                    content.add(ClickableItem.of(genBanner(inverted(bordered, c) ? Material.BLACK_BANNER : Material.WHITE_BANNER,
+                            "§f" + String.valueOf(c),
                             List.of(Component.text("§fЛКМ §7- §1наложить слои")),
-                            alphabet.get(c)), e -> {
-                        patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c);
+                            bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
+                        patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, bordered);
                         mode = EditMode.Нет;
                         reopen(p, content);
                     }));
@@ -236,7 +250,7 @@ public class BannerEditor implements InventoryProvider {
                 final PatternType patternType = patterns.get(editIdx).getPattern();
                 for (DyeColor dc : DyeColor.values()) {
                     final Pattern pattern = new Pattern(dc, patternType);
-                    content.add(ClickableItem.of(genBanner(null,
+                    content.add(ClickableItem.of(genBanner(Material.WHITE_BANNER, null,
                             List.of(Component.text("ЛКМ - выбрать")),
                             pattern), e -> {
                         patterns.set(editIdx, pattern);
@@ -250,8 +264,8 @@ public class BannerEditor implements InventoryProvider {
     }
 
 
-    private static ItemStack genBanner(final String name, List<Component> lore, Pattern... patterns) {
-        final ItemStack is = new ItemStack(Material.WHITE_BANNER);
+    private static ItemStack genBanner(final Material base, final String name, List<Component> lore, Pattern... patterns) {
+        final ItemStack is = new ItemStack(base);
         ItemMeta im = is.getItemMeta();
         if (name != null) {
             im.displayName(Component.text(name));
@@ -272,536 +286,533 @@ public class BannerEditor implements InventoryProvider {
         return is;
     }
 
-
-    public static List<Pattern> alphabet(final DyeColor baseColor, final DyeColor dyeColor, final char alphabet) {
-        //ItemStack banner = new ItemStack(DyeColorUtil.toBannerMaterial(baseColor));
-        //BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
-
-        final List<Pattern> list = new ArrayList<>();
-        boolean invertBanner = false;
-        boolean bordered = false;
-
-        if (!bordered) {
-            switch (alphabet) {
-                case 'A':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    break;
-                case 'B':
-                case '8':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    break;
-                case 'C':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    break;
-                case 'D':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'E':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'F':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case 'G':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case 'H':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    break;
-                case 'I':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    break;
-                case 'J':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    break;
-                case 'K':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'L':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    break;
-                case 'M':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    break;
-                case 'N':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    break;
-                case 'O':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'P':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'Q':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case 'R':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    break;
-                case 'S':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    break;
-                case 'T':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case 'U':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    break;
-                case 'V':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    break;
-                case 'W':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    break;
-                case 'X':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    break;
-                case 'Y':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    break;
-                case 'Z':
-                case '2':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    break;
-                case '1':
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    break;
-                case '3':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case '4':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    break;
-                case '5':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case '6':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    break;
-                case '7':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    break;
-                case '9':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    break;
-                case '0':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    break;
-                case '?':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    break;
-                case '!':
-                    list.add(new Pattern(dyeColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
-                    break;
-                case '.':
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    break;
+    public static boolean inverted(final boolean bordered, final char c) {
+        if (bordered) {
+            switch (c) {
+                case 'A', 'B', '8', 'P', '6', '9' -> {
+                    return true;
+                }
             }
-
         } else {
-            //有框
-            switch (alphabet) {
-                case 'A':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'B':
-                case '8':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'C':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'D':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'E':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'F':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'G':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'H':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'I':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'J':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'K':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.CROSS));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'L':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'M':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'N':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'O':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'P':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'Q':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_RIGHT));
-                    break;
-                case 'R':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'S':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
-                    break;
-                case 'T':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'U':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'V':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'W':
-                    list.add(new Pattern(dyeColor, PatternType.TRIANGLE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'X':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(dyeColor, PatternType.CROSS));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'Y':
-                    list.add(new Pattern(dyeColor, PatternType.CROSS));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case 'Z':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '1':
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_TOP_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_CENTER));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '2':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '3':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '4':
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '5':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNRIGHT));
-                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '6':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '7':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '9':
-                    invertBanner = true;
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '0':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_LEFT));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_DOWNLEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '?':
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_TOP));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '!':
-                    list.add(new Pattern(dyeColor, PatternType.HALF_HORIZONTAL));
-                    list.add(new Pattern(dyeColor, PatternType.STRIPE_MIDDLE));
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
-                case '.':
-                    list.add(new Pattern(dyeColor, PatternType.SQUARE_BOTTOM_LEFT));
-                    list.add(new Pattern(baseColor, PatternType.BORDER));
-                    break;
+            switch (c) {
+                case 'D', 'H', 'P', 'R', '4', '5' -> {
+                    return true;
+                }
             }
         }
-        if (invertBanner) {
-//            bannerMeta.setBaseColor(dyeColor);
-            //banner = new ItemStack(DyeColorUtil.toBannerMaterial(dyeColor));
+
+        return false;
+    }
+
+    public static List<Pattern> alphabet(final DyeColor baseColor, final DyeColor patternColor, final char alphabet, final boolean bordered) {
+        final List<Pattern> list = new ArrayList<>();
+
+        if (bordered) {
+            switch (alphabet) {
+                case 'A':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'B':
+                case '8':
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'C':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'D':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'E':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'F':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'G':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'H':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'I':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'J':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'K':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.CROSS));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'L':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'M':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'N':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'O':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'P':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'Q':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_RIGHT));
+                    break;
+                case 'R':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'S':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
+                    break;
+                case 'T':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'U':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'V':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'W':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'X':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(patternColor, PatternType.CROSS));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'Y':
+                    list.add(new Pattern(patternColor, PatternType.CROSS));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case 'Z':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '1':
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_TOP_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '2':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '3':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '4':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '5':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(baseColor, PatternType.CURLY_BORDER));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '6':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '7':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '9':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '0':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '?':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '!':
+                    list.add(new Pattern(patternColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+                case '.':
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    break;
+            }
+        } else {
+            switch (alphabet) {
+                case 'A':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    break;
+                case 'B':
+                case '8':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    break;
+                case 'C':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    break;
+                case 'D':
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'E':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'F':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case 'G':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case 'H':
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    break;
+                case 'I':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    break;
+                case 'J':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    break;
+                case 'K':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'L':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    break;
+                case 'M':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    break;
+                case 'N':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    break;
+                case 'O':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'P':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'Q':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case 'R':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    break;
+                case 'S':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_TOP_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    break;
+                case 'T':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case 'U':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    break;
+                case 'V':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    break;
+                case 'W':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.TRIANGLES_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    break;
+                case 'X':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    break;
+                case 'Y':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    break;
+                case 'Z':
+                case '2':
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.TRIANGLE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_TOP_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.RHOMBUS));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    break;
+                case '1':
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_TOP_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.BORDER));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_CENTER));
+                    break;
+                case '3':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case '4':
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    break;
+                case '5':
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_UP_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNRIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case '6':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    break;
+                case '7':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(baseColor, PatternType.DIAGONAL_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    break;
+                case '9':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    break;
+                case '0':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_LEFT));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_DOWNLEFT));
+                    break;
+                case '?':
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_RIGHT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_HORIZONTAL_BOTTOM));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_TOP));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    break;
+                case '!':
+                    list.add(new Pattern(patternColor, PatternType.HALF_HORIZONTAL));
+                    list.add(new Pattern(patternColor, PatternType.STRIPE_MIDDLE));
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    list.add(new Pattern(baseColor, PatternType.HALF_VERTICAL_RIGHT));
+                    break;
+                case '.':
+                    list.add(new Pattern(patternColor, PatternType.SQUARE_BOTTOM_LEFT));
+                    break;
+            }
+
+
         }
         return list;
     }

@@ -1,7 +1,6 @@
 package ru.komiss77.modules.kits;
 
 import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -26,7 +25,9 @@ public class KitGuiMain implements InventoryProvider {
     private static final ItemStack down = new ItemBuilder(Material.TUBE_CORAL).build();
     ;
 
-
+        
+    
+    
     @Override
     public void init(final Player player, final InventoryContent contents) {
         player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
@@ -44,7 +45,7 @@ public class KitGuiMain implements InventoryProvider {
         //   .name("§7Наборов на сервере: §f"+KitManager.kits.size())
         //  //.lore("§7Состояние: §e"+arena.state.toString())
         //  .build()));
-
+        
         final Oplayer op = PM.getOplayer(player);
 
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
@@ -53,7 +54,7 @@ public class KitGuiMain implements InventoryProvider {
         ItemStack item;
         String giveInfo1 = "";
         String giveInfo2 = "";
-
+        
         for (Kit kit : KitManager.kits.values()) {
 
             if (!kit.enabled) continue; //добавляем только включенные
@@ -65,7 +66,7 @@ public class KitGuiMain implements InventoryProvider {
 
             } else if (kit.accesBuyPrice == 0) {
 
-                //if (PM.Kit_has_acces(player.getName(), kit.name)) {
+                //if (PM.Kit_has_acces(player.name(), kit.name)) {
 
                 final int secondLeft = KitManager.getSecondLetf(player, kit);
                 if (secondLeft > 0) {
@@ -82,8 +83,8 @@ public class KitGuiMain implements InventoryProvider {
 
 
             } else if (kit.accesBuyPrice >= 0) {
-
-
+                
+                
                 if (op.hasKitAcces(kit.name)) {
 
                     final int secondLeft = KitManager.getSecondLetf(player, kit);
@@ -93,12 +94,12 @@ public class KitGuiMain implements InventoryProvider {
                         giveInfo1 = "§fЛКМ §e- Получить набор.";
                     }
                     giveInfo2 = "§7цена получения: §5" + (kit.getPrice > 0 ? kit.getPrice + " §7лони" : "бесплатно");
-
+                    
                 } else {
 
                     giveInfo1 = "§fЛКМ §e- Покупка права доступа.";
                     giveInfo2 = "§7цена покупки: §5" + kit.accesBuyPrice + " §7лони";
-
+                    
                 }
 
             }
@@ -146,8 +147,8 @@ public class KitGuiMain implements InventoryProvider {
                     KitManager.openKitPrewiev(player, kit);
                     //reopen(player, contents);
                 }
-            }));
-
+            }));  
+            
         }
 
         pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));

@@ -1,7 +1,6 @@
 package ru.komiss77.modules.kits;
 
 import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -22,8 +21,9 @@ public class KitEditMain implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).build();
     ;
-
-
+  
+    
+    
     @Override
     public void init(final Player player, final InventoryContent contents) {
         player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
@@ -69,8 +69,8 @@ public class KitEditMain implements InventoryProvider {
                     kitClone.modifyed = true;
                     KitManager.kits.put(kitClone.name, kitClone);
 //System.out.println("KitEditMain isShiftClick kit="+kit.name+" new kit="+kitClone.name);            
-                    //SmartInventory.builder().id("KitSettingsEditor:"+player.getName()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kitClone.name). build() .open(player);
-
+                    //SmartInventory.builder().id("KitSettingsEditor:"+player.name()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kitClone.name). build() .open(player);
+                            
                     //player.performCommand("kit sellacces "+clickedKit.name);
                     //player.closeInventory();
                     reopen(player, contents);
@@ -80,8 +80,8 @@ public class KitEditMain implements InventoryProvider {
                     //reopen(player, contents);
                 }
 
-            }));
-
+            }));  
+            
         }
 
 
@@ -122,8 +122,16 @@ public class KitEditMain implements InventoryProvider {
             }, "название..");
 
         }));
-
-
+        
+        
+        
+        
+        
+ 
+        
+    
+    
+    
     }
 
 

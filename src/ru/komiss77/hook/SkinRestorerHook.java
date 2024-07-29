@@ -1,12 +1,5 @@
 package ru.komiss77.hook;
 
-import java.io.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
-
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.io.ByteArrayDataInput;
@@ -23,11 +16,16 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Chanell;
-import ru.komiss77.enums.Data;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.*;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 public class SkinRestorerHook {
 
@@ -66,7 +64,7 @@ public class SkinRestorerHook {
             in.readUTF(); //playerName
             final int page = in.readInt();
             final short len = in.readShort();
-//Ostrov.log("onMsg subChannel="+subChannel+" name="+p.getName()+" page="+page);
+//Ostrov.log("onMsg subChannel="+subChannel+" name="+p.name()+" page="+page);
 
             final byte[] msgBytes = new byte[len];
             in.readFully(msgBytes);
@@ -159,7 +157,7 @@ public class SkinRestorerHook {
 
 class SkinGui implements InventoryProvider {
 
-    private int page;
+    private final int page;
     final Map<String, String> skinList;
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.NETHER_SPROUTS).name("§8.").build());

@@ -48,7 +48,7 @@ public class TradeLst implements Listener {
         final Player p = e.getPlayer();
 
         //NoSelfTrade
-        if (p1Name.equals(p.getName())) {
+        if (p1Name.equals(p.getName())) { 
             p.sendMessage("§eТорговец ждёт второго участника..");
             return;
         }
@@ -114,12 +114,12 @@ public class TradeLst implements Listener {
 
             p.performCommand("trade " + p1Name);
             Ostrov.sync(() -> p1.performCommand("trade accept " + p.getName()), 5);
-            //p1.performCommand("trade accept "+p.getName());
-            //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.getName(), p.getUniqueId(), true);
-            //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.getName(), true);
+            //p1.performCommand("trade accept "+p.name());
+            //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.name(), p.getUniqueId(), true);
+            //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.name(), true);
             //TradeSystem.getInstance().getTradeManager().startTrade(p, p1);
-//Ostrov.log("Trade session : "+p1Name+" - "+p.getName());
-
+//Ostrov.log("Trade session : "+p1Name+" - "+p.name());
+            
 
             //final TradeInventory tradeInventory = new TradeInventory(p1, p);
             //tradeInventories.add(tradeInventory);
@@ -149,7 +149,7 @@ public class TradeLst implements Listener {
     private static TradeInventory getTradeInventory(final Player p) {
         if (tradeInventories.isEmpty()) return null;
         for (final TradeInventory ti : tradeInventories) {
-            if (ti.getSender().equals(p.getName()) || ti.getReceiver().equals(p.getName())) {
+            if (ti.getSender().equals(p.name()) || ti.getReceiver().equals(p.name())) {
                 return ti;
             }
         }
@@ -401,7 +401,7 @@ System.out.println("InventoryDragEvent DENY 2");
                             //case 
                         //}
                         ti.setWait(p);
-                        ti.syncWiev(p.getName(),slotId);
+                        ti.syncWiev(p.name(),slotId);
                         return;
                     }
                     
@@ -409,14 +409,14 @@ System.out.println("InventoryDragEvent DENY 2");
                     e.setResult(Event.Result.DENY);
                     
                     if (slotId==45) { //да
-                        ti.sendReady(p.getName());
+                        ti.sendReady(p.name());
                     } else if (slotId==46) { //нет
-                        ti.setDeny(p.getName());
+                        ti.setDeny(p.name());
                     }
                 }*/
     //for (final TradeInventory inventory2 : tradeInventories) {
     //if (inventory2.isInventory(clickedInventory)) {
-                      /*  if (p.getName().equals(ti.getSender())) {
+                      /*  if (p.name().equals(ti.getSender())) {
                             if (ti.getReadySend() && slotId != 46) {
                                 e.setCancelled(true);
                                 e.setResult(Event.Result.DENY);
@@ -429,7 +429,7 @@ System.out.println("InventoryDragEvent DENY 2");
                                 e.setResult(Event.Result.DENY);
  System.out.println("InventoryClickEvent DENY 3");
                             }
-                        } else  if (p.getName().equals(ti.getReceiver())) {
+                        } else  if (p.name().equals(ti.getReceiver())) {
                         //if (player.getUniqueId().toString().equals(inventory2.getReceiver().getUniqueId().toString())) {
                             if (ti.getReadyRec() && slotId != 46) {
                                 e.setCancelled(true);
@@ -523,7 +523,7 @@ System.out.println("InventoryDragEvent DENY 2");
                 }
                 
                 if (rawSlot == 45 || rawSlot == 46) {
-                    ti.setItem(e.getSlot(), p.getName());
+                    ti.setItem(e.getSlot(), p.name());
                 }
                 if (!performed) {
                     e.setCancelled(true);
@@ -533,7 +533,8 @@ System.out.println("InventoryDragEvent DENY 2");
     //}
     // }
     // }
-
+  
+   
 
 }    
     
@@ -729,7 +730,7 @@ System.out.println("InventoryDragEvent DENY 2");
             
             if (e.getAction() == InventoryAction.COLLECT_TO_CURSOR) {
                 for (final TradeInventory inventory : tradeInventories) {
-                    if (player.getName().equalsIgnoreCase(inventory.getSender().getName()) || player.getName().equalsIgnoreCase(inventory.getReceiver().getName())) {
+                    if (player.name().equalsIgnoreCase(inventory.getSender().name()) || player.name().equalsIgnoreCase(inventory.getReceiver().name())) {
                         e.setCancelled(true);
                         e.setResult(Event.Result.DENY);
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);

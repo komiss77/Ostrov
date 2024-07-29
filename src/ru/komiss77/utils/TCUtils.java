@@ -364,6 +364,7 @@ public class TCUtils {
         };
     }
 
+    @Deprecated
     public static String stripColor(final String str) {
         if (str.isEmpty()) {
             return "";
@@ -496,7 +497,23 @@ public class TCUtils {
         return sb.toString();
     }
 
+    @Deprecated
     public static String stripColor(final Component cmp) {
+        final StringBuilder sb = new StringBuilder();
+        if (cmp instanceof TextComponent) {
+            sb.append(stripColor(((TextComponent) cmp).content()));
+        }
+        for (final Component ch : cmp.children()) {
+            sb.append(stripColor(ch));
+        }
+        return sb.toString();
+    }
+
+    public static String strip(final String str) {
+        return MiniMessage.miniMessage().stripTags(deLegacify(str));
+    }
+
+    public static String strip(final Component cmp) {
         final StringBuilder sb = new StringBuilder();
         if (cmp instanceof TextComponent) {
             sb.append(stripColor(((TextComponent) cmp).content()));
@@ -523,9 +540,7 @@ public class TCUtils {
         return setColorChar(ch, toString(str));
     }
 
-    @Slow(priority = 1)
-    public static Component form(final String str) {
-        if (str == null || str.isEmpty()) return EMPTY;
+    private static String deLegacify(final String str) {
         String fin = str;
         for (final Entry<Character, TextColor> en : chrIx.entrySet()) {
             final TextColor tc = en.getValue();
@@ -549,7 +564,13 @@ public class TCUtils {
         fin = fin.replace(STYLE + "n", "<underlined>");
         fin = fin.replace(STYLE + "o", "<italic>");
         fin = fin.replace(STYLE + "r", "<reset>");
-        return msg.deserialize(fin);
+        return fin;
+    }
+
+    @Slow(priority = 1)
+    public static Component form(final String str) {
+        if (str == null || str.isEmpty()) return EMPTY;
+        return msg.deserialize(deLegacify(str));
     }
 
     public static String deform(final Component cmp) {

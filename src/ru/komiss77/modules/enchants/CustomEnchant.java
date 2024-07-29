@@ -195,7 +195,7 @@ public abstract class CustomEnchant implements Keyed {
         */
 
     private final NamespacedKey key;
-
+    
     protected CustomEnchant() {
         this.key = OStrap.key(this.getClass().getSimpleName());
         if (VALUES.put(this.key, this) != null) {

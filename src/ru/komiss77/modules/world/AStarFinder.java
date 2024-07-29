@@ -4,13 +4,13 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.util.BoundingBox;
-import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.version.Nms;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class AStarFinder {//idea of UnAlike
@@ -149,15 +149,15 @@ public class AStarFinder {//idea of UnAlike
             final XYZ lc = ndi.next();
             switch (Nms.getFastMat(w, lc.x, lc.y - 1, lc.z)) {
                 case ACACIA_FENCE, ACACIA_FENCE_GATE, BAMBOO_FENCE, BAMBOO_FENCE_GATE, BIRCH_FENCE,
-                        BIRCH_FENCE_GATE, CHERRY_FENCE, CHERRY_FENCE_GATE, CRIMSON_FENCE, CRIMSON_FENCE_GATE,
-                        DARK_OAK_FENCE, DARK_OAK_FENCE_GATE, JUNGLE_FENCE, JUNGLE_FENCE_GATE, MANGROVE_FENCE,
-                        MANGROVE_FENCE_GATE, NETHER_BRICK_FENCE, OAK_FENCE, OAK_FENCE_GATE, SPRUCE_FENCE,
-                        SPRUCE_FENCE_GATE, WARPED_FENCE, WARPED_FENCE_GATE, ANDESITE_WALL, BLACKSTONE_WALL,
-                        BRICK_WALL, COBBLED_DEEPSLATE_WALL, COBBLESTONE_WALL, DEEPSLATE_BRICK_WALL,
-                        DEEPSLATE_TILE_WALL, STONE_BRICK_WALL, RED_SANDSTONE_WALL, RED_NETHER_BRICK_WALL,
-                        POLISHED_DEEPSLATE_WALL, POLISHED_BLACKSTONE_WALL, POLISHED_BLACKSTONE_BRICK_WALL,
-                        NETHER_BRICK_WALL, MOSSY_COBBLESTONE_WALL, MOSSY_STONE_BRICK_WALL,
-                        GRANITE_WALL, END_STONE_BRICK_WALL, DIORITE_WALL:
+                     BIRCH_FENCE_GATE, CHERRY_FENCE, CHERRY_FENCE_GATE, CRIMSON_FENCE, CRIMSON_FENCE_GATE,
+                     DARK_OAK_FENCE, DARK_OAK_FENCE_GATE, JUNGLE_FENCE, JUNGLE_FENCE_GATE, MANGROVE_FENCE,
+                     MANGROVE_FENCE_GATE, NETHER_BRICK_FENCE, OAK_FENCE, OAK_FENCE_GATE, SPRUCE_FENCE,
+                     SPRUCE_FENCE_GATE, WARPED_FENCE, WARPED_FENCE_GATE, ANDESITE_WALL, BLACKSTONE_WALL,
+                     BRICK_WALL, COBBLED_DEEPSLATE_WALL, COBBLESTONE_WALL, DEEPSLATE_BRICK_WALL,
+                     DEEPSLATE_TILE_WALL, STONE_BRICK_WALL, RED_SANDSTONE_WALL, RED_NETHER_BRICK_WALL,
+                     POLISHED_DEEPSLATE_WALL, POLISHED_BLACKSTONE_WALL, POLISHED_BLACKSTONE_BRICK_WALL,
+                     NETHER_BRICK_WALL, MOSSY_COBBLESTONE_WALL, MOSSY_STONE_BRICK_WALL,
+                     GRANITE_WALL, END_STONE_BRICK_WALL, DIORITE_WALL:
                     ndi.remove();
                     break;
                 default:
@@ -228,8 +228,7 @@ public class AStarFinder {//idea of UnAlike
         }
     }
 
-    private static @Nullable
-    WXYZ getIfWalk(final WXYZ lc) {
+    private static @Nullable WXYZ getIfWalk(final WXYZ lc) {
         return isWalk(lc) ? lc : null;
     }
 
@@ -240,7 +239,7 @@ public class AStarFinder {//idea of UnAlike
     }
 
     @Slow(priority = 2)
-    public static WXYZ getClsWlk(final WXYZ to) {
+    public static @Nullable WXYZ getClsWlk(final WXYZ to) {
         if (isWalk(to)) {
             return to;
         }
@@ -259,10 +258,8 @@ public class AStarFinder {//idea of UnAlike
             }
 
             for (final WXYZ lc : step) {
-                if (last.add(lc)) {
-                    if (isWalk(lc)) {
-                        return lc;
-                    }
+                if (last.add(lc) && isWalk(lc)) {
+                    return lc;
                 }
             }
         }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -11,7 +12,9 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.enchantments.Enchantment;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
+import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
 
 //https://github.com/ds58/Panilla
@@ -25,6 +28,25 @@ public class NbtLst {
         metaCopierFactory = new MetaCopierFactory();
     }
 
+    public static void rebuildInventoryContrnt(final Player p) {
+        ItemStack oldItem;
+        for (int i = 0; i < p.getInventory().getContents().length; i++) {
+            oldItem = p.getInventory().getContents()[i];
+            if (oldItem != null) {
+                p.getInventory().setItem(i, rebuild(oldItem));
+                //p.getInventory().setItem(i, copyItemMeta(oldItem));
+            }
+        }
+
+        for (int i = 0; i < p.getEnderChest().getContents().length; i++) {
+            oldItem = p.getEnderChest().getContents()[i];
+            if (oldItem != null) {
+                p.getEnderChest().setItem(i, new ItemStack(rebuild(oldItem)));
+                //p.getEnderChest().setItem(i, new ItemStack(copyItemMeta(oldItem)));
+            }
+        }
+        p.updateInventory();
+    }
 
     public static ItemStack rebuild(final ItemStack oldItem) {
 //Ostrov.log_warn("copyItemMeta oldItem="+oldItem);
@@ -98,6 +120,53 @@ public class NbtLst {
 
 
     }
+
+
+    public static boolean invalidStackSize(final Player player, final ItemStack item) {
+        if (item.getAmount() > item.getMaxStackSize()) {
+            player.sendMessage("Размер стака превышает допустимый!");
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean Invalid_name_lenght(final Player player, final ItemStack item) {
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.toString(item.getItemMeta().displayName()).length() > 40) {
+            player.sendMessage("Превышена длина имени!");
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean Invalid_enchant(final Player player, final ItemStack item) {
+        try {
+            if (item.getEnchantments().isEmpty()) return false;
+            for (Enchantment enchant : item.getEnchantments().keySet()) {
+//System.out.println(" ------- enchant "+enchant+"   "+enchant.name()+"  lvl="+item.getEnchantments().get(enchant)+"  start="+enchant.getStartLevel()+"  max="+enchant.getMaxLevel());
+                if (item.getEnchantments().get(enchant) < 0 || item.getEnchantments().get(enchant) > enchant.getMaxLevel())
+                    return true;
+            }
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            player.sendMessage("Этот предмет содержит недоапустимые чары!");
+            return true;
+            //return new ItemStack(item.getType(), item.getAmount());
+        }
+        return false;
+    }
+
+    public static boolean Invalid_anvill(final Player player, final ItemStack item) {
+        if (!ItemUtils.isBlank(item, false) && item.getType() == Material.ANVIL && item.getItemMeta() instanceof final Damageable dg) {
+            if (dg.hasDamage()) {
+                return switch (dg.getDamage()) {
+                    case 0, 1, 2 -> false;
+                    default -> true;
+                };
+            }
+        }
+        return false;
+    }
+
+
 
 
     private static class MetaCopierFactory {

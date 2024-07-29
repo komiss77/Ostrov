@@ -1,6 +1,5 @@
 
 package ru.komiss77.hook;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,13 +34,15 @@ public class DynmapFactions {
     enum Direction {XPLUS, ZPLUS, XMINUS, ZMINUS}
 
     ;
-
-
+    
+    
+    
+    
     protected static void updateFactions() {
 
         // Ostrov.async( ()-> {
            /* for(Faction f : FM.getFactions()) {
-//Main.log_ok("updateFactions: "+f.getName());
+//Main.log_ok("updateFactions: "+f.name());
                 final String descr = getDescription(f);
 
                 drawFactionArea(f, descr);
@@ -55,7 +56,7 @@ public class DynmapFactions {
     //https://colorscheme.ru/html-colors.html
     
     /*protected static String getDescription (final Faction f) {
-        return  "<div class=\"regioninfo\"><div class=\"infowindow\"><span style=\"font-size:120%;\">"+ChatColor.stripColor(f.getName())+
+        return  "<div class=\"regioninfo\"><div class=\"infowindow\"><span style=\"font-size:120%;\">"+ChatColor.stripColor(f.name())+
                         "</span><br /> <span style=\"font-weight:bold;color:#00FFFF\">"+ChatColor.stripColor(f.tagLine)+
                         "</span><br /> Лидер: <span style=\"font-weight:bold;color:#FFFFFF\">"+f.getOwner()+
                         "</span><br /> Участников: <span style=\"font-weight:bold;color:#FFFF00\">"+f.getMembers().size()+
@@ -68,7 +69,7 @@ public class DynmapFactions {
 
 
     protected static void wipe(final int factionID) {
-
+        
         Marker home = set.findMarker(String.valueOf(factionID));
         if (home != null) {
             home.deleteMarker();
@@ -92,16 +93,16 @@ public class DynmapFactions {
         //if (m!=null) {
         //    m.deleteMarker();
         //}
-        final String lbl = "база "+ChatColor.stripColor(f.getName());
+        final String lbl = "база "+ChatColor.stripColor(f.name());
 
         //Marker home = markers.remove(f.factionId);
 
         if(home == null) {
-            home = set.createMarker(String.valueOf(f.factionId), lbl, f.home.getWorld().getName(), 
+            home = set.createMarker(String.valueOf(f.factionId), lbl, f.home.getWorld().name(),
                     f.home.getX(), f.home.getY(), f.home.getZ(), baseIcon, false);
 
         } else {
-            home.setLocation(f.home.getWorld().getName(), f.home.getX(), f.home.getY(), f.home.getZ());
+            home.setLocation(f.home.getWorld().name(), f.home.getX(), f.home.getY(), f.home.getZ());
             home.setLabel(lbl);   // Update label 
             home.setMarkerIcon(baseIcon);
         }
@@ -267,15 +268,15 @@ public class DynmapFactions {
                     
                 //AreaMarker areaMarker = areas.remove(polyId); // Existing area?
                 //if(areaMarker == null) {
-                    final AreaMarker areaMarker = set.createAreaMarker(polyId, f.getName(), false, f.home.getWorld().getName(), polyX, polyZ, false);
+                    final AreaMarker areaMarker = set.createAreaMarker(polyId, f.name(), false, f.home.getWorld().name(), polyX, polyZ, false);
 //info("areaMarker="+areaMarker);
                     if(areaMarker == null) {
-                        Main.log_err("error adding area marker " + f.getName());
+                        Main.log_err("error adding area marker " + f.name());
                         return;
                     }
                 //} else {
                 //    areaMarker.setCornerLocations(polyX, polyZ); // Replace corner locations /
-                //    areaMarker.setLabel(f.getName());   // Update label 
+                //    areaMarker.setLabel(f.name());   // Update label
                 //}
 
                 areaMarker.setDescription(descr); // Set popup 

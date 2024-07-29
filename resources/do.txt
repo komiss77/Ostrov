@@ -2,10 +2,9 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!!!! если в идее пропали мавен зависимости, в билд.градле.ктс закоментить paperweight.paperDevBundle, рестарт,раскоментить,рестарт и прогрузит
 
 
-121 чекнуть
-BannerEditor цифры
+чекнуть
 вроде нет тэга
-+ввод с таблички
+при смене ГМ тэг остаётся
 
 
 база композиций стоек для брони https://minecraft-heads.com/armor-stands

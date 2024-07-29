@@ -74,34 +74,34 @@ public class KitSettingsEditor implements InventoryProvider {
                 KitManager.saveKit(player, newKit);
                 KitManager.deleteKit(player, kit.name);
                 KitManager.openKitSettingsEditor(player, newKit);
-                //SmartInventory.builder().id("KitSettingsEditor:"+player.getName()). provider(new KitSettingsEditor(newKit)). size(6, 9). title("§4Настройки набора §6"+newKit.name). build() .open(player);
+                //SmartInventory.builder().id("KitSettingsEditor:"+player.name()). provider(new KitSettingsEditor(newKit)). size(6, 9). title("§4Настройки набора §6"+newKit.name). build() .open(player);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
             }
             // return;
         }));
-
+        
         //Описание
         final List<Component> lrl = kit.logoItem.getItemMeta().lore();
         contents.set(SlotPos.of(1, 6), ClickableItem.of(new ItemBuilder(Material.BOOK)
-                        .name("§7Описание")
-                        .addLore("§7Текущее:")
-                        .addLore(lrl)
-                        .addLore("")
-                        .addLore("§fЛКМ §aдобавить строку")
-                        .addLore("§fПКМ §cудалить последнюю строку.")
-                        .build(), e -> {
+                .name("§7Описание")
+                .addLore("§7Текущее:")
+                .addLore(lrl)
+                .addLore("")
+                .addLore("§fЛКМ §aдобавить строку")
+                .addLore("§fПКМ §cудалить последнюю строку.")
+                .build(), e -> {
 
-                    if (e.isRightClick()) {
-                        if (lrl.size() > 1) {
+            if (e.isRightClick()) {
+                if (lrl.size() > 1) {
                             kit.modifyed = true;
-                            final List<Component> addLore = new ArrayList<>(lrl);
-                            addLore.remove(addLore.size() - 1);
+                    final List<Component> addLore = new ArrayList<>(lrl);
+                    addLore.remove(addLore.size() - 1);
                             kit.logoItem = new ItemBuilder(kit.logoItem).setLore(addLore).build();
                             reopen(player, contents);
                         }
 
-                    } else if (e.isLeftClick()) {
-                        PlayerInput.get(InputType.ANVILL, player, value -> {
+            } else if (e.isLeftClick()) {
+                PlayerInput.get(InputType.ANVILL, player, value -> {
                             kit.modifyed = true;
                             kit.logoItem = new ItemBuilder(kit.logoItem).setLore(value).build();
                             reopen(player, contents);
@@ -113,12 +113,12 @@ public class KitSettingsEditor implements InventoryProvider {
 
 
         contents.set(SlotPos.of(2, 4), ClickableItem.of(new ItemBuilder(Material.REPEATER)
-                        .name("§7Уровень набора")
-                        .addLore("§7 Сейчас: " + kit.rarity.displayName)
-                        .addLore("§fЛКМ §aменять")
-                        .build(), e -> {
+                .name("§7Уровень набора")
+                .addLore("§7 Сейчас: " + kit.rarity.displayName)
+                .addLore("§fЛКМ §aменять")
+                .build(), e -> {
 
-                    if (e.isLeftClick()) {
+            if (e.isLeftClick()) {
                         kit.modifyed = true;
                         kit.rarity = KitManager.Rarity.rotate(kit.rarity);
                         reopen(player, contents);
@@ -130,10 +130,10 @@ public class KitSettingsEditor implements InventoryProvider {
 
         if (kit.enabled) {
             contents.set(SlotPos.of(3, 3), ClickableItem.of(new ItemBuilder(Material.GREEN_CONCRETE)
-                            .name("§2Активен")
-                            .addLore("§7ЛКМ - выключить")
-                            .build(), e -> {
-                        if (e.isLeftClick()) {
+                    .name("§2Активен")
+                    .addLore("§7ЛКМ - выключить")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
                             kit.enabled = false;
                             kit.modifyed = true;
                             reopen(player, contents);
@@ -142,10 +142,10 @@ public class KitSettingsEditor implements InventoryProvider {
             ));
         } else {
             contents.set(SlotPos.of(3, 3), ClickableItem.of(new ItemBuilder(Material.RED_CONCRETE)
-                            .name("§4Выключен")
-                            .addLore("§7ЛКМ - включить")
-                            .build(), e -> {
-                        if (e.isLeftClick()) {
+                    .name("§4Выключен")
+                    .addLore("§7ЛКМ - включить")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
                             kit.enabled = true;
                             kit.modifyed = true;
                             reopen(player, contents);
@@ -157,10 +157,10 @@ public class KitSettingsEditor implements InventoryProvider {
 
         if (kit.needPermission) {
             contents.set(SlotPos.of(3, 5), ClickableItem.of(new ItemBuilder(Material.YELLOW_WOOL)
-                            .name("§eТребуется право")
-                            .addLore("§7ЛКМ - выключить")
-                            .build(), e -> {
-                        if (e.isLeftClick()) {
+                    .name("§eТребуется право")
+                    .addLore("§7ЛКМ - выключить")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
                             kit.needPermission = false;
                             kit.modifyed = true;
                             reopen(player, contents);
@@ -169,10 +169,10 @@ public class KitSettingsEditor implements InventoryProvider {
             ));
         } else {
             contents.set(SlotPos.of(3, 5), ClickableItem.of(new ItemBuilder(Material.GREEN_WOOL)
-                            .name("§aДоступен всем")
-                            .addLore("§7ЛКМ - включить")
-                            .build(), e -> {
-                        if (e.isLeftClick()) {
+                    .name("§aДоступен всем")
+                    .addLore("§7ЛКМ - включить")
+                    .build(), e -> {
+                if (e.isLeftClick()) {
                             kit.needPermission = true;
                             kit.modifyed = true;
                             reopen(player, contents);
@@ -204,8 +204,9 @@ public class KitSettingsEditor implements InventoryProvider {
             }
             // return;
         }));
-
-
+        
+        
+        
         contents.set(SlotPos.of(4, 3), new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_INGOT)
                 .name("§7Цена ПРОДАЖИ права доступа")
                 .addLore("§7Сейчас: §6" + kit.accesSellPrice)
@@ -231,8 +232,8 @@ public class KitSettingsEditor implements InventoryProvider {
             }
             // return;
         }));
-
-
+        
+        
         contents.set(SlotPos.of(4, 5), new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_INGOT)
                 .name("§7Цена за каждое получение")
                 .addLore("§7Сейчас: §6" + kit.getPrice)
@@ -284,10 +285,10 @@ public class KitSettingsEditor implements InventoryProvider {
 
         contents.set(5, 2, ClickableItem.of(new ItemBuilder(Material.CHEST).name("§eредактировать содержимое").build(), e ->
                         KitManager.openKitKitComponentEditor(player, kit)
-                //SmartInventory.builder().id("KitComponentEditor:"+player.getName()). provider(new KitComponentEditor(kit)). size(6, 9). title("§4Компоненты набора §6"+kit.name). build() .open(player)
+                //SmartInventory.builder().id("KitComponentEditor:"+player.name()). provider(new KitComponentEditor(kit)). size(6, 9). title("§4Компоненты набора §6"+kit.name). build() .open(player)
         ));
-
-
+        
+        
         if (kit.modifyed) {
 
             contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
@@ -298,7 +299,7 @@ public class KitSettingsEditor implements InventoryProvider {
                             .addLore("§cпосле перезагрузки сервера.")
                             .build(), e ->
                             KitManager.openKitEditMain(player)
-                    //-> SmartInventory.builder().id("KitEditMain:"+player.getName()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
+                    //-> SmartInventory.builder().id("KitEditMain:"+player.name()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
             ));
 
             contents.set(5, 6, ClickableItem.of(new ItemBuilder(Material.NETHER_STAR).name("сохранить на диск").build(), e -> {
@@ -306,16 +307,16 @@ public class KitSettingsEditor implements InventoryProvider {
                         reopen(player, contents);
                     }
             ));
-
+                
         } else {
 
             contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
                             .name("гл.меню")
                             .build(), e ->
                             KitManager.openKitEditMain(player)
-                    //-> SmartInventory.builder().id("KitEditMain:"+player.getName()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
+                    //-> SmartInventory.builder().id("KitEditMain:"+player.name()). provider(new KitEditMain(Ostrov.kitManager)). size(6, 9). title("§4Администрирование наборов"). build() .open(player)
             ));
-
+            
         }
 
 

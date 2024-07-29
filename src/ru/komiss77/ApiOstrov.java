@@ -3,10 +3,7 @@ package ru.komiss77;
 
 import java.sql.Connection;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.StreamSupport;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.bossbar.BossBar;
@@ -15,6 +12,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -93,7 +91,6 @@ public class ApiOstrov {
      * @param ammount        отправить добавление локальной статы (для выплат лони и missionsManager)
      */
     public static void addCustomStat(final Player p, final String customStatName, final int ammount) {
-        //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.getName(), ammount, customStatName);
         final Oplayer op = PM.getOplayer(p);
         if (op != null) {
             StatManager.onCustomStat(p, op, customStatName, ammount);
@@ -112,7 +109,6 @@ public class ApiOstrov {
     public static void reachCustomStat(final Player p, final String customStatName, final int value) {
         if (StatManager.DEBUG)
             Ostrov.log("reachCustomStat " + (p == null ? "null" : p.getName()) + " stat=" + customStatName + " val=" + value);
-        //sendMessage(p, Operation.ADD_CUSTOM_STAT, p.getName(), ammount, customStatName);
         final Oplayer op = PM.getOplayer(p);
         if (op != null) MissionManager.onCustomStat(op, customStatName, value, true);
     }
@@ -121,20 +117,6 @@ public class ApiOstrov {
         final Oplayer op = PM.getOplayer(p);//StatManager.addExp(PM.getOplayer(p), ammount);
         if (op != null) op.addExp(p, ammount);
     }
-
-
-  /*  public static String getPlayTime(final Player p){
-        final Oplayer op = PM.getOplayer(p);
-        return op==null ? "0" : secondToTime(op.getStat(Stat.PLAY_TIME) );
-    }
-    public static String getPrefix(final Player p){
-        final Oplayer op = PM.getOplayer(p);
-        return op==null ? "" : op.getDataString(Data.PREFIX);
-    }
-    public static String getSuffix(final Player p){
-        final Oplayer op = PM.getOplayer(p);
-        return op==null ? "" : op.getDataString(Data.SUFFIX);
-    }*/
 
     /**
      * @param name ник. Возвращает true если у игрока активен режим боя. Так же, можно использовать BattleModeEvent и BattleModeEndEvent
@@ -158,10 +140,10 @@ public class ApiOstrov {
     }
 
 
-    public static boolean hasPermission(final String worldName, final String nik, String perm) {
-        final Oplayer op = PM.getOplayer(nik);
-        return op != null && Perm.hasPermissions(op, worldName, perm);
-    }
+    //public static boolean hasPermission(final String worldName, final String nik, String perm) {
+    //     final Oplayer op = PM.getOplayer(nik);
+    //     return op != null && Perm.hasPermissions(op, worldName, perm);
+    //  }
 
 
     // друзья команды
@@ -193,8 +175,10 @@ public class ApiOstrov {
         return isFriend(p1.getName(), p2.getName());
     }
 
+    //@Dep друзья могуть быть на разных серверах, поэтому чекается именно по нику (это как раз к вопросу, зачем в РМ метод getOplayer(ник)
     public static boolean isFriend(final String p1, final String p2) {
-        return PM.exist(p1) && PM.getOplayer(p1).friends.contains(p2);
+        final Oplayer op1 = PM.getOplayer(p1);
+        return op1 != null && op1.friends.contains(p2);
     }
 
 
@@ -265,8 +249,8 @@ public class ApiOstrov {
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI) + value);//moneySet(curr+value, send_update);
 //System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));
         if (value > 9 || value < -9) { //по копейкам не уведомляем
-            target.sendMessage(TCUtils.format(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(TCUtils.format("§5Клик - сколько стало?")))
+            target.sendMessage(TCUtils.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
+                    .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
                     .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
@@ -280,16 +264,16 @@ public class ApiOstrov {
      * @param who   кто изменяет
      */
     public static void moneyChange(final String name, final int value, final String who) {
-//Ostrov.log_warn("moneyChange "+name+" "+value);
-        if (PM.exist(name)) {
-            moneyChange(Bukkit.getPlayer(name), value, who);
+        final Player p = Bukkit.getPlayerExact(name);
+        if (p != null) {
+            moneyChange(p, value, who);
         } else {//запомнить и дать при входе - оффлайн перевод
             LocalDB.moneyOffline(name, value, who);
         }
     }
 
     public static int moneyGetBalance(final String name) {
-        final Oplayer op = PM.getOplayer(name);
+        final Oplayer op = PM.getOplayer(name); //и тут тоже удобнее работать по нику, чем сначала брать игрока и потом оплеера))))
         return op == null ? 0 : op.getDataInt(Data.LONI);
         //if (PM.exists(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
         //else return 0;
@@ -304,7 +288,7 @@ public class ApiOstrov {
     // сообщения сохраняются и выводятся поочерёдно
     public static void sendTitle(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout) {
         final Times times = Title.Times.times(Duration.ofMillis(fadein * 50L), Duration.ofMillis(stay * 50L), Duration.ofMillis(fadeout * 50L));
-        sendTitle(p, TCUtils.format(title), TCUtils.format(subtitle), times);
+        sendTitle(p, TCUtils.form(title), TCUtils.form(subtitle), times);
     }
 
     public static void sendTitle(final Player p, final Component title, final Component subtitle, final int fadein, final int stay, final int fadeout) {
@@ -335,7 +319,7 @@ public class ApiOstrov {
 
     public static void sendTitleDirect(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout) {
         final Times times = Title.Times.times(Duration.ofMillis(fadein * 50L), Duration.ofMillis(stay * 50L), Duration.ofMillis(fadeout * 50L));
-        p.showTitle(Title.title(TCUtils.format(title), TCUtils.format(subtitle), times));
+        p.showTitle(Title.title(TCUtils.form(title), TCUtils.form(subtitle), times));
     }
 
     // сообщения сохраняются и выводятся поочерёдно
@@ -346,16 +330,16 @@ public class ApiOstrov {
                 op.delayActionbars.add(text);
             } else {
                 op.nextAb = Oplayer.ACTION_BAR_INTERVAL;
-                p.sendActionBar(TCUtils.format(text));
+                p.sendActionBar(TCUtils.form(text));
             }
         } else {
-            p.sendActionBar(TCUtils.format(text));
+            p.sendActionBar(TCUtils.form(text));
         }
     }
 
     public static void sendActionBarDirect(final Player p, final String text) {
         if (p != null) {
-            p.sendActionBar(TCUtils.format(text));
+            p.sendActionBar(TCUtils.form(text));
         }
     }
 
@@ -400,7 +384,7 @@ public class ApiOstrov {
     }
 
     public static void sendTabList(final Player p, final String header, final String footer) {
-        p.sendPlayerListHeaderAndFooter(TCUtils.format(header), TCUtils.format(footer));
+        p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
     }
 
 
@@ -410,7 +394,7 @@ public class ApiOstrov {
     //    числа
     public static int randInt(final int num1, final int num2) {
         if (num1 == num2) return num1;
-        return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.absInt(num2 - num1));
+        return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
     }
 
     public static boolean randBoolean() {
@@ -574,12 +558,12 @@ public class ApiOstrov {
         return b.getRelative(BlockFace.DOWN);
     }
 
-    @Deprecated //use GM.sendArenaData direct!
-    public static void sendArenaData(final String arenaName, final GameState state, final String line0, final String line1, final String line2, final String line3, final String extra, final int playerInGame) {
-        //GM.sendArenaData(arenaName, (state==null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3, extra);
-        GM.sendArenaData(Game.fromServerName(Ostrov.MOT_D), arenaName, (state == null ? GameState.НЕОПРЕДЕЛЕНО : state), playerInGame, line0, line1, line2, line3);
+    public static String[] wrap(final String msg, final int length, final String newLine) {
+        if (msg.length() < 2) return new String[]{msg};
+        final char split = '\n';
+        final String line = split + newLine;
+        return WordUtils.wrap(msg, length, line, false).substring(1).split(line);
     }
-
 
     public static boolean checkString(String message, final boolean allowNumbers, final boolean allowRussian) {
         return checkString(message, false, allowNumbers, allowRussian);
@@ -600,11 +584,22 @@ public class ApiOstrov {
 
 
     public static boolean canBeBuilder(final CommandSender cs) {
-        //return (cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission(Bukkit.getServer().getMotd()+".builder") || hasGroup(cs.getName(), "supermoder");
         if (cs == null) return false;
         if ((cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder")) return true;
         final Oplayer op = PM.getOplayer(cs.getName());
         return op != null && op.hasGroup("owner");
+    }
+
+    public static boolean isStaff(final CommandSender cs) {
+        return switch (cs) {
+            case null -> false;
+            case ConsoleCommandSender cns -> true;
+            case Player p -> {
+                final Oplayer op = PM.getOplayer(p);
+                yield op != null && op.isStaff;
+            }
+            default -> false;
+        };
     }
 
     public static boolean isLocalBuilder(final CommandSender cs) {
@@ -612,25 +607,26 @@ public class ApiOstrov {
     }
 
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
-        if (cs == null) {
-            return false;
-        } else if (cs instanceof ConsoleCommandSender) {
-            return true;
-        } else if (cs instanceof Player p && canBeBuilder(p)) { //p.hasPermission(Bukkit.getServer().getMotd()+".builder") -сервер срезает!!!!
-            //!! фиксить права в CDM case "gm", или не даст перейти в гм1
-            if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
+        switch (cs) {
+            case null:
+                return false;
+            case ConsoleCommandSender cns:
                 return true;
-            } else if (message) {
-                final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                p.sendMessage(TCUtils.format(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                        .hoverEvent(HoverEvent.showText(TCUtils.format(eng ? "§7Click - enable" : "§7Клик - включить")))
-                        .clickEvent(ClickEvent.runCommand("/builder")));
-            }
-
+            case Player p when canBeBuilder(p)://!! фиксить права в CDM case "gm", или не даст перейти в гм1
+                if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
+                    return true;
+                }
+                if (message) {
+                    final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                            .clickEvent(ClickEvent.runCommand("/builder")));
+                }
+                return false;
+            default:
+                return false;
         }
-        return false;
     }
-
 
     public static int generateId() {
         final String createStamp = String.valueOf(System.currentTimeMillis());
@@ -638,7 +634,7 @@ public class ApiOstrov {
     }
 
     public static boolean isSpyMode(final Player p) {
-        return PM.getOplayer(p).spyTask != null;//SpyCmd.isSpy(p.getName());
+        return PM.getOplayer(p).spyOrigin != null;//SpyCmd.isSpy(p.getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -648,6 +644,14 @@ public class ApiOstrov {
 
     public static <G> G[] shuffle(final G[] ar) {
         int chs = ar.length >> 2;
+        if (chs == 0) {
+            if (ar.length > 1) {
+                final G ne = ar[0];
+                ar[0] = ar[ar.length - 1];
+                ar[ar.length - 1] = ne;
+            }
+            return ar;
+        }
         for (int i = ar.length - 1; i > chs; i--) {
             final int ni = Ostrov.random.nextInt(i);
             final G ne = ar[ni];
@@ -658,6 +662,12 @@ public class ApiOstrov {
         return ar;
     }
 
+    public static String toSigFigs(final double n, final byte sf) {
+        final String nm = String.valueOf(n);
+        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
+    }
+
+    @Deprecated
     public static String toSigFigs(final float n, final byte sf) {
         final String nm = String.valueOf(n);
         return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
@@ -671,7 +681,7 @@ public class ApiOstrov {
         WorldManager.makeWorldEndToWipe(afterSecond);
     }
 
-    public static void moveDeny(final PlayerMoveEvent e) {
+    public static void moveDeny(final PlayerMoveEvent e) {//блокировка перемещения, для миниигр
         if (e.getTo().getY() < e.getFrom().getY()) {
             e.setTo(e.getFrom().add(0, 2, 0));
         } else {
@@ -679,14 +689,14 @@ public class ApiOstrov {
         }
     }
 
-    //команды на банжик передавать без /
-    public static void executeBungeeCmd(final Player p, final String command) { //без /
+
+    public static void executeBungeeCmd(final Player p, final String command) { //команды на банжик передавать без /
         SpigotChanellMsg.sendMessage(p, Operation.EXECUTE_BUNGEE_CMD, p.getName(), command);
     }
 
     /**
      * @param op
-     * @return выдаст таймштамп, до которого нужно хранить данные игрока с учётом групп
+     * @return выдаст таймштамп, до которого нужно хранить данные игрока в БД с учётом групп
      */
     public static int getStorageLimit(final Oplayer op) {
         return Perm.getStorageLimit(op);
@@ -701,8 +711,11 @@ public class ApiOstrov {
         return Perm.getLimit(op, perm);
     }
 
+    //@Dep устаревшее, просто пишем обшим образом, типо "при открытии инвентаря" вместо "когда ты открыла инвентарь"
+    //в играх очень часто нужно! самое недавнее что делал: в строителях "строил" или "строила" чем заменить одним словом?
     public static boolean isFemale(final String name) {
-        return PM.exist(name) && PM.getOplayer(name).gender == PM.Gender.FEMALE;
+        final Oplayer op = PM.getOplayer(name);
+        return op != null && op.gender == PM.Gender.FEMALE;
     }
 
 

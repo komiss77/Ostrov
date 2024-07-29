@@ -1,19 +1,24 @@
 package ru.komiss77;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.RegisterCommands;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.GlobalLogType;
@@ -23,17 +28,16 @@ import ru.komiss77.listener.*;
 import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.Nms;
-import ru.komiss77.version.PlayerPacketHandler;
 
 
 public class Ostrov extends JavaPlugin {
 
     public static Ostrov instance;
+    public static LifecycleEventManager<Plugin> mgr;
     public static final Random random;
     public static final String L = "Ł";
     public static final String PREFIX = "§2[§aОстров§2] §f";
@@ -56,13 +60,14 @@ public class Ostrov extends JavaPlugin {
         calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
         date = new java.util.Date(System.currentTimeMillis());
         full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
-        MOT_D = TCUtils.toString(Bukkit.motd());
+        MOT_D = TCUtils.deform(Bukkit.motd());
     }
 
 
     @Override
     public void onLoad() {
         instance = this;
+        mgr = instance.getLifecycleManager();
         Config.init(); // 1 !
         Nms.pathServer();
         Nms.chatFix();
@@ -77,7 +82,7 @@ public class Ostrov extends JavaPlugin {
 
         if (MOT_D.equals("pay")) { // для режима обработки донатиков
             log_warn("§bРежим PAY");
-            RegisterCommands.registerPay(this);
+            RegisterCommands.registerPay();
             return;
         }
 
@@ -85,7 +90,7 @@ public class Ostrov extends JavaPlugin {
 
         if (MOT_D.length() == 3) { // для серверов авторизации
             log_warn("§bРежим Auth");
-            RegisterCommands.registerAuth(this);
+            RegisterCommands.registerAuth();
             Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), this);
             if (MOT_D.startsWith("nb")) {
                 new FigureManager();
@@ -93,9 +98,9 @@ public class Ostrov extends JavaPlugin {
             return;
         }
 
-        registerListeners();
+        regListeners();
 
-        Bukkit.getOnlinePlayers().stream().forEach(PM::createOplayer);
+        Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
 
         LocalDB.init();// выполнится синхронно, если нет коннекта-подвиснет! выше есть для auth
 
@@ -114,7 +119,7 @@ public class Ostrov extends JavaPlugin {
         HandlerList.unregisterAll(instance);
         OstrovDB.Disconnect();
         if (MOT_D.length() == 3) return;
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (final Player p : Bukkit.getOnlinePlayers()) {
             PM.onLeave(p, false);
         }
         //if (PM.hasOplayers()) {
@@ -145,7 +150,49 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    public static void registerListeners() {
+    public static void regCommand(final OCommand cmd) {
+        mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
+        /*final String player = "player", xp = "xp";
+        event.registrar().register(
+          Commands.literal("tellxp")
+            .then(Resolver.player(player).suggests((cntx, sb) -> {
+              return CompletableFuture.completedFuture(sb.suggest(cntx.getSource().getSender().getName()).build());
+              })
+              .executes(cntx-> {
+                if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                  final Player opl = Resolver.player(cntx, player);
+
+                  pl.sendMessage("Player " + opl + " has " + opl.getTotalExperience() + " exp points!");
+                }
+                return Command.SINGLE_SUCCESS;
+              })
+              .then(Resolver.integer(xp, 0)
+                .executes(cntx -> {
+                  if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                    final Player opl = Resolver.player(cntx, player);
+                    final int value = Resolver.integer(cntx, xp);
+
+                    pl.sendMessage("Player " + opl + " needs " + value + " exp points!");
+                  }
+                  return Command.SINGLE_SUCCESS;
+              }))).build(),
+          "Experience tell command",
+          List.of("texp")
+        );*/
+        });
+    }
+
+    public static void regCommands(final OCommand... cmds) {
+        mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Commands commands = event.registrar();
+            for (final OCommand cmd : cmds) {
+                commands.register(cmd.command(), cmd.description(), cmd.aliases());
+            }
+        });
+    }
+
+    public static void regListeners() {
         log_ok("");
         log_ok("§5===== Регистрация слушателей : onEnable =====");
         Bukkit.getPluginManager().registerEvents(new ChatLst(), instance);
@@ -185,7 +232,8 @@ public class Ostrov extends JavaPlugin {
                 }
         );
 
-        Bukkit.getPluginManager().callEvent(new WorldsLoadCompleteEvent()); // оповестить остальные плагины
+        new WorldsLoadCompleteEvent().callEvent();
+        ; // оповестить остальные плагины
         Ostrov.STARTUP = false;
 
         switch (GM.GAME) {
@@ -231,9 +279,10 @@ public class Ostrov extends JavaPlugin {
 
 
     @Override
-    public boolean onCommand(CommandSender cs, Command comm, String s, String[] arg) {
+    public boolean onCommand(CommandSender cs, org.bukkit.command.Command comm, String s, String[] arg) {
         return CMD.CommandHamdler(cs, comm, s, arg);
     }
+
 
     public static Ostrov getInstance() {
         return Ostrov.instance;

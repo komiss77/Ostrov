@@ -8,7 +8,7 @@ import ru.komiss77.modules.Pandora;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.crafts.Crafts;
 import ru.komiss77.modules.displays.DisplayManager;
-import ru.komiss77.modules.drops.RollManager;
+import ru.komiss77.modules.rolls.RollManager;
 import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.modules.entities.EntityManager;
 import ru.komiss77.modules.figures.FigureManager;

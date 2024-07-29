@@ -194,19 +194,13 @@ public class StatManager {
 
 
     public static String topAdv(final Stat stat) {
-        switch (stat) {
-            case BW_game:
-                return "Любитель БедВарс";
-            case BW_kill:
-                return "Злой БедВарсер";
-            case BW_win:
-                return "Бедварсер-победитель";
-            case BW_bed:
-                return "Разоритель гнёзд";
-
-            default:
-                return "Предел";
-        }
+        return switch (stat) {
+            case BW_game -> "Любитель БедВарс";
+            case BW_kill -> "Злой БедВарсер";
+            case BW_win -> "БедВарсер-победитель";
+            case BW_bed -> "Разоритель гнёзд";
+            default -> "Предел";
+        };
     }
 
     public static int getLevel(final Stat st, final int value) {

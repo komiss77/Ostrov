@@ -45,7 +45,7 @@ public class EntityManager implements Initiable, Listener {
 
         @Override
         public String toPrimitive(final CustomEntity ce, final PersistentDataAdapterContext cont) {
-            return ce.id();
+            return ce.key.value();
         }
 
         @Override
@@ -59,7 +59,7 @@ public class EntityManager implements Initiable, Listener {
     }
 
     public static void register(final CustomEntity ce) {
-        custom.put(ce.id(), ce);
+        custom.put(ce.key.value(), ce);
         if (ce.spawner() != null) spawns.add(ce);
     }
 
@@ -105,19 +105,20 @@ public class EntityManager implements Initiable, Listener {
         Ostrov.log_ok("§6Сущности выключены!");
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpawn(final CreatureSpawnEvent e) {
         final Entity ent = e.getEntity();
         final CustomEntity he = ent.getPersistentDataContainer()
                 .get(key, data);
         if (he == null) {
             for (final CustomEntity ce : custom.values()) {
-                if (ce.canBe(ent, e.getSpawnReason())) ce.apply(ent);
+                if (ent.getClass().isAssignableFrom(ce.getEntClass())
+                        && ce.canBe(ent, e.getSpawnReason())) ce.apply(ent);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
@@ -130,28 +131,28 @@ public class EntityManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDeath(final EntityDeathEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
         if (he != null) he.onDeath(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onTarget(final EntityTargetEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
         if (he != null) he.onTarget(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
         if (he != null) he.onShoot(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPot(final EntityPotionEffectEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
@@ -159,57 +160,57 @@ public class EntityManager implements Initiable, Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityExplodeEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityLoadCrossbowEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntitySpellCastEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityBreedEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityFertilizeEggEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityPickupItemEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final EntityTransformEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final PiglinBarterEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final ProjectileHitEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final VillagerAcquireTradeEvent e) {
         extraEvent(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final WitchReadyPotionEvent e) {
         extraEvent(e);
     }
@@ -218,5 +219,9 @@ public class EntityManager implements Initiable, Listener {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
                 .get(key, data);
         if (he != null) he.onExtra(e);
+    }
+
+    public static boolean isCustom(final Entity ent) {
+        return ent.getPersistentDataContainer().has(key);
     }
 }

@@ -13,7 +13,6 @@ import org.bukkit.util.Transformation;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.ViewPerm.SelectPlayer;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.Module;
 import ru.komiss77.listener.InteractLst;
 import ru.komiss77.listener.LimiterLst;

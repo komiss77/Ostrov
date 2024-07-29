@@ -3,7 +3,6 @@ package ru.komiss77.listener;
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
-
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -393,39 +392,41 @@ public final class LimiterLst implements Initiable, Listener {
             }
             switch (e.getSpawnReason()) {
                 case COMMAND, CUSTOM,
-                        NATURAL, //When something spawns from natural means
-                        JOCKEY, //When an entity spawns as a jockey of another entity (mostly spider jockeys)
-                        LIGHTNING, //When a creature spawns because of a lightning strike
-                        VILLAGE_DEFENSE, //When an iron golem is spawned to defend a village
-                        VILLAGE_INVASION, //When a zombie is spawned to invade a village
-                        BREEDING, //When an entity breeds to create a child, this also include Shulker and Allay
-                        SLIME_SPLIT, //When a slime splits
-                        REINFORCEMENTS, //When an entity calls for reinforcements
-                        NETHER_PORTAL, //When a creature is spawned by nether portal
-                        INFECTION, //When a zombie infects a villager
-                        CURED, //When a villager is cured from infection
-                        OCELOT_BABY, //When an ocelot has a baby spawned along with them
-                        SILVERFISH_BLOCK, //When a silverfish spawns from a block
-                        MOUNT, //When an entity spawns as a mount of another entity (mostly chicken jockeys)
-                        TRAP, //When an entity spawns as a trap for players approaching
-                        ENDER_PEARL, //When an entity is spawned as a result of ender pearl usage
-                        SHOULDER_ENTITY, //When an entity is spawned as a result of the entity it is being perched on jumping or being damaged
-                        DROWNED, //When a creature is spawned by another entity drowning
-                        SHEARED, //When a cow is spawned by shearing a mushroom cow
-                        EXPLOSION, //When an entity is spawned as a result of an explosion. Like an area effect cloud from a creeper or a dragon fireball
-                        RAID, //When an entity is spawned as part of a raid
-                        PATROL, //When an entity is spawned as part of a patrol
-                        BEEHIVE, //When a bee is released from a beehive/bee nest
-                        PIGLIN_ZOMBIFIED, //When a piglin is converted to a zombified piglin.
-                        SPELL, //When an entity is created by a cast spell.
-                        FROZEN, //When an entity is shaking in Powder Snow and a new entity spawns.
-                        METAMORPHOSIS, //When a tadpole converts to a frog
-                        DUPLICATION //When an Allay duplicate itself
+                     NATURAL, //When something spawns from natural means
+                     JOCKEY, //When an entity spawns as a jockey of another entity (mostly spider jockeys)
+                     LIGHTNING, //When a creature spawns because of a lightning strike
+                     VILLAGE_DEFENSE, //When an iron golem is spawned to defend a village
+                     VILLAGE_INVASION, //When a zombie is spawned to invade a village
+                     BREEDING, //When an entity breeds to create a child, this also include Shulker and Allay
+                     SLIME_SPLIT, //When a slime splits
+                     REINFORCEMENTS, //When an entity calls for reinforcements
+                     NETHER_PORTAL, //When a creature is spawned by nether portal
+                     INFECTION, //When a zombie infects a villager
+                     CURED, //When a villager is cured from infection
+                     OCELOT_BABY, //When an ocelot has a baby spawned along with them
+                     SILVERFISH_BLOCK, //When a silverfish spawns from a block
+                     MOUNT, //When an entity spawns as a mount of another entity (mostly chicken jockeys)
+                     TRAP, //When an entity spawns as a trap for players approaching
+                     ENDER_PEARL, //When an entity is spawned as a result of ender pearl usage
+                     SHOULDER_ENTITY,
+                     //When an entity is spawned as a result of the entity it is being perched on jumping or being damaged
+                     DROWNED, //When a creature is spawned by another entity drowning
+                     SHEARED, //When a cow is spawned by shearing a mushroom cow
+                     EXPLOSION,
+                     //When an entity is spawned as a result of an explosion. Like an area effect cloud from a creeper or a dragon fireball
+                     RAID, //When an entity is spawned as part of a raid
+                     PATROL, //When an entity is spawned as part of a patrol
+                     BEEHIVE, //When a bee is released from a beehive/bee nest
+                     PIGLIN_ZOMBIFIED, //When a piglin is converted to a zombified piglin.
+                     SPELL, //When an entity is created by a cast spell.
+                     FROZEN, //When an entity is shaking in Powder Snow and a new entity spawns.
+                     METAMORPHOSIS, //When a tadpole converts to a frog
+                     DUPLICATION //When an Allay duplicate itself
                         -> {
                     return;
                 }
                 case EGG, BUILD_IRONGOLEM, BUILD_SNOWMAN, BUILD_WITHER,
-                        DISPENSE_EGG, SPAWNER_EGG, SPAWNER, DEFAULT -> {
+                     DISPENSE_EGG, SPAWNER_EGG, SPAWNER, DEFAULT -> {
                     final String res = fastCheck(e.getLocation(), e.getEntityType());
                     if (res != null) {
                         e.setCancelled(true);

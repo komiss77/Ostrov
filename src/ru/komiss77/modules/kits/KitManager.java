@@ -3,7 +3,6 @@ package ru.komiss77.modules.kits;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -57,8 +56,8 @@ public final class KitManager implements Initiable {
 
     @Override
     public void onDisable() {
-    }
-
+    }   
+    
     @Override
     public void reload() {
         try {
@@ -244,7 +243,7 @@ public final class KitManager implements Initiable {
 
         //System.out.println("Kit_delay "+(Kit_delay(kit)));
         //System.out.println("Curr time "+(System.currentTimeMillis()/1000));
-        //System.out.println("Kit_last_acces "+PM.Kit_last_acces(p.getName(),kit));
+        //System.out.println("Kit_last_acces "+PM.Kit_last_acces(p.name(),kit));
         int secondLeft = getSecondLetf(player, kit);
         //System.out.println("left "+left);
 
@@ -259,7 +258,7 @@ public final class KitManager implements Initiable {
 
         }
         //System.out.println("Is_need_get_payment "+Is_need_get_payment(kit));
-        //System.out.println("bal "+PM.OP_GetBalance(p.getName()));
+        //System.out.println("bal "+PM.OP_GetBalance(p.name()));
         //System.out.println("Kit_give_cost "+Kit_give_cost(kit));
 
         if (kit.getPrice > 0 && (ApiOstrov.moneyGetBalance(player.getName()) < kit.getPrice)) {
@@ -268,16 +267,16 @@ public final class KitManager implements Initiable {
         }
 
         ApiOstrov.moneyChange(player, -kit.getPrice, "выдача набора " + kitName);
-
+        
         giveKit(player, kitName, true);
         return true;
 
     }
 
     public static int getSecondLetf(final Player player, final Kit kit) {
-//System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) )+
-        //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.getName(), kit.name) ))) ); 
-        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.getName(), kit.name)  ) ;
+//System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) )+
+        //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) ))) );
+        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.name(), kit.name)  ) ;
         final Oplayer op = PM.getOplayer(player);
         return kit.delaySec - (ApiOstrov.currentTimeSec() - op.getKitUseStamp(kit.name));
     }
@@ -285,7 +284,7 @@ public final class KitManager implements Initiable {
     public static void giveKit(final Player p, final String kitName, final boolean equipArmor) {
         final Kit kit = kits.get(kitName);
         if (kit == null) return;
-
+        
         boolean equiped;
 
         for (ItemStack is : kit.items) {
@@ -318,7 +317,7 @@ public final class KitManager implements Initiable {
         final Oplayer op = PM.getOplayer(p);
         op.setKitUseTimestamp(kitName);
         p.sendMessage("§aВсе компонетны набора " + kitName + " добавлены в инвентарь!");
-
+        
     }
 
 
@@ -348,7 +347,7 @@ public final class KitManager implements Initiable {
 
     public static void openKitPrewiev(final Player p, final Kit kit) {
         SmartInventory inv = SmartInventory.builder().id("KitPrewiev:" + kit.name + ":" + p.getName()).provider(new KitPrewiev(kit)).size(6, 9).title("§1Просмотр набора §6" + kit.name).build();
-        inv.open(p);
+        inv.open(p);                    
     }
 
     public static void openKitEditMain(final Player p) {
@@ -363,7 +362,7 @@ public final class KitManager implements Initiable {
 
     public static void openKitKitComponentEditor(final Player player, final Kit kit) {
         SmartInventory inv = SmartInventory.builder().id("KitComponentEditor:" + kit.name + ":" + player.getName()).provider(new KitComponentEditor(kit)).size(6, 9).title("§4Компоненты набора §6" + kit.name).build();
-        inv.open(player);
+        inv.open(player);                    
     }
 
 
@@ -449,7 +448,7 @@ public final class KitManager implements Initiable {
                     return Легендарный;
                 case Легендарный:
                     return Простой;
-
+                    
             }
             return Простой;
         }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -26,6 +27,7 @@ import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
 import org.bukkit.inventory.SmokingRecipe;
 import org.bukkit.inventory.StonecuttingRecipe;
+
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.crafts.Crafts.Craft;

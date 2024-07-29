@@ -1,22 +1,29 @@
 package ru.komiss77.modules.entities;
 
+import javax.annotation.Nullable;
+
+import org.bukkit.Keyed;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.*;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
+import ru.komiss77.modules.world.WXYZ;
 
-import javax.annotation.Nullable;
 
-public abstract class CustomEntity {
+public abstract class CustomEntity implements Keyed {
 
     protected int cd = spawnCd();
 
+    protected final NamespacedKey key;
+
     protected CustomEntity() {
+        key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
         if (EntityManager.enable)
             EntityManager.register(this);
     }
-
-    protected abstract String id();
 
     protected abstract @Nullable AreaSpawner spawner();
 
@@ -26,6 +33,11 @@ public abstract class CustomEntity {
 
 //  @OverrideMe
 //  protected abstract void goal(final E e);
+
+    public LivingEntity spawn(final Location loc) {
+        final AreaSpawner.SpawnCondition cnd = spawner().getCondition(new WXYZ(loc), getEntClass());
+        return loc.getWorld().spawn(loc, getEntClass(), cnd.reason(), false, this::apply);
+    }
 
     public void apply(final Entity ent) {
         ent.getPersistentDataContainer().set(EntityManager.key, EntityManager.data, this);
@@ -51,4 +63,9 @@ public abstract class CustomEntity {
     protected abstract void onPot(final EntityPotionEffectEvent e);
 
     protected abstract void onExtra(final EntityEvent e);
+
+    @Override
+    public NamespacedKey getKey() {
+        return key;
+    }
 }

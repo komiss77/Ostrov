@@ -1,12 +1,5 @@
 package ru.komiss77.modules.bots;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -45,6 +38,13 @@ import ru.komiss77.version.Craft;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 
 public class BotEntity extends ServerPlayer {
@@ -144,7 +144,6 @@ public class BotEntity extends ServerPlayer {
         //VM.server().sendWorldPackets(world, new ClientboundHurtAnimationPacket(this));
         world.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
     }
-
 
 
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {

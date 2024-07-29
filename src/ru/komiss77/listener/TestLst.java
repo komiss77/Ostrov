@@ -12,6 +12,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.enchants.CustomEnchant;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.InputButton;
@@ -26,7 +28,8 @@ public class TestLst implements Listener {
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
-        //if (!ApiOstrov.isLocalBuilder(p)) return;
+        if (!ApiOstrov.isLocalBuilder(p)) return;
+        final Oplayer op = PM.getOplayer(p);
 
 
         final ItemStack it = e.getItem();
@@ -37,14 +40,16 @@ public class TestLst implements Listener {
 
         if (it.getType() == Material.WOODEN_PICKAXE) {
             e.setCancelled(true);
-            p.sendMessage("§8TestListener - interact cancel!");
+            p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-                PlayerInput.get(InputButton.InputType.SIGN, p, s -> {
-                    p.sendMessage("res=" + s);
-                }, "fffggg");
-
+                if (p.isSneaking()) {
+                    op.tag(true);
+                    op.tag("dddd", "dddf");
+                } else {
+                    op.tag(false);
+                }
 
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
@@ -53,7 +58,11 @@ public class TestLst implements Listener {
 
                 if (p.isSneaking()) {
 
+                    Nms.sendFakeEquip(p, 5, new ItemStack(e.getClickedBlock().getType()));
+
                 } else {
+
+                    //Nms.fakeBlock(p, e.getClickedBlock().getLocation(), e.getClickedBlock().getType().createBlockData());
 
                 }
 

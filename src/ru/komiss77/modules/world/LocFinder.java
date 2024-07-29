@@ -24,12 +24,12 @@ public final class LocFinder {
     private Material[] mats = new Material[0];
     private WXYZ bloc;
 
-    public static WXYZ findInArea(final WXYZ from, final int radius, final int near,
-                                  final LocFinder.MatCheck[] checks, final int offset) {
-        final int space = radius >> 2, sp2 = space << 1;
-        final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(sp2) - space,
-                Ostrov.random.nextInt(sp2) - space, Ostrov.random.nextInt(sp2) - space);
-        return new LocFinder(in, checks).find(false, near, offset);
+    public static WXYZ findInArea(final WXYZ from, final int radius, final int offset,
+                                  final int near, final LocFinder.MatCheck[] checks, final int yDst) {
+        final int ofs2 = offset << 1;
+        final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
+                Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
+        return new LocFinder(in, checks).find(false, near, yDst);
     }
 
     public static void onAsyncFind(final WXYZ loc, final MatCheck[] checks,

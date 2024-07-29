@@ -101,6 +101,8 @@ public class PM {
 
 
     public static Oplayer getOplayer(final String nik) { //@Dep иногда очень надо найти по имени, напр. при сообщении, или когда UUID передавать неудобно
+        //но от этой системы надо отходить, так что либо переделываем, либо страдаем)
+        //цена вопроса - мапа с несколькими записями, никак не абузит и не мешает, зато возможность быстро найти по нику
         return oplayersByName.get(nik);
     }
 
@@ -175,7 +177,7 @@ public class PM {
         for (String s : raw.split("∫")) {
             if (s.length() < 4) continue;
 
-            enumTag = ApiOstrov.getInteger(s.substring(0, 3));
+            enumTag = ApiOstrov.getInteger(s.substring(0, 3)); //здесь и далее не надо передавать дефолтный 0, т.к. чекается v > Integer.MIN_VALUE
             value = s.substring(3);
 
             if (enumTag >= 100 && enumTag <= 299) {

@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Predicate;
-
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -24,8 +23,8 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.builder.SetupMode;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.*;
+import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
@@ -43,8 +42,6 @@ import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
-
-
 
 
 public class Oplayer {
@@ -99,7 +96,7 @@ public class Oplayer {
     public ProfileManager menu;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
-    public Location last_death = Bukkit.getWorlds().get(0).getSpawnLocation();
+    public Location last_death = Bukkit.getWorlds().getFirst().getSpawnLocation();
 
     public String chat_group = " ---- ";
     private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
@@ -111,7 +108,7 @@ public class Oplayer {
     //служебные
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
-    public BukkitTask spyTask;
+    public Location spyOrigin;//public BukkitTask spyTask;
     public Gender gender = Gender.NEUTRAL;
     public String lastCommand; //последняя команда введёная билдером
 
@@ -158,7 +155,7 @@ public class Oplayer {
             if (nextAb == 0) {
                 if (!delayActionbars.isEmpty()) {
                     nextAb = ACTION_BAR_INTERVAL;
-                    final String ab = delayActionbars.remove(0);
+                    final String ab = delayActionbars.removeFirst();
                     p.sendActionBar(Component.text(ab));
                 }
             }
@@ -168,7 +165,7 @@ public class Oplayer {
             nextTitle--;
             if (nextTitle == 0) {
                 if (!delayTitles.isEmpty()) {
-                    final Title t = delayTitles.remove(0);
+                    final Title t = delayTitles.removeFirst();
                     p.showTitle(t);
                     final Title.Times tm = t.times();
                     nextTitle = tm == null ? 0 : tm.fadeIn().toSecondsPart() + tm.stay().toSecondsPart() + tm.fadeOut().toSecondsPart() + 1;
@@ -180,7 +177,7 @@ public class Oplayer {
             barTime--;
             if (barTime == 0) {
                 if (!delayBossBars.isEmpty()) {
-                    final DelayBossBar bb = delayBossBars.remove(0);
+                    final DelayBossBar bb = delayBossBars.removeFirst();
                     bb.apply(this, p);
                 } else {
                     p.hideBossBar(bossbar);
@@ -259,7 +256,7 @@ public class Oplayer {
     public void updTabListName(final Player p) {
         if (Config.tablist_name) {
             final String displayName = isGuest ? "§8(Гость) " + beforeName + getDataString(Data.FAMILY) : beforeName + nik;
-            p.playerListName(TCUtils.format(tabPreffix + displayName + tabSuffix));
+            p.playerListName(TCUtils.form(tabPreffix + displayName + tabSuffix));
         }
     }
 
@@ -401,7 +398,6 @@ public class Oplayer {
         int curr_level = getStat(Stat.LEVEL);
         int lvlAdd = 0; //расчёт, сколько добавится уровня
         int xpCache = value + getStat(Stat.EXP);
-//System.out.println("addExp "+p.getName()+":"+value+" curr_level="+curr_level+" xpCache="+xpCache);
         if (xpCache >= curr_level * 25) { //опыта достаточно для след.уровня
             for (; xpCache >= (curr_level + lvlAdd) * 25; lvlAdd++) { //делаем грубый расчёт добавленных уровней
                 xpCache -= (curr_level + lvlAdd) * 25; //сначала убавить опыт со старым lvlAdd!
@@ -657,7 +653,7 @@ public class Oplayer {
 
 
     public void updateGender() {
-        switch (TCUtils.stripColor(getDataString(Data.GENDER)).toLowerCase()) {
+        switch (TCUtils.strip(getDataString(Data.GENDER)).toLowerCase()) {
             case "девочка" -> gender = Gender.FEMALE;
             case "мальчик" -> gender = Gender.MALE;
             default -> gender = Gender.NEUTRAL;

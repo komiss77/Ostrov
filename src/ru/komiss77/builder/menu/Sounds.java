@@ -1,6 +1,5 @@
 package ru.komiss77.builder.menu;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 public class Sounds implements InventoryProvider {
 
 
-    // private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();;
     private Sound previos;
     private int current;
     private int page;
@@ -26,35 +24,6 @@ public class Sounds implements InventoryProvider {
 
     @Override
     public void init(final Player p, final InventoryContent content) {
-        //p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-        //contents.fillRow(4, ClickableItem.empty(Sounds.fill));
-
-        //final Pagination pagination = contents.pagination();
-        //final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
-
-
-        //поиск подходящего под звук блока для нагладности по названию звука!!
-        
-        
-        
-        /*
-        world.playSound(location, sound, 3.0F, (float)pow(2.0, ((double)pitch - 12.0) / 12.0));
-        
-        sourceVolume = max(0.0, min(volume, 1.0));
-        rolloffDistance = max(16, 16 * volume);
-        distance = player.getLocation().distance(location);
-        volumeOfSoundAtPlayer = sourceVolume * ( 1 - distance / rolloffDistance ) * PlayersSoundVolumeSetting;
-        
-        Это означает, что 1.0 - самый громкий звук из возможных. 
-        Установка более высокого значения увеличивает расстояние,
-        на котором можно услышать звук.
-        Например, звуки с громкостью 1.0 и 10.0 так же громки у своих источников,
-        но звук с объемом 1.0 едва слышен на расстоянии 15 блоков,
-        а другой все еще слышен на расстоянии 150 блоков.
-        
-        
-        
-        */
 
         Material mat;
         String[] split;

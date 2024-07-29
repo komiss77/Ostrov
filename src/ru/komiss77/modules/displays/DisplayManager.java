@@ -39,7 +39,7 @@ public class DisplayManager implements Initiable, Listener {
         HandlerList.unregisterAll(this);
         if (Config.displays) {
             Ostrov.log_ok("§2Дисплеи включены!");
-
+        	
             Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
         }
     }

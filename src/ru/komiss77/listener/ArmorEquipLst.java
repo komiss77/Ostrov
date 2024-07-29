@@ -1,6 +1,5 @@
 package ru.komiss77.listener;
 
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -21,9 +20,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
+import ru.komiss77.enums.ArmorType;
 import ru.komiss77.events.ArmorEquipEvent;
 import ru.komiss77.events.ArmorEquipEvent.EquipMethod;
-import ru.komiss77.enums.ArmorType;
 
 // https://github.com/Arnuh/ArmorEquipEvent/blob/master/src/com/codingforcookies/armorequip/ArmorListener.java
 
@@ -39,7 +38,7 @@ public class ArmorEquipLst implements Listener {
     @EventHandler(priority =  EventPriority.HIGH, ignoreCancelled = true)
     public final void onArmorChange(final PlayerArmorChangeEvent e){
 //System.out.println("onArmorChange="+e.getOldItem()+" ->"+e.getNewItem()+" getSlotType="+e.getSlotType());
-        if (set.remove(e.getPlayer().getName())) return;
+        if (set.remove(e.getPlayer().name())) return;
         final Player p = e.getPlayer();
         
         if (e.)
@@ -63,7 +62,7 @@ public class ArmorEquipLst implements Listener {
         Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
 
         if (armorEquipEvent.isCancelled()) {
-            set.add(p.getName());
+            set.add(p.name());
             Ostrov.sync( ()-> {
                 
                 if (e.getOldItem()!=null && e.getOldItem().getType()!=Material.AIR)  {
@@ -133,7 +132,7 @@ public class ArmorEquipLst implements Listener {
         ArmorType newArmorType = null;
 
         switch (e.getClick()) {
-
+                
             //с шифтом может только поставить на пустой слот или снять
             //одевает с шифтом креатив:
             //1) ICE current=ItemStack{AIR x 0} cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=CREATIVE slottype=ARMOR rawslot=6 slot=38+второй  ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 1} action=PLACE_ALL click=CREATIVE slottype=CONTAINER rawslot=13 slot=13
@@ -150,7 +149,7 @@ public class ArmorEquipLst implements Listener {
                     armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.CREATIVE, newArmorType, e.getCurrentItem(), null);
                 }
                 break;
-
+                    
             //одеть с шифтом выживание -может быть CONTAINER или QUICKBAR!!!
             //ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 0} action=MOVE_TO_OTHER_INVENTORY click=SHIFT_LEFT slottype=CONTAINER rawslot=29 slot=29
             //снять с шифтом выживание 
@@ -165,7 +164,7 @@ public class ArmorEquipLst implements Listener {
                     armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.SHIFT_CLICK, newArmorType, null, e.getCurrentItem());
                 }
                 break;
-
+                    
             //навестись на слот брони и нажимать цифру
             //креатив - неотличим от шифта 
             //одеть  ICE current=ItemStack{AIR x 0}                 cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=CREATIVE slottype=ARMOR rawslot=6 slot=38 +второй ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 1} action=PLACE_ALL click=CREATIVE slottype=QUICKBAR rawslot=37 slot=1
@@ -185,7 +184,7 @@ public class ArmorEquipLst implements Listener {
                     }
                 }
                 break;
-
+                    
             //простое одевание взял-положил, работает так же на RIGHT
             //одевание
             //ICE current=ItemStack{AIR x 0} cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=LEFT slottype=ARMOR rawslot=6 slot=38
@@ -335,8 +334,12 @@ public class ArmorEquipLst implements Listener {
     public static boolean isAirOrNull(ItemStack item) {
         return item == null || item.getType().equals(Material.AIR);
     }
-
-
+        
+        
+        
+        
+        
+        
 }
 
 

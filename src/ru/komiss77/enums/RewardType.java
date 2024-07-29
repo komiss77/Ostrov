@@ -11,12 +11,12 @@ public enum RewardType {
 
     LONI(1, true),
 
-    PERMISSION(2, false),
+    PERM(2, false),
     GROUP(3, false),
 
     EXP(4, true),
     //LEVEL(true), геморойно
-    REPUTATION(5, true),
+    REP(5, true),
     KARMA(6, true),
     RIL(7, true),
 

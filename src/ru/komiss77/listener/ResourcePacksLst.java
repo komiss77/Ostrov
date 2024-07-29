@@ -37,7 +37,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.*;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.events.LocalDataLoadEvent;
@@ -93,7 +92,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
     public ResourcePacksLst() { //или пытается грузить дважды, в RegisterCommands и как модуль
         reload();
-        Ostrov.getInstance().getCommand("rp").setExecutor(this);
+        //Ostrov.getInstance().getCommand("rp").setExecutor(this);
     }
 
     public static void preDisconnect(final Player p) {

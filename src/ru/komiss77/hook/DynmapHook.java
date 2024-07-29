@@ -11,7 +11,6 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.dynmap.bukkit.DynmapPlugin;
@@ -121,19 +120,19 @@ public class DynmapHook {
             boolean disable = true;
 
             final Listener lst = rl.getListener();
-//Ostrov.log("RegisteredListener="+lst.getClass().getName()+" priority="+rl.getPriority());
+//Ostrov.log("RegisteredListener="+lst.getClass().name()+" priority="+rl.getPriority());
 
             Method[] methods = lst.getClass().getDeclaredMethods();
             for (Method m : methods) {
-//Ostrov.log("Method="+m.getName());
+//Ostrov.log("Method="+m.name());
                 switch (m.getName()) {
                     case "onPlayerJoin",
                             "onPlayerQuit",
                             //"onWorldUnload", - делаем отдельный эвент 
                             "onBlockPlace",
-                            "onBlockBreak",
-                            "onChunkPopulate",
-                            "onPluginEnabled" -> disable = false;
+                         "onBlockBreak",
+                         "onChunkPopulate",
+                         "onPluginEnabled" -> disable = false;
                 }
             }
 
@@ -170,15 +169,15 @@ public class DynmapHook {
         //for (RegisteredListener rl : HandlerList.getRegisteredListeners(dynmap)) {
         //for (RegisteredListener rl : WorldLoadEvent.getHandlerList().getRegisteredListeners(dynmap)) {
         //RegisteredListener rl = hl.getRegisteredListeners()[i];
-//Ostrov.log_warn("rl="+rl.getListener().getClass().getName()+" plugin="+rl.getPlugin().getName()+" priority="+rl.getPriority());
-        //   if (rl.getPlugin().getName().equals("dynmap")) {
+//Ostrov.log_warn("rl="+rl.getListener().getClass().name()+" plugin="+rl.getPlugin().name()+" priority="+rl.getPriority());
+        //   if (rl.getPlugin().name().equals("dynmap")) {
 //Ostrov.log_warn("------");
         //if (rl.getListener() instanceof )
         // }
         // }
         //}
         //WorldLoadEvent.getHandlerList().
-
+    
 
     }
 
@@ -193,7 +192,7 @@ public class DynmapHook {
     }
 
     public static void show(final World world, final String displayName) {
-//Ostrov.log_ok(" ========= showWorld "+world.getName());
+//Ostrov.log_ok(" ========= showWorld "+world.name());
         if (core == null) {
             Ostrov.log_warn("dynmap show " + world.getName() + " : core == null!");
             return;
@@ -208,7 +207,7 @@ public class DynmapHook {
         bw.setTitle(displayName);
         if (core.processWorldLoad(bw)) { //dp.showWorld(bw);  // Have core process load first - fire event listeners if good load after
             core.listenerManager.processWorldEvent(EventType.WORLD_LOAD, bw);
-        }
+        }        
         //try {
 
         //} catch (NullPointerException | IllegalArgumentException  ex) {
