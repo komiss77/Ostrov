@@ -63,13 +63,13 @@ public class StackBuilder {
         return this;
     }
 
-    public StackBuilder persistentData(final String key, final String data) {
+    public StackBuilder data(final String key, final String data) {
         if (meta == null) meta = item.getItemMeta();
         meta.getPersistentDataContainer().set(OStrap.key(key), PersistentDataType.STRING, data);
         return this;
     }
 
-    public StackBuilder persistentData(final String key, final int data) {
+    public StackBuilder data(final String key, final int data) {
         if (meta == null) meta = item.getItemMeta();
         meta.getPersistentDataContainer().set(OStrap.key(key), PersistentDataType.INTEGER, data);
         return this;

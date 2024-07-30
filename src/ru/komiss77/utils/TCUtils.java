@@ -129,19 +129,19 @@ public class TCUtils {
         clrIx.put(Color.fromRGB(CustomTextColor.MITHRIL.value()), CustomTextColor.MITHRIL);
 
         msg = MiniMessage.builder().tags(
-                TagResolver.builder()
-                        .resolver(StandardTags.defaults())
-                        .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))//Янтарный
-                        .resolver(TagResolver.resolver("apple", Tag.styling(TextColor.color(0x88BB44))))//Салатовый
-                        .resolver(TagResolver.resolver("beige", Tag.styling(TextColor.color(0xDDCCAA))))//Бежевый
-                        .resolver(TagResolver.resolver("maroon", Tag.styling(TextColor.color(0xBB2244))))//Кардинный
-                        .resolver(TagResolver.resolver("indigo", Tag.styling(TextColor.color(0xAAAADD))))//Сиреневый
-                        .resolver(TagResolver.resolver("olive", Tag.styling(TextColor.color(0xBBDDAA))))//Оливковый
-                        .resolver(TagResolver.resolver("orchid", Tag.styling(TextColor.color(0xDDAABB))))//Малиновый
-                        .resolver(TagResolver.resolver("sky", Tag.styling(TextColor.color(0xAADDDD))))//Небесный
-                        .resolver(TagResolver.resolver("stale", Tag.styling(TextColor.color(0x446666))))//Черствый
-                        .resolver(TagResolver.resolver("mithril", Tag.styling(TextColor.color(0xB0C0C0))))//Мифриловый
-                        .build()).build();
+            TagResolver.builder()
+                .resolver(StandardTags.defaults())
+                .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))//Янтарный
+                .resolver(TagResolver.resolver("apple", Tag.styling(TextColor.color(0x88BB44))))//Салатовый
+                .resolver(TagResolver.resolver("beige", Tag.styling(TextColor.color(0xDDCCAA))))//Бежевый
+                .resolver(TagResolver.resolver("maroon", Tag.styling(TextColor.color(0xBB2244))))//Кардинный
+                .resolver(TagResolver.resolver("indigo", Tag.styling(TextColor.color(0xAAAADD))))//Сиреневый
+                .resolver(TagResolver.resolver("olive", Tag.styling(TextColor.color(0xBBDDAA))))//Оливковый
+                .resolver(TagResolver.resolver("orchid", Tag.styling(TextColor.color(0xDDAABB))))//Малиновый
+                .resolver(TagResolver.resolver("sky", Tag.styling(TextColor.color(0xAADDDD))))//Небесный
+                .resolver(TagResolver.resolver("stale", Tag.styling(TextColor.color(0x446666))))//Черствый
+                .resolver(TagResolver.resolver("mithril", Tag.styling(TextColor.color(0xB0C0C0))))//Мифриловый
+                .build()).build();
     }
 
     public static ItemStack changeColor(ItemStack source, byte new_color) {
