@@ -50,7 +50,6 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public final class PvpCmd implements OCommand, Listener {
 
@@ -971,7 +970,7 @@ public final class PvpCmd implements OCommand, Listener {
             if (battle_time >= 1) {
 
                 final ItemStack is = new ItemBuilder(Material.CLOCK)
-                        .setAmount(battle_time)
+                        .amount(battle_time)
                         .name("§7Режим боя - длительность")
                         .addLore(battle_time + " сек.")
                         .addLore(battle_time < 60 ? "§7ЛКМ - прибавить" : "макс.")
@@ -1016,7 +1015,7 @@ public final class PvpCmd implements OCommand, Listener {
             if (no_damage_on_tp >= 1) {
 
                 final ItemStack is = new ItemBuilder(Material.CLOCK)
-                        .setAmount(no_damage_on_tp)
+                        .amount(no_damage_on_tp)
                         .name("§7Иммунитет при ТП и респавне")
                         .addLore(no_damage_on_tp + " сек.")
                         .addLore(no_damage_on_tp < 60 ? "§7ЛКМ - прибавить" : "макс.")

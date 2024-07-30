@@ -240,7 +240,7 @@ public class EntityWorldMenu implements InventoryProvider {
 
                 contents.set(pos, ClickableItem.of(new ItemBuilder(Material.SCULK_CATALYST)
                         .name("§bЧанк §f" + LocationUtil.getChunkX(entry.getKey()) + " §8x §f" + LocationUtil.getChunkZ(entry.getKey()))
-                        .setAmount(entry.getValue() > 64 ? 64 : entry.getValue())
+                        .amount(entry.getValue() > 64 ? 64 : entry.getValue())
                         .addLore(group.displayName)
                         .addLore("§7Найдено: §e" + entry.getValue())
                         .addLore("")

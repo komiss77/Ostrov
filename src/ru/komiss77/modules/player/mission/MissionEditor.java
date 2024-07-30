@@ -5,10 +5,8 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
-import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtils;
@@ -21,7 +19,6 @@ import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.version.AnvilGUI;
 
 public class MissionEditor implements InventoryProvider {
 
@@ -137,7 +134,7 @@ public class MissionEditor implements InventoryProvider {
 
         content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.GOLD_INGOT)
                 .name("§7Награда за выполнение")
-                .setAmount(mi.reward)
+                .amount(mi.reward)
                 .addLore("§7")
                 .addLore("§7Сейчас: §b" + mi.reward + " рил")
                 .addLore("§7")

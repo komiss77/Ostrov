@@ -1,5 +1,6 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,7 +29,7 @@ import ru.komiss77.utils.ItemUtils.Texture;
 
 public class ItemBuilder {
 
-    private Material mat;//private final ItemStack item;
+    private Material mat;//private final ItemStack item; item не используем - в будущем тип менять нельзя будет
     private int ammount;
     private @Nullable ItemMeta meta;
     private Color color;
@@ -41,7 +42,7 @@ public class ItemBuilder {
 
     //use StackBuilder
     public ItemBuilder(final Material material) {
-        mat = material;//item = new ItemStack(material);
+        mat = material;
         meta = null;
         lore = new ArrayList<>();
     }
@@ -55,7 +56,17 @@ public class ItemBuilder {
         lore = meta != null && meta.hasLore() ? meta.lore() : new ArrayList<>();
     }
 
-
+    public ItemBuilder persistentData(@Nullable final String key, @Nonnull final Object data) {
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
+        final NamespacedKey nsk = key == null ? ItemUtils.key : new NamespacedKey(Ostrov.instance, key);
+        if (data instanceof Integer) {
+            meta.getPersistentDataContainer().set(nsk, PersistentDataType.INTEGER, (Integer) data);
+        } else if (data instanceof String) {
+            meta.getPersistentDataContainer().set(nsk, PersistentDataType.STRING, (String) data);
+        }
+        return this;
+    }
+    /*
     public ItemBuilder persistentData(final String key, final String data) {
         if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
         meta.getPersistentDataContainer().set(new NamespacedKey(Ostrov.instance, key), PersistentDataType.STRING, data);
@@ -78,11 +89,11 @@ public class ItemBuilder {
         if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
         meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.INTEGER, data);
         return this;
-    }
+    }*/
 
 
     //ну тип переделал билдер на материал @Deprecated //в будующем тип менять нельзя будет
-    public ItemBuilder setType(final Material material) {
+    public ItemBuilder type(final Material material) {
         if (material == null) return this;
         mat = material;//item.setType(material);
         if (meta == null) return this;
@@ -90,27 +101,32 @@ public class ItemBuilder {
         return this;
     }
 
-    public Material getType() {
+    public Material type() {
         return mat;//item.getType();
     }
 
-    public ItemBuilder setAmount(final int ammount) {
+    public ItemBuilder amount(final int ammount) {
         this.ammount = ammount;    //item.setAmount(amount);
         return this;
     }
 
-    public ItemBuilder name(@Nullable final String name) {
+    public ItemBuilder name(@Nullable final Object name) {
         if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        if (name == null) meta.displayName(null);
-        else meta.displayName(TCUtils.format(name));
+        if (name == null) {
+            meta.displayName(null);
+        } else if (name instanceof String) {
+            meta.displayName(TCUtils.format((String) name));
+        } else if (name instanceof Component) {
+            meta.displayName((Component) name);
+        }
         return this;
     }
-
+/*
     public ItemBuilder name(@Nullable final Component name) {
         if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
         meta.displayName(name);
         return this;
-    }
+    }*/
 
     public ItemBuilder addLore(final String s) {
         if (s == null) return this;
@@ -410,7 +426,7 @@ public class ItemBuilder {
             meta.lore(lore);
         }
 
-        switch (getType()) {
+        switch (mat) {
 
             case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
                 if (basePotionType != null || customPotionEffects != null) {

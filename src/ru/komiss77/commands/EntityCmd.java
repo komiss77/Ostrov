@@ -1,7 +1,6 @@
 package ru.komiss77.commands;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -10,10 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,11 +17,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.EntitySetup;
-import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
@@ -334,7 +327,7 @@ class EntityGroupView implements InventoryProvider {
             find = count.get(type);
             menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(type)
                     .name(Lang.t(type, p))
-                    .setAmount(find > 64 ? 1 : find)
+                    .amount(find > 64 ? 1 : find)
                     .addLore("§7")
                     .addLore("§7Найдено: §e" + find)
                     .addLore("§7")

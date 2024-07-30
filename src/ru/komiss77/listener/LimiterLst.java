@@ -821,7 +821,7 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
                     final Integer limit = entityTypeLimit.get(t);
                     menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(t)
-                            .setType(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
+                            .type(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
                             .addLore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
                             .addLore(limit == null ? "" : "§7ЛКМ §b+1")
                             .addLore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")

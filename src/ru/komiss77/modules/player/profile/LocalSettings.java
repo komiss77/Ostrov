@@ -89,7 +89,7 @@ public class LocalSettings implements InventoryProvider {
 
         content.set(1, 3, ClickableItem.of(new ItemBuilder(p.getAllowFlight() ? Material.FEATHER : Material.IRON_BOOTS)
                 .name(p.getAllowFlight() ? "§6Крылья" : "§bНоги")
-                .setAmount(ammount)
+                .amount(ammount)
                 .addLore("")
                 .addLore(canFly ? "§7ЛКМ - менять режим" : (Config.fly_command ? "§7нет права §costrov.fly" : "§8Недоступно на этом сервере"))
                 .addLore(canSpeed ? "§7ПКМ - менять скорость" : (Config.speed_command ? "§7нет права §costrov.speed" : "§8Недоступно на этом сервере"))
@@ -130,7 +130,7 @@ public class LocalSettings implements InventoryProvider {
 
             content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.CLOCK)
                     .name("§7Личное время")
-                    .setAmount(p.isPlayerTimeRelative() && p.getPlayerTimeOffset() > 1000 ? (int) p.getPlayerTimeOffset() / 1000 : 1)
+                    .amount(p.isPlayerTimeRelative() && p.getPlayerTimeOffset() > 1000 ? (int) p.getPlayerTimeOffset() / 1000 : 1)
                     .addLore("")
                     .addLore("§7Сейчас:")
                     .addLore(p.isPlayerTimeRelative() ? "§eМеняется" : "§bЗаморожено")

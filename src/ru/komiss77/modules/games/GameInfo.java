@@ -51,7 +51,7 @@ public class GameInfo {
 
             case ONE_GAME -> new ItemBuilder(mat)
                     .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                    .amount(Math.max(Math.min(gameOnline, 60), 1))
                     .addLore("")
                     .addLore(game.description)
                     .addLore("")
@@ -64,14 +64,14 @@ public class GameInfo {
 
             case LOBBY -> new ItemBuilder(mat)
                     .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                    .amount(Math.max(Math.min(gameOnline, 60), 1))
                     .addLore("")
                     .addLore(getState().displayColor + getState().name())
                     .build();
 
             case ARENAS -> new ItemBuilder(mat)
                     .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .setAmount(Math.max(Math.min(gameOnline, 60), 1))
+                    .amount(Math.max(Math.min(gameOnline, 60), 1))
                     .addLore("")
                     .addLore(game.description)
                     .addLore("")

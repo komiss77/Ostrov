@@ -118,7 +118,7 @@ public class EntityGroupMenu implements InventoryProvider {
             for (final Map.Entry<Material, Integer> entry : count.entrySet()) {
                 menuEntry.add(ClickableItem.of(new ItemBuilder(entry.getKey())
                         .name(Lang.t(entry.getKey(), p))
-                        .setAmount(entry.getValue() > 64 ? 1 : entry.getValue())
+                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                         .addLore("§7Найдено: §e" + entry.getValue())
                         .addLore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
                         .build(), e -> {
@@ -147,7 +147,7 @@ public class EntityGroupMenu implements InventoryProvider {
                 mat = Material.matchMaterial(entry.getKey().substring(10));
                 menuEntry.add(ClickableItem.of(new ItemBuilder(mat == null ? Material.ENDER_CHEST : mat)
                         .name(entry.getKey())
-                        .setAmount(entry.getValue() > 64 ? 1 : entry.getValue())
+                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                         .addLore("§7Найдено: §e" + entry.getValue())
                         .addLore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
                         .build(), e -> {
@@ -176,7 +176,7 @@ public class EntityGroupMenu implements InventoryProvider {
             for (final Map.Entry<EntityType, Integer> entry : count.entrySet()) {
                 menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(entry.getKey())
                         .name(Lang.t(entry.getKey(), p))
-                        .setAmount(entry.getValue() > 64 ? 1 : entry.getValue())
+                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                         .addLore("§7")
                         .addLore("§7Найдено: §e" + entry.getValue())
                         .addLore("§7")

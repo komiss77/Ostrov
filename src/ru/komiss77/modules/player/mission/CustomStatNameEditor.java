@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
@@ -18,7 +17,6 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.Pagination;
 import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.version.AnvilGUI;
 
 
 public class CustomStatNameEditor implements InventoryProvider {
@@ -49,7 +47,7 @@ public class CustomStatNameEditor implements InventoryProvider {
 
             menuEntry.add(ClickableItem.of(new ItemBuilder(mat)
                             .name("§7значение String:§f " + name)
-                            .setAmount(showAmmount ? 2 : 1)
+                    .amount(showAmmount ? 2 : 1)
                             .addLore("§7")
                             .addLore(showAmmount ? "§7Колличество будет показано" : "Колличество скрыто")
                             .addLore("§7")
