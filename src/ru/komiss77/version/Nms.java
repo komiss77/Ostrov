@@ -164,16 +164,16 @@ public class Nms {
       default:
         last = false;
       case 3:
-        comps[3] = PaperAdventure.asVanilla(TCUtils.format(suggest.substring(48, last ? suggest.length() : 65)));
+        comps[3] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(48, last ? suggest.length() : 65)));
         last = false;
       case 2:
-        comps[2] = PaperAdventure.asVanilla(TCUtils.format(suggest.substring(32, last ? suggest.length() : 47)));
+        comps[2] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(32, last ? suggest.length() : 47)));
         last = false;
       case 1:
-        comps[1] = PaperAdventure.asVanilla(TCUtils.format(suggest.substring(16, last ? suggest.length() : 31)));
+        comps[1] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(16, last ? suggest.length() : 31)));
         last = false;
       case 0:
-        comps[0] = PaperAdventure.asVanilla(TCUtils.format(suggest.substring(0, last ? suggest.length() : 15)));
+        comps[0] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(0, last ? suggest.length() : 15)));
         break;
     }
     final SignText signtext = new SignText(comps, comps, DyeColor.WHITE, true);
@@ -247,11 +247,9 @@ public class Nms {
     return PlaceType.SAFELY;
   }
 
-  private static VoxelShape faceShape;
-
-  private static boolean canStandOnCenter(final ServerLevel sl, final BlockState state) {
+    private static boolean canStandOnCenter(final ServerLevel sl, final BlockState state) {
     if (state.isAir() || !state.getBlock().hasCollision) return false;
-    faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+    final VoxelShape faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
     return (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
             (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
   }
@@ -268,17 +266,17 @@ public class Nms {
     }
     //double d = shape.collide(Direction.Axis.Y, sp.getBoundingBox(), 1);
     Ostrov.log_warn(prefix
-            + state.getBukkitMaterial()
-            + (hasCollision ? " §a" : " §c") + "hasCollision"
-            + (canStandOnCenter ? " §a" : " §c") + "canStandOnCenter"
-            //+(hasCollision? (" §acollision UP X="+faceShape.min(Direction.Axis.X)+"/"+faceShape.max(Direction.Axis.X)
-            //+" Y="+faceShape.min(Direction.Axis.Y)+"/"+faceShape.max(Direction.Axis.Y)
-            //+" Z="+faceShape.min(Direction.Axis.Z)+"/"+faceShape.max(Direction.Axis.Z)):" §chasCollision")
-            //+(full?" §a":" §c")+"fullBlock"
-            //+(state.entityCanStandOn(sl, mutableBlockPosition, sp)?" §a":" §c")+"canStand"юзает isFaceFull - это громоздко
-            + (!state.getFluidState().isEmpty() ? " §a" : " §c") + "fluidState=" + state.getFluidState().getOwnHeight()
-            //+" §7collide=§3"+d
-            + (result ? " §a" : " §c") + "result"
+        + state.getBukkitMaterial()
+        + (hasCollision ? " §a" : " §c") + "hasCollision"
+        + (canStandOnCenter ? " §a" : " §c") + "canStandOnCenter"
+        //+(hasCollision? (" §acollision UP X="+faceShape.min(Direction.Axis.X)+"/"+faceShape.max(Direction.Axis.X)
+        //+" Y="+faceShape.min(Direction.Axis.Y)+"/"+faceShape.max(Direction.Axis.Y)
+        //+" Z="+faceShape.min(Direction.Axis.Z)+"/"+faceShape.max(Direction.Axis.Z)):" §chasCollision")
+        //+(full?" §a":" §c")+"fullBlock"
+        //+(state.entityCanStandOn(sl, mutableBlockPosition, sp)?" §a":" §c")+"canStand"юзает isFaceFull - это громоздко
+        + (!state.getFluidState().isEmpty() ? " §a" : " §c") + "fluidState=" + state.getFluidState().getOwnHeight()
+        //+" §7collide=§3"+d
+        + (result ? " §a" : " §c") + "result"
     );
 
   }

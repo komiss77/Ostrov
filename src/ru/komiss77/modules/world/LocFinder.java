@@ -8,6 +8,7 @@ import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.version.Nms;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public final class LocFinder {
@@ -25,7 +26,7 @@ public final class LocFinder {
     private WXYZ bloc;
 
     public static WXYZ findInArea(final WXYZ from, final int radius, final int offset,
-                                  final int near, final LocFinder.MatCheck[] checks, final int yDst) {
+        final int near, final LocFinder.MatCheck[] checks, final int yDst) {
         final int ofs2 = offset << 1;
         final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
                 Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
@@ -33,11 +34,18 @@ public final class LocFinder {
     }
 
     public static void onAsyncFind(final WXYZ loc, final MatCheck[] checks,
-                                   final boolean down, final int near, final int offsetY, final Consumer<WXYZ> onFind) {
+        final boolean down, final int near, final int offsetY, final Consumer<WXYZ> onFind) {
         Ostrov.async(() -> {
             final WXYZ fin = new LocFinder(loc, checks).find(down, near, offsetY);
             if (fin != null) Ostrov.sync(() -> onFind.accept(fin));
         });
+    }
+
+    public LocFinder(final WXYZ loc) {
+        this.checks = DEFAULT_CHECKS;
+        this.minY = loc.w.getMinHeight();
+        this.maxY = loc.w.getMaxHeight();
+        this.bloc = loc;
     }
 
     public LocFinder(final WXYZ loc, final MatCheck[] checks) {
@@ -48,7 +56,7 @@ public final class LocFinder {
     }
 
     @ThreadSafe
-    public WXYZ find(final boolean down, final int near, final int offsetY) {
+    public @Nullable WXYZ find(final boolean down, final int near, final int offsetY) {
         if (checks.length == 0)
             return bloc;
         final WXYZ lc = bloc;
@@ -62,8 +70,8 @@ public final class LocFinder {
             for (int dx = d; dx != fd; dx--) {
                 for (int dz = d; dz != fd; dz--) {
                     if (dx == d || dz == d || dx == -d || dz == -d) {
-                        bloc = lc.clone().add(dx * FastMath.absInt(dx), 0,
-                                dz * FastMath.absInt(dz));
+                        bloc = lc.clone().add(dx * FastMath.abs(dx),
+                            0, dz * FastMath.abs(dz));
                         fin = testLoc(down);
                         if (fin != null) {
                             fin.y += offsetY;

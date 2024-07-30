@@ -282,6 +282,7 @@ public class ItemBuilder {
         return clearEnchants();
     }
 
+
     public ItemBuilder clearEnchants() {
         if (meta != null) meta.removeEnchantments();
         enchants.clear();

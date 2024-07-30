@@ -9,7 +9,6 @@ import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -106,7 +105,7 @@ public class Ostrov extends JavaPlugin {
 
         initModules();
 
-        RegisterCommands.register(this); //после модулей!!
+        RegisterCommands.register(); //после модулей!!
 
         log_ok("§2Остров готов к работе!");
 

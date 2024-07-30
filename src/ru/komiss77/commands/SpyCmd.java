@@ -32,103 +32,104 @@ public class SpyCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         final String player = "player";
-        return Commands.literal("spy").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof final Player p)) {
-                        cs.sendMessage("§eНе консольная команда!");
-                        return 0;
-                    }
+        return Commands.literal("spy")
+            .executes(cntx -> {
+                final CommandSender cs = cntx.getSource().getExecutor();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
 
-                    final Oplayer op = PM.getOplayer(p);
-                    if (!op.isStaff) {
-                        p.sendMessage("§cДоступно только персоналу!");
-                        return 0;
-                    }
+                final Oplayer op = PM.getOplayer(p);
+                if (!op.isStaff) {
+                    p.sendMessage("§cДоступно только персоналу!");
+                    return 0;
+                }
 
-                    SmartInventory.builder()
-                            .id("SpyMenu" + p.getName())
-                            .provider(new SpyMenu())
-                            .size(6, 9)
-                            .title("§5За кем следим?")
-                            .build().open(p);
-                    return Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.player(player).executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof final Player p)) {
-                        cs.sendMessage("§eНе консольная команда!");
-                        return 0;
-                    }
+                SmartInventory.builder()
+                        .id("SpyMenu" + p.getName())
+                        .provider(new SpyMenu())
+                        .size(6, 9)
+                        .title("§5За кем следим?")
+                        .build().open(p);
+                return Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.player(player).executes(cntx -> {
+                final CommandSender cs = cntx.getSource().getExecutor();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
 
-                    final Oplayer op = PM.getOplayer(p);
-                    if (!op.isStaff) {
-                        p.sendMessage("§cДоступно только персоналу!");
-                        return 0;
-                    }
+                final Oplayer op = PM.getOplayer(p);
+                if (!op.isStaff) {
+                    p.sendMessage("§cДоступно только персоналу!");
+                    return 0;
+                }
 
-                    final Player tgt = Resolver.player(cntx, player);
-                    if (tgt == null) {
-                        p.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
-                        return 0;
-                    }
+                final Player tgt = Resolver.player(cntx, player);
+                if (tgt == null) {
+                    p.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
+                    return 0;
+                }
 
-                    if (op.spyOrigin != null) {
-                        cs.sendMessage("§cСначала закончите текущее наблюдение!");
-                        return 0;
-                    }
+                if (op.spyOrigin != null) {
+                    cs.sendMessage("§cСначала закончите текущее наблюдение!");
+                    return 0;
+                }
 
-                    if (p.getEntityId() == tgt.getEntityId()) {
-                        cs.sendMessage("§cЗа собой следить не получится!");
-                        return 0;
-                    }
+                if (p.getEntityId() == tgt.getEntityId()) {
+                    cs.sendMessage("§cЗа собой следить не получится!");
+                    return 0;
+                }
 
-                    if (tgt.getGameMode() == GameMode.SPECTATOR) {
-                        cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
-                        return 0;
-                    }
+                if (tgt.getGameMode() == GameMode.SPECTATOR) {
+                    cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
+                    return 0;
+                }
 
-                    op.spyOrigin = p.getLocation();
-                    final GameMode gm = p.getGameMode();
+                op.spyOrigin = p.getLocation();
+                final GameMode gm = p.getGameMode();
 
-                    p.setGameMode(GameMode.SPECTATOR);
-                    p.teleport(tgt);
-                    p.setSpectatorTarget(tgt);
-                    tgt.hidePlayer(Ostrov.instance, p);
+                p.setGameMode(GameMode.SPECTATOR);
+                p.teleport(tgt);
+                p.setSpectatorTarget(tgt);
+                tgt.hidePlayer(Ostrov.instance, p);
 
-                    new BukkitRunnable() {
+                new BukkitRunnable() {
 
-                        @Override
-                        public void run() {
-                            if (!p.isOnline()) {
-                                this.cancel();
-                                return;
-                            }
-                            if (p.isDead() ||
-                                    p.getGameMode() != GameMode.SPECTATOR ||
-                                    !tgt.isOnline() ||
-                                    tgt.isDead() ||
-                                    p.getSpectatorTarget() == null ||
-                                    !p.getSpectatorTarget().getName().equals(tgt.getName()) ||
-                                    tgt.getGameMode() == GameMode.SPECTATOR) {
-                                back();
-                            }
-                        }
-
-                        private void back() {
-                            if (p.getGameMode() == GameMode.SPECTATOR) {
-                                p.setSpectatorTarget(null);
-                            }
-                            p.teleport(op.spyOrigin == null ? p.getLocation() : op.spyOrigin);
-                            Ostrov.sync(() -> p.setGameMode(gm), 1);
-                            tgt.showPlayer(Ostrov.instance, p);
-                            p.resetTitle();
+                    @Override
+                    public void run() {
+                        if (!p.isOnline()) {
                             this.cancel();
+                            return;
                         }
+                        if (p.isDead() ||
+                                p.getGameMode() != GameMode.SPECTATOR ||
+                                !tgt.isOnline() ||
+                                tgt.isDead() ||
+                                p.getSpectatorTarget() == null ||
+                                !p.getSpectatorTarget().getName().equals(tgt.getName()) ||
+                                tgt.getGameMode() == GameMode.SPECTATOR) {
+                            back();
+                        }
+                    }
 
-                    }.runTaskTimer(Ostrov.instance, 1, 11);
-                    return Command.SINGLE_SUCCESS;
-                }))
-                .build();
+                    private void back() {
+                        if (p.getGameMode() == GameMode.SPECTATOR) {
+                            p.setSpectatorTarget(null);
+                        }
+                        p.teleport(op.spyOrigin == null ? p.getLocation() : op.spyOrigin);
+                        Ostrov.sync(() -> p.setGameMode(gm), 1);
+                        tgt.showPlayer(Ostrov.instance, p);
+                        p.resetTitle();
+                        this.cancel();
+                    }
+
+                }.runTaskTimer(Ostrov.instance, 1, 11);
+                return Command.SINGLE_SUCCESS;
+            }))
+            .build();
     }
 
     @Override
