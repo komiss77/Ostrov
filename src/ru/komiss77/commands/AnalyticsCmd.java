@@ -232,7 +232,7 @@ public class AnalyticsCmd implements CommandExecutor, TabCompleter {
 
 
                         menuItems.add(ClickableItem.empty(new ItemBuilder(mat)
-                                .setAmount(amm)
+                                .amount(amm)
                                 .name("§f" + calendar.get(Calendar.DATE) + "." + (calendar.get(Calendar.MONTH) + 1) + ", " + DateUtil.dayOfWeekName(calendar.get(Calendar.DAY_OF_WEEK)))
                                 //.addLore("§7")
                                 .addLore("§7Новых акк.: §b" + accauntCounter + " §7, Гостей: §e" + guestCount)
