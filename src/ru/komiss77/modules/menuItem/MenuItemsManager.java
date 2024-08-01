@@ -58,9 +58,9 @@ public final class MenuItemsManager implements Initiable, Listener {
             if (mat == null) mat = Material.CLOCK;
 
             final ItemStack is = new ItemBuilder(mat)
-                    .name(Config.getConfig().getString("system.pipboy_name"))
+                .name(Config.getConfig().getString("system.pipboy_name"))
 //                    .addEnchant(Enchantment.LUCK, 1)
-                    .build();
+                .build();
 
             final MenuItem pipboy = new MenuItem("pipboy", is);
             pipboy.slot = Config.getConfig().getInt("player.give_pipboy_slot");

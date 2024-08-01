@@ -1,8 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.*;
-import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,17 +14,15 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class EntityServerMenu implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-    ;
     private final List<World> worlds;
 
 
@@ -76,12 +71,12 @@ public class EntityServerMenu implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(new ItemBuilder(Material.HEART_OF_THE_SEA)
-                    .name("§f" + world.getName())
-                    .setLore(lore)
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - подробно по миру")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name("§f" + world.getName())
+                .deLore().lore(lore)
+                .lore("§7")
+                .lore("§7ЛКМ - подробно по миру")
+                .lore("§7")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     PM.getOplayer(p).setup.openEntityWorldMenu(p, world, -1);
                 }
@@ -95,24 +90,24 @@ public class EntityServerMenu implements InventoryProvider {
         }
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(36);
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                PM.getOplayer(p).setup.openMainSetupMenu(p)
+            PM.getOplayer(p).setup.openMainSetupMenu(p)
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

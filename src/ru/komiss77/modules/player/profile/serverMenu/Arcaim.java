@@ -46,39 +46,39 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(0, 1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
-                .name("§7Миры")
-                .addLore("")
-                .addLore("§7ЛКМ- перемещение в миры")
-                .addLore("")
-                .addLore("§6Вы находитесь в биоме:")
-                .addLore("§e" + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))
-                .addLore("")
-                .addLore(Config.world_command ? "§7ЛКМ - открыть" : "§cОтключено на данном сервере")
-                .addLore("")
-                .build(), e -> {
+            .name("§7Миры")
+            .lore("")
+            .lore("§7ЛКМ- перемещение в миры")
+            .lore("")
+            .lore("§6Вы находитесь в биоме:")
+            .lore("§e" + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))
+            .lore("")
+            .lore(Config.world_command ? "§7ЛКМ - открыть" : "§cОтключено на данном сервере")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.performCommand("world");
         }));
 
 
         content.set(0, 2, ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
-                .name("§eВарпы")
-                .addLore("")
-                .addLore("§7Варпы сервера,игроков")
-                .addLore("§7и администрации.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВарпы")
+            .lore("")
+            .lore("§7Варпы сервера,игроков")
+            .lore("§7и администрации.")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.performCommand("warp");
         }));
 
 
         content.set(0, 4, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                .name("§7Спавн")
-                .addLore("")
-                .addLore("§7Переход на спавн")
-                .addLore("")
-                .build(), e -> {
+            .name("§7Спавн")
+            .lore("")
+            .lore("§7Переход на спавн")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.performCommand("spawn");
@@ -86,23 +86,23 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(0, 6, ClickableItem.of(new ItemBuilder(Material.DAYLIGHT_DETECTOR)
-                .name("§eТП к игрокам")
-                .addLore("")
-                .addLore("Телепорт к игрокам")
-                .addLore("")
-                .build(), e -> {
+            .name("§eТП к игрокам")
+            .lore("")
+            .lore("Телепорт к игрокам")
+            .lore("")
+            .build(), e -> {
             p.performCommand("tpa");//pm.openTPA(p);
         }));
 
 
         content.set(0, 7, ClickableItem.of(new ItemBuilder(Material.COMPASS)
-                .name("§eRandom ТП")
-                .addLore("")
-                .addLore("§7ТП куда подальше")
-                .addLore("§7Телепорт стоит несколько лони,")
-                .addLore("§7зато будет найдено безопасное")
-                .addLore("§7место, где нет чужих регионов.")
-                .build(), e -> {
+            .name("§eRandom ТП")
+            .lore("")
+            .lore("§7ТП куда подальше")
+            .lore("§7Телепорт стоит несколько лони,")
+            .lore("§7зато будет найдено безопасное")
+            .lore("§7место, где нет чужих регионов.")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("tpr");
@@ -110,14 +110,14 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                .name("§eРегионы")
-                .unsafeEnchantment(Enchantment.KNOCKBACK, 1)
-                .addLore("§fУправление регионами.")
-                .addLore("§7Создание, удаление,")
-                .addLore("§7Установка точек ТП (домов),")
-                .addLore("§7Настройка флагов.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eРегионы")
+            .enchant(Enchantment.KNOCKBACK, 1)
+            .lore("§fУправление регионами.")
+            .lore("§7Создание, удаление,")
+            .lore("§7Установка точек ТП (домов),")
+            .lore("§7Настройка флагов.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land");
@@ -125,13 +125,13 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
-                .name("§eВернуться в свой регион")
-                .addLore("§7Дом любимый дом.")
-                .addLore("§7Создание, удаление,")
-                .addLore("§7Откроется меню выбора")
-                .addLore("§7региона, в который вернуться.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВернуться в свой регион")
+            .lore("§7Дом любимый дом.")
+            .lore("§7Создание, удаление,")
+            .lore("§7Откроется меню выбора")
+            .lore("§7региона, в который вернуться.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land home");
@@ -139,11 +139,11 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.LAVA_BUCKET)
-                .name("§4Выживание")
-                .addLore("")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§4Выживание")
+            .lore("")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.setGameMode(GameMode.SURVIVAL);
@@ -151,11 +151,11 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.MILK_BUCKET)
-                .name("§lКреатив")
-                .addLore("")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§lКреатив")
+            .lore("")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.setGameMode(GameMode.CREATIVE);
@@ -163,11 +163,11 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.WATER_BUCKET)
-                .name("§eПриключения")
-                .addLore("")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§eПриключения")
+            .lore("")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.setGameMode(GameMode.ADVENTURE);
@@ -175,13 +175,13 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.LAVA_BUCKET)
-                .name("§8Зритель")
-                .addLore("")
-                .addLore("§f!! Чтобы открыть меню !!")
-                .addLore("§f!! в режиме зрителя !!")
-                .addLore("§f!! левый клик мышкой !!")
-                .addLore("")
-                .build(), e -> {
+            .name("§8Зритель")
+            .lore("")
+            .lore("§f!! Чтобы открыть меню !!")
+            .lore("§f!! в режиме зрителя !!")
+            .lore("§f!! левый клик мышкой !!")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.setGameMode(GameMode.SPECTATOR);
@@ -189,11 +189,11 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(3, 2, ClickableItem.of(new ItemBuilder(Material.DROWNED_SPAWN_EGG)
-                .name("§eМаскировка")
-                .addLore("§7Превратиться в кого-то")
-                .addLore("§7или что-то")
-                .addLore("")
-                .build(), e -> {
+            .name("§eМаскировка")
+            .lore("§7Превратиться в кого-то")
+            .lore("§7или что-то")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.performCommand("dgui");
@@ -201,15 +201,15 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(3, 4, ClickableItem.of(new ItemBuilder(Material.ENDER_CHEST)
-                .name("§7Развлечения")
-                .addLore("")
-                .addLore("§7Очень весело, обхохочешься.")
-                .addLore("§7После нажатия ")
-                .addLore("§7откроется меню.")
-                .addLore("§7Чтобы выключить его, нажмите")
-                .addLore("§7сюда еще раз.")
-                .addLore("")
-                .build(), e -> {
+            .name("§7Развлечения")
+            .lore("")
+            .lore("§7Очень весело, обхохочешься.")
+            .lore("§7После нажатия ")
+            .lore("§7откроется меню.")
+            .lore("§7Чтобы выключить его, нажмите")
+            .lore("§7сюда еще раз.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("pc menu " + p.getName() + " main");
@@ -217,10 +217,10 @@ public class Arcaim implements InventoryProvider {
 
 
         content.set(3, 6, ClickableItem.of(new ItemBuilder(Material.REPEATER)
-                .name("§bМеню личных настроек")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§bМеню личных настроек")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             pm.openLocalSettings(p, true);
         }));
 

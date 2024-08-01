@@ -8,7 +8,7 @@ import ru.komiss77.builder.SetupMode;
 
 public class BuilderMenuEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Player player;
     private final SetupMode setup;
 

@@ -98,7 +98,7 @@ public abstract class CustomMats implements Keyed {
     @Override
     public boolean equals(final Object o) {
         return o instanceof CustomMats
-                && Objects.equals(((CustomMats) o).cmd, cmd);
+            && Objects.equals(((CustomMats) o).cmd, cmd);
     }
 
     @Override

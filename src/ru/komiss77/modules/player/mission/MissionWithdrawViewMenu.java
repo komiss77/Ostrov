@@ -37,8 +37,8 @@ public class MissionWithdrawViewMenu implements InventoryProvider {
 
         if (buttons.isEmpty()) {
             content.set(13, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
             return;
         }
@@ -54,17 +54,17 @@ public class MissionWithdrawViewMenu implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

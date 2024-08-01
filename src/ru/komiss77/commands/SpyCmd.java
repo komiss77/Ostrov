@@ -20,7 +20,7 @@ import ru.komiss77.commands.args.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.StackBuilder;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.*;
 
 
@@ -34,7 +34,7 @@ public class SpyCmd implements OCommand {
         final String player = "player";
         return Commands.literal("spy")
             .executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
@@ -47,15 +47,15 @@ public class SpyCmd implements OCommand {
                 }
 
                 SmartInventory.builder()
-                        .id("SpyMenu" + p.getName())
-                        .provider(new SpyMenu())
-                        .size(6, 9)
-                        .title("§5За кем следим?")
-                        .build().open(p);
+                    .id("SpyMenu" + p.getName())
+                    .provider(new SpyMenu())
+                    .size(6, 9)
+                    .title("§5За кем следим?")
+                    .build().open(p);
                 return Command.SINGLE_SUCCESS;
             })
             .then(Resolver.player(player).executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
@@ -105,12 +105,12 @@ public class SpyCmd implements OCommand {
                             return;
                         }
                         if (p.isDead() ||
-                                p.getGameMode() != GameMode.SPECTATOR ||
-                                !tgt.isOnline() ||
-                                tgt.isDead() ||
-                                p.getSpectatorTarget() == null ||
-                                !p.getSpectatorTarget().getName().equals(tgt.getName()) ||
-                                tgt.getGameMode() == GameMode.SPECTATOR) {
+                            p.getGameMode() != GameMode.SPECTATOR ||
+                            !tgt.isOnline() ||
+                            tgt.isDead() ||
+                            p.getSpectatorTarget() == null ||
+                            !p.getSpectatorTarget().getName().equals(tgt.getName()) ||
+                            tgt.getGameMode() == GameMode.SPECTATOR) {
                             back();
                         }
                     }
@@ -146,7 +146,7 @@ public class SpyCmd implements OCommand {
     static class SpyMenu implements InventoryProvider {
 
 
-        private final ItemStack fill = StackBuilder.of(ItemType.GREEN_STAINED_GLASS_PANE).name("§8.").build();
+        private final ItemStack fill = new ItemBuilder(ItemType.GREEN_STAINED_GLASS_PANE).name("§8.").build();
         ;
 
 
@@ -167,11 +167,11 @@ public class SpyCmd implements OCommand {
                 if (p.getName().equals(player.getName()) || p.getGameMode() == GameMode.SPECTATOR || p.hasPermission("ostrov.spy"))
                     continue;
 
-                final ItemStack icon = StackBuilder.of(ItemType.PLAYER_HEAD)
-                        .name("§f" + p.getName())
-                        .lore("")
-                        .lore("")
-                        .build();
+                final ItemStack icon = new ItemBuilder(ItemType.PLAYER_HEAD)
+                    .name("§f" + p.getName())
+                    .lore("")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.of(icon, e -> {
                     if (e.isLeftClick()) {
@@ -189,13 +189,13 @@ public class SpyCmd implements OCommand {
 
             if (!pagination.isLast()) {
                 contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                        -> contents.getHost().open(player, pagination.next().getPage()))
+                    -> contents.getHost().open(player, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
                 contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                        -> contents.getHost().open(player, pagination.previous().getPage()))
+                    -> contents.getHost().open(player, pagination.previous().getPage()))
                 );
             }
 

@@ -2,6 +2,7 @@ package ru.komiss77.listener;
 
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.entity.Player;
@@ -63,11 +64,11 @@ public class NbtLst {
             final ItemMeta newMeta = metaCopierFactory.getCopier(oldMeta).copyValidMeta(oldMeta, newItem.getType());
 
             if (oldMeta.hasDisplayName()) {
-                newMeta.displayName(Component.text(StringUtils.clampString(TCUtils.toString(oldMeta.displayName()))));
+                newMeta.displayName(Component.text(StringUtils.clampString(TCUtils.deform(oldMeta.displayName()))));
             }
 
             if (oldMeta.hasLore()) { //яички с лоре через раздатчик крашат сервер
-                newMeta.lore(oldMeta.lore().stream().map(lr -> TCUtils.format(StringUtils.clampString(TCUtils.toString(lr)))).collect(Collectors.toList()));
+                newMeta.lore(oldMeta.lore().stream().map(lr -> TCUtils.form(StringUtils.clampString(TCUtils.deform(lr)))).collect(Collectors.toList()));
             }
 
             // copy enchantments
@@ -76,8 +77,8 @@ public class NbtLst {
             // }
             //oldItem.getEnchantments().entrySet().stream().filter(entry -> entry.getValue() <= ((Enchantment)entry.getKey()).getMaxLevel()).forEach(entry -> newItem.addUnsafeEnchantment((Enchantment)entry.getKey(), (int)entry.getValue()));
             oldItem.getEnchantments().entrySet().stream()
-                    .filter(entry -> entry.getValue() <= entry.getKey().getMaxLevel())
-                    .forEach(entry -> newItem.addUnsafeEnchantment(entry.getKey(), entry.getValue()));
+                .filter(entry -> entry.getValue() <= entry.getKey().getMaxLevel())
+                .forEach(entry -> newItem.addUnsafeEnchantment(entry.getKey(), entry.getValue()));
 
             // copy modifier
             //if (oldMeta.hasAttributeModifiers()) {
@@ -85,8 +86,8 @@ public class NbtLst {
             //}
             if (oldMeta.hasAttributeModifiers()) {
                 oldMeta.getAttributeModifiers().asMap().entrySet()
-                        .forEach(entry -> entry.getValue().stream().filter(mod -> mod.getAmount() <= 10)
-                                .forEach(atr -> newMeta.addAttributeModifier(entry.getKey(), atr)));
+                    .forEach(entry -> entry.getValue().stream().filter(mod -> mod.getAmount() <= 10)
+                        .forEach(atr -> newMeta.addAttributeModifier(entry.getKey(), atr)));
             }
 
             // copy modeldata
@@ -131,7 +132,7 @@ public class NbtLst {
     }
 
     public static boolean Invalid_name_lenght(final Player player, final ItemStack item) {
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.toString(item.getItemMeta().displayName()).length() > 40) {
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.deform(item.getItemMeta().displayName()).length() > 40) {
             player.sendMessage("Превышена длина имени!");
             return true;
         }
@@ -165,8 +166,6 @@ public class NbtLst {
         }
         return false;
     }
-
-
 
 
     private static class MetaCopierFactory {
@@ -298,7 +297,7 @@ public class NbtLst {
                 newBookMeta.setGeneration(oldMeta.getGeneration());
             }
             if (oldMeta.hasPages() && oldMeta.pages().size() <= pages) {
-                newBookMeta.pages(oldMeta.pages().stream().map(cmp -> Component.text(StringUtils.clampString(TCUtils.toString(cmp), 16383))).collect(Collectors.toList()));
+                newBookMeta.pages(oldMeta.pages().stream().map(cmp -> Component.text(StringUtils.clampString(TCUtils.deform(cmp), 16383))).collect(Collectors.toList()));
             } else {
                 newBookMeta.pages(new Component[]{Component.text(" ")});
             }
@@ -589,7 +588,7 @@ public void onPlayerPickupItemEvent(EntityPickupItemEvent e) {
   if (e.getEntityType()!=EntityType.PLAYER || !needCheck(e.getItem().getItemStack()) ) return;
 final Player p = (Player) e.getEntity();
   if (invalidStackSize(p, e.getItem().getItemStack())) e.getItem().getItemStack().setAmount(e.getItem().getItemStack().getMaxStackSize());
-  if (Invalid_name_lenght(p, e.getItem().getItemStack())) e.getItem().getItemStack().getItemMeta().displayName(Component.text(TCUtils.toString(e.getItem().getItemStack().getItemMeta().displayName()).substring(0,28)));
+  if (Invalid_name_lenght(p, e.getItem().getItemStack())) e.getItem().getItemStack().getItemMeta().displayName(Component.text(TCUtils.deform(e.getItem().getItemStack().getItemMeta().displayName()).substring(0,28)));
   if (Invalid_anvill(p, e.getItem().getItemStack())) e.getItem().setItemStack(new ItemStack( e.getItem().getItemStack().getType(),  e.getItem().getItemStack().getAmount()));
   if (Invalid_enchant(p, e.getItem().getItemStack())) e.getItem().setItemStack( Repair_enchant(e.getItem().getItemStack()));
   //if (hasInvalidNbt(p, e.getItem().getItemStack())) e.getItem().setItemStack(new ItemStack( e.getItem().getItemStack().getType(),  e.getItem().getItemStack().getAmount()));
@@ -604,7 +603,7 @@ public void onPlayerDropItemEvent(PlayerDropItemEvent e) {
   if ( !needCheck(e.getItemDrop().getItemStack()) ) return;
 
   if (invalidStackSize(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().getItemStack().setAmount(e.getItemDrop().getItemStack().getMaxStackSize());
-  if (Invalid_name_lenght(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().getItemStack().getItemMeta().displayName(Component.text(TCUtils.toString(e.getItemDrop().getItemStack().getItemMeta().displayName()).substring(0,28)));
+  if (Invalid_name_lenght(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().getItemStack().getItemMeta().displayName(Component.text(TCUtils.deform(e.getItemDrop().getItemStack().getItemMeta().displayName()).substring(0,28)));
   if (Invalid_anvill(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().setItemStack(new ItemStack( e.getItemDrop().getItemStack().getType(),  e.getItemDrop().getItemStack().getAmount()));
   if (Invalid_enchant(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().setItemStack( Repair_enchant(e.getItemDrop().getItemStack()));
   //if (hasInvalidNbt(e.getPlayer(), e.getItemDrop().getItemStack())) e.getItemDrop().setItemStack(new ItemStack( e.getItemDrop().getItemStack().getType(),  e.getItemDrop().getItemStack().getAmount()));
@@ -668,7 +667,7 @@ public static boolean invalidStackSize(final Player player, final ItemStack item
   }
 
 public static boolean Invalid_name_lenght(final Player player, final ItemStack item){
-  if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.toString(item.getItemMeta().displayName()).length() > 40) {
+  if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.deform(item.getItemMeta().displayName()).length() > 40) {
   player.sendMessage("Превышена длина имени!");
   return true;
   }

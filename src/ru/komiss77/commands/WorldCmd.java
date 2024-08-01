@@ -16,7 +16,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.StackBuilder;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.*;
 
 import java.util.ArrayList;
@@ -37,11 +37,11 @@ public class WorldCmd implements Listener, CommandExecutor {
         if (ApiOstrov.isLocalBuilder(cs, false)) {
 
             SmartInventory.builder()
-                    .id("Worlds" + p.getName())
-                    .provider(new WorldSetupMenu())
-                    .size(6, 9)
-                    .title("§2Миры сервера")
-                    .build().open(p);
+                .id("Worlds" + p.getName())
+                .provider(new WorldSetupMenu())
+                .size(6, 9)
+                .title("§2Миры сервера")
+                .build().open(p);
             return true;
 
         }
@@ -49,11 +49,11 @@ public class WorldCmd implements Listener, CommandExecutor {
         if (Config.world_command) {
             if (p.hasPermission("ostrov.world")) {
                 SmartInventory.builder()
-                        .id("Worlds" + p.getName())
-                        .provider(new WorldSelectMenu())
-                        .size(3, 9)
-                        .title("§2Миры сервера")
-                        .build().open(p);
+                    .id("Worlds" + p.getName())
+                    .provider(new WorldSelectMenu())
+                    .size(3, 9)
+                    .title("§2Миры сервера")
+                    .build().open(p);
             } else {
                 p.sendMessage("§cУ Вас нет пава ostrov.world !");
             }

@@ -63,18 +63,18 @@ public class ArenaSection implements InventoryProvider {
         for (final ArenaInfo ai : gi.arenas()) {
 
             ci[ai.slot] = ClickableItem.of(ai.getIcon(op)
-                    , e -> {
+                , e -> {
 
-                        final boolean hasLevel = op.getStat(Stat.LEVEL) >= ai.level;
-                        final boolean hasReputation = op.reputationCalc >= ai.reputation;
-                        if (hasLevel && hasReputation) {
-                            p.performCommand("server " + ai.server + " " + ai.arenaName);
+                    final boolean hasLevel = op.getStat(Stat.LEVEL) >= ai.level;
+                    final boolean hasReputation = op.reputationCalc >= ai.reputation;
+                    if (hasLevel && hasReputation) {
+                        p.performCommand("server " + ai.server + " " + ai.arenaName);
 //Ostrov.log_warn("ArenaSection "+ai.server+" "+ai.arenaName);
-                        } else {
-                            PM.soundDeny(p);
-                        }
-
+                    } else {
+                        PM.soundDeny(p);
                     }
+
+                }
             );
 
 
@@ -90,19 +90,19 @@ public class ArenaSection implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtils.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
-                            -> {
-                        pm.arenaPage = pagination.next().getPage();
-                        content.getHost().open(p, pm.arenaPage);
-                    }
+                    -> {
+                    pm.arenaPage = pagination.next().getPage();
+                    content.getHost().open(p, pm.arenaPage);
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtils.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
-                            -> {
-                        pm.arenaPage = pagination.previous().getPage();
-                        content.getHost().open(p, pm.arenaPage);
-                    })
+                    -> {
+                    pm.arenaPage = pagination.previous().getPage();
+                    content.getHost().open(p, pm.arenaPage);
+                })
             );
         }
 

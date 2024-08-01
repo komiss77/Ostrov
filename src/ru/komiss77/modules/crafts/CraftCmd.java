@@ -32,7 +32,7 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
                     sugg.add("remove");
                 }
             } else if (args.length == 2 && (args[0].equalsIgnoreCase("edit") ||
-                    args[0].equalsIgnoreCase("remove")) && ApiOstrov.isLocalBuilder(send, false)) {
+                args[0].equalsIgnoreCase("remove")) && ApiOstrov.isLocalBuilder(send, false)) {
                 for (final NamespacedKey rk : Crafts.crafts.keySet()) {
                     sugg.add(rk.getKey());
                 }
@@ -52,18 +52,18 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
                     case "edit":
                         if (ApiOstrov.isLocalBuilder(send, true)) {
                             SmartInventory
-                                    .builder()
-                                    .id("Craft " + p.getName())
-                                    .provider(new CraftMenu(args[1], false))
-                                    .size(3, 9).title("§eСоздание Крафта " + args[1])
-                                    .build()
-                                    .open(p);
+                                .builder()
+                                .id("Craft " + p.getName())
+                                .provider(new CraftMenu(args[1], false))
+                                .size(3, 9).title("§eСоздание Крафта " + args[1])
+                                .build()
+                                .open(p);
                         }
                         break;
                     case "remove":
                         if (ApiOstrov.isLocalBuilder(send, true)) {
                             final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(
-                                    new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
+                                new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
                             if (craftConfig.getKeys(false).contains(args[1])) {
                                 craftConfig.set(args[1], null);
                                 Bukkit.removeRecipe(new NamespacedKey(OStrap.space, args[1]));
@@ -84,12 +84,12 @@ public class CraftCmd implements CommandExecutor, TabCompleter {
                             p.sendMessage("§cТакого крафта не существует!");
                         } else {
                             SmartInventory
-                                    .builder()
-                                    .id("Craft " + p.getName())
-                                    .provider(new CraftMenu(args[1], true))
-                                    .size(3, 9).title("§eПросмотр Крафта " + args[1])
-                                    .build()
-                                    .open(p);
+                                .builder()
+                                .id("Craft " + p.getName())
+                                .provider(new CraftMenu(args[1], true))
+                                .size(3, 9).title("§eПросмотр Крафта " + args[1])
+                                .build()
+                                .open(p);
                         }
                         break;
                     default:

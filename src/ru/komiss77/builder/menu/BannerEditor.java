@@ -1,10 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -26,6 +21,11 @@ import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 
 public class BannerEditor implements InventoryProvider {
 
@@ -62,8 +62,8 @@ public class BannerEditor implements InventoryProvider {
         for (PatternType patternType : PatternType.values()) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
             patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
-                    List.of(Component.text("§7ЛКМ - §aвыбрать")),
-                    pattern));
+                List.of(Component.text("§7ЛКМ - §aвыбрать")),
+                pattern));
         }
     }
 
@@ -73,12 +73,12 @@ public class BannerEditor implements InventoryProvider {
 
     public static void edit(final Player p, final Block b) {
         SmartInventory.builder()
-                .id("BannerEditor" + p.getName())
-                .provider(new BannerEditor(b))
-                .size(6, 9)
-                .title("§6Настройка банера")
-                .build()
-                .open(p);
+            .id("BannerEditor" + p.getName())
+            .provider(new BannerEditor(b))
+            .size(6, 9)
+            .title("§6Настройка банера")
+            .build()
+            .open(p);
     }
 
     @Override
@@ -107,12 +107,12 @@ public class BannerEditor implements InventoryProvider {
         }
 
         content.set(0, 0, ClickableItem.of(new ItemBuilder(mat)
-                .name("Основа")
-                .addLore("§fЛКМ §7- §6изменить цвет")
-                .addLore("")
-                .addLore("§fПКМ §7- §9символ в рамке")
-                .addLore("§fШифт+ПКМ §7- §9символ без рамки")
-                .build(), e -> {
+            .name("Основа")
+            .lore("§fЛКМ §7- §6изменить цвет")
+            .lore("")
+            .lore("§fПКМ §7- §9символ в рамке")
+            .lore("§fШифт+ПКМ §7- §9символ без рамки")
+            .build(), e -> {
             if (e.getClick() == ClickType.LEFT) {
                 mode = EditMode.Основа;
                 reopen(p, content);
@@ -133,38 +133,38 @@ public class BannerEditor implements InventoryProvider {
         for (final Pattern pt : patterns) {
             final int idx = slot - 1;
             content.set(0, slot, ClickableItem.of(
-                    genBanner(Material.WHITE_BANNER, "Слой " + slot,
-                            List.of(Component.text("§fЛКМ §7- §6настроить Маску"),
-                                    Component.text("§fПКМ §7- §6настроить Цвет"),
-                                    Component.text(idx == 0 ? "§3Верхний слой" : "§fШифт+ПКМ §7- §3переместить выше"),
-                                    Component.text("§cКлав.Q - удалить")), pt), e -> {
-                        switch (e.getClick()) {
-                            case LEFT -> {
-                                editIdx = idx;
-                                mode = EditMode.Маска;
-                                reopen(p, content);
-                            }
-                            case RIGHT -> {
-                                editIdx = idx;
-                                mode = EditMode.Цвет;
-                                reopen(p, content);
-                            }
-                            case SHIFT_RIGHT -> {
-                                if (idx != 0) {
-                                    final Pattern ptBefore = patterns.set(idx - 1, pt);
-                                    patterns.set(idx, ptBefore);
-                                    mode = EditMode.Нет;
-                                    reopen(p, content);
-                                }
-                            }
-                            case DROP -> {
-                                patterns.remove(idx);
+                genBanner(Material.WHITE_BANNER, "Слой " + slot,
+                    List.of(Component.text("§fЛКМ §7- §6настроить Маску"),
+                        Component.text("§fПКМ §7- §6настроить Цвет"),
+                        Component.text(idx == 0 ? "§3Верхний слой" : "§fШифт+ПКМ §7- §3переместить выше"),
+                        Component.text("§cКлав.Q - удалить")), pt), e -> {
+                    switch (e.getClick()) {
+                        case LEFT -> {
+                            editIdx = idx;
+                            mode = EditMode.Маска;
+                            reopen(p, content);
+                        }
+                        case RIGHT -> {
+                            editIdx = idx;
+                            mode = EditMode.Цвет;
+                            reopen(p, content);
+                        }
+                        case SHIFT_RIGHT -> {
+                            if (idx != 0) {
+                                final Pattern ptBefore = patterns.set(idx - 1, pt);
+                                patterns.set(idx, ptBefore);
                                 mode = EditMode.Нет;
                                 reopen(p, content);
                             }
                         }
-
+                        case DROP -> {
+                            patterns.remove(idx);
+                            mode = EditMode.Нет;
+                            reopen(p, content);
+                        }
                     }
+
+                }
             ));
             slot++;
         }
@@ -226,9 +226,9 @@ public class BannerEditor implements InventoryProvider {
 
                 for (char c : symbols.toCharArray()) {
                     content.add(ClickableItem.of(genBanner(inverted(bordered, c) ? Material.BLACK_BANNER : Material.WHITE_BANNER,
-                            "§f" + String.valueOf(c),
-                            List.of(Component.text("§fЛКМ §7- §1наложить слои")),
-                            bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
+                        "§f" + String.valueOf(c),
+                        List.of(Component.text("§fЛКМ §7- §1наложить слои")),
+                        bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
                         patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, bordered);
                         mode = EditMode.Нет;
                         reopen(p, content);
@@ -251,8 +251,8 @@ public class BannerEditor implements InventoryProvider {
                 for (DyeColor dc : DyeColor.values()) {
                     final Pattern pattern = new Pattern(dc, patternType);
                     content.add(ClickableItem.of(genBanner(Material.WHITE_BANNER, null,
-                            List.of(Component.text("ЛКМ - выбрать")),
-                            pattern), e -> {
+                        List.of(Component.text("ЛКМ - выбрать")),
+                        pattern), e -> {
                         patterns.set(editIdx, pattern);
                         reopen(p, content);
                     }));

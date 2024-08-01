@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -39,7 +40,7 @@ public class CustomTag {
 
 
     private static final EntityDataAccessor<?> DATA_POSE, DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
-            DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
+        DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
 
     //      new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), glowingByte
     //https://wiki.vg/Entity_metadata#Display
@@ -58,13 +59,13 @@ public class CustomTag {
         taggedLink = new WeakReference<>(tagged);//entity;
         passengerOffset = tagged.getHeight(); //= ridingOffset;
         real = tagged.isValid();
-        name = PaperAdventure.asVanilla(TCUtils.format(tagged.getName() + "\n\n"));
+        name = PaperAdventure.asVanilla(TCUtils.form(tagged.getName() + "\n\n"));
     }
 
     //Can contain \n for >1 lines
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
-        this.name = PaperAdventure.asVanilla(TCUtils.format(name + "\n\n"));
+        this.name = PaperAdventure.asVanilla(TCUtils.form(name + "\n\n"));
         if (visible) {
             sendTrackersPacket(spawnPacket());
         }
@@ -130,23 +131,23 @@ public class CustomTag {
 
         final Location location = tgt.getLocation();
         final ClientboundAddEntityPacket spawnPacket = new ClientboundAddEntityPacket(
-                tagEntityId,
-                UUID.randomUUID(),
-                location.x(),
-                location.y() + passengerOffset,
-                location.z(),
-                0.0F,
-                0.0F,
-                EntityType.TEXT_DISPLAY, //1201 EntityTypes.aX, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
-                0,
-                Vec3.ZERO,//Vec3D.b,
-                0.0D
+            tagEntityId,
+            UUID.randomUUID(),
+            location.x(),
+            location.y() + passengerOffset,
+            location.z(),
+            0.0F,
+            0.0F,
+            EntityType.TEXT_DISPLAY, //1201 EntityTypes.aX, //Interaction=ab, ItemDisplay=ae;   TextDisplay=aX;   BlockDisplay=j;
+            0,
+            Vec3.ZERO,//Vec3D.b,
+            0.0D
         );
 
         final ClientboundSetEntityDataPacket initialCreatePacket = new ClientboundSetEntityDataPacket(
-                tagEntityId,
-                List.of(ofData(DATA_POSE, Pose.CROAKING),
-                        ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
+            tagEntityId,
+            List.of(ofData(DATA_POSE, Pose.CROAKING),
+                ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
         );
 
         final ClientboundSetEntityDataPacket syncDataPacket = syncPacket();
@@ -158,17 +159,17 @@ public class CustomTag {
         final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(Craft.toNMS(tgt));
 
         return new ClientboundBundlePacket(
-                List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)
+            List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)
         );
     }
 
 
     public ClientboundSetEntityDataPacket syncPacket() {
         return new ClientboundSetEntityDataPacket(tagEntityId,
-                List.of(ofData(DATA_TEXT_ID, name),
-                        ofData(DATA_LINE_WIDTH_ID, 1000),
-                        ofData(DATA_STYLE_FLAGS_ID, FLAGS),
-                        ofData(DATA_BACKGROUND_COLOR_ID, 1))
+            List.of(ofData(DATA_TEXT_ID, name),
+                ofData(DATA_LINE_WIDTH_ID, 1000),
+                ofData(DATA_STYLE_FLAGS_ID, FLAGS),
+                ofData(DATA_BACKGROUND_COLOR_ID, 1))
         );
     }
 

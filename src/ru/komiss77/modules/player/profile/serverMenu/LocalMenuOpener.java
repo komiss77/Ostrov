@@ -15,37 +15,37 @@ public class LocalMenuOpener {
             case AR:
                 op.menu.section = Section.ВОЗМОЖНОСТИ;
                 op.menu.current = SmartInventory
-                        .builder()
-                        .id(op.nik + op.menu.section.name())
-                        .provider(new Arcaim())
-                        .size(6, 9)
-                        .title("§9|6§lМеню сервера " + GM.GAME.displayName)
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + op.menu.section.name())
+                    .provider(new Arcaim())
+                    .size(6, 9)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .build()
+                    .open(p);
                 break;
 
             case DA:
                 op.menu.section = Section.ВОЗМОЖНОСТИ;
                 op.menu.current = SmartInventory
-                        .builder()
-                        .id(op.nik + op.menu.section.name())
-                        .provider(new Daaria())
-                        .size(6, 9)
-                        .title("§9|6§lМеню сервера " + GM.GAME.displayName)
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + op.menu.section.name())
+                    .provider(new Daaria())
+                    .size(6, 9)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .build()
+                    .open(p);
                 break;
 
             case SE:
                 op.menu.section = Section.ВОЗМОЖНОСТИ;
                 op.menu.current = SmartInventory
-                        .builder()
-                        .id(op.nik + op.menu.section.name())
-                        .provider(new Sedna())
-                        .size(6, 9)
-                        .title("§9|6§lМеню сервера " + GM.GAME.displayName)
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id(op.nik + op.menu.section.name())
+                    .provider(new Sedna())
+                    .size(6, 9)
+                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .build()
+                    .open(p);
                 break;
 
             default:

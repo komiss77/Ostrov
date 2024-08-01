@@ -55,8 +55,8 @@ public class ShowJournal implements InventoryProvider {
         if (buttons.isEmpty()) {
 
             content.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
 
         } else {
@@ -70,13 +70,13 @@ public class ShowJournal implements InventoryProvider {
 
         if (hasNext) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> op.menu.openJournal(p, page + 1))
+                -> op.menu.openJournal(p, page + 1))
             );
         }
 
         if (page > 0) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> op.menu.openJournal(p, page - 1))
+                -> op.menu.openJournal(p, page - 1))
             );
         }
 

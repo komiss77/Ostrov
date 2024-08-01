@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
@@ -33,7 +34,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.TCUtils;
-
 
 
 //прибить private Plugin plugin;
@@ -146,15 +146,15 @@ public class AnvilGUI {
      * @param clickHandler                    A {@link ClickHandler} that is called when the player clicks a slot
      */
     private AnvilGUI(
-            Player player,
-            Executor mainThreadExecutor,
-            Object titleComponent,
-            ItemStack[] initialContents,
-            boolean preventClose,
-            Set<Integer> interactableSlots,
-            Consumer<StateSnapshot> closeListener,
-            boolean concurrentClickHandlerExecution,
-            ClickHandler clickHandler) {
+        Player player,
+        Executor mainThreadExecutor,
+        Object titleComponent,
+        ItemStack[] initialContents,
+        boolean preventClose,
+        Set<Integer> interactableSlots,
+        Consumer<StateSnapshot> closeListener,
+        boolean concurrentClickHandlerExecution,
+        ClickHandler clickHandler) {
         this.player = player;
         this.mainThreadExecutor = mainThreadExecutor;
         this.titleComponent = titleComponent;
@@ -316,8 +316,8 @@ public class AnvilGUI {
                 }
                 // prevent players from swapping items in the anvil gui
                 if ((event.getCursor() != null && event.getCursor().getType() != Material.AIR)
-                        && !interactableSlots.contains(rawSlot)
-                        && event.getClickedInventory().equals(inventory)) {
+                    && !interactableSlots.contains(rawSlot)
+                    && event.getClickedInventory().equals(inventory)) {
                     event.setCancelled(true);
                     return;
                 }
@@ -331,7 +331,7 @@ public class AnvilGUI {
                 }
 
                 final CompletableFuture<List<ResponseAction>> actionsFuture =
-                        clickHandler.apply(rawSlot, StateSnapshot.fromAnvilGUI(AnvilGUI.this));
+                    clickHandler.apply(rawSlot, StateSnapshot.fromAnvilGUI(AnvilGUI.this));
 
                 final Consumer<List<ResponseAction>> actionsConsumer = actions -> {
                     for (final ResponseAction action : actions) {
@@ -348,16 +348,16 @@ public class AnvilGUI {
                     // If the plugin is disabled and the Executor throws an exception, the exception will be passed to
                     // the .handle method
                     actionsFuture
-                            .thenAcceptAsync(actionsConsumer, mainThreadExecutor)
-                            .handle((results, exception) -> {
-                                if (exception != null) {
-                                    Ostrov.log_err("An exception occurred in the AnvilGUI clickHandler" +
-                                            exception.getMessage());
-                                }
-                                // Whether an exception occurred or not, set running to false
-                                clickHandlerRunning = false;
-                                return null;
-                            });
+                        .thenAcceptAsync(actionsConsumer, mainThreadExecutor)
+                        .handle((results, exception) -> {
+                            if (exception != null) {
+                                Ostrov.log_err("An exception occurred in the AnvilGUI clickHandler" +
+                                    exception.getMessage());
+                            }
+                            // Whether an exception occurred or not, set running to false
+                            clickHandlerRunning = false;
+                            return null;
+                        });
                 }
             }
         }
@@ -531,7 +531,7 @@ public class AnvilGUI {
          */
         public Builder onClick(BiFunction<Integer, StateSnapshot, List<ResponseAction>> clickHandler) {
             this.clickHandler = (slot, stateSnapshot) ->
-                    CompletableFuture.completedFuture(clickHandler.apply(slot, stateSnapshot));
+                CompletableFuture.completedFuture(clickHandler.apply(slot, stateSnapshot));
             return this;
         }
 
@@ -628,7 +628,7 @@ public class AnvilGUI {
                 }
 
                 ItemMeta paperMeta = itemLeft.getItemMeta();
-                paperMeta.displayName(TCUtils.format(itemText));
+                paperMeta.displayName(TCUtils.form(itemText));
                 itemLeft.setItemMeta(paperMeta);
             }
 
@@ -638,15 +638,15 @@ public class AnvilGUI {
             }
 
             final AnvilGUI anvilGUI = new AnvilGUI(
-                    player,
-                    mainThreadExecutor,
-                    titleComponent,
-                    new ItemStack[]{itemLeft, itemRight, itemOutput},
-                    preventClose,
-                    interactableSlots,
-                    closeListener,
-                    concurrentClickHandlerExecution,
-                    clickHandler);
+                player,
+                mainThreadExecutor,
+                titleComponent,
+                new ItemStack[]{itemLeft, itemRight, itemOutput},
+                preventClose,
+                interactableSlots,
+                closeListener,
+                concurrentClickHandlerExecution,
+                clickHandler);
             anvilGUI.openInventory();
             return anvilGUI;
         }
@@ -689,12 +689,12 @@ public class AnvilGUI {
                 }
                 if (item == null) {
                     throw new IllegalStateException(
-                            "replaceInputText can only be used if slots OUTPUT or INPUT_LEFT are not empty");
+                        "replaceInputText can only be used if slots OUTPUT or INPUT_LEFT are not empty");
                 }
 
                 final ItemStack cloned = item.clone();
                 final ItemMeta meta = cloned.getItemMeta();
-                meta.displayName(TCUtils.format(text));
+                meta.displayName(TCUtils.form(text));
                 cloned.setItemMeta(meta);
                 anvilgui.getInventory().setItem(Slot.INPUT_LEFT, cloned);
             };
@@ -805,10 +805,10 @@ public class AnvilGUI {
         private static StateSnapshot fromAnvilGUI(AnvilGUI anvilGUI) {
             final Inventory inventory = anvilGUI.getInventory();
             return new StateSnapshot(
-                    itemNotNull(inventory.getItem(Slot.INPUT_LEFT)).clone(),
-                    itemNotNull(inventory.getItem(Slot.INPUT_RIGHT)).clone(),
-                    itemNotNull(inventory.getItem(Slot.OUTPUT)).clone(),
-                    anvilGUI.player);
+                itemNotNull(inventory.getItem(Slot.INPUT_LEFT)).clone(),
+                itemNotNull(inventory.getItem(Slot.INPUT_RIGHT)).clone(),
+                itemNotNull(inventory.getItem(Slot.OUTPUT)).clone(),
+                anvilGUI.player);
         }
 
         /**
@@ -858,7 +858,7 @@ public class AnvilGUI {
          * @return The text of the rename field
          */
         public String getText() {
-            return outputItem.hasItemMeta() ? TCUtils.toString(outputItem.getItemMeta().displayName()) : "";
+            return outputItem.hasItemMeta() ? TCUtils.deform(outputItem.getItemMeta().displayName()) : "";
         }
     }
 }
@@ -937,7 +937,7 @@ final class CustomAnvil {
     protected static class AnvilContainer extends AnvilMenu {
         public AnvilContainer(Player player, int containerId, Component guiTitle) {
             super(containerId, Craft.toNMS(player).getInventory(),
-                    ContainerLevelAccess.create(Craft.toNMS(player.getWorld()), new BlockPos(0, 0, 0)));
+                ContainerLevelAccess.create(Craft.toNMS(player.getWorld()), new BlockPos(0, 0, 0)));
             this.checkReachable = false;
             setTitle(guiTitle);
         }

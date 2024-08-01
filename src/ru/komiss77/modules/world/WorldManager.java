@@ -231,10 +231,10 @@ public class WorldManager implements Initiable {
         if (Bukkit.getWorld(world_name) != null) {
 
             sender.sendMessage(Component.text()
-                    .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен! §7тп в мир - /ostrov wm tp " + world_name + " <клик"))
-                    .hoverEvent(HoverEvent.showText(Component.text("клик - ТП")))
-                    .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
-                    .build());//spigot().sendMessage(msg);
+                .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен! §7тп в мир - /ostrov wm tp " + world_name + " <клик"))
+                .hoverEvent(HoverEvent.showText(Component.text("клик - ТП")))
+                .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
+                .build());//spigot().sendMessage(msg);
             return Bukkit.getWorld(world_name);
         }
 
@@ -267,7 +267,7 @@ public class WorldManager implements Initiable {
         boolean valid_regions = false;
 
         final String regionFolderName = environment == Environment.NORMAL ? "region" :
-                environment == Environment.NETHER ? "DIM-1" : "DIM1";
+            environment == Environment.NETHER ? "DIM-1" : "DIM1";
 
         for (final File f : worldFoldersDirectory.listFiles()) {
             if (f.isDirectory()) {
@@ -315,8 +315,8 @@ public class WorldManager implements Initiable {
         final long currentTimeMillis5 = System.currentTimeMillis();
 
         final WorldCreator wc = new WorldCreator(world_name)
-                .environment(environment)
-                .seed(Ostrov.random.nextLong());
+            .environment(environment)
+            .seed(Ostrov.random.nextLong());
 
         applyGenerator(wc, generator);
 
@@ -326,10 +326,10 @@ public class WorldManager implements Initiable {
             Ostrov.log_ok("§2Мир загружен за " + (System.currentTimeMillis() - currentTimeMillis5) + "ms");
         } else {
             sender.sendMessage(Component.text()
-                    .append(Component.text(Ostrov.PREFIX + "Мир загружен за §5" + (System.currentTimeMillis() - currentTimeMillis5) + "ms" + "§7 §f>§lПЕРЕЙТИ§f<"))
-                    .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
-                    .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
-                    .build());
+                .append(Component.text(Ostrov.PREFIX + "Мир загружен за §5" + (System.currentTimeMillis() - currentTimeMillis5) + "ms" + "§7 §f>§lПЕРЕЙТИ§f<"))
+                .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
+                .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
+                .build());
         }
 
 
@@ -377,8 +377,8 @@ public class WorldManager implements Initiable {
 
 
         final WorldCreator wc = new WorldCreator(world_name)
-                //.environment(environment).generateStructures(true);
-                .environment(environment);
+            //.environment(environment).generateStructures(true);
+            .environment(environment);
 
         applyGenerator(wc, generator);
 
@@ -401,10 +401,10 @@ public class WorldManager implements Initiable {
 
         if (suggestTp) {
             sender.sendMessage(Component.text()
-                    .append(Component.text(Ostrov.PREFIX + "Мир создан за §5" + (System.currentTimeMillis() - time) + "ms" + "§7 §f>§lПЕРЕЙТИ§f<"))
-                    .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
-                    .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
-                    .build());
+                .append(Component.text(Ostrov.PREFIX + "Мир создан за §5" + (System.currentTimeMillis() - time) + "ms" + "§7 §f>§lПЕРЕЙТИ§f<"))
+                .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
+                .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
+                .build());
             //sender.sendMessage(Component.text(Ostrov.PREFIX+"Мир загружен за §5"+(System.currentTimeMillis() - time) +
             //		"ms" +"§7, тп в мир - /ostrov wm tp " + world_name + " <клик")
             //	.clickEvent(ClickEvent.runCommand("/wm tp " + world_name)));

@@ -1,13 +1,13 @@
 package ru.komiss77.utils.inventory;
 
-import java.util.function.Consumer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
+
+import java.util.function.Consumer;
 
 public class ConfirmationGUI implements InventoryProvider {
     private final boolean sound;
@@ -20,12 +20,12 @@ public class ConfirmationGUI implements InventoryProvider {
 
     public static void open(Player player, String title, boolean sound, Consumer<Boolean> consumer) {
         SmartInventory
-                .builder()
-                .title(title)
-                .size(1)
-                .provider(new ConfirmationGUI(consumer, sound))
-                .build()
-                .open(player);
+            .builder()
+            .title(title)
+            .size(1)
+            .provider(new ConfirmationGUI(consumer, sound))
+            .build()
+            .open(player);
     }
 
     private ConfirmationGUI(Consumer<Boolean> consumer, boolean playSound) {

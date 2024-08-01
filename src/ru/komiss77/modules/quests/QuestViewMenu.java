@@ -45,15 +45,15 @@ public class QuestViewMenu implements InventoryProvider {
             if (pr != null) {
                 if (pr.isDone()) {
                     buttons.add(ClickableItem.empty(new ItemBuilder(Material.TURTLE_SCUTE)
-                            .name(q.displayName).addLore("§8Завершено").build()));
+                        .name(q.displayName).lore("§8Завершено").build()));
                 } else {
                     final ItemStack is = new ItemBuilder(Material.RAW_GOLD)
-                            .name(q.displayName)
-                            .setLore(Quest.loreMap.get(q))
-                            .addLore("§aАктивно" + (q.amount > 0 ? "§7, прогресс: §f" + pr.getProg() + " §7из §f" + q.amount : ""))
-                            .addLore(builder ? "§b*Отладка: §eЛКМ-завершить" : "")
-                            .addLore(builder && q.amount > 0 ? "§b*Отладка: §eПКМ-добавить прогресс" : "")
-                            .build();
+                        .name(q.displayName)
+                        .deLore().lore(Quest.loreMap.get(q))
+                        .lore("§aАктивно" + (q.amount > 0 ? "§7, прогресс: §f" + pr.getProg() + " §7из §f" + q.amount : ""))
+                        .lore(builder ? "§b*Отладка: §eЛКМ-завершить" : "")
+                        .lore(builder && q.amount > 0 ? "§b*Отладка: §eПКМ-добавить прогресс" : "")
+                        .build();
                     if (builder) {
                         buttons.add(ClickableItem.of(is, e -> {
                             if (e.isLeftClick()) {
@@ -70,11 +70,11 @@ public class QuestViewMenu implements InventoryProvider {
                 }
             } else if (builder) {
                 buttons.add(ClickableItem.of(new ItemBuilder(Material.FIREWORK_STAR)
-                        .name(q.displayName).setLore(Quest.loreMap.get(q))
-                        .addLore("§6Предстоит").addLore("§7Откроется после выполнения §e" + q.parent.displayName)
-                        .addLore("§b*Отладка: §eЛКМ-завершить")
-                        .addLore("§b*Отладка: §eПКМ-добавить прогресс")
-                        .build(), e -> {
+                    .name(q.displayName).deLore().lore(Quest.loreMap.get(q))
+                    .lore("§6Предстоит").lore("§7Откроется после выполнения §e" + q.parent.displayName)
+                    .lore("§b*Отладка: §eЛКМ-завершить")
+                    .lore("§b*Отладка: §eПКМ-добавить прогресс")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
                         QuestManager.complete(p, op, q);
                         reopen(p, content);
@@ -92,17 +92,17 @@ public class QuestViewMenu implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
     }

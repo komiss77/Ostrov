@@ -64,13 +64,13 @@ public class FriendMail implements InventoryProvider {
         }
 
         menuEntry.add(ClickableItem.of(new ItemBuilder(Material.REDSTONE)
-                        .name("§cОчистить почту")
-                        .build(), e -> {
-                    op.setData(Data.FRIENDS_MSG_OFFLINE, 0);
-                    mails.clear();
-                    OstrovDB.executePstAsync(p, "DELETE FROM `fr_messages` WHERE `reciever`='" + op.nik + "';");
-                    reopen(p, content);
-                }
+                .name("§cОчистить почту")
+                .build(), e -> {
+                op.setData(Data.FRIENDS_MSG_OFFLINE, 0);
+                mails.clear();
+                OstrovDB.executePstAsync(p, "DELETE FROM `fr_messages` WHERE `reciever`='" + op.nik + "';");
+                reopen(p, content);
+            }
         ));
 
 
@@ -80,17 +80,17 @@ public class FriendMail implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

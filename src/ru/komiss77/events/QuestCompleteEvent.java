@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-
 import ru.komiss77.modules.quests.Quest;
 
 
@@ -19,10 +18,6 @@ public final class QuestCompleteEvent extends PlayerEvent implements Cancellable
      * Constructor for the QuestCompleteEvent.
      *
      * @param player        The player who completed.
-     * @param equipType
-     * @param type          The quest completed.
-     * @param oldArmorPiece The ItemStack of the armor removed.
-     * @param newArmorPiece The ItemStack of the armor added.
      */
     //@Deprecated
     public QuestCompleteEvent(final Player player, final Quest quest) {
@@ -35,7 +30,7 @@ public final class QuestCompleteEvent extends PlayerEvent implements Cancellable
      *
      * @return A list of handlers handling this event.
      */
-    public final static HandlerList getHandlerList() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
@@ -45,7 +40,7 @@ public final class QuestCompleteEvent extends PlayerEvent implements Cancellable
      * @return A list of handlers handling this event.
      */
     @Override
-    public final HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return handlers;
     }
 
@@ -55,7 +50,7 @@ public final class QuestCompleteEvent extends PlayerEvent implements Cancellable
      * @param cancel If this event should be cancelled.
      */
     @Override
-    public final void setCancelled(final boolean cancel) {
+    public void setCancelled(final boolean cancel) {
         this.cancel = cancel;
     }
 
@@ -65,11 +60,11 @@ public final class QuestCompleteEvent extends PlayerEvent implements Cancellable
      * @return If this event is cancelled
      */
     @Override
-    public final boolean isCancelled() {
+    public boolean isCancelled() {
         return cancel;
     }
 
-    public final Quest getQuest() {
+    public Quest getQuest() {
         return quest;
     }
 }

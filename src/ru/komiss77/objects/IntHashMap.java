@@ -83,14 +83,14 @@ public class IntHashMap<V> implements Cloneable, Serializable {
     public IntHashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException("Illegal initial capacity: " + //$NON-NLS-1$
-                    initialCapacity);
+                initialCapacity);
         }
         if (initialCapacity > MAXIMUM_CAPACITY) {
             initialCapacity = MAXIMUM_CAPACITY;
         }
         if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
             throw new IllegalArgumentException("Illegal load factor: " + //$NON-NLS-1$
-                    loadFactor);
+                loadFactor);
         }
 
         // Find a power of 2 >= initialCapacity

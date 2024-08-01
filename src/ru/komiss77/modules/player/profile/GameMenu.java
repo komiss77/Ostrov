@@ -1,13 +1,11 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
-import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
@@ -69,17 +67,17 @@ public class GameMenu implements InventoryProvider {
             }
 
             content.set(22, ClickableItem.of(new ItemBuilder(Material.RECOVERY_COMPASS)
-                            .name("§c|e§lБольшие Режимы")
-                            .addLore("")
-                            .addLore("§a§lВыживание")
-                            .addLore("§9§lКреатив")
-                            .addLore("§c§lХардкор")
-                            .addLore("§b§lСкайБлок")
-                            .addLore("§eи другие...")
-                            .build(), e -> {
-                        mini = false;
-                        reopen(p, content);
-                    }
+                    .name("§c|e§lБольшие Режимы")
+                    .lore("")
+                    .lore("§a§lВыживание")
+                    .lore("§9§lКреатив")
+                    .lore("§c§lХардкор")
+                    .lore("§b§lСкайБлок")
+                    .lore("§eи другие...")
+                    .build(), e -> {
+                    mini = false;
+                    reopen(p, content);
+                }
             ));
 
 
@@ -108,20 +106,20 @@ public class GameMenu implements InventoryProvider {
             }
 
             content.set(22, ClickableItem.of(new ItemBuilder(Material.RECOVERY_COMPASS)
-                            .name("§a§lМ§d§lИ§c§lН§e§lИ§9§lИ§5§lГ§4§lР§b§lЫ")
-                            .addLore("")
-                            .addLore("§e§lБедВарс")
-                            .addLore("§4§lГолодные Игры")
-                            .addLore("§5§lСкайВарс")
-                            .addLore("§a§lБитва Строителей")
-                            .addLore("§5§lКонтра")
-                            .addLore("§3§lПрятки")
-                            .addLore("§b§lКит-ПВП")
-                            .addLore("§аи другие...")
-                            .build(), e -> {
-                        mini = true;
-                        reopen(p, content);
-                    }
+                    .name("§a§lМ§d§lИ§c§lН§e§lИ§9§lИ§5§lГ§4§lР§b§lЫ")
+                    .lore("")
+                    .lore("§e§lБедВарс")
+                    .lore("§4§lГолодные Игры")
+                    .lore("§5§lСкайВарс")
+                    .lore("§a§lБитва Строителей")
+                    .lore("§5§lКонтра")
+                    .lore("§3§lПрятки")
+                    .lore("§b§lКит-ПВП")
+                    .lore("§аи другие...")
+                    .build(), e -> {
+                    mini = true;
+                    reopen(p, content);
+                }
             ));
         }
 

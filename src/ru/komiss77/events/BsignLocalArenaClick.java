@@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
 
 public class BsignLocalArenaClick extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     public final Player player;
     public final String arenaName;
 

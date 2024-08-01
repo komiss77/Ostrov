@@ -21,7 +21,7 @@ public class AdminCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("admin")
             .executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;

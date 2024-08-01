@@ -470,8 +470,8 @@ public class PlayerLst implements Listener {
                 //утопление
                 //голод
                 case FALL, THORNS, LIGHTNING, DRAGON_BREATH,
-                        CONTACT, FIRE, FIRE_TICK, HOT_FLOOR, CRAMMING,
-                        DROWNING, STARVATION, LAVA:
+                     CONTACT, FIRE, FIRE_TICK, HOT_FLOOR, CRAMMING,
+                     DROWNING, STARVATION, LAVA:
                 default:
                     if (Config.disable_damage) e.setCancelled(true);
                     //return;

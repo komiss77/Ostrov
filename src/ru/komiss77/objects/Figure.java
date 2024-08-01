@@ -87,7 +87,7 @@ public class Figure {
         if (name.isEmpty()) {
             entity.setCustomNameVisible(false);
         } else {
-            entity.customName(TCUtils.format(name));
+            entity.customName(TCUtils.form(name));
             entity.setCustomNameVisible(true);
         }
     }

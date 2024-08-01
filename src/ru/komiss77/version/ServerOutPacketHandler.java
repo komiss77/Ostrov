@@ -49,8 +49,8 @@ public class ServerOutPacketHandler extends MessageToByteEncoder<Packet<?>> {
     @Override
     public boolean acceptOutboundMessage(final Object msg) {
         return rewriteChat && msg instanceof ClientboundPlayerChatPacket
-                || noChatReports && msg instanceof ClientboundStatusResponsePacket
-                || claimSecureChatEnforced && msg instanceof ClientboundLoginPacket;
+            || noChatReports && msg instanceof ClientboundStatusResponsePacket
+            || claimSecureChatEnforced && msg instanceof ClientboundLoginPacket;
     }
 
     @Override
@@ -79,17 +79,17 @@ public class ServerOutPacketHandler extends MessageToByteEncoder<Packet<?>> {
 
     private void encode(@SuppressWarnings("unused") final ChannelHandlerContext ctx, final ClientboundLoginPacket msg, final FriendlyByteBuf buf) {
         final ClientboundLoginPacket rewritten = new ClientboundLoginPacket(
-                msg.playerId(),
-                msg.hardcore(),
-                msg.levels(),
-                msg.maxPlayers(),
-                msg.chunkRadius(),
-                msg.simulationDistance(),
-                msg.reducedDebugInfo(),
-                msg.showDeathScreen(),
-                msg.doLimitedCrafting(),
-                msg.commonPlayerSpawnInfo(),
-                true // Enforced secure chat
+            msg.playerId(),
+            msg.hardcore(),
+            msg.levels(),
+            msg.maxPlayers(),
+            msg.chunkRadius(),
+            msg.simulationDistance(),
+            msg.reducedDebugInfo(),
+            msg.showDeathScreen(),
+            msg.doLimitedCrafting(),
+            msg.commonPlayerSpawnInfo(),
+            true // Enforced secure chat
         );
         s2cPlayPacketCodec.encode(buf, rewritten);
     }
@@ -98,12 +98,12 @@ public class ServerOutPacketHandler extends MessageToByteEncoder<Packet<?>> {
         final ServerStatus status = msg.status();
 
         final CustomServerMetadata customStatus = new CustomServerMetadata(
-                status.description(),
-                status.players(),
-                status.version(),
-                status.favicon(),
-                status.enforcesSecureChat(),
-                true
+            status.description(),
+            status.players(),
+            status.version(),
+            status.favicon(),
+            status.enforcesSecureChat(),
+            true
         );
 
         buf.writeVarInt(STATUS_RESPONSE_PACKET_ID);
@@ -161,20 +161,20 @@ record CustomServerMetadata(Component description, Optional<ServerStatus.Players
                             Optional<ServerStatus.Version> version, Optional<ServerStatus.Favicon> favicon,
                             boolean enforcesSecureChat, boolean preventsChatReports) {
     public static final Codec<CustomServerMetadata> CODEC = RecordCodecBuilder
-            .create((instance) -> instance.group(
-                            ComponentSerialization.CODEC.lenientOptionalFieldOf("description", CommonComponents.EMPTY)
-                                    .forGetter(CustomServerMetadata::description),
-                            ServerStatus.Players.CODEC.lenientOptionalFieldOf("players")
-                                    .forGetter(CustomServerMetadata::players),
-                            ServerStatus.Version.CODEC.lenientOptionalFieldOf("version")
-                                    .forGetter(CustomServerMetadata::version),
-                            ServerStatus.Favicon.CODEC.lenientOptionalFieldOf("favicon")
-                                    .forGetter(CustomServerMetadata::favicon),
-                            Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", false)
-                                    .forGetter(CustomServerMetadata::enforcesSecureChat),
-                            Codec.BOOL.lenientOptionalFieldOf("preventsChatReports", false)
-                                    .forGetter(CustomServerMetadata::preventsChatReports))
-                    .apply(instance, CustomServerMetadata::new));
+        .create((instance) -> instance.group(
+                ComponentSerialization.CODEC.lenientOptionalFieldOf("description", CommonComponents.EMPTY)
+                    .forGetter(CustomServerMetadata::description),
+                ServerStatus.Players.CODEC.lenientOptionalFieldOf("players")
+                    .forGetter(CustomServerMetadata::players),
+                ServerStatus.Version.CODEC.lenientOptionalFieldOf("version")
+                    .forGetter(CustomServerMetadata::version),
+                ServerStatus.Favicon.CODEC.lenientOptionalFieldOf("favicon")
+                    .forGetter(CustomServerMetadata::favicon),
+                Codec.BOOL.lenientOptionalFieldOf("enforcesSecureChat", false)
+                    .forGetter(CustomServerMetadata::enforcesSecureChat),
+                Codec.BOOL.lenientOptionalFieldOf("preventsChatReports", false)
+                    .forGetter(CustomServerMetadata::preventsChatReports))
+            .apply(instance, CustomServerMetadata::new));
 
     public Component description() {
         return this.description;

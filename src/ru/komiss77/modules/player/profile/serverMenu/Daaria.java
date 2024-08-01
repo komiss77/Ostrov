@@ -54,23 +54,23 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
-                .name("§eВарпы")
-                .addLore("")
-                .addLore("§7Варпы сервера,игроков")
-                .addLore("§7и администрации.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВарпы")
+            .lore("")
+            .lore("§7Варпы сервера,игроков")
+            .lore("§7и администрации.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("warp");
         }));
 
         content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                .name("§7Спавн")
-                .addLore("")
-                .addLore("§7Переход на спавн")
-                .addLore("")
-                .build(), e -> {
+            .name("§7Спавн")
+            .lore("")
+            .lore("§7Переход на спавн")
+            .lore("")
+            .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.performCommand("spawn");
@@ -78,10 +78,10 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.REPEATER)
-                .name("§bМеню личных настроек")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§bМеню личных настроек")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             pm.openLocalSettings(p, true);
         }));
 
@@ -121,14 +121,14 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                .name("§eРегионы")
-                .unsafeEnchantment(Enchantment.KNOCKBACK, 1)
-                .addLore("§fУправление регионами.")
-                .addLore("§7Создание, удаление,")
-                .addLore("§7Установка точек ТП (домов),")
-                .addLore("§7Настройка флагов.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eРегионы")
+            .enchant(Enchantment.KNOCKBACK, 1)
+            .lore("§fУправление регионами.")
+            .lore("§7Создание, удаление,")
+            .lore("§7Установка точек ТП (домов),")
+            .lore("§7Настройка флагов.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land");
@@ -136,13 +136,13 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
-                .name("§eВернуться в свой регион")
-                .addLore("§7Дом любимый дом.")
-                .addLore("§7Создание, удаление,")
-                .addLore("§7Откроется меню выбора")
-                .addLore("§7региона, в который вернуться.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВернуться в свой регион")
+            .lore("§7Дом любимый дом.")
+            .lore("§7Создание, удаление,")
+            .lore("§7Откроется меню выбора")
+            .lore("§7региона, в который вернуться.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land home");
@@ -150,11 +150,11 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
-                .name("§eВернуться домой")
-                .addLore("")
-                .addLore("§7Дом любимый дом")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВернуться домой")
+            .lore("")
+            .lore("§7Дом любимый дом")
+            .lore("")
+            .build(), e -> {
             p.closeInventory();
             pm.current = null;
             p.performCommand("home");
@@ -162,21 +162,21 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
-                .name("§eУправление точками дома")
-                .addLore("")
-                .addLore("§eУправление точками дома")
-                .addLore("")
-                .build(), e -> {
+            .name("§eУправление точками дома")
+            .lore("")
+            .lore("§eУправление точками дома")
+            .lore("")
+            .build(), e -> {
             pm.openHomes(p);
         }));
 
 
         content.set(3, 2, ClickableItem.of(new ItemBuilder(Material.ENDER_CHEST)
-                .name("§aНаборы")
-                .addLore("")
-                .addLore("§7Меню наборов.")
-                .addLore("")
-                .build(), e -> {
+            .name("§aНаборы")
+            .lore("")
+            .lore("§7Меню наборов.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("kit");
@@ -184,14 +184,14 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(3, 4, ClickableItem.of(new ItemBuilder(Material.DIAMOND_PICKAXE)
-                .name("§6Работы")
-                .addLore("")
-                .addLore("§7ЛКМ - меню работ")
-                .addLore("§7Чтобы уволиться с работы,")
-                .addLore("§7наберите команду")
-                .addLore("§b/jobs leave §7название_работы")
-                .addLore("§7")
-                .build(), e -> {
+            .name("§6Работы")
+            .lore("")
+            .lore("§7ЛКМ - меню работ")
+            .lore("§7Чтобы уволиться с работы,")
+            .lore("§7наберите команду")
+            .lore("§b/jobs leave §7название_работы")
+            .lore("§7")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 pm.current = null;
                 p.performCommand("jobs join");
@@ -203,12 +203,12 @@ public class Daaria implements InventoryProvider {
 
 
         content.set(3, 6, ClickableItem.of(new ItemBuilder(Material.DIAMOND)
-                .name("§eРынок")
-                .addLore("")
-                //.addLore("§cПлагин для рынка")
-                //.addLore("§cпеределывают.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eРынок")
+            .lore("")
+            //.addLore("§cПлагин для рынка")
+            //.addLore("§cпеределывают.")
+            .lore("")
+            .build(), e -> {
             //p.closeInventory();
             //PM.soundDeny(p);
             p.performCommand("market");

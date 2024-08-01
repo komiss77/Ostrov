@@ -43,11 +43,11 @@ public class MissionsCompleteMenu implements InventoryProvider {
         if (MissionManager.missions.isEmpty()) {
 
             content.set(2, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Миссия невыполнима")
-                    .addLore("")
-                    .addLore("§5Нет активных миссий")
-                    .addLore("")
-                    .build()
+                .name("§7Миссия невыполнима")
+                .lore("")
+                .lore("§5Нет активных миссий")
+                .lore("")
+                .build()
             ));
             return;
 
@@ -56,11 +56,11 @@ public class MissionsCompleteMenu implements InventoryProvider {
         if (op.missionIds.isEmpty()) {
 
             content.set(2, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Миссия невыполнима")
-                    .addLore("")
-                    .addLore("§5Нет миссий на выполнении")
-                    .addLore("")
-                    .build()
+                .name("§7Миссия невыполнима")
+                .lore("")
+                .lore("§5Нет миссий на выполнении")
+                .lore("")
+                .build()
             ));
 
             return;
@@ -81,20 +81,20 @@ public class MissionsCompleteMenu implements InventoryProvider {
         if (mi == null) {
 
             content.set(2, ClickableItem.empty(new ItemBuilder(Material.MUSIC_DISC_11)
-                    .name("§7ID: §3" + missionId)
-                    .addLore("§cМиссия неактивна")
-                    .build()
+                .name("§7ID: §3" + missionId)
+                .lore("§cМиссия неактивна")
+                .build()
             ));
 
         } else {
 
             content.set(2, ClickableItem.of(new ItemBuilder(mi.mat)
-                            .name(mi.displayName())
-                            .addLore("§7Награда: §e" + mi.reward + " рил")
-                            .build(), e -> {
-                        p.closeInventory();
-                        p.performCommand("mission complete " + missionId);
-                    }
+                    .name(mi.displayName())
+                    .lore("§7Награда: §e" + mi.reward + " рил")
+                    .build(), e -> {
+                    p.closeInventory();
+                    p.performCommand("mission complete " + missionId);
+                }
             ));
 
         }
@@ -111,19 +111,19 @@ public class MissionsCompleteMenu implements InventoryProvider {
 
         if (index < ids.size() - 1) {
             content.set(4, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        index++;
-                        reopen(p, content);
-                    }
+                    -> {
+                    index++;
+                    reopen(p, content);
+                }
             ));
         }
 
         if (index > 0) {
             content.set(0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        index--;
-                        reopen(p, content);
-                    })
+                    -> {
+                    index--;
+                    reopen(p, content);
+                })
             );
         }
 

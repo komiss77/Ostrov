@@ -10,7 +10,7 @@ import ru.komiss77.modules.player.Oplayer;
 
 public class StatChangeEvent extends Event implements Cancellable {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Player p;
     private final Oplayer op;
     private final Stat stat;

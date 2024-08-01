@@ -335,8 +335,8 @@ public class TCUtils {
 
     public static char[] getColors(final boolean extra) {
         return extra ? new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'a', 'b', 'c', 'd', 'e', 'f', 'я', 'н', 'б', 'р', 'о', 'ф', 'с', 'к', 'ч', 'м'}
-                : new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+            'a', 'b', 'c', 'd', 'e', 'f', 'я', 'н', 'б', 'р', 'о', 'ф', 'с', 'к', 'ч', 'м'}
+            : new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     }
 
     public static String dyeDisplayName(final DyeColor dyecolor) {
@@ -842,7 +842,7 @@ public class TCUtils {
                         final int end = en.getValue();
                         if (last != end) {
                             comps.add(Component.text(sb.substring(last, end),
-                                    stb.decorations(decs, true).color(color).build()));
+                                stb.decorations(decs, true).color(color).build()));
                             last = end;
                         }
                         decs.add(en.getKey());
@@ -851,12 +851,12 @@ public class TCUtils {
 
                 if (last != sb.length()) {
                     comps.add(Component.text(sb.substring(last, sb.length()),
-                            stb.decorations(decs, true).color(color).build()));
+                        stb.decorations(decs, true).color(color).build()));
                 }
             } else if (color != null) {
                 final EnumSet<TextDecoration> decs = EnumSet.noneOf(TextDecoration.class);
                 int ln = sb.length() - 1, ir = color.red(), ig = color.green(), ib = color.blue(),
-                        dr = (gradTo.red() - ir) / ln, dg = (gradTo.green() - ig) / ln, db = (gradTo.blue() - ib) / ln;
+                    dr = (gradTo.red() - ir) / ln, dg = (gradTo.green() - ig) / ln, db = (gradTo.blue() - ib) / ln;
                 final char[] car = sb.toString().toCharArray();
                 if (dec.isEmpty()) {
                     for (int ci = 0; ci != ln; ci++) {
@@ -879,7 +879,7 @@ public class TCUtils {
                             nxt = nextDec.getValue();
                         }
                         comps.add(Component.text(car[ci], stb.decorations(decs, true)
-                                .color(TextColor.color(ir, ig, ib)).build()));
+                            .color(TextColor.color(ir, ig, ib)).build()));
                         ir += dr;
                         ig += dg;
                         ib += db;
@@ -939,7 +939,7 @@ public class TCUtils {
                         if (cnt.length() == 1) {//>1 char
                             if (gradient == null) {//no gradient
                                 gradient = new Gradient(color, sb.length(),
-                                        lstClr != null && lstClr.value() == color.value());
+                                    lstClr != null && lstClr.value() == color.value());
                             }
                         } else {//stop gradient - >2 chars
                             if (gradient == null) {//no gradient
@@ -953,7 +953,7 @@ public class TCUtils {
                                     sb.insert(gradient.start, "§" + toString(gradient.init));
                                 } else {
                                     sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
-                                            : "§" + toString(gradient.init) + GRAD + toString(lstClr));
+                                        : "§" + toString(gradient.init) + GRAD + toString(lstClr));
                                 }
                                 gradient = null;
                                 sb.append("§").append(clr);
@@ -969,7 +969,7 @@ public class TCUtils {
                                 sb.insert(gradient.start, "§" + toString(gradient.init));
                             } else {
                                 sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
-                                        : "§" + toString(gradient.init) + GRAD + toString(lstClr));
+                                    : "§" + toString(gradient.init) + GRAD + toString(lstClr));
                             }
                             gradient = null;
                         }
@@ -1005,7 +1005,7 @@ public class TCUtils {
                 sb.insert(gradient.start, "§" + toString(gradient.init));
             } else {
                 sb.insert(gradient.start, gradient.ext ? "§" + GRAD + toString(lstClr)
-                        : "§" + toString(gradient.init) + GRAD + toString(lstClr));
+                    : "§" + toString(gradient.init) + GRAD + toString(lstClr));
             }
             gradient = null;
         }
@@ -1151,8 +1151,8 @@ public class TCUtils {
     public static NamedTextColor chatColorFromString(final String s) {
         final TextColor tc = getTextColor(s);
         return tc instanceof NamedTextColor
-                //? (NamedTextColor) tc : NamedTextColor.WHITE;
-                ? (NamedTextColor) tc : NamedTextColor.nearestTo(tc);
+            //? (NamedTextColor) tc : NamedTextColor.WHITE;
+            ? (NamedTextColor) tc : NamedTextColor.nearestTo(tc);
     }
 
 }

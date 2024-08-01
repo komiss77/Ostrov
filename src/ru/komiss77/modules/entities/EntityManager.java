@@ -109,11 +109,11 @@ public class EntityManager implements Initiable, Listener {
     public void onSpawn(final CreatureSpawnEvent e) {
         final Entity ent = e.getEntity();
         final CustomEntity he = ent.getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he == null) {
             for (final CustomEntity ce : custom.values()) {
                 if (ent.getClass().isAssignableFrom(ce.getEntClass())
-                        && ce.canBe(ent, e.getSpawnReason())) ce.apply(ent);
+                    && ce.canBe(ent, e.getSpawnReason())) ce.apply(ent);
             }
         }
     }
@@ -121,12 +121,12 @@ public class EntityManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onHurt(e);
         final Entity dmgr = e.getDamageSource().getCausingEntity();
         if (dmgr != null && e instanceof EntityDamageByEntityEvent) {
             final CustomEntity de = dmgr.getPersistentDataContainer()
-                    .get(key, data);
+                .get(key, data);
             if (de != null) de.onAttack((EntityDamageByEntityEvent) e);
         }
     }
@@ -134,28 +134,28 @@ public class EntityManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDeath(final EntityDeathEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onDeath(e);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onTarget(final EntityTargetEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onTarget(e);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onShoot(e);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPot(final EntityPotionEffectEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onPot(e);
     }
 
@@ -217,7 +217,7 @@ public class EntityManager implements Initiable, Listener {
 
     private static void extraEvent(final EntityEvent e) {
         final CustomEntity he = e.getEntity().getPersistentDataContainer()
-                .get(key, data);
+            .get(key, data);
         if (he != null) he.onExtra(e);
     }
 

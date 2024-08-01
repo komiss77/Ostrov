@@ -26,7 +26,7 @@ import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.modules.world.WorldManager.Generator;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.StackBuilder;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.*;
 
@@ -46,73 +46,73 @@ public class WorldManagerCmd implements OCommand {
     //если пустой - выкачать из снапшота БД
 
     public static final List<String> commands = Arrays.asList("list", "tp", "create",
-            "load", "import", "save", "unload", "setspawn", "delete", "backup", "restore");
+        "load", "import", "save", "unload", "setspawn", "delete", "backup", "restore");
 
     private static final String op = "operation", world = "world",
-            env = "environment", gen = "generator";
+        env = "environment", gen = "generator";
 
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("wm").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof final Player pl) || !ApiOstrov.isLocalBuilder(cs)) {
-                        cs.sendMessage("§cНевыполнимая комманда!");
-                        return 0;
-                    }
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player pl) || !ApiOstrov.isLocalBuilder(cs)) {
+                    cs.sendMessage("§cНевыполнимая комманда!");
+                    return 0;
+                }
 
-                    SmartInventory.builder()
-                            .id("Worlds" + pl.getName())
-                            .provider(new WorldSetupMenu())
-                            .size(6, 9)
-                            .title("§2Миры сервера")
-                            .build().open(pl);
-                    return Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.string(op).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
-
-                    commands.forEach(c -> sb.suggest(c));
+                SmartInventory.builder()
+                    .id("Worlds" + pl.getName())
+                    .provider(new WorldSetupMenu())
+                    .size(6, 9)
+                    .title("§2Миры сервера")
+                    .build().open(pl);
+                return Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.string(op).suggests((cntx, sb) -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                     return sb.buildFuture();
-                }).then(Resolver.string(world).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
+                }
 
-                    Bukkit.getWorlds().forEach(w -> sb.suggest(w.getName()));
+                commands.forEach(c -> sb.suggest(c));
+                return sb.buildFuture();
+            }).then(Resolver.string(world).suggests((cntx, sb) -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                     return sb.buildFuture();
-                }).executes(tryWMCmd()).then(Resolver.string(env).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
+                }
 
-                    switch (Resolver.string(cntx, op)) {
-                        case "create", "load", "import":
-                            for (final World.Environment en : World.Environment.values()) {
-                                sb.suggest(en.name());
-                            }
-                    }
+                Bukkit.getWorlds().forEach(w -> sb.suggest(w.getName()));
+                return sb.buildFuture();
+            }).executes(tryWMCmd()).then(Resolver.string(env).suggests((cntx, sb) -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                     return sb.buildFuture();
-                }).then(Resolver.string(gen).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
+                }
 
-                    switch (Resolver.string(cntx, op)) {
-                        case "create", "load", "import":
-                            for (final Generator gn : Generator.values()) {
-                                sb.suggest(gn.name());
-                            }
-                    }
+                switch (Resolver.string(cntx, op)) {
+                    case "create", "load", "import":
+                        for (final World.Environment en : World.Environment.values()) {
+                            sb.suggest(en.name());
+                        }
+                }
+                return sb.buildFuture();
+            }).then(Resolver.string(gen).suggests((cntx, sb) -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                     return sb.buildFuture();
-                }).executes(tryWMCmd())))))
-                .build();
+                }
+
+                switch (Resolver.string(cntx, op)) {
+                    case "create", "load", "import":
+                        for (final Generator gn : Generator.values()) {
+                            sb.suggest(gn.name());
+                        }
+                }
+                return sb.buildFuture();
+            }).executes(tryWMCmd())))))
+            .build();
     }
 
     private static Command<CommandSourceStack> tryWMCmd() {
         return cntx -> {
-            final CommandSender cs = cntx.getSource().getExecutor();
+            final CommandSender cs = cntx.getSource().getSender();
             if (!ApiOstrov.isLocalBuilder(cs)) {
                 cs.sendMessage("§cНедостаточно прав!");
                 return 0;
@@ -128,16 +128,16 @@ public class WorldManagerCmd implements OCommand {
                         final ChunkGenerator cg = ow.getGenerator();
                         final String wgn = cg == null ? null : cg.getClass().getName();
                         cs.sendMessage(TCUtils.form(
-                                        "§b- §e" + ow.getName() +
-                                                " §7 (" + ow.getEnvironment().name() +
-                                                ", " + (wgn == null ? "null" :
-                                                (wgn.contains(".") ? wgn.substring(wgn.lastIndexOf(".") + 1) : wgn)) +
-                                                ", " + ow.getDifficulty().name() + ") §8>ТП< ")
-                                .hoverEvent(HoverEvent.showText(TCUtils.form("§7Чанков загружено: §6" + ow.getLoadedChunks().length +
-                                        "§7, Игроки: §6" + ow.getPlayers().size() +
-                                        "§7, ПВП: " + (ow.getPVP() ? "§4Да" : "§2Нет") +
-                                        "§7, Энтити: §6" + ow.getEntities().size())))
-                                .clickEvent(ClickEvent.runCommand("/wm tp " + ow.getName())));
+                                "§b- §e" + ow.getName() +
+                                    " §7 (" + ow.getEnvironment().name() +
+                                    ", " + (wgn == null ? "null" :
+                                    (wgn.contains(".") ? wgn.substring(wgn.lastIndexOf(".") + 1) : wgn)) +
+                                    ", " + ow.getDifficulty().name() + ") §8>ТП< ")
+                            .hoverEvent(HoverEvent.showText(TCUtils.form("§7Чанков загружено: §6" + ow.getLoadedChunks().length +
+                                "§7, Игроки: §6" + ow.getPlayers().size() +
+                                "§7, ПВП: " + (ow.getPVP() ? "§4Да" : "§2Нет") +
+                                "§7, Энтити: §6" + ow.getEntities().size())))
+                            .clickEvent(ClickEvent.runCommand("/wm tp " + ow.getName())));
                     }
                     cs.sendMessage("");
                     yield Command.SINGLE_SUCCESS;
@@ -214,7 +214,7 @@ public class WorldManagerCmd implements OCommand {
                             } else {
                                 if (Bukkit.getWorld(wnm) != null) {
                                     pl.sendMessage(TCUtils.form("§2> §a§lКлик - ВЫГРУЗИТЬ мир без удаления файлов §2<")
-                                            .clickEvent(ClickEvent.runCommand("wm unload " + wnm))
+                                        .clickEvent(ClickEvent.runCommand("wm unload " + wnm))
                                     );
                                 }
                             }
@@ -365,7 +365,7 @@ public class WorldManagerCmd implements OCommand {
             for (final String fileName : source.list()) {
 
                 if (fileName.equalsIgnoreCase("playerdata") ||
-                        fileName.equalsIgnoreCase("poi")
+                    fileName.equalsIgnoreCase("poi")
                 ) continue; //пропускаем всякий хлам
 
                 copyFile(new File(source, fileName), new File(destination, fileName));
@@ -374,8 +374,8 @@ public class WorldManagerCmd implements OCommand {
         } else {
 
             if (source.getName().contains("level.dat_old") ||
-                    source.getName().contains("session.lock") ||
-                    source.getName().contains("uid.dat")
+                source.getName().contains("session.lock") ||
+                source.getName().contains("uid.dat")
             ) return; //пропускаем ненужные
 
             try {
@@ -403,7 +403,7 @@ public class WorldManagerCmd implements OCommand {
 
 class WorldSelectMenu implements InventoryProvider {
 
-    private static final ItemStack fill = StackBuilder.of(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build();
+    private static final ItemStack fill = new ItemBuilder(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build();
 
     @Override
     public void init(final Player p, final InventoryContent contents) {
@@ -419,12 +419,12 @@ class WorldSelectMenu implements InventoryProvider {
 
         for (final World world : Bukkit.getWorlds()) {
 
-            menuEntry.add(ClickableItem.of(StackBuilder.of(getWorldMat(world))
-                    .name(world.getName())
-                    .lore(op.world_positions.containsKey(world.getName()) ? "§7ЛКМ - ТП на точку выхода" : "")
-                    .lore("§7ПКМ - ТП на точку спавна мира")
-                    .lore("")
-                    .build(), e -> {
+            menuEntry.add(ClickableItem.of(new ItemBuilder(getWorldMat(world))
+                .name(world.getName())
+                .lore(op.world_positions.containsKey(world.getName()) ? "§7ЛКМ - ТП на точку выхода" : "")
+                .lore("§7ПКМ - ТП на точку спавна мира")
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick() && op.world_positions.containsKey(world.getName())) {
                     final Location exit = ApiOstrov.locFromString(op.world_positions.get(world.getName()));
                     ApiOstrov.teleportSave(p, exit, true);//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -437,20 +437,20 @@ class WorldSelectMenu implements InventoryProvider {
         pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(9);
 
-        contents.set(2, 4, ClickableItem.of(StackBuilder.of(ItemType.OAK_DOOR).name("назад").build(), e ->
-                p.closeInventory()
+        contents.set(2, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
+            p.closeInventory()
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(2, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(2, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

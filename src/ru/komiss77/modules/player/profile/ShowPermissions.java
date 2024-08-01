@@ -55,15 +55,15 @@ public class ShowPermissions implements InventoryProvider {
 
         for (String group : op.getGroups()) {
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.EMERALD)
-                    .name("§7Группа §e" + group)
-                    .build()));
+                .name("§7Группа §e" + group)
+                .build()));
         }
 
 
         for (String limitName : op.limits.keySet()) {
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.PRISMARINE_CRYSTALS)
-                    .name("§7Лимит для §e" + limitName + " §7: §a" + op.limits.get(limitName))
-                    .build()));
+                .name("§7Лимит для §e" + limitName + " §7: §a" + op.limits.get(limitName))
+                .build()));
         }
 
 
@@ -77,8 +77,8 @@ public class ShowPermissions implements InventoryProvider {
         if (perm.isEmpty()) {
 
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей с пермишенами!")
-                    .build()
+                .name("§7нет записей с пермишенами!")
+                .build()
             ));
 
             return;
@@ -91,8 +91,8 @@ public class ShowPermissions implements InventoryProvider {
 
         for (String s : perm.keySet()) {
             menuEntry.add(ClickableItem.empty(new ItemBuilder(perm.get(s) ? Material.LIME_DYE : Material.RED_DYE)
-                    .name("§7" + s)
-                    .build()));
+                .name("§7" + s)
+                .build()));
         }
 
 
@@ -102,17 +102,17 @@ public class ShowPermissions implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

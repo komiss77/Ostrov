@@ -19,7 +19,7 @@ public class ItemTypes {
 
     public static final ItemTypes EMPTY = new ItemTypes("EMPTY", new ItemType[0]);
     public static final ItemTypes SWORDS = new ItemTypes("SWORDS", ItemType.STONE_SWORD,
-            ItemType.WOODEN_SWORD, ItemType.DIAMOND_SWORD, ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.NETHERITE_SWORD);
+        ItemType.WOODEN_SWORD, ItemType.DIAMOND_SWORD, ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.NETHERITE_SWORD);
 
     private final String name;
     private final RegistryKeySet<ItemType> itemKeys;
@@ -28,7 +28,7 @@ public class ItemTypes {
         this.name = name;
         final RegistryKey<ItemType> reg = RegistryKey.ITEM;
         this.itemKeys = OStrap.regSetOf(reg, Arrays.stream(its)
-                .map(ItemType::getKey).collect(Collectors.toSet()));
+            .map(ItemType::getKey).collect(Collectors.toSet()));
 
         VALUES.put(name, this);
     }

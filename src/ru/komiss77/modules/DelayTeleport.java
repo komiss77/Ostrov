@@ -47,39 +47,39 @@ public class DelayTeleport {
         final int z = p.getLocation().getBlockZ();
 
         tpData.put(p.getName(), new BukkitRunnable() {
-                    int sec = delay > 30 ? 30 : delay;
-                    final String name = p.getName();
+                int sec = delay > 30 ? 30 : delay;
+                final String name = p.getName();
 
-                    @Override
-                    public void run() {
-                        //final Player pl = Bukkit.getPlayerExact(name);
-                        if (p == null || !p.isOnline() || p.isDead()) {
-                            this.cancel();
-                            tpData.remove(name);
-                            return;
-                        }
-
-                        if (p.getLocation().getBlockX() != x || p.getLocation().getBlockY() != y || p.getLocation().getBlockZ() != z) {
-                            this.cancel();
-                            ApiOstrov.sendActionBarDirect(p, "§c" + Lang.t(p, "Перемещение отменяется!"));
-                            tpData.remove(name);
-                            return;
-                        }
-                        sec--;
-                        if (sec == 0) {
-                            this.cancel();
-                            ApiOstrov.teleportSave(p, toLoc, true);
-                            if (toEffect) playTpEffect(toLoc, color);
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2, 2));
-                            //pl.setVelocity(pl.getVelocity().setY(0.2));
-                            if (!doneMsg.isEmpty()) p.sendMessage(doneMsg);
-                            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
-                            tpData.remove(name);
-                        } else {
-                            ApiOstrov.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность") + " : §b" + sec);
-                        }
+                @Override
+                public void run() {
+                    //final Player pl = Bukkit.getPlayerExact(name);
+                    if (p == null || !p.isOnline() || p.isDead()) {
+                        this.cancel();
+                        tpData.remove(name);
+                        return;
                     }
-                }.runTaskTimer(Ostrov.instance, 0, 20)
+
+                    if (p.getLocation().getBlockX() != x || p.getLocation().getBlockY() != y || p.getLocation().getBlockZ() != z) {
+                        this.cancel();
+                        ApiOstrov.sendActionBarDirect(p, "§c" + Lang.t(p, "Перемещение отменяется!"));
+                        tpData.remove(name);
+                        return;
+                    }
+                    sec--;
+                    if (sec == 0) {
+                        this.cancel();
+                        ApiOstrov.teleportSave(p, toLoc, true);
+                        if (toEffect) playTpEffect(toLoc, color);
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2, 2));
+                        //pl.setVelocity(pl.getVelocity().setY(0.2));
+                        if (!doneMsg.isEmpty()) p.sendMessage(doneMsg);
+                        p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
+                        tpData.remove(name);
+                    } else {
+                        ApiOstrov.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность") + " : §b" + sec);
+                    }
+                }
+            }.runTaskTimer(Ostrov.instance, 0, 20)
         );
         
         /*check.clear();

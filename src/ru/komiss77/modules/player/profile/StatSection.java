@@ -65,10 +65,10 @@ public class StatSection implements InventoryProvider {
 
 
             final ItemStack stat_item = new ItemBuilder(Material.matchMaterial(game.mat))
-                    .name(Lang.t(p, game.displayName))
-                    .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    .setLore(lore)
-                    .build();
+                .name(Lang.t(p, game.displayName))
+                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .deLore().lore(lore)
+                .build();
 
             //menuEntry.add(ClickableItem.empty(stat_item));
             content.set(game.statSlot, ClickableItem.empty(stat_item));

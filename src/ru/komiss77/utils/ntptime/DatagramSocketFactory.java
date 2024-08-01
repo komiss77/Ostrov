@@ -62,5 +62,5 @@ public interface DatagramSocketFactory {
      * @throws SocketException If the socket could not be created.
      ***/
     public DatagramSocket createDatagramSocket(int port, InetAddress laddr)
-            throws SocketException;
+        throws SocketException;
 }

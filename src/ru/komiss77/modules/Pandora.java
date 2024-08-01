@@ -65,48 +65,48 @@ public final class Pandora implements Initiable, Listener {
     ;
     private static BoundingBox box;
     private static final TextComponent infoRu = Component.text("§e§kXXX§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e§kXXX")
-            .hoverEvent(HoverEvent.showText(TCUtils.format(
-                    "§7По легенде, сундучки Пандоры были созданы Даарианцами,"
-                            + "\n§7а секреты их эффектов тщательно скрывались."
-                            + "\n§7Считалось, что сундучки Пандоры очень сложно добыть,"
-                            + "\n§7однако с вторжением армии тьмы на Седну, все изменилось."
-                            + "\n§7Монстры приносили с собой сундуки для поддержания сил."
-                            + "\n§7Колдун решил для себя, что некоторые эффекты могут помочь"
-                            + "\n§7жителям справиться со вторжением, и решил наделять ими "
-                            + "\n§7всех желающих. "
-                            + "\n§7За скромную, по его мнению, цену."
-                            + "\n§7Несколько таких сундучков затерялось на Острове.")));
+        .hoverEvent(HoverEvent.showText(TCUtils.form(
+            "§7По легенде, сундучки Пандоры были созданы Даарианцами,"
+                + "\n§7а секреты их эффектов тщательно скрывались."
+                + "\n§7Считалось, что сундучки Пандоры очень сложно добыть,"
+                + "\n§7однако с вторжением армии тьмы на Седну, все изменилось."
+                + "\n§7Монстры приносили с собой сундуки для поддержания сил."
+                + "\n§7Колдун решил для себя, что некоторые эффекты могут помочь"
+                + "\n§7жителям справиться со вторжением, и решил наделять ими "
+                + "\n§7всех желающих. "
+                + "\n§7За скромную, по его мнению, цену."
+                + "\n§7Несколько таких сундучков затерялось на Острове.")));
 
     private static final TextComponent infoEn = Component.text("§e§kXXX§6 Pandora Box invites you to try your luck! §e§kXXX")
-            .hoverEvent(HoverEvent.showText(TCUtils.format(
-                    "§7Legend say, Pandora's chests were created by the Daarians,"
-                            + "\n§7and the secrets of their chars were carefully hidden."
-                            + "\n§7As know, Pandora's chests were very difficult to find,"
-                            + "\n§7but after invasion the dark army to Sedna, everything changed."
-                            + "\n§7Monsters brought chests with them to maintain strength."
-                            + "\n§7Mage decided - pandora chars can be helpful for residents"
-                            + "\n§7cope with invasion, and decided to grant them"
-                            + "\n§7everyone. "
-                            + "\n§7For a lowest, as he is mind, price."
-                            + "\n§7Some these chests were also lost in Ostrov..")));
+        .hoverEvent(HoverEvent.showText(TCUtils.form(
+            "§7Legend say, Pandora's chests were created by the Daarians,"
+                + "\n§7and the secrets of their chars were carefully hidden."
+                + "\n§7As know, Pandora's chests were very difficult to find,"
+                + "\n§7but after invasion the dark army to Sedna, everything changed."
+                + "\n§7Monsters brought chests with them to maintain strength."
+                + "\n§7Mage decided - pandora chars can be helpful for residents"
+                + "\n§7cope with invasion, and decided to grant them"
+                + "\n§7everyone. "
+                + "\n§7For a lowest, as he is mind, price."
+                + "\n§7Some these chests were also lost in Ostrov..")));
 
     private static final List<Material> head = Arrays.asList(
-            Material.WHITE_GLAZED_TERRACOTTA,
-            Material.ORANGE_GLAZED_TERRACOTTA,
-            Material.MAGENTA_GLAZED_TERRACOTTA,
-            Material.LIGHT_BLUE_GLAZED_TERRACOTTA,
-            Material.YELLOW_GLAZED_TERRACOTTA,
-            Material.LIME_GLAZED_TERRACOTTA,
-            Material.PINK_GLAZED_TERRACOTTA,
-            Material.GRAY_GLAZED_TERRACOTTA,
-            Material.LIGHT_GRAY_GLAZED_TERRACOTTA,
-            Material.CYAN_GLAZED_TERRACOTTA,
-            Material.PURPLE_GLAZED_TERRACOTTA,
-            Material.BLUE_GLAZED_TERRACOTTA,
-            Material.BROWN_GLAZED_TERRACOTTA,
-            Material.GREEN_GLAZED_TERRACOTTA,
-            Material.RED_GLAZED_TERRACOTTA,
-            Material.BLACK_GLAZED_TERRACOTTA
+        Material.WHITE_GLAZED_TERRACOTTA,
+        Material.ORANGE_GLAZED_TERRACOTTA,
+        Material.MAGENTA_GLAZED_TERRACOTTA,
+        Material.LIGHT_BLUE_GLAZED_TERRACOTTA,
+        Material.YELLOW_GLAZED_TERRACOTTA,
+        Material.LIME_GLAZED_TERRACOTTA,
+        Material.PINK_GLAZED_TERRACOTTA,
+        Material.GRAY_GLAZED_TERRACOTTA,
+        Material.LIGHT_GRAY_GLAZED_TERRACOTTA,
+        Material.CYAN_GLAZED_TERRACOTTA,
+        Material.PURPLE_GLAZED_TERRACOTTA,
+        Material.BLUE_GLAZED_TERRACOTTA,
+        Material.BROWN_GLAZED_TERRACOTTA,
+        Material.GREEN_GLAZED_TERRACOTTA,
+        Material.RED_GLAZED_TERRACOTTA,
+        Material.BLACK_GLAZED_TERRACOTTA
     );
 
 
@@ -196,7 +196,7 @@ public final class Pandora implements Initiable, Listener {
                 as.setHeadPose(as.getHeadPose().add(0.05, 0.05, 0.05));
 
                 if (tick % 10 == 0) {
-                    figure.name(TCUtils.format(TCUtils.randomColor() + PANDORA_NAME));
+                    figure.name(TCUtils.form(TCUtils.randomColor() + PANDORA_NAME));
                 }
 
                 if (tick % 30 == 0) {
@@ -229,7 +229,7 @@ public final class Pandora implements Initiable, Listener {
         if (e.getFigure().getTag().equals("pandora") && e.getFigure().getEntityType() == EntityType.ARMOR_STAND) {
             figure = e.getFigure();
             as = (ArmorStand) figure.getEntity();
-            figure.name(TCUtils.format("§6" + PANDORA_NAME));
+            figure.name(TCUtils.form("§6" + PANDORA_NAME));
             as.setVisible(false);
             as.setSilent(true);
             as.setSmall(true);
@@ -255,7 +255,7 @@ public final class Pandora implements Initiable, Listener {
     public void onBungeeDataRecieved(final BungeeDataRecieved e) {
         final Oplayer op = e.getOplayer();
         if (!op.isGuest && !op.hasDaylyFlag(StatFlag.Pandora) &&
-                (DAY_PLAY_TIME_TO_OPEN - op.getDaylyStat(Stat.PLAY_TIME)) < 0) {
+            (DAY_PLAY_TIME_TO_OPEN - op.getDaylyStat(Stat.PLAY_TIME)) < 0) {
             e.getPlayer().sendMessage(op.eng ? infoEn : infoRu);
         }
     }
@@ -287,7 +287,7 @@ public final class Pandora implements Initiable, Listener {
         if (sec_left > 0 && !ApiOstrov.isLocalBuilder(p, true)) {
 
             p.sendMessage(op.eng ? "§e§kXXX§6 You can open Pandora box through §e" + ApiOstrov.secondToTime(sec_left) + " online time! §e§kXXX" :
-                    "§e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e" + ApiOstrov.secondToTime(sec_left) + " онлайна! §e§kXXX");
+                "§e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e" + ApiOstrov.secondToTime(sec_left) + " онлайна! §e§kXXX");
             kick(p);
 
         } else {
@@ -520,11 +520,11 @@ public final class Pandora implements Initiable, Listener {
                 if (this.step <= 60) {
                     switch (this.step2) {
                         case 1 ->
-                                loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.5F + this.increase);
+                            loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.5F + this.increase);
                         case 2 ->
-                                loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.4F + this.increase);
+                            loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.4F + this.increase);
                         case 3 ->
-                                loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.5F + this.increase);
+                            loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.5F + this.increase);
                         case 4 -> {
                             loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_GUITAR, 1.0F, 0.6F + this.increase);
                             this.step2 = 0;

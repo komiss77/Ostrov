@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -54,10 +55,10 @@ public class OstrovDB {
     //false при OreloadCmd
     public static void init(final boolean loadGrous, final boolean async) {
         url = Config.getConfig().getString("ostrov_database.mysql_host")
-                + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user="
-                + Config.getConfig().getString("ostrov_database.mysql_user")
-                + "&password="
-                + Config.getConfig().getString("ostrov_database.mysql_passw");
+            + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user="
+            + Config.getConfig().getString("ostrov_database.mysql_user")
+            + "&password="
+            + Config.getConfig().getString("ostrov_database.mysql_passw");
 
         useOstrovData = Config.getConfig().getBoolean("ostrov_database.connect");
 //Ostrov.log("OstrovDB init useOstrovData?"+useOstrovData+" loadGrous?"+loadGrous);
@@ -221,12 +222,12 @@ public class OstrovDB {
         // }
 
         final String querry = "UPDATE " + Table.BUNGEE_SERVERS.table_name +
-                " SET `online`='" + Bukkit.getOnlinePlayers().size() + "', `onlineLimit`='"
-                + Bukkit.getMaxPlayers() + "', `tps`='" + Nms.getTps() + "', `memory`='"
-                + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
-                + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
-                + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
-                + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
+            " SET `online`='" + Bukkit.getOnlinePlayers().size() + "', `onlineLimit`='"
+            + Bukkit.getMaxPlayers() + "', `tps`='" + Nms.getTps() + "', `memory`='"
+            + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
+            + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
+            + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
+            + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
         executePstAsync(Bukkit.getConsoleSender(), querry);
 
 

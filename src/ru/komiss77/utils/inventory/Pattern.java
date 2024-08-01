@@ -58,7 +58,7 @@ public class Pattern<T> {
             String line = lines[i];
             Preconditions.checkNotNull(line, "The given pattern line %s cannot be null.", i);
             Preconditions.checkArgument(line.length() == columnCount,
-                    "The given pattern line %s does not match the first line character count.", i);
+                "The given pattern line %s does not match the first line character count.", i);
             this.lines[i] = lines[i];
         }
 

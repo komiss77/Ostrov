@@ -51,8 +51,8 @@ public class ShowReports implements InventoryProvider {
         if (buttons.isEmpty()) {
 
             content.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
 
         } else {
@@ -66,13 +66,13 @@ public class ShowReports implements InventoryProvider {
 
         if (hasNext) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> ReportCmd.openPlayerReports(p, op, op.nik, page + 1))
+                -> ReportCmd.openPlayerReports(p, op, op.nik, page + 1))
             );
         }
 
         if (page > 0) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> ReportCmd.openPlayerReports(p, op, op.nik, page - 1))
+                -> ReportCmd.openPlayerReports(p, op, op.nik, page - 1))
             );
         }
 

@@ -38,7 +38,7 @@ public class TeleportLoc {
 
         //отфильтровка высоты за пределами по оси Y
         final int y_max = feetLoc.getWorld().getEnvironment() == World.Environment.NETHER ? feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3 :
-                feetLoc.getWorld().getMaxHeight();
+            feetLoc.getWorld().getMaxHeight();
         if (feetLoc.getBlockY() > y_max) {
             feetLoc.setY(y_max);
         } else if (feetLoc.getBlockY() < feetLoc.getWorld().getMinHeight()) {
@@ -180,9 +180,9 @@ public class TeleportLoc {
         if (buildSafePlace) {
             //final WXYZ feetXYZ = new WXYZ(feetLoc);
             final Material[] oldMat = {
-                    Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y + 1, feetXYZ.z), //что было в голове
-                    Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y, feetXYZ.z),//что было в ногах
-                    Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y - 1, feetXYZ.z)//что было под ногами
+                Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y + 1, feetXYZ.z), //что было в голове
+                Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y, feetXYZ.z),//что было в ногах
+                Nms.getFastMat(feetXYZ.w, feetXYZ.x, feetXYZ.y - 1, feetXYZ.z)//что было под ногами
             };
             new BukkitRunnable() { //чтобы не давало новое ТПР пока не сошел с места
                 final String name = p.getName();
@@ -385,7 +385,7 @@ public class TeleportLoc {
     public static boolean isSafePlace(final Material headMat, final Material feetMat, final Material downMat) {
         if (headMat == null || feetMat == null || downMat == null) return false;
         return LocationUtil.isPassable(headMat) && LocationUtil.isPassable(feetMat)
-                && (LocationUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
+            && (LocationUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
     }
 
     //public static boolean isSafeLocation(final WXYZ feetXYZ) {

@@ -279,17 +279,18 @@ public interface SlotIterator {
 
     class Impl implements SlotIterator {
 
-        private InventoryContent contents;
+        private final InventoryContent contents;
         private final SmartInventory inv;
 
         private final Type type;
         private boolean started = false;
         private boolean allowOverride = true;
         private int endRow, endColumn;
-        private int startRow, startColumn;
+        private final int startRow;
+        private final int startColumn;
         private int row, column;
 
-        private Set<SlotPos> blacklisted = new HashSet<>();
+        private final Set<SlotPos> blacklisted = new HashSet<>();
 
         private int patternRowOffset, patternColumnOffset;
         private Pattern<Boolean> pattern;
@@ -456,7 +457,7 @@ public interface SlotIterator {
         @Override
         public boolean ended() {
             return row == endRow
-                    && column == endColumn;
+                && column == endColumn;
         }
 
         @Override
@@ -535,8 +536,8 @@ public interface SlotIterator {
                 return pattern.getObject(row - rowOffset, column - columnOffset);
             } else {
                 return row >= rowOffset && column >= columnOffset &&
-                        row < (pattern.getRowCount() + rowOffset) && column < (pattern.getColumnCount() + columnOffset) &&
-                        pattern.getObject(row - rowOffset, column - columnOffset);
+                    row < (pattern.getRowCount() + rowOffset) && column < (pattern.getColumnCount() + columnOffset) &&
+                    pattern.getObject(row - rowOffset, column - columnOffset);
             }
         }
     }

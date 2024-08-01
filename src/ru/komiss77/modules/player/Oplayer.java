@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Predicate;
+
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -303,10 +304,10 @@ public class Oplayer {
         if (blockFly) {
 //            p.setFlySpeed(fly_speed);
             p.setAllowFlight(
-                    switch (p.getGameMode()) {
-                        case CREATIVE, SPECTATOR -> true;
-                        default -> allow_fly;
-                    });
+                switch (p.getGameMode()) {
+                    case CREATIVE, SPECTATOR -> true;
+                    default -> allow_fly;
+                });
         }
         if (giveTag) beforeName(null, p);
     }

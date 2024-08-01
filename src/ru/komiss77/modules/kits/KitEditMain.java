@@ -1,6 +1,5 @@
 package ru.komiss77.modules.kits;
 
-import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -8,22 +7,18 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+
+import java.util.ArrayList;
 
 
 public class KitEditMain implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).build();
     ;
-  
-    
-    
+
+
     @Override
     public void init(final Player player, final InventoryContent contents) {
         player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
@@ -40,21 +35,21 @@ public class KitEditMain implements InventoryProvider {
 
 
             item = new ItemBuilder(kit.logoItem)
-                    .addLore(kit.rarity.displayName)
-                    .addLore("")
-                    .addLore(kit.modifyed ? "§cНЕ СОХРАНЁН!" : "")
-                    .addLore(kit.enabled ? "§2Активен" : "§4Заблокирован")
-                    .addLore(kit.needPermission ? "§eтребуется право" : "§aдоступен всем")
-                    .addLore("§7цена доступа: " + (kit.accesBuyPrice == 0 ? "§8бесплатно" : "§e" + kit.accesBuyPrice + " §7лони"))
-                    .addLore("§7цена получения: " + (kit.getPrice == 0 ? "§8бесплатно" : "§e" + kit.getPrice + " §7лони"))
-                    .addLore("§7продажа доступа: " + (kit.accesSellPrice == 0 ? "§8никакой выгоды" : "§b" + kit.accesSellPrice + " §7лони"))
-                    .addLore(kit.delaySec == 0 ? "§7интервал не установлен" : "§7интервал получения: §6" + ApiOstrov.secondToTime(kit.delaySec))
-                    .addLore("")
-                    .addLore("§fЛКМ §7- настройки набора")
-                    .addLore("§fПКМ §7- изменить содержимое")
-                    .addLore("§fшифт+ПКМ §7- клонировать набор")
-                    .addLore("")
-                    .build();
+                .lore(kit.rarity.displayName)
+                .lore("")
+                .lore(kit.modifyed ? "§cНЕ СОХРАНЁН!" : "")
+                .lore(kit.enabled ? "§2Активен" : "§4Заблокирован")
+                .lore(kit.needPermission ? "§eтребуется право" : "§aдоступен всем")
+                .lore("§7цена доступа: " + (kit.accesBuyPrice == 0 ? "§8бесплатно" : "§e" + kit.accesBuyPrice + " §7лони"))
+                .lore("§7цена получения: " + (kit.getPrice == 0 ? "§8бесплатно" : "§e" + kit.getPrice + " §7лони"))
+                .lore("§7продажа доступа: " + (kit.accesSellPrice == 0 ? "§8никакой выгоды" : "§b" + kit.accesSellPrice + " §7лони"))
+                .lore(kit.delaySec == 0 ? "§7интервал не установлен" : "§7интервал получения: §6" + ApiOstrov.secondToTime(kit.delaySec))
+                .lore("")
+                .lore("§fЛКМ §7- настройки набора")
+                .lore("§fПКМ §7- изменить содержимое")
+                .lore("§fшифт+ПКМ §7- клонировать набор")
+                .lore("")
+                .build();
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
@@ -70,7 +65,7 @@ public class KitEditMain implements InventoryProvider {
                     KitManager.kits.put(kitClone.name, kitClone);
 //System.out.println("KitEditMain isShiftClick kit="+kit.name+" new kit="+kitClone.name);            
                     //SmartInventory.builder().id("KitSettingsEditor:"+player.name()). provider(new KitSettingsEditor(kit)). size(6, 9). title("§4Настройки набора §6"+kitClone.name). build() .open(player);
-                            
+
                     //player.performCommand("kit sellacces "+clickedKit.name);
                     //player.closeInventory();
                     reopen(player, contents);
@@ -80,8 +75,8 @@ public class KitEditMain implements InventoryProvider {
                     //reopen(player, contents);
                 }
 
-            }));  
-            
+            }));
+
         }
 
 
@@ -91,13 +86,13 @@ public class KitEditMain implements InventoryProvider {
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(new ItemBuilder(Material.ARROW).name("назад").build(), p4
-                    -> contents.getHost().open(player, pagination.previous().getPage()))
+                -> contents.getHost().open(player, pagination.previous().getPage()))
             );
         }
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(new ItemBuilder(Material.ARROW).name("далее").build(), p4
-                    -> contents.getHost().open(player, pagination.next().getPage()))
+                -> contents.getHost().open(player, pagination.next().getPage()))
             );
         }
 
@@ -105,8 +100,8 @@ public class KitEditMain implements InventoryProvider {
 
 
         contents.set(5, 2, ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
-                .name("§aСоздать новый набор")
-                .build(), e -> {
+            .name("§aСоздать новый набор")
+            .build(), e -> {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 5);
             PlayerInput.get(InputType.ANVILL, player, kitName -> {
                 if (kitName.length() > 16 || !ApiOstrov.checkString(kitName, true, true)) {
@@ -122,16 +117,8 @@ public class KitEditMain implements InventoryProvider {
             }, "название..");
 
         }));
-        
-        
-        
-        
-        
- 
-        
-    
-    
-    
+
+
     }
 
 

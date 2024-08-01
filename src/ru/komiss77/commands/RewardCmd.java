@@ -29,79 +29,79 @@ public class RewardCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
-                .then(Resolver.string(player).suggests((cntx, sb) -> {
-                            if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                return sb.buildFuture();
-                            }
-                            Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+            .then(Resolver.string(player).suggests((cntx, sb) -> {
+                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                        return sb.buildFuture();
+                    }
+                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+                    return sb.buildFuture();
+                })
+                .then(Resolver.string(item).suggests((cntx, sb) -> {
+                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                             return sb.buildFuture();
-                        })
-                        .then(Resolver.string(item).suggests((cntx, sb) -> {
+                        }
+                        Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                        return sb.buildFuture();
+                    })
+                    .then(Resolver.string(op).suggests((cntx, sb) -> {
+                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                            return sb.buildFuture();
+                        }
+                        switch (Resolver.string(cntx, item)) {
+                            case "permission":
+                            case "perm":
+                                sb.suggest("ostrov.perm");
+                                sb.suggest(Ostrov.MOT_D + ".builder");
+                                break;
+                            case "group":
+                                for (final Group g : Perm.getGroups()) {
+                                    if (!g.isStaff()) sb.suggest(g.name);
+                                }
+                                break;
+                            default:
+                                sb.suggest("add");
+                                sb.suggest("get");
+                                break;
+                        }
+                        return sb.buildFuture();
+                    }).then(Resolver.string(val).suggests((cntx, sb) -> {
+                                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                                    return sb.buildFuture();
+                                }
+                                switch (Resolver.string(cntx, item)) {
+                                    case "permission":
+                                    case "perm":
+                                    case "group":
+                                        sb.suggest("1h");
+                                        sb.suggest("10h");
+                                        sb.suggest("1d");
+                                        sb.suggest("7d");
+                                        sb.suggest("1m");
+                                        break;
+                                    default:
+                                        sb.suggest("10");
+                                        sb.suggest("100");
+                                        sb.suggest("1000");
+                                        break;
+                                }
+                                return sb.buildFuture();
+                            })
+                            .executes(tryReward())
+                            .then(Resolver.string(reason).suggests((cntx, sb) -> {
                                     if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                                         return sb.buildFuture();
                                     }
-                                    Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                                    sb.suggest("Ostrov");
                                     return sb.buildFuture();
                                 })
-                                .then(Resolver.string(op).suggests((cntx, sb) -> {
-                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                        return sb.buildFuture();
-                                    }
-                                    switch (Resolver.string(cntx, item)) {
-                                        case "permission":
-                                        case "perm":
-                                            sb.suggest("ostrov.perm");
-                                            sb.suggest(Ostrov.MOT_D + ".builder");
-                                            break;
-                                        case "group":
-                                            for (final Group g : Perm.getGroups()) {
-                                                if (!g.isStaff()) sb.suggest(g.name);
-                                            }
-                                            break;
-                                        default:
-                                            sb.suggest("add");
-                                            sb.suggest("get");
-                                            break;
-                                    }
-                                    return sb.buildFuture();
-                                }).then(Resolver.string(val).suggests((cntx, sb) -> {
-                                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                                        return sb.buildFuture();
-                                                    }
-                                                    switch (Resolver.string(cntx, item)) {
-                                                        case "permission":
-                                                        case "perm":
-                                                        case "group":
-                                                            sb.suggest("1h");
-                                                            sb.suggest("10h");
-                                                            sb.suggest("1d");
-                                                            sb.suggest("7d");
-                                                            sb.suggest("1m");
-                                                            break;
-                                                        default:
-                                                            sb.suggest("10");
-                                                            sb.suggest("100");
-                                                            sb.suggest("1000");
-                                                            break;
-                                                    }
-                                                    return sb.buildFuture();
-                                                })
-                                                .executes(tryReward())
-                                                .then(Resolver.string(reason).suggests((cntx, sb) -> {
-                                                            if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                                                return sb.buildFuture();
-                                                            }
-                                                            sb.suggest("Ostrov");
-                                                            return sb.buildFuture();
-                                                        })
-                                                        .executes(tryReward()))
-                                ))))
-                .build();
+                                .executes(tryReward()))
+                    ))))
+            .build();
     }
 
     private static Command<CommandSourceStack> tryReward() {
         return cntx -> {
-            final CommandSender cs = cntx.getSource().getExecutor();
+            final CommandSender cs = cntx.getSource().getSender();
             if (!ApiOstrov.isLocalBuilder(cs)) {
                 cs.sendMessage("§cНедостаточно прав!");
                 return 0;
@@ -197,7 +197,7 @@ public class RewardCmd implements OCommand {
                 SpigotChanellMsg.sendMessage(((Player) cs), Operation.REWARD, cs.getName(), type.tag, amt, tgt, oper);
             } else {
                 SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
-                        Operation.REWARD, "консоль", type.tag, amt, tgt, oper);
+                    Operation.REWARD, "консоль", type.tag, amt, tgt, oper);
             }
             return Command.SINGLE_SUCCESS;
         };

@@ -70,78 +70,78 @@ public class FriendFind implements InventoryProvider {
             if (op.friends.contains(find.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.EMERALD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§2Уже друзья")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§2Уже друзья")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (findOp.hasSettings(Settings.Fr_InviteDeny)) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.SKELETON_SKULL)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§cПредложения дружить")
-                        .addLore("§cотключены в настройках.")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§cПредложения дружить")
+                    .lore("§cотключены в настройках.")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (op.isBlackListed(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§cВ игноре")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§cВ игноре")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (findOp.isBlackListed(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§cВы занесены в игнор")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§cВы занесены в игнор")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (findOp.friendInvite.contains(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.CREEPER_HEAD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§6Предложение дружить.")
-                        .addLore("§6отправлено.")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§6Предложение дружить.")
+                    .lore("§6отправлено.")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else {
 
                 final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§aПредложить дружбу")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§aПредложить дружбу")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.of(friend_item
-                                , e -> {
-                                    if (find.isOnline()) {
-                                        Friends.suggestFriend(p, op, find);
-                                        //mode = FriendMode.Просмотр;
-                                        reopen(p, content);
-                                    }
-                                }
-                        )
+                        , e -> {
+                            if (find.isOnline()) {
+                                Friends.suggestFriend(p, op, find);
+                                //mode = FriendMode.Просмотр;
+                                reopen(p, content);
+                            }
+                        }
+                    )
                 );
 
             }
@@ -152,14 +152,14 @@ public class FriendFind implements InventoryProvider {
         if (!found) {
 
             final ItemStack notFound = new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Никого не смогли найти..")
-                    .addLore("")
-                    .addLore("§7Поиск ведется в радиусе")
-                    .addLore("§75 блоков.")
-                    .addLore("")
-                    .addLore("§7ЛКМ - обновить")
-                    .addLore("")
-                    .build();
+                .name("§7Никого не смогли найти..")
+                .lore("")
+                .lore("§7Поиск ведется в радиусе")
+                .lore("§75 блоков.")
+                .lore("")
+                .lore("§7ЛКМ - обновить")
+                .lore("")
+                .build();
 
             content.set(13, ClickableItem.of(notFound, e -> {
                 reopen(p, content);
@@ -174,17 +174,17 @@ public class FriendFind implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

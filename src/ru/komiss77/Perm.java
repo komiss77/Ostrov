@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
@@ -40,8 +41,8 @@ public class Perm {
         defaultPerms = new HashSet<>();
         localPerms = Config.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
         localPerms.addDefault("default", Arrays.asList(
-                        "chatformat.default"
-                )
+                "chatformat.default"
+            )
         );
         localPerms.saveConfig();
     }
@@ -285,8 +286,8 @@ public class Perm {
 
         if (notify) {
             p.sendMessage(Component.text("§3Ваши права группы обновились: §6" + op.chat_group + " §8<<< клик-подробно")
-                    .hoverEvent(HoverEvent.showText(Component.text("§aклик - открыть показать подробно в меню")))
-                    .clickEvent(ClickEvent.runCommand("/operm")));
+                .hoverEvent(HoverEvent.showText(Component.text("§aклик - открыть показать подробно в меню")))
+                .clickEvent(ClickEvent.runCommand("/operm")));
         }
 
 

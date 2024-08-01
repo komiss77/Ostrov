@@ -1,15 +1,11 @@
-
 package ru.komiss77.hook;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.dynmap.DynmapAPI;
-import org.dynmap.markers.AreaMarker;
-import org.dynmap.markers.Marker;
-import org.dynmap.markers.MarkerAPI;
-import org.dynmap.markers.MarkerIcon;
-import org.dynmap.markers.MarkerSet;
+import org.dynmap.markers.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 
@@ -34,10 +30,8 @@ public class DynmapFactions {
     enum Direction {XPLUS, ZPLUS, XMINUS, ZMINUS}
 
     ;
-    
-    
-    
-    
+
+
     protected static void updateFactions() {
 
         // Ostrov.async( ()-> {
@@ -69,7 +63,7 @@ public class DynmapFactions {
 
 
     protected static void wipe(final int factionID) {
-        
+
         Marker home = set.findMarker(String.valueOf(factionID));
         if (home != null) {
             home.deleteMarker();

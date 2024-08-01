@@ -10,7 +10,7 @@ import ru.komiss77.modules.games.ArenaInfo;
 
 public class GameInfoUpdateEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
 
     public final ArenaInfo ai;
 

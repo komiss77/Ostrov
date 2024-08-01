@@ -1,13 +1,12 @@
-
 package ru.komiss77.modules.kits;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.kits.KitManager.Rarity;
 import ru.komiss77.utils.ItemBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Kit {
@@ -31,7 +30,7 @@ public class Kit {
 
     public Kit(final String name) {
         this.name = name;
-        logoItem = new ItemBuilder(Material.BEDROCK).name("§c" + name).addLore("").build();
+        logoItem = new ItemBuilder(Material.BEDROCK).name("§c" + name).lore("").build();
     }
 
 
@@ -53,7 +52,7 @@ public class Kit {
         kit.accesSellPrice = accesSellPrice;
         kit.getPrice = getPrice;
         kit.delaySec = delaySec;
-        kit.logoItem = new ItemBuilder(logoItem).name("§e§n§l" + newKitName).addLore("").build();
+        kit.logoItem = new ItemBuilder(logoItem).name("§e§n§l" + newKitName).lore("").build();
         //kit.items = new ArrayList<>();
         kit.items.addAll(items);
         return kit;

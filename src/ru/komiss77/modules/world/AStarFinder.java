@@ -165,7 +165,7 @@ public class AStarFinder {//idea of UnAlike
                         if (bb == null) bb = w.getBlockAt(nd.x, nd.y - 1, nd.z).getBoundingBox();
                         final double h = bb.getHeight();
                         if (h < 1d && w.getBlockAt(lc.x, lc.y - 1, lc.z)
-                                .getBoundingBox().getHeight() - h > 0.2d) {
+                            .getBoundingBox().getHeight() - h > 0.2d) {
                             ndi.remove();
                         }
                     }
@@ -234,8 +234,8 @@ public class AStarFinder {//idea of UnAlike
 
     private static boolean isWalk(final WXYZ lc) {
         return Nms.getFastMat(lc.w, lc.x, lc.y - 1, lc.z).isCollidable()
-                && !Nms.getFastMat(lc.w, lc.x, lc.y, lc.z).isCollidable()
-                && !Nms.getFastMat(lc.w, lc.x, lc.y + 1, lc.z).isCollidable();
+            && !Nms.getFastMat(lc.w, lc.x, lc.y, lc.z).isCollidable()
+            && !Nms.getFastMat(lc.w, lc.x, lc.y + 1, lc.z).isCollidable();
     }
 
     @Slow(priority = 2)

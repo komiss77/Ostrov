@@ -64,8 +64,8 @@ public class ExpiringMap<K, V> implements Map<K, V> {
      */
     public ExpiringMap(int timeToLive, int expirationInterval) {
         this(new ConcurrentHashMap<K, ExpiringObject>(),
-                new CopyOnWriteArrayList<ExpirationListener<V>>(), timeToLive,
-                expirationInterval);
+            new CopyOnWriteArrayList<ExpirationListener<V>>(), timeToLive,
+            expirationInterval);
     }
 
     private ExpiringMap(ConcurrentHashMap<K, ExpiringObject> delegate,
@@ -81,7 +81,7 @@ public class ExpiringMap<K, V> implements Map<K, V> {
 
     public V put(K key, V value) {
         ExpiringObject answer = delegate.put(key, new ExpiringObject(key,
-                value, System.currentTimeMillis()));
+            value, System.currentTimeMillis()));
         if (answer == null) {
             return null;
         }
@@ -163,7 +163,7 @@ public class ExpiringMap<K, V> implements Map<K, V> {
     }
 
     public void removeExpirationListener(
-            ExpirationListener<V> listener) {
+        ExpirationListener<V> listener) {
         expirationListeners.remove(listener);
     }
 
@@ -188,9 +188,9 @@ public class ExpiringMap<K, V> implements Map<K, V> {
     }
 
     private class ExpiringObject {
-        private K key;
+        private final K key;
 
-        private V value;
+        private final V value;
 
         private long lastAccessTime;
 
@@ -199,7 +199,7 @@ public class ExpiringMap<K, V> implements Map<K, V> {
         ExpiringObject(K key, V value, long lastAccessTime) {
             if (value == null) {
                 throw new IllegalArgumentException(
-                        "An expiring object cannot be null.");
+                    "An expiring object cannot be null.");
             }
 
             this.key = key;
@@ -266,7 +266,7 @@ public class ExpiringMap<K, V> implements Map<K, V> {
          */
         public Expirer() {
             expirerThread = new Thread(this, "ExpiringMapExpirer-"
-                    + expirerCount++);
+                + expirerCount++);
             expirerThread.setDaemon(true);
         }
 

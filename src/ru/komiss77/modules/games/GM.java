@@ -1,11 +1,5 @@
 package ru.komiss77.modules.games;
 
-import java.sql.*;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -19,6 +13,7 @@ import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
@@ -30,6 +25,12 @@ import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.TCUtils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 
 //не переименовывать!!!! другие плагины берут напрямую!
@@ -75,13 +76,12 @@ public final class GM {
     public enum State {STARTUP, COMPLETE, RELOAD, ERROR}
 
 
-
     public static void setLogo(final String logo) {
         chatLogo = Component.text()
-                .append(TCUtils.format(logo))
-                .hoverEvent(HoverEvent.showText(Component.text("Клик - перейти на сервер")))
-                .clickEvent(ClickEvent.suggestCommand("/server " + Ostrov.MOT_D))
-                .build();
+            .append(TCUtils.form(logo))
+            .hoverEvent(HoverEvent.showText(Component.text("Клик - перейти на сервер")))
+            .clickEvent(ClickEvent.suggestCommand("/server " + Ostrov.MOT_D))
+            .build();
     }
 
     public static Component getLogo() {
@@ -142,11 +142,11 @@ public final class GM {
                 //   if (gi.game.type==ServerType.ONE_GAME) {
 
                 gi.update(
-                        rs.getString("name"),
-                        rs.getString("motd"),
-                        rs.getInt("online") >= 0 ? GameState.РАБОТАЕТ : GameState.ВЫКЛЮЧЕНА,
-                        rs.getInt("online"),
-                        "", "", "", ""
+                    rs.getString("name"),
+                    rs.getString("motd"),
+                    rs.getInt("online") >= 0 ? GameState.РАБОТАЕТ : GameState.ВЫКЛЮЧЕНА,
+                    rs.getInt("online"),
+                    "", "", "", ""
                 );
                     
                   /*  } else if (gi.game.type==ServerType.LOBBY) {
@@ -327,10 +327,10 @@ public final class GM {
         try {
             //поле с для принудительной обновы, илил вернёт 0 если данные идентичны
             PreparedStatement pst = conn.prepareStatement("INSERT INTO " + Table.ARENAS.table_name
-                    + " (id, server, game, arenaName, state, line0, line1, line2, line3, players, stamp)"
-                    + " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ON DUPLICATE KEY UPDATE "
-                    + "state=VALUES(state), line0=VALUES(line0), line1=VALUES(line1), line2=VALUES(line2), line3=VALUES(line3),"
-                    + "players=VALUES(players), stamp=VALUES(stamp) ;");
+                + " (id, server, game, arenaName, state, line0, line1, line2, line3, players, stamp)"
+                + " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ON DUPLICATE KEY UPDATE "
+                + "state=VALUES(state), line0=VALUES(line0), line1=VALUES(line1), line2=VALUES(line2), line3=VALUES(line3),"
+                + "players=VALUES(players), stamp=VALUES(stamp) ;");
 
             pst.setInt(1, (Ostrov.MOT_D + arenaName).hashCode());
             pst.setString(2, Ostrov.MOT_D);
@@ -355,14 +355,14 @@ public final class GM {
 
     //может быть async!!
     public static void sendArenaData(
-            final Game game,
-            final String arenaName,
-            final GameState state,
-            final int players,
-            final String line0,
-            final String line1,
-            final String line2,
-            final String line3
+        final Game game,
+        final String arenaName,
+        final GameState state,
+        final int players,
+        final String line0,
+        final String line1,
+        final String line2,
+        final String line3
     ) {
         //if (!Bukkit.isPrimaryThread()) {
         //   Ostrov.log_warn("sendArenaData должен быть SYNC : §f"+arenaName+" : "+state);
@@ -380,14 +380,14 @@ public final class GM {
         }
 
         final StringBuilder sb = new StringBuilder(game.name()).append(LocalDB.W_SPLIT)
-                .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
-                .append(arenaName).append(LocalDB.W_SPLIT)
-                .append(state.name()).append(LocalDB.W_SPLIT)
-                .append(players).append(LocalDB.W_SPLIT)
-                .append(line0).append(LocalDB.W_SPLIT)
-                .append(line1).append(LocalDB.W_SPLIT)
-                .append(line2).append(LocalDB.W_SPLIT)
-                .append(line3).append(" ").append(LocalDB.W_SPLIT);
+            .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
+            .append(arenaName).append(LocalDB.W_SPLIT)
+            .append(state.name()).append(LocalDB.W_SPLIT)
+            .append(players).append(LocalDB.W_SPLIT)
+            .append(line0).append(LocalDB.W_SPLIT)
+            .append(line1).append(LocalDB.W_SPLIT)
+            .append(line2).append(LocalDB.W_SPLIT)
+            .append(line3).append(" ").append(LocalDB.W_SPLIT);
         RDS.sendMessage("arenadata", sb.toString());
 
         if (Ostrov.SHUT_DOWN) {
@@ -404,11 +404,11 @@ public final class GM {
 
         } //else {
 //Ostrov.log("SpigotChanellMsg.sendMessage");
-            // SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
-            //   Operation.GAME_INFO_TO_BUNGEE,
-            //   Ostrov.MOT_D,
-            //   state.tag, players, 0,
-            //    arenaName, line0, line1, line2, line3, game.name() );
+        // SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
+        //   Operation.GAME_INFO_TO_BUNGEE,
+        //   Ostrov.MOT_D,
+        //   state.tag, players, 0,
+        //    arenaName, line0, line1, line2, line3, game.name() );
 
         //  }
 
@@ -503,10 +503,10 @@ public final class GM {
                 if (Tag.SIGNS.isTagged(b.getType()) || Tag.STANDING_SIGNS.isTagged(b.getType())) {
                     Sign sign = (Sign) b.getState();
                     final SignSide ssd = sign.getSide(Side.FRONT);
-                    ssd.line(0, TCUtils.format(ai.line0));
-                    ssd.line(1, TCUtils.format(ai.line1));
-                    ssd.line(2, TCUtils.format(ai.line2));
-                    ssd.line(3, TCUtils.format(ai.line3));
+                    ssd.line(0, TCUtils.form(ai.line0));
+                    ssd.line(1, TCUtils.form(ai.line1));
+                    ssd.line(2, TCUtils.form(ai.line2));
+                    ssd.line(3, TCUtils.form(ai.line3));
                     sign.update();
                 }
                 if (gs.attachement_loc != null) {
@@ -633,10 +633,10 @@ public final class GM {
         if (ai != null) {
             ai.signs.add(locAsString);
             final SignSide ss = sign.getSide(Side.FRONT);
-            ss.line(0, TCUtils.format(ai.line0));
-            ss.line(1, TCUtils.format(ai.line1));
-            ss.line(2, TCUtils.format(ai.line2));
-            ss.line(3, TCUtils.format(ai.line3));
+            ss.line(0, TCUtils.form(ai.line0));
+            ss.line(1, TCUtils.form(ai.line1));
+            ss.line(2, TCUtils.form(ai.line2));
+            ss.line(3, TCUtils.form(ai.line3));
             sign.update();
         }
         GM.gameSigns.set("signs." + locAsString + ".game", game.name());

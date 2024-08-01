@@ -38,7 +38,6 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 
-
 public final class Crafts implements Initiable, Listener {
 
     public static final Map<NamespacedKey, Craft> crafts = new HashMap<>();
@@ -149,7 +148,7 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack scd = ItemUtils.parseItem(cs.getString("recipe.b"), "=");
                 if (ItemUtils.isBlank(it, false) || ItemUtils.isBlank(scd, false)) return;
                 recipe = new SmithingTransformRecipe(nsk, resultItem, CMDMatChoice.of(
-                        ItemUtils.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                    ItemUtils.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);
@@ -209,16 +208,16 @@ public final class Crafts implements Initiable, Listener {
                     return lrc;
                 case final FurnaceRecipe src:
                     return new FurnaceRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final SmokingRecipe src:
                     return new SmokingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final BlastingRecipe src:
                     return new BlastingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final CampfireRecipe src:
                     return new CampfireRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 default:
                     return null;
             }
@@ -379,7 +378,7 @@ public final class Crafts implements Initiable, Listener {
         final StonecutterInventory sci = e.getStonecutterInventory();
         if (src == null) {
             if (ItemUtils.isBlank(sci.getInputItem(), true) ||
-                    !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
+                !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
         } else {
             if (src.getInputChoice().test(sci.getInputItem())) return;
         }
@@ -415,7 +414,7 @@ public final class Crafts implements Initiable, Listener {
                         if (ch instanceof CMDMatChoice) {
                             final String gs = gridIts.get(ch);
                             gridIts.put((CMDMatChoice) ch, gs == null ?
-                                    String.valueOf(en.getKey()) : gs + en.getKey());
+                                String.valueOf(en.getKey()) : gs + en.getKey());
                         }
                     }
 
@@ -441,7 +440,7 @@ public final class Crafts implements Initiable, Listener {
                         final String slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                                kst.getType().getMaxStackSize() : 1, his / slots.length());
+                            kst.getType().getMaxStackSize() : 1, his / slots.length());
                         giveItemAmt(p, kst, his - (split * slots.length()));
                         if (split == 0) continue;
                         for (final char c : slots.toCharArray()) {
@@ -493,7 +492,7 @@ public final class Crafts implements Initiable, Listener {
                         final int slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                                kst.getType().getMaxStackSize() : 1, his / slots);
+                            kst.getType().getMaxStackSize() : 1, his / slots);
                         giveItemAmt(p, kst, his - (split * slots));
                         if (split == 0) continue;
                         for (int i = slots; i > 0; i--) {
@@ -625,28 +624,28 @@ public final class Crafts implements Initiable, Listener {
 
                 final ItemStack add = ci.getInputMineral();
                 im.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(NamespacedKey.minecraft("generic.armor"),
-                        arm * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
+                    arm * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("generic.armor_toughness"),
-                        ath * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
+                    ath * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_anticnockback"),
-                        akb * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
+                    akb * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(NamespacedKey.minecraft("generic.armor_max_health"),
-                        ItemUtils.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
+                    ItemUtils.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_damage"),
-                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
+                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_knockback"),
-                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
+                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_speed"),
-                        ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
+                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_move_speed"),
-                        ItemUtils.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
+                    ItemUtils.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
                 it.setItemMeta(im);
                 e.setResult(it);

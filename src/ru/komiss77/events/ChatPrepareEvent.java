@@ -1,12 +1,12 @@
 package ru.komiss77.events;
 
-import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import ru.komiss77.modules.player.Oplayer;
+
+import java.util.List;
 
 
 public class ChatPrepareEvent extends Event {

@@ -233,7 +233,7 @@ public class TimeStamp implements java.io.Serializable, Comparable<TimeStamp> {
      * @throws NumberFormatException - if the string does not contain a parsable timestamp.
      */
     protected static long decodeNtpHexString(String hexString)
-            throws NumberFormatException {
+        throws NumberFormatException {
         if (hexString == null) {
             throw new NumberFormatException("null");
         }
@@ -246,7 +246,7 @@ public class TimeStamp implements java.io.Serializable, Comparable<TimeStamp> {
         }
 
         return Long.parseLong(hexString.substring(0, ind), 16) << 32 |
-                Long.parseLong(hexString.substring(ind + 1), 16);
+            Long.parseLong(hexString.substring(ind + 1), 16);
     }
 
     /***
@@ -258,7 +258,7 @@ public class TimeStamp implements java.io.Serializable, Comparable<TimeStamp> {
      * @throws NumberFormatException - if the string does not contain a parsable timestamp.
      */
     public static TimeStamp parseNtpString(String s)
-            throws NumberFormatException {
+        throws NumberFormatException {
         return new TimeStamp(decodeNtpHexString(s));
     }
 
@@ -403,7 +403,7 @@ public class TimeStamp implements java.io.Serializable, Comparable<TimeStamp> {
     public String toUTCString() {
         if (utcFormatter == null) {
             utcFormatter = new SimpleDateFormat(NTP_DATE_FORMAT + " 'UTC'",
-                    Locale.US);
+                Locale.US);
             utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
         Date ntpDate = getDate();

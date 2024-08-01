@@ -1,6 +1,7 @@
 package ru.komiss77.objects;
 
 import java.util.function.Consumer;
+
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.inventory.InputButton;
 

@@ -1,34 +1,32 @@
 package ru.komiss77.utils.inventory;
 
 import com.google.common.collect.ImmutableList;
-
-import ru.komiss77.utils.TCUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import ru.komiss77.utils.TCUtils;
 
 import java.util.List;
 
 public class SpecialInventoryOpener implements InventoryOpener {
 
     private static final List<InventoryType> SUPPORTED = ImmutableList.of(
-            InventoryType.FURNACE,
-            InventoryType.WORKBENCH,
-            InventoryType.DISPENSER,
-            InventoryType.DROPPER,
-            InventoryType.ENCHANTING,
-            InventoryType.BREWING,
-            InventoryType.ANVIL,
-            InventoryType.BEACON,
-            InventoryType.HOPPER
+        InventoryType.FURNACE,
+        InventoryType.WORKBENCH,
+        InventoryType.DISPENSER,
+        InventoryType.DROPPER,
+        InventoryType.ENCHANTING,
+        InventoryType.BREWING,
+        InventoryType.ANVIL,
+        InventoryType.BEACON,
+        InventoryType.HOPPER
     );
 
 
     @Override
     public Inventory getInventory(SmartInventory inv, Player player) {
-        Inventory handle = Bukkit.createInventory(player, inv.getType(), TCUtils.format(inv.getTitle()));
+        Inventory handle = Bukkit.createInventory(player, inv.getType(), TCUtils.form(inv.getTitle()));
         return handle;
     }
 

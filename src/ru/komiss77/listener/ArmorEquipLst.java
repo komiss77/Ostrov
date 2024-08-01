@@ -132,7 +132,7 @@ public class ArmorEquipLst implements Listener {
         ArmorType newArmorType = null;
 
         switch (e.getClick()) {
-                
+
             //с шифтом может только поставить на пустой слот или снять
             //одевает с шифтом креатив:
             //1) ICE current=ItemStack{AIR x 0} cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=CREATIVE slottype=ARMOR rawslot=6 slot=38+второй  ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 1} action=PLACE_ALL click=CREATIVE slottype=CONTAINER rawslot=13 slot=13
@@ -149,7 +149,7 @@ public class ArmorEquipLst implements Listener {
                     armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.CREATIVE, newArmorType, e.getCurrentItem(), null);
                 }
                 break;
-                    
+
             //одеть с шифтом выживание -может быть CONTAINER или QUICKBAR!!!
             //ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 0} action=MOVE_TO_OTHER_INVENTORY click=SHIFT_LEFT slottype=CONTAINER rawslot=29 slot=29
             //снять с шифтом выживание 
@@ -164,7 +164,7 @@ public class ArmorEquipLst implements Listener {
                     armorEquipEvent = new ArmorEquipEvent(p, EquipMethod.SHIFT_CLICK, newArmorType, null, e.getCurrentItem());
                 }
                 break;
-                    
+
             //навестись на слот брони и нажимать цифру
             //креатив - неотличим от шифта 
             //одеть  ICE current=ItemStack{AIR x 0}                 cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=CREATIVE slottype=ARMOR rawslot=6 slot=38 +второй ICE current=ItemStack{DIAMOND_CHESTPLATE x 1} cursor=ItemStack{AIR x 1} action=PLACE_ALL click=CREATIVE slottype=QUICKBAR rawslot=37 slot=1
@@ -184,7 +184,7 @@ public class ArmorEquipLst implements Listener {
                     }
                 }
                 break;
-                    
+
             //простое одевание взял-положил, работает так же на RIGHT
             //одевание
             //ICE current=ItemStack{AIR x 0} cursor=ItemStack{DIAMOND_CHESTPLATE x 1} action=PLACE_ALL click=LEFT slottype=ARMOR rawslot=6 slot=38
@@ -239,9 +239,9 @@ public class ArmorEquipLst implements Listener {
 //System.out.println("playerInteractEvent newArmorType="+newArmorType);
             if (newArmorType != null) { //в руке броня и пытаемся одеть - проверяем слоты брони, если не пустой то эвент
                 if (newArmorType == ArmorType.HELMET && isAirOrNull(e.getPlayer().getInventory().getHelmet()) ||
-                        newArmorType == ArmorType.CHESTPLATE && isAirOrNull(e.getPlayer().getInventory().getChestplate()) ||
-                        newArmorType == ArmorType.LEGGINGS && isAirOrNull(e.getPlayer().getInventory().getLeggings()) ||
-                        newArmorType == ArmorType.BOOTS && isAirOrNull(e.getPlayer().getInventory().getBoots())) {
+                    newArmorType == ArmorType.CHESTPLATE && isAirOrNull(e.getPlayer().getInventory().getChestplate()) ||
+                    newArmorType == ArmorType.LEGGINGS && isAirOrNull(e.getPlayer().getInventory().getLeggings()) ||
+                    newArmorType == ArmorType.BOOTS && isAirOrNull(e.getPlayer().getInventory().getBoots())) {
                     ArmorEquipEvent armorEquipEvent = new ArmorEquipEvent(e.getPlayer(), EquipMethod.HOTBAR, ArmorType.matchType(e.getItem()), null, e.getItem());
                     Bukkit.getServer().getPluginManager().callEvent(armorEquipEvent);
                     if (armorEquipEvent.isCancelled()) {
@@ -334,12 +334,8 @@ public class ArmorEquipLst implements Listener {
     public static boolean isAirOrNull(ItemStack item) {
         return item == null || item.getType().equals(Material.AIR);
     }
-        
-        
-        
-        
-        
-        
+
+
 }
 
 

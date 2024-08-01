@@ -1,24 +1,9 @@
 package ru.komiss77.utils;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import java.net.URI;
-import com.google.gson.Gson;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Color;
-import org.bukkit.EntityEffect;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -31,20 +16,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ArmorMeta;
-import org.bukkit.inventory.meta.ColorableArmorMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.Bukkit;
 import org.bukkit.profile.PlayerTextures;
+import org.intellij.lang.annotations.Subst;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
@@ -52,34 +29,46 @@ import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
+import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 
 public class ItemUtils {
 
     public static final NamespacedKey key;
     private static final CaseInsensitiveMap<com.destroystokyo.paper.profile.PlayerProfile> playerProfilesCache;
     public static final ItemStack air, book, add, nextPage, previosPage;
+    private static final Set<ItemType> POTION;
     private static final Pattern regex;
-    private static final Gson GSON;
+//    private static final Gson GSON;
 
     static {
         key = new NamespacedKey(Ostrov.instance, "ostrov");
         playerProfilesCache = new CaseInsensitiveMap<>();
         regex = Pattern.compile("(.{1,24}(?:\\s|$))|(.{0,24})", Pattern.DOTALL);
-        GSON = new Gson();
         air = new ItemStack(Material.AIR);
         book = new ItemStack(Material.WRITTEN_BOOK);
         add = new ItemBuilder(Material.PLAYER_HEAD)
-                .name("§aдобавить")
-                .setCustomHeadTexture(Texture.add)
-                .build();
+            .name("§aдобавить")
+            .headTexture(Texture.add)
+            .build();
         nextPage = new ItemBuilder(Material.PLAYER_HEAD)
-                .name("§fдалее")
-                .setCustomHeadTexture(Texture.nextPage)
-                .build();
+            .name("§fдалее")
+            .headTexture(Texture.nextPage)
+            .build();
         previosPage = new ItemBuilder(Material.PLAYER_HEAD)
-                .name("§fназад")
-                .setCustomHeadTexture(Texture.previosPage)
-                .build();
+            .name("§fназад")
+            .headTexture(Texture.previosPage)
+            .build();
+        POTION = Set.of(ItemType.TIPPED_ARROW, ItemType.POTION,
+            ItemType.LINGERING_POTION, ItemType.SPLASH_POTION);
     }
 
     public static Texture getNumberTexture(final int number) {
@@ -123,7 +112,7 @@ public class ItemUtils {
 
     public static ItemStack setName(final ItemStack is, final String name) {
         final ItemMeta im = is.getItemMeta();
-        im.displayName(TCUtils.format(name));
+        im.displayName(TCUtils.form(name));
         is.setItemMeta(im);
         return is;
     }
@@ -132,23 +121,38 @@ public class ItemUtils {
     public enum Texture {
         nextPage("c2f910c47da042e4aa28af6cc81cf48ac6caf37dab35f88db993accb9dfe516"),
         previosPage("f2599bd986659b8ce2c4988525c94e19ddd39fad08a38284a197f1b70675acc"),
-        add("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19"),
+        add("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "NWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19"),
         //https://minecraft-heads.com/custom-heads/alphabet?start=4720
         //черный стиль - https://minecraft-heads.com/custom-heads/alphabet?start=3600
-        _0_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2YwOTAxOGY0NmYzNDllNTUzNDQ2OTQ2YTM4NjQ5ZmNmY2Y5ZmRmZDYyOTE2YWVjMzNlYmNhOTZiYjIxYjUifX19"),
-        _1_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2E1MTZmYmFlMTYwNThmMjUxYWVmOWE2OGQzMDc4NTQ5ZjQ4ZjZkNWI2ODNmMTljZjVhMTc0NTIxN2Q3MmNjIn19fQ=="),
-        _2_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDY5OGFkZDM5Y2Y5ZTRlYTkyZDQyZmFkZWZkZWMzYmU4YTdkYWZhMTFmYjM1OWRlNzUyZTlmNTRhZWNlZGM5YSJ9fX0="),
-        _3_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmQ5ZTRjZDVlMWI5ZjNjOGQ2Y2E1YTFiZjQ1ZDg2ZWRkMWQ1MWU1MzVkYmY4NTVmZTlkMmY1ZDRjZmZjZDIifX19"),
-        _4_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjJhM2Q1Mzg5ODE0MWM1OGQ1YWNiY2ZjODc0NjlhODdkNDhjNWMxZmM4MmZiNGU3MmY3MDE1YTM2NDgwNTgifX19"),
-        _5_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDFmZTM2YzQxMDQyNDdjODdlYmZkMzU4YWU2Y2E3ODA5YjYxYWZmZDYyNDVmYTk4NDA2OTI3NWQxY2JhNzYzIn19fQ=="),
-        _6_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2FiNGRhMjM1OGI3YjBlODk4MGQwM2JkYjY0Mzk5ZWZiNDQxODc2M2FhZjg5YWZiMDQzNDUzNTYzN2YwYTEifX19"),
-        _7_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjk3NzEyYmEzMjQ5NmM5ZTgyYjIwY2M3ZDE2ZTE2OGIwMzViNmY4OWYzZGYwMTQzMjRlNGQ3YzM2NWRiM2ZiIn19fQ=="),
-        _8_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWJjMGZkYTlmYTFkOTg0N2EzYjE0NjQ1NGFkNjczN2FkMWJlNDhiZGFhOTQzMjQ0MjZlY2EwOTE4NTEyZCJ9fX0="),
-        _9_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZhYmM2MWRjYWVmYmQ1MmQ5Njg5YzA2OTdjMjRjN2VjNGJjMWFmYjU2YjhiMzc1NWU2MTU0YjI0YTVkOGJhIn19fQ=="),
-        dot("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIzZTYxOWRjYjc1MTFjZGMyNTJhNWRjYTg1NjViMTlkOTUyYWM5ZjgyZDQ2N2U2NmM1MjI0MmY5Y2Q4OGZhIn19fQ=="),
-        dotdot("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmZmY2MzMThjMjEyZGM3NDliNTk5NzU1ZTc2OTdkNDkyMzgyOTkzYzA3ZGUzZjhlNTRmZThmYzdkZGQxZSJ9fX0="),
-        up("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGIyMjFjYjk2MDdjOGE5YmYwMmZlZjVkNzYxNGUzZWIxNjljYzIxOWJmNDI1MGZkNTcxNWQ1ZDJkNjA0NWY3In19fQ=="),
-        down("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDhhYWI2ZDlhMGJkYjA3YzEzNWM5Nzg2MmU0ZWRmMzYzMTk0Mzg1MWVmYzU0NTQ2M2Q2OGU3OTNhYjQ1YTNkMyJ9fX0="),
+        _0_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "M2YwOTAxOGY0NmYzNDllNTUzNDQ2OTQ2YTM4NjQ5ZmNmY2Y5ZmRmZDYyOTE2YWVjMzNlYmNhOTZiYjIxYjUifX19"),
+        _1_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "Y2E1MTZmYmFlMTYwNThmMjUxYWVmOWE2OGQzMDc4NTQ5ZjQ4ZjZkNWI2ODNmMTljZjVhMTc0NTIxN2Q3MmNjIn19fQ=="),
+        _2_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "NDY5OGFkZDM5Y2Y5ZTRlYTkyZDQyZmFkZWZkZWMzYmU4YTdkYWZhMTFmYjM1OWRlNzUyZTlmNTRhZWNlZGM5YSJ9fX0="),
+        _3_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "ZmQ5ZTRjZDVlMWI5ZjNjOGQ2Y2E1YTFiZjQ1ZDg2ZWRkMWQ1MWU1MzVkYmY4NTVmZTlkMmY1ZDRjZmZjZDIifX19"),
+        _4_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "ZjJhM2Q1Mzg5ODE0MWM1OGQ1YWNiY2ZjODc0NjlhODdkNDhjNWMxZmM4MmZiNGU3MmY3MDE1YTM2NDgwNTgifX19"),
+        _5_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "ZDFmZTM2YzQxMDQyNDdjODdlYmZkMzU4YWU2Y2E3ODA5YjYxYWZmZDYyNDVmYTk4NDA2OTI3NWQxY2JhNzYzIn19fQ=="),
+        _6_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "M2FiNGRhMjM1OGI3YjBlODk4MGQwM2JkYjY0Mzk5ZWZiNDQxODc2M2FhZjg5YWZiMDQzNDUzNTYzN2YwYTEifX19"),
+        _7_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "Mjk3NzEyYmEzMjQ5NmM5ZTgyYjIwY2M3ZDE2ZTE2OGIwMzViNmY4OWYzZGYwMTQzMjRlNGQ3YzM2NWRiM2ZiIn19fQ=="),
+        _8_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "YWJjMGZkYTlmYTFkOTg0N2EzYjE0NjQ1NGFkNjczN2FkMWJlNDhiZGFhOTQzMjQ0MjZlY2EwOTE4NTEyZCJ9fX0="),
+        _9_("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "ZDZhYmM2MWRjYWVmYmQ1MmQ5Njg5YzA2OTdjMjRjN2VjNGJjMWFmYjU2YjhiMzc1NWU2MTU0YjI0YTVkOGJhIn19fQ=="),
+        dot("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "MzIzZTYxOWRjYjc1MTFjZGMyNTJhNWRjYTg1NjViMTlkOTUyYWM5ZjgyZDQ2N2U2NmM1MjI0MmY5Y2Q4OGZhIn19fQ=="),
+        dotdot("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "MmZmY2MzMThjMjEyZGM3NDliNTk5NzU1ZTc2OTdkNDkyMzgyOTkzYzA3ZGUzZjhlNTRmZThmYzdkZGQxZSJ9fX0="),
+        up("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "NGIyMjFjYjk2MDdjOGE5YmYwMmZlZjVkNzYxNGUzZWIxNjljYzIxOWJmNDI1MGZkNTcxNWQ1ZDJkNjA0NWY3In19fQ=="),
+        down("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv" +
+            "ZDhhYWI2ZDlhMGJkYjA3YzEzNWM5Nzg2MmU0ZWRmMzYzMTk0Mzg1MWVmYzU0NTQ2M2Q2OGU3OTNhYjQ1YTNkMyJ9fX0="),
         none(""),
         ;
 
@@ -213,7 +217,7 @@ public class ItemUtils {
         if (text == null) return current;
         final Matcher regexMatcher = regex.matcher(text);
         while (regexMatcher.find()) {
-            current.add(TCUtils.format(color == null ? regexMatcher.group() : color + regexMatcher.group()));
+            current.add(TCUtils.form(color == null ? regexMatcher.group() : color + regexMatcher.group()));
         }
     /*final String[] блоки = text.replace('&', '§');
     //else блоки = {text};
@@ -251,11 +255,11 @@ public class ItemUtils {
         final String[] blocks = text.replace('&', '§').split("<br>");
         for (final String block : blocks) {
             if (block.length() <= 25) {
-                current.add(TCUtils.format(block));
+                current.add(TCUtils.form(block));
             } else {
                 final List<String> split = split(block, 25);
                 for (String line : split) {
-                    current.add(TCUtils.format(line));
+                    current.add(TCUtils.form(line));
                 }
             }
         }
@@ -423,7 +427,7 @@ public class ItemUtils {
         for (int slot = 0; slot < cloneInv.length; slot++) {
             if (cloneInv[slot] != null && mat == cloneInv[slot].getType()) {
                 if (cloneInv[slot].getAmount() == ammount) { //найдено и убрано - дальше не ищем
-                    cloneInv[slot].setType(Material.AIR);
+                    cloneInv[slot] = cloneInv[slot].withType(Material.AIR);
                     ammount = 0;
                     //itemFindResult.remove(mat);
                     break;
@@ -439,7 +443,7 @@ public class ItemUtils {
                 if (cloneInv[slot].getAmount() < ammount) { //найдено меньше чем надо - убавили требуемое и ищем дальше
                     ammount -= cloneInv[slot].getAmount();
                     //itemFindResult.put(mat, ammount);
-                    cloneInv[slot].setType(Material.AIR);
+                    cloneInv[slot] = cloneInv[slot].withType(Material.AIR);
                 }
             }
         }
@@ -501,7 +505,7 @@ public class ItemUtils {
         //p.sendMessage("1");
         if (!isBlank(it, false) && it.getItemMeta() instanceof final Damageable dm && !dm.isUnbreakable()) {
             if (it.containsEnchantment(Enchantment.UNBREAKING) && checkEnch
-                    && Ostrov.random.nextInt(it.getEnchantmentLevel(Enchantment.UNBREAKING) + 1) == 0) {
+                && Ostrov.random.nextInt(it.getEnchantmentLevel(Enchantment.UNBREAKING) + 1) == 0) {
                 return false;
             }
             //p.sendMessage("dmg-" + (dm.getDamage() - 1) + "->" + dm.getDamage());
@@ -539,7 +543,7 @@ public class ItemUtils {
     }
 
     public static String getName(final ItemStack is) {
-        return hasName(is) ? TCUtils.toString(is.getItemMeta().displayName()) : "";
+        return hasName(is) ? TCUtils.deform(is.getItemMeta().displayName()) : "";
     }
 
     public static void giveItemsTo(final Player p, final ItemStack... its) {
@@ -569,11 +573,11 @@ public class ItemUtils {
 
             final ItemMeta im = is.getItemMeta();
             if (im.hasDisplayName()) {
-                res.append(spl).append("name:").append(TCUtils.toString(im.displayName()).replace('§', '&'));
+                res.append(spl).append("name:").append(TCUtils.deform(im.displayName()).replace('§', '&'));
             }
 
             if (im.hasLore()) {
-                res.append(spl).append("lore:").append(im.lore().stream().map(TCUtils::toString).collect(Collectors.joining(":")));
+                res.append(spl).append("lore:").append(im.lore().stream().map(TCUtils::deform).collect(Collectors.joining(":")));
                 /*for (final Component lore :im.lore()) {
                     if (lore.isEmpty()) {
                         res=res+paramSplitter+"lore:&7";
@@ -601,7 +605,8 @@ public class ItemUtils {
             if (im instanceof ArmorMeta am) {
                 //final ArmorMeta am = armorMeta;
                 if (am.hasTrim()) {
-                    res.append(spl).append("trim:").append(am.getTrim().getMaterial().key().value()).append(":").append(am.getTrim().getPattern().key().value());
+                    res.append(spl).append("trim:").append(am.getTrim().getMaterial().key().value())
+                        .append(":").append(am.getTrim().getPattern().key().value());
                 }
 
                 if (im instanceof ColorableArmorMeta) {
@@ -626,12 +631,14 @@ public class ItemUtils {
 
                 if (pm.hasCustomEffects()) {
                     for (final PotionEffect cpe : pm.getCustomEffects()) {
-                        res.append(spl).append("effect:").append(cpe.getType().key().value()).append(":").append(cpe.getDuration()).append(":").append(cpe.getAmplifier());
+                        res.append(spl).append("effect:").append(cpe.getType().key().value()).append(":")
+                            .append(cpe.getDuration()).append(":").append(cpe.getAmplifier());
                     }
                 }
 
                 if (pm.hasColor()) {
-                    res.append(spl).append("color:").append(pm.getColor().getBlue()).append(":").append(pm.getColor().getGreen()).append(":").append(pm.getColor().getRed());
+                    res.append(spl).append("color:").append(pm.getColor().getBlue()).append(":")
+                        .append(pm.getColor().getGreen()).append(":").append(pm.getColor().getRed());
                 }
             } else if (im instanceof FireworkMeta fm) {
                 //final PotionMeta pm = potionMeta;
@@ -641,9 +648,9 @@ public class ItemUtils {
                     final List<Color> cls = fe.getColors();
                     final List<Color> fds = fe.getFadeColors();
                     res.append(spl).append("burst:").append(fe.getType().name()).append(":")
-                            .append(cls.isEmpty() ? Color.WHITE.asRGB() : cls.get(0).asRGB()).append(":")
-                            .append(fds.isEmpty() ? Color.WHITE.asRGB() : fds.get(0).asRGB()).append(":")
-                            .append(fe.hasFlicker()).append(":").append(fe.hasTrail());
+                        .append(cls.isEmpty() ? Color.WHITE.asRGB() : cls.getFirst().asRGB()).append(":")
+                        .append(fds.isEmpty() ? Color.WHITE.asRGB() : fds.getFirst().asRGB()).append(":")
+                        .append(fe.hasFlicker()).append(":").append(fe.hasTrail());
                 }
             } else if (im instanceof FireworkEffectMeta fm) {
                 //final PotionMeta pm = potionMeta;
@@ -652,9 +659,9 @@ public class ItemUtils {
                     final List<Color> cls = fe.getColors();
                     final List<Color> fds = fe.getFadeColors();
                     res.append(spl).append("burst:").append(fe.getType().name()).append(":")
-                            .append(cls.isEmpty() ? Color.WHITE.asRGB() : cls.get(0).asRGB()).append(":")
-                            .append(fds.isEmpty() ? Color.WHITE.asRGB() : fds.get(0).asRGB()).append(":")
-                            .append(fe.hasFlicker()).append(":").append(fe.hasTrail());
+                        .append(cls.isEmpty() ? Color.WHITE.asRGB() : cls.getFirst().asRGB()).append(":")
+                        .append(fds.isEmpty() ? Color.WHITE.asRGB() : fds.getFirst().asRGB()).append(":")
+                        .append(fe.hasFlicker()).append(":").append(fe.hasTrail());
                 }
             }
 
@@ -662,9 +669,9 @@ public class ItemUtils {
                 for (final Entry<Attribute, AttributeModifier> en : im.getAttributeModifiers().entries()) {
                     final AttributeModifier am = en.getValue();
                     res.append(spl).append("attribute:").append(en.getKey().toString())
-                            .append(":").append(am.getAmount()).append(":")
-                            .append(am.getOperation().ordinal()).append(":")
-                            .append(am.getSlot() == null ? "ANY" : am.getSlot().toString());
+                        .append(":").append(am.getAmount()).append(":")
+                        .append(am.getOperation().ordinal()).append(":")
+                        .append(am.getSlotGroup().toString());
                 }
             }
         }
@@ -711,11 +718,11 @@ public class ItemUtils {
 
 //System.out.println("--- splittedParametrs.size="+splittedParametrs.size()+" 0="+splittedParametrs.get(0));
         final Material mat;
-        if (splittedParametrs.get(0).contains(":")) { //если с колличеством
-            String[] s0 = splittedParametrs.get(0).trim().split(":");
+        if (splittedParametrs.getFirst().contains(":")) { //если с колличеством
+            String[] s0 = splittedParametrs.getFirst().trim().split(":");
             mat = Material.matchMaterial(s0[0].trim());
             if (mat != null) {
-                builder.type(mat);
+                builder.setType(mat);
                 if (Ostrov.isInteger(s0[1].trim())) {
                     builder.amount(Integer.parseInt(s0[1].trim()));
                 } else {
@@ -725,11 +732,11 @@ public class ItemUtils {
                 Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + s0[0]);
             }
         } else {
-            mat = Material.matchMaterial(splittedParametrs.get(0).trim());
+            mat = Material.matchMaterial(splittedParametrs.getFirst().trim());
             if (mat != null) {
-                builder.type(mat);
+                builder.setType(mat);
             } else {
-                Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + splittedParametrs.get(0));
+                Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + splittedParametrs.getFirst());
             }
         }
 
@@ -740,7 +747,7 @@ public class ItemUtils {
 //System.out.println("2 itemstack="+itemstack);
         for (int i = 1; i < splittedParametrs.size(); ++i) {
 
-            final String[] param = splittedParametrs.get(i).trim().split(":");
+            @Subst("") final String[] param = splittedParametrs.get(i).trim().split(":");
             if (param.length == 1) {
                 switch (param[0].trim().toLowerCase()) {
                     case "end", "unbreakable":
@@ -765,24 +772,21 @@ public class ItemUtils {
                         break;
 
                     case "lore":
-                        if (param.length > 1) {
-                            final List<Component> lrs = new ArrayList<>();
-                            for (int j = 1; j < param.length; j++) {
-                                lrs.add(TCUtils.format(param[j].replace('&', '§')));
-                            }
-                            builder.addLore(lrs);
-                            //builder.addLore(splittedParametrs.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
-                        } else {
-                            Ostrov.log_warn("Декодер lore : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                        final List<Component> lrs = new ArrayList<>();
+                        for (int j = 1; j < param.length; j++) {
+                            lrs.add(TCUtils.form(param[j].replace('&', '§')));
                         }
+                        builder.lore(lrs);
+                        //builder.addLore(splittedParametrs.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
                         break;
 
                     case "color":
                         if (param.length == 4) {
                             if (ApiOstrov.isInteger(param[1]) && ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
-                                builder.setColor(Color.fromRGB(Integer.parseInt(param[1]), Integer.parseInt(param[2]), Integer.parseInt(param[3])));
+                                builder.color(Color.fromRGB(Integer.parseInt(param[1]), Integer.parseInt(param[2]), Integer.parseInt(param[3])));
                             } else {
-                                Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, должны быть числа §f" + param[1] + " " + param[2] + " " + param[3]);
+                                Ostrov.log_warn("Декодер color : §7строка >§f" + item
+                                    + "§7<, должны быть числа §f" + param[1] + " " + param[2] + " " + param[3]);
                             }
                         } else {
                             Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
@@ -796,7 +800,7 @@ public class ItemUtils {
                                 if (modelData < 0) {
                                     modelData = 0;
                                 }
-                                builder.setModelData(modelData);
+                                builder.modelData(modelData);
                             } else {
                                 Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, должны быть числа §f" + param[1]);
                             }
@@ -813,7 +817,7 @@ public class ItemUtils {
                                     Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, нет такого флага §f" + param[j]);
                                     continue;
                                 }
-                                builder.addFlags(itemFlag);
+                                builder.flags(itemFlag);
                             }
                         } else {
                             Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
@@ -821,7 +825,7 @@ public class ItemUtils {
                         break;
 
                     case "unbreakable":
-                        builder.setUnbreakable(true);
+                        builder.unbreak(true);
                         break;
 
                     case "attribute":
@@ -836,21 +840,22 @@ public class ItemUtils {
                                 break;
                             }
                             final EquipmentSlotGroup esg = EquipmentSlotGroup.getByName(param[4]);
-                            builder.setAttribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
-                                    esg == null ? EquipmentSlotGroup.ANY : esg);
-                            //builder.setAttribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
+                            builder.attribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
+                                esg == null ? EquipmentSlotGroup.ANY : esg);
+                            //builder.attribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
                             //param[4].equals("ANY") ? null : EquipmentSlot.valueOf(param[4]));
                         }
                         break;
 
                     case "skulltexture":
                         if (param.length == 2) {
-                            builder.setCustomHeadTexture(param[1]);
+                            builder.headTexture(param[1]);
                         } else {
                             Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
                         }
                         break;
-                    case "skull", "skullowneruuid": //в итоге высерает java.lang.NullPointerException: Profile name must not be null
+                    case "skull",
+                         "skullowneruuid": //в итоге высерает java.lang.NullPointerException: Profile name must not be null
                         if (param.length == 2) {
                             //builder.setSkullOwnerUuid(param[1]);
                             Ostrov.log_warn("Декодер skullowneruuid : с uuid больше не работает, нужно переделать на skulltexture!");
@@ -864,7 +869,7 @@ public class ItemUtils {
                         if (param.length == 3) {
                             final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(param[1]));
                             if (enchant != null) {
-                                builder.addEnchant(enchant, ApiOstrov.getInteger(param[2], 1));
+                                builder.enchant(enchant, ApiOstrov.getInteger(param[2], 1));
                             } else {
                                 Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, нет таких чар §f" + param[1]);
                             }
@@ -875,28 +880,21 @@ public class ItemUtils {
 
                     case "basepot", "basepotiondata":
                         if (param.length == 4 || param.length == 2) {
-                            switch (builder.type()) {
-                                case TIPPED_ARROW, POTION, LINGERING_POTION, SPLASH_POTION:
-                                    PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(param[1].toLowerCase()));
-                                    if (potionType == null) {
-                                        @SuppressWarnings("deprecation") final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(param[1]));
-                                        potionType = npt;
-                                    }
-                  /*try { //по ключу найдёт не все, например для SPEED key=minecraft:swiftness. Сначала ищем по енум обычные, потом по ключу кастомные
-                  } catch (IllegalArgumentException ex) {
-                    NamespacedKey key = NamespacedKey.minecraft(param[1].toLowerCase());
-                    potionType = Registry.POTION.get(key);
-                  }*/
+                            if (POTION.contains(builder.type())) {
+                                PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(param[1].toLowerCase()));
+                                if (potionType == null) {
+                                    @SuppressWarnings("deprecation")
+                                    final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(param[1]));
+                                    potionType = npt;
+                                }
 
-                                    if (potionType != null) {
-                                        builder.setBasePotionType(potionType);
-                                    } else {
-                                        Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1].toLowerCase());
-                                    }
-                                    break;
-                                default:
-                                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type());
-                                    break;
+                                if (potionType != null) {
+                                    builder.basePotion(potionType);
+                                } else {
+                                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1].toLowerCase());
+                                }
+                            } else {
+                                Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type().key().value());
                             }
                         } else {
                             Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toLowerCase());
@@ -905,26 +903,24 @@ public class ItemUtils {
 
                     case "effect", "custompotioneffect":
                         if (param.length == 4) {
-                            switch (builder.type()) {
-                                case TIPPED_ARROW, POTION, LINGERING_POTION, SPLASH_POTION:
-                                    PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(param[1].toLowerCase()));
-                                    if (potionEffectType == null) {
-                                        @SuppressWarnings("deprecation") final PotionEffectType npe = PotionEffectType.getByName(param[1]);
-                                        potionEffectType = npe;
-                                    }
-                                    if (potionEffectType != null) {
-                                        if (ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
-                                            builder.addCustomPotionEffect(new PotionEffect(potionEffectType, Integer.parseInt(param[2].toLowerCase()), Integer.parseInt(param[3].toLowerCase())));
-                                        } else {
-                                            Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + param[2] + " " + param[3]);
-                                        }
+                            if (POTION.contains(builder.type())) {
+                                PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(param[1].toLowerCase()));
+                                if (potionEffectType == null) {
+                                    @SuppressWarnings("deprecation") final PotionEffectType npe = PotionEffectType.getByName(param[1]);
+                                    potionEffectType = npe;
+                                }
+                                if (potionEffectType != null) {
+                                    if (ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
+                                        builder.customPotion(new PotionEffect(potionEffectType,
+                                            Integer.parseInt(param[2].toLowerCase()), Integer.parseInt(param[3].toLowerCase())));
                                     } else {
-                                        Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1]);
+                                        Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + param[2] + " " + param[3]);
                                     }
-                                    break;
-                                default:
-                                    Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type());
-                                    break;
+                                } else {
+                                    Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1]);
+                                }
+                            } else {
+                                Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type().key().value());
                             }
                         } else {
                             Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
@@ -932,18 +928,19 @@ public class ItemUtils {
                         break;
                     case "trim":
                         if (param.length == 3) {
-                            builder.setTrim(Registry.TRIM_MATERIAL.get(NamespacedKey.minecraft(param[1])),
-                                    Registry.TRIM_PATTERN.get(NamespacedKey.minecraft(param[2])));
+                            builder.trim(OStrap.retrieve(RegistryKey.TRIM_MATERIAL, NamespacedKey.minecraft(param[1])),
+                                OStrap.retrieve(RegistryKey.TRIM_PATTERN, NamespacedKey.minecraft(param[2])));
                         } else {
                             Ostrov.log_warn("Декодер trim : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
                         }
                         break;
                     case "firework":
                         if (param.length == 2) {
-                            if (builder.type() == Material.FIREWORK_ROCKET) {
-                                builder.applyCustomMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(param[1])));
+                            if (builder.type().equals(ItemType.FIREWORK_ROCKET)) {
+                                builder.customMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(param[1])));
                             } else {
-                                Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type());
+                                Ostrov.log_warn("Декодер firework : §7строка >§f" + item
+                                    + "§7<, неприменима к §f" + builder.type().key().value());
                             }
                         } else {
                             Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
@@ -951,22 +948,19 @@ public class ItemUtils {
                         break;
                     case "burst":
                         if (param.length == 6) {
-                            switch (builder.type()) {
-                                case FIREWORK_ROCKET:
-                                    builder.applyCustomMeta(FireworkMeta.class, fm -> fm.addEffect(FireworkEffect.builder()
-                                            .with(FireworkEffect.Type.valueOf(param[1])).withColor(Color.fromRGB(Integer.parseInt(param[2])))
-                                            .withFade(Color.fromRGB(Integer.parseInt(param[3]))).flicker(Boolean.parseBoolean(param[4]))
-                                            .trail(Boolean.parseBoolean(param[5])).build()));
-                                    break;
-                                case FIREWORK_STAR:
-                                    builder.applyCustomMeta(FireworkEffectMeta.class, fm -> fm.setEffect(FireworkEffect.builder()
-                                            .with(FireworkEffect.Type.valueOf(param[1])).withColor(Color.fromRGB(Integer.parseInt(param[2])))
-                                            .withFade(Color.fromRGB(Integer.parseInt(param[3]))).flicker(Boolean.parseBoolean(param[4]))
-                                            .trail(Boolean.parseBoolean(param[5])).build()));
-                                    break;
-                                default:
-                                    Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неприменима к §f" + builder.type());
-                                    break;
+                            if (builder.type().equals(ItemType.FIREWORK_ROCKET)) {
+                                builder.customMeta(FireworkMeta.class, fm -> fm.addEffect(FireworkEffect.builder()
+                                    .with(FireworkEffect.Type.valueOf(param[1])).withColor(Color.fromRGB(Integer.parseInt(param[2])))
+                                    .withFade(Color.fromRGB(Integer.parseInt(param[3]))).flicker(Boolean.parseBoolean(param[4]))
+                                    .trail(Boolean.parseBoolean(param[5])).build()));
+                            } else if (builder.type().equals(ItemType.FIREWORK_STAR)) {
+                                builder.customMeta(FireworkEffectMeta.class, fm -> fm.setEffect(FireworkEffect.builder()
+                                    .with(FireworkEffect.Type.valueOf(param[1])).withColor(Color.fromRGB(Integer.parseInt(param[2])))
+                                    .withFade(Color.fromRGB(Integer.parseInt(param[3]))).flicker(Boolean.parseBoolean(param[4]))
+                                    .trail(Boolean.parseBoolean(param[5])).build()));
+                            } else {
+                                Ostrov.log_warn("Декодер burst : §7строка >§f" + item
+                                    + "§7<, неприменима к §f" + builder.type().key().value());
                             }
                         } else {
                             Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
@@ -1037,7 +1031,9 @@ public class ItemUtils {
         } else {
             return false; //если тип не совпадает - разные
         }
-        //return is1 != null && is2 != null && is1.getType().equals(is2.getType()) && is1.getItemMeta().hasDisplayName() && is1.getItemMeta().hasDisplayName() && is1.getItemMeta().getDisplayName().equals(is2.getItemMeta().getDisplayName());
+        //return is1 != null && is2 != null && is1.getType().equals(is2.getType())
+        // && is1.getItemMeta().hasDisplayName() && is1.getItemMeta().hasDisplayName()
+        // && is1.getItemMeta().getDisplayName().equals(is2.getItemMeta().getDisplayName());
     }
 
     public static void fillSign(final Sign sign, String suggest) {
@@ -1047,25 +1043,14 @@ public class ItemUtils {
         final SignSide sd = sign.getSide(Side.FRONT);
         for (int ln = 0; !suggest.isEmpty() && ln < 4; ln++) {
             if (suggest.length() > 15) {
-                sd.line(ln, TCUtils.format(suggest.substring(0, 15)));
+                sd.line(ln, TCUtils.form(suggest.substring(0, 15)));
                 suggest = suggest.substring(15);
                 continue;
             }
 
-            sd.line(ln, TCUtils.format(suggest));
+            sd.line(ln, TCUtils.form(suggest));
             break;
         }
-        /*int line = 0;
-            while( suggest.length() > 15 && line<4) {
-                sign.setLine(line, suggest.substring(0, 15));
-//System.out.println("line="+line+" -> "+suggest.substring(0, 14));
-                suggest = suggest.substring(15);
-                line++;
-            }
-            if (line<4 && !suggest.isEmpty()) { //добавляем остаток
-                sign.setLine(line, suggest);
-            }*/
-        //}
         sign.update();
     }
 
@@ -1216,75 +1201,75 @@ public class ItemUtils {
         final ItemBuilder builder = new ItemBuilder(Material.TROPICAL_FISH_BUCKET);
 //System.out.println("getBiomeIcon "+b.toString());       
         if (b.toString().equalsIgnoreCase("NETHER") || b.toString().equalsIgnoreCase("NETHER_WASTES")) {
-            builder.type(Material.NETHERRACK);
+            builder.setType(Material.NETHERRACK);
         } else {
 
             switch (b) {
-                case BADLANDS -> builder.type(Material.RED_SAND);
-                case BAMBOO_JUNGLE -> builder.type(Material.BAMBOO);
-                case BEACH -> builder.type(Material.HORN_CORAL_FAN);
-                case BIRCH_FOREST -> builder.type(Material.BIRCH_LOG);
-                case COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE_POWDER);
-                case DARK_FOREST -> builder.type(Material.DARK_OAK_LOG);
-                case MUSHROOM_FIELDS -> builder.type(Material.MYCELIUM);
-                case DEEP_COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE);
-                case DEEP_FROZEN_OCEAN -> builder.type(Material.BLUE_ICE);
-                case DEEP_LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE);
-                case DEEP_OCEAN -> builder.type(Material.BLUE_WOOL);
-                case DESERT -> builder.type(Material.SAND);
-                case END_BARRENS -> builder.type(Material.END_STONE);
-                case END_HIGHLANDS -> builder.type(Material.END_STONE_BRICKS);
-                case END_MIDLANDS -> builder.type(Material.END_STONE_BRICKS);
-                case ERODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
-                case FLOWER_FOREST -> builder.type(Material.ROSE_BUSH);
-                case WINDSWEPT_HILLS -> builder.type(Material.GRANITE);
-                case FOREST -> builder.type(Material.DARK_OAK_LOG);
-                case FROZEN_OCEAN -> builder.type(Material.PACKED_ICE);
-                case FROZEN_RIVER -> builder.type(Material.LIGHT_BLUE_DYE);
-                case ICE_SPIKES -> builder.type(Material.ICE);
-                case JUNGLE -> builder.type(Material.JUNGLE_LOG);
-                case LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE_POWDER);
-                case OCEAN -> builder.type(Material.WATER_BUCKET);
-                case PLAINS -> builder.type(Material.GRASS_BLOCK);
-                case MANGROVE_SWAMP -> builder.type(Material.MANGROVE_ROOTS);
-                case RIVER -> builder.type(Material.BLUE_DYE);
-                case SAVANNA -> builder.type(Material.ACACIA_LOG);
-                case SAVANNA_PLATEAU -> builder.type(Material.ACACIA_WOOD);
-                case SMALL_END_ISLANDS -> builder.type(Material.END_STONE);
-                case SNOWY_BEACH -> builder.type(Material.SNOW);
-                case SNOWY_TAIGA -> builder.type(Material.WHITE_WOOL);
-                case SUNFLOWER_PLAINS -> builder.type(Material.SUNFLOWER);
-                case SWAMP -> builder.type(Material.LILY_PAD);
-                case TAIGA -> builder.type(Material.SPRUCE_LOG);
-                case NETHER_WASTES -> builder.type(Material.NETHERRACK);
-                case THE_END -> builder.type(Material.END_STONE);
-                case THE_VOID -> builder.type(Material.BEDROCK);
-                case WARM_OCEAN -> builder.type(Material.CYAN_CONCRETE_POWDER);
-                case SNOWY_PLAINS -> builder.type(Material.SNOW);
-                case SPARSE_JUNGLE -> builder.type(Material.VINE);
-                case STONY_SHORE -> builder.type(Material.GRAVEL);
-                case OLD_GROWTH_PINE_TAIGA -> builder.type(Material.SPRUCE_WOOD);
-                case WINDSWEPT_FOREST -> builder.type(Material.STRIPPED_OAK_LOG);
-                case WOODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
-                case WINDSWEPT_GRAVELLY_HILLS -> builder.type(Material.ANDESITE);
-                case OLD_GROWTH_BIRCH_FOREST -> builder.type(Material.BIRCH_WOOD);
-                case OLD_GROWTH_SPRUCE_TAIGA -> builder.type(Material.STRIPPED_SPRUCE_LOG);
-                case WINDSWEPT_SAVANNA -> builder.type(Material.STRIPPED_ACACIA_LOG);
-                case SOUL_SAND_VALLEY -> builder.type(Material.SOUL_SAND);
-                case CRIMSON_FOREST -> builder.type(Material.CRIMSON_NYLIUM);
-                case WARPED_FOREST -> builder.type(Material.WARPED_NYLIUM);
-                case BASALT_DELTAS -> builder.type(Material.BASALT);
-                case DRIPSTONE_CAVES -> builder.type(Material.DRIPSTONE_BLOCK);
-                case LUSH_CAVES -> builder.type(Material.BIG_DRIPLEAF);
-                case DEEP_DARK -> builder.type(Material.SCULK_CATALYST);
-                case MEADOW -> builder.type(Material.BEE_NEST);
-                case GROVE -> builder.type(Material.DIRT_PATH);
-                case SNOWY_SLOPES -> builder.type(Material.POWDER_SNOW);
-                case FROZEN_PEAKS -> builder.type(Material.PACKED_ICE);
-                case JAGGED_PEAKS -> builder.type(Material.DIORITE);
-                case STONY_PEAKS -> builder.type(Material.STONE);
-                case CHERRY_GROVE -> builder.type(Material.CHERRY_LOG);
-                case CUSTOM -> builder.type(Material.BEDROCK);
+                case BADLANDS -> builder.setType(Material.RED_SAND);
+                case BAMBOO_JUNGLE -> builder.setType(Material.BAMBOO);
+                case BEACH -> builder.setType(Material.HORN_CORAL_FAN);
+                case BIRCH_FOREST -> builder.setType(Material.BIRCH_LOG);
+                case COLD_OCEAN -> builder.setType(Material.BLUE_CONCRETE_POWDER);
+                case DARK_FOREST -> builder.setType(Material.DARK_OAK_LOG);
+                case MUSHROOM_FIELDS -> builder.setType(Material.MYCELIUM);
+                case DEEP_COLD_OCEAN -> builder.setType(Material.BLUE_CONCRETE);
+                case DEEP_FROZEN_OCEAN -> builder.setType(Material.BLUE_ICE);
+                case DEEP_LUKEWARM_OCEAN -> builder.setType(Material.LIGHT_BLUE_CONCRETE);
+                case DEEP_OCEAN -> builder.setType(Material.BLUE_WOOL);
+                case DESERT -> builder.setType(Material.SAND);
+                case END_BARRENS -> builder.setType(Material.END_STONE);
+                case END_HIGHLANDS -> builder.setType(Material.END_STONE_BRICKS);
+                case END_MIDLANDS -> builder.setType(Material.END_STONE_BRICKS);
+                case ERODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
+                case FLOWER_FOREST -> builder.setType(Material.ROSE_BUSH);
+                case WINDSWEPT_HILLS -> builder.setType(Material.GRANITE);
+                case FOREST -> builder.setType(Material.DARK_OAK_LOG);
+                case FROZEN_OCEAN -> builder.setType(Material.PACKED_ICE);
+                case FROZEN_RIVER -> builder.setType(Material.LIGHT_BLUE_DYE);
+                case ICE_SPIKES -> builder.setType(Material.ICE);
+                case JUNGLE -> builder.setType(Material.JUNGLE_LOG);
+                case LUKEWARM_OCEAN -> builder.setType(Material.LIGHT_BLUE_CONCRETE_POWDER);
+                case OCEAN -> builder.setType(Material.WATER_BUCKET);
+                case PLAINS -> builder.setType(Material.GRASS_BLOCK);
+                case MANGROVE_SWAMP -> builder.setType(Material.MANGROVE_ROOTS);
+                case RIVER -> builder.setType(Material.BLUE_DYE);
+                case SAVANNA -> builder.setType(Material.ACACIA_LOG);
+                case SAVANNA_PLATEAU -> builder.setType(Material.ACACIA_WOOD);
+                case SMALL_END_ISLANDS -> builder.setType(Material.END_STONE);
+                case SNOWY_BEACH -> builder.setType(Material.SNOW);
+                case SNOWY_TAIGA -> builder.setType(Material.WHITE_WOOL);
+                case SUNFLOWER_PLAINS -> builder.setType(Material.SUNFLOWER);
+                case SWAMP -> builder.setType(Material.LILY_PAD);
+                case TAIGA -> builder.setType(Material.SPRUCE_LOG);
+                case NETHER_WASTES -> builder.setType(Material.NETHERRACK);
+                case THE_END -> builder.setType(Material.END_STONE);
+                case THE_VOID -> builder.setType(Material.BEDROCK);
+                case WARM_OCEAN -> builder.setType(Material.CYAN_CONCRETE_POWDER);
+                case SNOWY_PLAINS -> builder.setType(Material.SNOW);
+                case SPARSE_JUNGLE -> builder.setType(Material.VINE);
+                case STONY_SHORE -> builder.setType(Material.GRAVEL);
+                case OLD_GROWTH_PINE_TAIGA -> builder.setType(Material.SPRUCE_WOOD);
+                case WINDSWEPT_FOREST -> builder.setType(Material.STRIPPED_OAK_LOG);
+                case WOODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
+                case WINDSWEPT_GRAVELLY_HILLS -> builder.setType(Material.ANDESITE);
+                case OLD_GROWTH_BIRCH_FOREST -> builder.setType(Material.BIRCH_WOOD);
+                case OLD_GROWTH_SPRUCE_TAIGA -> builder.setType(Material.STRIPPED_SPRUCE_LOG);
+                case WINDSWEPT_SAVANNA -> builder.setType(Material.STRIPPED_ACACIA_LOG);
+                case SOUL_SAND_VALLEY -> builder.setType(Material.SOUL_SAND);
+                case CRIMSON_FOREST -> builder.setType(Material.CRIMSON_NYLIUM);
+                case WARPED_FOREST -> builder.setType(Material.WARPED_NYLIUM);
+                case BASALT_DELTAS -> builder.setType(Material.BASALT);
+                case DRIPSTONE_CAVES -> builder.setType(Material.DRIPSTONE_BLOCK);
+                case LUSH_CAVES -> builder.setType(Material.BIG_DRIPLEAF);
+                case DEEP_DARK -> builder.setType(Material.SCULK_CATALYST);
+                case MEADOW -> builder.setType(Material.BEE_NEST);
+                case GROVE -> builder.setType(Material.DIRT_PATH);
+                case SNOWY_SLOPES -> builder.setType(Material.POWDER_SNOW);
+                case FROZEN_PEAKS -> builder.setType(Material.PACKED_ICE);
+                case JAGGED_PEAKS -> builder.setType(Material.DIORITE);
+                case STONY_PEAKS -> builder.setType(Material.STONE);
+                case CHERRY_GROVE -> builder.setType(Material.CHERRY_LOG);
+                case CUSTOM -> builder.setType(Material.BEDROCK);
             }
         }
 
@@ -1297,13 +1282,13 @@ public class ItemUtils {
         final ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
 
         switch (type) {
-            case ARMOR_STAND -> builder.type(Material.ARMOR_STAND);
-            case ZOMBIE -> builder.type(Material.ZOMBIE_HEAD);
-            case CREEPER -> builder.type(Material.CREEPER_HEAD);
-            case PIGLIN -> builder.type(Material.PIGLIN_HEAD);
-            case ENDER_DRAGON -> builder.type(Material.DRAGON_HEAD);
+            case ARMOR_STAND -> builder.setType(Material.ARMOR_STAND);
+            case ZOMBIE -> builder.setType(Material.ZOMBIE_HEAD);
+            case CREEPER -> builder.setType(Material.CREEPER_HEAD);
+            case PIGLIN -> builder.setType(Material.PIGLIN_HEAD);
+            case ENDER_DRAGON -> builder.setType(Material.DRAGON_HEAD);
             //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
-            default -> builder.type(Material.NAME_TAG);
+            default -> builder.setType(Material.NAME_TAG);
         }
 
         builder.name(Lang.t(type, Lang.RU));
@@ -1315,12 +1300,11 @@ public class ItemUtils {
     }
 
     public static boolean isMineCart(final Material type) {
-        switch (type) {
-            case MINECART, CHEST_MINECART, FURNACE_MINECART, TNT_MINECART, HOPPER_MINECART, COMMAND_BLOCK_MINECART:
-                return true;
-            default:
-                return false;
-        }
+        return switch (type) {
+            case MINECART, CHEST_MINECART, FURNACE_MINECART,
+                 TNT_MINECART, HOPPER_MINECART, COMMAND_BLOCK_MINECART -> true;
+            default -> false;
+        };
     }
 
     public static boolean isSpawnEgg(final Material type) {

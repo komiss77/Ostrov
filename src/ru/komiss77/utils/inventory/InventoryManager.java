@@ -1,7 +1,5 @@
 package ru.komiss77.utils.inventory;
 
-import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +10,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
+
+import java.util.*;
 
 //https://github.com/MinusKube/SmartInvs
 
@@ -29,8 +29,8 @@ public class InventoryManager {
         contents = new HashMap<>();
         updateTasks = new HashMap<>();
         defaultOpeners = Arrays.asList(
-                new ChestInventoryOpener(),
-                new SpecialInventoryOpener()
+            new ChestInventoryOpener(),
+            new SpecialInventoryOpener()
         );
         openers = new ArrayList<>();
 
@@ -54,13 +54,13 @@ public class InventoryManager {
 
     public static Optional<InventoryOpener> findOpener(InventoryType type) {
         Optional<InventoryOpener> opInv = InventoryManager.openers.stream()
-                .filter(opener -> opener.supports(type))
-                .findAny();
+            .filter(opener -> opener.supports(type))
+            .findAny();
 
         if (!opInv.isPresent()) {
             opInv = InventoryManager.defaultOpeners.stream()
-                    .filter(opener -> opener.supports(type))
-                    .findAny();
+                .filter(opener -> opener.supports(type))
+                .findAny();
         }
 
         return opInv;
@@ -138,8 +138,8 @@ public class InventoryManager {
 //Ostrov.log("CLICK="+e.getClick()+" ACTION="+e.getAction());
 
             if (e.getAction() == InventoryAction.COLLECT_TO_CURSOR ||
-                    //e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY ||
-                    e.getAction() == InventoryAction.NOTHING) {
+                //e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY ||
+                e.getAction() == InventoryAction.NOTHING) {
                 e.setCancelled(true);
                 return;
             } else if (e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -172,8 +172,8 @@ public class InventoryManager {
                 }
 
                 inv.getListeners().stream()
-                        .filter(listener -> listener.getType() == InventoryClickEvent.class)
-                        .forEach(listener -> ((InventoryListener<InventoryClickEvent>) listener).accept(e));
+                    .filter(listener -> listener.getType() == InventoryClickEvent.class)
+                    .forEach(listener -> ((InventoryListener<InventoryClickEvent>) listener).accept(e));
 
                 invContents.get(slot).ifPresent(item -> item.run(new ItemClickData(p, e, e.getClick(), e.getCurrentItem(), slot)));
 
@@ -232,8 +232,8 @@ public class InventoryManager {
             }
 
             inv.getListeners().stream()
-                    .filter(listener -> listener.getType() == InventoryDragEvent.class)
-                    .forEach(listener -> ((InventoryListener<InventoryDragEvent>) listener).accept(e));
+                .filter(listener -> listener.getType() == InventoryDragEvent.class)
+                .forEach(listener -> ((InventoryListener<InventoryDragEvent>) listener).accept(e));
         }
         /*
         final Player player = (Player)e.getWhoClicked();
@@ -259,8 +259,8 @@ public class InventoryManager {
             SmartInventory inv = inventories.get(p.getName());
 
             inv.getListeners().stream()
-                    .filter(listener -> listener.getType() == InventoryOpenEvent.class)
-                    .forEach(listener -> ((InventoryListener<InventoryOpenEvent>) listener).accept(e));
+                .filter(listener -> listener.getType() == InventoryOpenEvent.class)
+                .forEach(listener -> ((InventoryListener<InventoryOpenEvent>) listener).accept(e));
         }
 
 
@@ -274,8 +274,8 @@ public class InventoryManager {
 
             try {
                 si.getListeners().stream()
-                        .filter(listener -> listener.getType() == InventoryCloseEvent.class)
-                        .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener).accept(e));
+                    .filter(listener -> listener.getType() == InventoryCloseEvent.class)
+                    .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener).accept(e));
             } finally {
                 if (si.isCloseable()) {
                     e.getInventory().clear();
@@ -311,8 +311,8 @@ public class InventoryManager {
 
             try {
                 inv.getListeners().stream()
-                        .filter(listener -> listener.getType() == PlayerQuitEvent.class)
-                        .forEach(listener -> ((InventoryListener<PlayerQuitEvent>) listener).accept(e));
+                    .filter(listener -> listener.getType() == PlayerQuitEvent.class)
+                    .forEach(listener -> ((InventoryListener<PlayerQuitEvent>) listener).accept(e));
             } finally {
                 inventories.remove(p.getName());
                 contents.remove(p.getName());
@@ -334,8 +334,8 @@ public class InventoryManager {
             new HashMap<>(inventories).forEach((name, inv) -> {
                 try {
                     inv.getListeners().stream()
-                            .filter(listener -> listener.getType() == PluginDisableEvent.class)
-                            .forEach(listener -> ((InventoryListener<PluginDisableEvent>) listener).accept(e));
+                        .filter(listener -> listener.getType() == PluginDisableEvent.class)
+                        .forEach(listener -> ((InventoryListener<PluginDisableEvent>) listener).accept(e));
                 } finally {
                     inv.close(Bukkit.getPlayerExact(name));
                 }

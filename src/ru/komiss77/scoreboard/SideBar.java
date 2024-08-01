@@ -3,6 +3,7 @@ package ru.komiss77.scoreboard;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedList;
+
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public class SideBar {
         toAdd = new LinkedList<>();
         data = new HashMap<>();
         lines = new HashMap<>();
-        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.format(title));
+        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.form(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.displayName(Component.empty());
         obj.numberFormat(NumberFormat.blank());
@@ -41,7 +42,7 @@ public class SideBar {
         toAdd = new LinkedList<>();
         data = new HashMap<>();
         lines = new HashMap<>();
-        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.format(title));
+        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.form(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.displayName(Component.empty());
         obj.numberFormat(NumberFormat.blank());
@@ -57,7 +58,7 @@ public class SideBar {
     }
 
     public SideBar title(final String name) {
-        obj.displayName(TCUtils.format(name));
+        obj.displayName(TCUtils.form(name));
         return this;
     }
 

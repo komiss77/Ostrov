@@ -3,6 +3,7 @@ package ru.komiss77.listener;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -232,13 +233,13 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 case Action_Sender_Int_String -> onChanelMsg(operation, in.readUTF(), in.readInt(), in.readUTF());
 
                 case Action_Sender_Int2_String2 ->
-                        onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), 0, in.readUTF(), in.readUTF(), null, null, null, null);
+                    onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), 0, in.readUTF(), in.readUTF(), null, null, null, null);
 
                 case Action_Sender_Int3_String3 ->
-                        onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), in.readInt(), in.readUTF(), in.readUTF(), in.readUTF(), null, null, null);
+                    onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), in.readInt(), in.readUTF(), in.readUTF(), in.readUTF(), null, null, null);
 
                 case Action_Sender_Int3_String6 ->
-                        onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), in.readInt(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF());
+                    onChanelMsg(operation, in.readUTF(), in.readInt(), in.readInt(), in.readInt(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF(), in.readUTF());
 
                 default -> {
                 }
@@ -275,7 +276,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
             }
 
             default ->
-                    Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, 0, 0, 0, null, null, null, null, null, null));
+                Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, 0, 0, 0, null, null, null, null, null, null));
 
         }
         //case AUTH_BEGIN: //обработать в эвенте
@@ -349,25 +350,25 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 final Player target = Bukkit.getPlayerExact(s1);
                 //System.out.println("333 who="+who+" target="+target);
                 if (target == null || !target.isOnline()) {
-                    sender.sendMessage(TCUtils.format("§cТелепорт не удалось завершить - " + s1 + " не найден!"));
+                    sender.sendMessage(TCUtils.form("§cТелепорт не удалось завершить - " + s1 + " не найден!"));
                     //return;
                 } else {
                     FriendTeleportEvent event = new FriendTeleportEvent(sender, target);
                     Bukkit.getPluginManager().callEvent(event);
                     if (event.isCanceled()) {
-                        sender.sendMessage(TCUtils.format("§cТелепорт не удалось завершить: " + event.cause));
-                        target.sendMessage(TCUtils.format("§cТелепорт не удалось завершить: " + event.cause));
+                        sender.sendMessage(TCUtils.form("§cТелепорт не удалось завершить: " + event.cause));
+                        target.sendMessage(TCUtils.form("§cТелепорт не удалось завершить: " + event.cause));
                     } else {
                         sender.teleport(target);
-                        sender.sendMessage(TCUtils.format("§6Вы телепортировались к " + target.getName()));
-                        target.sendMessage(TCUtils.format("§6К вам телепортировался " + senderInfo));
+                        sender.sendMessage(TCUtils.form("§6Вы телепортировались к " + target.getName()));
+                        target.sendMessage(TCUtils.form("§6К вам телепортировался " + senderInfo));
                     }
                 }
             }
 
 
             default ->
-                    Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, 0, 0, 0, s1, null, null, null, null, null));
+                Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, 0, 0, 0, s1, null, null, null, null, null));
 
         }
     }
@@ -383,7 +384,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
             }
 
             default ->
-                    Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, int1, 0, 0, s1, null, null, null, null, null));
+                Bukkit.getPluginManager().callEvent(new OstrovChanelEvent(action, senderInfo, int1, 0, 0, s1, null, null, null, null, null));
 
         }
     }

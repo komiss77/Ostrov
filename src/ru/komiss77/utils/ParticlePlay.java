@@ -1,7 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.List;
-import java.util.Set;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Firework;
@@ -15,6 +13,9 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.Cuboid;
 import ru.komiss77.modules.world.XYZ;
+
+import java.util.List;
+import java.util.Set;
 
 //https://www.spigotmc.org/resources/playerparticles.40261/
 public class ParticlePlay {
@@ -88,14 +89,14 @@ public class ParticlePlay {
                     return;
                 }
                 border.stream().forEach(
-                        (xyz) -> {
-                            particleLoc.set(xyz.x, xyz.y, xyz.z);
-                            if (xyz.pitch >= 5) { //стенки
-                                pl.spawnParticle(Particle.FIREWORK, particleLoc, 0);
-                            } else {
-                                pl.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
-                            }
+                    (xyz) -> {
+                        particleLoc.set(xyz.x, xyz.y, xyz.z);
+                        if (xyz.pitch >= 5) { //стенки
+                            pl.spawnParticle(Particle.FIREWORK, particleLoc, 0);
+                        } else {
+                            pl.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
                         }
+                    }
                 );
                 ApiOstrov.sendTitleDirect(pl, "", "§7Шифт - остановить показ", 0, 30, 0);
             }
@@ -139,18 +140,18 @@ public class ParticlePlay {
 /*
     public static void openParticleMenu(final Player p) {
         final Inventory particle_menu = Bukkit.createInventory(null, 27, Component.text("§1Выбор частиц"));
-        particle_menu.setItem(10, new ItemBuilder(Material.REDSTONE_BLOCK).name("Сердечки").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(11, new ItemBuilder(Material.NOTE_BLOCK).name("Ноты").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(12, new ItemBuilder(Material.EMERALD).name("Изумруды").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(13, new ItemBuilder(Material.FIRE).name("Огонь").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(14, new ItemBuilder(Material.DIAMOND_AXE).name("Удар магии").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(15, new ItemBuilder(Material.ENCHANTED_BOOK).name("Удар").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(16, new ItemBuilder(Material.ARROW).name("Злой Житель").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(19, new ItemBuilder(Material.OBSIDIAN).name("Портал").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(20, new ItemBuilder(Material.REDSTONE).name("Редстоун").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(21, new ItemBuilder(Material.TNT).name("Дымок").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(22, new ItemBuilder(Material.LAVA_BUCKET).name("Лава").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
-        particle_menu.setItem(23, new ItemBuilder(Material.ENCHANTING_TABLE).name("Магия").setLore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(10, new ItemBuilder(Material.REDSTONE_BLOCK).name("Сердечки").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(11, new ItemBuilder(Material.NOTE_BLOCK).name("Ноты").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(12, new ItemBuilder(Material.EMERALD).name("Изумруды").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(13, new ItemBuilder(Material.FIRE).name("Огонь").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(14, new ItemBuilder(Material.DIAMOND_AXE).name("Удар магии").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(15, new ItemBuilder(Material.ENCHANTED_BOOK).name("Удар").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(16, new ItemBuilder(Material.ARROW).name("Злой Житель").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(19, new ItemBuilder(Material.OBSIDIAN).name("Портал").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(20, new ItemBuilder(Material.REDSTONE).name("Редстоун").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(21, new ItemBuilder(Material.TNT).name("Дымок").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(22, new ItemBuilder(Material.LAVA_BUCKET).name("Лава").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
+        particle_menu.setItem(23, new ItemBuilder(Material.ENCHANTING_TABLE).name("Магия").deLore().lore("ЛКМ - получить установщик<br>ПКМ - убрать эти частицы", "§7").build());
 
         p.openInventory(particle_menu);
     }

@@ -342,9 +342,9 @@ public class NtpV3Impl implements NtpV3Packet {
      */
     private String idAsIPAddress() {
         return ui(buf[REFERENCE_ID_INDEX]) + "." +
-                ui(buf[REFERENCE_ID_INDEX + 1]) + "." +
-                ui(buf[REFERENCE_ID_INDEX + 2]) + "." +
-                ui(buf[REFERENCE_ID_INDEX + 3]);
+            ui(buf[REFERENCE_ID_INDEX + 1]) + "." +
+            ui(buf[REFERENCE_ID_INDEX + 2]) + "." +
+            ui(buf[REFERENCE_ID_INDEX + 3]);
     }
 
     private String idAsString() {
@@ -467,9 +467,9 @@ public class NtpV3Impl implements NtpV3Packet {
      */
     private int getInt(int index) {
         int i = ui(buf[index]) << 24 |
-                ui(buf[index + 1]) << 16 |
-                ui(buf[index + 2]) << 8 |
-                ui(buf[index + 3]);
+            ui(buf[index + 1]) << 16 |
+            ui(buf[index + 2]) << 8 |
+            ui(buf[index + 3]);
 
         return i;
     }
@@ -504,13 +504,13 @@ public class NtpV3Impl implements NtpV3Packet {
      */
     private long getLong(int index) {
         long i = ul(buf[index]) << 56 |
-                ul(buf[index + 1]) << 48 |
-                ul(buf[index + 2]) << 40 |
-                ul(buf[index + 3]) << 32 |
-                ul(buf[index + 4]) << 24 |
-                ul(buf[index + 5]) << 16 |
-                ul(buf[index + 6]) << 8 |
-                ul(buf[index + 7]);
+            ul(buf[index + 1]) << 48 |
+            ul(buf[index + 2]) << 40 |
+            ul(buf[index + 3]) << 32 |
+            ul(buf[index + 4]) << 24 |
+            ul(buf[index + 5]) << 16 |
+            ul(buf[index + 6]) << 8 |
+            ul(buf[index + 7]);
         return i;
     }
 
@@ -638,15 +638,15 @@ public class NtpV3Impl implements NtpV3Packet {
     @Override
     public String toString() {
         return "[" +
-                "version:" + getVersion() +
-                ", mode:" + getMode() +
-                ", poll:" + getPoll() +
-                ", precision:" + getPrecision() +
-                ", delay:" + getRootDelay() +
-                ", dispersion(ms):" + getRootDispersionInMillisDouble() +
-                ", id:" + getReferenceIdString() +
-                ", xmitTime:" + getTransmitTimeStamp().toDateString() +
-                " ]";
+            "version:" + getVersion() +
+            ", mode:" + getMode() +
+            ", poll:" + getPoll() +
+            ", precision:" + getPrecision() +
+            ", delay:" + getRootDelay() +
+            ", dispersion(ms):" + getRootDispersionInMillisDouble() +
+            ", id:" + getReferenceIdString() +
+            ", xmitTime:" + getTransmitTimeStamp().toDateString() +
+            " ]";
     }
 
 }

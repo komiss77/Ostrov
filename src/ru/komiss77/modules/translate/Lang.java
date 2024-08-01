@@ -77,10 +77,10 @@ public class Lang {
             if (rb == null && !apiKey.isEmpty() && !folderId.isEmpty()) { //не надо тут оптимизаций
                 // Lang translateChat error : responce=Request Header Fields Too Large
                 rb = HttpRequest.newBuilder()
-                        .uri(URI.create("https://translate.api.cloud.yandex.net/translate/v2/translate"))
-                        .headers("Content-Type", "application/json", "Authorization", "Api-Key " + apiKey) //Yandex Cloud	 Утечка конфиденциальных данных вашего аккаунта
-                        .timeout(Duration.of(5, ChronoUnit.SECONDS))
-                        .version(java.net.http.HttpClient.Version.HTTP_1_1); //это звиздец, эта строчка стоила дня моей жизни
+                    .uri(URI.create("https://translate.api.cloud.yandex.net/translate/v2/translate"))
+                    .headers("Content-Type", "application/json", "Authorization", "Api-Key " + apiKey) //Yandex Cloud	 Утечка конфиденциальных данных вашего аккаунта
+                    .timeout(Duration.of(5, ChronoUnit.SECONDS))
+                    .version(java.net.http.HttpClient.Version.HTTP_1_1); //это звиздец, эта строчка стоила дня моей жизни
             }
         } catch (SQLException ex) {
             Ostrov.log_err("Lang loadBase error : " + ex.getMessage());
@@ -135,29 +135,29 @@ public class Lang {
             ruToEng.put(ruMsg, ruMsg); //вставить заглушку, чтобы не дублировало запросы на переводы
 
             final HttpRequest request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"" + (locale == RU ? "ru" : "en")
-                            + "\",\"folderId\":\"" + folderId + "\",\"texts\":\"" + ruMsg.replace('\\', ' ') + "\"}"))
-                    .build();
+                    + "\",\"folderId\":\"" + folderId + "\",\"texts\":\"" + ruMsg.replace('\\', ' ') + "\"}"))
+                .build();
 
             final CompletableFuture<Void> cf = HTTP.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
-                    .thenApply(java.net.http.HttpResponse::body)
-                    //.thenAccept(System.out::println);
-                    .thenAccept(array -> {
-                        String responce = new String(array);
-                        int idx = responce.indexOf("text");
+                .thenApply(java.net.http.HttpResponse::body)
+                //.thenAccept(System.out::println);
+                .thenAccept(array -> {
+                    String responce = new String(array);
+                    int idx = responce.indexOf("text");
+                    if (idx > 0) {
+                        responce = responce.substring(idx + 8);
+                        idx = responce.indexOf("\"");
                         if (idx > 0) {
-                            responce = responce.substring(idx + 8);
-                            idx = responce.indexOf("\"");
-                            if (idx > 0) {
-                                responce = responce.substring(0, idx);
-                                responce = responce.replace('\'', ' '); // ' багает мускул
-                                upd(ruMsg, responce);
-                            }
+                            responce = responce.substring(0, idx);
+                            responce = responce.replace('\'', ' '); // ' багает мускул
+                            upd(ruMsg, responce);
                         }
-                    })
-                    .exceptionally(ex -> {
-                        Ostrov.log_err("Lang t error : " + ex.getMessage());
-                        return null;
-                    });
+                    }
+                })
+                .exceptionally(ex -> {
+                    Ostrov.log_err("Lang t error : " + ex.getMessage());
+                    return null;
+                });
             cf.join();
 
 
@@ -168,8 +168,8 @@ public class Lang {
     public static void upd(final String ruMsg, final String translateResult) {
         ruToEng.put(ruMsg, translateResult);
         OstrovDB.executePstAsync(Bukkit.getConsoleSender(),
-                "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `ts`) VALUES ('" + ruMsg.length() + "', '" + ruMsg + "', '" + translateResult
-                        + "', NOW()+0)  ON DUPLICATE KEY UPDATE eng=VALUES(eng), ts=NOW()+0;");
+            "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `ts`) VALUES ('" + ruMsg.length() + "', '" + ruMsg + "', '" + translateResult
+                + "', NOW()+0)  ON DUPLICATE KEY UPDATE eng=VALUES(eng), ts=NOW()+0;");
     }
 
 
@@ -184,40 +184,40 @@ public class Lang {
         final HttpRequest request;
         if (ce.stripMsgRu != null) {
             request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"en\",\"folderId\":\"" + folderId + "\",\"texts\":\""
-                    + ce.stripMsgRu.replace('\\', ' ') + "\"}")).build();
+                + ce.stripMsgRu.replace('\\', ' ') + "\"}")).build();
         } else {
             request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"ru\",\"folderId\":\"" + folderId + "\",\"texts\":\""
-                    + ce.stripMsgEn.replace('\\', ' ') + "\"}")).build();
+                + ce.stripMsgEn.replace('\\', ' ') + "\"}")).build();
         }
 //Ostrov.log("request ="+request);
         final CompletableFuture<Void> cf = HTTP.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
-                .thenApply(java.net.http.HttpResponse::body)
-                //.thenAccept(System.out::println);
-                .thenAccept(array -> {
-                    String responce = new String(array);
-                    int idx = responce.indexOf("text");
+            .thenApply(java.net.http.HttpResponse::body)
+            //.thenAccept(System.out::println);
+            .thenAccept(array -> {
+                String responce = new String(array);
+                int idx = responce.indexOf("text");
+                if (idx > 0) {
+                    responce = responce.substring(idx + 8);
+                    idx = responce.indexOf("\"");
                     if (idx > 0) {
-                        responce = responce.substring(idx + 8);
-                        idx = responce.indexOf("\"");
-                        if (idx > 0) {
-                            responce = responce.substring(0, idx);
-                            if (ce.stripMsgRu == null) {
-                                ce.stripMsgRu = responce;
-                            } else {
-                                ce.stripMsgEn = responce;
-                            }
-                            ChatLst.process(ce);
-                            return;
+                        responce = responce.substring(0, idx);
+                        if (ce.stripMsgRu == null) {
+                            ce.stripMsgRu = responce;
+                        } else {
+                            ce.stripMsgEn = responce;
                         }
+                        ChatLst.process(ce);
+                        return;
                     }
-                    Ostrov.log_err("Lang translateChat error : responce=" + responce);
-                    abort(ce);
-                })
-                .exceptionally(ex -> {
-                    abort(ce);
-                    Ostrov.log_err("Lang translateChat error : " + ex.getMessage());
-                    return null;
-                });
+                }
+                Ostrov.log_err("Lang translateChat error : responce=" + responce);
+                abort(ce);
+            })
+            .exceptionally(ex -> {
+                abort(ce);
+                Ostrov.log_err("Lang translateChat error : " + ex.getMessage());
+                return null;
+            });
         cf.join();
     }
 

@@ -46,32 +46,32 @@ public class HomeMenu implements InventoryProvider {
         for (final String homeName : op.homes.keySet()) {
 
             final ItemStack homeIcon = new ItemBuilder(Material.GRAY_BED)
-                    .name(homeName)
-                    .addLore("")
-                    .addLore("§7ЛКМ - §aперейти")
-                    .addLore("§7Шифт+ПКМ - §6переустановить")
-                    .addLore("§7Клав.Q - §cУдалить дом")
-                    .addLore("")
-                    .build();
+                .name(homeName)
+                .lore("")
+                .lore("§7ЛКМ - §aперейти")
+                .lore("§7Шифт+ПКМ - §6переустановить")
+                .lore("§7Клав.Q - §cУдалить дом")
+                .lore("")
+                .build();
 
             content.add(ClickableItem.of(homeIcon, e -> {
-                        switch (e.getClick()) {
-                            case LEFT:
-                                p.closeInventory();
-                                p.performCommand("home " + homeName);
-                                break;
-                            case SHIFT_RIGHT:
-                                p.closeInventory();
-                                p.performCommand("sethome " + homeName);
-                                break;
-                            case DROP:
-                                p.performCommand("delhome " + homeName);
-                                reopen(p, content);
-                                break;
-                            default:
-                                break;
-                        }
+                    switch (e.getClick()) {
+                        case LEFT:
+                            p.closeInventory();
+                            p.performCommand("home " + homeName);
+                            break;
+                        case SHIFT_RIGHT:
+                            p.closeInventory();
+                            p.performCommand("sethome " + homeName);
+                            break;
+                        case DROP:
+                            p.performCommand("delhome " + homeName);
+                            reopen(p, content);
+                            break;
+                        default:
+                            break;
                     }
+                }
             ));
         }
 
@@ -80,17 +80,17 @@ public class HomeMenu implements InventoryProvider {
 
         if (op.homes.size() >= limit) {
             content.add(ClickableItem.empty(new ItemBuilder(Material.REDSTONE)
-                    .name("§7Добавить дом")
-                    .addLore("")
-                    .addLore("")
-                    .addLore("§cВы не можете добавть")
-                    .addLore("§cновые дома.")
-                    .build()
+                .name("§7Добавить дом")
+                .lore("")
+                .lore("")
+                .lore("§cВы не можете добавть")
+                .lore("§cновые дома.")
+                .build()
             ));
         } else {
             content.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.EMERALD)
-                    .name("§7Добавить дом")
-                    .build(), "название", newName -> {
+                .name("§7Добавить дом")
+                .build(), "название", newName -> {
 
                 p.closeInventory();
                 p.performCommand("sethome " + newName);

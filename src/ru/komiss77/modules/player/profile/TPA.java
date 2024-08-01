@@ -47,7 +47,7 @@ public class TPA implements InventoryProvider {
         final boolean moder = p.hasPermission("ostrov.tpo");
 
 //System.out.println("tpa1 moder?"+moder+" tpa_command="+Config.tpa_command);        
-        if (Config.tpa_command < 0 && !moder) {
+        if (Config.tpa_command_delay < 0 && !moder) {
             p.sendMessage("§cКоманда отключена");
             return;
         }
@@ -82,11 +82,11 @@ public class TPA implements InventoryProvider {
         }
         Timer.add(target, "tp_request_from_" + p.getName(), 15);
         target.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
-                .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
-                .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
-                .append(Component.text(" §4>§cв игнор§4<")
-                        .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
-                        .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
+            .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
+            .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
+            .append(Component.text(" §4>§cв игнор§4<")
+                .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
+                .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
 
         p.sendMessage("§6Запрос на телепорт " + target.getName() + " отправлен, действетт 15сек.");
     }
@@ -127,11 +127,11 @@ public class TPA implements InventoryProvider {
         final boolean moder = p.hasPermission("ostrov.tpo");
 
 //System.out.println("tpa1 moder?"+moder+" tpa_command="+Config.tpa_command);        
-        if (Config.tpa_command < 0 && !moder) {
+        if (Config.tpa_command_delay < 0 && !moder) {
 
             content.set(13, ClickableItem.empty(new ItemBuilder(Material.BARRIER)
-                    .name("§cКоманда отключена")
-                    .build()));
+                .name("§cКоманда отключена")
+                .build()));
             return;
 
         }
@@ -140,12 +140,12 @@ public class TPA implements InventoryProvider {
         if (Timer.has(p, "tpa_command")) { //для модеров никогда не сработает - не добавляет в таймер
 
             content.set(13, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                    .name("§cТелепортер перезаряжается!")
-                    .addLore("")
-                    .addLore("§7Осталось " + Timer.getLeft(p, "tpa_command") + " сек.!")
-                    .addLore("§7ЛКМ - обновить")
-                    .addLore("")
-                    .build(), e -> {
+                .name("§cТелепортер перезаряжается!")
+                .lore("")
+                .lore("§7Осталось " + Timer.getLeft(p, "tpa_command") + " сек.!")
+                .lore("§7ЛКМ - обновить")
+                .lore("")
+                .build(), e -> {
                 reopen(p, content);
             }));
             return;
@@ -170,58 +170,58 @@ public class TPA implements InventoryProvider {
             if (moder) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§7В мире: §f" + find.getWorld().getName())
-                        .addLore("§7Координаты: §f" + find.getLocation().getBlockX() + ":" + find.getLocation().getBlockY() + ":" + find.getLocation().getBlockZ() + ":")
-                        .addLore("")
-                        .addLore("§b*Телепорт по клику")
-                        .addLore("§8(право модератора)")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§7В мире: §f" + find.getWorld().getName())
+                    .lore("§7Координаты: §f" + find.getLocation().getBlockX() + ":" + find.getLocation().getBlockY() + ":" + find.getLocation().getBlockZ() + ":")
+                    .lore("")
+                    .lore("§b*Телепорт по клику")
+                    .lore("§8(право модератора)")
+                    .build();
 
                 menuEntry.add(ClickableItem.of(friend_item
-                                , e -> {
-                                    if (find.isOnline()) {
-                                        p.closeInventory();
-                                        ApiOstrov.teleportSave(p, find.getLocation(), false);
-                                    } else {
-                                        p.sendMessage("§c" + find.getName() + " уже оффлайн");
-                                    }
-                                }
-                        )
+                        , e -> {
+                            if (find.isOnline()) {
+                                p.closeInventory();
+                                ApiOstrov.teleportSave(p, find.getLocation(), false);
+                            } else {
+                                p.sendMessage("§c" + find.getName() + " уже оффлайн");
+                            }
+                        }
+                    )
                 );
 
             } else if (op.isBlackListed(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§cВ игноре")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§cВ игноре")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (findOp.isBlackListed(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§cВы занесены в игнор")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§cВы занесены в игнор")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (Timer.has(find, "tp_request_from_" + p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(Material.CREEPER_HEAD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§6Запрос уже")
-                        .addLore("§6отправлен.")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§6Запрос уже")
+                    .lore("§6отправлен.")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
@@ -230,35 +230,35 @@ public class TPA implements InventoryProvider {
                 price = CMD.getTpPrice(p, find.getLocation());
 
                 final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(find.getName())
-                        .addLore("")
-                        .addLore("§aОтправить запрос")
-                        .addLore("")
-                        .addLore("§fСтоимость телепорта: ")
-                        .addLore(price == 0 ? "§2бесплатно" : price + " лони")
-                        .addLore("(Оплата после выполнения)")
-                        .addLore("")
-                        .build();
+                    .name(find.getName())
+                    .lore("")
+                    .lore("§aОтправить запрос")
+                    .lore("")
+                    .lore("§fСтоимость телепорта: ")
+                    .lore(price == 0 ? "§2бесплатно" : price + " лони")
+                    .lore("(Оплата после выполнения)")
+                    .lore("")
+                    .build();
 
                 menuEntry.add(ClickableItem.of(friend_item
-                                , e -> {
-                                    if (find.isOnline()) {
-                                        p.closeInventory();
-                                        Timer.add(find, "tp_request_from_" + p.getName(), 15);
-                                        find.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
-                                                .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
-                                                .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
-                                                .append(Component.text(" §4>§cв игнор§4<")
-                                                        .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
-                                                        .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
+                        , e -> {
+                            if (find.isOnline()) {
+                                p.closeInventory();
+                                Timer.add(find, "tp_request_from_" + p.getName(), 15);
+                                find.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
+                                    .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
+                                    .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
+                                    .append(Component.text(" §4>§cв игнор§4<")
+                                        .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
+                                        .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
 
-                                        p.sendMessage("§6Запрос на телепорт " + find.getName() + " отправлен, действетт 15сек.");
-                                    } else {
-                                        p.sendMessage("§c" + find.getName() + " уже оффлайн");
-                                        reopen(p, content);
-                                    }
-                                }
-                        )
+                                p.sendMessage("§6Запрос на телепорт " + find.getName() + " отправлен, действетт 15сек.");
+                            } else {
+                                p.sendMessage("§c" + find.getName() + " уже оффлайн");
+                                reopen(p, content);
+                            }
+                        }
+                    )
                 );
 
             }
@@ -270,11 +270,11 @@ public class TPA implements InventoryProvider {
         if (!found) {
 
             final ItemStack notFound = new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Никого не смогли найти..")
-                    .addLore("")
-                    .addLore("§7ЛКМ - обновить")
-                    .addLore("")
-                    .build();
+                .name("§7Никого не смогли найти..")
+                .lore("")
+                .lore("§7ЛКМ - обновить")
+                .lore("")
+                .build();
 
             content.set(13, ClickableItem.of(notFound, e -> {
                 reopen(p, content);
@@ -289,17 +289,17 @@ public class TPA implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

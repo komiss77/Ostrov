@@ -115,7 +115,7 @@ public class AStarPath {
         final int dst = crr.distSq(lc);
         if (dst == lastDst) {
             if (stuckCnt++ == STUCK_KD) {
-//				Bukkit.broadcast(TCUtils.format("steps=" + steps.length + ", next=" + next));
+//				Bukkit.broadcast(TCUtils.form("steps=" + steps.length + ", next=" + next));
                 setTgt(new WXYZ(mb.getWorld(), steps[steps.length - 1]));
                 stuckCnt = 0;
                 return done = false;
@@ -148,13 +148,13 @@ public class AStarPath {
             case FALL:
                 pth.stopPathfinding();
                 mb.setVelocity(mb.getVelocity().add(new Vector(crr.x + 0.5d - lc.getX(),
-                        1d, crr.z + 0.5d - lc.getZ()).multiply(0.1d)));
+                    1d, crr.z + 0.5d - lc.getZ()).multiply(0.1d)));
                 return done = false;
             case JUMP, FAST:
                 if (dst > 2) {
                     if (jumpKd == 0) {
                         if (crr.x - lc.getBlockX() +
-                                crr.z - lc.getBlockZ() == 0) break;
+                            crr.z - lc.getBlockZ() == 0) break;
                         jump(mb, lc, crr);
                     } else jumpKd--;
                 }
@@ -237,7 +237,7 @@ public class AStarPath {
             isJump = true;
             jumpKd = (JUMP_KD >> 1) + Ostrov.random.nextInt(JUMP_KD);
             final Vector to = new Vector(curr.x + 0.5d, from.getWorld()
-                    .getBlockAt(curr.x, curr.y - 1, curr.z).getBoundingBox().getMaxY(), curr.z + 0.5d);
+                .getBlockAt(curr.x, curr.y - 1, curr.z).getBoundingBox().getMaxY(), curr.z + 0.5d);
             final Vector drv = to.subtract(from.toVector());
             final double max = nxs == NextState.JUMP ? MAX_JUMP_DST : WALK_JUMP_DST;
             final double abx = Math.abs(drv.getX());
@@ -246,7 +246,7 @@ public class AStarPath {
             if (abz > max) drv.setZ(drv.getZ() / abz * max);
             final double cft = jmpSpd * 0.18d;
             rplc.setVelocity(new Vector(drv.getX() * cft, Math.min(MAX_dY,
-                    dY / jmpSpd * (drv.lengthSquared() * 0.01d + 1d)), drv.getZ() * cft));
+                dY / jmpSpd * (drv.lengthSquared() * 0.01d + 1d)), drv.getZ() * cft));
         }
     }
 

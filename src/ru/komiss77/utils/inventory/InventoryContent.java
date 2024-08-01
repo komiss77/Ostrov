@@ -1,13 +1,13 @@
 package ru.komiss77.utils.inventory;
 
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.google.common.base.Preconditions;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 public interface InventoryContent {
@@ -153,7 +153,7 @@ public interface InventoryContent {
         @Override
         public SlotIterator newIterator(String id, SlotIterator.Type type, int startRow, int startColumn) {
             SlotIterator iterator = new SlotIterator.Impl(this, inv,
-                    type, startRow, startColumn);
+                type, startRow, startColumn);
 
             this.iterators.put(id, iterator);
             return iterator;
@@ -311,7 +311,7 @@ public interface InventoryContent {
             for (int row = 0; row < contents.length; row++) {
                 for (int column = 0; column < contents[0].length; column++) {
                     if (contents[row][column] != null &&
-                            itemStack.isSimilar(contents[row][column].getItem(this.player))) {
+                        itemStack.isSimilar(contents[row][column].getItem(this.player))) {
                         return Optional.of(SlotPos.of(row, column));
                     }
                 }
@@ -367,9 +367,9 @@ public interface InventoryContent {
             int columnCount = this.inv.getColumns();
 
             return fillRect(
-                    fromIndex / columnCount, fromIndex % columnCount,
-                    toIndex / columnCount, toIndex % columnCount,
-                    item
+                fromIndex / columnCount, fromIndex % columnCount,
+                toIndex / columnCount, toIndex % columnCount,
+                item
             );
         }
 
@@ -395,9 +395,9 @@ public interface InventoryContent {
             int columnCount = this.inv.getColumns();
 
             return fillSquare(
-                    fromIndex / columnCount, fromIndex % columnCount,
-                    toIndex / columnCount, toIndex % columnCount,
-                    item
+                fromIndex / columnCount, fromIndex % columnCount,
+                toIndex / columnCount, toIndex % columnCount,
+                item
             );
         }
 
@@ -730,7 +730,7 @@ public class InventoryContent_ {
         final ItemStack is = inventory.getItem(host.getColumns() * row + column);
         if (is==null || !is.hasItemMeta()) return this;
         final ItemMeta im = is.getItemMeta();
-        im.setLore(lore);
+        im.deLore().lore(lore);
         is.setItemMeta(im);
         return this;
     }/

@@ -195,7 +195,7 @@ public abstract class CustomEnchant implements Keyed {
         */
 
     private final NamespacedKey key;
-    
+
     protected CustomEnchant() {
         this.key = OStrap.key(this.getClass().getSimpleName());
         if (VALUES.put(this.key, this) != null) {
@@ -245,7 +245,7 @@ public abstract class CustomEnchant implements Keyed {
     public boolean equals(final Object o) {
         if (this == o) return true;
         return o instanceof CustomEnchant
-                && ((CustomEnchant) o).key.equals(key);
+            && ((CustomEnchant) o).key.equals(key);
     }
 
     @Override
@@ -413,10 +413,10 @@ public abstract class CustomEnchant implements Keyed {
 
     protected static class Glint extends CustomEnchant {
 
-    @Override
-    public String name() {
-        return "§0.";
-    }
+        @Override
+        public String name() {
+            return "§0.";
+        }
 
         @Override
         public Set<EquipmentSlotGroup> slots() {
@@ -426,12 +426,12 @@ public abstract class CustomEnchant implements Keyed {
         @Override
         public ItemTypes targets() {
             return ItemTypes.EMPTY;
-    }
+        }
 
-    @Override
-    public RegistryKeySet<Enchantment> conflicts() {
-        return OStrap.regSetOf(RegistryKey.ENCHANTMENT, List.of());
-    }
+        @Override
+        public RegistryKeySet<Enchantment> conflicts() {
+            return OStrap.regSetOf(RegistryKey.ENCHANTMENT, List.of());
+        }
 
         @Override
         public int anvilCost() {

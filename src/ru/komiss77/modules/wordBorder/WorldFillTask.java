@@ -24,12 +24,12 @@ public class WorldFillTask implements Runnable {
     private transient boolean paused = false;
     private transient boolean pausedForMemory = false;
     private transient int taskID = -1;
-    private transient int chunksPerRun = 1;
+    private final transient int chunksPerRun = 1;
     private transient boolean continueNotice = false;
-    private transient boolean forceLoad = false;
+    private final transient boolean forceLoad = false;
 
-    private transient int fillDistance = 208;
-    private transient int tickFrequency = 1;
+    private final transient int fillDistance = 208;
+    private final transient int tickFrequency = 1;
     private transient int refX = 0, lastLegX = 0;
     private transient int refZ = 0, lastLegZ = 0;
     private transient int refLength = -1;
@@ -43,9 +43,9 @@ public class WorldFillTask implements Runnable {
     private transient int length = -1;
     private transient int current = 0;
     private transient boolean insideBorder = true;
-    private List<CoordXZ> storedChunks = new LinkedList<>();
-    private Set<CoordXZ> originalChunks = new HashSet<>();
-    private transient CoordXZ lastChunk = new CoordXZ(0, 0);
+    private final List<CoordXZ> storedChunks = new LinkedList<>();
+    private final Set<CoordXZ> originalChunks = new HashSet<>();
+    private final transient CoordXZ lastChunk = new CoordXZ(0, 0);
 
     // for reporting progress back to user occasionally
     private transient long lastReport = System.currentTimeMillis();

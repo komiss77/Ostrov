@@ -1,13 +1,6 @@
 package ru.komiss77.builder;
 
-import java.util.Set;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,18 +12,15 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.BuilderMain;
 import ru.komiss77.builder.menu.EntityWorldMenu;
 import ru.komiss77.events.BuilderMenuEvent;
-import ru.komiss77.modules.world.Cuboid;
-import ru.komiss77.modules.world.SchemEditorMenu;
-import ru.komiss77.modules.world.SchemMainMenu;
-import ru.komiss77.modules.world.Schematic;
+import ru.komiss77.modules.world.*;
 import ru.komiss77.modules.world.Schematic.Rotate;
-import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.Nms;
 
+import java.util.Set;
 
-public class SetupMode implements Listener {
+
+public class SetupMode {
 
     public final GameMode before; //гм строителя до начала режима
     public String lastEdit = ""; //режим последнего открытого меню
@@ -129,8 +119,8 @@ public class SetupMode implements Listener {
 
     public void checkPosition(final Player p) {
         if (min != null && max != null
-                && min.getWorld().getName().equals(max.getWorld().getName())
-                && p.getWorld().getName().equals(min.getWorld().getName())) {
+            && min.getWorld().getName().equals(max.getWorld().getName())
+            && p.getWorld().getName().equals(min.getWorld().getName())) {
             if (spawnPoint != null && cuboid != null && !cuboid.contains(spawnPoint)) {
                 spawnPoint = null;
             }
@@ -150,7 +140,7 @@ public class SetupMode implements Listener {
 
         displayCube = new BukkitRunnable() {
             final Set<XYZ> border = cuboid.getBorder();
-            Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
+            final Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
 
             @Override
             public void run() {
@@ -159,17 +149,17 @@ public class SetupMode implements Listener {
                     return;
                 }
                 border.stream().forEach(
-                        (xyz) -> {
-                            particleLoc.set(xyz.x, xyz.y, xyz.z);
-                            //p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
-                            if (xyz.pitch >= 5) { //стенки
-                                p.spawnParticle(Particle.FIREWORK, particleLoc, 0);
-                            } else {
-                                p.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
-                                //p.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0);
-                            }
-                            //p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                    (xyz) -> {
+                        particleLoc.set(xyz.x, xyz.y, xyz.z);
+                        //p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                        if (xyz.pitch >= 5) { //стенки
+                            p.spawnParticle(Particle.FIREWORK, particleLoc, 0);
+                        } else {
+                            p.spawnParticle(Particle.HAPPY_VILLAGER, particleLoc, 0);
+                            //p.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0);
                         }
+                        //p.spawnParticle(Particle.VILLAGER_HAPPY, particleLoc, 0);
+                    }
                 );
             }
         }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
@@ -203,22 +193,22 @@ public class SetupMode implements Listener {
             world = p.getWorld();
         }
         SmartInventory.builder()
-                .id("EntityMain" + p.getName())
-                .provider(new EntityWorldMenu(world, radius))
-                .size(6, 9)
-                .title("§2Сущности " + world.getName())
-                .build()
-                .open(p);
+            .id("EntityMain" + p.getName())
+            .provider(new EntityWorldMenu(world, radius))
+            .size(6, 9)
+            .title("§2Сущности " + world.getName())
+            .build()
+            .open(p);
     }
 
     public void openMainSetupMenu(final Player p) {
         lastEdit = "";
         SmartInventory.builder()
-                .id("Builder" + p.getName())
-                .provider(new BuilderMain())
-                .size(6, 9)
-                .title("§2Меню Строителя")
-                .build().open(p);
+            .id("Builder" + p.getName())
+            .provider(new BuilderMain())
+            .size(6, 9)
+            .title("§2Меню Строителя")
+            .build().open(p);
     }
 
     public void openLocalGameMenu(final Player p) {
@@ -228,11 +218,11 @@ public class SetupMode implements Listener {
     public void openSchemMainMenu(final Player p) {
         lastEdit = "SchemMain";
         SmartInventory.builder()
-                .id("SchemMain" + p.getName())
-                .provider(new SchemMainMenu())
-                .size(6, 9)
-                .title("§9Редактор схематиков")
-                .build().open(p);
+            .id("SchemMain" + p.getName())
+            .provider(new SchemMainMenu())
+            .size(6, 9)
+            .title("§9Редактор схематиков")
+            .build().open(p);
     }
 
     public void openSchemEditMenu(final Player p, final String schemName) {
@@ -244,19 +234,11 @@ public class SetupMode implements Listener {
         lastEdit = "SchemEdit";
         this.schemName = schemName;
         SmartInventory.builder()
-                .id("SchemEditor" + p.getName())
-                .provider(new SchemEditorMenu())
-                .size(6, 9)
-                .title("§9Cхематик " + schemName)
-                .build().open(p);
-    }
-
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerQuit(final PlayerQuitEvent e) {
-        if (e.getPlayer().getName().equals(builderName)) {
-            BuilderCmd.end(builderName);
-        }
+            .id("SchemEditor" + p.getName())
+            .provider(new SchemEditorMenu())
+            .size(6, 9)
+            .title("§9Cхематик " + schemName)
+            .build().open(p);
     }
 
 

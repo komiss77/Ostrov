@@ -3,6 +3,7 @@ package ru.komiss77.listener;
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
+
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -422,7 +423,7 @@ public final class LimiterLst implements Initiable, Listener {
                      FROZEN, //When an entity is shaking in Powder Snow and a new entity spawns.
                      METAMORPHOSIS, //When a tadpole converts to a frog
                      DUPLICATION //When an Allay duplicate itself
-                        -> {
+                    -> {
                     return;
                 }
                 case EGG, BUILD_IRONGOLEM, BUILD_SNOWMAN, BUILD_WITHER,
@@ -649,12 +650,12 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
 
     public static void openMenu(final Player p) {
         SmartInventory.builder()
-                .id("Limitersetup" + p.getName())
-                .provider(new LimiterSetupMenu())
-                .size(6, 9)
-                .title("§fНастройки Лимитера")
-                .build()
-                .open(p);
+            .id("Limitersetup" + p.getName())
+            .provider(new LimiterSetupMenu())
+            .size(6, 9)
+            .title("§fНастройки Лимитера")
+            .build()
+            .open(p);
     }
 
     private static class LimiterSetupMenu implements InventoryProvider {
@@ -672,15 +673,15 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
             if (!flags.get(limiterFlag.enable)) {
 
                 final ItemStack is = new ItemBuilder(Material.REDSTONE_BLOCK)
-                        .name("§8Модуль неактивен")
-                        .addLore("§aВключить")
-                        .build();
+                    .name("§8Модуль неактивен")
+                    .lore("§aВключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            flags.put(limiterFlag.enable, true);
-                            saveConfig();
-                            (Ostrov.getModule(Module.limiter)).reload();
-                            reopen(p, content);
-                        }
+                        flags.put(limiterFlag.enable, true);
+                        saveConfig();
+                        (Ostrov.getModule(Module.limiter)).reload();
+                        reopen(p, content);
+                    }
                 ));
                 return;
 
@@ -688,15 +689,15 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
 
             if (mode == MenuMode.main) {
                 final ItemStack is = new ItemBuilder(Material.EMERALD_BLOCK)
-                        .name("§fМодуль активен")
-                        .addLore("§cВыключить")
-                        .build();
+                    .name("§fМодуль активен")
+                    .lore("§cВыключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            flags.put(limiterFlag.enable, false);
-                            saveConfig();
-                            (Ostrov.getModule(Module.limiter)).reload();
-                            reopen(p, content);
-                        }
+                        flags.put(limiterFlag.enable, false);
+                        saveConfig();
+                        (Ostrov.getModule(Module.limiter)).reload();
+                        reopen(p, content);
+                    }
                 ));
 
                 for (limiterFlag f : limiterFlag.values()) {
@@ -706,58 +707,58 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     boolean b = flags.get(f);
 
                     content.add(ClickableItem.of(new ItemBuilder(b ? Material.LIME_DYE : Material.GRAY_DYE)
-                                    .name("§f" + f)
-                                    .addLore(b ? "§cВыключить" : "§aВключить")
-                                    .build(), e -> {
-                                flags.put(f, !b);
-                                saveConfig();
-                                (Ostrov.getModule(Module.limiter)).reload();
-                                reopen(p, content);
-                            }
+                            .name("§f" + f)
+                            .lore(b ? "§cВыключить" : "§aВключить")
+                            .build(), e -> {
+                            flags.put(f, !b);
+                            saveConfig();
+                            (Ostrov.getModule(Module.limiter)).reload();
+                            reopen(p, content);
+                        }
                     ));
                 }
 
                 content.add(ClickableItem.of(new ItemBuilder(Material.STONECUTTER)
-                                .name("§eПройтись по чанкам")
-                                .addLore("§cПрименить лимиты")
-                                .addLore("§eЛКМ - §cк текущему чанку")
-                                .addLore("§eКлав.Q - §cко всем в текущем мире")
-                                .build(), e -> {
-                            p.closeInventory();
-                            if (e.getClick() == ClickType.LEFT) {
-                                checkChunk(p, p.getChunk());
-                            } else if (e.getClick() == ClickType.DROP) {
-                                final long start = System.currentTimeMillis();
-                                int removed = 0, chunk_count = 0;
-                                for (final Chunk c : p.getWorld().getLoadedChunks()) {
-                                    removed += checkChunk(null, c);
-                                    chunk_count++;
-                                }
-                                p.sendMessage("§fОбработано чанков : §b" + chunk_count + " §f, удалено §c" + removed + " §fсущностей §3время: " + (System.currentTimeMillis() - start) + "ms.");
+                        .name("§eПройтись по чанкам")
+                        .lore("§cПрименить лимиты")
+                        .lore("§eЛКМ - §cк текущему чанку")
+                        .lore("§eКлав.Q - §cко всем в текущем мире")
+                        .build(), e -> {
+                        p.closeInventory();
+                        if (e.getClick() == ClickType.LEFT) {
+                            checkChunk(p, p.getChunk());
+                        } else if (e.getClick() == ClickType.DROP) {
+                            final long start = System.currentTimeMillis();
+                            int removed = 0, chunk_count = 0;
+                            for (final Chunk c : p.getWorld().getLoadedChunks()) {
+                                removed += checkChunk(null, c);
+                                chunk_count++;
                             }
+                            p.sendMessage("§fОбработано чанков : §b" + chunk_count + " §f, удалено §c" + removed + " §fсущностей §3время: " + (System.currentTimeMillis() - start) + "ms.");
                         }
+                    }
                 ));
 
                 int records = groupsLimit.size();
                 content.set(1, 1, ClickableItem.of(new ItemBuilder(records == 0 ? Material.CLAY_BALL : Material.EGG)
-                                .name("§bЛимит для чанка по ГРУППЕ")
-                                .addLore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
-                                .addLore("§7ЛКМ - настроить")
-                                .build(), e -> {
-                            mode = MenuMode.group;
-                            reopen(p, content);
-                        }
+                        .name("§bЛимит для чанка по ГРУППЕ")
+                        .lore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
+                        .lore("§7ЛКМ - настроить")
+                        .build(), e -> {
+                        mode = MenuMode.group;
+                        reopen(p, content);
+                    }
                 ));
 
                 records = entityTypeLimit.size();
                 content.set(1, 2, ClickableItem.of(new ItemBuilder(records == 0 ? Material.CLAY_BALL : Material.PIGLIN_HEAD)
-                                .name("§bЛимит для чанка по ТИПУ")
-                                .addLore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
-                                .addLore("§7ЛКМ - настроить")
-                                .build(), e -> {
-                            mode = MenuMode.type;
-                            reopen(p, content);
-                        }
+                        .name("§bЛимит для чанка по ТИПУ")
+                        .lore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
+                        .lore("§7ЛКМ - настроить")
+                        .build(), e -> {
+                        mode = MenuMode.type;
+                        reopen(p, content);
+                    }
                 ));
 
                 if (flags.get(limiterFlag.blockStateLimiter)) {
@@ -768,13 +769,13 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                         }
                     }
                     content.set(1, 3, ClickableItem.of(new ItemBuilder(records == 0 ? Material.CLAY_BALL : Material.HOPPER)
-                                    .name("§bЛимит BLOCKSTATE для чанка")
-                                    .addLore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
-                                    .addLore("§7ЛКМ - настроить")
-                                    .build(), e -> {
-                                mode = MenuMode.state;
-                                reopen(p, content);
-                            }
+                            .name("§bЛимит BLOCKSTATE для чанка")
+                            .lore(records == 0 ? "§8нет ограничений" : "§6ограничений: §e" + records)
+                            .lore("§7ЛКМ - настроить")
+                            .build(), e -> {
+                            mode = MenuMode.state;
+                            reopen(p, content);
+                        }
                     ));
                 }
                 return;
@@ -789,14 +790,14 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
                     final Integer limit = groupsLimit.get(g);
                     menuEntry.add(ClickableItem.of(new ItemBuilder(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : g.displayMat)
-                            .name(g.displayName)
-                            .addLore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
-                            .addLore(limit == null ? "" : "§7ЛКМ §b+1")
-                            .addLore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
-                            .addLore(limit == null ? "" : "§7ПКМ §5-1")
-                            .addLore(limit == null ? "" : "§7Шифт+ПКМ §d-10")
-                            .addLore("")
-                            .build(), e -> {
+                        .name(g.displayName)
+                        .lore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
+                        .lore(limit == null ? "" : "§7ЛКМ §b+1")
+                        .lore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
+                        .lore(limit == null ? "" : "§7ПКМ §5-1")
+                        .lore(limit == null ? "" : "§7Шифт+ПКМ §d-10")
+                        .lore("")
+                        .build(), e -> {
                         int i = limit == null ? -1 : limit;
                         switch (e.getClick()) {
                             case LEFT -> i++;
@@ -821,14 +822,14 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
                     final Integer limit = entityTypeLimit.get(t);
                     menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(t)
-                            .type(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
-                            .addLore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
-                            .addLore(limit == null ? "" : "§7ЛКМ §b+1")
-                            .addLore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
-                            .addLore(limit == null ? "" : "§7ПКМ §5-1")
-                            .addLore(limit == null ? "" : "§7Шифт+ПКМ §d-10")
-                            .addLore("")
-                            .build(), e -> {
+                        .setType(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
+                        .lore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
+                        .lore(limit == null ? "" : "§7ЛКМ §b+1")
+                        .lore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
+                        .lore(limit == null ? "" : "§7ПКМ §5-1")
+                        .lore(limit == null ? "" : "§7Шифт+ПКМ §d-10")
+                        .lore("")
+                        .build(), e -> {
                         int i = limit == null ? -1 : limit;
                         switch (e.getClick()) {
                             case LEFT -> i++;
@@ -848,13 +849,13 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
             } else if (mode == MenuMode.state) {
                 for (final BlockStateType bst : BlockStateType.values()) {
                     menuEntry.add(ClickableItem.of(new ItemBuilder(bst.limit < 0 ? Material.CLAY_BALL : bst.displayMat)
-                            .name("§f" + bst.name())
-                            .addLore(bst.limit < 0 ? "§8не учитывается" : bst.limit == 0 ? "§4==0 : Запрещены" : "§e" + bst.limit + " §6на чанк")
-                            .addLore(bst.limit < 0 ? "" : "§7ЛКМ §b+1")
-                            .addLore(bst.limit < 0 ? "" : "§7Шифт+ЛКМ §3+10")
-                            .addLore(bst.limit < 0 ? "" : "§7ПКМ §5-1")
-                            .addLore(bst.limit < 0 ? "" : "§7Шифт+ПКМ §d-10")
-                            .build(), e -> {
+                        .name("§f" + bst.name())
+                        .lore(bst.limit < 0 ? "§8не учитывается" : bst.limit == 0 ? "§4==0 : Запрещены" : "§e" + bst.limit + " §6на чанк")
+                        .lore(bst.limit < 0 ? "" : "§7ЛКМ §b+1")
+                        .lore(bst.limit < 0 ? "" : "§7Шифт+ЛКМ §3+10")
+                        .lore(bst.limit < 0 ? "" : "§7ПКМ §5-1")
+                        .lore(bst.limit < 0 ? "" : "§7Шифт+ПКМ §d-10")
+                        .build(), e -> {
                         switch (e.getClick()) {
                             case LEFT -> bst.limit++;
                             case SHIFT_LEFT -> bst.limit += 10;
@@ -875,21 +876,21 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
             pagination.setItemsPerPage(45);
 
             content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> {
-                        mode = MenuMode.main;
-                        openMenu(p);//reopen(p, content);
-                    }
+                    mode = MenuMode.main;
+                    openMenu(p);//reopen(p, content);
+                }
             ));
 
 
             if (!pagination.isLast()) {
                 content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                        -> content.getHost().open(p, pagination.next().getPage()))
+                    -> content.getHost().open(p, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
                 content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                        -> content.getHost().open(p, pagination.previous().getPage()))
+                    -> content.getHost().open(p, pagination.previous().getPage()))
                 );
             }
 //.ArrayIndexOutOfBoundsException: arraycopy: length -39 is negative если открывал вторую страничку

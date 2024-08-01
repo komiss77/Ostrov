@@ -24,7 +24,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.StackBuilder;
+import ru.komiss77.utils.ItemBuilder;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -39,73 +39,73 @@ public class PassportCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String act = "action";
         return Commands.literal("passport").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player pl)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+
+                final Oplayer op = PM.getOplayer(pl);
+                if (op.isGuest) {
+                    cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
+                    return 0;
+                }
+                op.menu.openPassport(op.getPlayer());
+                return Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.string(act).suggests((cntx, sb) -> {
+                    sb.suggest("give");
+                    sb.suggest("edit");
+                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+                    return sb.buildFuture();
+                })
+                .executes(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
                     }
 
                     final Oplayer op = PM.getOplayer(pl);
-                    if (op.isGuest) {
-                        cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
-                        return 0;
-                    }
-                    op.menu.openPassport(op.getPlayer());
-                    return Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.string(act).suggests((cntx, sb) -> {
-                            sb.suggest("give");
-                            sb.suggest("edit");
-                            Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                            return sb.buildFuture();
-                        })
-                        .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                cs.sendMessage("§eНе консольная команда!");
+                    final String arg = Resolver.string(cntx, act);
+                    switch (arg) {
+                        case "give":
+                            pl.closeInventory();
+                            final int slot = ItemUtils.findItem(pl, InteractLst.passport);
+                            if (slot >= 0) {
+                                //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
+                                cs.sendMessage(Ostrov.PREFIX + "§cУ вас уже есть копия паспотра, слот " + slot + "!");
+                                return 0;
+                            }
+                            if (ItemUtils.giveItemTo(pl, InteractLst.passport.clone(), 4, false)) {
+                                pl.sendMessage("§7Вот твой паспорт!");
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        case "edit":
+                            if (op.isGuest) {
+                                cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
+                                return 0;
+                            }
+                            op.menu.openPassport(op.getPlayer());
+                            return Command.SINGLE_SUCCESS;
+                        default:
+                            final Player tgt = Bukkit.getPlayerExact(arg);
+                            if (tgt == null) {
+                                pl.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
                                 return 0;
                             }
 
-                            final Oplayer op = PM.getOplayer(pl);
-                            final String arg = Resolver.string(cntx, act);
-                            switch (arg) {
-                                case "give":
-                                    pl.closeInventory();
-                                    final int slot = ItemUtils.findItem(pl, InteractLst.passport);
-                                    if (slot >= 0) {
-                                        //if (p.getInventory().getItemInMainHand().getType()!=Material.AIR) {
-                                        cs.sendMessage(Ostrov.PREFIX + "§cУ вас уже есть копия паспотра, слот " + slot + "!");
-                                        return 0;
-                                    }
-                                    if (ItemUtils.giveItemTo(pl, InteractLst.passport.clone(), 4, false)) {
-                                        pl.sendMessage("§7Вот твой паспорт!");
-                                    }
-                                    return Command.SINGLE_SUCCESS;
-                                case "edit":
-                                    if (op.isGuest) {
-                                        cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
-                                        return 0;
-                                    }
-                                    op.menu.openPassport(op.getPlayer());
-                                    return Command.SINGLE_SUCCESS;
-                                default:
-                                    final Player tgt = Bukkit.getPlayerExact(arg);
-                                    if (tgt == null) {
-                                        pl.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
-                                        return 0;
-                                    }
-
-                                    if (ApiOstrov.isStaff(pl) || op.getStat(Stat.PLAY_TIME) > 18000) {
-                                        //PassportHandler.showPasport(p,arg[1]);
-                                        //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
-                                        pl.sendMessage("не готово");
-                                        return Command.SINGLE_SUCCESS;
-                                    }
-                                    cs.sendMessage(Ostrov.PREFIX + "§cПросматривать чужой паспорт может персонал или люди наигравшие боьлее 5 часов!");
-                                    return 0;
+                            if (ApiOstrov.isStaff(pl) || op.getStat(Stat.PLAY_TIME) > 18000) {
+                                //PassportHandler.showPasport(p,arg[1]);
+                                //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
+                                pl.sendMessage("не готово");
+                                return Command.SINGLE_SUCCESS;
                             }
-                        }))
-                .build();
+                            cs.sendMessage(Ostrov.PREFIX + "§cПросматривать чужой паспорт может персонал или люди наигравшие боьлее 5 часов!");
+                            return 0;
+                    }
+                }))
+            .build();
     }
 
     @Override
@@ -160,8 +160,9 @@ public class PassportCmd implements OCommand {
 
                 case PLAY_TIME -> value = ApiOstrov.secondToTime(int_value);// + "\n §3("+ApiOstrov.secondToTime(op.);
 
-                case REPUTATION -> //int_value = int_value + (pass_data.containsKey(Data.РЕПУТАЦИЯ_БАЗА) ? Integer.valueOf(pass_data.get(Data.РЕПУТАЦИЯ_БАЗА)): 0);
-                        value = (int_value < 0 ? "§4" : (int_value > 0 ? "§2" : "§1")) + int_value;
+                case
+                    REPUTATION -> //int_value = int_value + (pass_data.containsKey(Data.РЕПУТАЦИЯ_БАЗА) ? Integer.valueOf(pass_data.get(Data.РЕПУТАЦИЯ_БАЗА)): 0);
+                    value = (int_value < 0 ? "§4" : (int_value > 0 ? "§2" : "§1")) + int_value;
 
                 case KARMA -> value = (int_value < 0 ? "§4" : (int_value > 0 ? "§2" : "§1")) + int_value;
 
@@ -202,14 +203,14 @@ public class PassportCmd implements OCommand {
                 switch (pass) {
 
                     case DISCORD, PHONE ->
-                            page4.append(Component.text("§6" + pass.item_name + ": §1" + value.replaceAll(" ", " §1") + "\n"));
+                        page4.append(Component.text("§6" + pass.item_name + ": §1" + value.replaceAll(" ", " §1") + "\n"));
                     //text= new TextComponent("§6"+pass.item_name+": §1"+value.replaceAll(" ", " §1")+"\n");
                     case EMAIL ->
-                            page4.append(Component.text("§6" + pass.item_name + "\n §1" + value.replaceAll(" ", " §1") + "\n"));
+                        page4.append(Component.text("§6" + pass.item_name + "\n §1" + value.replaceAll(" ", " §1") + "\n"));
                     //text= new TextComponent("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1")+"\n");
 
                     case ABOUT ->
-                            page4.append(Component.text("§6" + pass.item_name + "\n §1" + value.replaceAll(" ", " §1")));
+                        page4.append(Component.text("§6" + pass.item_name + "\n §1" + value.replaceAll(" ", " §1")));
                     //text= new TextComponent("§6"+pass.item_name+"\n §1"+value.replaceAll(" ", " §1"));
 
                     default -> {
@@ -217,8 +218,8 @@ public class PassportCmd implements OCommand {
                             //text= new TextComponent("§6"+pass.item_name+": §1"+value+"\n");
                         } else {
                             page4.append(Component.text("§6" + pass.item_name + ": §1§nссылка (клик)\n")
-                                    .hoverEvent(HoverEvent.showText(Component.text("Клик - открыть")))
-                                    .clickEvent(ClickEvent.openUrl(value)));
+                                .hoverEvent(HoverEvent.showText(Component.text("Клик - открыть")))
+                                .clickEvent(ClickEvent.openUrl(value)));
                         }
                     }
                 }
@@ -227,9 +228,9 @@ public class PassportCmd implements OCommand {
         }
 
 
-        final ItemStack book = StackBuilder.of(ItemType.WRITTEN_BOOK)
-                .name("Паспорт Островитянина")
-                .build();
+        final ItemStack book = new ItemBuilder(ItemType.WRITTEN_BOOK)
+            .name("Паспорт Островитянина")
+            .build();
 
         final BookMeta bookMeta = (BookMeta) book.getItemMeta();
 

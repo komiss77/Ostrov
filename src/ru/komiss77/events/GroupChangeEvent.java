@@ -1,17 +1,17 @@
 package ru.komiss77.events;
 
-import java.util.Set;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import java.util.Set;
+
 
 public class GroupChangeEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
-    private Player p;
-    private Set<String> new_groups;
+    private static final HandlerList handlers = new HandlerList();
+    private final Player p;
+    private final Set<String> new_groups;
 
     public GroupChangeEvent(final Player p, final Set<String> new_groups) {
         this.p = p;

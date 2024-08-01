@@ -7,9 +7,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static ru.komiss77.enums.Stat.KarmaChange.NONE;
-import static ru.komiss77.enums.Stat.KarmaChange.ADD;
-import static ru.komiss77.enums.Stat.KarmaChange.SUB;
+import static ru.komiss77.enums.Stat.KarmaChange.*;
 
 
 public enum Stat {

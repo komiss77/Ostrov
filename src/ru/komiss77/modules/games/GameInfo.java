@@ -1,8 +1,5 @@
 package ru.komiss77.modules.games;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +12,10 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class GameInfo {
 
@@ -50,38 +51,38 @@ public class GameInfo {
         return switch (game.type) {
 
             case ONE_GAME -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .amount(Math.max(Math.min(gameOnline, 60), 1))
-                    .addLore("")
-                    .addLore(game.description)
-                    .addLore("")
-                    .addLore(getState().displayColor + getState().name())
-                    .addLore(hasLevel && hasReputation && gameOnline >= 0 ? (op.eng ? "§a⊳ Click - §сPLAY" : "§a⊳ Клик - §сИГРАТЬ") : (op.eng ? "§eNot available!" : "§eНедоступна!"))
-                    .addLore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : (op.eng ? "§4Server is down" : "§4Сервер выключен"))
+                .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
+                .amount(Math.max(Math.min(gameOnline, 60), 1))
+                .lore("")
+                .lore(game.description)
+                .lore("")
+                .lore(getState().displayColor + getState().name())
+                .lore(hasLevel && hasReputation && gameOnline >= 0 ? (op.eng ? "§a⊳ Click - §сPLAY" : "§a⊳ Клик - §сИГРАТЬ") : (op.eng ? "§eNot available!" : "§eНедоступна!"))
+                .lore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : (op.eng ? "§4Server is down" : "§4Сервер выключен"))
 //                    .addLore( hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
 //                    .addLore( hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
-                    .build();
+                .build();
 
             case LOBBY -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .amount(Math.max(Math.min(gameOnline, 60), 1))
-                    .addLore("")
-                    .addLore(getState().displayColor + getState().name())
-                    .build();
+                .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
+                .amount(Math.max(Math.min(gameOnline, 60), 1))
+                .lore("")
+                .lore(getState().displayColor + getState().name())
+                .build();
 
             case ARENAS -> new ItemBuilder(mat)
-                    .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
-                    .amount(Math.max(Math.min(gameOnline, 60), 1))
-                    .addLore("")
-                    .addLore(game.description)
-                    .addLore("")
-                    .addLore(getState().displayColor + getState().name())
-                    .addLore(hasLevel && hasReputation && gameOnline >= 0 ? (op.eng ? "§a⊳ Left Click - §сPLAY" : "§a⊳ Левый Клик - §сИГРАТЬ") : (op.eng ? "§eNot available!" : "§eНедоступна!"))
-                    .addLore(op.eng ? "§a⊳ Right Click - §кARENAS" : "§a⊳ Правый Клик - §кАРЕНЫ")
-                    .addLore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : "")
+                .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
+                .amount(Math.max(Math.min(gameOnline, 60), 1))
+                .lore("")
+                .lore(game.description)
+                .lore("")
+                .lore(getState().displayColor + getState().name())
+                .lore(hasLevel && hasReputation && gameOnline >= 0 ? (op.eng ? "§a⊳ Left Click - §сPLAY" : "§a⊳ Левый Клик - §сИГРАТЬ") : (op.eng ? "§eNot available!" : "§eНедоступна!"))
+                .lore(op.eng ? "§a⊳ Right Click - §кARENAS" : "§a⊳ Правый Клик - §кАРЕНЫ")
+                .lore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : "")
 //                    .addLore(  hasLevel ? (op.eng?"§7Required level : §6":"§7Требуемый уровень : §6") +game.level : (op.eng?"§cAvailable from level §e":"§cБудет доступна с уровня §e")+game.level)
 //                    .addLore(  hasReputation ? (op.eng?"§7Required reputation : §a>":"§7Требуемая репутация : §a>") +game.reputation : (op.eng?"§cAvailable with reputation §a>":"§cДоступна при репутации §a>")+game.reputation)
-                    .build();
+                .build();
 
             default -> new ItemStack(Material.AIR);
 
@@ -110,8 +111,8 @@ public class GameInfo {
                     gameOnline = players;
                 }
                 ai.update(state, players,
-                        game.displayName,
-                        arenaName, players >= 0 ? GameState.РАБОТАЕТ.displayColor + GameState.РАБОТАЕТ.name() : GameState.ВЫКЛЮЧЕНА.displayColor + GameState.ВЫКЛЮЧЕНА.name(), players > 0 ? "§1" + players : "");
+                    game.displayName,
+                    arenaName, players >= 0 ? GameState.РАБОТАЕТ.displayColor + GameState.РАБОТАЕТ.name() : GameState.ВЫКЛЮЧЕНА.displayColor + GameState.ВЫКЛЮЧЕНА.name(), players > 0 ? "§1" + players : "");
             }
             case LOBBY -> {
                 gameOnline -= ai.players;
@@ -133,8 +134,8 @@ public class GameInfo {
         } else {
             final ArenaInfo ai2 = ai;
             Ostrov.sync(() ->
-                            Bukkit.getPluginManager().callEvent(new GameInfoUpdateEvent(ai2))
-                    , 0);
+                    Bukkit.getPluginManager().callEvent(new GameInfoUpdateEvent(ai2))
+                , 0);
         }
     }
 

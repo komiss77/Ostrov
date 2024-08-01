@@ -41,13 +41,13 @@ public class Friends {
         //op.menu.runLoadAnimations();
         //Ostrov.sync( ()->ApiOstrov.sendMessage(op.getPlayer(), Operation.GET_FRIENDS_INFO, op.nik), 20); //задержка для анимации))
         op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new PartyView())
-                .size(6, 9)
-                .title(op.eng ? Section.КОМАНДА.item_nameEn : Section.КОМАНДА.item_nameRu)
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new PartyView())
+            .size(6, 9)
+            .title(op.eng ? Section.КОМАНДА.item_nameEn : Section.КОМАНДА.item_nameRu)
+            .build()
+            .open(op.getPlayer());
     }
 
     public static void openPartySettings(final Oplayer op) {
@@ -55,28 +55,28 @@ public class Friends {
         op.menu.friendMode = ProfileManager.FriendMode.Настройки;
         //op.menu.runLoadAnimations();
         op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new PartySettings())
-                .size(6, 9)
-                .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Settings" :
-                        Section.КОМАНДА.item_nameRu + "§8: Настройки")
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new PartySettings())
+            .size(6, 9)
+            .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Settings" :
+                Section.КОМАНДА.item_nameRu + "§8: Настройки")
+            .build()
+            .open(op.getPlayer());
     }
 
     public static void openPartyFind(final Oplayer op) {
         op.menu.section = Section.КОМАНДА;
         op.menu.friendMode = ProfileManager.FriendMode.Поиск;
         op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new PartyFind())
-                .size(6, 9)
-                .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Invite" :
-                        Section.КОМАНДА.item_nameRu + "§8: Добавить")
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new PartyFind())
+            .size(6, 9)
+            .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Invite" :
+                Section.КОМАНДА.item_nameRu + "§8: Добавить")
+            .build()
+            .open(op.getPlayer());
     }
 
     public static void suggestParty(final Player p1, final Oplayer op, final Player p2) {
@@ -102,12 +102,12 @@ public class Friends {
                 if (memberServer.equals(Ostrov.MOT_D)) {
 
                     op.getPlayer().sendMessage(PARTY_PREFIX + " §7Лидер команды §6" + memberName + " §7на вашем сервере §3" + memberServer
-                            + (memberArena.isEmpty() ? " §7!" : " §7(§bарена " + memberArena + ") !"));
+                        + (memberArena.isEmpty() ? " §7!" : " §7(§bарена " + memberArena + ") !"));
 
                 } else {
 
                     op.getPlayer().sendMessage(PARTY_PREFIX + " §7Вы последовали за лидером команды §6" + memberName + " §7на сервер §3" + memberServer
-                            + (memberArena.isEmpty() ? " §7!" : " §7(" + memberArena + ") !"));
+                        + (memberArena.isEmpty() ? " §7!" : " §7(" + memberArena + ") !"));
                     op.getPlayer().performCommand("server " + memberServer + " " + memberArena);
 
                 }
@@ -120,7 +120,7 @@ public class Friends {
                 } else {
 
                     op.getPlayer().sendMessage(PARTY_PREFIX + " §7Лидер команды §6" + memberName + " §7теперь на серверe §3" + memberServer
-                            + (memberArena.isEmpty() ? " §7!" : " §7(" + memberArena + ") !"));
+                        + (memberArena.isEmpty() ? " §7!" : " §7(" + memberArena + ") !"));
                 }
             }
 
@@ -206,14 +206,14 @@ public class Friends {
                  ResultSet rs = stmt.executeQuery("select * from `fr_messages` WHERE `reciever`='" + op.nik + "';")) {
                 while (rs.next()) {
                     mails.add(new ItemBuilder(Material.PAPER)
-                            .name("§7Письмо от §f" + rs.getString("sender"))
-                            .addLore("")
-                            .addLore("§7Отправлено:")
-                            .addLore("§7" + ApiOstrov.dateFromStamp(rs.getInt("time")))
-                            .addLore("")
-                            .addLore(ItemUtils.genLore(null, rs.getString("message"), "§6"))
-                            .addLore("")
-                            .build()
+                        .name("§7Письмо от §f" + rs.getString("sender"))
+                        .lore("")
+                        .lore("§7Отправлено:")
+                        .lore("§7" + ApiOstrov.dateFromStamp(rs.getInt("time")))
+                        .lore("")
+                        .lore(ItemUtils.genLore(null, rs.getString("message"), "§6"))
+                        .lore("")
+                        .build()
                     );
                     //time=rs.getInt("time");
                     //msg=new TextComponent("§6Сообщение от §e"+rs.getString("sender")+" §e: §f"+rs.getString("message")+" §8<клик-следущее");
@@ -227,13 +227,13 @@ public class Friends {
                     if (op.menu.section == Section.ДРУЗЬЯ && op.menu.friendMode == ProfileManager.FriendMode.Письма) {
                         op.menu.stopLoadAnimations();
                         op.menu.current = SmartInventory
-                                .builder()
-                                .id(op.nik + op.menu.section.name())
-                                .provider(new FriendMail(mails))
-                                .size(6, 9)
-                                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Messages" : Section.ДРУЗЬЯ.item_nameRu + "§8: Письма")
-                                .build()
-                                .open(op.getPlayer());
+                            .builder()
+                            .id(op.nik + op.menu.section.name())
+                            .provider(new FriendMail(mails))
+                            .size(6, 9)
+                            .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Messages" : Section.ДРУЗЬЯ.item_nameRu + "§8: Письма")
+                            .build()
+                            .open(op.getPlayer());
                     }
                 }, 0);
 
@@ -248,13 +248,13 @@ public class Friends {
         if (op.menu.section == Section.ДРУЗЬЯ && op.menu.friendMode == ProfileManager.FriendMode.Просмотр) {
             op.menu.stopLoadAnimations();
             op.menu.current = SmartInventory
-                    .builder()
-                    .id(op.nik + op.menu.section.name())
-                    .provider(new FriendView(rawData))
-                    .size(6, 9)
-                    .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn : Section.ДРУЗЬЯ.item_nameRu)
-                    .build()
-                    .open(op.getPlayer());
+                .builder()
+                .id(op.nik + op.menu.section.name())
+                .provider(new FriendView(rawData))
+                .size(6, 9)
+                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn : Section.ДРУЗЬЯ.item_nameRu)
+                .build()
+                .open(op.getPlayer());
         }// else p.sendMessage("уже другое меню"); }
     }
 
@@ -262,26 +262,26 @@ public class Friends {
         op.menu.section = Section.ДРУЗЬЯ;
         op.menu.friendMode = ProfileManager.FriendMode.Настройки;
         op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new FriendSettings())
-                .size(6, 9)
-                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Settings" : Section.ДРУЗЬЯ.item_nameRu + "§8: Настройки")
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new FriendSettings())
+            .size(6, 9)
+            .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Settings" : Section.ДРУЗЬЯ.item_nameRu + "§8: Настройки")
+            .build()
+            .open(op.getPlayer());
     }
 
     public static void openFriendsFind(final Oplayer op) {
         op.menu.section = Section.ДРУЗЬЯ;
         op.menu.friendMode = ProfileManager.FriendMode.Поиск;
         op.menu.current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new FriendFind())
-                .size(6, 9)
-                .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Invite" : Section.ДРУЗЬЯ.item_nameRu + "§8: Добавить")
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new FriendFind())
+            .size(6, 9)
+            .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Invite" : Section.ДРУЗЬЯ.item_nameRu + "§8: Добавить")
+            .build()
+            .open(op.getPlayer());
     }
 
     //*****************************************************************
@@ -315,12 +315,12 @@ public class Friends {
         SpigotChanellMsg.sendMessage(p2, Operation.FRIEND_ADD, op2.nik, op1.nik);
 
         p1.sendMessage(Component.text(FRIENDS_PREFIX + " §2Вы подружились с §a" + op2.nik + " §2!  §8<<Клик-написать сообщение")
-                .hoverEvent(HoverEvent.showText(Component.text("§5§oКлик-написать сообщение!")))
-                .clickEvent(ClickEvent.suggestCommand("/friend mail " + op2.nik + " прив")));
+            .hoverEvent(HoverEvent.showText(Component.text("§5§oКлик-написать сообщение!")))
+            .clickEvent(ClickEvent.suggestCommand("/friend mail " + op2.nik + " прив")));
 
         p2.sendMessage(Component.text(FRIENDS_PREFIX + " §2Вы подружились с §a" + op1.nik + " §2!  §8<<Клик-написать сообщение")
-                .hoverEvent(HoverEvent.showText(Component.text("§5§oКлик-написать сообщение!")))
-                .clickEvent(ClickEvent.suggestCommand("/friend mail " + op1.nik + " прив")));
+            .hoverEvent(HoverEvent.showText(Component.text("§5§oКлик-написать сообщение!")))
+            .clickEvent(ClickEvent.suggestCommand("/friend mail " + op1.nik + " прив")));
         
         /*final TextComponent done=new TextComponent(friendsPrefix+" §2Вы подружились с §a"+op2.nik+" §2!  §8<<Клик-написать сообщение");
         done.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/friend mail "+op2.nik+" привет "));

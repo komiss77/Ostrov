@@ -196,6 +196,7 @@ public class BotManager implements Initiable, Listener {
             return null;
         }
     }
+
     @Nullable
     @Deprecated
     public static <B extends BotEntity> B createBot(final String name, final Class<B> botClass, final Supplier<B> onCreate) {

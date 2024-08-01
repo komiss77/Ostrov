@@ -60,93 +60,93 @@ public final class PvpCmd implements OCommand, Listener {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String act = "action";
         return Commands.literal("pvp")
+            .executes(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player pl)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+
+                if (!flags.get(PvpFlag.allow_pvp_command)) {
+                    pl.sendMessage("§cУправление режимом ПВП отключено!");
+                    return 0;
+                }
+
+                final Component msg;
+                if (PM.getOplayer(pl).pvp_allow) {
+                    msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <dark_red>Разрешен<gray>  <gold>[<gray>Клик - <green>ВЫКЛЮЧИТЬ<gold>]"))
+                        .hoverEvent(HoverEvent.showText(Component.text("Клик - выключить")))
+                        .clickEvent(ClickEvent.runCommand("/pvp off"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
+                } else {
+                    msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <green>Запрещён<gray> <gold>[<gray>Клик - <dark_red>ВКЛЮЧИТЬ<gold>]"))
+                        .hoverEvent(HoverEvent.showText(Component.text("Клик - включить")))
+                        .clickEvent(ClickEvent.runCommand("/pvp on"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
+                }
+                pl.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
+                return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.player(act)
+                .suggests((cntx, sb) -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player pl)) {
+                        return sb.buildFuture();
+                    }
+                    if (ApiOstrov.isStaff(pl)) {
+                        sb.suggest("setup");
+                        sb.suggest("reload");
+                    }
+                    sb.suggest("on");
+                    sb.suggest("off");
+                    return sb.buildFuture();
+                })
                 .executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
                     }
 
-                    if (!flags.get(PvpFlag.allow_pvp_command)) {
-                        pl.sendMessage("§cУправление режимом ПВП отключено!");
-                        return 0;
-                    }
-
-                    final Component msg;
-                    if (PM.getOplayer(pl).pvp_allow) {
-                        msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <dark_red>Разрешен<gray>  <gold>[<gray>Клик - <green>ВЫКЛЮЧИТЬ<gold>]"))
-                                .hoverEvent(HoverEvent.showText(Component.text("Клик - выключить")))
-                                .clickEvent(ClickEvent.runCommand("/pvp off"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
-                    } else {
-                        msg = TCUtils.form(Lang.t(pl, "<gray>Сейчас ПВП <green>Запрещён<gray> <gold>[<gray>Клик - <dark_red>ВКЛЮЧИТЬ<gold>]"))
-                                .hoverEvent(HoverEvent.showText(Component.text("Клик - включить")))
-                                .clickEvent(ClickEvent.runCommand("/pvp on"));//Component.text("Сейчас ПВП ", NamedTextColor.GRAY)
-                    }
-                    pl.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
-                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.player(act)
-                        .suggests((cntx, sb) -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                return sb.buildFuture();
-                            }
-                            if (ApiOstrov.isStaff(pl)) {
-                                sb.suggest("setup");
-                                sb.suggest("reload");
-                            }
-                            sb.suggest("on");
-                            sb.suggest("off");
-                            return sb.buildFuture();
-                        })
-                        .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                cs.sendMessage("§eНе консольная команда!");
+                    final Oplayer op = PM.getOplayer(pl);
+                    switch (Resolver.string(cntx, act)) {
+                        case "on":
+                            if (!flags.get(PvpFlag.allow_pvp_command)) {
+                                pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
                                 return 0;
                             }
-
-                            final Oplayer op = PM.getOplayer(pl);
-                            switch (Resolver.string(cntx, act)) {
-                                case "on":
-                                    if (!flags.get(PvpFlag.allow_pvp_command)) {
-                                        pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
-                                        return 0;
-                                    }
-                                    op.pvp_allow = true;
-                                    pvpOn(op);
-                                    pl.sendMessage(Lang.t(pl, "§4ПВП включен!"));
-                                    return Command.SINGLE_SUCCESS;
-                                case "of":
-                                    if (!flags.get(PvpFlag.allow_pvp_command)) {
-                                        pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
-                                        return 0;
-                                    }
-                                    pvpOff(op);
-                                    pl.sendMessage(Lang.t(pl, "§2ПВП выключен!"));
-                                    return Command.SINGLE_SUCCESS;
-                                case "reload":
-                                    if (ApiOstrov.isLocalBuilder(cs, true)) {
-                                        init();
-                                        pl.sendMessage("§aНастройки ПВП режима загружены из файла pvp.yml");
-                                    }
-                                    return Command.SINGLE_SUCCESS;
-                                case "setup":
-                                    if (ApiOstrov.isLocalBuilder(cs, true)) {
-                                        SmartInventory.builder()
-                                                .id("PVPsetup" + pl.getName())
-                                                .provider(new PvpSetupMenu())
-                                                .size(6, 9)
-                                                .title("§fНастройки ПВП режима")
-                                                .build()
-                                                .open(pl);
-                                    }
-                                    return Command.SINGLE_SUCCESS;
-                                default:
-                                    return 0;
+                            op.pvp_allow = true;
+                            pvpOn(op);
+                            pl.sendMessage(Lang.t(pl, "§4ПВП включен!"));
+                            return Command.SINGLE_SUCCESS;
+                        case "of":
+                            if (!flags.get(PvpFlag.allow_pvp_command)) {
+                                pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
+                                return 0;
                             }
-                        }))
-                .build();
+                            pvpOff(op);
+                            pl.sendMessage(Lang.t(pl, "§2ПВП выключен!"));
+                            return Command.SINGLE_SUCCESS;
+                        case "reload":
+                            if (ApiOstrov.isLocalBuilder(cs, true)) {
+                                init();
+                                pl.sendMessage("§aНастройки ПВП режима загружены из файла pvp.yml");
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        case "setup":
+                            if (ApiOstrov.isLocalBuilder(cs, true)) {
+                                SmartInventory.builder()
+                                    .id("PVPsetup" + pl.getName())
+                                    .provider(new PvpSetupMenu())
+                                    .size(6, 9)
+                                    .title("§fНастройки ПВП режима")
+                                    .build()
+                                    .open(pl);
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        default:
+                            return 0;
+                    }
+                }))
+            .build();
     }
 
     @Override
@@ -185,11 +185,11 @@ public final class PvpCmd implements OCommand, Listener {
         }
 
         potion_pvp_type = Lists.newArrayList(
-                PotionEffectType.POISON,
-                PotionEffectType.BLINDNESS,
-                PotionEffectType.NAUSEA,
-                PotionEffectType.INSTANT_DAMAGE,
-                PotionEffectType.HUNGER
+            PotionEffectType.POISON,
+            PotionEffectType.BLINDNESS,
+            PotionEffectType.NAUSEA,
+            PotionEffectType.INSTANT_DAMAGE,
+            PotionEffectType.HUNGER
         );
     }
 
@@ -237,7 +237,7 @@ public final class PvpCmd implements OCommand, Listener {
 
         final boolean advanced = flags.get(PvpFlag.advanced_pvp);
         if (battle_time > 0 || no_damage_on_tp > 0 || flags.get(PvpFlag.disable_creative_attack_to_mobs)
-                || flags.get(PvpFlag.disable_creative_attack_to_player) || advanced) {
+            || flags.get(PvpFlag.disable_creative_attack_to_player) || advanced) {
 
             damageListener = new Listener() {
 
@@ -298,7 +298,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         return;
                                     }
                                     if (damagerPlayer.getAttackCooldown() == 1f
-                                            && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
+                                        && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
                                         final ItemStack ofh = inv.getItemInOffHand();
                                         if (ItemUtils.isBlank(ofh, false)) {
                                             if (targetPlayer.isBlocking()) {
@@ -356,7 +356,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         }
 
                                         if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
-                                                && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                            && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
                                             final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                             if (ItemUtils.isBlank(ofh, false)) {
                                                 if (targetPlayer.isBlocking()) {
@@ -405,7 +405,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             return;
                                         }
                                         if (damagerPlayer.getAttackCooldown() == 1f
-                                                && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
+                                            && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
                                             final ItemStack ofh = inv.getItemInOffHand();
                                             if (ItemUtils.isBlank(ofh, false)) {
                                                 if (tbe.block(target)) {
@@ -455,7 +455,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             }
 
                                             if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
-                                                    && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                                && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                                 if (ItemUtils.isBlank(ofh, false)) {
                                                     if (tbe.block(target)) {
@@ -495,7 +495,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             return;
                                         }
                                         if (dp.getAttackCooldown() == 1f && dp.isSprinting()
-                                                && ItemClass.MELEE.has(hnd.getType())) {
+                                            && ItemClass.MELEE.has(hnd.getType())) {
                                             final ItemStack ofh = inv.getItemInOffHand();
                                             if (!ItemUtils.isBlank(ofh, false) && ItemClass.MELEE.has(ofh.getType())) {
                                                 Ostrov.sync(() -> {
@@ -526,7 +526,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             }
 
                                             if (hnd != null && ItemClass.MELEE.has(hnd.getType())
-                                                    && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                                && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                                 if (ofh != null && ItemClass.MELEE.has(ofh.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
                                                     Ostrov.sync(() -> {
@@ -598,7 +598,7 @@ public final class PvpCmd implements OCommand, Listener {
                     //System.err.println(">>>>
                     final Player p = e.getPlayer();
                     if (battle_time > 1 && PM.inBattle(p.getName())
-                            && p.getAllowFlight() && p.isFlying()) {
+                        && p.getAllowFlight() && p.isFlying()) {
                         p.setFlying(false);
                         p.setAllowFlight(false);
                         ApiOstrov.sendActionBarDirect(p, PVP_NOTIFY);
@@ -675,12 +675,12 @@ public final class PvpCmd implements OCommand, Listener {
                             if (!ItemUtils.isBlank(it, false)) {
                                 final Material mt = it.getType();
                                 if (e.getHand() == EquipmentSlot.HAND && !p.hasCooldown(mt)
-                                        && ItemClass.MELEE_AXE.has(mt) && p.getAttackCooldown() == 1f) {
+                                    && ItemClass.MELEE_AXE.has(mt) && p.getAttackCooldown() == 1f) {
                                     final ItemStack ofh = p.getInventory().getItemInOffHand();
                                     if (ofh.getType() == Material.AIR) {
                                         p.getWorld().playSound(p.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
                                         p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK,
-                                                p.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
+                                            p.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
                                         p.addPotionEffect(slw);
                                         p.setCooldown(mt, 36);
                                         p.getInventory().setItemInMainHand(ItemUtils.air);
@@ -938,31 +938,31 @@ public final class PvpCmd implements OCommand, Listener {
 
             if (!flags.get(PvpFlag.enable)) {
 
-                final ItemStack is = StackBuilder.of(ItemType.REDSTONE_BLOCK)
-                        .name("§8Модуль неактивен")
-                        .lore("§aВключить")
-                        .build();
+                final ItemStack is = new ItemBuilder(ItemType.REDSTONE_BLOCK)
+                    .name("§8Модуль неактивен")
+                    .lore("§aВключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            flags.put(PvpFlag.enable, true);
-                            saveConfig();
-                            PvpCmd.init();
-                            reopen(p, content);
-                        }
+                        flags.put(PvpFlag.enable, true);
+                        saveConfig();
+                        PvpCmd.init();
+                        reopen(p, content);
+                    }
                 ));
                 return;
 
             } else {
 
-                final ItemStack is = StackBuilder.of(ItemType.EMERALD_BLOCK)
-                        .name("§fМодуль активен")
-                        .lore("§cВыключить")
-                        .build();
+                final ItemStack is = new ItemBuilder(ItemType.EMERALD_BLOCK)
+                    .name("§fМодуль активен")
+                    .lore("§cВыключить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            flags.put(PvpFlag.enable, false);
-                            saveConfig();
-                            PvpCmd.init();
-                            reopen(p, content);
-                        }
+                        flags.put(PvpFlag.enable, false);
+                        saveConfig();
+                        PvpCmd.init();
+                        reopen(p, content);
+                    }
                 ));
 
             }
@@ -970,44 +970,44 @@ public final class PvpCmd implements OCommand, Listener {
             if (battle_time >= 1) {
 
                 final ItemStack is = new ItemBuilder(Material.CLOCK)
-                        .amount(battle_time)
-                        .name("§7Режим боя - длительность")
-                        .addLore(battle_time + " сек.")
-                        .addLore(battle_time < 60 ? "§7ЛКМ - прибавить" : "макс.")
-                        .addLore(battle_time == 1 ? "§cПКМ - выключить" : "§7ПКМ - убавить")
-                        .build();
+                    .amount(battle_time)
+                    .name("§7Режим боя - длительность")
+                    .lore(battle_time + " сек.")
+                    .lore(battle_time < 60 ? "§7ЛКМ - прибавить" : "макс.")
+                    .lore(battle_time == 1 ? "§cПКМ - выключить" : "§7ПКМ - убавить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            if (e.isLeftClick()) {
-                                if (battle_time < 60) {
-                                    battle_time++;
-                                    saveConfig();
-                                    PvpCmd.init();
-                                }
-                            } else if (e.isRightClick()) {
-                                //if (battle_time>1) {
-                                battle_time--;
+                        if (e.isLeftClick()) {
+                            if (battle_time < 60) {
+                                battle_time++;
                                 saveConfig();
                                 PvpCmd.init();
-                                //}
                             }
-                            reopen(p, content);
+                        } else if (e.isRightClick()) {
+                            //if (battle_time>1) {
+                            battle_time--;
+                            saveConfig();
+                            PvpCmd.init();
+                            //}
                         }
+                        reopen(p, content);
+                    }
                 ));
 
             } else {
 
                 final ItemStack is = new ItemBuilder(Material.FIREWORK_STAR)
-                        .name("§7Режим боя выключен")
-                        .addLore("§7ЛКМ - включить")
-                        .build();
+                    .name("§7Режим боя выключен")
+                    .lore("§7ЛКМ - включить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            if (e.isLeftClick()) {
-                                battle_time = 1;
-                                saveConfig();
-                                PvpCmd.init();
-                            }
-                            reopen(p, content);
+                        if (e.isLeftClick()) {
+                            battle_time = 1;
+                            saveConfig();
+                            PvpCmd.init();
                         }
+                        reopen(p, content);
+                    }
                 ));
 
             }
@@ -1015,43 +1015,43 @@ public final class PvpCmd implements OCommand, Listener {
             if (no_damage_on_tp >= 1) {
 
                 final ItemStack is = new ItemBuilder(Material.CLOCK)
-                        .amount(no_damage_on_tp)
-                        .name("§7Иммунитет при ТП и респавне")
-                        .addLore(no_damage_on_tp + " сек.")
-                        .addLore(no_damage_on_tp < 60 ? "§7ЛКМ - прибавить" : "макс.")
-                        .addLore(no_damage_on_tp == 1 ? "§cПКМ - выключить" : "§7ПКМ - убавить")
-                        .build();
+                    .amount(no_damage_on_tp)
+                    .name("§7Иммунитет при ТП и респавне")
+                    .lore(no_damage_on_tp + " сек.")
+                    .lore(no_damage_on_tp < 60 ? "§7ЛКМ - прибавить" : "макс.")
+                    .lore(no_damage_on_tp == 1 ? "§cПКМ - выключить" : "§7ПКМ - убавить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            if (e.isLeftClick()) {
-                                if (no_damage_on_tp < 60) {
-                                    no_damage_on_tp++;
-                                    saveConfig();
-                                    PvpCmd.init();
-                                }
-                            } else if (e.isRightClick()) {
-                                //if (no_damage_on_tp>1) {
-                                no_damage_on_tp--;
+                        if (e.isLeftClick()) {
+                            if (no_damage_on_tp < 60) {
+                                no_damage_on_tp++;
                                 saveConfig();
                                 PvpCmd.init();
-                                //}
                             }
-                            reopen(p, content);
+                        } else if (e.isRightClick()) {
+                            //if (no_damage_on_tp>1) {
+                            no_damage_on_tp--;
+                            saveConfig();
+                            PvpCmd.init();
+                            //}
                         }
+                        reopen(p, content);
+                    }
                 ));
 
             } else {
                 final ItemStack is = new ItemBuilder(Material.FIREWORK_STAR)
-                        .name("§7Иммунитет при ТП и респавне")
-                        .addLore("§7ЛКМ - включить")
-                        .build();
+                    .name("§7Иммунитет при ТП и респавне")
+                    .lore("§7ЛКМ - включить")
+                    .build();
                 content.add(ClickableItem.of(is, e -> {
-                            if (e.isLeftClick()) {
-                                no_damage_on_tp = 1;
-                                saveConfig();
-                                PvpCmd.init();
-                            }
-                            reopen(p, content);
+                        if (e.isLeftClick()) {
+                            no_damage_on_tp = 1;
+                            saveConfig();
+                            PvpCmd.init();
                         }
+                        reopen(p, content);
+                    }
                 ));
             }
 
@@ -1062,21 +1062,21 @@ public final class PvpCmd implements OCommand, Listener {
                 boolean b = flags.get(f);
 
                 final ItemStack is = new ItemBuilder(b ? Material.LIME_DYE : Material.GRAY_DYE)
-                        .name("§f" + f)
-                        .addLore(b ? "§cВыключить" : "§aВключить")
-                        .build();
+                    .name("§f" + f)
+                    .lore(b ? "§cВыключить" : "§aВключить")
+                    .build();
 
                 content.add(ClickableItem.of(is, e -> {
-                            //if (e.isLeftClick() ) {
-                            //    player.closeInventory();
-                            //    player.performCommand("spy "+p.name());
-                            //} else {
-                            flags.put(f, !b);
-                            saveConfig();
-                            PvpCmd.init();
-                            reopen(p, content);
-                            //}
-                        }
+                        //if (e.isLeftClick() ) {
+                        //    player.closeInventory();
+                        //    player.performCommand("spy "+p.name());
+                        //} else {
+                        flags.put(f, !b);
+                        saveConfig();
+                        PvpCmd.init();
+                        reopen(p, content);
+                        //}
+                    }
                 ));
             }
         }
@@ -1102,8 +1102,8 @@ public final class PvpCmd implements OCommand, Listener {
                 flags.put(PvpFlag.block_elytra_on_pvp_mode, battle_time > 0);
                 flags.put(PvpFlag.block_command_on_pvp_mode, battle_time > 0);
                 boolean enable = battle_time > 0 || no_damage_on_tp > 0
-                        || flags.get(PvpFlag.disable_creative_attack_to_mobs) || flags.get(PvpFlag.disable_creative_attack_to_player)
-                        || flags.get(PvpFlag.allow_pvp_command) || flags.get(PvpFlag.antirelog) || flags.get(PvpFlag.drop_inv_inbattle);
+                    || flags.get(PvpFlag.disable_creative_attack_to_mobs) || flags.get(PvpFlag.disable_creative_attack_to_player)
+                    || flags.get(PvpFlag.allow_pvp_command) || flags.get(PvpFlag.antirelog) || flags.get(PvpFlag.drop_inv_inbattle);
                 flags.put(PvpFlag.enable, enable);
                 Config.getConfig().removeKey("modules.pvp");
                 Config.getConfig().removeKey("player.invulnerability_on_join_or_teleport");

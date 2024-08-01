@@ -41,12 +41,11 @@ import ru.komiss77.utils.inventory.ItemClickData;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-
 public class CraftMenu implements InventoryProvider {
 
     private static final ItemStack[] invIts;
     private static final int rad = 3;
-	
+
     private final String key;
     private final boolean view;
 
@@ -130,175 +129,175 @@ public class CraftMenu implements InventoryProvider {
             reopen(p, its);
         }) : ClickableItem.empty(makeIcon(tp)));
         its.set(16, view ? ClickableItem.empty(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE)) :
-                ClickableItem.from(new ItemBuilder(Material.GREEN_CONCRETE_POWDER).name("§aГотово!").build(), e -> {
-                    if (e.getEvent() instanceof InventoryClickEvent) {
-                        ((InventoryClickEvent) e.getEvent()).setCancelled(true);
-                    }
-                    final ItemStack rst = inv.getItem(14);
-                    if (ItemUtils.isBlank(rst, false)) {
-                        p.sendMessage("§cСначала закончите крафт!");
-                        return;
-                    }
+            ClickableItem.from(new ItemBuilder(Material.GREEN_CONCRETE_POWDER).name("§aГотово!").build(), e -> {
+                if (e.getEvent() instanceof InventoryClickEvent) {
+                    ((InventoryClickEvent) e.getEvent()).setCancelled(true);
+                }
+                final ItemStack rst = inv.getItem(14);
+                if (ItemUtils.isBlank(rst, false)) {
+                    p.sendMessage("§cСначала закончите крафт!");
+                    return;
+                }
 
-                    //запоминание крафта
-                    final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
-                    craftConfig.set(key, null);
-                    craftConfig.set(key + ".result", ItemUtils.toString(rst, "="));
-                    //craftConfig.set(key + ".world", Ostrov.subServer.toString());
-                    craftConfig.set(key + ".type", getRecType(tp));
-                    final ConfigurationSection cs = craftConfig.getConfigurationSection(key);
-                    final NamespacedKey nKey = new NamespacedKey(OStrap.space, key);
-                    Bukkit.getConsoleSender().sendMessage(cs.getName());
-                    final Recipe nrc;
-                    final ItemStack it;
-                    final String[] shp;
-                    switch (inv.getItem(9).getType()) {
-                        case SMOKER:
-                            it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            nrc = new SmokingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case BLAST_FURNACE:
-                            it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            nrc = new BlastingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case CAMPFIRE:
-                            it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            nrc = new CampfireRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 500);
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case FURNACE:
-                            it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            nrc = new FurnaceRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 200);
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case SMITHING_TABLE:
-                            it = inv.getItem(10);
-                            final ItemStack scd = inv.getItem(12);
-                            final ItemStack tpl = inv.getItem(2);
-                            if (ItemUtils.isBlank(it, false) || ItemUtils.isBlank(scd, false)) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            cs.set("recipe.b", ItemUtils.toString(scd, "="));
-                            cs.set("recipe.c", ItemUtils.toString(tpl, "="));
-                            nrc = new SmithingTransformRecipe(nKey, rst, CMDMatChoice.of(tpl), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case STONECUTTER:
-                            it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
-                            cs.set("recipe.a", ItemUtils.toString(it, "="));
-                            nrc = new StonecuttingRecipe(nKey, rst, CMDMatChoice.of(it));
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                            break;
-                        case ENDER_CHEST:
-                            final ShapelessRecipe lrs = new ShapelessRecipe(nKey, rst);
-                            shp = new String[]{"abc", "def", "ghi"};
-                            for (byte cy = 0; cy < 3; cy++) {
-                                for (byte cx = 1; cx < 4; cx++) {
-                                    final ItemStack ti = inv.getItem(cy * 9 + cx);
-                                    if (!ItemUtils.isBlank(ti, false)) {
-                                        lrs.addIngredient(CMDMatChoice.of(ti));
-                                        cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtils.toString(ti, "="));
-                                    }
+                //запоминание крафта
+                final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
+                craftConfig.set(key, null);
+                craftConfig.set(key + ".result", ItemUtils.toString(rst, "="));
+                //craftConfig.set(key + ".world", Ostrov.subServer.toString());
+                craftConfig.set(key + ".type", getRecType(tp));
+                final ConfigurationSection cs = craftConfig.getConfigurationSection(key);
+                final NamespacedKey nKey = new NamespacedKey(OStrap.space, key);
+                Bukkit.getConsoleSender().sendMessage(cs.getName());
+                final Recipe nrc;
+                final ItemStack it;
+                final String[] shp;
+                switch (inv.getItem(9).getType()) {
+                    case SMOKER:
+                        it = inv.getItem(11);
+                        if (it == null || it.getType() == Material.AIR) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        nrc = new SmokingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case BLAST_FURNACE:
+                        it = inv.getItem(11);
+                        if (it == null || it.getType() == Material.AIR) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        nrc = new BlastingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case CAMPFIRE:
+                        it = inv.getItem(11);
+                        if (it == null || it.getType() == Material.AIR) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        nrc = new CampfireRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 500);
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case FURNACE:
+                        it = inv.getItem(11);
+                        if (it == null || it.getType() == Material.AIR) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        nrc = new FurnaceRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 200);
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case SMITHING_TABLE:
+                        it = inv.getItem(10);
+                        final ItemStack scd = inv.getItem(12);
+                        final ItemStack tpl = inv.getItem(2);
+                        if (ItemUtils.isBlank(it, false) || ItemUtils.isBlank(scd, false)) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        cs.set("recipe.b", ItemUtils.toString(scd, "="));
+                        cs.set("recipe.c", ItemUtils.toString(tpl, "="));
+                        nrc = new SmithingTransformRecipe(nKey, rst, CMDMatChoice.of(tpl), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case STONECUTTER:
+                        it = inv.getItem(11);
+                        if (it == null || it.getType() == Material.AIR) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+                        cs.set("recipe.a", ItemUtils.toString(it, "="));
+                        nrc = new StonecuttingRecipe(nKey, rst, CMDMatChoice.of(it));
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+                        break;
+                    case ENDER_CHEST:
+                        final ShapelessRecipe lrs = new ShapelessRecipe(nKey, rst);
+                        shp = new String[]{"abc", "def", "ghi"};
+                        for (byte cy = 0; cy < 3; cy++) {
+                            for (byte cx = 1; cx < 4; cx++) {
+                                final ItemStack ti = inv.getItem(cy * 9 + cx);
+                                if (!ItemUtils.isBlank(ti, false)) {
+                                    lrs.addIngredient(CMDMatChoice.of(ti));
+                                    cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtils.toString(ti, "="));
                                 }
                             }
-                            nrc = lrs;
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(nrc);
-                
+                        }
+                        nrc = lrs;
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(nrc);
+
 //                p.sendMessage("f=" + lrs.getResult() + "" + lrs.getChoiceList().size());
-                            break;
-                        case CHEST:
-                        default://тоже магия
-                            final ShapedRecipe srs = new ShapedRecipe(nKey, rst);
-                            final ItemStack[] rcs = new ItemStack[rad * rad];
-                            int xMin = -1, xMax = -1, yMin = -1, yMax = -1;
-                            for (int cx = 0; cx < rad; cx++) {
-                                for (int cy = 0; cy < rad; cy++) {
-                                    final ItemStack ti = inv.getItem(cy * 9 + cx + 1);
-                                    if (!ItemUtils.isBlank(ti, false)) {
-                                        if (xMin == -1 || xMin > cx) xMin = cx;
-                                        if (yMin == -1 || yMin > cy) yMin = cy;
-                                        if (xMax < cx) xMax = cx;
-                                        if (yMax < cy) yMax = cy;
-                                    }
-                                    rcs[cy * rad + cx] = ti;
+                        break;
+                    case CHEST:
+                    default://тоже магия
+                        final ShapedRecipe srs = new ShapedRecipe(nKey, rst);
+                        final ItemStack[] rcs = new ItemStack[rad * rad];
+                        int xMin = -1, xMax = -1, yMin = -1, yMax = -1;
+                        for (int cx = 0; cx < rad; cx++) {
+                            for (int cy = 0; cy < rad; cy++) {
+                                final ItemStack ti = inv.getItem(cy * 9 + cx + 1);
+                                if (!ItemUtils.isBlank(ti, false)) {
+                                    if (xMin == -1 || xMin > cx) xMin = cx;
+                                    if (yMin == -1 || yMin > cy) yMin = cy;
+                                    if (xMax < cx) xMax = cx;
+                                    if (yMax < cy) yMax = cy;
+                                }
+                                rcs[cy * rad + cx] = ti;
+                            }
+                        }
+
+                        if (xMin == -1 || yMin == -1) {
+                            p.sendMessage("§cСначала закончите крафт!");
+                            return;
+                        }
+
+                        shp = makeShape(xMax + 1 - xMin, yMax + 1 - yMin);
+                        final StringBuilder sb = new StringBuilder(shp.length * (xMax + 1 - xMin));
+                        for (final String s : shp) {
+                            sb.append(":").append(s);
+                        }
+                        cs.set("shape", sb.substring(1));
+                        srs.shape(shp);
+
+                        for (int cx = xMax; cx >= xMin; cx--) {
+                            for (int cy = yMax; cy >= yMin; cy--) {
+                                final ItemStack ti = rcs[cy * rad + cx];
+                                if (!ItemUtils.isBlank(ti, false)) {
+                                    srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), CMDMatChoice.of(ti));
+                                    cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtils.toString(ti, "="));
                                 }
                             }
+                        }
+                        nrc = srs;
+                        Bukkit.removeRecipe(nKey);
+                        Bukkit.addRecipe(srs);
+                        break;
 
-                            if (xMin == -1 || yMin == -1) {
-                                p.sendMessage("§cСначала закончите крафт!");
-                                return;
-                            }
+                }
 
-                            shp = makeShape(xMax + 1 - xMin, yMax + 1 - yMin);
-                            final StringBuilder sb = new StringBuilder(shp.length * (xMax + 1 - xMin));
-                            for (final String s : shp) {
-                                sb.append(":").append(s);
-                            }
-                            cs.set("shape", sb.substring(1));
-                            srs.shape(shp);
+                Crafts.crafts.put(nKey, new Craft(nrc, pl -> true));
 
-                            for (int cx = xMax; cx >= xMin; cx--) {
-                                for (int cy = yMax; cy >= yMin; cy--) {
-                                    final ItemStack ti = rcs[cy * rad + cx];
-                                    if (!ItemUtils.isBlank(ti, false)) {
-                                        srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), CMDMatChoice.of(ti));
-                                        cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtils.toString(ti, "="));
-                                    }
-                                }
-                            }
-                            nrc = srs;
-                            Bukkit.removeRecipe(nKey);
-                            Bukkit.addRecipe(srs);
-                            break;
+                try {
+                    craftConfig.save(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 
-                    }
-
-                    Crafts.crafts.put(nKey, new Craft(nrc, pl -> true));
-
-                    try {
-                        craftConfig.save(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    p.sendMessage(TCUtils.format(Ostrov.PREFIX + "§7Крафт §к" + key + " §7завершен!"));
-                    p.closeInventory();
-                }));
+                p.sendMessage(TCUtils.form(Ostrov.PREFIX + "§7Крафт §к" + key + " §7завершен!"));
+                p.closeInventory();
+            }));
         //final ClickableItem cl = ClickableItem.from(ItemUtils.air, e -> e.setCurrentItem(e.getCursor().asOne()));
         final Consumer<ItemClickData> canEdit = e -> {
             if (e.getEvent() instanceof InventoryClickEvent)
@@ -405,6 +404,7 @@ public class CraftMenu implements InventoryProvider {
     }
 
     private static final String dsp = "abcdefghi";
+
     private static String[] makeShape(final int dX, final int dY) {
         final String[] sp = new String[dY];
         for (int i = 0; i < dY; i++) {
@@ -418,7 +418,7 @@ public class CraftMenu implements InventoryProvider {
         its.set(slot, ClickableItem.from(ItemUtils.isBlank(it, false) ? ItemUtils.air : it, canEdit));
         its.setEditable(slot, !view);
     }
-    
+
     private ItemStack makeIcon(final Material mt) {
         return switch (mt) {
             default -> new ItemBuilder(Material.CHEST).name("§dФормированый").build();

@@ -7,7 +7,7 @@ import ru.komiss77.objects.Figure;
 
 public class FigureActivateEntityEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Figure figure;
 
 

@@ -9,16 +9,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.StackBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.*;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 
 
 public class ItemMenu implements InventoryProvider {
@@ -31,32 +29,32 @@ public class ItemMenu implements InventoryProvider {
         for (int i = 0; i < 27; i++) {
             switch (i) {
                 case 22:
-                    invIts[i] = StackBuilder.of(ItemType.HONEYCOMB).name("§6Выдать Предмет").build();
+                    invIts[i] = new ItemBuilder(ItemType.HONEYCOMB).name("§6Выдать Предмет").build();
                     break;
                 case 16:
-                    invIts[i] = StackBuilder.of(ItemType.BOOK).name("§dЗачарования").build();
+                    invIts[i] = new ItemBuilder(ItemType.BOOK).name("§dЗачарования").build();
                     break;
                 case 14:
-                    invIts[i] = StackBuilder.of(ItemType.MOJANG_BANNER_PATTERN).name("§eОписание Предмета").build();
+                    invIts[i] = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN).name("§eОписание Предмета").build();
                     break;
                 case 13:
-                    invIts[i] = StackBuilder.of(ItemType.POINTED_DRIPSTONE).name("§6§l\\/").build();
+                    invIts[i] = new ItemBuilder(ItemType.POINTED_DRIPSTONE).name("§6§l\\/").build();
                     break;
                 case 12:
-                    invIts[i] = StackBuilder.of(ItemType.NAME_TAG).name("§aИмя Предмета").build();
+                    invIts[i] = new ItemBuilder(ItemType.NAME_TAG).name("§aИмя Предмета").build();
                     break;
                 case 10:
-                    invIts[i] = StackBuilder.of(ItemType.QUARTZ).name("§bЗначение Модели").build();
+                    invIts[i] = new ItemBuilder(ItemType.QUARTZ).name("§bЗначение Модели").build();
                     break;
                 case 4:
-                    invIts[i] = StackBuilder.of(ItemType.AIR).build();
+                    invIts[i] = new ItemBuilder(ItemType.AIR).build();
                     break;
                 case 3, 5:
-                    invIts[i] = StackBuilder.of(ItemType.HANGING_ROOTS).build();
+                    invIts[i] = new ItemBuilder(ItemType.HANGING_ROOTS).build();
                     break;
                 default:
-                    invIts[i] = StackBuilder.of((i & 1) == 1 ? ItemType.BROWN_STAINED_GLASS_PANE
-                            : ItemType.ORANGE_STAINED_GLASS_PANE).name("§0.").build();
+                    invIts[i] = new ItemBuilder((i & 1) == 1 ? ItemType.BROWN_STAINED_GLASS_PANE
+                        : ItemType.ORANGE_STAINED_GLASS_PANE).name("§0.").build();
                     break;
             }
         }
@@ -72,7 +70,7 @@ public class ItemMenu implements InventoryProvider {
         final ItemMeta im = it.getItemMeta();
         inv.setContents(invIts);
         inv.setItem(4, it);
-        its.set(22, ClickableItem.of(StackBuilder.of(ItemType.HONEYCOMB).name("§aВыдать (ЛКМ) §6/ §eЗаменить (ПКМ) §6Предмет").build(), e -> {
+        its.set(22, ClickableItem.of(new ItemBuilder(ItemType.HONEYCOMB).name("§aВыдать (ЛКМ) §6/ §eЗаменить (ПКМ) §6Предмет").build(), e -> {
             switch (e.getClick()) {
                 case LEFT:
                 case SHIFT_LEFT:
@@ -90,22 +88,22 @@ public class ItemMenu implements InventoryProvider {
             p.closeInventory();
         }));
 
-        its.set(12, new InputButton(InputType.ANVILL, StackBuilder.of(ItemType.NAME_TAG)
-                .name("§7Имя:§r " + (im.hasDisplayName() ? TCUtils.deform(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
-                .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
-                ? TCUtils.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
+        its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
+            .name("§7Имя:§r " + (im.hasDisplayName() ? TCUtils.deform(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
+            .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
+            ? TCUtils.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
             im.displayName(msg.equals("-") ? null : TCUtils.form(msg.replace('&', '§')));
             it.setItemMeta(im);
             reopen(p, its);
         }));
 
-        StackBuilder prep = StackBuilder.of(ItemType.MOJANG_BANNER_PATTERN);
+        ItemBuilder prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN);
         if (im.hasLore()) {
             prep.name("§7Описание:").lore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
             for (final Component lr : im.lore()) prep.lore("- " + TCUtils.deform(lr).replace('§', '&'));
         } else {
-            prep = StackBuilder.of(ItemType.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
-                    .lore(" ", "§eЛКМ §7- Добавить линию");
+            prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
+                .lore(" ", "§eЛКМ §7- Добавить линию");
         }
 
         its.set(14, ClickableItem.from(prep.build(), e -> {
@@ -129,7 +127,7 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        prep = StackBuilder.of(ItemType.SEA_LANTERN).name("§bСвечение");
+        prep = new ItemBuilder(ItemType.SEA_LANTERN).name("§bСвечение");
         if (im.hasEnchantmentGlintOverride()) {
             final boolean glint = im.getEnchantmentGlintOverride();
             prep.glint(glint);
@@ -147,7 +145,7 @@ public class ItemMenu implements InventoryProvider {
                 case SHIFT_LEFT:
                     if (im.hasEnchantmentGlintOverride()) {
                         im.setEnchantmentGlintOverride(im
-                                .getEnchantmentGlintOverride());
+                            .getEnchantmentGlintOverride());
                     } else im.setEnchantmentGlintOverride(true);
                     it.setItemMeta(im);
                     reopen(p, its);
@@ -165,7 +163,7 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        prep = StackBuilder.of(ItemType.ENCHANTED_BOOK).name("§dЗачарования");
+        prep = new ItemBuilder(ItemType.ENCHANTED_BOOK).name("§dЗачарования");
         if (im.hasEnchants()) {
             prep.glint(true);
             prep.lore(" ", "§aЕсть зачарования,", "§dЛКМ §7- Выдать зачар", "§cПКМ §7- Снять все зачары");
@@ -194,29 +192,29 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        its.set(20, ClickableItem.from(StackBuilder.of(ItemType.ENDER_PEARL).name("§фСкрытые Флаги")
-                .lore("§7Клик - редактировать §ффлаги").build(), e -> {
+        its.set(20, ClickableItem.from(new ItemBuilder(ItemType.ENDER_PEARL).name("§фСкрытые Флаги")
+            .lore("§7Клик - редактировать §ффлаги").build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 SmartInventory.builder().id(p.getName() + " Flags").title("     §фНастройки Флагов")
-                        .provider(new FlagMenu(it)).size(1, 9).build().open(p);
+                    .provider(new FlagMenu(it)).size(1, 9).build().open(p);
             }
         }));
 
-        its.set(24, ClickableItem.from(StackBuilder.of(ItemType.ENDER_EYE).name("§кАттрибуты")
-                .lore("§7Клик - редактировать §ксвойства").build(), e -> {
+        its.set(24, ClickableItem.from(new ItemBuilder(ItemType.ENDER_EYE).name("§кАттрибуты")
+            .lore("§7Клик - редактировать §ксвойства").build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 SmartInventory.builder().id(p.getName() + " Flags").title("    §кНастройки Аттрибутов")
-                        .provider(new AttrMenu(it)).size(2, 9).build().open(p);
+                    .provider(new AttrMenu(it)).size(2, 9).build().open(p);
             }
         }));
 
-        final StackBuilder cmd = StackBuilder.of(ItemType.QUARTZ);
+        final ItemBuilder cmd = new ItemBuilder(ItemType.QUARTZ);
         if (im.hasCustomModelData()) {
             cmd.name("§7Значение Модели: §b" + im.getCustomModelData())
-                    .lore(" ", "§c-1 §7- Сбросить значение модели");
+                .lore(" ", "§c-1 §7- Сбросить значение модели");
         } else {
             cmd.name("§7Значение Модели: §8(Не Указано)")
-                    .lore(" ", "§8-1 §7- Сбросить значение модели");
+                .lore(" ", "§8-1 §7- Сбросить значение модели");
         }
         its.set(10, new InputButton(InputType.ANVILL, cmd.build(), "10", msg -> {
             final int cd;

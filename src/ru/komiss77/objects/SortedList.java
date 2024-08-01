@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 public class SortedList<E extends Comparable<? super E>> extends AbstractList<E> implements List<E>,
-        RandomAccess, Cloneable, java.io.Serializable {
+    RandomAccess, Cloneable, java.io.Serializable {
 
     @java.io.Serial
     private static final long serialVersionUID = 8683452581122892189L;
@@ -71,7 +71,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
             this.elementData = EMPTY_ELEMENTDATA;
         } else {
             throw new IllegalArgumentException("Illegal Capacity: " +
-                    initialCapacity);
+                initialCapacity);
         }
     }
 
@@ -113,8 +113,8 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         modCount++;
         if (size < elementData.length) {
             elementData = (size == 0)
-                    ? EMPTY_ELEMENTDATA
-                    : Arrays.copyOf(elementData, size);
+                ? EMPTY_ELEMENTDATA
+                : Arrays.copyOf(elementData, size);
         }
     }
 
@@ -127,8 +127,8 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
      */
     public void ensureCapacity(int minCapacity) {
         if (minCapacity > elementData.length
-                && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
-                && minCapacity <= DEFAULT_CAPACITY)) {
+            && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+            && minCapacity <= DEFAULT_CAPACITY)) {
             modCount++;
             grow(minCapacity);
         }
@@ -145,8 +145,8 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         int oldCapacity = elementData.length;
         if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
             int newCapacity = newLength(oldCapacity,
-                    minCapacity - oldCapacity, /* minimum growth */
-                    oldCapacity >> 1           /* preferred growth */);
+                minCapacity - oldCapacity, /* minimum growth */
+                oldCapacity >> 1           /* preferred growth */);
             return elementData = Arrays.copyOf(elementData, newCapacity);
         } else {
             return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];
@@ -173,7 +173,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         int minLength = oldLength + minGrowth;
         if (minLength < 0) { // overflow
             throw new OutOfMemoryError(
-                    "Required array length " + oldLength + " + " + minGrowth + " is too large");
+                "Required array length " + oldLength + " + " + minGrowth + " is too large");
         } else if (minLength <= SOFT_MAX_ARRAY_LENGTH) {
             return SOFT_MAX_ARRAY_LENGTH;
         } else {
@@ -477,8 +477,8 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         // ArrayList can be subclassed and given arbitrary behavior, but we can
         // still deal with the common case where o is ArrayList precisely
         boolean equal = (o.getClass() == SortedList.class)
-                ? equalsArrayList((SortedList<?>) o)
-                : equalsRange((List<?>) o, 0, size);
+            ? equalsArrayList((SortedList<?>) o)
+            : equalsRange((List<?>) o, 0, size);
 
         checkForComodification(expectedModCount);
         return equal;
@@ -660,7 +660,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
     protected void removeRange(int fromIndex, int toIndex) {
         if (fromIndex > toIndex) {
             throw new IndexOutOfBoundsException(
-                    outOfBoundsMsg(fromIndex, toIndex));
+                outOfBoundsMsg(fromIndex, toIndex));
         }
         modCount++;
         shiftTailOverGap(elementData, fromIndex, toIndex);
@@ -780,7 +780,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
      */
     @java.io.Serial
     private void writeObject(java.io.ObjectOutputStream s)
-            throws java.io.IOException {
+        throws java.io.IOException {
         // Write out element count, and any hidden stuff
         int expectedModCount = modCount;
         s.defaultWriteObject();
@@ -809,7 +809,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
      */
     @java.io.Serial
     private void readObject(java.io.ObjectInputStream s)
-            throws java.io.IOException, ClassNotFoundException {
+        throws java.io.IOException, ClassNotFoundException {
 
         // Read in size, and any hidden stuff
         s.defaultReadObject();
@@ -1039,7 +1039,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
             throw new IndexOutOfBoundsException("toIndex = " + toIndex);
         if (fromIndex > toIndex)
             throw new IllegalArgumentException("fromIndex(" + fromIndex +
-                    ") > toIndex(" + toIndex + ")");
+                ") > toIndex(" + toIndex + ")");
         return new SubList<>(this, fromIndex, toIndex);
     }
 
@@ -1142,7 +1142,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
             checkForComodification();
             int oldSize = root.size;
             boolean modified =
-                    root.batchRemove(c, complement, offset, offset + size);
+                root.batchRemove(c, complement, offset, offset + size);
             if (modified)
                 updateSizeAndModCount(root.size - oldSize);
             return modified;
@@ -1167,7 +1167,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
             checkForComodification();
             if (a.length < size)
                 return (T[]) Arrays.copyOfRange(
-                        root.elementData, offset, offset + size, a.getClass());
+                    root.elementData, offset, offset + size, a.getClass());
             System.arraycopy(root.elementData, offset, a, 0, size);
             if (a.length > size)
                 a[size] = null;
@@ -1337,7 +1337,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
                 throw new IndexOutOfBoundsException("toIndex = " + toIndex);
             if (fromIndex > toIndex)
                 throw new IllegalArgumentException("fromIndex(" + fromIndex +
-                        ") > toIndex(" + toIndex + ")");
+                    ") > toIndex(" + toIndex + ")");
             return new SubList<>(this, fromIndex, toIndex);
         }
 
@@ -1386,7 +1386,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
                     int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
                     // ArrayListSpliterator can be used here as the source is already bound
                     return (lo >= mid) ? null : // divide range in half unless too small
-                            root.new ArrayListSpliterator(lo, index = mid, expectedModCount);
+                        root.new ArrayListSpliterator(lo, index = mid, expectedModCount);
                 }
 
                 public boolean tryAdvance(Consumer<? super E> action) {
@@ -1532,7 +1532,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         public ArrayListSpliterator trySplit() {
             int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
             return (lo >= mid) ? null : // divide range in half unless too small
-                    new ArrayListSpliterator(lo, index = mid, expectedModCount);
+                new ArrayListSpliterator(lo, index = mid, expectedModCount);
         }
 
         public boolean tryAdvance(Consumer<? super E> action) {

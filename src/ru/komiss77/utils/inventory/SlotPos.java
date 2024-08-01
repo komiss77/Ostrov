@@ -34,9 +34,9 @@ public class SlotPos {
     @Override
     public String toString() {
         return "SlotPos{" +
-                "row=" + row +
-                ", column=" + column +
-                '}';
+            "row=" + row +
+            ", column=" + column +
+            '}';
     }
 
     public int getRow() {

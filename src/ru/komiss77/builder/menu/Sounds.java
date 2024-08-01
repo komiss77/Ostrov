@@ -77,14 +77,14 @@ public class Sounds implements InventoryProvider {
             //}
 
             content.add(ClickableItem.of(new ItemBuilder(mat)
-                    .name("§f" + sound)
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - играть")
-                    .addLore("§7Шифт + ЛКМ - играть ускоренно")
-                    .addLore("§7Шифт + ПКМ - играть замедленно")
-                    .addLore("§7Средний клик - название в чат")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name("§f" + sound)
+                .lore("§7")
+                .lore("§7ЛКМ - играть")
+                .lore("§7Шифт + ЛКМ - играть ускоренно")
+                .lore("§7Шифт + ПКМ - играть замедленно")
+                .lore("§7Средний клик - название в чат")
+                .lore("§7")
+                .build(), e -> {
                 if (previos != null) {
                     p.stopSound(previos);
                 }
@@ -135,15 +135,15 @@ public class Sounds implements InventoryProvider {
 
 
         content.set(5, 2, ClickableItem.of(new ItemBuilder(Material.NETHERITE_SCRAP)
-                .name("§fСлушать по очереди")
-                .addLore("§7")
-                .addLore("§7Сейчас №" + current)
-                .addLore("§7Название: " + Sound.values()[current])
-                .addLore("§7")
-                .addLore("§7ЛКМ - следующий")
-                .addLore("§7ПКМ - предыдущий")
-                .addLore("§7")
-                .build(), e -> {
+            .name("§fСлушать по очереди")
+            .lore("§7")
+            .lore("§7Сейчас №" + current)
+            .lore("§7Название: " + Sound.values()[current])
+            .lore("§7")
+            .lore("§7ЛКМ - следующий")
+            .lore("§7ПКМ - предыдущий")
+            .lore("§7")
+            .build(), e -> {
 
             switch (e.getClick()) {
                 case LEFT:
@@ -191,8 +191,8 @@ public class Sounds implements InventoryProvider {
 
 
         content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                        p.closeInventory()
-                //SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntytyGroup(type))). size(6, 9). title("§2"+world.getName()+" "+VM.getNmsEntitygroup().getEntytyGroup(type).displayName+" §1r="+radius).build() .open(p)
+                p.closeInventory()
+            //SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntytyGroup(type))). size(6, 9). title("§2"+world.getName()+" "+VM.getNmsEntitygroup().getEntytyGroup(type).displayName+" §1r="+radius).build() .open(p)
         ));
         
 
@@ -219,19 +219,19 @@ public class Sounds implements InventoryProvider {
 
         if (to < Sound.values().length) {
             content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        page++;
-                        reopen(p, content);
-                    })
+                    -> {
+                    page++;
+                    reopen(p, content);
+                })
             );
         }
 
         if (page > 0) {
             content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        page--;
-                        reopen(p, content);
-                    })
+                    -> {
+                    page--;
+                    reopen(p, content);
+                })
             );
         }
 

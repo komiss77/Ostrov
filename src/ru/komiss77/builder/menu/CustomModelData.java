@@ -35,21 +35,21 @@ public class CustomModelData implements InventoryProvider {
         for (int i = from; i < to; i++) {
 
             content.add(ClickableItem.empty(new ItemBuilder(mat)
-                    .name("§7" + i)
-                    .setModelData(i)
-                    .build()
+                .name("§7" + i)
+                .modelData(i)
+                .build()
             ));
 
         }
 
 
         content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                p.closeInventory()
+            p.closeInventory()
         ));
 
         content.set(5, 2, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                .name("§7Перейти к ИД ....")
-                .build(), "" + from, input -> {
+            .name("§7Перейти к ИД ....")
+            .build(), "" + from, input -> {
 
             if (!ApiOstrov.isInteger(input)) {
                 p.sendMessage("§cДолжно быть число!");
@@ -67,19 +67,19 @@ public class CustomModelData implements InventoryProvider {
 
         if (to < Integer.MAX_VALUE) {
             content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        page++;
-                        reopen(p, content);
-                    })
+                    -> {
+                    page++;
+                    reopen(p, content);
+                })
             );
         }
 
         if (page > 0) {
             content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        page--;
-                        reopen(p, content);
-                    })
+                    -> {
+                    page--;
+                    reopen(p, content);
+                })
             );
         }
 

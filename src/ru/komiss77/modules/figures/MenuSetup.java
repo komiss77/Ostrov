@@ -45,23 +45,23 @@ public class MenuSetup implements InventoryProvider {
                 case COMMAND:
                     builder = new ItemBuilder(Material.COMMAND_BLOCK);
                     builder.name("§fкоманда");
-                    builder.addLore("");
-                    builder.addLore("§7ЛКМ - сменить тип");
-                    builder.addLore("");
+                    builder.lore("");
+                    builder.lore("§7ЛКМ - сменить тип");
+                    builder.lore("");
                     break;
                 case COMMAND_CONFIRM:
                     builder = new ItemBuilder(Material.COMMAND_BLOCK_MINECART);
                     builder.name("§fкоманда с подтверждением");
-                    builder.addLore("");
-                    builder.addLore("§7ЛКМ - сменить тип");
-                    builder.addLore("");
+                    builder.lore("");
+                    builder.lore("§7ЛКМ - сменить тип");
+                    builder.lore("");
                     break;
                 case EVENT:
                     builder = new ItemBuilder(Material.FLETCHING_TABLE);
                     builder.name("§fэвент");
-                    builder.addLore("");
-                    builder.addLore("§7ЛКМ - сменить тип");
-                    builder.addLore("");
+                    builder.lore("");
+                    builder.lore("§7ЛКМ - сменить тип");
+                    builder.lore("");
                     break;
 
                 case SERVER:
@@ -70,10 +70,10 @@ public class MenuSetup implements InventoryProvider {
                         builder = new ItemBuilder(Material.matchMaterial(gi.game.mat));
                         //builder.setType(gi.item.getType());
                         builder.name(gi.game.displayName);
-                        builder.addLore("");
-                        builder.addLore("§7ЛКМ - сменить тип");
-                        builder.addLore("");
-                        builder.addLore("");
+                        builder.lore("");
+                        builder.lore("§7ЛКМ - сменить тип");
+                        builder.lore("");
+                        builder.lore("");
                     }
                 default:
                     break;
@@ -96,24 +96,24 @@ public class MenuSetup implements InventoryProvider {
 
 
         contents.set(0, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-                .name("§fНазвание")
-                .addLore("§7")
-                .addLore("§7Сейчас:")
-                .addLore("§e" + figure.name)
-                .addLore("§7")
-                .addLore("§fЛКМ - изменить")
-                .addLore("§7Можно использовать цвета с §f&")
-                .addLore("§7")
-                .addLore("§7Для фигур - команд имя")
-                .addLore("§7будет неизменно,")
-                .addLore("§7для фигур- -серверов")
-                .addLore("§7после названия будет добавлен")
-                .addLore("§7общий онлайн на игре.")
-                .addLore("§7")
-                .addLore("§7")
+            .name("§fНазвание")
+            .lore("§7")
+            .lore("§7Сейчас:")
+            .lore("§e" + figure.name)
+            .lore("§7")
+            .lore("§fЛКМ - изменить")
+            .lore("§7Можно использовать цвета с §f&")
+            .lore("§7")
+            .lore("§7Для фигур - команд имя")
+            .lore("§7будет неизменно,")
+            .lore("§7для фигур- -серверов")
+            .lore("§7после названия будет добавлен")
+            .lore("§7общий онлайн на игре.")
+            .lore("§7")
+            .lore("§7")
 
-                .addLore("§7")
-                .build(), figure.name, msg -> {
+            .lore("§7")
+            .build(), figure.name, msg -> {
             figure.setName(msg.replaceAll("&", "§"));
             FigureManager.saveFigure(player, figure);
             reopen(player, contents);
@@ -122,22 +122,22 @@ public class MenuSetup implements InventoryProvider {
 
         if (figure.getType() == FigureType.EVENT) {
             contents.set(0, 5, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-                    .name("§fТэг")
-                    .addLore("§7")
-                    .addLore("§7Сейчас:")
-                    .addLore("§e" + figure.getTag())
-                    .addLore("§7")
-                    .addLore("§fЛКМ - изменить")
-                    .addLore("§7цветовые коды будут обрезаны.")
-                    .addLore("§7")
-                    .addLore("§7Тэг никак не отображается,")
-                    .addLore("§7но будет передан в Эвент")
-                    .addLore("§7при клике на фигуру")
-                    .addLore("§7(например, 'открыть меню прокачки')")
-                    .addLore("§7и поможет плагину понять,")
-                    .addLore("§7что нужно сделать.")
-                    .addLore("§7")
-                    .build(), figure.getTag(), msg -> {
+                .name("§fТэг")
+                .lore("§7")
+                .lore("§7Сейчас:")
+                .lore("§e" + figure.getTag())
+                .lore("§7")
+                .lore("§fЛКМ - изменить")
+                .lore("§7цветовые коды будут обрезаны.")
+                .lore("§7")
+                .lore("§7Тэг никак не отображается,")
+                .lore("§7но будет передан в Эвент")
+                .lore("§7при клике на фигуру")
+                .lore("§7(например, 'открыть меню прокачки')")
+                .lore("§7и поможет плагину понять,")
+                .lore("§7что нужно сделать.")
+                .lore("§7")
+                .build(), figure.getTag(), msg -> {
                 figure.setTag(TCUtils.stripColor(msg));
                 FigureManager.saveFigure(player, figure);
                 reopen(player, contents);
@@ -148,25 +148,25 @@ public class MenuSetup implements InventoryProvider {
         if (figure.getType() == FigureType.COMMAND || figure.getType() == FigureType.COMMAND_CONFIRM) {
 
             contents.set(1, 1, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                    .name("§fКоманда при ЛКМ")
-                    .addLore("§7")
-                    .addLore("§7При ЛКМ на фигуру игроком")
-                    .addLore(figure.getType() == FigureType.COMMAND_CONFIRM ? "§7команда с подтверждением:" : "§7будет выполнена команда:")
-                    .addLore("§e" + figure.leftclickcommand)
-                    .addLore("§7")
-                    .addLore("§fЛКМ - изменить")
-                    .addLore("§7Можно использовать цвета с §f&")
-                    .addLore("§7")
-                    .addLore("§7Возможные переменные:")
-                    .addLore("§f@p §7заменится на ник игрока.")
-                    .addLore("§7")
-                    .addLore("§7Если команда начинается с §f@c")
-                    .addLore("§7команда будет выполнена от имени")
-                    .addLore("§7консоли.")
-                    .addLore("§7")
-                    .build(), figure.leftclickcommand, msg -> {
+                .name("§fКоманда при ЛКМ")
+                .lore("§7")
+                .lore("§7При ЛКМ на фигуру игроком")
+                .lore(figure.getType() == FigureType.COMMAND_CONFIRM ? "§7команда с подтверждением:" : "§7будет выполнена команда:")
+                .lore("§e" + figure.leftclickcommand)
+                .lore("§7")
+                .lore("§fЛКМ - изменить")
+                .lore("§7Можно использовать цвета с §f&")
+                .lore("§7")
+                .lore("§7Возможные переменные:")
+                .lore("§f@p §7заменится на ник игрока.")
+                .lore("§7")
+                .lore("§7Если команда начинается с §f@c")
+                .lore("§7команда будет выполнена от имени")
+                .lore("§7консоли.")
+                .lore("§7")
+                .build(), figure.leftclickcommand, msg -> {
                 if (msg.contains("bossbar ") || msg.contains("op ")) {
-                    player.kick(TCUtils.format("В следующий раз вылет с должности"));
+                    player.kick(TCUtils.form("В следующий раз вылет с должности"));
                     Ostrov.log_err("Попытка ОП через фигуру: " + player.getName());
                 } else {
                     figure.leftclickcommand = msg;
@@ -176,25 +176,25 @@ public class MenuSetup implements InventoryProvider {
             }));
 
             contents.set(1, 7, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                    .name("§fКоманда при ПКМ")
-                    .addLore("§7")
-                    .addLore("§7При ПКМ на фигуру игроком")
-                    .addLore(figure.getType() == FigureType.COMMAND_CONFIRM ? "§7команда с подтверждением:" : "§7будет выполнена команда:")
-                    .addLore("§e" + figure.rightclickcommand)
-                    .addLore("§7")
-                    .addLore("§fЛКМ - изменить")
-                    .addLore("§7Можно использовать цвета с §f&")
-                    .addLore("§7")
-                    .addLore("§7Возможные переменные:")
-                    .addLore("§f@p §7заменится на ник игрока.")
-                    .addLore("§7")
-                    .addLore("§7Если команда начинается с §f@c")
-                    .addLore("§7команда будет выполнена от имени")
-                    .addLore("§7консоли.")
-                    .addLore("§7")
-                    .build(), figure.rightclickcommand, msg -> {
+                .name("§fКоманда при ПКМ")
+                .lore("§7")
+                .lore("§7При ПКМ на фигуру игроком")
+                .lore(figure.getType() == FigureType.COMMAND_CONFIRM ? "§7команда с подтверждением:" : "§7будет выполнена команда:")
+                .lore("§e" + figure.rightclickcommand)
+                .lore("§7")
+                .lore("§fЛКМ - изменить")
+                .lore("§7Можно использовать цвета с §f&")
+                .lore("§7")
+                .lore("§7Возможные переменные:")
+                .lore("§f@p §7заменится на ник игрока.")
+                .lore("§7")
+                .lore("§7Если команда начинается с §f@c")
+                .lore("§7команда будет выполнена от имени")
+                .lore("§7консоли.")
+                .lore("§7")
+                .build(), figure.rightclickcommand, msg -> {
                 if (msg.contains("bossbar ") || msg.contains("op ")) {
-                    player.kick(TCUtils.format("В следующий раз вылет с должности"));
+                    player.kick(TCUtils.form("В следующий раз вылет с должности"));
                     Ostrov.log_err("Попытка ОП через фигуру: " + player.getName());
                 } else {
                     figure.rightclickcommand = msg;
@@ -207,14 +207,14 @@ public class MenuSetup implements InventoryProvider {
 
 
         contents.set(4, 2, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
-                .name("§7Поставить на новое место")
-                .addLore("§7")
-                .addLore("§7фигура переместится на вашу")
-                .addLore("§7позицию и сохранится.")
-                .addLore("§7")
-                .addLore("§4Шифт + ЛКМ - переместить")
-                .addLore("§7")
-                .build(), e -> {
+            .name("§7Поставить на новое место")
+            .lore("§7")
+            .lore("§7фигура переместится на вашу")
+            .lore("§7позицию и сохранится.")
+            .lore("§7")
+            .lore("§4Шифт + ЛКМ - переместить")
+            .lore("§7")
+            .build(), e -> {
             if (e.getClick() == ClickType.SHIFT_LEFT) {
                 FigureManager.setNewPosition(player, figure);
             }
@@ -222,14 +222,14 @@ public class MenuSetup implements InventoryProvider {
 
 
         contents.set(4, 8, ClickableItem.of(new ItemBuilder(Material.SOUL_SAND)
-                .name("§cУдалить обработчик фигуры")
-                .addLore("§7")
-                .addLore("§cУдалится только обработчик")
-                .addLore("§7фигуры, стойка останется!")
-                .addLore("§7")
-                .addLore("§4Шифт + ПКМ - удалить")
-                .addLore("§7")
-                .build(), e -> {
+            .name("§cУдалить обработчик фигуры")
+            .lore("§7")
+            .lore("§cУдалится только обработчик")
+            .lore("§7фигуры, стойка останется!")
+            .lore("§7")
+            .lore("§4Шифт + ПКМ - удалить")
+            .lore("§7")
+            .build(), e -> {
             if (e.getClick() == ClickType.SHIFT_RIGHT) {
                 ConfirmationGUI.open(player, "§4Удалить обработчик ?", result -> {
                     player.closeInventory();

@@ -3,6 +3,7 @@ package ru.komiss77.listener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -61,49 +62,49 @@ public class InteractLst implements Listener {
         signBackCache = new WeakHashMap<>();
 
         signEdit = new ItemBuilder(Material.WARPED_SIGN)
-                .name("§fПомошник по табличкам")
-                .addLore("")
-                .addLore("§7Клик по табличке.")
-                .addLore("")
-                .addLore("§7ЛКМ - редактировать")
-                .addLore("§7Шифт+ЛКМ - сменить тип")
-                .addLore("")
-                .addLore("§7ПКМ - скопировать")
-                .addLore("§7Шифт+ПКМ - вставить")
-                .addLore("")
-                .addEnchant(Enchantment.CHANNELING)
-                .build();
+            .name("§fПомошник по табличкам")
+            .lore("")
+            .lore("§7Клик по табличке.")
+            .lore("")
+            .lore("§7ЛКМ - редактировать")
+            .lore("§7Шифт+ЛКМ - сменить тип")
+            .lore("")
+            .lore("§7ПКМ - скопировать")
+            .lore("§7Шифт+ПКМ - вставить")
+            .lore("")
+            .enchant(Enchantment.CHANNELING)
+            .build();
 
         gameSignEdit = new ItemBuilder(Material.CRIMSON_SIGN)
-                .name("§fСерверные таблички")
-                .addLore("")
-                .addLore("§7ЛКМ по табличке - §cудалить")
-                .addLore("")
-                .addLore("§7ПКМ по табличке - ")
-                .addLore("§7настроить отображаемую игру")
-                .addEnchant(Enchantment.CHANNELING)
-                .build();
+            .name("§fСерверные таблички")
+            .lore("")
+            .lore("§7ЛКМ по табличке - §cудалить")
+            .lore("")
+            .lore("§7ПКМ по табличке - ")
+            .lore("§7настроить отображаемую игру")
+            .enchant(Enchantment.CHANNELING)
+            .build();
 
         passport = new ItemBuilder(Material.PAPER)
-                .name("§aПаспорт")
-                .setModelData(77)
-                .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                .addFlags(ItemFlag.HIDE_ENCHANTS)
-                .addFlags(ItemFlag.HIDE_UNBREAKABLE)
-                .setUnbreakable(true)
-                .addLore("")
-                .addLore("§7Держите паспорт в руке,")
-                .addLore("§7и окружающие смогут его")
-                .addLore("§7посмотреть,сделав правый")
-                .addLore("§7клик на Вас.")
-                .addLore("")
-                .addLore("§7Вы всегда можете")
-                .addLore("§7достать документ из кармана")
-                .addLore("§7набрав §b/passport get")
-                .addLore("§7Изменить паспортные данные")
-                .addLore("§7можно в профиле.")
-                .addLore("")
-                .build();
+            .name("§aПаспорт")
+            .modelData(77)
+            .flags(ItemFlag.HIDE_ATTRIBUTES)
+            .flags(ItemFlag.HIDE_ENCHANTS)
+            .flags(ItemFlag.HIDE_UNBREAKABLE)
+            .unbreak(true)
+            .lore("")
+            .lore("§7Держите паспорт в руке,")
+            .lore("§7и окружающие смогут его")
+            .lore("§7посмотреть,сделав правый")
+            .lore("§7клик на Вас.")
+            .lore("")
+            .lore("§7Вы всегда можете")
+            .lore("§7достать документ из кармана")
+            .lore("§7набрав §b/passport get")
+            .lore("§7Изменить паспортные данные")
+            .lore("§7можно в профиле.")
+            .lore("")
+            .build();
     }
 
 
@@ -139,14 +140,14 @@ public class InteractLst implements Listener {
 
         //фикс для NAME_TAG
         if (inHand != null && inHand.getType() == Material.NAME_TAG
-                && e.getAction().isRightClick() && GM.GAME.type == ServerType.ONE_GAME) {  //отловил баг на змейке, походу на минииграх это не надо
+            && e.getAction().isRightClick() && GM.GAME.type == ServerType.ONE_GAME) {  //отловил баг на змейке, походу на минииграх это не надо
             final ItemMeta im = inHand.getItemMeta();
-            new InputButton(InputButton.InputType.ANVILL, inHand, im.hasDisplayName() ? TCUtils.toString(im.displayName()).replace('§', '&') : "Название", nm -> {
-                im.displayName(TCUtils.format(nm.replace('&', '§')));
+            new InputButton(InputButton.InputType.ANVILL, inHand, im.hasDisplayName() ? TCUtils.deform(im.displayName()).replace('§', '&') : "Название", nm -> {
+                im.displayName(TCUtils.form(nm.replace('&', '§')));
                 inHand.setItemMeta(im);
                 p.closeInventory();
             }).run(new ItemClickData(p, new InventoryClickEvent(p.getOpenInventory(), InventoryType.SlotType.CONTAINER, 0,
-                    ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
+                ClickType.LEFT, InventoryAction.PICKUP_ALL), ClickType.LEFT, ItemUtils.air, SlotPos.of(0, 0)));
             return;
         }
 
@@ -180,11 +181,11 @@ public class InteractLst implements Listener {
                         if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                             if (GM.signs.containsKey(locAsString)) {
                                 ConfirmationGUI.open(p, "Удалить табличку?", (result) -> {
-                                            if (result) {
-                                                b.breakNaturally();
-                                                GM.deleteGameSign(p, locAsString);
-                                            }
+                                        if (result) {
+                                            b.breakNaturally();
+                                            GM.deleteGameSign(p, locAsString);
                                         }
+                                    }
                                 );
                             } else {
                                 p.sendMessage("§6Это на серверная табличка!");
@@ -195,13 +196,13 @@ public class InteractLst implements Listener {
                                 return;
                             }
                             SmartInventory.builder()
-                                    .type(InventoryType.CHEST)
-                                    .id("GameSignEditor" + p.getName())
-                                    .provider(new GameSignEditor((Sign) b.getState()))
-                                    .title("§fНастройка серверной таблички")
-                                    .size(6, 9)
-                                    .build()
-                                    .open(p);
+                                .type(InventoryType.CHEST)
+                                .id("GameSignEditor" + p.getName())
+                                .provider(new GameSignEditor((Sign) b.getState()))
+                                .title("§fНастройка серверной таблички")
+                                .size(6, 9)
+                                .build()
+                                .open(p);
                         }
                         return;
                     }
@@ -267,7 +268,7 @@ public class InteractLst implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void Sign_edit(SignChangeEvent e) {
         final Player p = e.getPlayer();
-        final String line0 = TCUtils.stripColor(TCUtils.toString(e.line(0)));
+        final String line0 = TCUtils.stripColor(TCUtils.deform(e.line(0)));
 
         if (line0.equalsIgnoreCase("[Команда]") || line0.equalsIgnoreCase("[Место]")) {
             if (!ApiOstrov.isLocalBuilder(p, true)) {
@@ -279,9 +280,9 @@ public class InteractLst implements Listener {
             e.line(0, Component.text(line0.replaceAll("&", "§")));
         }
 
-        e.line(1, Component.text(TCUtils.toString(e.line(1)).replaceAll("&", "§")));
-        e.line(2, Component.text(TCUtils.toString(e.line(2)).replaceAll("&", "§")));
-        e.line(3, Component.text(TCUtils.toString(e.line(3)).replaceAll("&", "§")));
+        e.line(1, Component.text(TCUtils.deform(e.line(1)).replaceAll("&", "§")));
+        e.line(2, Component.text(TCUtils.deform(e.line(2)).replaceAll("&", "§")));
+        e.line(3, Component.text(TCUtils.deform(e.line(3)).replaceAll("&", "§")));
     }
 
 
@@ -337,12 +338,12 @@ public class InteractLst implements Listener {
 
             } else {
                 SmartInventory.builder()
-                        .id("SignEditSelectLine" + p.getName())
-                        .provider(new SignEditMenu(sign))
-                        .title("§fВыберите строку")
-                        .size(3, 9)
-                        .build()
-                        .open(p);
+                    .id("SignEditSelectLine" + p.getName())
+                    .provider(new SignEditMenu(sign))
+                    .title("§fВыберите строку")
+                    .size(3, 9)
+                    .build()
+                    .open(p);
             }
         } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (p.isSneaking()) {
@@ -374,7 +375,7 @@ public class InteractLst implements Listener {
     //это намого быстрее чем через compareItem
     private boolean isPassport(final ItemStack is) {
         return is != null && is.getType() == passport.getType() && is.hasItemMeta()
-                && is.getItemMeta().hasCustomModelData() && is.getItemMeta().getCustomModelData() == passport.getItemMeta().getCustomModelData();
+            && is.getItemMeta().hasCustomModelData() && is.getItemMeta().getCustomModelData() == passport.getItemMeta().getCustomModelData();
     }
 
 

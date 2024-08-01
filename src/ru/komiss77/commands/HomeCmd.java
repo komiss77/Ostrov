@@ -35,8 +35,8 @@ public class HomeCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String name = "name";
         return Commands.literal("home")
-            .executes(cntx->{
-                final CommandSender cs = cntx.getSource().getExecutor();
+            .executes(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
@@ -65,7 +65,7 @@ public class HomeCmd implements OCommand {
                 return Command.SINGLE_SUCCESS;
             })
             .then(Resolver.player(name)
-                .suggests((cntx, sb)->{
+                .suggests((cntx, sb) -> {
                     if (!(cntx.getSource().getExecutor()
                         instanceof final Player pl)) {
                         return sb.buildFuture();
@@ -73,7 +73,7 @@ public class HomeCmd implements OCommand {
                     PM.getOplayer(pl).homes.keySet();
                     return sb.buildFuture();
                 }).executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player p)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
@@ -115,8 +115,8 @@ public class HomeCmd implements OCommand {
                         p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + ApiOstrov.listToString(op.homes.keySet(), ","));
 
                     }
-                return Command.SINGLE_SUCCESS;
-            }))
+                    return Command.SINGLE_SUCCESS;
+                }))
             .build();
     }
 

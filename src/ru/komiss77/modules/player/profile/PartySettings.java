@@ -54,22 +54,22 @@ public class PartySettings implements InventoryProvider {
             //if (set.tag<16) continue;
             final boolean locked = op.hasSettings(set);
             content.set(set.menuSlot, ClickableItem.of(new ItemBuilder(locked ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
-                                    .name(set.displayName)
-                                    .addLore(set.description)
-                                    .addLore("")
-                                    .addLore("§7Сейчас: " + (locked ? "§4Нет" : "§2Да"))
-                                    .addLore("")
-                                    .addLore("§7ЛКМ - менять")
-                                    .addLore("")
-                                    .build(), e -> {
-                                if (e.isLeftClick()) {
-                                    op.setSettings(set, !locked);
-                                    reopen(p, content);
-                                } else {
-                                    PM.soundDeny(p);
-                                }
-                            }
-                    )
+                        .name(set.displayName)
+                        .lore(set.description)
+                        .lore("")
+                        .lore("§7Сейчас: " + (locked ? "§4Нет" : "§2Да"))
+                        .lore("")
+                        .lore("§7ЛКМ - менять")
+                        .lore("")
+                        .build(), e -> {
+                        if (e.isLeftClick()) {
+                            op.setSettings(set, !locked);
+                            reopen(p, content);
+                        } else {
+                            PM.soundDeny(p);
+                        }
+                    }
+                )
             );
 
 

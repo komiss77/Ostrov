@@ -17,7 +17,7 @@ public class CMDMatChoice extends MaterialChoice {
     public static CMDMatChoice of(final ItemStack it) {
         if (it == null) return new CMDMatChoice(null, Material.AIR);
         return new CMDMatChoice(it.hasItemMeta() && it.getItemMeta().hasCustomModelData() ?
-                it.getItemMeta().getCustomModelData() : null, it.getType());
+            it.getItemMeta().getCustomModelData() : null, it.getType());
     }
 
     public CMDMatChoice(final Integer cmd, final Material... mt) {

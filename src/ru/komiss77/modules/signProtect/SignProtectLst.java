@@ -97,7 +97,7 @@ public class SignProtectLst implements Initiable, Listener {
                         op.mysqlData.put("signProtect", String.valueOf(curr));
                     } else {
                         LocalDB.executePstAsync(Bukkit.getConsoleSender(),
-                                "UPDATE `playerData` SET signProtect=signProtect-1 WHERE `signProtect` > 0 AND `name`='" + pd.owner + "' ;");
+                            "UPDATE `playerData` SET signProtect=signProtect-1 WHERE `signProtect` > 0 AND `name`='" + pd.owner + "' ;");
                     }
                     SignSide f = sign.getSide(Side.FRONT);
                     f.line(0, Component.text("§4[§сЧастный§4]"));
@@ -120,12 +120,12 @@ public class SignProtectLst implements Initiable, Listener {
             final ProtectionData pd = new ProtectionData(s);//ProtectionData.of(s); в меню переваривается долго, может подмениться данные
             if (pd.isValid() && pd.isOwner(e.getPlayer())) {
                 SmartInventory.builder()
-                        .provider(new AccesEdit(s, pd))
-                        .type(InventoryType.CHEST)
-                        .size(5)
-                        .title("§7Настройки доступа")
-                        .build()
-                        .open(e.getPlayer());
+                    .provider(new AccesEdit(s, pd))
+                    .type(InventoryType.CHEST)
+                    .size(5)
+                    .title("§7Настройки доступа")
+                    .build()
+                    .open(e.getPlayer());
             }
         }
     }
@@ -231,8 +231,8 @@ public class SignProtectLst implements Initiable, Listener {
             final Oplayer op = PM.getOplayer(e.getPlayer());
             if (!op.isGuest && (!op.mysqlData.containsKey("signProtect") || op.mysqlData.get("signProtect").isEmpty()) && !Timer.has(e.getPlayer(), "signProtect")) {
                 e.getPlayer().sendMessage(Component.text("§6§k***§r §eЗащити ")
-                        .append(Lang.t(e.getBlock().getType(), e.getPlayer()))
-                        .append(Component.text(" §e- для этого присесть и §bправый клик табличкой! §6§k***"))
+                    .append(Lang.t(e.getBlock().getType(), e.getPlayer()))
+                    .append(Component.text(" §e- для этого присесть и §bправый клик табличкой! §6§k***"))
                 );
                 Timer.add(e.getPlayer(), "signProtect", 900);
             }

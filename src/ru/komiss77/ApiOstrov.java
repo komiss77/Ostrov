@@ -1,10 +1,6 @@
 package ru.komiss77;
 
 
-import java.sql.Connection;
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.StreamSupport;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -13,7 +9,9 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -25,12 +23,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.Nullable;
+import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Module;
-import ru.komiss77.enums.*;
+import ru.komiss77.enums.Operation;
+import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.listener.SpigotChanellMsg;
-import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -42,6 +41,14 @@ import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.TeleportLoc;
+
+import java.sql.Connection;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.StreamSupport;
 
 
 public class ApiOstrov {
@@ -154,7 +161,7 @@ public class ApiOstrov {
 
     public static boolean isInParty(final Player p1, final Player p2) {
         return PM.exists(p1.getUniqueId()) && !PM.getOplayer(p1.getUniqueId()).getPartyMembers().contains(p2.getName()) ||
-                PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
+            PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
     }
 
     public static List<String> getPartyPlayers(final Player p) {
@@ -250,8 +257,8 @@ public class ApiOstrov {
 //System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));
         if (value > 9 || value < -9) { //по копейкам не уведомляем
             target.sendMessage(TCUtils.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
-                    .clickEvent(ClickEvent.runCommand("/money balance")));
+                .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
+                .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
         }
@@ -496,9 +503,9 @@ public class ApiOstrov {
         });
         return sb.toString();*/
         return StreamSupport.stream(array.spliterator(), true)
-                .map(Object::toString)
-                .reduce((t, u) -> t + "," + u)
-                .orElse("");
+            .map(Object::toString)
+            .reduce((t, u) -> t + "," + u)
+            .orElse("");
     }
 
     @Deprecated
@@ -510,9 +517,9 @@ public class ApiOstrov {
     public static <E> String toString(final Collection<E> array, final String separator) {
         if (array == null || array.isEmpty()) return "";
         return array.stream()
-                .map(E::toString)
-                .reduce((t, u) -> t + separator + u)
-                .orElse("");
+            .map(E::toString)
+            .reduce((t, u) -> t + separator + u)
+            .orElse("");
     }
 
     public static String enumSetToString(final Set<?> enumSet) {
@@ -551,7 +558,7 @@ public class ApiOstrov {
 
     public static Block getSignAttachedBlock(final Block b) {
         if (b.getState() instanceof final Sign sign
-                && sign.getBlockData() instanceof final WallSign signData) {
+            && sign.getBlockData() instanceof final WallSign signData) {
             return b.getRelative(signData.getFacing().getOppositeFace());
 
         }
@@ -585,7 +592,7 @@ public class ApiOstrov {
 
     public static boolean canBeBuilder(final CommandSender cs) {
         if (cs == null) return false;
-        if ((cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder")) return true;
+        if (cs instanceof ConsoleCommandSender || cs.isOp() || cs.hasPermission("builder")) return true;
         final Oplayer op = PM.getOplayer(cs.getName());
         return op != null && op.hasGroup("owner");
     }
@@ -619,8 +626,8 @@ public class ApiOstrov {
                 if (message) {
                     final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
                     p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
-                            .clickEvent(ClickEvent.runCommand("/builder")));
+                        .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                        .clickEvent(ClickEvent.runCommand("/builder")));
                 }
                 return false;
             default:

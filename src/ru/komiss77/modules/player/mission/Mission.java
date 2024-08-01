@@ -38,7 +38,7 @@ public class Mission {
 
     public Component displayName() {
         if (displayName == null) {
-            displayName = TCUtils.format(nameColor + "§o" + name);
+            displayName = TCUtils.form(nameColor + "§o" + name);
         }
         return displayName;//TCUtils.(name, nameColor).decoration(TextDecoration.ITALIC, false);//TCUtils.toChat(nameColor)+name;
     }
@@ -54,7 +54,7 @@ public class Mission {
             if (stat == null) {
                 if (MissionManager.customStatsDisplayNames.containsKey(e.getKey())) {
                     lore.add(Component.text(MissionManager.customStatsDisplayNames.get(e.getKey())
-                            + (MissionManager.customStatsShowAmmount.get(e.getKey()) ? " §7: §d" + e.getValue() : ""))
+                        + (MissionManager.customStatsShowAmmount.get(e.getKey()) ? " §7: §d" + e.getValue() : ""))
                     );
                 } else {
                     lore.add(Component.text("§b" + e.getKey() + " §7: §d" + e.getValue()));

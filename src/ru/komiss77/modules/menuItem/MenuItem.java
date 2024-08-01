@@ -42,9 +42,9 @@ public class MenuItem {
 
         final ItemMeta im = itemEn.getItemMeta();
         im.setCustomModelData(id);
-        String displayName = im.hasDisplayName() ? TCUtils.toString(im.displayName()) : "";
+        String displayName = im.hasDisplayName() ? TCUtils.deform(im.displayName()) : "";
         displayName = Lang.t(displayName, Lang.EN);
-        im.displayName(TCUtils.format(displayName));
+        im.displayName(TCUtils.form(displayName));
 
         itemEn.setItemMeta(im);
     }
@@ -82,12 +82,12 @@ public class MenuItem {
             }
         }
         ItemUtils.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
-                .equals("ru_ru") ? itemRu : itemEn, slot, true);
+            .equals("ru_ru") ? itemRu : itemEn, slot, true);
     }
 
     public void giveForce(final Player p, final int customSlot) {
         ItemUtils.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
-                .equals("ru_ru") ? itemRu : itemEn, customSlot, true);
+            .equals("ru_ru") ? itemRu : itemEn, customSlot, true);
     }
 
     @Deprecated//ничего не делает...

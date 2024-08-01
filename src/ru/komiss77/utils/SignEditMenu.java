@@ -37,15 +37,15 @@ public class SignEditMenu implements InventoryProvider {
         for (final Component c : frontSide.lines()) {
             final int line_ = line;
             content.set(0, line, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-                    .name("§fПеред, Строка " + (line + 1))
-                    .addLore("§7Сейчас: ")
-                    .addLore(c)
-                    .build(), TCUtils.toString(frontSide.line(line)).replace('§', '&'), msg -> {
+                .name("§fПеред, Строка " + (line + 1))
+                .lore("§7Сейчас: ")
+                .lore(c)
+                .build(), TCUtils.deform(frontSide.line(line)).replace('§', '&'), msg -> {
                 if (msg.length() > 32) {
                     p.sendMessage("§cЛимит 32 символа!");
                     return;
                 }
-                frontSide.line(line_, TCUtils.format(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.format(msg));
+                frontSide.line(line_, TCUtils.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
                 sign.update();
                 reopen(p, content);
             }));
@@ -53,13 +53,13 @@ public class SignEditMenu implements InventoryProvider {
         }
 
         content.set(0, line, ClickableItem.of(new ItemBuilder(frontSide.isGlowingText() ? Material.GLOWSTONE : Material.MAGMA_BLOCK)
-                                .name("§7Свечение текста спереди")
-                                .build(), e -> {
-                            frontSide.setGlowingText(!frontSide.isGlowingText());
-                            sign.update();
-                            reopen(p, content);
-                        }
-                )
+                    .name("§7Свечение текста спереди")
+                    .build(), e -> {
+                    frontSide.setGlowingText(!frontSide.isGlowingText());
+                    sign.update();
+                    reopen(p, content);
+                }
+            )
         );
 
 
@@ -67,15 +67,15 @@ public class SignEditMenu implements InventoryProvider {
         for (final Component c : backSide.lines()) {
             final int line_ = line;
             content.set(1, line, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-                    .name("§fЗад, Строка " + (line + 1))
-                    .addLore("§7Сейчас: ")
-                    .addLore(c)
-                    .build(), TCUtils.toString(backSide.line(line)).replace('§', '&'), msg -> {
+                .name("§fЗад, Строка " + (line + 1))
+                .lore("§7Сейчас: ")
+                .lore(c)
+                .build(), TCUtils.deform(backSide.line(line)).replace('§', '&'), msg -> {
                 if (msg.length() > 32) {
                     p.sendMessage("§cЛимит 32 символа!");
                     return;
                 }
-                backSide.line(line_, TCUtils.format(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.format(msg));
+                backSide.line(line_, TCUtils.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
                 sign.update();
                 reopen(p, content);
             }));
@@ -84,27 +84,27 @@ public class SignEditMenu implements InventoryProvider {
 
 
         content.set(1, line, ClickableItem.of(new ItemBuilder(backSide.isGlowingText() ? Material.GLOWSTONE : Material.MAGMA_BLOCK)
-                                .name("§7Свечение текста сзади")
-                                .build(), e -> {
-                            backSide.setGlowingText(!backSide.isGlowingText());
-                            sign.update();
-                            reopen(p, content);
-                        }
-                )
+                    .name("§7Свечение текста сзади")
+                    .build(), e -> {
+                    backSide.setGlowingText(!backSide.isGlowingText());
+                    sign.update();
+                    reopen(p, content);
+                }
+            )
         );
 
 
         content.set(2, 4, ClickableItem.empty(new ItemBuilder(Material.PAPER)
-                        .name("§eПодсказки")
-                        .addLore("§7Можно использовать")
-                        .addLore("§7цветовые коды с §f&")
-                        .addLore("§7ЛКМ - изменить")
-                        .addLore("§7")
-                        .addLore("§7Тэги для 1 строки:")
-                        .addLore("[Место] §7- варп; стока 2 - название")
-                        .addLore("[Команда] §7- варп; стока 2 - команда")
-                        .build()
-                )
+                .name("§eПодсказки")
+                .lore("§7Можно использовать")
+                .lore("§7цветовые коды с §f&")
+                .lore("§7ЛКМ - изменить")
+                .lore("§7")
+                .lore("§7Тэги для 1 строки:")
+                .lore("[Место] §7- варп; стока 2 - название")
+                .lore("[Команда] §7- варп; стока 2 - команда")
+                .build()
+            )
         );
 
 

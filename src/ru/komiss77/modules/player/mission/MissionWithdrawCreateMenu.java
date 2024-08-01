@@ -45,25 +45,25 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
         if (ril < min || ril > MissionManager.WITHDRAW_MAX) {
 
             content.set(2, 2, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
-                    .name("§5Вывод средств возможен от §b" + min + " до " + MissionManager.WITHDRAW_MAX + "рил")
-                    .addLore("")
-                    .addLore("§7Расчёт мин. суммы такой:")
-                    .addLore("§7Колл-во предыдущих выводов * 5")
-                    .addLore("§7Минимальняа сумма : §6" + min)
-                    .addLore("§7Максимальная сумма")
-                    .addLore("§7для одного вывода : §6" + MissionManager.WITHDRAW_MAX + "рил")
-                    .build()
+                .name("§5Вывод средств возможен от §b" + min + " до " + MissionManager.WITHDRAW_MAX + "рил")
+                .lore("")
+                .lore("§7Расчёт мин. суммы такой:")
+                .lore("§7Колл-во предыдущих выводов * 5")
+                .lore("§7Минимальняа сумма : §6" + min)
+                .lore("§7Максимальная сумма")
+                .lore("§7для одного вывода : §6" + MissionManager.WITHDRAW_MAX + "рил")
+                .build()
             ));
             can = false;
 
         } else {
 
             content.set(2, 2, ClickableItem.empty(new ItemBuilder(Material.LIME_DYE)
-                    .name("§aРил для вывода достаточно")
-                    .addLore("")
-                    .addLore("§fУ Вас §e" + ril + " §fрил.")
-                    .addLore("")
-                    .build()
+                .name("§aРил для вывода достаточно")
+                .lore("")
+                .lore("§fУ Вас §e" + ril + " §fрил.")
+                .lore("")
+                .build()
             ));
 
         }
@@ -72,23 +72,23 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
         if (GM.GAME != Game.LOBBY) {
 
             content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
-                            .name("§4✕ §6Надо Находиться в лобби")
-                            .addLore("")
-                            .addLore("§7Перейдите в лобби")
-                            .addLore("§7командной /hub")
-                            .addLore("")
-                            .addLore("§7ЛКМ - перейти")
-                            .build(), e -> {
-                        p.performCommand("server lobby");
-                    }
+                    .name("§4✕ §6Надо Находиться в лобби")
+                    .lore("")
+                    .lore("§7Перейдите в лобби")
+                    .lore("§7командной /hub")
+                    .lore("")
+                    .lore("§7ЛКМ - перейти")
+                    .build(), e -> {
+                    p.performCommand("server lobby");
+                }
             ));
             can = false;
 
         } else {
 
             content.set(2, 3, ClickableItem.empty(new ItemBuilder(Material.LIME_DYE)
-                    .name("§a✔ §8Находиться в лобби")
-                    .build()
+                .name("§a✔ §8Находиться в лобби")
+                .build()
             ));
 
         }
@@ -97,26 +97,26 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
         if (op.getDataString(Data.PHONE).isEmpty()) {
 
             content.set(2, 4, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
-                            .name("§4✕ §6Не указан номер телефона в профиле")
-                            .addLore("")
-                            .addLore("§7Оттедактируйте профиль")
-                            .addLore("§7командной /passport edit")
-                            .addLore("")
-                            .addLore("§7ЛКМ - редактировать")
-                            .build(), e -> {
-                        p.performCommand("passport edit");
-                    }
+                    .name("§4✕ §6Не указан номер телефона в профиле")
+                    .lore("")
+                    .lore("§7Оттедактируйте профиль")
+                    .lore("§7командной /passport edit")
+                    .lore("")
+                    .lore("§7ЛКМ - редактировать")
+                    .build(), e -> {
+                    p.performCommand("passport edit");
+                }
             ));
             can = false;
 
         } else {
 
             content.set(2, 4, ClickableItem.empty(new ItemBuilder(Material.LIME_DYE)
-                    .name("§a✔ §8Номер телефона указан")
-                    .addLore("")
-                    .addLore("§b" + op.getDataString(Data.PHONE))
-                    .addLore("")
-                    .build()
+                .name("§a✔ §8Номер телефона указан")
+                .lore("")
+                .lore("§b" + op.getDataString(Data.PHONE))
+                .lore("")
+                .build()
             ));
 
         }
@@ -124,27 +124,27 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
         if (op.getDataString(Data.NOTES).isEmpty()) {
 
             content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
-                            .name("§4✕ §6Не указано куда переводить в примечаниях")
-                            .addLore("")
-                            .addLore("§7Оттедактируйте 'примечания'")
-                            .addLore("§7в профиле")
-                            .addLore("§7командной /passport edit")
-                            .addLore("")
-                            .addLore("§7ЛКМ - редактировать")
-                            .build(), e -> {
-                        p.performCommand("passport edit");
-                    }
+                    .name("§4✕ §6Не указано куда переводить в примечаниях")
+                    .lore("")
+                    .lore("§7Оттедактируйте 'примечания'")
+                    .lore("§7в профиле")
+                    .lore("§7командной /passport edit")
+                    .lore("")
+                    .lore("§7ЛКМ - редактировать")
+                    .build(), e -> {
+                    p.performCommand("passport edit");
+                }
             ));
             can = false;
 
         } else {
 
             content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.LIME_DYE)
-                    .name("§a✔ §8Направление вывода указано")
-                    .addLore("")
-                    .addLore("§b" + op.getDataString(Data.NOTES))
-                    .addLore("")
-                    .build()
+                .name("§a✔ §8Направление вывода указано")
+                .lore("")
+                .lore("§b" + op.getDataString(Data.NOTES))
+                .lore("")
+                .build()
             ));
 
         }
@@ -152,12 +152,12 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
         if (!can) {
             content.set(2, 7, ClickableItem.empty(new ItemBuilder(Material.REDSTONE)
-                    .name("§сВывод невозможен.")
-                    .addLore("§5<<<<<<<<<<<<")
-                    .addLore("§7Для заказа вывода средств")
-                    .addLore("§7должны быть выполнены все условия!")
-                    .addLore("§5<<<<<<<<<<<<")
-                    .build()
+                .name("§сВывод невозможен.")
+                .lore("§5<<<<<<<<<<<<")
+                .lore("§7Для заказа вывода средств")
+                .lore("§7должны быть выполнены все условия!")
+                .lore("§5<<<<<<<<<<<<")
+                .build()
             ));
 
         } else {
@@ -165,26 +165,26 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
             final String ammountInfo = MissionManager.getMin(op) + " до " + ril;
             final ItemStack is = new ItemBuilder(Material.RAW_GOLD)
-                    .name("§e" + ril)
-                    .addLore("")
-                    .addLore("§fЛКМ - §6указать сумму")
-                    .addLore("§fи вывести.")
-                    .addLore("")
-                    .addLore("§7Сумма будет снята с вашего")
-                    .addLore("§7баланса РИЛ, и отправлена на")
-                    .addLore("§7реквизиты, указанные в профиле.")
-                    .addLore("§7Вывод осуществляется в течении")
-                    .addLore("§33 дней§7, за процессом можно следить")
-                    .addLore("§7в меню статуса заявок.")
-                    .addLore("")
-                    .addLore("§eОбратите внимание на технически")
-                    .addLore("§eдоступные способы перевода:")
-                    .addLore("§f- §нКиви")
-                    .addLore("§f- §нЯндекс Кошелёк")
-                    .addLore("§f- §нномер телефона на +7 (Россия)")
-                    .addLore("§f- §нномер банковской карты")
-                    .addLore("")
-                    .build();
+                .name("§e" + ril)
+                .lore("")
+                .lore("§fЛКМ - §6указать сумму")
+                .lore("§fи вывести.")
+                .lore("")
+                .lore("§7Сумма будет снята с вашего")
+                .lore("§7баланса РИЛ, и отправлена на")
+                .lore("§7реквизиты, указанные в профиле.")
+                .lore("§7Вывод осуществляется в течении")
+                .lore("§33 дней§7, за процессом можно следить")
+                .lore("§7в меню статуса заявок.")
+                .lore("")
+                .lore("§eОбратите внимание на технически")
+                .lore("§eдоступные способы перевода:")
+                .lore("§f- §нКиви")
+                .lore("§f- §нЯндекс Кошелёк")
+                .lore("§f- §нномер телефона на +7 (Россия)")
+                .lore("§f- §нномер банковской карты")
+                .lore("")
+                .build();
 
             content.set(2, 7, new InputButton(InputButton.InputType.ANVILL, is, ammountInfo, msg -> {
                 p.closeInventory();
@@ -210,7 +210,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
                 op.setData(Data.RIL, current - ril);
                 OstrovDB.executePstAsync(p,
-                        "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
+                    "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
                 );
                 Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
                 p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");

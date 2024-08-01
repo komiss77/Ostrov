@@ -135,7 +135,7 @@ public class XYZ implements Cloneable {
             return false;
         }
         return ((compare.worldName == null && worldName == null) || (compare.worldName.hashCode() == worldName.hashCode())) //nullpointer
-                && compare.x == x && compare.y == y && compare.z == z;
+            && compare.x == x && compare.y == y && compare.z == z;
     }
 
     @Override

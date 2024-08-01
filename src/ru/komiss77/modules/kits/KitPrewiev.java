@@ -4,7 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -35,8 +34,8 @@ public class KitPrewiev implements InventoryProvider {
 
 
         contents.set(0, 4, ClickableItem.empty(kit.logoItem));
-        
-       
+
+
         //final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
 
@@ -51,11 +50,11 @@ public class KitPrewiev implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("гл.меню").build(), e ->
-                        KitManager.openGuiMain(player)
-                //-> SmartInventory.builder().id("KitGuiMain:"+player.name()). provider(new KitGuiMain(Ostrov.kitManager)). size(6, 9). title("§2Наборы"). build() .open(player)
+                KitManager.openGuiMain(player)
+            //-> SmartInventory.builder().id("KitGuiMain:"+player.name()). provider(new KitGuiMain(Ostrov.kitManager)). size(6, 9). title("§2Наборы"). build() .open(player)
 
         ));
-        
+
         //contents.set( 4, 6, ClickableItem.of( new ItemBuilder(Material.MAP).name("далее").build(), p4 
         //        -> contents.getHost().open(player, pagination.next().getPage()) )
         //);
@@ -65,22 +64,8 @@ public class KitPrewiev implements InventoryProvider {
         //);
 
         // pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
-        
-        
- 
-        
-        
 
-        
-        
-        
-        
-        
- 
-        
-    
-    
-    
+
     }
 
 

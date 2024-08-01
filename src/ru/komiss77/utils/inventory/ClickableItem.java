@@ -233,7 +233,7 @@ public class ClickableItem_ {
     }
 
     public void setLore(final List<String> lore) {
-        meta.setLore(lore);
+        meta.deLore().lore(lore);
         item.setItemMeta(meta);
     }
     

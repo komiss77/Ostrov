@@ -52,7 +52,7 @@ public abstract class DatagramSocketClient {
      * instances.
      ***/
     private static final DatagramSocketFactory __DEFAULT_SOCKET_FACTORY =
-            new DefaultDatagramSocketFactory();
+        new DefaultDatagramSocketFactory();
 
     /**
      * Charset to use for byte IO.

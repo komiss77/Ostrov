@@ -37,12 +37,12 @@ public class MissionManageMenu implements InventoryProvider {
         if ((buttonsCurrent == null || buttonsCurrent.isEmpty()) && (buttonsDone == null || buttonsDone.isEmpty())) {
 
             content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Миссия невыполнима")
-                    .addLore("")
-                    .addLore("")
-                    .addLore("§6Нет активных миссий")
-                    .addLore("")
-                    .build()
+                .name("§7Миссия невыполнима")
+                .lore("")
+                .lore("")
+                .lore("§6Нет активных миссий")
+                .lore("")
+                .build()
             ));
 
         } else {

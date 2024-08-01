@@ -54,12 +54,12 @@ public class CMD {
                     return true;
                 }
                 SmartInventory.builder()
-                        .id(op.nik + "Game")
-                        .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
-                        .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
-                        .size(6, 9)
-                        .build()
-                        .open(p);
+                    .id(op.nik + "Game")
+                    .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
+                    .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
+                    .size(6, 9)
+                    .build()
+                    .open(p);
                 break;
 
             case "profile":
@@ -102,12 +102,12 @@ public class CMD {
                 }
                 if (ApiOstrov.isLocalBuilder(p, true)) {
                     SmartInventory.builder()
-                            .id("MenuMain" + p.getName())
-                            .provider(new MenuMain())
-                            .size(1, 9)
-                            .title("§fФигуры")
-                            .build()
-                            .open(p);
+                        .id("MenuMain" + p.getName())
+                        .provider(new MenuMain())
+                        .size(1, 9)
+                        .title("§fФигуры")
+                        .build()
+                        .open(p);
                 }
                 break;
 
@@ -134,8 +134,8 @@ public class CMD {
                     final TextComponent.Builder homes = Component.text().content("§b" + Lang.t(p, "Какую точку дома обновить? "));
                     for (final String homeName : op.homes.keySet()) {
                         homes.append(Component.text("§b- §e" + homeName + " ")
-                                .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - обновить точку дома") + " §6" + homeName)))
-                                .clickEvent(ClickEvent.runCommand("/sethome " + homeName)));
+                            .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - обновить точку дома") + " §6" + homeName)))
+                            .clickEvent(ClickEvent.runCommand("/sethome " + homeName)));
                     }
                     sender.sendMessage(homes.build());
 
@@ -169,8 +169,8 @@ public class CMD {
                         final TextComponent.Builder homes = Component.text().content("§c" + Lang.t(p, "Какой дом удалить? "));
                         for (final String homeName : op.homes.keySet()) {
                             homes.append(Component.text("§b- §e" + homeName + " ")
-                                    .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - удалить точку дома") + " §6" + homeName)))
-                                    .clickEvent(ClickEvent.runCommand("/delhome " + homeName)));
+                                .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - удалить точку дома") + " §6" + homeName)))
+                                .clickEvent(ClickEvent.runCommand("/delhome " + homeName)));
                         }
                         sender.sendMessage(homes.build());
                         return false;
@@ -286,7 +286,7 @@ public class CMD {
                     ApiOstrov.moneyChange(from.getPlayer(), -price, "телепорт к " + p.getName());
                 }
                 Timer.del(p, "tp_request_from_" + arg[0]); //баг: тыкают много раз принять и снимают деньги
-                Timer.add(from.getPlayer(), "tpa_command", Config.tpa_command); //задержка даётся вызывающему
+                Timer.add(from.getPlayer(), "tpa_command", Config.tpa_command_delay); //задержка даётся вызывающему
                 DelayTeleport.tp(from.getPlayer(), p.getLocation(), 3, "Вы переместились к " + p.getName(), true, true, DyeColor.YELLOW);
                 break;
 
@@ -387,13 +387,13 @@ public class CMD {
                     if (arg.length == 1) {
                         switch (arg[0]) {
                             case "0" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
                             case "1" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode creative " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode creative " + p.getName());
                             case "2" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode adventure " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode adventure " + p.getName());
                             case "3" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
                             default -> p.sendMessage("§cФормат: gm <0..3>");
                         }
                     } else {
@@ -404,9 +404,9 @@ public class CMD {
                     if (arg.length == 1) {
                         switch (arg[0]) {
                             case "0" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
                             case "3" ->
-                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
+                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
                             default -> p.sendMessage("§cФормат: gm <0..3>");
                         }
                     } else {
@@ -467,12 +467,12 @@ public class CMD {
             case "operm":
                 if (arg.length == 0 || (arg.length == 1 && arg[0].equalsIgnoreCase(sender.getName()))) { //админ - права других
                     SmartInventory.builder()
-                            .id("Права " + sender.getName())
-                            .provider(new ViewPerm((Player) sender))
-                            .size(6, 9)
-                            .title("Ваши права")
-                            .build()
-                            .open(p);
+                        .id("Права " + sender.getName())
+                        .provider(new ViewPerm((Player) sender))
+                        .size(6, 9)
+                        .title("Ваши права")
+                        .build()
+                        .open(p);
                     //sender.sendMessage("§c/operm <ник> [право]");
                     return false;
                 }
@@ -489,12 +489,12 @@ public class CMD {
 
                 if (arg.length == 1) {
                     SmartInventory.builder()
-                            .id("Права " + arg[0])
-                            .provider(new ViewPerm(Bukkit.getPlayer(arg[0])))
-                            .size(6, 9)
-                            .title("Права " + arg[0])
-                            .build()
-                            .open(p);
+                        .id("Права " + arg[0])
+                        .provider(new ViewPerm(Bukkit.getPlayer(arg[0])))
+                        .size(6, 9)
+                        .title("Права " + arg[0])
+                        .build()
+                        .open(p);
 
                 } else if (arg.length == 2) {
                     sender.sendMessage("§f" + arg[0] + " §7право " + arg[1] + " : " + (Bukkit.getPlayer(arg[0]).hasPermission(arg[1]) ? "§aДа" : "§4Нет"));
@@ -530,12 +530,12 @@ public class CMD {
             case "sound":
                 if (ApiOstrov.isLocalBuilder(sender, true)) {
                     SmartInventory.builder()
-                            .id("Sounds" + p.getName())
-                            .provider(new Sounds(0))
-                            .size(6, 9)
-                            .title("§2Звуки")
-                            .build()
-                            .open(p);
+                        .id("Sounds" + p.getName())
+                        .provider(new Sounds(0))
+                        .size(6, 9)
+                        .title("§2Звуки")
+                        .build()
+                        .open(p);
                 } else {
                     p.sendMessage("§cдоступно билдерам");
                 }

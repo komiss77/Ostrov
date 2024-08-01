@@ -26,7 +26,7 @@ public class WorldTrimTask implements Runnable {
     private transient boolean readyToGo = false;
     private transient boolean paused = false;
     private transient int taskID = -1;
-    private transient int chunksPerRun = 250;//1;
+    private final transient int chunksPerRun = 250;//1;
 
     // values for what chunk in the current region we're at
     private transient int currentRegion = -1;  // region(file) we're at in regionFiles

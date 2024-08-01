@@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
 
 public class FriendTeleportEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     public Player source;
     public Player target;
     public String cause;

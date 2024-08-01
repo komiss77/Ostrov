@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
+
 import org.bukkit.GameMode;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.entities.EntityManager;
@@ -52,9 +53,9 @@ public class Config {
     public static boolean fly_command;
     //    public static boolean fly_block_atack_on_fly;
 //    public static boolean fly_off_on_damage;
-    public static int tpa_command;
+    public static int tpa_command_delay;
     public static boolean save_location_on_world_change;
-    public static int tpr_command;
+    public static int tpr_command_delay;
     public static boolean back_command;
     public static boolean settings_command;
     public static boolean get_command;
@@ -115,9 +116,9 @@ public class Config {
         fly_command = ostrovConfig.getBoolean("modules.command.fly.use");
 //        fly_block_atack_on_fly=config.getBoolean("modules.command.fly.disable_atack_on_fly");
 //        fly_off_on_damage=config.getBoolean("modules.command.fly.fly_off_on_damage");
-        tpa_command = ostrovConfig.getInt("modules.command.tpa");
+        tpa_command_delay = ostrovConfig.getInt("modules.command.tpa");
         save_location_on_world_change = ostrovConfig.getBoolean("modules.save_location_on_world_change");
-        tpr_command = ostrovConfig.getInt("modules.command.tpr");
+        tpr_command_delay = ostrovConfig.getInt("modules.command.tpr");
         back_command = ostrovConfig.getBoolean("modules.command.back");
         settings_command = ostrovConfig.getBoolean("modules.command.settings");
         get_command = ostrovConfig.getBoolean("modules.command.get");
@@ -164,7 +165,7 @@ public class Config {
 
 
         String[] c0 = {"---------", "player settings", "---------", "gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR",
-                "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
+            "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
         ostrovConfig.set("player.teleport_on_first_join", null);//config.addDefault("player.teleport_on_first_join", false, c0);
         ostrovConfig.addDefault("player.change_gamemode_on_join", false, c0);
         ostrovConfig.addDefault("player.gamemode_set_to", "ADVENTURE");

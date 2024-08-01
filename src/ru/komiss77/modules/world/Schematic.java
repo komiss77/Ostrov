@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.core.BlockPos;
@@ -58,7 +59,7 @@ public class Schematic {
     public Schematic(final CommandSender cs, final String name, final String param, final Cuboid cuboid, final World world, final boolean save) {
         this.name = name;
         create(cs, name, param, new XYZ(cuboid.getLowerLocation(world)), new XYZ(cuboid.getHightesLocation(world)),
-                cuboid.getSpawnLocation(world), save, Ostrov.instance.getDataFolder() + "/schematics", ".schem", null);
+            cuboid.getSpawnLocation(world), save, Ostrov.instance.getDataFolder() + "/schematics", ".schem", null);
     }
 
     public Schematic(final CommandSender cs, final String name, final String param, final Location min, final Location max, final boolean save, final String folderPath, final String extension, final List<Material> scipOnScan) {
@@ -121,7 +122,7 @@ public class Schematic {
                 switch (mat) {
 
                     case STRUCTURE_VOID -> //принудительно ставим воздух
-                            blocks.put(xyzOffset, Material.AIR);
+                        blocks.put(xyzOffset, Material.AIR);
 
                     case WATER -> { //запоминаем только воду с уровнем 0
 

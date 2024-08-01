@@ -52,24 +52,24 @@ public class ProfileManageMenu implements InventoryProvider {
         if (op.isGuest) {
 
             content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.BARRIER)
-                    .name("§7Миссия невыполнима")
-                    .addLore("")
-                    .addLore("")
-                    .addLore("§6Гости не могут")
-                    .addLore("§6выполнять миссии!")
-                    .addLore("§6Вам нужно зарегаться!")
-                    .build()
+                .name("§7Миссия невыполнима")
+                .lore("")
+                .lore("")
+                .lore("§6Гости не могут")
+                .lore("§6выполнять миссии!")
+                .lore("§6Вам нужно зарегаться!")
+                .build()
             ));
 
         } else if ((buttonsCurrent == null || buttonsCurrent.isEmpty()) && (buttonsDone == null || buttonsDone.isEmpty())) {
 
             content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Миссия невыполнима")
-                    .addLore("")
-                    .addLore("")
-                    .addLore("§6Нет активных миссий")
-                    .addLore("")
-                    .build()
+                .name("§7Миссия невыполнима")
+                .lore("")
+                .lore("")
+                .lore("§6Нет активных миссий")
+                .lore("")
+                .build()
             ));
 
         } else {

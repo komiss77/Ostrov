@@ -102,7 +102,7 @@ public class RewardLoni {
             if (loniAdd >= 5) {
                 //paper версия
                 p.sendMessage(Component.text(Ostrov.PREFIX + "§7Награда за " + Lang.t(p, stat.desc) + " §7-> " + loniAdd + " лони §7! §8<клик-баланс")
-                        .hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
+                    .hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
             }
         }
 
@@ -147,7 +147,7 @@ public class RewardLoni {
             if (loniAdd >= 5) {
                 //paper версия
                 p.sendMessage(Component.text(Ostrov.PREFIX + "§7Награда за " + customStatName + " §7-> " + loniAdd + " лони §7! §8<клик-баланс")
-                        .hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
+                    .hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
                 
                 /*p.spigot().sendMessage(new ComponentBuilder(Ostrov.prefix+"§7"+"Награда за "+customStatName+" §7-> "+lonyAdd+" лони §7! §8<клик-баланс")
                     .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§fУ вас §e"+loni+" лони") ))

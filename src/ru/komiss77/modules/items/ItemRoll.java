@@ -37,6 +37,6 @@ public class ItemRoll extends Roll<ItemStack> {
 
     public static void loadAll() {
         load(ItemRoll.class, cs -> new ItemRoll(cs.getName(), ItemUtils.parseItem(cs.getString(VAL), SEP),
-                cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0)));
+            cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0)));
     }
 }

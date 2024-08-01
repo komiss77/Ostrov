@@ -20,7 +20,7 @@ public class InvseeCmd implements OCommand {
         return Commands.literal("invsee")
             .then(Resolver.player(player)
                 .executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
@@ -37,7 +37,7 @@ public class InvseeCmd implements OCommand {
                     return Command.SINGLE_SUCCESS;
                 }).then(Resolver.string(type)
                     .executes(cntx -> {
-                        final CommandSender cs = cntx.getSource().getExecutor();
+                        final CommandSender cs = cntx.getSource().getSender();
                         if (!(cs instanceof final Player pl)) {
                             cs.sendMessage("§eНе консольная команда!");
                             return 0;

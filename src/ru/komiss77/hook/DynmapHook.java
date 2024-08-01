@@ -1,6 +1,24 @@
 package ru.komiss77.hook;
 
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
+import org.dynmap.DynmapCore;
+import org.dynmap.MapManager;
+import org.dynmap.bukkit.DynmapPlugin;
+import org.dynmap.bukkit.helper.BukkitWorld;
+import org.dynmap.common.DynmapListenerManager.EventType;
+import org.dynmap.storage.MapStorage;
+import org.dynmap.storage.mysql.MySQLMapStorage;
+import ru.komiss77.Ostrov;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,23 +29,6 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.dynmap.bukkit.DynmapPlugin;
-import org.dynmap.bukkit.helper.BukkitWorld;
-import org.dynmap.storage.MapStorage;
-import org.dynmap.storage.mysql.MySQLMapStorage;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredListener;
-import ru.komiss77.Ostrov;
-import org.dynmap.DynmapCore;
-import org.dynmap.MapManager;
-import org.dynmap.common.DynmapListenerManager.EventType;
 
 
 //https://github.com/webbukkit/dynmap
@@ -127,9 +128,9 @@ public class DynmapHook {
 //Ostrov.log("Method="+m.name());
                 switch (m.getName()) {
                     case "onPlayerJoin",
-                            "onPlayerQuit",
-                            //"onWorldUnload", - делаем отдельный эвент 
-                            "onBlockPlace",
+                         "onPlayerQuit",
+                         //"onWorldUnload", - делаем отдельный эвент
+                         "onBlockPlace",
                          "onBlockBreak",
                          "onChunkPopulate",
                          "onPluginEnabled" -> disable = false;
@@ -177,7 +178,7 @@ public class DynmapHook {
         // }
         //}
         //WorldLoadEvent.getHandlerList().
-    
+
 
     }
 
@@ -207,7 +208,7 @@ public class DynmapHook {
         bw.setTitle(displayName);
         if (core.processWorldLoad(bw)) { //dp.showWorld(bw);  // Have core process load first - fire event listeners if good load after
             core.listenerManager.processWorldEvent(EventType.WORLD_LOAD, bw);
-        }        
+        }
         //try {
 
         //} catch (NullPointerException | IllegalArgumentException  ex) {

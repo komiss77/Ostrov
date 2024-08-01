@@ -26,6 +26,7 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Perm;
 import ru.komiss77.Timer;
+import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
@@ -54,12 +55,12 @@ public class PM {
         oplayersByUuid = new ConcurrentHashMap<>();
 
         builderMsgRu = Component.text("§a>>>> §fКлик сюда - выполнить /builder §a<<<<")
-                .hoverEvent(HoverEvent.showText(Component.text("§aВключить ГМ1 и открыть меню строителя")))
-                .clickEvent(ClickEvent.runCommand("/builder"));
+            .hoverEvent(HoverEvent.showText(Component.text("§aВключить ГМ1 и открыть меню строителя")))
+            .clickEvent(ClickEvent.runCommand("/builder"));
 
         builderMsgEn = Component.text("§a>>>> §fClick - execute command /builder §a<<<<")
-                .hoverEvent(HoverEvent.showText(Component.text("§aSet gamemode creative and open the builder menu")))
-                .clickEvent(ClickEvent.runCommand("/builder"));
+            .hoverEvent(HoverEvent.showText(Component.text("§aSet gamemode creative and open the builder menu")))
+            .clickEvent(ClickEvent.runCommand("/builder"));
 
         textEdit = new EnumMap<>(Data.class);
         textEdit.put(Data.FAMILY, 32);
@@ -177,14 +178,14 @@ public class PM {
         for (String s : raw.split("∫")) {
             if (s.length() < 4) continue;
 
-            enumTag = ApiOstrov.getInteger(s.substring(0, 3)); //здесь и далее не надо передавать дефолтный 0, т.к. чекается v > Integer.MIN_VALUE
+            enumTag = ApiOstrov.getInteger(s.substring(0, 3), Integer.MIN_VALUE); //здесь и далее не надо передавать дефолтный 0, т.к. чекается v > Integer.MIN_VALUE
             value = s.substring(3);
 
             if (enumTag >= 100 && enumTag <= 299) {
                 final Data _data = Data.byTag(enumTag);
                 if (_data != null) {
                     if (_data.is_integer) {
-                        v = ApiOstrov.getInteger(value);
+                        v = ApiOstrov.getInteger(value, Integer.MIN_VALUE);
                         if (v > Integer.MIN_VALUE) {
                             op.dataInt.put(_data, v);
                         }
@@ -194,13 +195,13 @@ public class PM {
                 }
             } else if (enumTag >= 300 && enumTag <= 599) {
                 final Stat e_stat = Stat.byTag(enumTag);
-                v = ApiOstrov.getInteger(value);
+                v = ApiOstrov.getInteger(value, Integer.MIN_VALUE);
                 if (e_stat != null && v > Integer.MIN_VALUE) {
                     op.stat.put(e_stat, v);
                 }
             } else if (enumTag >= 600 && enumTag <= 899) {
                 final Stat e_stat = Stat.byTag(enumTag - Stat.diff);
-                v = ApiOstrov.getInteger(value);
+                v = ApiOstrov.getInteger(value, Integer.MIN_VALUE);
                 if (e_stat != null && v > Integer.MIN_VALUE) {
                     op.dailyStat.put(e_stat, v);
                 }
@@ -242,7 +243,7 @@ public class PM {
             } else {
                 final World w = Bukkit.getWorld("WORLD_NETHER");
                 if (w != null) {
-                    TprCmd.runCommand(p, w, 300, true, true, null);
+                    TprCmd.rtp(p, w, 300, true, null);
                 }
                 p.sendMessage(op.eng ? "§cYou are banned and placed in purgatory." : "§cВы забанены и помещены в чистилище.");
                 p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + ApiOstrov.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.getTime()));
@@ -345,6 +346,7 @@ public class PM {
         }
         op.preDataSave(p, async);
         Nms.removePlayerPacketSpy(p);
+        BuilderCmd.end(op);
 
         //в saveLocalData инвентарь не сохранит
         if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) && PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && op.pvp_time > 0) {      //если удрал во время боя

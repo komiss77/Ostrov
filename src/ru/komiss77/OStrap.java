@@ -3,6 +3,7 @@ package ru.komiss77;
 
 import java.util.Collection;
 import java.util.Locale;
+
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
@@ -38,23 +39,23 @@ public class OStrap implements PluginBootstrap {
     public void bootstrap(@NotNull BootstrapContext cntx) {
         final @NotNull LifecycleEventManager<BootstrapContext> mgr = cntx.getLifecycleManager();
         mgr.registerEventHandler(RegistryEvents.ENCHANTMENT
-                .freeze().newHandler(e -> {
-                    EnchantManager.init();
-                    final @NonNull WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
-                    for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
-                        rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
-                                b -> b.description(TCUtils.form(ce.name()))
-                                        .primaryItems(ce.isCommon() ? ce.targets().regSet() : RegistrySet.keySet(RegistryKey.ITEM))
-                                        .supportedItems(ce.isCommon() ? RegistrySet.keySet(RegistryKey.ITEM) : ce.targets().regSet())
-                                        .anvilCost(ce.anvilCost())
-                                        .maxLevel(ce.maxLevel())
-                                        .weight(ce.weight())
-                                        .exclusiveWith(ce.conflicts())
-                                        .minimumCost(ce.minCost())
-                                        .maximumCost(ce.maxCost())
-                                        .activeSlots(ce.slots()));
-                    }
-                }));
+            .freeze().newHandler(e -> {
+                EnchantManager.init();
+                final @NonNull WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
+                for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
+                    rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
+                        b -> b.description(TCUtils.form(ce.name()))
+                            .primaryItems(ce.isCommon() ? ce.targets().regSet() : RegistrySet.keySet(RegistryKey.ITEM))
+                            .supportedItems(ce.isCommon() ? RegistrySet.keySet(RegistryKey.ITEM) : ce.targets().regSet())
+                            .anvilCost(ce.anvilCost())
+                            .maxLevel(ce.maxLevel())
+                            .weight(ce.weight())
+                            .exclusiveWith(ce.conflicts())
+                            .minimumCost(ce.minCost())
+                            .maximumCost(ce.maxCost())
+                            .activeSlots(ce.slots()));
+                }
+            }));
     }
 
     public static <T extends Keyed> RegistryKeySet<T> regSetOf(final RegistryKey<T> reg, final Collection<Key> keys) {
@@ -63,7 +64,7 @@ public class OStrap implements PluginBootstrap {
 
     @Nullable
     public static <E extends Keyed> E retrieve(final RegistryKey<E> reg, final Key key) {
-        final Registry<E> enchantmentRegistry = RegistryAccess.registryAccess().getRegistry(reg);
-        return enchantmentRegistry.get(TypedKey.create(reg, Key.key("minecraft:sharpness")));
+        final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
+        return rg.get(TypedKey.create(reg, key));
     }
 }

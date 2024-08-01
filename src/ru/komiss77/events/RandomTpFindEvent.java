@@ -10,9 +10,9 @@ import ru.komiss77.modules.world.WXYZ;
 
 public class RandomTpFindEvent extends Event implements Cancellable {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Player p;
-    private WXYZ xyz;
+    private final WXYZ xyz;
     private boolean cancel = false;
 
     public RandomTpFindEvent(final Player p, final WXYZ xyz) {

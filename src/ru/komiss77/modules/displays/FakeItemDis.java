@@ -57,7 +57,7 @@ public class FakeItemDis extends BukkitRunnable {
         });
 
         ine = at.getWorld().spawn(at, Interaction.class, in -> {
-            in.customName(TCUtils.format(""));
+            in.customName(TCUtils.form(""));
             in.setCustomNameVisible(false);
             in.setVisibleByDefault(false);
             in.setInteractionHeight(HGHT);
@@ -120,7 +120,7 @@ public class FakeItemDis extends BukkitRunnable {
     public FakeItemDis setScale(final float sc) {
         this.scale = sc;
         tds.setTransformation(new Transformation(new Vector3f(), new Quaternionf(),
-                new Vector3f(sc, sc, sc), new Quaternionf()));
+            new Vector3f(sc, sc, sc), new Quaternionf()));
         ine.teleport(olc.clone().add(0d, -0.1d, 0d));
         ine.setInteractionHeight(HGHT * sc);
         ine.setInteractionWidth(WDTH * sc);
@@ -133,7 +133,7 @@ public class FakeItemDis extends BukkitRunnable {
     }
 
     public FakeItemDis setName(final String nm) {
-        ine.customName(TCUtils.format(nm));
+        ine.customName(TCUtils.form(nm));
         return this;
     }
 
@@ -184,13 +184,13 @@ public class FakeItemDis extends BukkitRunnable {
             nls.setYaw((yaw - 360 * (yaw / 180)) * 0.7f);
             tds.teleportAsync(nls);
             ine.teleportAsync(new Location(nls.getWorld(), nls.getX(),
-                    nls.getY() - 0.1d, nls.getZ(), nls.getYaw(), nls.getPitch()));
+                nls.getY() - 0.1d, nls.getZ(), nls.getYaw(), nls.getPitch()));
 
             boolean look = false;
             final double ln = Math.sqrt(Math.pow(dv.getX(), 2d) + Math.pow(dv.getZ(), 2d));
             if (ln < 6d) {
                 if (Math.pow(-Math.sin(Math.toRadians((180f - elc.getYaw()))) - dv.getX() / ln, 2d) +
-                        Math.pow(-Math.cos(Math.toRadians((180f - elc.getYaw()))) - dv.getZ() / ln, 2d) < 0.16d / (ln * ln)) {
+                    Math.pow(-Math.cos(Math.toRadians((180f - elc.getYaw()))) - dv.getZ() / ln, 2d) < 0.16d / (ln * ln)) {
                     final double pty = elc.getY() + Math.tan(Math.toRadians(-elc.getPitch())) * ln - nls.getY();
                     if (pty < 0.6d * scale && pty > -1d * scale) {
                         look = true;
@@ -208,7 +208,7 @@ public class FakeItemDis extends BukkitRunnable {
             final double ln = Math.sqrt(Math.pow(dlc.getX(), 2d) + Math.pow(dlc.getZ(), 2d));
             if (ln < 6d) {
                 if (Math.pow(-Math.sin(Math.toRadians((180f - elc.getYaw()))) - dlc.getX() / ln, 2d) +
-                        Math.pow(-Math.cos(Math.toRadians((180f - elc.getYaw()))) - dlc.getZ() / ln, 2d) < 0.16d / (ln * ln)) {
+                    Math.pow(-Math.cos(Math.toRadians((180f - elc.getYaw()))) - dlc.getZ() / ln, 2d) < 0.16d / (ln * ln)) {
                     final double pty = elc.getY() + Math.tan(Math.toRadians(-elc.getPitch())) * ln - ine.getLocation().getY();
                     if (pty < 2d && pty > 0) {
                         look = true;

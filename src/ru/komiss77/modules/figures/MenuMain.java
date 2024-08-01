@@ -28,18 +28,18 @@ public class MenuMain implements InventoryProvider {
 
 
         contents.set(0, 0, ClickableItem.of(new ItemBuilder(Material.STICK)
-                .name("§eВыдать палку")
-                .addLore("")
-                .addLore("§7Держа палку в руке:")
-                .addLore("")
-                .addLore("§7ПКМ на фигуру - ")
-                .addLore("§7настройки фигуры.")
-                .addLore("")
-                .addLore("§7ПКМ на моба или стойку -")
-                .addLore("§7откроет меню создания")
-                .addLore("§7обработчика.")
-                .addLore("")
-                .build(), e -> {
+            .name("§eВыдать палку")
+            .lore("")
+            .lore("§7Держа палку в руке:")
+            .lore("")
+            .lore("§7ПКМ на фигуру - ")
+            .lore("§7настройки фигуры.")
+            .lore("")
+            .lore("§7ПКМ на моба или стойку -")
+            .lore("§7откроет меню создания")
+            .lore("§7обработчика.")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 p.closeInventory();
                 p.getInventory().addItem(FigureManager.stick.clone());
@@ -50,10 +50,10 @@ public class MenuMain implements InventoryProvider {
 
 
         contents.set(0, 2, ClickableItem.of(new ItemBuilder(Material.HOPPER)
-                .name("§fНайти в радиусе 10")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§fНайти в радиусе 10")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 //p.sendMessage("Ищем фигуры в радиусе из 10 блоков...");
                 final Set<Figure> list = new HashSet<>();
@@ -63,20 +63,20 @@ public class MenuMain implements InventoryProvider {
                     }
                 }
                 SmartInventory.builder()
-                        .id("FugureSelectMenu" + p.getName())
-                        .provider(new MenuFinded(list))
-                        .size(6, 9)
-                        .title("§fФигуры в радиусе 10")
-                        .build()
-                        .open(p);
+                    .id("FugureSelectMenu" + p.getName())
+                    .provider(new MenuFinded(list))
+                    .size(6, 9)
+                    .title("§fФигуры в радиусе 10")
+                    .build()
+                    .open(p);
             }
         }));
 
         contents.set(0, 3, ClickableItem.of(new ItemBuilder(Material.HOPPER)
-                .name("§fНайти в радиусе 100")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§fНайти в радиусе 100")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 //p.sendMessage("Ищем фигуры в радиусе из 10 блоков...");
                 final Set<Figure> list = new HashSet<>();
@@ -86,21 +86,21 @@ public class MenuMain implements InventoryProvider {
                     }
                 }
                 SmartInventory.builder()
-                        .id("FugureSelectMenu" + p.getName())
-                        .provider(new MenuFinded(list))
-                        .size(6, 9)
-                        .title("§fФигуры в радиусе 100")
-                        .build()
-                        .open(p);
+                    .id("FugureSelectMenu" + p.getName())
+                    .provider(new MenuFinded(list))
+                    .size(6, 9)
+                    .title("§fФигуры в радиусе 100")
+                    .build()
+                    .open(p);
             }
         }));
 
 
         contents.set(0, 4, ClickableItem.of(new ItemBuilder(Material.HOPPER)
-                .name("§fНайти все в мире")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§fНайти все в мире")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 //p.sendMessage("Ищем фигуры в радиусе из 10 блоков...");
                 final Set<Figure> list = new HashSet<>();
@@ -110,29 +110,29 @@ public class MenuMain implements InventoryProvider {
                     }
                 }
                 SmartInventory.builder()
-                        .id("FugureSelectMenu" + p.getName())
-                        .provider(new MenuFinded(list))
-                        .size(6, 9)
-                        .title("§fФигуры в мире")
-                        .build()
-                        .open(p);
+                    .id("FugureSelectMenu" + p.getName())
+                    .provider(new MenuFinded(list))
+                    .size(6, 9)
+                    .title("§fФигуры в мире")
+                    .build()
+                    .open(p);
             }
         }));
 
         contents.set(0, 5, ClickableItem.of(new ItemBuilder(Material.HOPPER)
-                .name("§fПоказать все")
-                .addLore("")
-                .addLore("")
-                .build(), e -> {
+            .name("§fПоказать все")
+            .lore("")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 final Set<Figure> list = new HashSet<>(FigureManager.getFigures());
                 SmartInventory.builder()
-                        .id("FugureSelectMenu" + p.getName())
-                        .provider(new MenuFinded(list))
-                        .size(6, 9)
-                        .title("§fВсе фигуры")
-                        .build()
-                        .open(p);
+                    .id("FugureSelectMenu" + p.getName())
+                    .provider(new MenuFinded(list))
+                    .size(6, 9)
+                    .title("§fВсе фигуры")
+                    .build()
+                    .open(p);
             }
         }));
 

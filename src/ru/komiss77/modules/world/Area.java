@@ -60,8 +60,8 @@ public class Area extends Cuboid {
              * In practice this will always be the same except for webs, they have no collider (passable=true),
              * but blocks can be placed on them (isSolid=true)*/
             if (Nms.getFastMat(w, lc.x, lc.y, lc.z).isCollidable() &&
-                    !Nms.getFastMat(w, lc.x, lc.y + 1, lc.z).isCollidable() &&
-                    !Nms.getFastMat(w, lc.x, lc.y + 2, lc.z).isCollidable()) {
+                !Nms.getFastMat(w, lc.x, lc.y + 1, lc.z).isCollidable() &&
+                !Nms.getFastMat(w, lc.x, lc.y + 2, lc.z).isCollidable()) {
                 final SPos sp = new SPos(new XYZ("", lc.x, lc.y + 1, lc.z), this);
                 walkable.put(lc.getSLoc(), sp);
             }

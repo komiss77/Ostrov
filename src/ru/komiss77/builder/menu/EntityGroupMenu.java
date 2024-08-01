@@ -1,8 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 import ca.spottedleaf.moonrise.common.util.ChunkSystem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,20 +22,16 @@ import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class EntityGroupMenu implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-    private IntHashMap<Chunk> chunks;
+    private final IntHashMap<Chunk> chunks;
     private final World world;
     private int radius;
     private final EntityGroup group;
@@ -117,11 +110,11 @@ public class EntityGroupMenu implements InventoryProvider {
 
             for (final Map.Entry<Material, Integer> entry : count.entrySet()) {
                 menuEntry.add(ClickableItem.of(new ItemBuilder(entry.getKey())
-                        .name(Lang.t(entry.getKey(), p))
-                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
-                        .addLore("§7Найдено: §e" + entry.getValue())
-                        .addLore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
-                        .build(), e -> {
+                    .name(Lang.t(entry.getKey(), p))
+                    .amount(entry.getValue() > 64 ? 1 : entry.getValue())
+                    .lore("§7Найдено: §e" + entry.getValue())
+                    .lore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
+                    .build(), e -> {
                     toChunk(p, chunks.values().stream().findAny().get());
                 }));
             }
@@ -146,11 +139,11 @@ public class EntityGroupMenu implements InventoryProvider {
             for (final Map.Entry<String, Integer> entry : count.entrySet()) {
                 mat = Material.matchMaterial(entry.getKey().substring(10));
                 menuEntry.add(ClickableItem.of(new ItemBuilder(mat == null ? Material.ENDER_CHEST : mat)
-                        .name(entry.getKey())
-                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
-                        .addLore("§7Найдено: §e" + entry.getValue())
-                        .addLore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
-                        .build(), e -> {
+                    .name(entry.getKey())
+                    .amount(entry.getValue() > 64 ? 1 : entry.getValue())
+                    .lore("§7Найдено: §e" + entry.getValue())
+                    .lore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
+                    .build(), e -> {
                     toChunk(p, chunks.values().stream().findAny().get());
 
                 }));
@@ -175,22 +168,22 @@ public class EntityGroupMenu implements InventoryProvider {
 
             for (final Map.Entry<EntityType, Integer> entry : count.entrySet()) {
                 menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(entry.getKey())
-                        .name(Lang.t(entry.getKey(), p))
-                        .amount(entry.getValue() > 64 ? 1 : entry.getValue())
-                        .addLore("§7")
-                        .addLore("§7Найдено: §e" + entry.getValue())
-                        .addLore("§7")
-                        .addLore("§7ЛКМ - подробно по типу")
-                        .addLore("§7")
-                        .addLore("§7Шифт+ПКМ - удалить всё этого типа")
-                        .build(), e -> {
+                    .name(Lang.t(entry.getKey(), p))
+                    .amount(entry.getValue() > 64 ? 1 : entry.getValue())
+                    .lore("§7")
+                    .lore("§7Найдено: §e" + entry.getValue())
+                    .lore("§7")
+                    .lore("§7ЛКМ - подробно по типу")
+                    .lore("§7")
+                    .lore("§7Шифт+ПКМ - удалить всё этого типа")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
                         SmartInventory.builder()
-                                .id("EntityByType" + p.getName())
-                                .provider(new EntityTypeMenu(world, radius, entry.getKey()))
-                                .size(6, 9)
-                                .title("§2" + world.getName() + ", §6" + entry.getKey() + ", §1r=" + radius).build()
-                                .open(p);
+                            .id("EntityByType" + p.getName())
+                            .provider(new EntityTypeMenu(world, radius, entry.getKey()))
+                            .size(6, 9)
+                            .title("§2" + world.getName() + ", §6" + entry.getKey() + ", §1r=" + radius).build()
+                            .open(p);
                     } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
                         for (final Entity entity : world.getEntities()) {
                             if (entity.getType() == entry.getKey()) {
@@ -207,12 +200,12 @@ public class EntityGroupMenu implements InventoryProvider {
 
 
         contents.set(5, 2, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                .name("§7Группа" + group.toString() + " в мире §a" + world.getName() + (radius > 0 ? " §7r=§a" + radius : ""))
-                .addLore("§7")
-                .addLore("§7ЛКМ - изменить радиус")
-                .addLore("§7(0 - весь мир)")
-                .addLore("§7")
-                .build(), "" + radius, imput -> {
+            .name("§7Группа" + group.toString() + " в мире §a" + world.getName() + (radius > 0 ? " §7r=§a" + radius : ""))
+            .lore("§7")
+            .lore("§7ЛКМ - изменить радиус")
+            .lore("§7(0 - весь мир)")
+            .lore("§7")
+            .build(), "" + radius, imput -> {
 
             if (!ApiOstrov.isInteger(imput)) {
                 p.sendMessage("§cДолжно быть число!");
@@ -229,7 +222,7 @@ public class EntityGroupMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                PM.getOplayer(p).setup.openEntityWorldMenu(p, world, radius)
+            PM.getOplayer(p).setup.openEntityWorldMenu(p, world, radius)
         ));
 
 
@@ -238,13 +231,13 @@ public class EntityGroupMenu implements InventoryProvider {
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

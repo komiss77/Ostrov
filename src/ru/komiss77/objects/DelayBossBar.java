@@ -36,7 +36,7 @@ public class DelayBossBar {
         op.timeBar = timeBar;
         op.bossbar.color(color);
         op.bossbar.overlay(style);
-        op.bossbar.name(TCUtils.format(text));
+        op.bossbar.name(TCUtils.form(text));
         op.bossbar.progress(timeBar ? 1f : (progress > 1f ? 1f : progress < 0f ? 0f : progress));
         p.showBossBar(op.bossbar);
     }

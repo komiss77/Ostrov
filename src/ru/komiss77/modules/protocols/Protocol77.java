@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,132 +45,132 @@ public class Protocol77 implements Listener {
     public static boolean active = false;
     private static final ItemStack sub = new ItemStack(Material.REDSTONE);
     private static final BlockData[] bds = new BlockData[]{
-            Material.BEDROCK.createBlockData(),
-            Material.DEEPSLATE_COAL_ORE.createBlockData(),
-            Material.SMOOTH_BASALT.createBlockData(),
-            Material.TUFF.createBlockData()};
+        Material.BEDROCK.createBlockData(),
+        Material.DEEPSLATE_COAL_ORE.createBlockData(),
+        Material.SMOOTH_BASALT.createBlockData(),
+        Material.TUFF.createBlockData()};
     private static final String[] title =
-            {"§к§kAA",
-                    "§к§kAAAA",
-                    "§к§kAAAAAA",
-                    "§к§kAAA§cок§к§kAAA",
-                    "§к§kAAA§cтоко§к§kAAA",
-                    "§к§kAA§cотокол§к§kAA",
-                    "§к§kA§cротокол §к§kA",
-                    "§cротокол 7",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cПротокол 77",
-                    "§cротокол ",
-                    "§cотокол",
-                    "§cтоко",
-                    "§cок"};
+        {"§к§kAA",
+            "§к§kAAAA",
+            "§к§kAAAAAA",
+            "§к§kAAA§cок§к§kAAA",
+            "§к§kAAA§cтоко§к§kAAA",
+            "§к§kAA§cотокол§к§kAA",
+            "§к§kA§cротокол §к§kA",
+            "§cротокол 7",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cротокол ",
+            "§cотокол",
+            "§cтоко",
+            "§cок"};
     private static final String[] text =
-            ("""
-                    public Protocol77(final Player p) {
-                      active = true;
-                      pid = p.getUniqueId();
-                      Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
-                      immune = new HashSet<>();
-                      for (final Player pl : Bukkit.getOnlinePlayers()) {
-                       if (PM.getOplayer(pl).hasGroup(ProtocolCmd.grp)) immune.add(pid);
-                       final PlayerInventory inv = pl.getInventory();
-                       final ItemStack it = inv.getItem(4);
-                       inv.setItem(4, sub);
-                       if (!ItemUtils.isBlank(it, false)) {
-                    	ItemUtils.giveItemsTo(p, it);
-                       }
-                       inv.setHeldItemSlot(4);
-                      }
-                     \s
-                      final Protocol77 pr = this;
-                      final String[] text =\s
-                      "".split("\\n");
-                     \s
-                      new BukkitRunnable() {
-                       int i = 0;
-                       @Override
-                       public void run() {
-                    	switch (i++) {
-                    	case 1:
-                    	 for (final Player pl : Bukkit.getOnlinePlayers()) {
-                    	 \s
-                    	 }
-                    	 break;
-                    	default:
-                    	 break;
-                    	}
-                       \s
-                    	if (!active) {
-                    	 HandlerList.unregisterAll(pr);
-                    	 cancel();
-                    	 return;
-                    	}
-                       \s
-                    	for (final Player pl : Bukkit.getOnlinePlayers()) {
-                    	 if (!immune.contains(pl.getUniqueId())) {
-                    	  pl.closeInventory();
-                    	 }
-                    	}
-                       }
-                      }.runTaskTimer(Ostrov.instance, 2, 1);
-                     }
+        ("""
+            public Protocol77(final Player p) {
+              active = true;
+              pid = p.getUniqueId();
+              Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
+              immune = new HashSet<>();
+              for (final Player pl : Bukkit.getOnlinePlayers()) {
+               if (PM.getOplayer(pl).hasGroup(ProtocolCmd.grp)) immune.add(pid);
+               final PlayerInventory inv = pl.getInventory();
+               final ItemStack it = inv.getItem(4);
+               inv.setItem(4, sub);
+               if (!ItemUtils.isBlank(it, false)) {
+            	ItemUtils.giveItemsTo(p, it);
+               }
+               inv.setHeldItemSlot(4);
+              }
+             \s
+              final Protocol77 pr = this;
+              final String[] text =\s
+              "".split("\\n");
+             \s
+              new BukkitRunnable() {
+               int i = 0;
+               @Override
+               public void run() {
+            	switch (i++) {
+            	case 1:
+            	 for (final Player pl : Bukkit.getOnlinePlayers()) {
+            	 \s
+            	 }
+            	 break;
+            	default:
+            	 break;
+            	}
+               \s
+            	if (!active) {
+            	 HandlerList.unregisterAll(pr);
+            	 cancel();
+            	 return;
+            	}
+               \s
+            	for (final Player pl : Bukkit.getOnlinePlayers()) {
+            	 if (!immune.contains(pl.getUniqueId())) {
+            	  pl.closeInventory();
+            	 }
+            	}
+               }
+              }.runTaskTimer(Ostrov.instance, 2, 1);
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onMove(final PlayerMoveEvent e) {
-                      e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onMove(final PlayerMoveEvent e) {
+              e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onInter(final PlayerInteractEvent e) {
-                    	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onInter(final PlayerInteractEvent e) {
+            	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onEnt(final PlayerInteractAtEntityEvent e) {
-                    	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onEnt(final PlayerInteractAtEntityEvent e) {
+            	e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onDamage(final EntityDamageEvent e) {
-                      e.setCancelled(e.getEntityType() == EntityType.PLAYER && !immune.contains(e.getEntity().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onDamage(final EntityDamageEvent e) {
+              e.setCancelled(e.getEntityType() == EntityType.PLAYER && !immune.contains(e.getEntity().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onSwap(final PlayerSwapHandItemsEvent e) {
-                      e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onSwap(final PlayerSwapHandItemsEvent e) {
+              e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onOpen(final InventoryOpenEvent e) {
-                      e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onOpen(final InventoryOpenEvent e) {
+              e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onInv(final InventoryInteractEvent e) {
-                      e.setCancelled(!immune.contains(e.getWhoClicked().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onInv(final InventoryInteractEvent e) {
+              e.setCancelled(!immune.contains(e.getWhoClicked().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onHeld(final PlayerItemHeldEvent e) {
-                      e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onHeld(final PlayerItemHeldEvent e) {
+              e.setCancelled(!immune.contains(e.getPlayer().getUniqueId()));
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onQuit(final PlayerQuitEvent e) {
-                      if (pid.equals(e.getPlayer().getUniqueId())) active = false;
-                     }
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onQuit(final PlayerQuitEvent e) {
+              if (pid.equals(e.getPlayer().getUniqueId())) active = false;
+             }
 
-                     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-                     public void onDrop(final PlayerDropItemEvent e) {
-                      final Player p = e.getPlayer();
-                      if (pid.equals(p.getUniqueId()) && p.getInventory().getHeldItemSlot() == 4) active = false;
-                      else e.setCancelled(!immune.contains(p.getUniqueId()));""").split("\n");
+             @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+             public void onDrop(final PlayerDropItemEvent e) {
+              final Player p = e.getPlayer();
+              if (pid.equals(p.getUniqueId()) && p.getInventory().getHeldItemSlot() == 4) active = false;
+              else e.setCancelled(!immune.contains(p.getUniqueId()));""").split("\n");
 
     private final UUID pid;
     private final HashSet<UUID> immune;
@@ -235,7 +236,7 @@ public class Protocol77 implements Listener {
                                         for (int y = -dl; y <= dl; y++) {
                                             for (int z = -dl; z <= dl; z++) {
                                                 if (((FastMath.abs(x) - dl) >> 31) + ((FastMath.abs(y) - dl) >> 31)
-                                                        + ((FastMath.abs(z) - dl) >> 31) + 2 < 0) continue;
+                                                    + ((FastMath.abs(z) - dl) >> 31) + 2 < 0) continue;
                                                 final WXYZ cl = new WXYZ(lc).add(x, y, z);
                                                 if (Nms.getFastMat(lc.getWorld(), cl.x, cl.y, cl.z).isCollidable()) {
                                                     bdm.put(cl.getCenterLoc(), dark ? ApiOstrov.rndElmt(bds) : cl.w.getBlockData(cl.x, cl.y, cl.z));

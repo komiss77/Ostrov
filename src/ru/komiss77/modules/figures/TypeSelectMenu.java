@@ -43,12 +43,12 @@ public class TypeSelectMenu implements InventoryProvider {
 
 
         menuEntry.add(ClickableItem.of(new ItemBuilder(Material.COMMAND_BLOCK)
-                .name("§fкоманда")
-                .addLore("")
-                .addLore("§7При ЛКМ и ПКМ на фигуру")
-                .addLore("§7будут выполняться команды.")
-                .addLore("")
-                .build(), e -> {
+            .name("§fкоманда")
+            .lore("")
+            .lore("§7При ЛКМ и ПКМ на фигуру")
+            .lore("§7будут выполняться команды.")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 figure.setType(FigureType.COMMAND, null);
                 FigureManager.saveFigure(player, figure);
@@ -57,15 +57,15 @@ public class TypeSelectMenu implements InventoryProvider {
 
         }));
         menuEntry.add(ClickableItem.of(new ItemBuilder(Material.COMMAND_BLOCK_MINECART)
-                .name("§fкоманда с подтверждением")
-                .addLore("")
-                .addLore("§7При ЛКМ и ПКМ на фигуру")
-                .addLore("§7будут выполняться команды.")
-                .addLore("§7с меню подтверждения действия.")
-                .addLore("§7Полезно для телепортов, удалений")
-                .addLore("┘и т.д.")
-                .addLore("")
-                .build(), e -> {
+            .name("§fкоманда с подтверждением")
+            .lore("")
+            .lore("§7При ЛКМ и ПКМ на фигуру")
+            .lore("§7будут выполняться команды.")
+            .lore("§7с меню подтверждения действия.")
+            .lore("§7Полезно для телепортов, удалений")
+            .lore("┘и т.д.")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 figure.setType(FigureType.COMMAND_CONFIRM, null);
                 FigureManager.saveFigure(player, figure);
@@ -75,12 +75,12 @@ public class TypeSelectMenu implements InventoryProvider {
         }));
 
         menuEntry.add(ClickableItem.of(new ItemBuilder(Material.FLETCHING_TABLE)
-                .name("§fэвент")
-                .addLore("")
-                .addLore("§7При ЛКМ и ПКМ на фигуру")
-                .addLore("§7будет вызываться FigureClickEvent.")
-                .addLore("")
-                .build(), e -> {
+            .name("§fэвент")
+            .lore("")
+            .lore("§7При ЛКМ и ПКМ на фигуру")
+            .lore("§7будет вызываться FigureClickEvent.")
+            .lore("")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 figure.setType(FigureType.EVENT, null);
                 FigureManager.saveFigure(player, figure);
@@ -93,20 +93,20 @@ public class TypeSelectMenu implements InventoryProvider {
         if (GM.getGames().isEmpty()) {
 
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§fТаблица серверов пуста!")
-                    .addLore("§7Скорее всего, в настройках Острова")
-                    .addLore("§7выключена загрузка данных серверов.")
-                    .build()));
+                .name("§fТаблица серверов пуста!")
+                .lore("§7Скорее всего, в настройках Острова")
+                .lore("§7выключена загрузка данных серверов.")
+                .build()));
 
         } else {
 
             for (final GameInfo gi : GM.getGames()) {
                 menuEntry.add(ClickableItem.of(new ItemBuilder(Material.matchMaterial(gi.game.mat))
-                        .name("§f" + gi.game.displayName)
-                        .addLore("")
-                        .addLore(gi.game.description)
-                        .addLore("")
-                        .build(), e -> {
+                    .name("§f" + gi.game.displayName)
+                    .lore("")
+                    .lore(gi.game.description)
+                    .lore("")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
                         figure.setType(FigureType.SERVER, gi.game);
                         FigureManager.saveFigure(player, figure);
@@ -126,19 +126,19 @@ public class TypeSelectMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                player.closeInventory()
+            player.closeInventory()
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(player, pagination.next().getPage()))
+                -> contents.getHost().open(player, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(player, pagination.previous().getPage()))
+                -> contents.getHost().open(player, pagination.previous().getPage()))
             );
         }
 

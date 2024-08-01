@@ -2,6 +2,7 @@ package ru.komiss77.listener;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
+
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -223,7 +224,7 @@ public class ArcaimLst implements Listener {
             if (bd instanceof Levelled lv) { //разливаться только с уменьшением (не давать столбы) и не расползаться в стороны по воздуху
 //Ostrov.log_warn("lvl="+lv.getLevel()+" min="+lv.getMinimumLevel()+" max="+lv.getMaximumLevel());
                 if ((lv.getLevel() == 0 && e.getToBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) ||
-                        (lv.getLevel() != 0 && e.getToBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR)) {
+                    (lv.getLevel() != 0 && e.getToBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR)) {
                     e.setCancelled(true);
                 }
                 return;
@@ -244,9 +245,9 @@ public class ArcaimLst implements Listener {
         final ItemStack is = e.getPlayer().getInventory().getItem(e.getHand());//ItemInOffHand();
         switch (is.getType()) {
             case WATER_BUCKET ->
-                    e.setCancelled(EntityUtil.group(e.getRightClicked().getType()) != EntityGroup.WATER_AMBIENT);
-            case LAVA, LAVA_BUCKET, WATER, AXOLOTL_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, SALMON_BUCKET, TADPOLE_BUCKET, TROPICAL_FISH_BUCKET ->
-                    e.setCancelled(true);
+                e.setCancelled(EntityUtil.group(e.getRightClicked().getType()) != EntityGroup.WATER_AMBIENT);
+            case LAVA, LAVA_BUCKET, WATER, AXOLOTL_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, SALMON_BUCKET, TADPOLE_BUCKET,
+                 TROPICAL_FISH_BUCKET -> e.setCancelled(true);
             default -> {
             }
         }
@@ -287,8 +288,8 @@ public class ArcaimLst implements Listener {
         final ItemStack cursor = e.getCursor();
 
         if (ItemUtils.isBlank(cursor, true)
-                || ApiOstrov.isLocalBuilder(e.getWhoClicked(), false)
-                || MenuItemsManager.isSpecItem(cursor)) return;
+            || ApiOstrov.isLocalBuilder(e.getWhoClicked(), false)
+            || MenuItemsManager.isSpecItem(cursor)) return;
 
         final ItemMeta meta = cursor.getItemMeta();
         boolean modify = false;
@@ -334,7 +335,7 @@ public class ArcaimLst implements Listener {
             case ENCHANTED_BOOK:
                 if (meta instanceof EnchantmentStorageMeta) {
                     for (Map.Entry<Enchantment, Integer> en :
-                            ((EnchantmentStorageMeta) meta).getStoredEnchants().entrySet()) {
+                        ((EnchantmentStorageMeta) meta).getStoredEnchants().entrySet()) {
                         if (en.getValue() > en.getKey().getMaxLevel()) {
                             en.setValue(10);
                             modify = true;
@@ -373,18 +374,18 @@ public class ArcaimLst implements Listener {
                     ab.tag("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.getEntity().setGravity(false);
                     p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_AMBIENT, 2f, 0.8f);
-                    p.sendMessage(GM.getLogo().append(TCUtils.format(
-                            "§2komiss77 §7» О, привет, " + p.getName() + "! ты тут новичек?")));
+                    p.sendMessage(GM.getLogo().append(TCUtils.form(
+                        "§2komiss77 §7» О, привет, " + p.getName() + "! ты тут новичек?")));
                     Ostrov.sync(() -> {
                         if (!p.isValid() || !p.isOnline()) return;
                         p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_TRADE, 2f, 0.8f);
-                        p.sendMessage(GM.getLogo().append(TCUtils.format(
-                                "§2komiss77 §7» Я тут заскучал строить уже, может ты мне сможешь помочь?")));
+                        p.sendMessage(GM.getLogo().append(TCUtils.form(
+                            "§2komiss77 §7» Я тут заскучал строить уже, может ты мне сможешь помочь?")));
                         Ostrov.sync(() -> {
                             if (!p.isValid() || !p.isOnline()) return;
                             p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_YES, 2f, 0.8f);
-                            p.sendMessage(GM.getLogo().append(TCUtils.format(
-                                    "§2komiss77 §7» Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
+                            p.sendMessage(GM.getLogo().append(TCUtils.form(
+                                "§2komiss77 §7» Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
                             p.sendMessage("Ваш игроаой режим был изменен на Творческий режим");
                             p.setGameMode(GameMode.CREATIVE);
                             Ostrov.sync(() -> {
@@ -474,8 +475,8 @@ public class ArcaimLst implements Listener {
             final Vector vc;
             if ((tick++ & 7) == 0 && Ostrov.random.nextBoolean()) {
                 vc = tgt.getLocation().add(Ostrov.random.nextDouble() - 0.5d,
-                                Ostrov.random.nextDouble() - 0.5d, Ostrov.random.nextDouble() - 0.5d)
-                        .subtract(loc).toVector();
+                        Ostrov.random.nextDouble() - 0.5d, Ostrov.random.nextDouble() - 0.5d)
+                    .subtract(loc).toVector();
                 if (vc.lengthSquared() < 10) {
                     Nms.sendWorldPackets(bot.world, new ClientboundAnimatePacket(bot, 0));
                     tgt.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 1f);

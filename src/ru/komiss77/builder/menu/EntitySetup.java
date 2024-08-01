@@ -33,10 +33,10 @@ public class EntitySetup implements InventoryProvider {
 
     public static void openSetupMenu(final Player p, final Entity entity) {
         SmartInventory.builder()
-                .provider(new EntitySetup(entity))
-                .size(6, 9)
-                .title("§2Характеристики сущности").build()
-                .open(p);
+            .provider(new EntitySetup(entity))
+            .size(6, 9)
+            .title("§2Характеристики сущности").build()
+            .open(p);
     }
 
 
@@ -49,11 +49,11 @@ public class EntitySetup implements InventoryProvider {
         if (en instanceof LivingEntity le) {
 
             content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
-                    .addLore("")
-                    .addLore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
-                    .addLore("")
-                    .build(), e -> {
+                .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
+                .lore("")
+                .lore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     le.setAI(!le.hasAI());
                 }
@@ -64,8 +64,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en instanceof Ageable) {
             content.add(ClickableItem.of(new ItemBuilder(((Ageable) en).isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Ageable) en).isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
-                    .build(), e -> {
+                .name(((Ageable) en).isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     if (((Ageable) en).isAdult()) {
                         ((Ageable) en).setBaby();
@@ -86,13 +86,13 @@ public class EntitySetup implements InventoryProvider {
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
 
             content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                    .name("§fПрофессия")
-                    .addLore("")
-                    .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
-                    .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                    .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
-                    .addLore("")
-                    .build(), e -> {
+                .name("§fПрофессия")
+                .lore("")
+                .lore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .lore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Villager) en).setProfession(prof_next);
                 } else if (e.isRightClick()) {
@@ -106,13 +106,13 @@ public class EntitySetup implements InventoryProvider {
             final Villager.Type type_next = Villager.Type.values()[type.ordinal() + 1 % Villager.Type.values().length];
 
             content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                    .name("§fТип")
-                    .addLore("")
-                    .addLore("§7ПКМ - сделать §6" + type_prev)
-                    .addLore("§fСейчас : §e§l" + type)
-                    .addLore("§7ЛКМ - сделать §6" + type_next)
-                    .addLore("")
-                    .build(), e -> {
+                .name("§fТип")
+                .lore("")
+                .lore("§7ПКМ - сделать §6" + type_prev)
+                .lore("§fСейчас : §e§l" + type)
+                .lore("§7ЛКМ - сделать §6" + type_next)
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Villager) en).setVillagerType(type_next);
                 } else if (e.isRightClick()) {
@@ -128,13 +128,13 @@ public class EntitySetup implements InventoryProvider {
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
 
             content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                    .name("§fПрофессия")
-                    .addLore("")
-                    .addLore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
-                    .addLore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                    .addLore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
-                    .addLore("")
-                    .build(), e -> {
+                .name("§fПрофессия")
+                .lore("")
+                .lore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .lore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((ZombieVillager) en).setVillagerProfession(prof_next);
                 } else if (e.isRightClick()) {
@@ -148,13 +148,13 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.SLIME || en.getType() == EntityType.MAGMA_CUBE) {
             Slime sl = (Slime) en;
             content.add(ClickableItem.of(new ItemBuilder(en.getType() == EntityType.SLIME ? Material.SLIME_BLOCK : Material.MAGMA_BLOCK)
-                    .name("§fРазмер")
-                    .addLore("")
-                    .addLore("§fСейчас : §e§l" + sl.getSize())
-                    .addLore(sl.getSize() < 120 ? "§7ЛКМ - §a+10" : "")
-                    .addLore(sl.getSize() > 10 ? "§7ПКМ - сделать §c-10" : "")
-                    .addLore("")
-                    .build(), e -> {
+                .name("§fРазмер")
+                .lore("")
+                .lore("§fСейчас : §e§l" + sl.getSize())
+                .lore(sl.getSize() < 120 ? "§7ЛКМ - §a+10" : "")
+                .lore(sl.getSize() > 10 ? "§7ПКМ - сделать §c-10" : "")
+                .lore("")
+                .build(), e -> {
                 if (e.isLeftClick() && sl.getSize() < 120) {
                     sl.setSize(sl.getSize() + 10);
                 } else if (e.isRightClick()) {
@@ -166,8 +166,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en.getType() == EntityType.WOLF) {
             content.add(ClickableItem.of(new ItemBuilder(((Wolf) en).isSitting() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Wolf) en).isSitting() ? "§6Сидит" : "§6стоит")
-                    .build(), e -> {
+                .name(((Wolf) en).isSitting() ? "§6Сидит" : "§6стоит")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Wolf) en).setSitting(!((Wolf) en).isSitting());
                     reopen(p, content);
@@ -177,8 +177,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en.getType() == EntityType.CREEPER) {
             content.add(ClickableItem.of(new ItemBuilder(((Creeper) en).isPowered() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Creeper) en).isPowered() ? "§6Заряжен" : "§6спокоен")
-                    .build(), e -> {
+                .name(((Creeper) en).isPowered() ? "§6Заряжен" : "§6спокоен")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Creeper) en).setPowered(!((Creeper) en).isPowered());
                     reopen(p, content);
@@ -189,9 +189,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.RABBIT) {
             final Rabbit.Type rt = ((Rabbit) en).getRabbitType();
             content.add(ClickableItem.of(new ItemBuilder(Material.RABBIT_HIDE)
-                    .name("§fТип зайчика")
-                    .addLore("§fСейчас : §e§l" + rt.name())
-                    .build(), e -> {
+                .name("§fТип зайчика")
+                .lore("§fСейчас : §e§l" + rt.name())
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final Rabbit.Type rt2 = FastMath.rotateEnum(rt);//Rabbit.Type.values()[rt.ordinal() + 1 % Rabbit.Type.values().length];
                     ((Rabbit) en).setRabbitType(rt2);//rabbitTypeNext(((Rabbit) en).getRabbitType()));
@@ -205,8 +205,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en.getType() == EntityType.SHEEP) {
             content.add(ClickableItem.of(new ItemBuilder(((Sheep) en).isSheared() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Sheep) en).isSheared() ? "§6Стриженная" : "§6Мохнатая")
-                    .build(), e -> {
+                .name(((Sheep) en).isSheared() ? "§6Стриженная" : "§6Мохнатая")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Sheep) en).setSheared(!((Sheep) en).isSheared());
                     reopen(p, content);
@@ -218,9 +218,9 @@ public class EntitySetup implements InventoryProvider {
         if (en instanceof Colorable) {
             DyeColor dc = ((Colorable) en).getColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
-                    .name("§fЦвет")
-                    .addLore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
-                    .build(), e -> {
+                .name("§fЦвет")
+                .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
                     ((Colorable) en).setColor(dc2);
@@ -232,9 +232,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.WOLF) {
             DyeColor dc = ((Wolf) en).getCollarColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
-                    .name("§fЦвет")
-                    .addLore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
-                    .build(), e -> {
+                .name("§fЦвет")
+                .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
                     ((Wolf) en).setCollarColor(dc2);
@@ -247,9 +247,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.LLAMA || en.getType() == EntityType.LLAMA_SPIT) {
             Llama.Color dc = ((Llama) en).getColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.RABBIT_HIDE)
-                    .name("§fЦвет")
-                    .addLore("§fСейчас : " + dc.name())
-                    .build(), e -> {
+                .name("§fЦвет")
+                .lore("§fСейчас : " + dc.name())
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final Llama.Color dc2 = FastMath.rotateEnum(dc);//Llama.Color.values()[dc.ordinal() + 1 % Llama.Color.values().length];
                     ((Llama) en).setColor(dc2);
@@ -262,9 +262,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.HORSE) {
             Horse.Color dc = ((Horse) en).getColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
-                    .name("§fЦвет")
-                    .addLore("§fСейчас : " + dc.name())
-                    .build(), e -> {
+                .name("§fЦвет")
+                .lore("§fСейчас : " + dc.name())
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final Horse.Color dc2 = FastMath.rotateEnum(dc);//Horse.Color.values()[dc.ordinal() + 1 % Horse.Color.values().length];
                     ((Horse) en).setColor(dc2);
@@ -277,8 +277,8 @@ public class EntitySetup implements InventoryProvider {
         if (en instanceof Steerable) {
             Steerable st = (Steerable) en;
             content.add(ClickableItem.of(new ItemBuilder(st.hasSaddle() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(st.hasSaddle() ? "§6Осёдланная" : "§6Дикая")
-                    .build(), e -> {
+                .name(st.hasSaddle() ? "§6Осёдланная" : "§6Дикая")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     st.setSaddle(!st.hasSaddle());//(Sheep) en).setSheared(!((Sheep) en).isSheared());
                     reopen(p, content);
@@ -289,8 +289,8 @@ public class EntitySetup implements InventoryProvider {
         if (en instanceof ChestedHorse) {
             ChestedHorse st = (ChestedHorse) en;
             content.add(ClickableItem.of(new ItemBuilder(st.isCarryingChest() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(st.isCarryingChest() ? "§6Грузовая" : "§6Пустая")
-                    .build(), e -> {
+                .name(st.isCarryingChest() ? "§6Грузовая" : "§6Пустая")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     st.setCarryingChest(!st.isCarryingChest());//(Sheep) en).setSheared(!((Sheep) en).isSheared());
                     reopen(p, content);
@@ -301,8 +301,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en.getType() == EntityType.WOLF) {
             content.add(ClickableItem.of(new ItemBuilder(((Wolf) en).isTamed() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Wolf) en).isTamed() ? "§6Ручной" : "§6Дикий")
-                    .build(), e -> {
+                .name(((Wolf) en).isTamed() ? "§6Ручной" : "§6Дикий")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Wolf) en).setTamed(!((Wolf) en).isTamed());
                     reopen(p, content);
@@ -314,9 +314,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.OCELOT) {
             Cat.Type dc = ((Cat) en).getCatType();
             content.add(ClickableItem.of(new ItemBuilder(Material.PUFFERFISH)
-                    .name("§fТип")
-                    .addLore("§fСейчас : " + dc.name())
-                    .build(), e -> {
+                .name("§fТип")
+                .lore("§fСейчас : " + dc.name())
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final Cat.Type dc2 = nextCat(dc);//Cat.Type.values()[dc.ordinal() + 1 % Cat.Type.values().length];
                     ((Cat) en).setCatType(dc2);
@@ -328,9 +328,9 @@ public class EntitySetup implements InventoryProvider {
         if (en.getType() == EntityType.PARROT) {
             Parrot.Variant dc = ((Parrot) en).getVariant();
             content.add(ClickableItem.of(new ItemBuilder(Material.PUFFERFISH)
-                    .name("§fТип")
-                    .addLore("§fСейчас : " + dc.name())
-                    .build(), e -> {
+                .name("§fТип")
+                .lore("§fСейчас : " + dc.name())
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     final Parrot.Variant dc2 = FastMath.rotateEnum(dc);//Parrot.Variant.values()[dc.ordinal() + 1 % Parrot.Variant.values().length];
                     ((Parrot) en).setVariant(dc2);
@@ -341,8 +341,8 @@ public class EntitySetup implements InventoryProvider {
 
         if (en.getType() == EntityType.SNOW_GOLEM) {
             content.add(ClickableItem.of(new ItemBuilder(((Snowman) en).isDerp() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Snowman) en).isDerp() ? "§6Тающий" : "§6Свежий")
-                    .build(), e -> {
+                .name(((Snowman) en).isDerp() ? "§6Тающий" : "§6Свежий")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     ((Snowman) en).setDerp(!((Snowman) en).isDerp());
                     reopen(p, content);
@@ -352,8 +352,8 @@ public class EntitySetup implements InventoryProvider {
 
 
         content.set(5, 8, ClickableItem.of(new ItemBuilder(Material.REDSTONE)
-                .name("§4Убрать моба")
-                .build(), e -> {
+            .name("§4Убрать моба")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 en.remove();
                 p.closeInventory();

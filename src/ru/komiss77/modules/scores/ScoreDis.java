@@ -54,7 +54,7 @@ public class ScoreDis {
         td.setAlignment(TextAlignment.CENTER);
         final Transformation tr = td.getTransformation();
         td.setTransformation(new Transformation(tr.getTranslation(),
-                tr.getLeftRotation(), new Vector3f(1.6f, 1.6f, 1.6f), tr.getRightRotation()));
+            tr.getLeftRotation(), new Vector3f(1.6f, 1.6f, 1.6f), tr.getRightRotation()));
         td.getPersistentDataContainer().set(ScoreManager.key, PersistentDataType.BOOLEAN, true);
         return td.getUniqueId();
     }
@@ -82,11 +82,11 @@ public class ScoreDis {
                 sb.append("§8").append(i + 1).append(") ").append(clr).append("=-=-=-=§б: --\n");
             } else {
                 sb.append("§8").append(i + 1).append(") ").append(clr).append(nm)
-                        .append("§б: ").append(toDisplay(stats.get(nm))).append("\n");
+                    .append("§б: ").append(toDisplay(stats.get(nm))).append("\n");
             }
         }
         final String text = sb.toString();
-        td.text(TCUtils.format(score));
+        td.text(TCUtils.form(score));
         new BukkitRunnable() {
             Entity etd = td;
             int i = score.length() + 1;
@@ -99,12 +99,12 @@ public class ScoreDis {
                 }
 
                 if ((i++) == text.length()) {
-                    ((TextDisplay) etd).text(TCUtils.format(text));
+                    ((TextDisplay) etd).text(TCUtils.form(text));
                     cancel();
                     return;
                 }
 
-                td.text(TCUtils.format(text.substring(0, i)));
+                td.text(TCUtils.form(text.substring(0, i)));
             }
         }.runTaskTimer(Ostrov.instance, 2, 2);
     }

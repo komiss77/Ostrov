@@ -1,9 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -13,11 +9,13 @@ import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class LangEditor implements InventoryProvider {
@@ -53,8 +51,8 @@ public class LangEditor implements InventoryProvider {
         if (buttons.isEmpty()) {
 
             content.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
 
         } else {
@@ -68,13 +66,13 @@ public class LangEditor implements InventoryProvider {
 
         if (hasNext) {
             content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> edit(p, page + 1))
+                -> edit(p, page + 1))
             );
         }
 
         if (page > 0) {
             content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> edit(p, page - 1))
+                -> edit(p, page - 1))
             );
         }
 
@@ -126,18 +124,18 @@ public class LangEditor implements InventoryProvider {
                         final String eng = Lang.getTranslate(rus);//rs.getString("eng");
 
                         buttons.add(new InputButton(InputButton.InputType.CHAT, new ItemBuilder(Material.PAPER)
-                                .name(TCUtils.format(rus))
-                                .addLore(TCUtils.format(eng))
-                                .build(), eng.replaceAll("§", "&"), input -> {
+                            .name(TCUtils.form(rus))
+                            .lore(TCUtils.form(eng))
+                            .build(), eng.replaceAll("§", "&"), input -> {
                             input = input.replaceAll("&", "§");
                             Lang.upd(rus, input);
-                            //p.sendMessage(TCUtils.format("§f>> "+input));
+                            //p.sendMessage(TCUtils.form("§f>> "+input));
                             edit(p, page);//reopen(p, content);
                         }));
 
 
                        /* buttons.add(ClickableItem.empty(new ItemBuilder(Material.PAPER)
-                                .name(TCUtils.format(rus))
+                                .name(TCUtils.form(rus))
                                 .addLore("")
                                 //.addLore(ItemUtils.genLore(null, rs.getString("report"), "§7"))
                                 .addLore("")
@@ -152,13 +150,13 @@ public class LangEditor implements InventoryProvider {
 
                 Ostrov.sync(() -> {
                     SmartInventory
-                            .builder()
-                            //.id(op.nik + section.name())
-                            .provider(new LangEditor(buttons, page, next))
-                            .size(6, 9)
-                            .title("Переводики " + (page + 1))
-                            .build()
-                            .open(p);
+                        .builder()
+                        //.id(op.nik + section.name())
+                        .provider(new LangEditor(buttons, page, next))
+                        .size(6, 9)
+                        .title("Переводики " + (page + 1))
+                        .build()
+                        .open(p);
                 }, 0);
 
             } catch (SQLException e) {

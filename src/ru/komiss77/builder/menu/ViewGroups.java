@@ -1,9 +1,6 @@
 package ru.komiss77.builder.menu;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,6 +11,9 @@ import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ViewGroups implements InventoryProvider {
@@ -43,15 +43,15 @@ public class ViewGroups implements InventoryProvider {
 
             if (g.isStaff()) {
                 contents.set(staffSlot, ClickableItem.empty(new ItemBuilder(mat)
-                        .name(g.chat_name)
-                        .addLore(lore)
-                        .build()));
+                    .name(g.chat_name)
+                    .lore(lore)
+                    .build()));
                 staffSlot++;
             } else {
                 contents.set(donatSlot, ClickableItem.empty(new ItemBuilder(mat)
-                        .name(g.chat_name)
-                        .addLore(lore)
-                        .build()));
+                    .name(g.chat_name)
+                    .lore(lore)
+                    .build()));
                 donatSlot++;
             }
 
@@ -61,7 +61,7 @@ public class ViewGroups implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                PM.getOplayer(p).setup.openMainSetupMenu(p)
+            PM.getOplayer(p).setup.openMainSetupMenu(p)
         ));
 
 

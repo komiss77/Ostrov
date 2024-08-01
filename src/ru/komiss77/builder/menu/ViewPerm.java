@@ -1,8 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,12 +10,10 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
+
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 
 public class ViewPerm implements InventoryProvider {
@@ -49,15 +44,15 @@ public class ViewPerm implements InventoryProvider {
         for (String group : targetOp.getGroups()) {
 
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.EMERALD)
-                    .name("§7Группа §e" + group)
-                    .build()));
+                .name("§7Группа §e" + group)
+                .build()));
 
         }
 
         for (String limitName : targetOp.limits.keySet()) {
             menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.PRISMARINE_CRYSTALS)
-                    .name("§7Лимит для §e" + limitName + " §7: §a" + PM.getOplayer(target).limits.get(limitName))
-                    .build()));
+                .name("§7Лимит для §e" + limitName + " §7: §a" + PM.getOplayer(target).limits.get(limitName))
+                .build()));
 
         }
 
@@ -73,8 +68,8 @@ public class ViewPerm implements InventoryProvider {
 
         for (String s : perm.keySet()) {
             menuEntry.add(ClickableItem.empty(new ItemBuilder(perm.get(s) ? Material.LIME_DYE : Material.RED_DYE)
-                    .name("§7" + s)
-                    .build()));
+                .name("§7" + s)
+                .build()));
 
         }
 
@@ -84,19 +79,19 @@ public class ViewPerm implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                p.closeInventory()
+            p.closeInventory()
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 
@@ -129,8 +124,8 @@ public class ViewPerm implements InventoryProvider {
             for (Player target : Bukkit.getOnlinePlayers()) {
 
                 menuEntry.add(ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name("§7" + target.getName())
-                        .build(), e -> {
+                    .name("§7" + target.getName())
+                    .build(), e -> {
                     p.performCommand("operm " + target.getName());
                 }));
 
@@ -142,19 +137,19 @@ public class ViewPerm implements InventoryProvider {
 
 
             contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                    p.closeInventory()
+                p.closeInventory()
             ));
 
 
             if (!pagination.isLast()) {
                 contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                        -> contents.getHost().open(p, pagination.next().getPage()))
+                    -> contents.getHost().open(p, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
                 contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                        -> contents.getHost().open(p, pagination.previous().getPage()))
+                    -> contents.getHost().open(p, pagination.previous().getPage()))
                 );
             }
 

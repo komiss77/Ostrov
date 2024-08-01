@@ -105,7 +105,7 @@ public class EnchantManager implements Initiable, Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onDamage(final EntityDamageEvent e) {
         if (e instanceof final EntityDamageByEntityEvent ee
-                && ee.getDamager() instanceof LivingEntity) {
+            && ee.getDamager() instanceof LivingEntity) {
             enchAct(((LivingEntity) ee.getDamager()).getEquipment(), ee);
         }
 
@@ -153,7 +153,7 @@ public class EnchantManager implements Initiable, Listener {
     if (!ItemUtils.isBlank(it, false)) {
       final ItemMeta im = it.getItemMeta();
       if (im.hasDisplayName()) {
-        im.displayName(TCUtils.format(TCUtils.toString(im.displayName()).replace('&', '§')));
+        im.displayName(TCUtils.form(TCUtils.deform(im.displayName()).replace('&', '§')));
       }
       if (im instanceof Repairable && ((Repairable) im).hasRepairCost()) {
         ((Repairable) im).setRepairCost(0);

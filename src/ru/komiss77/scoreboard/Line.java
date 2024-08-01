@@ -1,6 +1,7 @@
 package ru.komiss77.scoreboard;
 
 import javax.annotation.Nullable;
+
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -78,6 +79,6 @@ public class Line {
             }
         }
 
-        team.prefix(TCUtils.format(content));
+        team.prefix(TCUtils.form(content));
     }
 }

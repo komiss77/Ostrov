@@ -126,10 +126,10 @@ class SpeechTask implements Runnable {
 
     private boolean isAway(final Player p) {
         return !p.getWorld().getName().equals(f.worldName) ||
-                Math.abs(p.getLocation().getBlockX() - f.x) > 4 ||
-                Math.abs(p.getLocation().getBlockY() - f.y) > 4 ||
-                Math.abs(p.getLocation().getBlockZ() - f.z) > 4
-                ;
+            Math.abs(p.getLocation().getBlockX() - f.x) > 4 ||
+            Math.abs(p.getLocation().getBlockY() - f.y) > 4 ||
+            Math.abs(p.getLocation().getBlockZ() - f.z) > 4
+            ;
     }
 
 

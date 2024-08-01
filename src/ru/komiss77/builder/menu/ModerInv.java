@@ -17,25 +17,25 @@ public class ModerInv implements InventoryProvider {
         its.fillRect(0, 0, 2, 8, ClickableItem.empty(fill));
 
         its.set(10, ClickableItem.of(new ItemBuilder(Material.PAPER)
-                .name("§6Репорты")
-                .addLore("§7Модерация")
-                .addLore("")
-                .addLore("§7Просмотр репортов")
-                .addLore("")
-                .addLore("§7ЛКМ - открыть")
-                .addLore("")
-                .build(), e -> p.performCommand("report")));
+            .name("§6Репорты")
+            .lore("§7Модерация")
+            .lore("")
+            .lore("§7Просмотр репортов")
+            .lore("")
+            .lore("§7ЛКМ - открыть")
+            .lore("")
+            .build(), e -> p.performCommand("report")));
 
         its.set(11, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                .name("§7Шпионаж")
-                .addLore("§7Модерация")
-                .addLore("")
-                .addLore("§7Скрытый контроль")
-                .addLore("§7действий игроков.")
-                .addLore("")
-                .addLore(p.hasPermission("ostrov.spy") ? "§7ЛКМ - открыть" : "§cv=нет права ostrov.spy")
-                .addLore("")
-                .build(), e -> p.performCommand("spy")));
+            .name("§7Шпионаж")
+            .lore("§7Модерация")
+            .lore("")
+            .lore("§7Скрытый контроль")
+            .lore("§7действий игроков.")
+            .lore("")
+            .lore(p.hasPermission("ostrov.spy") ? "§7ЛКМ - открыть" : "§cv=нет права ostrov.spy")
+            .lore("")
+            .build(), e -> p.performCommand("spy")));
 
         its.set(22, ClickableItem.of(new ItemBuilder(Material.PRISMARINE_WALL).name("§cПопустить Модера").build(), e -> p.performCommand("builder end")));
     }

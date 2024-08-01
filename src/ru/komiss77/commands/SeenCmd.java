@@ -25,31 +25,31 @@ public class SeenCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String player = "player";
         return Commands.literal("seen")
-                .then(Resolver.player(player)
-                        .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                cs.sendMessage("§eНе консольная команда!");
-                                return 0;
-                            }
+            .then(Resolver.player(player)
+                .executes(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player pl)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
 
-                            final Oplayer op = PM.getOplayer(pl);
+                    final Oplayer op = PM.getOplayer(pl);
 
-                            if (!op.isStaff) {
-                                pl.sendMessage("§cДоступно только персоналу!");
-                                return 0;
-                            }
+                    if (!op.isStaff) {
+                        pl.sendMessage("§cДоступно только персоналу!");
+                        return 0;
+                    }
 
-                            final Player tgt = Resolver.player(cntx, player);
-                            if (tgt == null) {
-                                pl.sendMessage(Ostrov.PREFIX + "§cИгрок не онлайн!");
-                                return 0;
-                            }
+                    final Player tgt = Resolver.player(cntx, player);
+                    if (tgt == null) {
+                        pl.sendMessage(Ostrov.PREFIX + "§cИгрок не онлайн!");
+                        return 0;
+                    }
 
-                            SpigotChanellMsg.sendMessage(pl, Operation.REQUEST_PLAYER_DATA, pl.getName(), tgt.getName());
-                            return Command.SINGLE_SUCCESS;
-                        }))
-                .build();
+                    SpigotChanellMsg.sendMessage(pl, Operation.REQUEST_PLAYER_DATA, pl.getName(), tgt.getName());
+                    return Command.SINGLE_SUCCESS;
+                }))
+            .build();
     }
 
     @Override

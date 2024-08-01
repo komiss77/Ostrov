@@ -59,17 +59,17 @@ public class IgnoreList implements InventoryProvider {
         for (final String name : op.getBlackListed()) {
 
             final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
-                    .name(name)
-                    .addLore("")
-                    .addLore("§7Лкм - удалить из списка")
-                    .addLore("")
-                    .build();
+                .name(name)
+                .lore("")
+                .lore("§7Лкм - удалить из списка")
+                .lore("")
+                .build();
 
             menuEntry.add(ClickableItem.of(friend_item, e -> {
-                        op.removeBlackList(name);
-                        ApiOstrov.executeBungeeCmd(p, "ignore del " + name);
-                        reopen(p, content);
-                    }
+                    op.removeBlackList(name);
+                    ApiOstrov.executeBungeeCmd(p, "ignore del " + name);
+                    reopen(p, content);
+                }
             ));
 
 
@@ -82,17 +82,17 @@ public class IgnoreList implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

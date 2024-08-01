@@ -9,9 +9,9 @@ import ru.komiss77.modules.player.Oplayer;
 
 public class BungeeDataRecieved extends Event {
 
-    private static HandlerList handlers = new HandlerList();
-    private Player p;
-    private Oplayer op;
+    private static final HandlerList handlers = new HandlerList();
+    private final Player p;
+    private final Oplayer op;
 
     public BungeeDataRecieved(final Player p, final Oplayer op) {
         this.p = p;

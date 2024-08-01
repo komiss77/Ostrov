@@ -308,7 +308,7 @@ public class FigureListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true) //
     public void onTradeOpen(InventoryOpenEvent e) {
         if (e.getInventory().getType() == InventoryType.MERCHANT && e.getInventory().getHolder() != null
-                && FigureManager.isFigure(((Entity) e.getInventory().getHolder()))) {
+            && FigureManager.isFigure(((Entity) e.getInventory().getHolder()))) {
             e.setCancelled(true);
         }
     }

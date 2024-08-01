@@ -134,7 +134,7 @@ public class Ostrov extends JavaPlugin {
         }
 
         modules.values().stream().forEach(
-                (module) -> (module).onDisable()
+            (module) -> (module).onDisable()
         );
         log_ok("§4Остров выгружен!");
     }
@@ -222,13 +222,13 @@ public class Ostrov extends JavaPlugin {
         //Bukkit.getPluginManager().registerEvents(GM.gmListener, Ostrov.instance);
 
         modules.values().stream().forEach(
-                (module) -> {
-                    try {
-                        (module).postWorld();
-                    } catch (Exception ex) {
-                        log_err("postWorld module " + module + " : " + ex.getMessage());
-                    }
+            (module) -> {
+                try {
+                    (module).postWorld();
+                } catch (Exception ex) {
+                    log_err("postWorld module " + module + " : " + ex.getMessage());
                 }
+            }
         );
 
         new WorldsLoadCompleteEvent().callEvent();
@@ -326,7 +326,7 @@ public class Ostrov extends JavaPlugin {
 
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         OstrovDB.executePstAsync(Bukkit.getConsoleSender(),
-                "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
+            "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
     }
 
 

@@ -1,6 +1,8 @@
 package ru.komiss77.commands;
 
 import ru.komiss77.Ostrov;
+import ru.komiss77.builder.BuilderCmd;
+import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.kits.KitCmd;
 import ru.komiss77.modules.player.mission.MissionCmd;
 
@@ -12,8 +14,8 @@ public class RegisterCommands {
 
         Ostrov.log_ok("§5Регистрация команд:");
         Ostrov.regCommand(new AdminCmd());
-        Ostrov.regCommand(new Prefix());
-        Ostrov.regCommand(new Suffix());
+        Ostrov.regCommand(new PrefixCmd());
+        Ostrov.regCommand(new SuffixCmd());
         Ostrov.regCommand(new ProfileCmd());
         Ostrov.regCommand(new InvseeCmd());
         Ostrov.regCommand(new SeenCmd());
@@ -35,20 +37,16 @@ public class RegisterCommands {
         Ostrov.regCommand(new AnalyticsCmd());
         Ostrov.regCommand(new HomeCmd());
         Ostrov.regCommand(new SkinCmd());
+        Ostrov.regCommand(new TprCmd());
+        Ostrov.regCommand(new BuilderCmd());
+        Ostrov.regCommand(new DonateCmd());
+        Ostrov.regCommand(new HatCmd());
+        Ostrov.regCommand(new ResourcePacksLst());
 
 //        plugin.getCommand("statreach").setExecutor(new StatReachCmd());
 //        plugin.getCommand("world").setExecutor(new WorldCmd());
 //        plugin.getCommand("nbtfind").setExecutor(new NbtfindCmd(plugin));
 //        plugin.getCommand("nbtcheck").setExecutor(new NbtcheckCmd(plugin));
-        /*plugin.getCommand("tpr").setExecutor(new TprCmd());
-        plugin.getCommand("builder").setExecutor(new BuilderCmd());
-        plugin.getCommand("moder").setExecutor(new ModerCmd());
-        plugin.getCommand("donate").setExecutor(new DonateCmd());
-        plugin.getCommand("clean").setExecutor(new CleanCmd());
-        plugin.getCommand("hat").setExecutor(new HatCmd());
-        plugin.getCommand("rp").setExecutor(new ResourcePacksLst());
-        //plugin.getCommand("rp").setExecutor(ResourcePacksLst.resourcePacks);//new ResourcePacks(false));
-    */
     }
 
 

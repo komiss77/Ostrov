@@ -48,7 +48,7 @@ public class TradeLst implements Listener {
         final Player p = e.getPlayer();
 
         //NoSelfTrade
-        if (p1Name.equals(p.getName())) { 
+        if (p1Name.equals(p.getName())) {
             p.sendMessage("§eТорговец ждёт второго участника..");
             return;
         }
@@ -71,10 +71,10 @@ public class TradeLst implements Listener {
                 @Override
                 public void run() {
                     if (p == null ||
-                            !p.isOnline() ||
-                            p.isDead() ||
-                            !p.getWorld().getName().equals(traderLocation.getWorld().getName()) ||
-                            LocationUtil.getDistance(p.getLocation(), traderLocation) > 30
+                        !p.isOnline() ||
+                        p.isDead() ||
+                        !p.getWorld().getName().equals(traderLocation.getWorld().getName()) ||
+                        LocationUtil.getDistance(p.getLocation(), traderLocation) > 30
                     ) {
                         reset();
                         return;
@@ -119,7 +119,7 @@ public class TradeLst implements Listener {
             //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.name(), true);
             //TradeSystem.getInstance().getTradeManager().startTrade(p, p1);
 //Ostrov.log("Trade session : "+p1Name+" - "+p.name());
-            
+
 
             //final TradeInventory tradeInventory = new TradeInventory(p1, p);
             //tradeInventories.add(tradeInventory);
@@ -533,8 +533,7 @@ System.out.println("InventoryDragEvent DENY 2");
     //}
     // }
     // }
-  
-   
+
 
 }    
     

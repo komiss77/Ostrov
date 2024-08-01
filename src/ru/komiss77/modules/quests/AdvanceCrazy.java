@@ -243,8 +243,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
                 DonatEffect.spawnRandomFirework(p.getLocation());
                 final String chatColor = TCUtils.randomColor();
                 p.sendMessage(" ");
-                p.sendMessage(TCUtils.format(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));
-                p.sendMessage(TCUtils.format(chatColor + q.displayName + " §f: §aКвест завершен!"));
+                p.sendMessage(TCUtils.form(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));
+                p.sendMessage(TCUtils.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
                 p.sendMessage(" ");
                 ad.displayToast(p);
             }
@@ -259,7 +259,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
             mgr.setCriteriaProgress(p, ad, progress);
             if (!silent) {
                 ApiOstrov.sendBossbarDirect(p, "§сПрогресс : §f" + q.displayName, 4, q.getBBColor(),
-                        BossBar.Overlay.PROGRESS, q.amount == 0 ? 1f : (float) progress / q.amount);
+                    BossBar.Overlay.PROGRESS, q.amount == 0 ? 1f : (float) progress / q.amount);
             }
         }
     }

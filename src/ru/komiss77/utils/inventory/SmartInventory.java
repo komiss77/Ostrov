@@ -1,18 +1,13 @@
 package ru.komiss77.utils.inventory;
 
 import com.google.common.base.Preconditions;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.bukkit.inventory.Inventory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+
+import java.util.*;
 
 //слоты сундука https://wiki.vg/Inventory
 //https://github.com/MinusKube/SmartInvs
@@ -67,9 +62,9 @@ public class SmartInventory {
 
         oldInv.ifPresent(inv -> {
             inv.getListeners().stream()
-                    .filter(listener -> listener.getType() == InventoryCloseEvent.class)
-                    .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener)
-                            .accept(new InventoryCloseEvent(player.getOpenInventory())));
+                .filter(listener -> listener.getType() == InventoryCloseEvent.class)
+                .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener)
+                    .accept(new InventoryCloseEvent(player.getOpenInventory())));
 
             InventoryManager.setInventory(player, null);
         });
@@ -85,7 +80,7 @@ public class SmartInventory {
 
 
         InventoryOpener opener = InventoryManager.findOpener(type)
-                .orElseThrow(() -> new IllegalStateException("No opener found for the inventory type " + type.name()));
+            .orElseThrow(() -> new IllegalStateException("No opener found for the inventory type " + type.name()));
         //Inventory handle = opener.open(this, player);
 
         handle = opener.getInventory(this, player); //сначала получить образ баккит-инвентаря
@@ -103,9 +98,9 @@ public class SmartInventory {
     @SuppressWarnings("unchecked")
     public void close(Player player) {
         listeners.stream()
-                .filter(listener -> listener.getType() == InventoryCloseEvent.class)
-                .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener)
-                        .accept(new InventoryCloseEvent(player.getOpenInventory())));
+            .filter(listener -> listener.getType() == InventoryCloseEvent.class)
+            .forEach(listener -> ((InventoryListener<InventoryCloseEvent>) listener)
+                .accept(new InventoryCloseEvent(player.getOpenInventory())));
 
         InventoryManager.setInventory(player, null);
         player.closeInventory();

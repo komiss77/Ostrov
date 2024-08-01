@@ -55,7 +55,7 @@ class SpeechTaskHD extends SpeechTask {
                     letters += sb.length();
                     final int tmp = letters;
                     DisplayManager.fakeItemAnimate(p, pos.clone().add(0d, -items, 0d))
-                            .setItem(new ItemStack(mat)).setIsDone(tk -> p.isSneaking() && tk > tmp);
+                        .setItem(new ItemStack(mat)).setIsDone(tk -> p.isSneaking() && tk > tmp);
                     items++;
                 }
 
@@ -114,10 +114,10 @@ class SpeechTaskHD extends SpeechTask {
 
     private boolean isAway(final Player p) {
         return !p.getWorld().getName().equals(f.worldName) ||
-                Math.abs(p.getLocation().getBlockX() - f.x) > 4 ||
-                Math.abs(p.getLocation().getBlockY() - f.y) > 4 ||
-                Math.abs(p.getLocation().getBlockZ() - f.z) > 4
-                ;
+            Math.abs(p.getLocation().getBlockX() - f.x) > 4 ||
+            Math.abs(p.getLocation().getBlockY() - f.y) > 4 ||
+            Math.abs(p.getLocation().getBlockZ() - f.z) > 4
+            ;
     }
 
 

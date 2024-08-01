@@ -48,8 +48,8 @@ public class CI_OnePage implements InventoryProvider {
         if (buttons.isEmpty()) {
 
             content.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
 
         } else {

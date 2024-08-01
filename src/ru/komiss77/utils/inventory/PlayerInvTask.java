@@ -1,15 +1,15 @@
 package ru.komiss77.utils.inventory;
 
-import java.util.Objects;
-
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Objects;
+
 class PlayerInvTask extends BukkitRunnable {
 
-    private Player player;
-    private InventoryProvider provider;
-    private InventoryContent contents;
+    private final Player player;
+    private final InventoryProvider provider;
+    private final InventoryContent contents;
 
     public PlayerInvTask(Player player, InventoryProvider provider, InventoryContent contents) {
         this.player = Objects.requireNonNull(player);

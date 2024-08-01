@@ -2,13 +2,12 @@ package ru.komiss77.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
 import ru.komiss77.enums.Operation;
 
 
 public class OstrovChanelEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     public final Operation action;
     public final String senderInfo;
     public final int int1;

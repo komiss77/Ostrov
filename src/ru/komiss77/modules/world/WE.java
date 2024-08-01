@@ -35,25 +35,25 @@ public class WE implements Initiable {
         JOBS = new HashMap<Integer, PasteJob>();
         schematics = new CaseInsensitiveMap<Schematic>();
         scipOnPasteDefault = Arrays.asList(
-                Material.DIAMOND_BLOCK,
-                Material.EMERALD_BLOCK,
-                Material.IRON_BLOCK,
-                Material.DIAMOND_ORE,
-                Material.IRON_ORE,
-                Material.EMERALD_ORE,
-                Material.GOLD_ORE,
-                Material.OBSIDIAN,
-                Material.ENCHANTING_TABLE,
-                Material.BEACON,
-                Material.SEA_LANTERN,
-                Material.ANCIENT_DEBRIS,
-                Material.NETHERITE_BLOCK,
-                Material.CRYING_OBSIDIAN,
-                Material.ENDER_CHEST,
-                Material.RESPAWN_ANCHOR,
-                Material.DRAGON_HEAD,
-                Material.WITHER_SKELETON_SKULL,
-                Material.GOLD_BLOCK
+            Material.DIAMOND_BLOCK,
+            Material.EMERALD_BLOCK,
+            Material.IRON_BLOCK,
+            Material.DIAMOND_ORE,
+            Material.IRON_ORE,
+            Material.EMERALD_ORE,
+            Material.GOLD_ORE,
+            Material.OBSIDIAN,
+            Material.ENCHANTING_TABLE,
+            Material.BEACON,
+            Material.SEA_LANTERN,
+            Material.ANCIENT_DEBRIS,
+            Material.NETHERITE_BLOCK,
+            Material.CRYING_OBSIDIAN,
+            Material.ENDER_CHEST,
+            Material.RESPAWN_ANCHOR,
+            Material.DRAGON_HEAD,
+            Material.WITHER_SKELETON_SKULL,
+            Material.GOLD_BLOCK
         );
     }
 

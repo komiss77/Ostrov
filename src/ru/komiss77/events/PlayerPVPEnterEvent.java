@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerEvent;
 
 public class PlayerPVPEnterEvent extends PlayerEvent {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final LivingEntity other;
     private final DamageCause cause;
     private final boolean attack;

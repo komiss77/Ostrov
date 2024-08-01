@@ -1,12 +1,12 @@
 package ru.komiss77.events;
 
-import ru.komiss77.enums.ArmorType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.enums.ArmorType;
 
 
 //@Deprecated

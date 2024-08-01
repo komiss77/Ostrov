@@ -68,8 +68,8 @@ public class Example implements Listener, CommandExecutor, TabCompleter {
 
     private void help(final Player p) {
         p.sendMessage(Component.text("§3/" + this.getClass().getSimpleName() + " <ник> - §7  §8<<клик")
-                .hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
-                .clickEvent(ClickEvent.suggestCommand("/ ")));
+            .hoverEvent(HoverEvent.showText(Component.text("§aКлик - набрать")))
+            .clickEvent(ClickEvent.suggestCommand("/ ")));
     }
 
 

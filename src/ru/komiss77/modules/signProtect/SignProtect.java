@@ -20,14 +20,14 @@ import java.util.EnumSet;
 
 public class SignProtect {
     public static EnumSet<Material> lockables = EnumSet.of(
-            Material.CHEST,
-            Material.TRAPPED_CHEST,
-            Material.FURNACE,
-            Material.BLAST_FURNACE,
-            Material.SMOKER,
-            Material.HOPPER,
-            Material.BREWING_STAND,
-            Material.LECTERN
+        Material.CHEST,
+        Material.TRAPPED_CHEST,
+        Material.FURNACE,
+        Material.BLAST_FURNACE,
+        Material.SMOKER,
+        Material.HOPPER,
+        Material.BREWING_STAND,
+        Material.LECTERN
     );
     public static BlockFace[] NSWE = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 

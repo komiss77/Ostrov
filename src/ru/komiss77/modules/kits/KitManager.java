@@ -1,22 +1,23 @@
 package ru.komiss77.modules.kits;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Initiable;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.inventory.SmartInventory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 
@@ -56,8 +57,8 @@ public final class KitManager implements Initiable {
 
     @Override
     public void onDisable() {
-    }   
-    
+    }
+
     @Override
     public void reload() {
         try {
@@ -97,8 +98,8 @@ public final class KitManager implements Initiable {
                         kit.getPrice = kitsConfig.getInt("kits." + kitName + ".getPrice", 0);
                         kit.delaySec = kitsConfig.getInt("kits." + kitName + ".delayMin", 0) * 60;
                         kit.logoItem = new ItemBuilder(ItemUtils.parseItem(kitsConfig.getString("kits." + kitName + ".logoItem", ""), "<>"))
-                                .name("§e§n§l" + kitName)
-                                .build();
+                            .name("§e§n§l" + kitName)
+                            .build();
                         kit.items.addAll(items);
 
                         KitManager.kits.put(kitName, kit);
@@ -267,7 +268,7 @@ public final class KitManager implements Initiable {
         }
 
         ApiOstrov.moneyChange(player, -kit.getPrice, "выдача набора " + kitName);
-        
+
         giveKit(player, kitName, true);
         return true;
 
@@ -284,7 +285,7 @@ public final class KitManager implements Initiable {
     public static void giveKit(final Player p, final String kitName, final boolean equipArmor) {
         final Kit kit = kits.get(kitName);
         if (kit == null) return;
-        
+
         boolean equiped;
 
         for (ItemStack is : kit.items) {
@@ -317,7 +318,7 @@ public final class KitManager implements Initiable {
         final Oplayer op = PM.getOplayer(p);
         op.setKitUseTimestamp(kitName);
         p.sendMessage("§aВсе компонетны набора " + kitName + " добавлены в инвентарь!");
-        
+
     }
 
 
@@ -347,7 +348,7 @@ public final class KitManager implements Initiable {
 
     public static void openKitPrewiev(final Player p, final Kit kit) {
         SmartInventory inv = SmartInventory.builder().id("KitPrewiev:" + kit.name + ":" + p.getName()).provider(new KitPrewiev(kit)).size(6, 9).title("§1Просмотр набора §6" + kit.name).build();
-        inv.open(p);                    
+        inv.open(p);
     }
 
     public static void openKitEditMain(final Player p) {
@@ -362,7 +363,7 @@ public final class KitManager implements Initiable {
 
     public static void openKitKitComponentEditor(final Player player, final Kit kit) {
         SmartInventory inv = SmartInventory.builder().id("KitComponentEditor:" + kit.name + ":" + player.getName()).provider(new KitComponentEditor(kit)).size(6, 9).title("§4Компоненты набора §6" + kit.name).build();
-        inv.open(player);                    
+        inv.open(player);
     }
 
 
@@ -448,7 +449,7 @@ public final class KitManager implements Initiable {
                     return Легендарный;
                 case Легендарный:
                     return Простой;
-                    
+
             }
             return Простой;
         }

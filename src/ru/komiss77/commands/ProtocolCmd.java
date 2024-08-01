@@ -25,40 +25,40 @@ public class ProtocolCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String val = "value";
         return Commands.literal("protocol")
-                .then(Resolver.integer(val).suggests((cntx, sb) -> {
-                            if (!(cntx.getSource().getExecutor() instanceof final Player pl)
-                                    || !PM.getOplayer(pl).hasGroup(grp)) {
-                                return sb.buildFuture();
-                            }
-                            sb.suggest(77);
-                            return sb.buildFuture();
-                        })
-                        .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                cs.sendMessage("§eНе консольная команда!");
-                                return 0;
-                            }
+            .then(Resolver.integer(val).suggests((cntx, sb) -> {
+                    if (!(cntx.getSource().getExecutor() instanceof final Player pl)
+                        || !PM.getOplayer(pl).hasGroup(grp)) {
+                        return sb.buildFuture();
+                    }
+                    sb.suggest(77);
+                    return sb.buildFuture();
+                })
+                .executes(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player pl)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
 
-                            final Oplayer op = PM.getOplayer(pl);
+                    final Oplayer op = PM.getOplayer(pl);
 
-                            if (!op.hasGroup(grp)) {
-                                pl.sendMessage("§cДоступно только персоналу!");
-                                return 0;
+                    if (!op.hasGroup(grp)) {
+                        pl.sendMessage("§cДоступно только персоналу!");
+                        return 0;
+                    }
+                    return switch (Resolver.integer(cntx, val)) {
+                        case 77 -> {
+                            if (Protocol77.active) {
+                                pl.sendMessage(Ostrov.PREFIX + "§cПротокол уже активен!");
+                                yield 0;
                             }
-                            return switch (Resolver.integer(cntx, val)) {
-                                case 77 -> {
-                                    if (Protocol77.active) {
-                                        pl.sendMessage(Ostrov.PREFIX + "§cПротокол уже активен!");
-                                        yield 0;
-                                    }
-                                    new Protocol77(pl);
-                                    yield Command.SINGLE_SUCCESS;
-                                }
-                                default -> 0;
-                            };
-                        }))
-                .build();
+                            new Protocol77(pl);
+                            yield Command.SINGLE_SUCCESS;
+                        }
+                        default -> 0;
+                    };
+                }))
+            .build();
     }
 
     @Override

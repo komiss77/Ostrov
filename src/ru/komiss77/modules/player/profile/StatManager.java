@@ -23,7 +23,7 @@ public class StatManager {
     public static boolean DEBUG;
 
     public static final EnumSet<Data> passportData = EnumSet.of(Data.PREFIX, Data.SUFFIX, Data.PHONE, Data.EMAIL, Data.FAMILY, Data.GENDER, Data.BIRTH, Data.LAND,
-            Data.CITY, Data.ABOUT, Data.DISCORD, Data.VK, Data.MARRY, Data.YOUTUBE);
+        Data.CITY, Data.ABOUT, Data.DISCORD, Data.VK, Data.MARRY, Data.YOUTUBE);
 
 
     public static void addStat(final Player p, final Stat stat, int ammount) {

@@ -1,11 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -18,15 +12,10 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+
+import java.util.*;
 
 
 public class EntityTypeMenu implements InventoryProvider {
@@ -93,15 +82,15 @@ public class EntityTypeMenu implements InventoryProvider {
                 if (entitys.get(entity) == dist) {
 
                     menuEntry.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                            .name("§f" + entity.getLocation().getBlockX() + " §7: §f" + entity.getLocation().getBlockY() + " §7: §f" + entity.getLocation().getBlockZ())
-                            .addLore("§7Дистанция: " + (entitys.get(entity) == -1 ? "§8другой мир" : "§b" + entitys.get(entity)))
-                            .addLore("§7")
-                            .addLore("§7ЛКМ - ТП к сущности")
-                            .addLore("§7ПКМ - изменить характеристики")
-                            .addLore("§7Шифт+ЛКМ - призвать")
-                            .addLore("§7Шифт+ПКМ - удалить")
-                            .addLore("§7")
-                            .build(), e -> {
+                        .name("§f" + entity.getLocation().getBlockX() + " §7: §f" + entity.getLocation().getBlockY() + " §7: §f" + entity.getLocation().getBlockZ())
+                        .lore("§7Дистанция: " + (entitys.get(entity) == -1 ? "§8другой мир" : "§b" + entitys.get(entity)))
+                        .lore("§7")
+                        .lore("§7ЛКМ - ТП к сущности")
+                        .lore("§7ПКМ - изменить характеристики")
+                        .lore("§7Шифт+ЛКМ - призвать")
+                        .lore("§7Шифт+ПКМ - удалить")
+                        .lore("§7")
+                        .build(), e -> {
 //Ostrov.log("CLICK="+e.getClick());
                         if (!ApiOstrov.isLocalBuilder(p, true)) return;
                         switch (e.getClick()) {
@@ -126,12 +115,12 @@ public class EntityTypeMenu implements InventoryProvider {
 
 
         contents.set(5, 2, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                .name("§fРадиус: §e" + (radius > 0 ? radius : " весь мир"))
-                .addLore("§7")
-                .addLore("§7ЛКМ - изменить радиус")
-                .addLore("§7(0 - весь мир)")
-                .addLore("§7")
-                .build(), "" + radius, imput -> {
+            .name("§fРадиус: §e" + (radius > 0 ? radius : " весь мир"))
+            .lore("§7")
+            .lore("§7ЛКМ - изменить радиус")
+            .lore("§7(0 - весь мир)")
+            .lore("§7")
+            .build(), "" + radius, imput -> {
 
             if (!ApiOstrov.isInteger(imput)) {
                 p.sendMessage("§cДолжно быть число!");
@@ -148,23 +137,23 @@ public class EntityTypeMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                SmartInventory.builder()
-                        .id("EntityByGroup" + p.getName())
-                        .provider(new EntityGroupMenu(p.getLocation(), radius, EntityUtil.group(type)))
-                        .size(6, 9)
-                        .title("§2" + world.getName() + " " + type + " §1r=" + radius).build().open(p)
+            SmartInventory.builder()
+                .id("EntityByGroup" + p.getName())
+                .provider(new EntityGroupMenu(p.getLocation(), radius, EntityUtil.group(type)))
+                .size(6, 9)
+                .title("§2" + world.getName() + " " + type + " §1r=" + radius).build().open(p)
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

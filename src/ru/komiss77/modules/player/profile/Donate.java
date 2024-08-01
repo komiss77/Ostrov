@@ -53,18 +53,18 @@ public class Donate implements InventoryProvider {
 
             if (group == null || group.isStaff()) continue;
             content.set(group.inv_slot, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.matchMaterial(group.mat))
-                    .name(group.chat_name)
-                    .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    //.addLore("")
-                    .setLore(group.lore)
-                    //.addLore("")
-                    //.addLore("§f15 дней §7- §b"+group.getPrice(15))
-                    //.addLore("§f1 месяц §7- §b"+group.getPrice(31))
-                    //.addLore("§f3 месяца §7- §b"+group.getPrice(90))
-                    //.addLore("")
-                    //.addLore("§7ЛКМ - выбрать длительность")
-                    //.addLore("")
-                    .build(), "15-180 дней", ammount -> {
+                .name(group.chat_name)
+                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                //.addLore("")
+                .deLore().lore(group.lore)
+                //.addLore("")
+                //.addLore("§f15 дней §7- §b"+group.getPrice(15))
+                //.addLore("§f1 месяц §7- §b"+group.getPrice(31))
+                //.addLore("§f3 месяца §7- §b"+group.getPrice(90))
+                //.addLore("")
+                //.addLore("§7ЛКМ - выбрать длительность")
+                //.addLore("")
+                .build(), "15-180 дней", ammount -> {
                 p.closeInventory();
                 if (!ApiOstrov.isInteger(ammount)) {
                     p.sendMessage("§cДолжно быть число!");
@@ -90,24 +90,24 @@ public class Donate implements InventoryProvider {
 
 
         final ItemStack add = new ItemBuilder(Material.GOLD_INGOT)
-                .name("§6Пополнить счёт")
-                .addLore("§7")
-                .addLore("§7Для оплаты привилегии")
-                .addLore("§7нужны §bРил")
-                .addLore("§7Рил можно заработать,")
-                .addLore("§7выполняя миссии, или")
-                .addLore("§7пополнить через магазин.")
-                .addLore("§7")
-                .addLore("§fКлик §6- Открыть офф. магазин")
-                .build();
+            .name("§6Пополнить счёт")
+            .lore("§7")
+            .lore("§7Для оплаты привилегии")
+            .lore("§7нужны §bРил")
+            .lore("§7Рил можно заработать,")
+            .lore("§7выполняя миссии, или")
+            .lore("§7пополнить через магазин.")
+            .lore("§7")
+            .lore("§fКлик §6- Открыть офф. магазин")
+            .build();
 
         content.set(4, ClickableItem.of(add
-                        , e -> {
-                            p.performCommand("donate");
-                            //p.closeInventory();
-                            //ApiOstrov.executeBungeeCmd(p, "money add");
-                        }
-                )
+                , e -> {
+                    p.performCommand("donate");
+                    //p.closeInventory();
+                    //ApiOstrov.executeBungeeCmd(p, "money add");
+                }
+            )
         );
 
 

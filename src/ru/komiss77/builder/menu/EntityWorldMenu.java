@@ -1,7 +1,5 @@
 package ru.komiss77.builder.menu;
 
-import java.util.Map;
-
 import ca.spottedleaf.moonrise.common.util.ChunkSystem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
@@ -22,6 +20,8 @@ import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
+
+import java.util.Map;
 
 
 public class EntityWorldMenu implements InventoryProvider {
@@ -140,16 +140,16 @@ public class EntityWorldMenu implements InventoryProvider {
         for (final Map.Entry<EntityGroup, Integer> en : count.entrySet()) {
             worldLimit = EntityGroup.getWorldSpawnLimit(world, en.getKey());
             contents.add(ClickableItem.of(new ItemBuilder(en.getKey().displayMat)
-                    .name(en.getKey().displayName)
-                    .addLore("")
-                    .addLore("§e" + en.getValue())
-                    //.addLore("§7")
-                    .addLore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - показать по чанкам")
-                    .addLore("§7ПКМ - показать по типу")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name(en.getKey().displayName)
+                .lore("")
+                .lore("§e" + en.getValue())
+                //.addLore("§7")
+                .lore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
+                .lore("§7")
+                .lore("§7ЛКМ - показать по чанкам")
+                .lore("§7ПКМ - показать по типу")
+                .lore("§7")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     group = en.getKey();
                     reopen(p, contents);
@@ -162,12 +162,12 @@ public class EntityWorldMenu implements InventoryProvider {
               .open(p);*/
                 } else {
                     SmartInventory.builder()
-                            .id("EntityByGroup" + p.getName())
-                            .provider(new EntityGroupMenu(p.getLocation(), radius, en.getKey()))
-                            .size(6, 9)
-                            .title("§2" + world.getName() + " " + en.getKey().displayName + " §1r=" + radius)
-                            .build()
-                            .open(p);
+                        .id("EntityByGroup" + p.getName())
+                        .provider(new EntityGroupMenu(p.getLocation(), radius, en.getKey()))
+                        .size(6, 9)
+                        .title("§2" + world.getName() + " " + en.getKey().displayName + " §1r=" + radius)
+                        .build()
+                        .open(p);
                 }
             }));
         }
@@ -239,16 +239,16 @@ public class EntityWorldMenu implements InventoryProvider {
             for (final Map.Entry<Integer, Integer> entry : count2.entrySet()) {
 
                 contents.set(pos, ClickableItem.of(new ItemBuilder(Material.SCULK_CATALYST)
-                        .name("§bЧанк §f" + LocationUtil.getChunkX(entry.getKey()) + " §8x §f" + LocationUtil.getChunkZ(entry.getKey()))
-                        .amount(entry.getValue() > 64 ? 64 : entry.getValue())
-                        .addLore(group.displayName)
-                        .addLore("§7Найдено: §e" + entry.getValue())
-                        .addLore("")
-                        .addLore("§7ЛКМ - ТП в чанк")
-                        .addLore("§7ПКМ - показать группы в чанке")
-                        .addLore("")
-                        .addLore(group != EntityGroup.TILE && group != EntityGroup.TICKABLE_TILE ? "§7Шифт+ПКМ - удалить " + group.displayName + " в чанке" : "")
-                        .build(), e -> {
+                    .name("§bЧанк §f" + LocationUtil.getChunkX(entry.getKey()) + " §8x §f" + LocationUtil.getChunkZ(entry.getKey()))
+                    .amount(entry.getValue() > 64 ? 64 : entry.getValue())
+                    .lore(group.displayName)
+                    .lore("§7Найдено: §e" + entry.getValue())
+                    .lore("")
+                    .lore("§7ЛКМ - ТП в чанк")
+                    .lore("§7ПКМ - показать группы в чанке")
+                    .lore("")
+                    .lore(group != EntityGroup.TILE && group != EntityGroup.TICKABLE_TILE ? "§7Шифт+ПКМ - удалить " + group.displayName + " в чанке" : "")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
 
                         EntityGroupMenu.toChunk(p, world, entry.getKey());
@@ -258,12 +258,12 @@ public class EntityWorldMenu implements InventoryProvider {
                         final IntHashMap<Chunk> map = new IntHashMap<>();
                         map.put(LocationUtil.cLoc(c), c);
                         SmartInventory.builder()
-                                .id("EntityByGroup" + p.getName())
-                                .provider(new EntityGroupMenu(map, group))
-                                .size(6, 9)
-                                .title("§bЧанк §f" + LocationUtil.getChunkX(entry.getKey()) + " §8x §f" + LocationUtil.getChunkZ(entry.getKey()))
-                                .build()
-                                .open(p);
+                            .id("EntityByGroup" + p.getName())
+                            .provider(new EntityGroupMenu(map, group))
+                            .size(6, 9)
+                            .title("§bЧанк §f" + LocationUtil.getChunkX(entry.getKey()) + " §8x §f" + LocationUtil.getChunkZ(entry.getKey()))
+                            .build()
+                            .open(p);
 
                     } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
 
@@ -290,28 +290,28 @@ public class EntityWorldMenu implements InventoryProvider {
 
 
         contents.set(5, 2, ClickableItem.of(new ItemBuilder(Material.HEART_OF_THE_SEA)
-                .name("§eПоказать все миры")
-                .build(), e -> {
+            .name("§eПоказать все миры")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 SmartInventory
-                        .builder()
-                        .id("EntityWorlds" + p.getName())
-                        .provider(new EntityServerMenu(Bukkit.getWorlds()))
-                        .size(6, 9)
-                        .title("§2Сущности миров")
-                        .build()
-                        .open(p);
+                    .builder()
+                    .id("EntityWorlds" + p.getName())
+                    .provider(new EntityServerMenu(Bukkit.getWorlds()))
+                    .size(6, 9)
+                    .title("§2Сущности миров")
+                    .build()
+                    .open(p);
             }
         }));
 
 
         contents.set(5, 4, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-                .name("§7Сущности в мире §a" + world.getName() + (radius > 0 ? " §7в радиусе §a" + radius : ""))
-                .addLore("§7")
-                .addLore("§fЛКМ - §bуказать радиус")
-                .addLore("§7(0 - весь мир)")
-                .addLore("§7")
-                .build(), "" + radius, imput -> {
+            .name("§7Сущности в мире §a" + world.getName() + (radius > 0 ? " §7в радиусе §a" + radius : ""))
+            .lore("§7")
+            .lore("§fЛКМ - §bуказать радиус")
+            .lore("§7(0 - весь мир)")
+            .lore("§7")
+            .build(), "" + radius, imput -> {
             if (!ApiOstrov.isInteger(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
@@ -327,11 +327,11 @@ public class EntityWorldMenu implements InventoryProvider {
 
 
         contents.set(5, 6, ClickableItem.of(new ItemBuilder(Material.REDSTONE)
-                .name("§cУдалить всех энтити в мире")
-                .addLore("")
-                .addLore("§fШифт+ЛКМ - §судалить")
-                .addLore("")
-                .build(), e -> {
+            .name("§cУдалить всех энтити в мире")
+            .lore("")
+            .lore("§fШифт+ЛКМ - §судалить")
+            .lore("")
+            .build(), e -> {
             if (e.isShiftClick()) {
                 if (radius > 0) {
                     for (final Entity entity : p.getNearbyEntities(radius, radius, radius)) {
@@ -352,7 +352,7 @@ public class EntityWorldMenu implements InventoryProvider {
 
 
         contents.set(5, 8, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e
-                -> PM.getOplayer(p).setup.openMainSetupMenu(p)
+            -> PM.getOplayer(p).setup.openMainSetupMenu(p)
         ));
 
 

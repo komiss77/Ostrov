@@ -1,9 +1,9 @@
 package ru.komiss77.enums;
 
+import ru.komiss77.objects.CaseInsensitiveMap;
+
 import java.util.Arrays;
 import java.util.List;
-
-import ru.komiss77.objects.CaseInsensitiveMap;
 
 // !!!!!!!  не ставить ничего от бакита, не грузит банжик!!!
 

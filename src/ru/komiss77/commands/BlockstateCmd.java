@@ -93,7 +93,7 @@ public class BlockstateCmd {
                         p.sendMessage("§cкоордината не определена!");
                     } else {
                         p.sendMessage(Component.text("§eНаибольшее колл-во в чанке " + max_loc.getChunk().getX() + "*" + max_loc.getChunk().getZ() + ", клик-ТП")
-                                .clickEvent(ClickEvent.runCommand("/tp " + p.getName() + " " + max_loc.getBlockX() + " " + max_loc.getBlockY() + " " + max_loc.getBlockZ())));
+                            .clickEvent(ClickEvent.runCommand("/tp " + p.getName() + " " + max_loc.getBlockX() + " " + max_loc.getBlockY() + " " + max_loc.getBlockZ())));
                     }
                     return true;
                 } else {
@@ -114,10 +114,10 @@ public class BlockstateCmd {
 
     private static <K, V extends Comparable<? super V>> SortedSet<Map.Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
         SortedSet<Map.Entry<K, V>> sortedEntries = new TreeSet<>(
-                (Map.Entry<K, V> e1, Map.Entry<K, V> e2) -> {
-                    int res = e1.getValue().compareTo(e2.getValue());
-                    return res != 0 ? res : 1;
-                });
+            (Map.Entry<K, V> e1, Map.Entry<K, V> e2) -> {
+                int res = e1.getValue().compareTo(e2.getValue());
+                return res != 0 ? res : 1;
+            });
         sortedEntries.addAll(map.entrySet());
         return sortedEntries;
     }

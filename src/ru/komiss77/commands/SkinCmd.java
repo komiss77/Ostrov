@@ -22,7 +22,7 @@ public class SkinCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("skin")
             .executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;

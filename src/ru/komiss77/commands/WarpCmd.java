@@ -23,46 +23,46 @@ public class WarpCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String warp = "warp", player = "player";
         return Commands.literal("warp").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player pl)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                openMenu(pl);
+                return Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.string(warp).suggests((cntx, sb) -> {
+                    WarpManager.getWarpNames().forEach(s -> sb.suggest(s));
+                    return sb.buildFuture();
+                })
+                .executes(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
                     }
-                    openMenu(pl);
+
+                    WarpManager.tryWarp(pl, Resolver.string(cntx, warp));
                     return Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.string(warp).suggests((cntx, sb) -> {
-                            WarpManager.getWarpNames().forEach(s -> sb.suggest(s));
-                            return sb.buildFuture();
-                        })
-                        .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final Player pl)) {
-                                cs.sendMessage("§eНе консольная команда!");
-                                return 0;
-                            }
+                }).then(Resolver.player(player).executes(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final ConsoleCommandSender cn)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
 
-                            WarpManager.tryWarp(pl, Resolver.string(cntx, warp));
-                            return Command.SINGLE_SUCCESS;
-                        }).then(Resolver.player(player).executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
-                            if (!(cs instanceof final ConsoleCommandSender cn)) {
-                                cs.sendMessage("§eНе консольная команда!");
-                                return 0;
-                            }
+                    final Player tgt = Resolver.player(cntx, player);
+                    if (tgt == null) {
+                        cn.sendMessage(Ostrov.PREFIX + "§cИгрок не онлайн!");
+                        return 0;
+                    }
 
-                            final Player tgt = Resolver.player(cntx, player);
-                            if (tgt == null) {
-                                cn.sendMessage(Ostrov.PREFIX + "§cИгрок не онлайн!");
-                                return 0;
-                            }
-
-                            final String wp = Resolver.string(cntx, warp);
-                            cn.sendMessage("§6Перемещаем " + tgt.getName() + " на " + wp + "...");
-                            WarpManager.tryWarp(tgt, wp);
-                            return Command.SINGLE_SUCCESS;
-                        })))
-                .build();
+                    final String wp = Resolver.string(cntx, warp);
+                    cn.sendMessage("§6Перемещаем " + tgt.getName() + " на " + wp + "...");
+                    WarpManager.tryWarp(tgt, wp);
+                    return Command.SINGLE_SUCCESS;
+                })))
+            .build();
     }
 
     @Override
@@ -77,11 +77,11 @@ public class WarpCmd implements OCommand {
 
     public static void openMenu(final Player p) {
         SmartInventory.builder()
-                .id("WarpMenu" + p.getName())
-                .provider(new WarpMenu())
-                .size(6, 9)
-                .title("§fМеста")
-                .build()
-                .open(p);
+            .id("WarpMenu" + p.getName())
+            .provider(new WarpMenu())
+            .size(6, 9)
+            .title("§fМеста")
+            .build()
+            .open(p);
     }
 }

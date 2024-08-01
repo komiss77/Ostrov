@@ -27,47 +27,47 @@ public class BossBarCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String player = "player";
         return Commands.literal("bossbar").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof ConsoleCommandSender)) return 0;
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof ConsoleCommandSender)) return 0;
 
-                    cs.sendMessage("§6Операторы:");
-                    Bukkit.getOperators().forEach(op -> cs.sendMessage("§6" + op.getName()));
+                cs.sendMessage("§6Операторы:");
+                Bukkit.getOperators().forEach(op -> cs.sendMessage("§6" + op.getName()));
+                return Command.SINGLE_SUCCESS;
+            })
+            .then(Resolver.string(player).suggests((cntx, sb) -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof ConsoleCommandSender)) return sb.buildFuture();
+                Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+                return sb.buildFuture();
+            }).executes(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof ConsoleCommandSender)) return 0;
+
+                final OfflinePlayer tgt = Bukkit
+                    .getOfflinePlayer(Resolver.string(cntx, player));
+                if (tgt.isOp()) {
+                    tgt.setOp(false);
+                    cs.sendMessage("§c" + tgt.getName() + " теперь не оператор!");
+                    Ostrov.log_warn("§e" + tgt.getName() + " теперь не оператор!");
                     return Command.SINGLE_SUCCESS;
-                })
-                .then(Resolver.string(player).suggests((cntx, sb) -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof ConsoleCommandSender)) return sb.buildFuture();
-                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                    return sb.buildFuture();
-                }).executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!(cs instanceof ConsoleCommandSender)) return 0;
+                }
 
-                    final OfflinePlayer tgt = Bukkit
-                            .getOfflinePlayer(Resolver.string(cntx, player));
-                    if (tgt.isOp()) {
-                        tgt.setOp(false);
-                        cs.sendMessage("§c" + tgt.getName() + " теперь не оператор!");
-                        Ostrov.log_warn("§e" + tgt.getName() + " теперь не оператор!");
-                        return Command.SINGLE_SUCCESS;
+                final Player tpl = tgt.getPlayer();
+                if (tpl != null) {
+                    final Oplayer top = PM.getOplayer(tpl);
+                    if (!top.isStaff) {
+                        cs.sendMessage("§c" + tgt.getName() + " даже не персонал!");
+                        Ostrov.log_warn("§c" + cs.getName() + " пытался дать ОП " + tgt.getName() + "!");
+                        return 0;
                     }
-
-                    final Player tpl = tgt.getPlayer();
-                    if (tpl != null) {
-                        final Oplayer top = PM.getOplayer(tpl);
-                        if (!top.isStaff) {
-                            cs.sendMessage("§c" + tgt.getName() + " даже не персонал!");
-                            Ostrov.log_warn("§c" + cs.getName() + " пытался дать ОП " + tgt.getName() + "!");
-                            return 0;
-                        }
-                        tpl.sendMessage(Ostrov.PREFIX + "§6Ты теперь оператор!");
-                    }
-                    tgt.setOp(true);
-                    cs.sendMessage("§c" + tgt.getName() + " назначен оператором!");
-                    Ostrov.log_warn("§e" + tgt.getName() + " назначен оператором!");
-                    return Command.SINGLE_SUCCESS;
-                }))
-                .build();
+                    tpl.sendMessage(Ostrov.PREFIX + "§6Ты теперь оператор!");
+                }
+                tgt.setOp(true);
+                cs.sendMessage("§c" + tgt.getName() + " назначен оператором!");
+                Ostrov.log_warn("§e" + tgt.getName() + " назначен оператором!");
+                return Command.SINGLE_SUCCESS;
+            }))
+            .build();
     }
 
     @Override

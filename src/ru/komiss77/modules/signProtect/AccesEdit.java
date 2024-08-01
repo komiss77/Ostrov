@@ -41,53 +41,53 @@ public class AccesEdit implements InventoryProvider {
         for (final String name : pd.users) {
 
             contents.add(ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                            .name(name)
-                            .addLore("§7")
-                            .addLore("§7ЛКМ - §cудалить")
-                            .addLore("§7")
-                            .build(), e -> {
-                        if (e.isLeftClick() && pd.users.remove(name)) {
-                            SignProtect.updateSign(sign, pd);
-                            reopen(p, contents);
-                        }
+                    .name(name)
+                    .lore("§7")
+                    .lore("§7ЛКМ - §cудалить")
+                    .lore("§7")
+                    .build(), e -> {
+                    if (e.isLeftClick() && pd.users.remove(name)) {
+                        SignProtect.updateSign(sign, pd);
+                        reopen(p, contents);
                     }
+                }
             ));
 
         }
 
         if (pd.users.size() < 14) {
             contents.add(ClickableItem.of(
-                            new ItemBuilder(Material.PLAYER_HEAD)
-                                    .name("§aДобавить")
-                                    .addLore("")
-                                    .addLore("§fРазрешить доступ")
-                                    .addLore("§fстоящему рядом")
-                                    .addLore("§fс вами игроку.")
-                                    .setCustomHeadTexture(ItemUtils.Texture.add)
-                                    .build(), e -> {
-                                if (e.isLeftClick()) {
+                    new ItemBuilder(Material.PLAYER_HEAD)
+                        .name("§aДобавить")
+                        .lore("")
+                        .lore("§fРазрешить доступ")
+                        .lore("§fстоящему рядом")
+                        .lore("§fс вами игроку.")
+                        .headTexture(ItemUtils.Texture.add)
+                        .build(), e -> {
+                        if (e.isLeftClick()) {
 
-                                    Player find = null;
-                                    int minDistance = Integer.MAX_VALUE;
-                                    for (final Player pl : p.getWorld().getPlayers()) {
-                                        if (p.getEntityId() != pl.getEntityId() && !pd.users.contains(pl.getName())) {
-                                            final int dst = LocationUtil.getDistance(p.getLocation(), pl.getLocation());
-                                            if (dst < minDistance && dst < 30) {
-                                                find = pl;
-                                                minDistance = dst;
-                                            }
-                                        }
-                                    }
-                                    if (find == null) {
-                                        p.sendMessage("§6Рядом никого не найдено!");
-                                    } else {
-                                        pd.users.add(find.getName());// - List.of immutebleб в него не добавить!!
-                                        SignProtect.updateSign(sign, pd);
-                                        reopen(p, contents);
+                            Player find = null;
+                            int minDistance = Integer.MAX_VALUE;
+                            for (final Player pl : p.getWorld().getPlayers()) {
+                                if (p.getEntityId() != pl.getEntityId() && !pd.users.contains(pl.getName())) {
+                                    final int dst = LocationUtil.getDistance(p.getLocation(), pl.getLocation());
+                                    if (dst < minDistance && dst < 30) {
+                                        find = pl;
+                                        minDistance = dst;
                                     }
                                 }
                             }
-                    )
+                            if (find == null) {
+                                p.sendMessage("§6Рядом никого не найдено!");
+                            } else {
+                                pd.users.add(find.getName());// - List.of immutebleб в него не добавить!!
+                                SignProtect.updateSign(sign, pd);
+                                reopen(p, contents);
+                            }
+                        }
+                    }
+                )
             );
         }
 
@@ -138,17 +138,17 @@ public class AccesEdit implements InventoryProvider {
         if (ApiOstrov.isLocalBuilder(p, false) && pd.valid > 0) {
 
             contents.set(4, 1, ClickableItem.of(new ItemBuilder(Material.FIREWORK_ROCKET)
-                            .name("§bПометить постоянным")
-                            .addLore("§7")
-                            .addLore("§7ЛКМ - бессрочно")
-                            .addLore("§7")
-                            .build(), e -> {
-                        if (e.isLeftClick()) {
-                            pd.valid = -1;
-                            SignProtect.updateSign(sign, pd);
-                            reopen(p, contents);
-                        }
+                    .name("§bПометить постоянным")
+                    .lore("§7")
+                    .lore("§7ЛКМ - бессрочно")
+                    .lore("§7")
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        pd.valid = -1;
+                        SignProtect.updateSign(sign, pd);
+                        reopen(p, contents);
                     }
+                }
             ));
 
         } /*else if ( pi.validTo!=-1 && pi.validTo - FM.getTime() < 1209600) {//60*60*24*14
@@ -188,16 +188,16 @@ public class AccesEdit implements InventoryProvider {
         }
 
         contents.set(4, 4, ClickableItem.empty(new ItemBuilder(Material.PAPER)
-                .name("§bЛимит табличек")
-                .addLore("§7")
-                .addLore("§7Найдено активных: " + curr)
-                .addLore("§7Можно поставить: " + (SignProtectLst.LIMIT - curr))
-                .build()
+            .name("§bЛимит табличек")
+            .lore("§7")
+            .lore("§7Найдено активных: " + curr)
+            .lore("§7Можно поставить: " + (SignProtectLst.LIMIT - curr))
+            .build()
         ));
 
 
         contents.set(4, 7, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                p.closeInventory()
+            p.closeInventory()
         ));
 
 

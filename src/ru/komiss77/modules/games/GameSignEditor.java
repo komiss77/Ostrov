@@ -6,7 +6,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.utils.ItemBuilder;
@@ -41,14 +40,14 @@ public class GameSignEditor implements InventoryProvider {
                 if (g == Game.GLOBAL) continue;
 
                 final ItemStack is = new ItemBuilder(Material.matchMaterial(g.mat))
-                        .name(g.displayName)
-                        //.addLore("")
-                        //.addLore("§6Игра: §b"+serverName)
-                        .addLore("")
-                        .addLore("§7Выбрать эту игру")
-                        .addLore("§7для таблички")
-                        .addLore("")
-                        .build();
+                    .name(g.displayName)
+                    //.addLore("")
+                    //.addLore("§6Игра: §b"+serverName)
+                    .lore("")
+                    .lore("§7Выбрать эту игру")
+                    .lore("§7для таблички")
+                    .lore("")
+                    .build();
 
                 contents.add(ClickableItem.of(is, e -> {
                     if (g.type == ServerType.ONE_GAME) {
@@ -65,22 +64,22 @@ public class GameSignEditor implements InventoryProvider {
             final GameInfo gi = GM.getGameInfo(game);
             if (gi == null) {
                 contents.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                        .name("§7GameInfo отсутствует!")
-                        .build()));
+                    .name("§7GameInfo отсутствует!")
+                    .build()));
                 return;
             }
 
             for (ArenaInfo ai : gi.arenas()) {
                 final ItemStack is = new ItemBuilder(ai.mat)
-                        .name(game.displayName)
-                        .addLore("")
-                        .addLore("§6Сервер: §b" + ai.server)
-                        .addLore("§eАрена: §a" + ai.arenaName)
-                        .addLore("")
-                        .addLore("§7Выбрать этот арену")
-                        .addLore("§7для таблички")
-                        .addLore("")
-                        .build();
+                    .name(game.displayName)
+                    .lore("")
+                    .lore("§6Сервер: §b" + ai.server)
+                    .lore("§eАрена: §a" + ai.arenaName)
+                    .lore("")
+                    .lore("§7Выбрать этот арену")
+                    .lore("§7для таблички")
+                    .lore("")
+                    .build();
 
                 contents.add(ClickableItem.of(is, e -> {
                     GM.addGameSign(p, sign, game, ai.server, ai.arenaName);

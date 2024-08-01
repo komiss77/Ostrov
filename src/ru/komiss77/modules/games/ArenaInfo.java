@@ -1,10 +1,5 @@
 package ru.komiss77.modules.games;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +11,10 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class ArenaInfo {
 
@@ -49,14 +48,14 @@ public final class ArenaInfo {
 
     public void sendData() {
         final StringBuffer sb = new StringBuffer(gameInfo.game.name()).append(LocalDB.W_SPLIT)
-                .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
-                .append(arenaName).append(LocalDB.W_SPLIT)
-                .append(state.name()).append(LocalDB.W_SPLIT)
-                .append(players).append(LocalDB.W_SPLIT)
-                .append(line0).append(LocalDB.W_SPLIT)
-                .append(line1).append(LocalDB.W_SPLIT)
-                .append(line2).append(LocalDB.W_SPLIT)
-                .append(line3).append(" ").append(LocalDB.W_SPLIT);
+            .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
+            .append(arenaName).append(LocalDB.W_SPLIT)
+            .append(state.name()).append(LocalDB.W_SPLIT)
+            .append(players).append(LocalDB.W_SPLIT)
+            .append(line0).append(LocalDB.W_SPLIT)
+            .append(line1).append(LocalDB.W_SPLIT)
+            .append(line2).append(LocalDB.W_SPLIT)
+            .append(line3).append(" ").append(LocalDB.W_SPLIT);
         RDS.sendMessage("arenadata", sb.toString());
     }
 
@@ -67,17 +66,17 @@ public final class ArenaInfo {
         final boolean hasReputation = op.reputationCalc >= reputation;
 
         final List<Component> lore = List.of(
-                Component.text(players > 0 ? (op.eng ? "§7Players: §b" : "§7Игроки: §b") + players : (op.eng ? "nobody here" : "никого нет")),
-                Component.text(state.displayColor + (op.eng ? Lang.translate(state.name(), Lang.EN) : state.name())),
-                Component.empty(),
-                Component.text(line0),
-                Component.text(line1),
-                Component.text(line2),
-                Component.text(line3),
-                Component.empty(),
-                Component.text(hasLevel && hasReputation ? (op.eng ? "§a⊳ Click - to arena" : "§a⊳ Клик - на арену") : (op.eng ? "§eNot available !" : "§eНедоступна !")),
-                Component.text(hasLevel ? (op.eng ? "§7Required level : §6" : "§7Требуемый уровень : §6") + level : (op.eng ? "§cAvailable from level §e" : "§cБудет доступна с уровня §e") + level),
-                Component.text(hasReputation ? (op.eng ? "§7Required reputation : §a>" : "§7Требуемая репутация : §a>") + reputation : (op.eng ? "§cAvailable with reputation §a>" : "§cДоступна при репутации §a>") + reputation)
+            Component.text(players > 0 ? (op.eng ? "§7Players: §b" : "§7Игроки: §b") + players : (op.eng ? "nobody here" : "никого нет")),
+            Component.text(state.displayColor + (op.eng ? Lang.translate(state.name(), Lang.EN) : state.name())),
+            Component.empty(),
+            Component.text(line0),
+            Component.text(line1),
+            Component.text(line2),
+            Component.text(line3),
+            Component.empty(),
+            Component.text(hasLevel && hasReputation ? (op.eng ? "§a⊳ Click - to arena" : "§a⊳ Клик - на арену") : (op.eng ? "§eNot available !" : "§eНедоступна !")),
+            Component.text(hasLevel ? (op.eng ? "§7Required level : §6" : "§7Требуемый уровень : §6") + level : (op.eng ? "§cAvailable from level §e" : "§cБудет доступна с уровня §e") + level),
+            Component.text(hasReputation ? (op.eng ? "§7Required reputation : §a>" : "§7Требуемая репутация : §a>") + reputation : (op.eng ? "§cAvailable with reputation §a>" : "§cДоступна при репутации §a>") + reputation)
         );
         final ItemStack is = new ItemStack(mat);
         final ItemMeta im = is.getItemMeta();

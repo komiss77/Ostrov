@@ -52,15 +52,15 @@ public class MissionSelectMenu implements InventoryProvider {
         if (MissionManager.missions.isEmpty()) {
 
             content.set(2, 4, ClickableItem.of(new ItemBuilder(Material.GLASS_BOTTLE)
-                            .name("§7Миссия невыполнима")
-                            .addLore("")
-                            .addLore("§5Нет активных миссий")
-                            .addLore("")
-                            .addLore("§7ЛКМ - §fпосмотреть архив")
-                            .addLore("")
-                            .build(), e -> {
-                        if (e.isLeftClick()) p.performCommand("mission journal");
-                    }
+                    .name("§7Миссия невыполнима")
+                    .lore("")
+                    .lore("§5Нет активных миссий")
+                    .lore("")
+                    .lore("§7ЛКМ - §fпосмотреть архив")
+                    .lore("")
+                    .build(), e -> {
+                    if (e.isLeftClick()) p.performCommand("mission journal");
+                }
             ));
 
         } else {
@@ -102,9 +102,9 @@ public class MissionSelectMenu implements InventoryProvider {
                         lore.add(Component.text("§aВыполнена §f" + ApiOstrov.dateFromStamp(completed.get(mi.id))));
 
                         buttons.add(ClickableItem.empty(new ItemBuilder(mi.mat)
-                                .name(mi.displayName())
-                                .setLore(lore)
-                                .build())
+                            .name(mi.displayName())
+                            .deLore().lore(lore)
+                            .build())
                         );
 
                     } else {
@@ -123,16 +123,16 @@ public class MissionSelectMenu implements InventoryProvider {
                     lore.add(Component.text("§cвесь прогресс будет потерян!"));
                     lore.add(Component.empty());
                     buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
-                                    .name(mi.displayName())
-                                    .setLore(lore)
-                                    .build(), e -> {
-                                if (e.getClick() == ClickType.DROP) {
-                                    p.performCommand("mission deny " + mi.id);
-                                    reopen(p, content);
-                                } else {
-                                    PM.soundDeny(p);
-                                }
+                            .name(mi.displayName())
+                            .deLore().lore(lore)
+                            .build(), e -> {
+                            if (e.getClick() == ClickType.DROP) {
+                                p.performCommand("mission deny " + mi.id);
+                                reopen(p, content);
+                            } else {
+                                PM.soundDeny(p);
                             }
+                        }
                     ));
 
                 } else {
@@ -180,13 +180,13 @@ public class MissionSelectMenu implements InventoryProvider {
                         lore.add(Component.text("§7ЛКМ - §2принять"));
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
-                                        .name(mi.displayName())
-                                        .setLore(lore)
-                                        .build(), e -> {
-                                    if (e.isLeftClick()) {
-                                        p.performCommand("mission accept " + mi.id);
-                                    }
+                                .name(mi.displayName())
+                                .deLore().lore(lore)
+                                .build(), e -> {
+                                if (e.isLeftClick()) {
+                                    p.performCommand("mission accept " + mi.id);
                                 }
+                            }
                         ));
 
                     } else {
@@ -194,11 +194,11 @@ public class MissionSelectMenu implements InventoryProvider {
                         lore.add(Component.text("§cНевозможно принять"));
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
-                                        .name(mi.displayName())
-                                        .setLore(lore)
-                                        .build(), e -> {
-                                    PM.soundDeny(p);
-                                }
+                                .name(mi.displayName())
+                                .deLore().lore(lore)
+                                .build(), e -> {
+                                PM.soundDeny(p);
+                            }
                         ));
 
                     }
@@ -218,25 +218,25 @@ public class MissionSelectMenu implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
         content.set(4, 4, ClickableItem.of(new ItemBuilder(showCompleted ? Material.LIME_DYE : Material.GRAY_DYE)
-                .name(showCompleted ? "§7Скрыть завершенные" : "§7Показать завершенные")
-                .build(), e -> {
+            .name(showCompleted ? "§7Скрыть завершенные" : "§7Показать завершенные")
+            .build(), e -> {
             showCompleted = !showCompleted;
             reopen(p, content);
         }));

@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 
 public class RestartWarningEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final int secondLeft;
 
     public RestartWarningEvent(final int secondLeft) {

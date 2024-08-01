@@ -241,7 +241,7 @@ public class Cuboid {
             spawnAddZ = Math.max(minZ, Math.min(maxZ, spawn.z));
         }
         spawnPoint = new Location(spawn.w, minX + spawnAddX,
-                minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
+            minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
         return this;
     }
 
@@ -258,7 +258,7 @@ public class Cuboid {
         spawnYaw = (int) spawn.getYaw();
         spawnPitch = (int) spawn.getPitch();
         spawnPoint = new Location(spawn.getWorld(), minX + spawnAddX,
-                minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
+            minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
         return this;
     }
 
@@ -820,16 +820,16 @@ public class Cuboid {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(minX).append(", ")
-                .append(minY).append(", ")
-                .append(minZ).append(", ")
-                .append(maxX).append(", ")
-                .append(maxY).append(", ")
-                .append(maxZ).append(", ")
-                .append(spawnAddX).append(", ")
-                .append(spawnAddY).append(", ")
-                .append(spawnAddZ).append(", ")
-                .append(spawnYaw).append(", ")
-                .append(spawnPitch);
+            .append(minY).append(", ")
+            .append(minZ).append(", ")
+            .append(maxX).append(", ")
+            .append(maxY).append(", ")
+            .append(maxZ).append(", ")
+            .append(spawnAddX).append(", ")
+            .append(spawnAddY).append(", ")
+            .append(spawnAddZ).append(", ")
+            .append(spawnYaw).append(", ")
+            .append(spawnPitch);
         return sb.toString();//minX + ", " + minY + ", " + minZ + ", " + maxX + ", " + maxY + ", " + maxZ;
     }
 

@@ -1,24 +1,14 @@
 package ru.komiss77.listener;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
-import java.util.UUID;
-import net.kyori.adventure.text.Component;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,28 +26,74 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.*;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Config;
+import ru.komiss77.Initiable;
+import ru.komiss77.Ostrov;
+import ru.komiss77.commands.OCommand;
 import ru.komiss77.events.LocalDataLoadEvent;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.OstrovConfig;
 import ru.komiss77.utils.TCUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
+import java.util.List;
+import java.util.UUID;
 
 //https://emn178.github.io/online-tools/sha1_checksum.html
 
 //не переименовывать!
-public final class ResourcePacksLst implements Initiable, Listener, CommandExecutor {
+public final class ResourcePacksLst implements Initiable, OCommand {
+
+    @Override
+    public LiteralCommandNode<CommandSourceStack> command() {
+        return Commands.literal("resource").executes(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player pl)) {
+                cs.sendMessage("§eНе консольная команда!");
+                return 0;
+            }
+
+            if (!use) {
+                pl.sendMessage("§cДанный сервер не требует пакета ресурсов!");
+                return 0;
+            }
+            if (!PM.getOplayer(pl.getName()).resourcepack_locked) {
+                pl.sendMessage("§aУ вас уже установлен пакет ресурсов!");
+                return 0;
+            }
+            pl.addResourcePack(packUuid, link, hash, "§eУстанови этот пакет ресурсов для игры!", false);
+
+            return Command.SINGLE_SUCCESS;
+        }).build();
+    }
+
+    @Override
+    public List<String> aliases() {
+        return List.of("ресурс");
+    }
+
+    @Override
+    public String description() {
+        return "Загрузка ресурс-пака";
+    }
 
     private static final Listener rpLst, inventoryLst, interactLst;
-    private static OstrovConfig packsConfig;
     public static boolean use = false;
     public static final ItemStack lock, key, lobby;
-    private static final Component prompt;
-    //private static boolean block_interact;
-    //private static boolean block_menu;
     private static String link;
     private static byte[] hash;
     private static UUID packUuid;
@@ -66,7 +102,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
     static {
         key = new ItemStack(Material.GOLDEN_SWORD);
         ItemMeta im = key.getItemMeta();
-        im.displayName(TCUtils.format("§bНажмите на ключик"));
+        im.displayName(TCUtils.form("§bНажмите на ключик"));
         im.setUnbreakable(true);
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         im.setCustomModelData(1);
@@ -74,16 +110,15 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
         lock = new ItemStack(Material.GOLDEN_SWORD);
         im = lock.getItemMeta();
-        im.displayName(TCUtils.format("§bНажмите на ключик"));
+        im.displayName(TCUtils.form("§bНажмите на ключик"));
         im.setUnbreakable(true);
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         im.setCustomModelData(2);
         lock.setItemMeta(im);
 
         lobby = new ItemBuilder(Material.CRIMSON_DOOR)
-                .addLore("§eВернуться в лобби")
-                .build();
-        prompt = Component.text("§eУстанови этот пакет ресурсов для игры!");
+            .lore("§eВернуться в лобби")
+            .build();
         rpLst = new rpLst();
         interactLst = new interactLst();
         inventoryLst = new inventoryLst();
@@ -116,7 +151,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
         HandlerList.unregisterAll(interactLst);
         HandlerList.unregisterAll(inventoryLst);
 
-        packsConfig = Config.manager.getNewConfig("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
+        final OstrovConfig packsConfig = Config.manager.getNewConfig("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
 
         packsConfig.addDefault("use", false);
         packsConfig.addDefault("block_interact", false);
@@ -155,9 +190,9 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
         Ostrov.async(() -> {
 
-            final String fileName = link.substring(link.lastIndexOf('/') + 1, link.length());
+            final String fileName = link.substring(link.lastIndexOf('/') + 1);
             try {
-                final URL url = new URL(link);
+                final URL url = URI.create(link).toURL();
 
                 final File rp_file = new File(Ostrov.instance.getDataFolder(), "resourcepacks/" + fileName);
                 if (!rp_file.exists()) {
@@ -208,36 +243,11 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
     }
 
 
-    @Override
-    public boolean onCommand(CommandSender se, Command comandd, String cmd, String[] a) {
-        if (!(se instanceof Player)) {
-            se.sendMessage("§4команда только от игрока!");
-            return true;
-        }
-        final Player p = (Player) se;
-        if (!use) {
-            p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
-            return true;
-        }
-        if (!PM.getOplayer(p.getName()).resourcepack_locked) {
-            p.sendMessage("§aУ вас уже установлен пакет ресурсов!");
-            return true;
-        }// else {
-        //    Ostrov.log_err("§eЗапрошена проверка пакета ресурсов, но пакет не загружен на сервер.");
-        //    return true;w
-        //}
-        //p.setResourcePack( link, hash, prompt );//sendPack(p,true);
-//Ostrov.log_warn("addResourcePack");
-        p.addResourcePack(packUuid, link, hash, "§eУстанови этот пакет ресурсов для игры!", false);
-        return true;
-    }
-
-
     static class rpLst implements Listener {
 
         @EventHandler(priority = EventPriority.MONITOR)
         public static void onLoad(final LocalDataLoadEvent e) {
-            e.getPlayer().performCommand("rp");
+            e.getPlayer().performCommand("resourse");
         }
 
         @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -256,22 +266,26 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
                 case DECLINED -> {
                     op.resourcepack_locked = true;
-                    p.sendMessage(Component.text("§e*******************************************************************\n"
-                                    + "§4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!\n"
-                                    + "§2>>> §aКлик сюда для решения. §2<<<\n"
-                                    + "§e*******************************************************************\n")
-                            .hoverEvent(HoverEvent.showText(Component.text("§5§oНажми для перехода")))
-                            .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
+                    p.sendMessage(TCUtils.form("""
+                            §e*******************************************************************
+                            §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
+                            §2>>> §aКлик сюда для решения. §2<<<
+                            §e*******************************************************************
+                            """)
+                        .hoverEvent(HoverEvent.showText(TCUtils.form("§5§oНажми для перехода")))
+                        .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
                 }
 
                 case FAILED_DOWNLOAD -> {
                     op.resourcepack_locked = true;
-                    p.sendMessage(Component.text("§e*******************************************************************\n"
-                                    + "§4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!\n"
-                                    + "§2>>> §aКлик сюда для ручной загрузки. §2<<<\n"
-                                    + "§e*******************************************************************\n")
-                            .hoverEvent(HoverEvent.showText(Component.text("§5§oНажми для загрузки")))
-                            .clickEvent(ClickEvent.openUrl(link)));
+                    p.sendMessage(TCUtils.form("""
+                            §e*******************************************************************
+                            §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
+                            §2>>> §aКлик сюда для ручной загрузки. §2<<<
+                            §e*******************************************************************
+                            """)
+                        .hoverEvent(HoverEvent.showText(TCUtils.form("§5§oНажми для загрузки")))
+                        .clickEvent(ClickEvent.openUrl(link)));
                 }
 
             }
@@ -301,7 +315,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
             //if ( !use || !block_menu) return;
             final Oplayer op = PM.getOplayer(e.getPlayer().getName());
             //if (op==null) return;
-            if (TCUtils.toString(e.getView().title()).equals("§4Проверка Ресурс-пака") || op.menu.isProfileInventory(TCUtils.toString(e.getView().title()))) {
+            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака") || op.menu.isProfileInventory(TCUtils.deform(e.getView().title()))) {
                 return;
             }
             if (op.resourcepack_locked) {
@@ -317,7 +331,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
             if (e.getSlot() < 0 || e.getSlot() > 44 || e.getCurrentItem() == null || e.getCurrentItem().getType().isAir())
                 return;
 
-            if (TCUtils.toString(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
+            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
                 e.setCancelled(true);
                 final Player p = (Player) e.getWhoClicked();
                 final Oplayer op = PM.getOplayer(p);
@@ -341,7 +355,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
             final Oplayer op = PM.getOplayer(e.getPlayer().getName());
             if (op == null) return;
             if (e.getInventory().getType() != InventoryType.CHEST) return;
-            if (TCUtils.toString(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
+            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
                 if (op.resourcepack_locked) {
                     pack_err((Player) e.getPlayer());
                 }
@@ -361,16 +375,16 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
     private static void pack_err(final Player p) {
         p.sendMessage("");
-        p.sendMessage(Component.text("§cВы не сможете играть на этом сервере без пакета ресурсов!\n§eЧто делать?:")
-                .append(Component.text("§aВариант 1: Попытаться еще раз. §5§o>Клик сюда для установки<")
-                        .hoverEvent(HoverEvent.showText(Component.text("§b§oНажми для установки")))
-                        .clickEvent(ClickEvent.runCommand("/rp")))
-                .append(Component.text("§aВариант 2: Установить вручную. §5§o>Клик сюда для загрузки пакета<")
-                        .hoverEvent(HoverEvent.showText(Component.text("§b§oНажми для установки")))
-                        .clickEvent(ClickEvent.openUrl(link)))
-                .append(Component.text("§aВариант 3: Исправить настройки. §5§o>Клик сюда для перехода<")
-                        .hoverEvent(HoverEvent.showText(Component.text("§b§oНажми для перехода")))
-                        .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ"))));
+        p.sendMessage(TCUtils.form("§cВы не сможете играть на этом сервере без пакета ресурсов!\n§eЧто делать?:")
+            .append(TCUtils.form("§aВариант 1: Попытаться еще раз. §5§o>Клик сюда для установки<")
+                .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для установки")))
+                .clickEvent(ClickEvent.runCommand("/rp")))
+            .append(TCUtils.form("§aВариант 2: Установить вручную. §5§o>Клик сюда для загрузки пакета<")
+                .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для установки")))
+                .clickEvent(ClickEvent.openUrl(link)))
+            .append(TCUtils.form("§aВариант 3: Исправить настройки. §5§o>Клик сюда для перехода<")
+                .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для перехода")))
+                .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ"))));
         p.sendMessage("");
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 1, 1);
     }
@@ -378,7 +392,7 @@ public final class ResourcePacksLst implements Initiable, Listener, CommandExecu
 
     public static void openCheckMenu(final Player p) {
         if (!use) return; //не открывать менюшку, а то берутся предметы
-        final Inventory rp_check = Bukkit.createInventory(null, 45, TCUtils.format("§4Проверка Ресурс-пака"));
+        final Inventory rp_check = Bukkit.createInventory(null, 45, TCUtils.form("§4Проверка Ресурс-пака"));
         for (int i = 0; i < 44; i++) {
             rp_check.addItem(lock);
         }

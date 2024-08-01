@@ -1,4 +1,3 @@
-
 package ru.komiss77.utils;
 
 import org.bukkit.Material;
@@ -234,26 +233,15 @@ public class EntityUtil {
         }
 
         public static int getWorldSpawnLimit(final World world, final EntityGroup group) {
-            switch (group) {
-                case MONSTER -> {
-                    return world.getSpawnLimit(SpawnCategory.MONSTER);
-                }
-                case CREATURE -> {
-                    return world.getSpawnLimit(SpawnCategory.ANIMAL) + world.getSpawnLimit(SpawnCategory.AXOLOTL);
-                }
-                case AMBIENT -> {
-                    return world.getSpawnLimit(SpawnCategory.AMBIENT);
-                }
-                case WATER_CREATURE -> {
-                    return world.getSpawnLimit(SpawnCategory.WATER_ANIMAL);
-                }
-                case WATER_AMBIENT -> {
-                    return world.getSpawnLimit(SpawnCategory.WATER_AMBIENT) + world.getSpawnLimit(SpawnCategory.WATER_UNDERGROUND_CREATURE);
-                }
-                default -> {
-                    return 0; //world.getSpawnLimit(SpawnCategory.MISC); IllegalArgumentException: SpawnCategory.MISC are not supported
-                }
-            }
+            return switch (group) {
+                case MONSTER -> world.getSpawnLimit(SpawnCategory.MONSTER);
+                case CREATURE -> world.getSpawnLimit(SpawnCategory.ANIMAL) + world.getSpawnLimit(SpawnCategory.AXOLOTL);
+                case AMBIENT -> world.getSpawnLimit(SpawnCategory.AMBIENT);
+                case WATER_CREATURE -> world.getSpawnLimit(SpawnCategory.WATER_ANIMAL);
+                case WATER_AMBIENT -> world.getSpawnLimit(SpawnCategory.WATER_AMBIENT)
+                    + world.getSpawnLimit(SpawnCategory.WATER_UNDERGROUND_CREATURE);
+                default -> 0;//world.getSpawnLimit(SpawnCategory.MISC); IllegalArgumentException: SpawnCategory.MISC are not supported
+            };
         }
 
     }

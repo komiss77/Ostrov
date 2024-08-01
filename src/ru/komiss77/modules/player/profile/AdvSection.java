@@ -70,16 +70,16 @@ public class AdvSection implements InventoryProvider {
             };
 
             final ItemStack adv_item = new ItemBuilder(mat)
-                    .name(Lang.t(p, st.game.displayName) + " : " + Lang.t(p, st.desc))
-                    .addFlags(ItemFlag.HIDE_ATTRIBUTES)
-                    .addLore("")
-                    .addLore(level >= 5 ? "§6✪ §e" + StatManager.topAdv(st) + " §6✪" : "")
-                    .addLore(Lang.t(p, "§fНакоплено : §6") + op.getStat(st))
-                    .addLore(level == 0 ? Lang.t(p, "§5Пока нечем гордиться") : level >= 5 ? Lang.t(p, "§8Предел достижения") : Lang.t(p, "§fУровень достижения : §b") + level)
-                    .addLore(level >= 5 ? "" : Lang.t(p, "До след. уровня: §f") + StatManager.getLeftToNextLevel(st, op.getStat(st)))
-                    .addLore("")
-                    .addLore(Lang.t(p, "§7Опыта за каждый уровень: §e") + st.exp_per_point)
-                    .build();
+                .name(Lang.t(p, st.game.displayName) + " : " + Lang.t(p, st.desc))
+                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .lore("")
+                .lore(level >= 5 ? "§6✪ §e" + StatManager.topAdv(st) + " §6✪" : "")
+                .lore(Lang.t(p, "§fНакоплено : §6") + op.getStat(st))
+                .lore(level == 0 ? Lang.t(p, "§5Пока нечем гордиться") : level >= 5 ? Lang.t(p, "§8Предел достижения") : Lang.t(p, "§fУровень достижения : §b") + level)
+                .lore(level >= 5 ? "" : Lang.t(p, "До след. уровня: §f") + StatManager.getLeftToNextLevel(st, op.getStat(st)))
+                .lore("")
+                .lore(Lang.t(p, "§7Опыта за каждый уровень: §e") + st.exp_per_point)
+                .build();
 
 
             menuEntry.add(ClickableItem.empty(adv_item));
@@ -93,17 +93,17 @@ public class AdvSection implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 

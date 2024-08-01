@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 public final class LocFinder {
 
     public static final MatCheck[] DEFAULT_CHECKS = {
-            (mat, y) -> LocationUtil.canStand(mat),
-            (mat, y) -> LocationUtil.isPassable(mat),
-            (mat, y) -> LocationUtil.isPassable(mat)
+        (mat, y) -> LocationUtil.canStand(mat),
+        (mat, y) -> LocationUtil.isPassable(mat),
+        (mat, y) -> LocationUtil.isPassable(mat)
     };
 
     private final int minY;
@@ -26,15 +26,15 @@ public final class LocFinder {
     private WXYZ bloc;
 
     public static WXYZ findInArea(final WXYZ from, final int radius, final int offset,
-        final int near, final LocFinder.MatCheck[] checks, final int yDst) {
+                                  final int near, final LocFinder.MatCheck[] checks, final int yDst) {
         final int ofs2 = offset << 1;
         final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
-                Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
+            Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
         return new LocFinder(in, checks).find(false, near, yDst);
     }
 
     public static void onAsyncFind(final WXYZ loc, final MatCheck[] checks,
-        final boolean down, final int near, final int offsetY, final Consumer<WXYZ> onFind) {
+                                   final boolean down, final int near, final int offsetY, final Consumer<WXYZ> onFind) {
         Ostrov.async(() -> {
             final WXYZ fin = new LocFinder(loc, checks).find(down, near, offsetY);
             if (fin != null) Ostrov.sync(() -> onFind.accept(fin));

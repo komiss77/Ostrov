@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -377,14 +378,14 @@ public class LocalDB {
             for (int i = 1; i <= rmeta.getColumnCount(); i++) {
                 switch (rmeta.getColumnName(i)) {
                     case "homes",  //сохраняться будут только при изменении
-                            "kitsUseData", //сохраняться будут только при изменении
-                            "positions", //сохраняется всегда
-                            "inventory", //сохраняться будет только при playerDataSQL
-                            "armor", //сохраняться будет только при playerDataSQL
-                            "ender", //сохраняться будет только при playerDataSQL
-                            "potion", //сохраняться будет только при playerDataSQL
-                            "settings" //сохраняться будет только при playerDataSQL
-                            -> {
+                         "kitsUseData", //сохраняться будут только при изменении
+                         "positions", //сохраняется всегда
+                         "inventory", //сохраняться будет только при playerDataSQL
+                         "armor", //сохраняться будет только при playerDataSQL
+                         "ender", //сохраняться будет только при playerDataSQL
+                         "potion", //сохраняться будет только при playerDataSQL
+                         "settings" //сохраняться будет только при playerDataSQL
+                        -> {
                     }
                     default -> op.mysqlData.put(rmeta.getColumnName(i), rs.getString(rmeta.getColumnName(i)));
                 }
@@ -561,9 +562,9 @@ public class LocalDB {
                 stmt.executeUpdate("DELETE FROM `moneyOffline` WHERE `name` LIKE '" + op.nik + "'");
 
                 p.sendMessage((offlinePayAdd != 0 ? "§fВам поступили оффлайн-платежи на §a" + offlinePayAdd + " §fлони" : "") +
-                        (offlinePayAdd != 0 && offlinePaySub != 0 ? "§f, и оффлайн-счета на §4" + offlinePaySub + "§f лони" : "") +
-                        (offlinePayAdd == 0 ? "§fВам доставлены оффлайн-счета на §4" + offlinePaySub + "§f лони" : "") +
-                        "."
+                    (offlinePayAdd != 0 && offlinePaySub != 0 ? "§f, и оффлайн-счета на §4" + offlinePaySub + "§f лони" : "") +
+                    (offlinePayAdd == 0 ? "§fВам доставлены оффлайн-счета на §4" + offlinePaySub + "§f лони" : "") +
+                    "."
                 );
             }
 
@@ -862,7 +863,7 @@ public class LocalDB {
         if (tableExist.contains("data")) {
             try (final Statement stm = connection.createStatement()) {
                 stm.executeUpdate(
-                        "DROP TABLE `data` ; "
+                    "DROP TABLE `data` ; "
                 );
             } catch (SQLException e) {
                 Ostrov.log_err("§4 setupTable: Не удалось удалить таблицу data -> " + e.getMessage());
@@ -875,21 +876,21 @@ public class LocalDB {
             if (!tableExist.contains("playerData")) {
                 try {
                     stmt.executeUpdate(
-                            "CREATE TABLE IF NOT EXISTS `playerData` (" +
-                                    " `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                                    " `name` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci UNIQUE KEY NOT NULL," +
-                                    " `uuid` text NOT NULL," +
-                                    " `settings` text NOT NULL," +
-                                    " `homes` text NOT NULL," +
-                                    " `positions` text NOT NULL," +
-                                    " `inventory` mediumtext NOT NULL," +
-                                    " `armor` text NOT NULL," +
-                                    " `ender` mediumtext NOT NULL," +
-                                    " `potion` text NOT NULL," +
-                                    " `kitsUseData` text NOT NULL," +
-                                    " `lastActivity` int NOT NULL," +
-                                    " `validTo` int NOT NULL" +
-                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;"
+                        "CREATE TABLE IF NOT EXISTS `playerData` (" +
+                            " `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            " `name` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci UNIQUE KEY NOT NULL," +
+                            " `uuid` text NOT NULL," +
+                            " `settings` text NOT NULL," +
+                            " `homes` text NOT NULL," +
+                            " `positions` text NOT NULL," +
+                            " `inventory` mediumtext NOT NULL," +
+                            " `armor` text NOT NULL," +
+                            " `ender` mediumtext NOT NULL," +
+                            " `potion` text NOT NULL," +
+                            " `kitsUseData` text NOT NULL," +
+                            " `lastActivity` int NOT NULL," +
+                            " `validTo` int NOT NULL" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;"
                     );
                 } catch (SQLException ex) {
                     Ostrov.log_err("§4 setupTable: Не удалось создать таблицу playerData -> " + ex.getMessage());
@@ -912,12 +913,12 @@ public class LocalDB {
             if (!tableExist.contains("moneyOffline")) {
                 try {
                     stmt.executeUpdate(
-                            " CREATE TABLE IF NOT EXISTS `moneyOffline` ( " +
-                                    " `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                                    "  `name` varchar(16) NOT NULL," +
-                                    "  `value` int NOT NULL," +
-                                    "  `who` varchar(256) NOT NULL" +
-                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+                        " CREATE TABLE IF NOT EXISTS `moneyOffline` ( " +
+                            " `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "  `name` varchar(16) NOT NULL," +
+                            "  `value` int NOT NULL," +
+                            "  `who` varchar(256) NOT NULL" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
 
                 } catch (SQLException ex) {
                     Ostrov.log_err("§4 setupTable: Не удалось создать таблицу moneyOffline -> " + ex.getMessage());
@@ -930,20 +931,20 @@ public class LocalDB {
         if (!tableExist.contains("warps")) {
             try {
                 stmt.executeUpdate(
-                        " CREATE TABLE IF NOT EXISTS `warps` ( " +
-                                "  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
-                                "  `name` varchar(16) NOT NULL, " +
-                                "  `dispalyMat` varchar(32) NOT NULL DEFAULT '', " +
-                                "  `owner` varchar(16) NOT NULL DEFAULT '', " +
-                                "  `descr` varchar(128) NOT NULL DEFAULT '', " +
-                                "  `loc` varchar(64) NOT NULL DEFAULT '', " +
-                                "  `system` tinyint(1) NOT NULL DEFAULT '1', " +
-                                "  `open` tinyint(1) NOT NULL DEFAULT '1', " +
-                                "  `need_perm` tinyint(1) NOT NULL DEFAULT '0', " +
-                                "  `use_cost` int NOT NULL DEFAULT '0', " +
-                                "  `use_counter` int NOT NULL DEFAULT '0', " +
-                                "  `create_time` int NOT NULL DEFAULT '0' " +
-                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+                    " CREATE TABLE IF NOT EXISTS `warps` ( " +
+                        "  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                        "  `name` varchar(16) NOT NULL, " +
+                        "  `dispalyMat` varchar(32) NOT NULL DEFAULT '', " +
+                        "  `owner` varchar(16) NOT NULL DEFAULT '', " +
+                        "  `descr` varchar(128) NOT NULL DEFAULT '', " +
+                        "  `loc` varchar(64) NOT NULL DEFAULT '', " +
+                        "  `system` tinyint(1) NOT NULL DEFAULT '1', " +
+                        "  `open` tinyint(1) NOT NULL DEFAULT '1', " +
+                        "  `need_perm` tinyint(1) NOT NULL DEFAULT '0', " +
+                        "  `use_cost` int NOT NULL DEFAULT '0', " +
+                        "  `use_counter` int NOT NULL DEFAULT '0', " +
+                        "  `create_time` int NOT NULL DEFAULT '0' " +
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
 
             } catch (SQLException ex) {
                 Ostrov.log_err("§4 setupTable: Не удалось создать таблицу warps -> " + ex.getMessage());
@@ -953,11 +954,11 @@ public class LocalDB {
         if (!tableExist.contains("errors")) {
             try {
                 stmt.executeUpdate(
-                        " CREATE TABLE IF NOT EXISTS `errors` ( " +
-                                "`id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                                "`msg` varchar(512) NOT NULL," +
-                                "`stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP " +
-                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+                    " CREATE TABLE IF NOT EXISTS `errors` ( " +
+                        "`id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                        "`msg` varchar(512) NOT NULL," +
+                        "`stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP " +
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
 
             } catch (SQLException ex) {
                 Ostrov.log_err("§4 setupTable: Не удалось создать таблицу errors -> " + ex.getMessage());

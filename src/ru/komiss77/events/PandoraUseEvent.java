@@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
 
 public class PandoraUseEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
     private final Player p;
     private final boolean luck;
 

@@ -47,8 +47,8 @@ public class MenuFinded implements InventoryProvider {
 
         if (figures.isEmpty()) {
             contents.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Ничего не найдено!")
-                    .build()));
+                .name("§7Ничего не найдено!")
+                .build()));
 
         }
 
@@ -74,34 +74,34 @@ public class MenuFinded implements InventoryProvider {
                     if (gi == null) {
                         builder = new ItemBuilder(Material.matchMaterial(figure.game.mat));
                         builder.name(figure.game.displayName);
-                        builder.addLore("§cИнформация по игре не загружена");
-                        builder.addLore("");
+                        builder.lore("§cИнформация по игре не загружена");
+                        builder.lore("");
                         break;
                     }
                     builder = new ItemBuilder(Material.matchMaterial(figure.game.mat));
                     builder.name(figure.game.displayName);
-                    builder.addLore("");
-                    builder.addLore("");
-                    builder.addLore("");
+                    builder.lore("");
+                    builder.lore("");
+                    builder.lore("");
                 }
 
                 case COMMAND -> {
                     builder = new ItemBuilder(Material.COMMAND_BLOCK);
-                    builder.addLore("");
-                    builder.addLore("§7ИД: " + figure.getId());
-                    builder.addLore("§7Имя: " + figure.getName());
+                    builder.lore("");
+                    builder.lore("§7ИД: " + figure.getId());
+                    builder.lore("§7Имя: " + figure.getName());
                     builder.name("§7Реакция: §fкоманда");
-                    builder.addLore("§7ЛКМ: §e" + figure.leftclickcommand);
-                    builder.addLore("§7ПКМ: §e" + figure.rightclickcommand);
+                    builder.lore("§7ЛКМ: §e" + figure.leftclickcommand);
+                    builder.lore("§7ПКМ: §e" + figure.rightclickcommand);
                 }
 
                 case EVENT -> {
                     builder = new ItemBuilder(Material.FLETCHING_TABLE);
-                    builder.addLore("");
-                    builder.addLore("§7ИД: " + figure.getId());
-                    builder.addLore("§7Имя: " + figure.getName());
+                    builder.lore("");
+                    builder.lore("§7ИД: " + figure.getId());
+                    builder.lore("§7Имя: " + figure.getName());
                     builder.name("§7Реакция: §fэвент");
-                    builder.addLore("§7Тэг: §e" + figure.getTag());
+                    builder.lore("§7Тэг: §e" + figure.getTag());
                 }
 
                 default -> {
@@ -110,39 +110,39 @@ public class MenuFinded implements InventoryProvider {
                 }
             }
 
-            builder.addLore("");
-            builder.addLore("§7Сущность: §5" + figure.getEntityType());
+            builder.lore("");
+            builder.lore("§7Сущность: §5" + figure.getEntityType());
 
             final Location loc = figure.getSpawnLocation();
 
             if (loc == null) {
 
-                builder.addLore("§cЛокация недоступна!");
+                builder.lore("§cЛокация недоступна!");
 
             } else if (!loc.getChunk().isLoaded() || !loc.getChunk().isEntitiesLoaded()) {
 
-                builder.addLore(loc.getChunk().isLoaded() ? "" : "§cЧанк фигуры выгружен");
-                builder.addLore(loc.getChunk().isEntitiesLoaded() ? "" : "§cЭнтити чанка выгружены");
-                builder.addLore("§eфигура неактивна.");
-                builder.addLore("§7ЛКМ - ТП к в локацию (чанк загрузится)");
+                builder.lore(loc.getChunk().isLoaded() ? "" : "§cЧанк фигуры выгружен");
+                builder.lore(loc.getChunk().isEntitiesLoaded() ? "" : "§cЭнтити чанка выгружены");
+                builder.lore("§eфигура неактивна.");
+                builder.lore("§7ЛКМ - ТП к в локацию (чанк загрузится)");
 
             } else {
 
                 //builder.addLore(loc==null ? "§cЛокация недоступна!" : "§7ЛКМ - ТП к фигуре");
-                builder.addLore(figure.entity == null ? "" : "§7Шифт+ЛКМ - поставить 'к ноге'");
-                builder.addLore("");
-                builder.addLore(figure.entity == null ? "§cне заспавнена" : "§7заспавнена, entityId = " + figure.entity.getEntityId());
-                builder.addLore(figure.entity == null ? "" : figure.entity.isDead() ? "§cдохлая" : "§aживая");
-                builder.addLore(figure.entity == null ? "" : figure.isInSameBlock(loc) ? "§aна локации" : "§cне на локации");
-                builder.addLore(loc.getBlock().getType().isSolid() && loc.getBlock().getRelative(BlockFace.UP).getType().isSolid() ? "§cзамурована" : "§aне замурована");
+                builder.lore(figure.entity == null ? "" : "§7Шифт+ЛКМ - поставить 'к ноге'");
+                builder.lore("");
+                builder.lore(figure.entity == null ? "§cне заспавнена" : "§7заспавнена, entityId = " + figure.entity.getEntityId());
+                builder.lore(figure.entity == null ? "" : figure.entity.isDead() ? "§cдохлая" : "§aживая");
+                builder.lore(figure.entity == null ? "" : figure.isInSameBlock(loc) ? "§aна локации" : "§cне на локации");
+                builder.lore(loc.getBlock().getType().isSolid() && loc.getBlock().getRelative(BlockFace.UP).getType().isSolid() ? "§cзамурована" : "§aне замурована");
                 //builder.addLore(figure.isValid() ? "§aПроблем не найдено":"§cНайдены проблемы!" );
 
             }
 
-            builder.addLore("");
-            builder.addLore("§7ПКМ - меню фигуры");
-            builder.addLore("§7Клав.Q - §cудалить обработчик");
-            builder.addLore("");
+            builder.lore("");
+            builder.lore("§7ПКМ - меню фигуры");
+            builder.lore("§7Клав.Q - §cудалить обработчик");
+            builder.lore("");
 
 
             menuEntry.add(ClickableItem.of(builder.build(), e -> {
@@ -155,10 +155,10 @@ public class MenuFinded implements InventoryProvider {
                         }
                     }
                     case SHIFT_LEFT -> //System.out.println("MenuFinded.teleport loc="+figure.getLocation());
-                            FigureManager.setNewPosition(p, figure);
+                        FigureManager.setNewPosition(p, figure);
 
                     case RIGHT ->
-                            SmartInventory.builder().id("FigureMenu" + p.getName()).provider(new MenuSetup(figure)).size(6, 9).title("§fНастройка фигуры").build().open(p);
+                        SmartInventory.builder().id("FigureMenu" + p.getName()).provider(new MenuSetup(figure)).size(6, 9).title("§fНастройка фигуры").build().open(p);
 
                     case DROP -> ConfirmationGUI.open(p, "§4Удалить обработчик ?", result -> {
                         if (result) {
@@ -191,19 +191,19 @@ public class MenuFinded implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                p.performCommand("figure")
+            p.performCommand("figure")
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

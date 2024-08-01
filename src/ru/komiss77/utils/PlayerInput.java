@@ -1,9 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.WeakHashMap;
-import java.util.function.Consumer;
-import java.util.Arrays;
-
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Location;
@@ -20,6 +16,10 @@ import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.version.AnvilGUI;
 import ru.komiss77.version.Nms;
 
+import java.util.Arrays;
+import java.util.WeakHashMap;
+import java.util.function.Consumer;
+
 
 // НЕ ПЕРЕМЕЩАТЬ!! 
 public class PlayerInput implements Listener {
@@ -30,67 +30,67 @@ public class PlayerInput implements Listener {
     static {
         inputData = new WeakHashMap<>();
         left = new ItemBuilder(Material.RED_DYE)
-                //.name("§7Сейчас:")
-                //.addLore("§7"+sugg)
-                //.addLore("Режим ввода текста")
-                //.addLore("§7Наберите в строке")
-                //.addLore("§7значение и нажмите")
-                //.addLore("§7на результат.")
-                //.addLore("")
-                .addLore("§6Клик сюда - ")
-                .addLore("§eоставить как есть")
-                .build();
+            //.name("§7Сейчас:")
+            //.addLore("§7"+sugg)
+            //.addLore("Режим ввода текста")
+            //.addLore("§7Наберите в строке")
+            //.addLore("§7значение и нажмите")
+            //.addLore("§7на результат.")
+            //.addLore("")
+            .lore("§6Клик сюда - ")
+            .lore("§eоставить как есть")
+            .build();
         out = new ItemBuilder(Material.LIME_DYE)
-                //.name("§7Сейчас:")
-                //.addLore("§7"+sugg)
-                .addLore("Режим ввода текста")
-                .addLore("")
-                .addLore("§fНаберите в строке")
-                .addLore("§fзначение и")
-                .addLore("§bнажмите сюда.")
-                //.addLore("")
-                //.addLore("§6Клик  - ")
-                //.addLore("§eпринять")
-                .build();
+            //.name("§7Сейчас:")
+            //.addLore("§7"+sugg)
+            .lore("Режим ввода текста")
+            .lore("")
+            .lore("§fНаберите в строке")
+            .lore("§fзначение и")
+            .lore("§bнажмите сюда.")
+            //.addLore("")
+            //.addLore("§6Клик  - ")
+            //.addLore("§eпринять")
+            .build();
     }
 
 
     public static void get(final Player p, final int suggest, final int min, final int max, final Consumer<Integer> onDone) {
         new AnvilGUI.Builder()
-                .title("§fОт §a" + min + " §fдо §a" + max)
-                .text(String.valueOf(suggest))
-                .itemLeft(left)
-                //.itemRight(right)
-                .itemOutput(out)
-                //.onClick(p1 -> consumer.accept(sugg))
-                .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
+            .title("§fОт §a" + min + " §fдо §a" + max)
+            .text(String.valueOf(suggest))
+            .itemLeft(left)
+            //.itemRight(right)
+            .itemOutput(out)
+            //.onClick(p1 -> consumer.accept(sugg))
+            .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
 //Ostrov.log("AnvilGUI.Slot="+slot);
-                    switch (slot) {
-                        case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(suggest);
-                        case AnvilGUI.Slot.INPUT_RIGHT -> {
-                        }
-                        case AnvilGUI.Slot.OUTPUT -> {
-                            final int res = ApiOstrov.getInteger(stateSnapshot.getText());
-                            if (res == Integer.MIN_VALUE) {
-                                p.sendMessage("§cДолжно быть число!");
-                                PM.soundDeny(p);
-                            } else if (res < min || res > max) {
-                                p.sendMessage("§cот " + min + " до " + max);
-                                PM.soundDeny(p);
-                            } else {
-                                onDone.accept(res);
-                            }
+                switch (slot) {
+                    case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(suggest);
+                    case AnvilGUI.Slot.INPUT_RIGHT -> {
+                    }
+                    case AnvilGUI.Slot.OUTPUT -> {
+                        final int res = ApiOstrov.getInteger(stateSnapshot.getText());
+                        if (res == Integer.MIN_VALUE) {
+                            p.sendMessage("§cДолжно быть число!");
+                            PM.soundDeny(p);
+                        } else if (res < min || res > max) {
+                            p.sendMessage("§cот " + min + " до " + max);
+                            PM.soundDeny(p);
+                        } else {
+                            onDone.accept(res);
                         }
                     }
-                    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                    //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
-                    //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
-                    //    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                    //} else {
-                    //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
-                    //}
-                })
-                .open(p);
+                }
+                return Arrays.asList(AnvilGUI.ResponseAction.close());
+                //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
+                //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
+                //    return Arrays.asList(AnvilGUI.ResponseAction.close());
+                //} else {
+                //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
+                //}
+            })
+            .open(p);
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> onDone, String suggest) {
@@ -101,37 +101,37 @@ public class PlayerInput implements Listener {
         switch (type) {
             case ANVILL -> {
                 new AnvilGUI.Builder()
-                        .title("Введите значение")
-                        .text(sugg)
-                        .itemLeft(left)
-                        //.itemRight(right)
-                        .itemOutput(out)
-                        //.onClick(p1 -> consumer.accept(sugg))
-                        .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
+                    .title("Введите значение")
+                    .text(sugg)
+                    .itemLeft(left)
+                    //.itemRight(right)
+                    .itemOutput(out)
+                    //.onClick(p1 -> consumer.accept(sugg))
+                    .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
 //Ostrov.log("AnvilGUI.Slot="+slot);
-                            switch (slot) {
-                                case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
-                                case AnvilGUI.Slot.INPUT_RIGHT -> {
-                                }
-                                case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
+                        switch (slot) {
+                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
+                            case AnvilGUI.Slot.INPUT_RIGHT -> {
                             }
-                            return Arrays.asList(AnvilGUI.ResponseAction.close());
-                            //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
-                            //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
-                            //    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                            //} else {
-                            //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
-                            //}
-                        })
-                        .open(p);
+                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
+                        }
+                        return Arrays.asList(AnvilGUI.ResponseAction.close());
+                        //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
+                        //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
+                        //    return Arrays.asList(AnvilGUI.ResponseAction.close());
+                        //} else {
+                        //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
+                        //}
+                    })
+                    .open(p);
                 return;
             }
 
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(TCUtils.format("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
-                        .hoverEvent(HoverEvent.showText(TCUtils.format("§7Клик - подставить текст для редактирования")))
-                        .clickEvent(ClickEvent.suggestCommand(sugg)));
+                p.sendMessage(TCUtils.form("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
+                    .hoverEvent(HoverEvent.showText(TCUtils.form("§7Клик - подставить текст для редактирования")))
+                    .clickEvent(ClickEvent.suggestCommand(sugg)));
             }
 
             case SIGN -> {
@@ -160,7 +160,7 @@ public class PlayerInput implements Listener {
         if (data.type == InputType.CHAT) {
             p.sendMessage("");
             p.sendMessage("§aЗначение получено: ");
-            p.sendMessage(TCUtils.format("§f" + data.getResult()));
+            p.sendMessage(TCUtils.form("§f" + data.getResult()));
             p.sendMessage("");
         } else if (data.type == InputType.SIGN) {
             if (data.xyz != null) {

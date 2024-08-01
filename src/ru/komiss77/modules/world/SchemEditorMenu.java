@@ -43,28 +43,28 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.getCuboid() == null) {
             contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.PAPER)
-                    .name("§7Схематик §f" + sm.schemName)
-                    .addLore("")
-                    .addLore("§7Создайте кубоид точками диагоналей.")
+                .name("§7Схематик §f" + sm.schemName)
+                .lore("")
+                .lore("§7Создайте кубоид точками диагоналей.")
 
-                    .addLore("")
-                    .build()));
+                .lore("")
+                .build()));
         } else {
             contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.PAPER)
-                    .name("§7Схематик §f" + sm.schemName)
-                    .addLore("")
-                    .addLore("§7Размер: §b" + sm.getCuboid().sizeX() + "§7x§b" + sm.getCuboid().sizeY() + "§7x§b" + sm.getCuboid().sizeZ())
-                    //.addLore("§7Размер: §b"+(sm.getCuboid().getSizeX()+1)+"§7x§b"+(sm.getCuboid().getSizeY()+1)+"§7x§b"+(sm.getCuboid().getSizeZ()+1))
-                    .addLore("§7Полный Объём: §e" + sm.getCuboid().volume())
-                    //сколько блоков в схематике с воздухом или без ?
-                    .addLore("")
-                    .build()));
+                .name("§7Схематик §f" + sm.schemName)
+                .lore("")
+                .lore("§7Размер: §b" + sm.getCuboid().sizeX() + "§7x§b" + sm.getCuboid().sizeY() + "§7x§b" + sm.getCuboid().sizeZ())
+                //.addLore("§7Размер: §b"+(sm.getCuboid().getSizeX()+1)+"§7x§b"+(sm.getCuboid().getSizeY()+1)+"§7x§b"+(sm.getCuboid().getSizeZ()+1))
+                .lore("§7Полный Объём: §e" + sm.getCuboid().volume())
+                //сколько блоков в схематике с воздухом или без ?
+                .lore("")
+                .build()));
         }
 
 
         final boolean selected = sm.min != null && sm.max != null
-                && sm.min.getWorld().getName().equals(sm.max.getWorld().getName())
-                && p.getWorld().getName().equals(sm.min.getWorld().getName());
+            && sm.min.getWorld().getName().equals(sm.max.getWorld().getName())
+            && p.getWorld().getName().equals(sm.min.getWorld().getName());
 
 
         if (selected) contents.fillRect(1, 1, 4, 4, ClickableItem.empty(fill));
@@ -72,10 +72,10 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.max == null) {
             contents.set(1, 4, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                    .name("§7верхняя точка кубоида.")
-                    .addLore("§7")
-                    .addLore("§7Клик - установить.")
-                    .build(), e -> {
+                .name("§7верхняя точка кубоида.")
+                .lore("§7")
+                .lore("§7Клик - установить.")
+                .build(), e -> {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                 sm.max = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation(); //блок под ногами, или получается на 1 выше чем стоишь
                 sm.checkPosition(p);
@@ -85,11 +85,11 @@ public class SchemEditorMenu implements InventoryProvider {
         } else {
             //p.sendBlockChange(sm.pos2, Material.EMERALD_BLOCK.createBlockData());
             contents.set(1, 4, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                    .name("§7верхняя точка кубоида.")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ-тп")
-                    .addLore("§7ПКМ-установить")
-                    .build(), e -> {
+                .name("§7верхняя точка кубоида.")
+                .lore("§7")
+                .lore("§7ЛКМ-тп")
+                .lore("§7ПКМ-установить")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     p.teleport(sm.max.clone().add(0.5, 1, 0.5)); //тп над блоком, чтобы выделение было под ногами
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
@@ -108,10 +108,10 @@ public class SchemEditorMenu implements InventoryProvider {
         if (selected) {
 
             contents.set(2, 3, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                    .name("§7Повернуть на 90град.")
-                    .addLore("§7ЛКМ - повернуть сетку")
-                    .addLore("§7ПКМ - повернуть с содержимым")
-                    .build(), e -> {
+                .name("§7Повернуть на 90град.")
+                .lore("§7ЛКМ - повернуть сетку")
+                .lore("§7ПКМ - повернуть с содержимым")
+                .build(), e -> {
                 if (e.getClick() == ClickType.LEFT) {
                     sm.rotate(p, Schematic.Rotate.r90, false);
                 } else if (e.getClick() == ClickType.RIGHT) {
@@ -120,10 +120,10 @@ public class SchemEditorMenu implements InventoryProvider {
             }));
 
             contents.set(3, 3, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                    .name("§7Повернуть на 180град.")
-                    .addLore("§7ЛКМ - повернуть сетку")
-                    .addLore("§7ПКМ - повернуть с содержимым")
-                    .build(), e -> {
+                .name("§7Повернуть на 180град.")
+                .lore("§7ЛКМ - повернуть сетку")
+                .lore("§7ПКМ - повернуть с содержимым")
+                .build(), e -> {
                 if (e.getClick() == ClickType.LEFT) {
                     sm.rotate(p, Schematic.Rotate.r180, false);
                 } else if (e.getClick() == ClickType.RIGHT) {
@@ -132,10 +132,10 @@ public class SchemEditorMenu implements InventoryProvider {
             }));
 
             contents.set(3, 2, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                    .name("§7Повернуть на 270град.")
-                    .addLore("§7ЛКМ - повернуть сетку")
-                    .addLore("§7ПКМ - повернуть с содержимым")
-                    .build(), e -> {
+                .name("§7Повернуть на 270град.")
+                .lore("§7ЛКМ - повернуть сетку")
+                .lore("§7ПКМ - повернуть с содержимым")
+                .build(), e -> {
                 if (e.getClick() == ClickType.LEFT) {
                     sm.rotate(p, Schematic.Rotate.r270, false);
                 } else if (e.getClick() == ClickType.RIGHT) {
@@ -153,11 +153,11 @@ public class SchemEditorMenu implements InventoryProvider {
             if (sm.spawnPoint == null) {
 
                 contents.set(1, 6, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                        .name("§7точка спавна кубоида")
-                        .addLore("§7(не обязательно)")
-                        .addLore("§cне установлена")
-                        .addLore("§7ПКМ-установить")
-                        .build(), e -> {
+                    .name("§7точка спавна кубоида")
+                    .lore("§7(не обязательно)")
+                    .lore("§cне установлена")
+                    .lore("§7ПКМ-установить")
+                    .build(), e -> {
                     if (e.isRightClick()) {
                         if (!sm.cuboid.contains(p.getLocation())) {
                             p.sendMessage("§cДля установки точки надо быть в кубоиде");
@@ -174,11 +174,11 @@ public class SchemEditorMenu implements InventoryProvider {
             } else {
 
                 contents.set(1, 6, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                        .name("§7точка спавна кубоида")
-                        .addLore("§7(не обязательно)")
-                        .addLore("§7ЛКМ-тп")
-                        .addLore("§7ПКМ-установить")
-                        .build(), e -> {
+                    .name("§7точка спавна кубоида")
+                    .lore("§7(не обязательно)")
+                    .lore("§7ЛКМ-тп")
+                    .lore("§7ПКМ-установить")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
                         p.teleport(sm.spawnPoint.clone().add(0.5, 0, 0.5));
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
@@ -198,10 +198,10 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.min == null) {
             contents.set(4, 1, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                    .name("§7нижняя точка кубоида.")
-                    .addLore("§7")
-                    .addLore("§7Клик - установить.")
-                    .build(), e -> {
+                .name("§7нижняя точка кубоида.")
+                .lore("§7")
+                .lore("§7Клик - установить.")
+                .build(), e -> {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                 sm.min = p.getLocation();
                 sm.checkPosition(p);
@@ -211,11 +211,11 @@ public class SchemEditorMenu implements InventoryProvider {
         } else {
             //p.sendBlockChange(style.getPos1(p.getWorld().getName()), Material.EMERALD_BLOCK.createBlockData());
             contents.set(4, 1, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                    .name("§7нижняя точка кубоида.")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ-тп")
-                    .addLore("§7ПКМ-установить")
-                    .build(), e -> {
+                .name("§7нижняя точка кубоида.")
+                .lore("§7")
+                .lore("§7ЛКМ-тп")
+                .lore("§7ПКМ-установить")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     p.teleport(sm.min);
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
@@ -232,10 +232,10 @@ public class SchemEditorMenu implements InventoryProvider {
 
 
         contents.set(2, 6, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.ACACIA_SIGN)
-                .name("§fРедактировать строку параметров")
-                .addLore("§7Сейчас:")
-                .addLore(sm.param)
-                .build(), "параметры", param -> {
+            .name("§fРедактировать строку параметров")
+            .lore("§7Сейчас:")
+            .lore(sm.param)
+            .build(), "параметры", param -> {
             sm.param = param;
             reopen(p, contents);
         }));
@@ -296,11 +296,11 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.undo != null) {
             contents.set(5, 0, ClickableItem.of(new ItemBuilder(Material.NAUTILUS_SHELL)
-                    .name("§aОтмена последней вставки")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - отменить")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name("§aОтмена последней вставки")
+                .lore("§7")
+                .lore("§7ЛКМ - отменить")
+                .lore("§7")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     p.closeInventory();
                     sm.undo.paste(p, sm.undoLoc, Schematic.Rotate.r0, true);
@@ -314,9 +314,9 @@ public class SchemEditorMenu implements InventoryProvider {
         if (selected) {
 
             contents.set(5, 2, ClickableItem.of(new ItemBuilder(Material.STONECUTTER)
-                    .name("§7Очистить выделение")
-                    .addLore("§6Стирает всё в выделенной области")
-                    .build(), e -> {
+                .name("§7Очистить выделение")
+                .lore("§6Стирает всё в выделенной области")
+                .build(), e -> {
 
                 p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 1, 5);
                 ConfirmationGUI.open(p, "§4Стереть ?", result -> {
@@ -333,8 +333,8 @@ public class SchemEditorMenu implements InventoryProvider {
 
 
             contents.set(5, 6, ClickableItem.of(new ItemBuilder(Material.JUKEBOX)
-                    .name("§2Сохранить")
-                    .build(), e -> {
+                .name("§2Сохранить")
+                .build(), e -> {
 
                 if (sm.getCuboid().volume() > 2_000_000 || sm.getCuboid().sizeX() > 400 || sm.getCuboid().sizeY() > 400 || sm.getCuboid().sizeZ() > 400) {
                     p.sendMessage("§cВыделение слишком большое! Объём не более 2млн блоков, каждая сторона не более 400!");
@@ -357,7 +357,7 @@ public class SchemEditorMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e
-                -> sm.openSchemMainMenu(p)
+            -> sm.openSchemMainMenu(p)
         ));
 
 

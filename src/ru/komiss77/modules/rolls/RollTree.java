@@ -96,7 +96,7 @@ public class RollTree extends Roll<String[]> {
                     rolls.add(rl.substring(split + 1));
             }
             return new RollTree(cs.getName(), rolls.toArray(EMT),
-                    cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0));
+                cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0));
         });
     }
 

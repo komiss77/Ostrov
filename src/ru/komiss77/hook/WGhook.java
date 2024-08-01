@@ -1,14 +1,5 @@
 package ru.komiss77.hook;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -20,9 +11,19 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.BlockUtils;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 
 // https://enginehub.org/
@@ -53,7 +54,7 @@ public class WGhook {
 
             for (ProtectedRegion rg : rm.getRegions().values()) {
                 //rm.getRegions().values().stream().forEach( (rg) -> {
-                
+
                 boolean valid = false;
 
                 for (String name : rg.getOwners().getPlayers()) {
@@ -91,7 +92,7 @@ public class WGhook {
             //     rm.removeRegion(id);
             //      result++;
             //   }
-            
+
         }
         return result;
     }

@@ -225,13 +225,13 @@ public class MissionManager {
             if (op.isGuest) {
                 //System.out.println("rawData="+rawData);
                 op.menu.current = SmartInventory
-                        .builder()
-                        .id(op.nik + op.menu.section.name())
-                        .provider(new ProfileManageMenu(null, null))
-                        .size(6, 9)
-                        .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
-                        .build()
-                        .open(op.getPlayer());
+                    .builder()
+                    .id(op.nik + op.menu.section.name())
+                    .provider(new ProfileManageMenu(null, null))
+                    .size(6, 9)
+                    .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
+                    .build()
+                    .open(op.getPlayer());
                 return;
             }
             //profileMode = ProfileManager.ProfileMode.АккаунтыБД;
@@ -289,9 +289,9 @@ public class MissionManager {
                             //lore.add(Component.empty());
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
-                                    .name(mission.displayName())
-                                    .setLore(lore)
-                                    .build()
+                                .name(mission.displayName())
+                                .deLore().lore(lore)
+                                .build()
                             ));
 
                         } else if (Timer.getTime() < mission.activeFrom) { //еще не началась, возможно когда изменили дату начала уже взятой миссии
@@ -312,9 +312,9 @@ public class MissionManager {
                             //lore.addAll(Mission.getRequest(mission));
                             //lore.add(Component.empty());
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.SUGAR)
-                                    .name(mission.displayName())
-                                    .setLore(lore)
-                                    .build()
+                                .name(mission.displayName())
+                                .deLore().lore(lore)
+                                .build()
                             ));
 
                         } else if (Timer.getTime() > mission.validTo) { //просрочена
@@ -324,9 +324,9 @@ public class MissionManager {
                             lore.add(Component.empty());
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
-                                    .name(mission.displayName())
-                                    .setLore(lore)
-                                    .build()
+                                .name(mission.displayName())
+                                .deLore().lore(lore)
+                                .build()
                             ));
 
                         } else if (mission.canComplete <= 0) { //призовой фонд исчерпан
@@ -343,15 +343,15 @@ public class MissionManager {
                             lore.add(Component.text("§cвесь прогресс будет потерян!"));
 
                             buttonsDone.add(ClickableItem.of(new ItemBuilder(Material.GUNPOWDER)
-                                            .name(mission.displayName())
-                                            .setLore(lore)
-                                            .build(), e -> {
-                                        if (e.getClick() == ClickType.DROP) {
-                                            op.getPlayer().performCommand("mission deny " + missionId);
-                                        } else {
-                                            PM.soundDeny(op.getPlayer());
-                                        }
+                                    .name(mission.displayName())
+                                    .deLore().lore(lore)
+                                    .build(), e -> {
+                                    if (e.getClick() == ClickType.DROP) {
+                                        op.getPlayer().performCommand("mission deny " + missionId);
+                                    } else {
+                                        PM.soundDeny(op.getPlayer());
                                     }
+                                }
                             ));
 
                         } else { //прогресс
@@ -421,29 +421,29 @@ public class MissionManager {
                                 lore.add(Component.text("§aВсе условия выполнены!"));
                                 lore.add(Component.text("§fЛКМ §7- §eЗавершить и получить награду!"));
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
-                                                        .name(mission.displayName())
-                                                        .setLore(lore)
-                                                .addEnchant(Enchantment.FORTUNE)
-                                                        .addFlags(ItemFlag.HIDE_ENCHANTS)
-                                                        .build(), e -> {
-                                                    op.getPlayer().performCommand("mission complete " + missionId);
-                                                }
-                                        )
+                                            .name(mission.displayName())
+                                            .deLore().lore(lore)
+                                            .enchant(Enchantment.FORTUNE)
+                                            .flags(ItemFlag.HIDE_ENCHANTS)
+                                            .build(), e -> {
+                                            op.getPlayer().performCommand("mission complete " + missionId);
+                                        }
+                                    )
                                 );
                             } else {
                                 lore.add(Component.text("§7Клав. Q - §4отказаться"));
                                 //lore.add(Component.text("§сПри отказе от миссии"));
                                 lore.add(Component.text("§7(§cвесь прогресс будет потерян!§7)"));
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
-                                                .name(mission.displayName())
-                                                .setLore(lore)
-                                                .build(), e -> {
-                                            if (e.getClick() == ClickType.DROP) {
-                                                op.getPlayer().performCommand("mission deny " + missionId);
-                                            } else {
-                                                PM.soundDeny(op.getPlayer());
-                                            }
+                                        .name(mission.displayName())
+                                        .deLore().lore(lore)
+                                        .build(), e -> {
+                                        if (e.getClick() == ClickType.DROP) {
+                                            op.getPlayer().performCommand("mission deny " + missionId);
+                                        } else {
+                                            PM.soundDeny(op.getPlayer());
                                         }
+                                    }
                                 ));
                             }
 
@@ -452,7 +452,7 @@ public class MissionManager {
                         
                        /* buttons.add(ClickableItem.empty(new ItemBuilder(mission.mat)
                             .name(mission.displayName())
-                            .setLore(lore)
+                            .deLore().lore(lore)
                             .build()
                         ));*/
 
@@ -460,18 +460,18 @@ public class MissionManager {
                     } else {
 
                         buttonsCurrent.add(ClickableItem.of(new ItemBuilder(Material.MUSIC_DISC_11)
-                                        .name("§7ID: §3" + missionId)
-                                        .addLore("§cМиссия неактивна")
-                                        .addLore("")
-                                        .addLore("§7Клав.Q - §cотказаться")
-                                        .addLore("")
-                                        //.addLore("§сПри отказе от миссии")
-                                        //.addLore("§cвесь прогресс будет потерян!")
-                                        .addLore("")
-                                        .build(), e -> {
-                                    op.getPlayer().performCommand("mission deny " + missionId);
-                                    MissionManager.openMissionsMenu(op, inProfile);
-                                }
+                                .name("§7ID: §3" + missionId)
+                                .lore("§cМиссия неактивна")
+                                .lore("")
+                                .lore("§7Клав.Q - §cотказаться")
+                                .lore("")
+                                //.addLore("§сПри отказе от миссии")
+                                //.addLore("§cвесь прогресс будет потерян!")
+                                .lore("")
+                                .build(), e -> {
+                                op.getPlayer().performCommand("mission deny " + missionId);
+                                MissionManager.openMissionsMenu(op, inProfile);
+                            }
                         ));
 
                     }
@@ -487,22 +487,22 @@ public class MissionManager {
                             if (op.menu.section == Section.МИССИИ) {// && profileMode == ProfileManager.ProfileMode.АккаунтыБД) {
                                 //System.out.println("rawData="+rawData);
                                 op.menu.current = SmartInventory
-                                        .builder()
-                                        .id(op.nik + op.menu.section.name())
-                                        .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
-                                        .size(6, 9)
-                                        .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
-                                        .build()
-                                        .open(op.getPlayer());
+                                    .builder()
+                                    .id(op.nik + op.menu.section.name())
+                                    .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
+                                    .size(6, 9)
+                                    .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
+                                    .build()
+                                    .open(op.getPlayer());
                             }// else p.sendMessage("уже другое меню"); }
                         } else {
                             SmartInventory
-                                    .builder()
-                                    .provider(new MissionManageMenu(buttonsCurrent, buttonsDone))
-                                    .size(5, 9)
-                                    .title("§b§lМиссионария")
-                                    .build()
-                                    .open(op.getPlayer());
+                                .builder()
+                                .provider(new MissionManageMenu(buttonsCurrent, buttonsDone))
+                                .size(5, 9)
+                                .title("§b§lМиссионария")
+                                .build()
+                                .open(op.getPlayer());
                         }
                     }
                 }, 0);
@@ -542,12 +542,12 @@ public class MissionManager {
 
                 Ostrov.sync(() -> {
                     SmartInventory.builder()
-                            .id("Миссии")
-                            .provider(new MissionSetupMenu(list))
-                            .size(6, 9)
-                            .title("Миссии")
-                            .build()
-                            .open(p);
+                        .id("Миссии")
+                        .provider(new MissionSetupMenu(list))
+                        .size(6, 9)
+                        .title("Миссии")
+                        .build()
+                        .open(p);
                 }, 0);
 
             } catch (SQLException e) {
@@ -571,12 +571,12 @@ public class MissionManager {
 
     public static void editMission(final Player p, final Mission mission) {
         SmartInventory.builder()
-                .id("Редактор Миссии")
-                .provider(new MissionEditor(mission))
-                .size(6, 9)
-                .title("Редактор Миссии")
-                .build()
-                .open(p);
+            .id("Редактор Миссии")
+            .provider(new MissionEditor(mission))
+            .size(6, 9)
+            .title("Редактор Миссии")
+            .build()
+            .open(p);
     }
 
 

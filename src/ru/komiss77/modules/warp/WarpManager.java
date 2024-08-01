@@ -1,12 +1,5 @@
 package ru.komiss77.modules.warp;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Set;
-
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,6 +10,13 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.LocationUtil;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Set;
 
 
 public final class WarpManager implements Initiable {
@@ -263,13 +263,13 @@ public final class WarpManager implements Initiable {
         warps.put(warp.warpName, warp);
         Ostrov.async(() -> {
             try (
-                    PreparedStatement pst = ApiOstrov.getLocalConnection().prepareStatement("INSERT INTO `warps` (`name`, `owner`, `loc`, `system`, `create_time` ) VALUES "
-                            + "( ?, ?, ?, ?, ? ) " +
-                            "ON DUPLICATE KEY UPDATE "
-                            + "dispalyMat ='" + warp.dispalyMat + "', "
-                            + "descr='" + warp.descr + "', "
-                            + "loc=VALUES(loc), "
-                            + "need_perm='" + (warp.need_perm ? 1 : 0) + "' ")
+                PreparedStatement pst = ApiOstrov.getLocalConnection().prepareStatement("INSERT INTO `warps` (`name`, `owner`, `loc`, `system`, `create_time` ) VALUES "
+                    + "( ?, ?, ?, ?, ? ) " +
+                    "ON DUPLICATE KEY UPDATE "
+                    + "dispalyMat ='" + warp.dispalyMat + "', "
+                    + "descr='" + warp.descr + "', "
+                    + "loc=VALUES(loc), "
+                    + "need_perm='" + (warp.need_perm ? 1 : 0) + "' ")
             ) {
                 pst.setString(1, warp.warpName);
                 pst.setString(2, warp.owner);

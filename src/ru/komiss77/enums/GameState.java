@@ -1,11 +1,11 @@
 package ru.komiss77.enums;
 
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
 
 
 public enum GameState {

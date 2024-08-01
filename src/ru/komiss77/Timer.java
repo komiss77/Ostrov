@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -123,7 +124,7 @@ public class Timer {
                         Bukkit.getPluginManager().callEvent(new RestartWarningEvent(time_left));
                     }
                     if (time_left == 300 || time_left == 180 || time_left == 120 || time_left == 60) {
-                        Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
+                        Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
                     }
                     if (time_left == 15) {
                         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -182,23 +183,23 @@ public class Timer {
 
                 if (!authMode) {
                     PM.getOplayers().stream().forEach((op) -> {
-                                op.tick++;
-                                if (op.tick == 20) {
-                                    op.tick = 0;
-                                    op.secondTick();
-                                    if (jailMode && !op.isStaff) {
-                                        //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
-                                        banLeft = op.getDataInt(Data.BAN_TO) - getTime();
-                                        if (banLeft <= 0) {
-                                            ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
-                                        } else {
-                                            op.score.getSideBar().setTitle("§4Чистилище");
-                                            op.score.getSideBar().update(9, "§7До разбана:");
-                                            op.score.getSideBar().update(8, "§e" + ApiOstrov.secondToTime(banLeft));
-                                        }
+                            op.tick++;
+                            if (op.tick == 20) {
+                                op.tick = 0;
+                                op.secondTick();
+                                if (jailMode && !op.isStaff) {
+                                    //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
+                                    banLeft = op.getDataInt(Data.BAN_TO) - getTime();
+                                    if (banLeft <= 0) {
+                                        ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
+                                    } else {
+                                        op.score.getSideBar().setTitle("§4Чистилище");
+                                        op.score.getSideBar().update(9, "§7До разбана:");
+                                        op.score.getSideBar().update(8, "§e" + ApiOstrov.secondToTime(banLeft));
                                     }
                                 }
                             }
+                        }
                     );
                 }
 
@@ -521,7 +522,7 @@ public class Timer {
                             Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
                         if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
-                            Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
+                            Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
                         }
                         if (time_left==0) {
                             this.cancel();
@@ -578,7 +579,7 @@ public class Timer {
                             Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
                         if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
-                            Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
+                            Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
                         }
                         if (time_left==0) {
                             this.cancel();

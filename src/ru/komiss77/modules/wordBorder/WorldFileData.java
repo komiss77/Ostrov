@@ -19,10 +19,10 @@ import ru.komiss77.Ostrov;
 // by the way, this region file handler was created based on the divulged region file format: http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
 
 public class WorldFileData {
-    private transient World world;
+    private final transient World world;
     private transient File regionFolder = null;
     private transient File[] regionFiles = null;
-    private transient Map<CoordXZ, List<Boolean>> regionChunkExistence = Collections.synchronizedMap(new HashMap<CoordXZ, List<Boolean>>());
+    private final transient Map<CoordXZ, List<Boolean>> regionChunkExistence = Collections.synchronizedMap(new HashMap<CoordXZ, List<Boolean>>());
 
     // Use this static method to create a new instance of this class. If null is returned, there was a problem so any process relying on this should be cancelled.
     public static WorldFileData create(World world) {
@@ -114,10 +114,10 @@ public class WorldFileData {
     // Minecraft only fully generates a chunk when adjacent chunks are also loaded.
     public boolean isChunkFullyGenerated(int x, int z) {    // if all adjacent chunks exist, it should be a safe enough bet that this one is fully generated
         return !(!doesChunkExist(x, z)
-                || !doesChunkExist(x + 1, z)
-                || !doesChunkExist(x - 1, z)
-                || !doesChunkExist(x, z + 1)
-                || !doesChunkExist(x, z - 1)
+            || !doesChunkExist(x + 1, z)
+            || !doesChunkExist(x - 1, z)
+            || !doesChunkExist(x, z + 1)
+            || !doesChunkExist(x, z - 1)
         );
     }
 
@@ -199,9 +199,9 @@ public class WorldFileData {
         @Override
         public boolean accept(File file) {
             return (
-                    file.exists()
-                            && file.isFile()
-                            && file.getName().toLowerCase().endsWith(ext)
+                file.exists()
+                    && file.isFile()
+                    && file.getName().toLowerCase().endsWith(ext)
             );
         }
     }
@@ -211,9 +211,9 @@ public class WorldFileData {
         @Override
         public boolean accept(File file) {
             return (
-                    file.exists()
-                            && file.isDirectory()
-                            && file.getName().toLowerCase().startsWith("dim")
+                file.exists()
+                    && file.isDirectory()
+                    && file.getName().toLowerCase().startsWith("dim")
             );
         }
     }

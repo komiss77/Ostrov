@@ -1,10 +1,9 @@
 package ru.komiss77.builder.menu;
 
-import org.bukkit.*;
-
-import java.util.ArrayList;
-import java.util.TreeSet;
-
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
@@ -16,13 +15,10 @@ import ru.komiss77.modules.wordBorder.WorldTrimTask;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
+
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 
 public class WorldSetupMenu implements InventoryProvider {
@@ -56,39 +52,39 @@ public class WorldSetupMenu implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(new ItemBuilder(getWorldMat(world))
-                    .name(world.getName())
-                    .addLore("§b" + world.getEnvironment().name() + "§7, generator: §b" + gen)
-                    .addLore("§fChunks §7Loaded:§d" + world.getLoadedChunks().length + " §7Ticking:§d" + world.getChunkCount())
-                    .addLore("§fEntity§7:§6" + world.getEntityCount() + "§7, Living:§6" + world.getLivingEntities().size() + "§7, Players:§6" + world.getPlayers().size())
-                    .addLore("§fTileEntity§7:§3" + world.getTileEntityCount() + "§7, Tickable:§3" + world.getTickableTileEntityCount())
-                    .addLore("")
-                    .addLore("§fЛКМ §7- ТП на точку спавна мира")
-                    .addLore("§fПКМ §7- энтити")
-                    .addLore("§fКолёсико §7- настройки мира")
-                    .addLore("§4клав.Q - §cвыгрузить мир")
-                    .addLore("§5===============================")
-                    .addLore("Центр границы мира: " + world.getWorldBorder().getCenter().getBlockX() + ", " + world.getWorldBorder().getCenter().getBlockY() + ", " + world.getWorldBorder().getCenter().getBlockZ())
-                    .addLore("Размер границы мира: §6" + world.getWorldBorder().getSize())
-                    .addLore("§7*(установка границы в меню настроек)")
-                    .addLore("Макс.размер в server.properties: §6" + Bukkit.getServer().getMaxWorldSize())
-                    .addLore("Эффективный размер: §e" + maxSize)
-                    .addLore("(x от " + (world.getWorldBorder().getCenter().getBlockX() - maxSize / 2) + " до " + (world.getWorldBorder().getCenter().getBlockX() + maxSize / 2) + ")")
-                    .addLore("(z от " + (world.getWorldBorder().getCenter().getBlockZ() - maxSize / 2) + " до " + (world.getWorldBorder().getCenter().getBlockZ() + maxSize / 2) + ")")
+                .name(world.getName())
+                .lore("§b" + world.getEnvironment().name() + "§7, generator: §b" + gen)
+                .lore("§fChunks §7Loaded:§d" + world.getLoadedChunks().length + " §7Ticking:§d" + world.getChunkCount())
+                .lore("§fEntity§7:§6" + world.getEntityCount() + "§7, Living:§6" + world.getLivingEntities().size() + "§7, Players:§6" + world.getPlayers().size())
+                .lore("§fTileEntity§7:§3" + world.getTileEntityCount() + "§7, Tickable:§3" + world.getTickableTileEntityCount())
+                .lore("")
+                .lore("§fЛКМ §7- ТП на точку спавна мира")
+                .lore("§fПКМ §7- энтити")
+                .lore("§fКолёсико §7- настройки мира")
+                .lore("§4клав.Q - §cвыгрузить мир")
+                .lore("§5===============================")
+                .lore("Центр границы мира: " + world.getWorldBorder().getCenter().getBlockX() + ", " + world.getWorldBorder().getCenter().getBlockY() + ", " + world.getWorldBorder().getCenter().getBlockZ())
+                .lore("Размер границы мира: §6" + world.getWorldBorder().getSize())
+                .lore("§7*(установка границы в меню настроек)")
+                .lore("Макс.размер в server.properties: §6" + Bukkit.getServer().getMaxWorldSize())
+                .lore("Эффективный размер: §e" + maxSize)
+                .lore("(x от " + (world.getWorldBorder().getCenter().getBlockX() - maxSize / 2) + " до " + (world.getWorldBorder().getCenter().getBlockX() + maxSize / 2) + ")")
+                .lore("(z от " + (world.getWorldBorder().getCenter().getBlockZ() - maxSize / 2) + " до " + (world.getWorldBorder().getCenter().getBlockZ() + maxSize / 2) + ")")
 
-                    .addLore(WorldManager.fillTask != null && WorldManager.fillTask.valid() ?
-                            (WorldManager.fillTask.isPaused() ? "§6Предгенерация на паузе" : "§aИдёт предгенерация §e" + WorldManager.fillTask.worldName() + " §7: §b" + WorldManager.fillTask.getPercentageCompleted() + "%")
-                            : (WorldManager.trimTask != null && WorldManager.trimTask.valid() ? "§cИдёт обрезка мира §e" + WorldManager.trimTask.worldName() : ""))
+                .lore(WorldManager.fillTask != null && WorldManager.fillTask.valid() ?
+                    (WorldManager.fillTask.isPaused() ? "§6Предгенерация на паузе" : "§aИдёт предгенерация §e" + WorldManager.fillTask.worldName() + " §7: §b" + WorldManager.fillTask.getPercentageCompleted() + "%")
+                    : (WorldManager.trimTask != null && WorldManager.trimTask.valid() ? "§cИдёт обрезка мира §e" + WorldManager.trimTask.worldName() : ""))
 
-                    .addLore(WorldManager.fillTask == null ? "§fШифт+ЛКМ §7- начать предгенерацию" : (WorldManager.fillTask.isPaused() ?
-                            "§fШифт+ЛКМ §7- продолжить предгенерацию §e" + WorldManager.fillTask.worldName()
-                            : "§fШифт+ЛКМ §7- пауза предгенерации §e" + WorldManager.fillTask.worldName()))
+                .lore(WorldManager.fillTask == null ? "§fШифт+ЛКМ §7- начать предгенерацию" : (WorldManager.fillTask.isPaused() ?
+                    "§fШифт+ЛКМ §7- продолжить предгенерацию §e" + WorldManager.fillTask.worldName()
+                    : "§fШифт+ЛКМ §7- пауза предгенерации §e" + WorldManager.fillTask.worldName()))
 
-                    .addLore(WorldManager.fillTask == null ?
-                            "§fШифт+ПКМ §7- обрезать мир по границе"
-                            : "§fШифт+ПКМ §7- прекратить предгенерацию §e" + WorldManager.fillTask.worldName())
+                .lore(WorldManager.fillTask == null ?
+                    "§fШифт+ПКМ §7- обрезать мир по границе"
+                    : "§fШифт+ПКМ §7- прекратить предгенерацию §e" + WorldManager.fillTask.worldName())
 
-                    .addLore("§5===============================")
-                    .build(), e -> {
+                .lore("§5===============================")
+                .build(), e -> {
 
                 switch (e.getClick()) {
 
@@ -117,12 +113,12 @@ public class WorldSetupMenu implements InventoryProvider {
 
                     case MIDDLE:
                         SmartInventory.builder()
-                                .id("WorldSettings" + p.getName())
-                                .provider(new WorldSettings(world))
-                                .size(6, 9)
-                                .title("§bНастройки мира " + world.getName())
-                                .build()
-                                .open(p);
+                            .id("WorldSettings" + p.getName())
+                            .provider(new WorldSettings(world))
+                            .size(6, 9)
+                            .title("§bНастройки мира " + world.getName())
+                            .build()
+                            .open(p);
                         break;
 
 
@@ -193,19 +189,19 @@ public class WorldSetupMenu implements InventoryProvider {
         pagination.setItemsPerPage(45);
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
-                p.closeInventory()
+            p.closeInventory()
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

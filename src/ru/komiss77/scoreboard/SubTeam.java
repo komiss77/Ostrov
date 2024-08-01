@@ -65,7 +65,7 @@ public class SubTeam {
     }
 
     public SubTeam prefix(final String prefix) {
-        return prefix(TCUtils.format(prefix));
+        return prefix(TCUtils.form(prefix));
     }
 
     public SubTeam prefix(final Component prefix) {
@@ -74,7 +74,7 @@ public class SubTeam {
     }
 
     public SubTeam suffix(final String suffix) {
-        return suffix(TCUtils.format(suffix));
+        return suffix(TCUtils.form(suffix));
     }
 
     public SubTeam suffix(final Component suffix) {
@@ -114,12 +114,12 @@ public class SubTeam {
 
     public void send(final Player to) {
         Nms.sendPacket(to, new ClientboundBundlePacket(List.of(ClientboundSetPlayerTeamPacket.createRemovePacket(nmsTeam),
-                ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(nmsTeam, true))));
+            ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(nmsTeam, true))));
     }
 
     public void send(final World to) {
         Nms.sendWorldPacket(to, new ClientboundBundlePacket(List.of(ClientboundSetPlayerTeamPacket.createRemovePacket(nmsTeam),
-                ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(nmsTeam, true))));
+            ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(nmsTeam, true))));
     }
 
     public void remove(final Player to) {

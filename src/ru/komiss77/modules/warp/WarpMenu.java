@@ -1,13 +1,10 @@
 package ru.komiss77.modules.warp;
 
 
-import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Perm;
@@ -15,15 +12,9 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtils;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
+
+import java.util.ArrayList;
 
 
 public class WarpMenu implements InventoryProvider {
@@ -69,22 +60,22 @@ public class WarpMenu implements InventoryProvider {
                 if (w.isOwner(p)) count++; //счётчик варпов владельца, нужно ниже
 
                 menuEntry.add(ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
-                        .name("§f" + warpName)
-                        .addLore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец " + w.owner)
-                        .addLore(w.descr)
-                        .addLore("§7Создан " + ApiOstrov.dateFromStamp(w.create_time))
-                        .addLore("")
-                        .addLore(w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен")
-                        .addLore("§7Посещений: §b" + w.use_counter)
-                        .addLore(w.isPaid() && !ApiOstrov.isLocalBuilder(p, false) && !w.isOwner(p) ? "§7Плата за посещение: " + w.use_cost + " лони" : "")
-                        .addLore(hasPerm ? "" : "§cнет права warp.use." + warpName)
-                        .addLore("")
-                        .addLore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
-                        .addLore("§7ПКМ - настройки")
-                        .addLore(w.open ? "§7Шифт+ПКМ - §4закрыть" : "§7Шифт+ПКМ - §2открыть")
-                        .addLore("§7Клав. Q - §cудалить")
-                        .addLore("")
-                        .build(), e -> {
+                    .name("§f" + warpName)
+                    .lore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец " + w.owner)
+                    .lore(w.descr)
+                    .lore("§7Создан " + ApiOstrov.dateFromStamp(w.create_time))
+                    .lore("")
+                    .lore(w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен")
+                    .lore("§7Посещений: §b" + w.use_counter)
+                    .lore(w.isPaid() && !ApiOstrov.isLocalBuilder(p, false) && !w.isOwner(p) ? "§7Плата за посещение: " + w.use_cost + " лони" : "")
+                    .lore(hasPerm ? "" : "§cнет права warp.use." + warpName)
+                    .lore("")
+                    .lore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
+                    .lore("§7ПКМ - настройки")
+                    .lore(w.open ? "§7Шифт+ПКМ - §4закрыть" : "§7Шифт+ПКМ - §2открыть")
+                    .lore("§7Клав. Q - §cудалить")
+                    .lore("")
+                    .build(), e -> {
                     switch (e.getClick()) {
 
                         case LEFT:
@@ -93,12 +84,12 @@ public class WarpMenu implements InventoryProvider {
 
                         case RIGHT:
                             SmartInventory.builder()
-                                    .type(InventoryType.HOPPER)
-                                    .id("WarpSettings" + p.getName())
-                                    .provider(new WarpSetupMenu(w))
-                                    .title("§fНастройки " + warpName)
-                                    .build()
-                                    .open(p);
+                                .type(InventoryType.HOPPER)
+                                .id("WarpSettings" + p.getName())
+                                .provider(new WarpSetupMenu(w))
+                                .title("§fНастройки " + warpName)
+                                .build()
+                                .open(p);
                             return;
 
                         case SHIFT_RIGHT:
@@ -131,19 +122,19 @@ public class WarpMenu implements InventoryProvider {
             } else {
 
                 menuEntry.add(ClickableItem.of(new ItemBuilder(w.open ? w.dispalyMat : Material.BARRIER)
-                        .name("§f" + warpName)
-                        .addLore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец " + w.owner)
-                        .addLore(w.descr)
-                        .addLore("§7Создан " + ApiOstrov.dateFromStamp(w.create_time))
-                        .addLore("")
-                        .addLore(w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен")
-                        .addLore("§7Посещений: §b" + w.use_counter)
-                        .addLore(w.isPaid() ? "§7Плата за посещение: " + w.use_cost + " лони" : "")
-                        .addLore(hasPerm ? "" : "§cнет права warp.use." + warpName)
-                        .addLore("")
-                        .addLore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
-                        .addLore("")
-                        .build(), e -> {
+                    .name("§f" + warpName)
+                    .lore(w.isOwner(p) ? "§7Вы владелец" : "§7Владелец " + w.owner)
+                    .lore(w.descr)
+                    .lore("§7Создан " + ApiOstrov.dateFromStamp(w.create_time))
+                    .lore("")
+                    .lore(w.open ? (w.system ? "§3Общий" : "§6Частный") : "§cВыключен")
+                    .lore("§7Посещений: §b" + w.use_counter)
+                    .lore(w.isPaid() ? "§7Плата за посещение: " + w.use_cost + " лони" : "")
+                    .lore(hasPerm ? "" : "§cнет права warp.use." + warpName)
+                    .lore("")
+                    .lore(w.open && hasPerm ? "§7ЛКМ - §aпосетить" : "")
+                    .lore("")
+                    .build(), e -> {
                     if (e.isLeftClick()) {
                         WarpManager.tryWarp(p, warpName);
                     }
@@ -159,32 +150,32 @@ public class WarpMenu implements InventoryProvider {
 
         if (menuEntry.isEmpty()) {
             contents.set(2, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
-                    .name("§7Доступных мест не найдено!")
-                    .build()));
+                .name("§7Доступных мест не найдено!")
+                .build()));
         }
 
 
         if (!LocalDB.useLocalData) {
 
             contents.set(5, 2, ClickableItem.empty(new ItemBuilder(Material.HOPPER)
-                    .name("§eДобавить серверное место")
-                    .addLore("§cЛокальная БД отключена,")
-                    .addLore("§cдобавить новое место")
-                    .addLore("§сневозможно.")
-                    .build()
+                .name("§eДобавить серверное место")
+                .lore("§cЛокальная БД отключена,")
+                .lore("§cдобавить новое место")
+                .lore("§сневозможно.")
+                .build()
             ));
 
         } else if (ApiOstrov.isLocalBuilder(p, false)) {
 
             contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.HOPPER)
-                    .name("§eДобавить серверное место")
-                    .addLore("§7")
-                    .addLore("§7Создать общедоступное")
-                    .addLore("§7место в точке, где вы стоите.")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - создать")
-                    .addLore("§7")
-                    .build(), "название", msg -> {
+                .name("§eДобавить серверное место")
+                .lore("§7")
+                .lore("§7Создать общедоступное")
+                .lore("§7место в точке, где вы стоите.")
+                .lore("§7")
+                .lore("§7ЛКМ - создать")
+                .lore("§7")
+                .build(), "название", msg -> {
                 final String strip = TCUtils.stripColor(msg);
 
                 if (strip.length() > 24) {
@@ -242,17 +233,17 @@ public class WarpMenu implements InventoryProvider {
             //if (wm.canSetPrivate) {
 
             contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.HOPPER)
-                    .name("§eДобавить место")
-                    .addLore("§7")
-                    .addLore("§7Лимит для вашей группы: §b" + limit)
-                    .addLore("§7Вы уже создали мест: §6" + count)
-                    .addLore("§7")
-                    .addLore("§7Создать частное")
-                    .addLore("§7место в точке, где вы стоите.")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - создать")
-                    .addLore("§7")
-                    .build(), "название", msg -> {
+                .name("§eДобавить место")
+                .lore("§7")
+                .lore("§7Лимит для вашей группы: §b" + limit)
+                .lore("§7Вы уже создали мест: §6" + count)
+                .lore("§7")
+                .lore("§7Создать частное")
+                .lore("§7место в точке, где вы стоите.")
+                .lore("§7")
+                .lore("§7ЛКМ - создать")
+                .lore("§7")
+                .build(), "название", msg -> {
 
                 if (limit == 0) {
                     p.sendMessage("§cДля вышей группы не предусмотрена установка мест.");
@@ -293,8 +284,8 @@ public class WarpMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(hideClosed ? Material.LEVER : Material.REDSTONE_TORCH)
-                .name(hideClosed ? "§eПоказывать выключенные" : "§eСкрыть выключенные")
-                .build(), e -> {
+            .name(hideClosed ? "§eПоказывать выключенные" : "§eСкрыть выключенные")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 hideClosed = !hideClosed;
                 reopen(p, contents);
@@ -302,8 +293,8 @@ public class WarpMenu implements InventoryProvider {
         }));
 
         contents.set(5, 5, ClickableItem.of(new ItemBuilder(hidePaid ? Material.LEVER : Material.REDSTONE_TORCH)
-                .name(hidePaid ? "§eПоказывать платные" : "§eСкрыть платные")
-                .build(), e -> {
+            .name(hidePaid ? "§eПоказывать платные" : "§eСкрыть платные")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 hidePaid = !hidePaid;
                 reopen(p, contents);
@@ -311,8 +302,8 @@ public class WarpMenu implements InventoryProvider {
         }));
 
         contents.set(5, 6, ClickableItem.of(new ItemBuilder(hidePrivate ? Material.LEVER : Material.REDSTONE_TORCH)
-                .name(hidePrivate ? "§eПоказывать с правом" : "§eСкрыть с правом")
-                .build(), e -> {
+            .name(hidePrivate ? "§eПоказывать с правом" : "§eСкрыть с правом")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 hidePrivate = !hidePrivate;
                 reopen(p, contents);
@@ -376,19 +367,19 @@ public class WarpMenu implements InventoryProvider {
         pagination.setItemsPerPage(21);
 
         contents.set(5, 7, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                p.closeInventory()
+            p.closeInventory()
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 

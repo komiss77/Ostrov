@@ -1,14 +1,13 @@
 package ru.komiss77.events;
 
-import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
+
+import java.util.Map;
 
 
 public class LocalDataLoadEvent extends Event implements Cancellable {

@@ -53,43 +53,43 @@ public class SchemMainMenu implements InventoryProvider {
                 final String schemName = schemFile.getName().replaceFirst(".schem", "");
 
                 menuEntry.add(ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
-                        .name(schemName)
-                        .addLore("§7Размер: " + (schemFile.length() < 1000 ? schemFile.length() + " байт" : schemFile.length() / 1000 + "кб"))
-                        .addLore("")
-                        .addLore("§7ЛКМ - §fменю загрузки")
-                        .addLore("§5Откроется подМеню выбора")
-                        .addLore("§5поворота схематика")
-                        .addLore("§5для вставки")
-                        .addLore("")
-                        .addLore("§7ПКМ - §fтест Compare")
-                        .addLore("§5Точка спавна схематика")
-                        .addLore("§5будет совмещена")
-                        .addLore("§5с локацией ног и выполнится")
-                        .addLore("§5поиск отличий с местностью.")
-                        .addLore("")
-                        .addLore("клав.Q - §cудалить")
-                        .addLore("")
-                        .build(), e -> {
+                    .name(schemName)
+                    .lore("§7Размер: " + (schemFile.length() < 1000 ? schemFile.length() + " байт" : schemFile.length() / 1000 + "кб"))
+                    .lore("")
+                    .lore("§7ЛКМ - §fменю загрузки")
+                    .lore("§5Откроется подМеню выбора")
+                    .lore("§5поворота схематика")
+                    .lore("§5для вставки")
+                    .lore("")
+                    .lore("§7ПКМ - §fтест Compare")
+                    .lore("§5Точка спавна схематика")
+                    .lore("§5будет совмещена")
+                    .lore("§5с локацией ног и выполнится")
+                    .lore("§5поиск отличий с местностью.")
+                    .lore("")
+                    .lore("клав.Q - §cудалить")
+                    .lore("")
+                    .build(), e -> {
 
                     switch (e.getClick()) {
                         case LEFT:
                             SmartInventory.builder()
-                                    .type(InventoryType.HOPPER)
-                                    .id(schemName)
-                                    .provider(new SchemPasteMenu(schemName))
-                                    .title("§fСхематик " + schemName)
-                                    .build()
-                                    .open(p);
+                                .type(InventoryType.HOPPER)
+                                .id(schemName)
+                                .provider(new SchemPasteMenu(schemName))
+                                .title("§fСхематик " + schemName)
+                                .build()
+                                .open(p);
                             break;
 
                         case RIGHT:
                             SmartInventory.builder()
-                                    .type(InventoryType.HOPPER)
-                                    .id(schemName)
-                                    .provider(new SchemCompareMenu(schemName))
-                                    .title("§aCompare " + schemName)
-                                    .build()
-                                    .open(p);
+                                .type(InventoryType.HOPPER)
+                                .id(schemName)
+                                .provider(new SchemCompareMenu(schemName))
+                                .title("§aCompare " + schemName)
+                                .build()
+                                .open(p);
                             break;
 
                         case DROP:
@@ -109,11 +109,11 @@ public class SchemMainMenu implements InventoryProvider {
 
         if (sm.undo != null) {
             contents.set(5, 0, ClickableItem.of(new ItemBuilder(Material.NAUTILUS_SHELL)
-                    .name("§aОтмена последней вставки")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - отменить")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name("§aОтмена последней вставки")
+                .lore("§7")
+                .lore("§7ЛКМ - отменить")
+                .lore("§7")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     p.closeInventory();
                     sm.undo.paste(p, sm.undoLoc, Rotate.r0, true);
@@ -126,8 +126,8 @@ public class SchemMainMenu implements InventoryProvider {
 
 
         contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.BOOK)
-                .name("§fCоздать схематик")
-                .build(), "название", newName -> {
+            .name("§fCоздать схематик")
+            .build(), "название", newName -> {
 
             if (newName.isEmpty() || newName.length() > 16 || !ApiOstrov.checkString(newName, true, true)) {
                 p.sendMessage("§cНедопустимое название!");
@@ -151,11 +151,11 @@ public class SchemMainMenu implements InventoryProvider {
 
         if (!sm.schemName.isEmpty()) {
             contents.set(5, 3, ClickableItem.of(new ItemBuilder(Material.FEATHER)
-                    .name("§7Продолжить редактирование")
-                    .addLore("§7")
-                    .addLore("§7ЛКМ - открыть редактор")
-                    .addLore("§7")
-                    .build(), e -> {
+                .name("§7Продолжить редактирование")
+                .lore("§7")
+                .lore("§7ЛКМ - открыть редактор")
+                .lore("§7")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     sm.openSchemEditMenu(p, sm.schemName);
                 }
@@ -166,18 +166,18 @@ public class SchemMainMenu implements InventoryProvider {
         final PasteJob pj = WE.JOBS.get(WE.currentTask);
 
         contents.set(5, 6, ClickableItem.of(new ItemBuilder(Material.COMMAND_BLOCK_MINECART)
-                .name("§7Процессы вставки")
-                .addLore("§7")
-                .addLore("§7Создано процессов: §b" + WE.JOBS.size())
-                .addLore("§7")
-                .addLore(pj == null ? "" : "§7Выполняется: §a" + pj.getSchemName())
-                .addLore(pj == null ? "" : "§7Текущий блок: §f" + pj.getCurrentXYZ())
-                //.addLore(pj==null ? "" : "§7Локация 2: §f"+LocationUtil.StringFromLoc(pj.getPos2()))
-                .addLore(pj == null ? "" : "§7Прогресс: §e" + pj.percent + "%")
-                .addLore("§7")
-                .addLore("§7ЛКМ - управление")
-                .addLore("§7")
-                .build(), e -> {
+            .name("§7Процессы вставки")
+            .lore("§7")
+            .lore("§7Создано процессов: §b" + WE.JOBS.size())
+            .lore("§7")
+            .lore(pj == null ? "" : "§7Выполняется: §a" + pj.getSchemName())
+            .lore(pj == null ? "" : "§7Текущий блок: §f" + pj.getCurrentXYZ())
+            //.addLore(pj==null ? "" : "§7Локация 2: §f"+LocationUtil.StringFromLoc(pj.getPos2()))
+            .lore(pj == null ? "" : "§7Прогресс: §e" + pj.percent + "%")
+            .lore("§7")
+            .lore("§7ЛКМ - управление")
+            .lore("§7")
+            .build(), e -> {
             if (e.isLeftClick()) {
                 p.sendMessage("пока не доделано");
 //Bukkit.broadcastMessage("управление Процессы вставки");
@@ -192,19 +192,19 @@ public class SchemMainMenu implements InventoryProvider {
 
 
         contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("гл.меню").build(), e
-                -> sm.openMainSetupMenu(p)
+            -> sm.openMainSetupMenu(p)
         ));
 
 
         if (!pagination.isLast()) {
             contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> contents.getHost().open(p, pagination.next().getPage()))
+                -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
             contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> contents.getHost().open(p, pagination.previous().getPage()))
+                -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
 
@@ -242,18 +242,18 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(0, ClickableItem.of(new ItemBuilder(Material.SPRUCE_SAPLING)
-                    .name("§bБез поворота")
-                    .addLore("§eзагрузить, вставить и выделить")
-                    .addLore("§7ЛКМ - §fc воздухом")
-                    .addLore("§7ПКМ - §fпропускать воздух")
-                    .addLore("")
-                    .addLore("§5Отмена последней вставки")
-                    .addLore("§5возможна в главном меню")
-                    .addLore("§5выбора схематиков.")
-                    //.addLore("§5Убедитесь, что рядом нет")
-                    //.addLore("§5ценных построек,")
-                    //.addLore("§5действие не отменить.")
-                    .build(), e -> {
+                .name("§bБез поворота")
+                .lore("§eзагрузить, вставить и выделить")
+                .lore("§7ЛКМ - §fc воздухом")
+                .lore("§7ПКМ - §fпропускать воздух")
+                .lore("")
+                .lore("§5Отмена последней вставки")
+                .lore("§5возможна в главном меню")
+                .lore("§5выбора схематиков.")
+                //.addLore("§5Убедитесь, что рядом нет")
+                //.addLore("§5ценных построек,")
+                //.addLore("§5действие не отменить.")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     paste(p, Rotate.r0, true);
                 } else if (e.isRightClick()) {
@@ -263,15 +263,15 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(1, ClickableItem.of(new ItemBuilder(Material.BIRCH_SAPLING)
-                    .name("§bПовернуть на 90 град.")
-                    .addLore("§eзагрузить, вставить и выделить")
-                    .addLore("§7ЛКМ - §fc воздухом")
-                    .addLore("§7ПКМ - §fпропускать воздух")
-                    .addLore("")
-                    .addLore("§5Отмена последней вставки")
-                    .addLore("§5возможна в главном меню")
-                    .addLore("§5выбора схематиков.")
-                    .build(), e -> {
+                .name("§bПовернуть на 90 град.")
+                .lore("§eзагрузить, вставить и выделить")
+                .lore("§7ЛКМ - §fc воздухом")
+                .lore("§7ПКМ - §fпропускать воздух")
+                .lore("")
+                .lore("§5Отмена последней вставки")
+                .lore("§5возможна в главном меню")
+                .lore("§5выбора схематиков.")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     paste(p, Rotate.r90, true);
                 } else if (e.isRightClick()) {
@@ -281,15 +281,15 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(2, ClickableItem.of(new ItemBuilder(Material.JUNGLE_SAPLING)
-                    .name("§bПовернуть на 180 град.")
-                    .addLore("§eзагрузить, вставить и выделить")
-                    .addLore("§7ЛКМ - §fc воздухом")
-                    .addLore("§7ПКМ - §fпропускать воздух")
-                    .addLore("")
-                    .addLore("§5Отмена последней вставки")
-                    .addLore("§5возможна в главном меню")
-                    .addLore("§5выбора схематиков.")
-                    .build(), e -> {
+                .name("§bПовернуть на 180 град.")
+                .lore("§eзагрузить, вставить и выделить")
+                .lore("§7ЛКМ - §fc воздухом")
+                .lore("§7ПКМ - §fпропускать воздух")
+                .lore("")
+                .lore("§5Отмена последней вставки")
+                .lore("§5возможна в главном меню")
+                .lore("§5выбора схематиков.")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     paste(p, Rotate.r180, true);
                 } else if (e.isRightClick()) {
@@ -299,15 +299,15 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(3, ClickableItem.of(new ItemBuilder(Material.ACACIA_SAPLING)
-                    .name("§bПовернуть на 270 град.")
-                    .addLore("§eзагрузить, вставить и выделить")
-                    .addLore("§7ЛКМ - §fc воздухом")
-                    .addLore("§7ПКМ - §fпропускать воздух")
-                    .addLore("")
-                    .addLore("§5Отмена последней вставки")
-                    .addLore("§5возможна в главном меню")
-                    .addLore("§5выбора схематиков.")
-                    .build(), e -> {
+                .name("§bПовернуть на 270 град.")
+                .lore("§eзагрузить, вставить и выделить")
+                .lore("§7ЛКМ - §fc воздухом")
+                .lore("§7ПКМ - §fпропускать воздух")
+                .lore("")
+                .lore("§5Отмена последней вставки")
+                .lore("§5возможна в главном меню")
+                .lore("§5выбора схематиков.")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     paste(p, Rotate.r270, true);
                 } else if (e.isRightClick()) {
@@ -353,10 +353,10 @@ public class SchemMainMenu implements InventoryProvider {
             p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, .5f, 1);
 
             contents.set(0, ClickableItem.of(new ItemBuilder(Material.SPRUCE_SAPLING)
-                    .name("§bСравнить без поворота")
-                    .addLore("§7ЛКМ - §fигнорировать воздух")
-                    .addLore("§7ПКМ - §fучитывать воздух")
-                    .build(), e -> {
+                .name("§bСравнить без поворота")
+                .lore("§7ЛКМ - §fигнорировать воздух")
+                .lore("§7ПКМ - §fучитывать воздух")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     compare(p, Rotate.r0, true);
                 } else if (e.isRightClick()) {
@@ -366,10 +366,10 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(1, ClickableItem.of(new ItemBuilder(Material.BIRCH_SAPLING)
-                    .name("§bСравнить с поворотом на 90 град.")
-                    .addLore("§7ЛКМ - §fигнорировать воздух")
-                    .addLore("§7ПКМ - §fучитывать воздух")
-                    .build(), e -> {
+                .name("§bСравнить с поворотом на 90 град.")
+                .lore("§7ЛКМ - §fигнорировать воздух")
+                .lore("§7ПКМ - §fучитывать воздух")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     compare(p, Rotate.r90, true);
                 } else if (e.isRightClick()) {
@@ -379,10 +379,10 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(2, ClickableItem.of(new ItemBuilder(Material.JUNGLE_SAPLING)
-                    .name("§bСравнить с поворотом на 180 град.")
-                    .addLore("§7ЛКМ - §fигнорировать воздух")
-                    .addLore("§7ПКМ - §fучитывать воздух")
-                    .build(), e -> {
+                .name("§bСравнить с поворотом на 180 град.")
+                .lore("§7ЛКМ - §fигнорировать воздух")
+                .lore("§7ПКМ - §fучитывать воздух")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     compare(p, Rotate.r180, true);
                 } else if (e.isRightClick()) {
@@ -392,10 +392,10 @@ public class SchemMainMenu implements InventoryProvider {
 
 
             contents.set(3, ClickableItem.of(new ItemBuilder(Material.ACACIA_SAPLING)
-                    .name("§bСравнить с поворотом на 270 град.")
-                    .addLore("§7ЛКМ - §fигнорировать воздух")
-                    .addLore("§7ПКМ - §fучитывать воздух")
-                    .build(), e -> {
+                .name("§bСравнить с поворотом на 270 град.")
+                .lore("§7ЛКМ - §fигнорировать воздух")
+                .lore("§7ПКМ - §fучитывать воздух")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     compare(p, Rotate.r270, true);
                 } else if (e.isRightClick()) {

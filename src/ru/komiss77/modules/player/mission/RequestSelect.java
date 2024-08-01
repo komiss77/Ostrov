@@ -42,18 +42,18 @@ public class RequestSelect implements InventoryProvider {
 
 
         menuEntry.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.ACACIA_SIGN)
-                .name("Создать локальное требование")
-                .addLore("§7")
-                .addLore("§7до 16 символов")
-                .addLore("§7Счётчик добавляется через метод")
-                .addLore("§bApiOstrov.addCustomStat(Player, String, int)")
-                .addLore("§7")
-                .addLore("§7ЛКМ - добавить")
-                .addLore("§7Так же будет создан")
-                .addLore("§7ремаппинг для отображаемого")
-                .addLore("§7название, редактировать")
-                .addLore("§7в главном меню миссиий.")
-                .build(), "чтототам", name -> {
+            .name("Создать локальное требование")
+            .lore("§7")
+            .lore("§7до 16 символов")
+            .lore("§7Счётчик добавляется через метод")
+            .lore("§bApiOstrov.addCustomStat(Player, String, int)")
+            .lore("§7")
+            .lore("§7ЛКМ - добавить")
+            .lore("§7Так же будет создан")
+            .lore("§7ремаппинг для отображаемого")
+            .lore("§7название, редактировать")
+            .lore("§7в главном меню миссиий.")
+            .build(), "чтототам", name -> {
             if (name.length() > 16) {
                 p.sendMessage("§cДо 16 символов!");
                 reopen(p, content);
@@ -70,22 +70,22 @@ public class RequestSelect implements InventoryProvider {
 
         for (String name : MissionManager.customStatsDisplayNames.keySet()) {
             menuEntry.add(ClickableItem.of(new ItemBuilder(MissionManager.customStatMat(name))
-                            .name("§7локальное требование")
-                            .addLore("§f" + name)
-                            .addLore("")
-                            .addLore("§7Отображаемое название:")
-                            .addLore(MissionManager.customStatsDisplayNames.get(name))
-                            .addLore("")
-                            .addLore("§7ЛКМ - добавить к требованиям")
-                            .addLore("")
-                            .addLore("§7Изменять и удалять ремаппинг")
-                            .addLore("§7для custoStat можно в")
-                            .addLore("§7главном меню редактора.")
-                            .addLore("")
-                            .build(), e -> {
-                        mi.request.put(name, 1);
-                        MissionManager.editMission(p, mi);
-                    }
+                    .name("§7локальное требование")
+                    .lore("§f" + name)
+                    .lore("")
+                    .lore("§7Отображаемое название:")
+                    .lore(MissionManager.customStatsDisplayNames.get(name))
+                    .lore("")
+                    .lore("§7ЛКМ - добавить к требованиям")
+                    .lore("")
+                    .lore("§7Изменять и удалять ремаппинг")
+                    .lore("§7для custoStat можно в")
+                    .lore("§7главном меню редактора.")
+                    .lore("")
+                    .build(), e -> {
+                    mi.request.put(name, 1);
+                    MissionManager.editMission(p, mi);
+                }
             ));
         }
 
@@ -99,23 +99,23 @@ public class RequestSelect implements InventoryProvider {
                 }
             }
             menuEntry.add(ClickableItem.of(new ItemBuilder(Material.matchMaterial(stat.game.mat))
-                            .name("§f" + stat.name())
-                            .addLore(stat.game.displayName + " " + stat.desc)
-                            .addLore("")
-                            .addLore("§7ЛКМ - добавить к требованиям")
-                            .addLore("")
-                            .build(), e -> {
-                        mi.request.put(stat.name(), 1);
-                        MissionManager.editMission(p, mi);
-                    }
+                    .name("§f" + stat.name())
+                    .lore(stat.game.displayName + " " + stat.desc)
+                    .lore("")
+                    .lore("§7ЛКМ - добавить к требованиям")
+                    .lore("")
+                    .build(), e -> {
+                    mi.request.put(stat.name(), 1);
+                    MissionManager.editMission(p, mi);
+                }
             ));
         }
 
 
         content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
-                .setCustomHeadTexture(ItemUtils.Texture.previosPage)
-                .name("§7вернуться")
-                .build(), e -> {
+            .headTexture(ItemUtils.Texture.previosPage)
+            .name("§7вернуться")
+            .build(), e -> {
             MissionManager.editMission(p, mi);
         }));
 
@@ -127,17 +127,17 @@ public class RequestSelect implements InventoryProvider {
 
         if (!pagination.isLast()) {
             content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
-                            -> {
-                        content.getHost().open(p, pagination.next().getPage());
-                    }
+                    -> {
+                    content.getHost().open(p, pagination.next().getPage());
+                }
             ));
         }
 
         if (!pagination.isFirst()) {
             content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
-                            -> {
-                        content.getHost().open(p, pagination.previous().getPage());
-                    })
+                    -> {
+                    content.getHost().open(p, pagination.previous().getPage());
+                })
             );
         }
 
