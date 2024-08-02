@@ -20,7 +20,7 @@ import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.builder.menu.HeadSetup;
 import ru.komiss77.commands.OCommand;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;

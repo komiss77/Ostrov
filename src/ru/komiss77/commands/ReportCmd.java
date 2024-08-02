@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.ReportStage;
 import ru.komiss77.listener.SpigotChanellMsg;

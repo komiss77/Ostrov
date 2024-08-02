@@ -16,7 +16,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.events.RandomTpFindEvent;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.DelayTeleport;

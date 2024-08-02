@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 
 import java.util.List;
 

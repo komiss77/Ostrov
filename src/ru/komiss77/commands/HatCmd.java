@@ -1,25 +1,19 @@
 package ru.komiss77.commands;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Config;
+import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.TCUtils;
 
-import java.util.List;
+public class HatCmd {
 
-
-public class HatCmd implements OCommand {
-
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
-        return Commands.literal("hat").executes(cntx -> {
+    public HatCmd() {
+        new OCmdBuilder("hat").run(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (!(cs instanceof final Player pl)) {
                 cs.sendMessage("§eНе консольная команда!");
@@ -64,17 +58,9 @@ public class HatCmd implements OCommand {
             pl.sendMessage(TCUtils.form("§aВы одели ").append(Lang.t(is.getType(), pl)).append(TCUtils.form(" на голову!")));
 
             return Command.SINGLE_SUCCESS;
-        }).build();
+        })
+        .aliases("шляпа")
+        .description("Надеть шляпу")
+        .register();
     }
-
-    @Override
-    public List<String> aliases() {
-        return List.of("шляпа");
-    }
-
-    @Override
-    public String description() {
-        return "Надеть шляпу";
-    }
-
 }

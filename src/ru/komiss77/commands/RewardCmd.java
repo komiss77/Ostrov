@@ -11,7 +11,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.Perm;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
 import ru.komiss77.listener.SpigotChanellMsg;

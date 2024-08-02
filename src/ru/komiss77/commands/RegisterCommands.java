@@ -11,10 +11,11 @@ public class RegisterCommands {
     //private static Ostrov plugin;
 
     public static void register() {
+        new HatCmd();//новый способ
+        new PrefixCmd();//сравнение
 
         Ostrov.log_ok("§5Регистрация команд:");
         Ostrov.regCommand(new AdminCmd());
-        Ostrov.regCommand(new PrefixCmd());
         Ostrov.regCommand(new SuffixCmd());
         Ostrov.regCommand(new ProfileCmd());
         Ostrov.regCommand(new InvseeCmd());
@@ -40,7 +41,6 @@ public class RegisterCommands {
         Ostrov.regCommand(new TprCmd());
         Ostrov.regCommand(new BuilderCmd());
         Ostrov.regCommand(new DonateCmd());
-        Ostrov.regCommand(new HatCmd());
         Ostrov.regCommand(new ResourcePacksLst());
 
 //        plugin.getCommand("statreach").setExecutor(new StatReachCmd());

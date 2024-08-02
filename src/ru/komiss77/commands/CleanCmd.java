@@ -12,7 +12,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.hook.DynmapHook;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.objects.CaseInsensitiveSet;

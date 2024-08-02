@@ -30,7 +30,7 @@ import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Config;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.bots.BotManager;

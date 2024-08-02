@@ -8,13 +8,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.modules.warp.WarpMenu;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 
 public class WarpCmd implements OCommand {

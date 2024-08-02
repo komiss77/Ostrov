@@ -11,8 +11,4 @@ public interface OCommand {
     List<String> aliases();
 
     String description();
-
-    class OCmdBuilder {
-
-    }
 }

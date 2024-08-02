@@ -7,7 +7,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.player.Oplayer;

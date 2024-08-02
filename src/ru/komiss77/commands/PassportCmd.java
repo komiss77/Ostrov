@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.BookMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.listener.InteractLst;
 import ru.komiss77.modules.player.Oplayer;
@@ -30,7 +30,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 
 public class PassportCmd implements OCommand {

@@ -1,10 +1,9 @@
-package ru.komiss77.commands.args;
+package ru.komiss77.commands.tools;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -22,7 +21,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import ru.komiss77.modules.world.XYZ;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class Resolver {

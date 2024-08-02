@@ -20,7 +20,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.OstrovDB;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.OCommand;
-import ru.komiss77.commands.args.Resolver;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.MissionEvent;
