@@ -5,23 +5,20 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
-
 import org.bukkit.GameMode;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.entities.EntityManager;
 import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
-import ru.komiss77.utils.OstrovConfig;
-import ru.komiss77.utils.OstrovConfigManager;
 
 
-public class Config {
+public class Cfg {
 
 
-    public static OstrovConfigManager manager;
+    public static OConfigManager manager;
 
-    private static OstrovConfig ostrovConfig;
-    private static OstrovConfig variable;
+    private static OConfig ostrovConfig;
+    private static OConfig variable;
 
     //для PM
     public static boolean ostrovStatScore = false;
@@ -81,14 +78,14 @@ public class Config {
 
     public static void init() {
 
-        manager = new OstrovConfigManager(Ostrov.getInstance());
+        manager = new OConfigManager(Ostrov.getInstance());
 
         loadConfigs();
 
         int currentDay = getDay();
         Ostrov.newDay = getVariable().getInt("last_day") != currentDay;
         if (Ostrov.newDay) {
-            getVariable().set("last_day", Config.getDay());
+            getVariable().set("last_day", Cfg.getDay());
             getVariable().saveConfig();
         }
 
@@ -295,18 +292,18 @@ public class Config {
 
         loadConfigs();
 
-        OstrovDB.init(true, true);
+        RemoteDB.init(true, true);
         LocalDB.init();
 
     }
 
 
-    public static OstrovConfig getConfig() {
+    public static OConfig getConfig() {
         return ostrovConfig;
     }
 
 
-    public static OstrovConfig getVariable() {
+    public static OConfig getVariable() {
         return variable;
     }
 

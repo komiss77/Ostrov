@@ -1,10 +1,10 @@
 package ru.komiss77.utils;
 
+import java.util.HashMap;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.HSVLike;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
-import java.util.HashMap;
 
 public class CustomTextColor implements TextColor {
 

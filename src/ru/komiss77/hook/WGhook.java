@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.ValueSortedMap;
-import ru.komiss77.utils.BlockUtils;
+import ru.komiss77.utils.BlockUtil;
 
 import java.util.Collection;
 import java.util.Map;
@@ -143,7 +143,7 @@ public class WGhook {
         final int x = Math.abs((rg.getMaximumPoint().getBlockX() + rg.getMinimumPoint().getBlockX()) / 2);
         final int z = Math.abs((rg.getMaximumPoint().getBlockZ() + rg.getMinimumPoint().getBlockZ()) / 2);
         int y = (rg.getMaximumPoint().getBlockY() + rg.getMinimumPoint().getBlockY()) / 2;
-        final int yTop = BlockUtils.getHighestBlock(p.getWorld(), x, z).getY();
+        final int yTop = BlockUtil.getHighestBlock(p.getWorld(), x, z).getY();
         if (y < yTop) y = yTop;
         if (y < p.getLocation().getBlockY()) y = p.getLocation().getBlockY();
         return new Location(p.getWorld(), x + 0.5, y, z + 0.5);

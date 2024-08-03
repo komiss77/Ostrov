@@ -1,13 +1,12 @@
 package ru.komiss77.modules.player.mission;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
@@ -59,8 +58,8 @@ public class ProfileWithdrawMenu implements InventoryProvider {
         if (ril < MissionManager.getMin(op)) {
 
             content.set(2, ClickableItem.empty(new ItemBuilder(Material.REDSTONE)
-                .name("§5Вывод средств возможен от §b" + MissionManager.getMin(op) + " рил")
-                .build()
+                    .name("§5Вывод средств возможен от §b" + MissionManager.getMin(op) + " рил")
+                    .build()
             ));
             return;
 
@@ -71,54 +70,54 @@ public class ProfileWithdrawMenu implements InventoryProvider {
             final boolean emptyNotes = op.getDataString(Data.NOTES).isEmpty();
 
             content.set(2, ClickableItem.empty(new ItemBuilder(Material.REDSTONE)
-                .name("§5Вывод невозможен.")
-                .lore("§7")
-                .lore("§7Для заказа вывода средств")
-                .lore("§7должны быть выполнены условия:")
-                .lore(GM.GAME == Game.LOBBY ? "§a✔ §8Находиться в лобби" : "§4✕ §6Находиться в лобби")
-                .lore(op.getDataString(Data.PHONE).isEmpty() ? "§4✕ §6Номер телефона в профиле" : "§a✔ §8Номер телефона в профиле")
-                .lore(emptyNotes ? "§4✕ §6Способ вывода в примечаниях" : "§a✔ §8Способ вывода в примечаниях")
-                .lore("§7")
-                .lore(emptyNotes ? "§6Для описания способа вывода" : "§eОбратите внимание на технически")
-                .lore(emptyNotes ? "§6в §3главном меню §6ПКМ на §3ПРОФИЛЬ §6-" : "§eдоступные способы перевода:")
-                .lore(emptyNotes ? "§6откроется редактор §3Паспорта" : "§f- номер телефона на +7 (Россия)")
-                .lore(emptyNotes ? "§6Нажмите на иконку §3примечания" : "§f- номер банковской карты VISA,MasterCard,МИР")
-                .lore(emptyNotes ? "§6и опишите способ вывода" : "§f- Webmoney")
-                .lore(emptyNotes ? "§6(на телефон, карту или что-то ещё)" : "§f- Киви")
-                .lore(emptyNotes ? "" : "§f- Яндекс Кошелёк")
-                .lore("§7")
-                .build()
+                    .name("§5Вывод невозможен.")
+                    .lore("§7")
+                    .lore("§7Для заказа вывода средств")
+                    .lore("§7должны быть выполнены условия:")
+                    .lore(GM.GAME == Game.LOBBY ? "§a✔ §8Находиться в лобби" : "§4✕ §6Находиться в лобби")
+                    .lore(op.getDataString(Data.PHONE).isEmpty() ? "§4✕ §6Номер телефона в профиле" : "§a✔ §8Номер телефона в профиле")
+                    .lore(emptyNotes ? "§4✕ §6Способ вывода в примечаниях" : "§a✔ §8Способ вывода в примечаниях")
+                    .lore("§7")
+                    .lore(emptyNotes ? "§6Для описания способа вывода" : "§eОбратите внимание на технически")
+                    .lore(emptyNotes ? "§6в §3главном меню §6ПКМ на §3ПРОФИЛЬ §6-" : "§eдоступные способы перевода:")
+                    .lore(emptyNotes ? "§6откроется редактор §3Паспорта" : "§f- номер телефона на +7 (Россия)")
+                    .lore(emptyNotes ? "§6Нажмите на иконку §3примечания" : "§f- номер банковской карты VISA,MasterCard,МИР")
+                    .lore(emptyNotes ? "§6и опишите способ вывода" : "§f- Webmoney")
+                    .lore(emptyNotes ? "§6(на телефон, карту или что-то ещё)" : "§f- Киви")
+                    .lore(emptyNotes ? "" : "§f- Яндекс Кошелёк")
+                    .lore("§7")
+                    .build()
             ));
             return;
 
         } else {
             final String ammountInfo = MissionManager.getMin(op) + " до " + ril;
             final ItemStack is = new ItemBuilder(Material.RAW_GOLD)
-                .name("§e" + ril)
-                .lore("")
-                .lore("§7Вы можете изменить")
-                .lore("§7сумму для вывода по заявке.")
-                .lore("§7Когда готово, подтвердите")
-                .lore("§7зелёной кнопкой.")
-                .lore("§7Сумму будет снята с вашего")
-                .lore("§7баланса, и отправлена на реквизиты,")
-                .lore("§7указанные в профиле.")
-                .lore("")
-                .lore("§7ЛКМ - §6изменить сумму")
-                .lore("")
-                .lore("§7Вывод осуществляется в течении")
-                .lore("§33 дней§7, за процессом можно следить")
-                .lore("§7в §fЖурнале вывода.")
-                .lore("")
-                .lore("§eОбратите внимание на технически")
-                .lore("§eдоступные способы перевода:")
-                .lore("§f- номер телефона на +7 (Россия)")
-                .lore("§f- номер банковской карты VISA,MasterCard,МИР")
-                .lore("§f- Webmoney")
-                .lore("§f- Киви")
-                .lore("§f- Яндекс Кошелёк")
-                .lore("")
-                .build();
+                    .name("§e" + ril)
+                    .lore("")
+                    .lore("§7Вы можете изменить")
+                    .lore("§7сумму для вывода по заявке.")
+                    .lore("§7Когда готово, подтвердите")
+                    .lore("§7зелёной кнопкой.")
+                    .lore("§7Сумму будет снята с вашего")
+                    .lore("§7баланса, и отправлена на реквизиты,")
+                    .lore("§7указанные в профиле.")
+                    .lore("")
+                    .lore("§7ЛКМ - §6изменить сумму")
+                    .lore("")
+                    .lore("§7Вывод осуществляется в течении")
+                    .lore("§33 дней§7, за процессом можно следить")
+                    .lore("§7в §fЖурнале вывода.")
+                    .lore("")
+                    .lore("§eОбратите внимание на технически")
+                    .lore("§eдоступные способы перевода:")
+                    .lore("§f- номер телефона на +7 (Россия)")
+                    .lore("§f- номер банковской карты VISA,MasterCard,МИР")
+                    .lore("§f- Webmoney")
+                    .lore("§f- Киви")
+                    .lore("§f- Яндекс Кошелёк")
+                    .lore("")
+                    .build();
 
             content.set(2, new InputButton(InputButton.InputType.ANVILL, is, ammountInfo, msg -> {
                 if (!ApiOstrov.isInteger(msg)) {
@@ -141,32 +140,32 @@ public class ProfileWithdrawMenu implements InventoryProvider {
 
 
         content.set(0, ClickableItem.of(new ItemBuilder(Material.RED_CANDLE)
-                .name("§cОтмена")
-                .build(), e -> {
-                p.closeInventory();
-            }
+                        .name("§cОтмена")
+                        .build(), e -> {
+                    p.closeInventory();
+                }
         ));
 
         content.set(4, ClickableItem.of(new ItemBuilder(Material.LIME_CANDLE)
-                .name("§aПодтвердить")
-                .build(), e -> {
-                p.closeInventory();
-                //final Oplayer op = PM.getOplayer(p);
-                final int current = op.getDataInt(Data.RIL);
-                if (current < ril) {
-                    p.sendMessage("§cна счету нет " + ril);
-                    return;
+                        .name("§aПодтвердить")
+                        .build(), e -> {
+                    p.closeInventory();
+                    //final Oplayer op = PM.getOplayer(p);
+                    final int current = op.getDataInt(Data.RIL);
+                    if (current < ril) {
+                        p.sendMessage("§cна счету нет " + ril);
+                        return;
+                    }
+                    op.setData(Data.RIL, current - ril);
+                    RemoteDB.executePstAsync(p,
+                            "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
+                    );
+                    Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
+                    p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
+                    p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
+                    ApiOstrov.addStat(p, Stat.WD_c);
+                    ApiOstrov.addStat(p, Stat.WD_a, ril);
                 }
-                op.setData(Data.RIL, current - ril);
-                OstrovDB.executePstAsync(p,
-                    "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
-                );
-                Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
-                p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
-                p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
-                ApiOstrov.addStat(p, Stat.WD_c);
-                ApiOstrov.addStat(p, Stat.WD_a, ril);
-            }
         ));
 
 

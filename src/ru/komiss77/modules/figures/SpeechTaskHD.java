@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.displays.DisplayManager;
 import ru.komiss77.objects.FigureAnswer;

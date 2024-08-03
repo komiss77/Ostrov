@@ -22,41 +22,7 @@ public class PrefixCmd implements OCommand {
     public PrefixCmd() { //новое
         final String prefix = "prefix";
         new OCmdBuilder("prefix", "/prefix [префикс]")
-            .then(Resolver.string(prefix)).run(cntx -> {
-                final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof final Player pl)) {
-                    cs.sendMessage("§eНе консольная команда!");
-                    return 0;
-                }
-
-                final Oplayer op = PM.getOplayer(pl);
-
-                if (!pl.hasPermission("ostrov.prefix")) {
-                    pl.sendMessage("§6Нужно право ostrov.prefix!");
-                    return 0;
-                }
-
-                final String pr = Resolver.string(cntx, prefix).replace("&k", "").replace("&", "§");
-                if (TCUtils.strip(pr).length() > 8) {
-                    pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
-                    return 0;
-                }
-
-                op.setData(Data.PREFIX, pr);
-                pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
-                return Command.SINGLE_SUCCESS;
-            })
-            .description("Ставит префикс")
-            .aliases("префикс")
-            .register();
-    }
-
-    @Override //старое
-    public LiteralCommandNode<CommandSourceStack> command() {
-        final String prefix = "prefix";
-        return Commands.literal("prefix")
-            .then(Resolver.string(prefix)
-                .executes(cntx -> {
+                .then(Resolver.string(prefix)).run(cntx -> {
                     final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
@@ -79,8 +45,42 @@ public class PrefixCmd implements OCommand {
                     op.setData(Data.PREFIX, pr);
                     pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
                     return Command.SINGLE_SUCCESS;
-                }))
-            .build();
+                })
+                .description("Ставит префикс")
+                .aliases("префикс")
+                .register();
+    }
+
+    @Override //старое
+    public LiteralCommandNode<CommandSourceStack> command() {
+        final String prefix = "prefix";
+        return Commands.literal("prefix")
+                .then(Resolver.string(prefix)
+                        .executes(cntx -> {
+                            final CommandSender cs = cntx.getSource().getSender();
+                            if (!(cs instanceof final Player pl)) {
+                                cs.sendMessage("§eНе консольная команда!");
+                                return 0;
+                            }
+
+                            final Oplayer op = PM.getOplayer(pl);
+
+                            if (!pl.hasPermission("ostrov.prefix")) {
+                                pl.sendMessage("§6Нужно право ostrov.prefix!");
+                                return 0;
+                            }
+
+                            final String pr = Resolver.string(cntx, prefix).replace("&k", "").replace("&", "§");
+                            if (TCUtils.strip(pr).length() > 8) {
+                                pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
+                                return 0;
+                            }
+
+                            op.setData(Data.PREFIX, pr);
+                            pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                .build();
     }
 
     @Override

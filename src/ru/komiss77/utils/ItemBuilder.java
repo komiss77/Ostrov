@@ -1,5 +1,10 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -19,12 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtils.Texture;
-
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.*;
-import java.util.function.Consumer;
+import ru.komiss77.utils.ItemUtil.Texture;
 
 //im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 //Validate.isTrue(item.getType() == Material.PLAYER_HEAD, "skullOwner() only applicable for skulls!", new Object[0]);
@@ -32,23 +32,23 @@ import java.util.function.Consumer;
 
 public class ItemBuilder {
 
-    private ItemType type;//private final ItemStack item; item не используем - в будущем тип менять нельзя будет
+    private ItemType type;//private Material mat;//private final ItemStack item; item не используем - в будущем тип менять нельзя будет
     private int amount;
     private int maxStack;
     private @Nullable ItemMeta meta;
     private Color color;
     private List<Component> lore;
-    private UUID skullOwnerUuid;
+    private String skullOwnerUuid;
     private String skullTexture;
     private PotionType basePotionType;
     private List<PotionEffect> customPotionEffects = null;
     private Map<Enchantment, Integer> enchants = null;
 
+    //use StackBuilder
     public ItemBuilder(final Material material) {
-        type = material.asItemType();
+        type = material.asItemType();//mat = material;
         meta = null;
         lore = new ArrayList<>();
-        amount = 1;
         maxStack = material.getMaxStackSize();
     }
 
@@ -60,14 +60,17 @@ public class ItemBuilder {
         maxStack = tp.getMaxStackSize();
     }
 
+    //use StackBuilder
     public ItemBuilder(final ItemStack from) {
         //item = from==null ? new ItemStack(Material.AIR) : new ItemStack(from.getType(), from.getAmount());
+        //mat = from == null ? Material.AIR : from.getType();
         type = from == null ? ItemType.AIR : from.getType().asItemType();
         amount = from == null ? 1 : from.getAmount();
         maxStack = from == null ? 64 : from.getType().asItemType().getMaxStackSize();
         meta = from != null && from.hasItemMeta() ? from.getItemMeta() : null;
         lore = meta != null && meta.hasLore() ? meta.lore() : new ArrayList<>();
     }
+
 
     private ItemMeta checkMeta() {
         if (meta == null || !type.getItemMetaClass().isInstance(meta)) {
@@ -102,7 +105,7 @@ public class ItemBuilder {
 
     public <T extends Serializable, D> ItemBuilder data(final String key, final D data, final PersistentDataType<T, D> pdt) {
         checkMeta();
-        final NamespacedKey nsk = key == null ? ItemUtils.key : new NamespacedKey(Ostrov.instance, key);
+        final NamespacedKey nsk = key == null ? ItemUtil.key : new NamespacedKey(Ostrov.instance, key);
         meta.getPersistentDataContainer().set(nsk, pdt, data);
         return this;
     }
@@ -114,24 +117,28 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setType(final Material tp) {
-        type = tp.asItemType();
+    //ну тип переделал билдер на материал @Deprecated //в будующем тип менять нельзя будет
+    public ItemBuilder type(final Material mat) {
+        if (mat == null) return this;
+        type = mat.asItemType();
         if (meta == null) return this;
         checkMeta();
+        //meta = Bukkit.getItemFactory().asMetaFor(meta, mat);
         return this;
-    }
-
-    @Deprecated
-    public Material getType() {
-        return type.asMaterial();
     }
 
     public ItemType type() {
         return type;
     }
 
+    //public Material type() {
+    //     return mat;//item.getType();
+    // }
+
+
+
     public ItemBuilder amount(final int ammount) {
-        this.amount = ammount;
+        this.amount = ammount;    //item.setAmount(amount);
         return this;
     }
 
@@ -140,47 +147,80 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder name(@Nullable final String name) {
-        checkMeta();
-        if (name == null) meta.displayName(null);
-        else meta.displayName(TCUtils.form(name));
+    /**
+     * @param name null-сброс, или String/Component
+     * @return
+     */
+    public ItemBuilder name(@Nullable final Object name) {
+        checkMeta();//meta = item.getItemMeta();
+        if (name == null) {
+            meta.displayName(null);
+        } else if (name instanceof String) {
+            meta.displayName(TCUtils.format((String) name));
+        } else if (name instanceof Component) {
+            meta.displayName((Component) name);
+        }
         return this;
     }
 
+
+    public ItemBuilder persistentData(@Nullable final String key, @Nonnull final Object data) {
+        checkMeta();//meta = item.getItemMeta();
+        final NamespacedKey nsk = key == null ? ItemUtil.key : new NamespacedKey(Ostrov.instance, key);
+        if (data instanceof Integer) {
+            meta.getPersistentDataContainer().set(nsk, PersistentDataType.INTEGER, (Integer) data);
+        } else if (data instanceof String) {
+            meta.getPersistentDataContainer().set(nsk, PersistentDataType.STRING, (String) data);
+        }
+        return this;
+    }
+    /*
+    public ItemBuilder persistentData(final String key, final String data) {
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(Ostrov.instance, key), PersistentDataType.STRING, data);
+        return this;
+    }
+
+    public ItemBuilder persistentData(final String key, final int data) {
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(Ostrov.instance, key), PersistentDataType.INTEGER, data);
+        return this;
+    }
+
+    public ItemBuilder persistentData(final String data) {
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.STRING, data);
+        return this;
+    }
+
+    public ItemBuilder persistentData(final int data) {
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.INTEGER, data);
+        return this;
+    }*/
+
+/*
     public ItemBuilder name(@Nullable final Component name) {
-        checkMeta();
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
         meta.displayName(name);
         return this;
     }
 
-    public ItemBuilder deLore() {
-        lore.clear();
-        return this;
-    }
-
-    @Deprecated
-    public ItemBuilder clearLore() {
-        return deLore();
-    }
-
-    @Deprecated
     public ItemBuilder addLore(final String s) {
         if (s == null) return this;
         if (lore == null) lore = new ArrayList<>();
         if (s.isEmpty()) lore.add(Component.text(""));
-        else lore.add(TCUtils.form(s));
+        else lore.add(TCUtils.format(s));
         return this;
     }
 
-    @Deprecated
     public ItemBuilder addLore(final Collection<String> sc) {
         if (sc == null || sc.isEmpty()) return this;
         if (lore == null) lore = new ArrayList<>();
-        for (final String s : sc) lore.add(TCUtils.form(s));
+        for (final String s : sc) lore.add(TCUtils.format(s));
         return this;
     }
 
-    @Deprecated
     public ItemBuilder addLore(final Component c) {
         if (c == null) return this;
         if (lore == null) lore = new ArrayList<>();
@@ -188,7 +228,6 @@ public class ItemBuilder {
         return this;
     }
 
-    @Deprecated
     public ItemBuilder addLore(final List<Component> lc) {
         if (lc == null || lc.isEmpty()) return this;
         if (lore == null) lore = new ArrayList<>();
@@ -196,71 +235,69 @@ public class ItemBuilder {
         return this;
     }
 
-    @Deprecated
     public ItemBuilder addLore(final Component... lores) {
         if (lores == null) return this;
         for (final Component c : lores) {
-            lore(c);
+            addLore(c);
         }
         return this;
     }
 
-    @Deprecated
     public ItemBuilder addLore(final String... lores) {
         if (lores == null) return this;
         for (final String c : lores) {
-            lore(c);
+            addLore(c);
         }
         return this;
-    }
+    }*/
 
-    @Deprecated
-    public ItemBuilder addLore(Object o) {
+    //@Deprecated
+
+    /**
+     * @param o = String, Component, Collection<String>, Collection<Component>, Component[]
+     * @return
+     */
+    public ItemBuilder lore(Object o) {
         if (o == null) return this;
         if (lore == null) lore = new ArrayList<>();
-        switch (o) {
-            case String s -> {
-                if (s.isEmpty()) lore.add(Component.empty());
-                else lore.add(TCUtils.form(s));
+        if (o instanceof String s) {
+            if (s.isEmpty()) lore.add(Component.empty());
+            else lore.add(TCUtils.format(s));
+        } else if (o instanceof Component c) {
+            lore.add(c);
+        } else if (o instanceof Collection<?> c) {
+            for (Object x : c) {
+                lore(x);
             }
-            case Component c -> lore.add(c);
-            case Collection<?> c -> {
-                for (Object x : c) {
-                    addLore(x);
-                }
+        } else if (o instanceof String[] ss) {
+            for (final String s : ss) {
+                lore.add(TCUtils.format(s));
             }
-            case String[] ss -> {
-                for (final String s : ss) {
-                    lore.add(TCUtils.form(s));
-                }
-            }
-            case Component[] cc -> Collections.addAll(lore, cc);
-            default -> {
-            }
+        } else if (o instanceof Component[] cc) {
+            Collections.addAll(lore, cc);
         }
         //if (s.isEmpty()) lore.add(Component.text(""));
-        //else lore.add(TCUtils.form(s));
+        //else lore.add(TCUtils.format(s));
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder addLore(final Object... lores) {
+    //@Deprecated
+    public ItemBuilder lore(final Object... lores) {
         if (lores == null) return this;
         for (final Object o : lores) {
-            addLore(o);
+            lore(o);
         }
         return this;
     }
 
-    //иногда нужен простой быстрый метод - .deLore().lore(...)
-    @Deprecated
-    public ItemBuilder setLore(final List<Component> lore) {
-        this.lore = lore;
-        return this;
-    }
+    //иногда нужен простой быстрый метод
+    //public ItemBuilder setLore(final List<Component> lore) { //иногда нужен простой быстрый метод
+    //    this.lore = lore;
+    //     return this;
+    //}
 
     @Deprecated
-    public ItemBuilder setLore(final Object o) {
+    public ItemBuilder setLore(final Object o) { //иногда нужен простой быстрый метод
         if (o == null) {
             lore = null;
             return this;
@@ -268,117 +305,65 @@ public class ItemBuilder {
         if (lore != null) {
             lore.clear();
         }
-        return addLore(o);
+        return lore(o);
     }
 
-    @Deprecated
-    public ItemBuilder setLore(final Object... lores) {
-        if (lores == null) {
-            lore = null;
-            return this;
-        }
-        if (lores.length == 0) return this;
-        if (lore != null) {
+    /* @Deprecated
+     public ItemBuilder setLore(final Object... lores) {
+         if (lores == null) {
+             lore = null;
+             return this;
+         }
+         if (lores.length == 0) return this;
+         if (lore != null) {
+             lore.clear();
+         }
+         return lore(lores);
+     }
+
+ */
+    public ItemBuilder deLore() {
+        if (lore == null) {
+            lore = new ArrayList<>();
+        } else {
             lore.clear();
         }
-        return addLore(lores);
-    }
-
-    public ItemBuilder lore(final String s) {
-        if (s.isEmpty()) lore.add(Component.empty());
-        else lore.add(TCUtils.form(s));
-        return this;
-    }
-
-    public ItemBuilder lore(final Iterable<String> sc) {
-        for (final String s : sc) lore.add(TCUtils.form(s));
-        return this;
-    }
-
-    public ItemBuilder lore(final Component c) {
-        if (lore == null) lore = new ArrayList<>();
-        else lore.add(c);
-        return this;
-    }
-
-    public ItemBuilder lore(final Collection<Component> lc) {
-        if (lore == null) lore = new ArrayList<>();
-        lore.addAll(lc);
-        return this;
-    }
-
-    public ItemBuilder lore(final Component... lores) {
-        for (final Component c : lores) lore(c);
-        return this;
-    }
-
-    public ItemBuilder lore(final String... lores) {
-        for (final String c : lores) lore(c);
         return this;
     }
 
     public ItemBuilder repLore(final String from, final String to) {
-        if (lore == null || lore.isEmpty()) return this;
-        for (int i = 0; i < lore.size(); i++) {
-            if (TCUtils.deform(lore.get(i)).equals(from)) {
-                lore.set(i, TCUtils.form(to));
-            }
-        }
-        return this;
+        return repLore(TCUtils.format(from), TCUtils.format(to));
     }
 
     public ItemBuilder repLore(final Component from, final Component to) {
+        //final List<Component> lores = meta.lore();
         if (lore == null || lore.isEmpty()) return this;
         for (int i = 0; i < lore.size(); i++) {
             if (TCUtils.compare(lore.get(i), from)) {
                 lore.set(i, to);
             }
         }
+        //meta.lore(lores);
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder replaceLore(final String from, final String to) {
-        return repLore(TCUtils.form(from), TCUtils.form(to));
-    }
-
-    @Deprecated
-    public ItemBuilder replaceLore(final Component from, final Component to) {
-        if (lore == null || lore.isEmpty()) return this;
-        for (int i = 0; i < lore.size(); i++) {
-            if (TCUtils.compare(lore.get(i), from)) {
-                lore.set(i, to);
-            }
-        }
-        return this;
-    }
 
     public ItemBuilder flags(final ItemFlag... flags) {
-        checkMeta();
+        checkMeta();// mat.item.getItemMeta();
         meta.addItemFlags(flags);
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder addFlags(final ItemFlag... flags) {
-        return flags(flags);
-    }
 
-    public ItemBuilder trim(final TrimMaterial mat, final TrimPattern pat) {
+    public void trim(final TrimMaterial mat, final TrimPattern pat) {
         checkMeta();
         if (meta instanceof ArmorMeta) {
             ((ArmorMeta) meta).setTrim(new ArmorTrim(mat, pat));
         }
-        return this;
     }
 
-    @Deprecated
-    public void setTrim(final TrimMaterial mat, final TrimPattern pat) {
-        trim(mat, pat);
-    }
-
-    public ItemBuilder enchant(final Enchantment enchant) {
-        return enchant(enchant, 1);
+    public ItemBuilder enchant(final Enchantment enchantment) {
+        return enchant(enchantment, 1);
     }
 
     public ItemBuilder enchant(final Enchantment enchant, final int level) {
@@ -393,94 +378,64 @@ public class ItemBuilder {
         if (enchants != null) enchants.clear();
         return this;
     }
-
-    @Deprecated
-    public ItemBuilder addEnchant(final Enchantment enchantment) {
-        return enchant(enchantment, 1);
-    }
-
-    @Deprecated
-    public ItemBuilder addEnchant(final Enchantment enchantment, final int level) {
-        return enchant(enchantment, level);
-    }
-
-    @Deprecated
+    /*@Deprecated
     public ItemBuilder unsafeEnchantment(final Enchantment enchantment, final int level) {
         return enchant(enchantment, level);
     }
 
     @Deprecated
     public ItemBuilder clearEnchantment() {
-        return disEnchant();
+        return clearEnchants();
     }
 
-    @Deprecated
+
     public ItemBuilder clearEnchants() {
-        return disEnchant();
-    }
+        if (meta != null) meta.removeEnchantments();
+        enchants.clear();
+        return this;
+    }*/
+
 
     public ItemBuilder unbreak(final boolean unbreakable) {
-        checkMeta();
+        checkMeta();//meta = item.getItemMeta();
         meta.setUnbreakable(unbreakable);
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder setUnbreakable(final boolean unbreakable) {
-        return unbreak(unbreakable);
-    }
-
-    @Deprecated
-    public ItemBuilder setItemFlag(final ItemFlag flag) {
-        checkMeta();
+    public ItemBuilder flags(final ItemFlag flag) {
+        checkMeta();//meta = item.getItemMeta();
         meta.addItemFlags(flag);
         return this;
     }
 
-    @SuppressWarnings("deprecation")
-    public ItemBuilder attribute(final Attribute attribute, final double amount, final AttributeModifier.Operation op) {
-        return attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
-    }
+   // public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op) {
+    //      attribute(attribute, amount, op, mat.getEquipmentSlot().getGroup());//setAttribute(attribute, amount, op, item.getType().getEquipmentSlot());
+    //     return this;
+    //  }
 
-    public ItemBuilder attribute(final Attribute attribute, final double amount,
-                                 final AttributeModifier.Operation op, @Nullable final EquipmentSlotGroup slot) {
-        checkMeta();
-        meta.addAttributeModifier(attribute, new AttributeModifier(attribute.getKey(), amount, op, slot));
+    public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slotGroup) {
+        checkMeta();//item.getItemMeta();
+        meta.addAttributeModifier(attribute, new AttributeModifier(attribute.getKey(), amount, op, slotGroup));
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op) {
-        return attribute(attribute, amount, op);
-    }
-
-    @Deprecated
-    public ItemBuilder setAttribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slotGroup) {
-        return attribute(attribute, amount, op, slotGroup);
-    }
-
     public ItemBuilder removeAttribute(final Attribute attribute) {
-        checkMeta();
+        checkMeta();//item.getItemMeta();
         meta.removeAttributeModifier(attribute);
         return this;
     }
 
-    @SuppressWarnings("deprecation")
-    public ItemBuilder removeSlotAttribute() {
-        checkMeta();
-        meta.removeAttributeModifier(type.asMaterial().getEquipmentSlot());
-        return this;
-    }
+    //public ItemBuilder removeSlotAttribute() {
+    //    if (meta == null)
+    //        meta = Bukkit.getItemFactory().getItemMeta(mat);//item.getItemMeta();//meta.removeAttributeModifier(item.getType().getEquipmentSlot());
+    //     meta.removeAttributeModifier(mat.getEquipmentSlot());
+    //     return this;
+    //}
 
     public ItemBuilder modelData(final int data) {
-        checkMeta();
+        checkMeta();//item.getItemMeta();
         meta.setCustomModelData(data);
         return this;
-    }
-
-    @Deprecated
-    public ItemBuilder setModelData(final int data) {
-        return modelData(data);
     }
 
     public ItemBuilder durability(final int dur) {
@@ -491,6 +446,10 @@ public class ItemBuilder {
             dr.resetDamage();
         }
         return this;
+        //final int mdr = mat.getMaxDurability(); //final int mdr = item.getType().getMaxDurability();
+        //checkMeta();//item.getItemMeta();
+        //if (meta instanceof Damageable) ((Damageable) meta).setDamage(dur < mdr ? mdr - dur : 0);
+        //return this;
     }
 
     public ItemBuilder durability(final float dur) {
@@ -500,11 +459,6 @@ public class ItemBuilder {
             else dr.setDamage((int) (dr.getMaxDamage() * (1f - Math.clamp(dur, 0f, 1f))));
         }
         return this;
-    }
-
-    @Deprecated
-    public ItemBuilder setDurability(final int dur) {
-        return durability(dur);
     }
 
     public ItemBuilder maxDamage(final int dur) {
@@ -517,38 +471,22 @@ public class ItemBuilder {
         return this;
     }
 
-    @Deprecated
-    public <M extends ItemMeta> ItemBuilder applyCustomMeta(final Class<M> metaType, final Consumer<M> metaApplier) {
-        return customMeta(metaType, metaApplier);
-    }
-
     public ItemBuilder glint(final @Nullable Boolean glint) {
         if (glint == null && (meta == null
-            || !meta.hasEnchantmentGlintOverride())) return this;
+                || !meta.hasEnchantmentGlintOverride())) return this;
         checkMeta();
         meta.setEnchantmentGlintOverride(glint);
         return this;
     }
 
-
-    public ItemBuilder skullOf(final OfflinePlayer pl) {
-        skullOwnerUuid = pl.getUniqueId();
+    public ItemBuilder skullOf(final OfflinePlayer player) {
+        skullOwnerUuid = player.getUniqueId().toString();
         return this;
     }
 
-    public ItemBuilder skullOf(final UUID id) {
-        skullOwnerUuid = id;
+    public ItemBuilder skullOf(final String uuidAsString) {
+        skullOwnerUuid = uuidAsString;
         return this;
-    }
-
-    @Deprecated
-    public ItemBuilder setSkullOwner(final OfflinePlayer player) {
-        return skullOf(player);
-    }
-
-    @Deprecated
-    public ItemBuilder setSkullOwnerUuid(final String uuidAsString) {
-        return skullOf(UUID.fromString(uuidAsString));
     }
 
     /**
@@ -556,33 +494,27 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder headTexture(final String texture) {
+        //if (texture.length()<70) return setCustomHeadUrl(texture); //фикс!!
         this.skullTexture = texture;
         return this;
     }
 
-    public ItemBuilder headTexture(final ItemUtils.Texture texture) {
+    public ItemBuilder headTexture(final Texture texture) {
         return headTexture(texture.value);
     }
 
-    @Deprecated
-    public ItemBuilder setCustomHeadTexture(final String texture) {
-        return headTexture(texture);
-    }
+    // public ItemBuilder setCustomHeadUrl(final String url) {
+    //     if (!url.startsWith("http://")) skullTexture = "http://textures.minecraft.net/texture/" + url;
+    //      else skullTexture = url;
+    //      return this;
+    //  }
 
-    @Deprecated
-    public ItemBuilder setCustomHeadTexture(final Texture texture) {
-        return headTexture(texture.value);
-    }
 
     public ItemBuilder color(final Color color) {
         this.color = color;
         return this;
     }
 
-    @Deprecated
-    public ItemBuilder setColor(final Color color) {
-        return color(color);
-    }
 
     public ItemBuilder basePotion(final PotionType type) {
         this.basePotionType = type;
@@ -590,30 +522,16 @@ public class ItemBuilder {
     }
 
     public ItemBuilder customPotion(final PotionEffect customPotionEffect) {
-        if (customPotionEffects == null) customPotionEffects = new ArrayList<>();
+        if (customPotionEffect != null && (customPotionEffects == null)) {
+            customPotionEffects = new ArrayList<>();
+        }
         customPotionEffects.add(customPotionEffect);
         return this;
     }
 
-    public ItemBuilder clearPotions() {
-        if (customPotionEffects != null) customPotionEffects = null;
-        if (basePotionType != null) basePotionType = null;
-        return this;
-    }
-
-    @Deprecated
-    public ItemBuilder setBasePotionType(final PotionType type) {
-        return basePotion(type);
-    }
-
-    @Deprecated
-    public ItemBuilder addCustomPotionEffect(final PotionEffect customPotionEffect) {
-        return customPotion(customPotionEffect);
-    }
-
     public ItemStack build() {
         if (amount < 1) {
-            return ItemUtils.air.clone();
+            return ItemUtil.air.clone();
         } else if (amount > maxStack) {
             amount = maxStack;
         }
@@ -650,7 +568,7 @@ public class ItemBuilder {
                 }
 
                 if (skullTexture != null && !skullTexture.isEmpty()) {
-                    ItemUtils.setHeadTexture(sm, skullTexture);
+                    ItemUtil.setHeadTexture(sm, skullTexture);
                 }
                 break;
 
@@ -681,4 +599,90 @@ public class ItemBuilder {
         item.setItemMeta(meta);
         return item;
     }
+/*
+    public ItemStack build() {
+        if (amount < 1) {
+            amount = 1;
+        } else if (amount > maxStack) {
+            amount = maxStack;
+        }
+        final ItemStack item = type.createItemStack(amount);//new ItemStack(mat, amount);
+        if (!lore.isEmpty()) {
+            if (meta == null) meta = item.getItemMeta();
+            meta.lore(lore);
+        }
+
+        if (maxStack != type.getMaxStackSize()) {
+            meta.setMaxStackSize(maxStack);
+        }
+
+        switch (mat) {
+
+            case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
+                if (basePotionType != null || customPotionEffects != null) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final PotionMeta potionMeta = (PotionMeta) meta;
+                    if (basePotionType != null) potionMeta.setBasePotionType(basePotionType);
+                    if (customPotionEffects != null && !customPotionEffects.isEmpty()) {
+                        for (final PotionEffect ef : customPotionEffects) {
+                            potionMeta.addCustomEffect(ef, true);
+                        }
+                    }
+                    if (color != null) {
+                        potionMeta.setColor(color);
+                    }
+                }
+                break;
+
+            case PLAYER_HEAD:
+                if (meta == null) meta = item.getItemMeta();
+                final SkullMeta skullMeta = (SkullMeta) meta;
+
+                if (skullOwnerUuid != null && !skullOwnerUuid.isEmpty()) {
+                    final UUID uuid = UUID.fromString(skullOwnerUuid);
+                    final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+                    skullMeta.setOwningPlayer(offlinePlayer);
+                }
+
+                if (skullTexture != null && !skullTexture.isEmpty()) {
+                    ItemUtil.setHeadTexture(skullMeta, skullTexture);
+                }
+                break;
+
+            case LEATHER_BOOTS, LEATHER_CHESTPLATE, LEATHER_HELMET,
+                    LEATHER_LEGGINGS, LEATHER_HORSE_ARMOR:
+                if (color != null) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
+                    leatherMeta.setColor(color);
+                }
+                break;
+
+            case ENCHANTED_BOOK://для книг чары в storage
+                if (enchants != null && !enchants.isEmpty()) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) meta;
+                    for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {//ignoreLevelRestriction
+                        enchantedBookMeta.addStoredEnchant(en.getKey(), en.getValue(), false);
+                    }
+                }
+                enchants = null;
+                break;
+
+            default:
+                break; //для обычных предметов просто кидаем чары - а для дригих не кидаем????? не заслужили тип????
+        }
+
+        if (enchants != null && !enchants.isEmpty()) {
+            if (meta == null) meta = item.getItemMeta();
+            for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {
+                meta.addEnchant(en.getKey(), en.getValue(), true);
+            }
+        }
+
+        if (meta != null) item.setItemMeta(meta);
+        return item;
+    }*/
+
+
 }

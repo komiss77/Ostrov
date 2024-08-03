@@ -1,11 +1,9 @@
 package ru.komiss77.modules.figures;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;

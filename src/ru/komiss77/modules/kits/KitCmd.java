@@ -1,5 +1,6 @@
 package ru.komiss77.modules.kits;
 
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -10,9 +11,6 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.tools.Resolver;
-
-import java.util.List;
-
 
 public class KitCmd implements OCommand {
 

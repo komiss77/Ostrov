@@ -1,20 +1,14 @@
 package ru.komiss77.modules.world;
 
-
 import java.util.Random;
-
 import javax.annotation.Nonnull;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
 
-
 //https://hub.spigotmc.org/javadocs/spigot/org/bukkit/generator/ChunkGenerator.ChunkData.html
-
-
 public class LavaOceanGenerator extends ChunkGenerator {
 
     Plugin plugin;

@@ -1,19 +1,19 @@
-package ru.komiss77.utils;
-
-
-import org.bukkit.plugin.java.JavaPlugin;
+package ru.komiss77;
 
 import java.io.*;
 import java.nio.charset.Charset;
 
-public class OstrovConfigManager {
+import org.bukkit.plugin.java.JavaPlugin;
+
+
+public class OConfigManager {
 
     private final JavaPlugin plugin;
 
     /*
      * Manage custom configurations and files
      */
-    public OstrovConfigManager(JavaPlugin plugin) {
+    public OConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -22,7 +22,7 @@ public class OstrovConfigManager {
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
-    public OstrovConfig getNewConfig(String filePath, String[] header) {
+    public OConfig getNewConfig(String filePath, String[] header) {
 
         File file = this.getConfigFile(filePath);
 
@@ -35,7 +35,7 @@ public class OstrovConfigManager {
 
         }
 
-        OstrovConfig config = new OstrovConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
+        OConfig config = new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
         return config;
 
     }
@@ -45,7 +45,7 @@ public class OstrovConfigManager {
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
-    public OstrovConfig getNewConfig(String filePath) {
+    public OConfig getNewConfig(String filePath) {
         return this.getNewConfig(filePath, null);
     }
 

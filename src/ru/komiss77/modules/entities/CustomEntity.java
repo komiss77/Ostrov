@@ -1,7 +1,6 @@
 package ru.komiss77.modules.entities;
 
 import javax.annotation.Nullable;
-
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;

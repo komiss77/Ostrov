@@ -1,5 +1,17 @@
 package ru.komiss77.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -21,26 +33,20 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.bukkit.profile.PlayerTextures;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.intellij.lang.annotations.Subst;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemClass;
+import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
-import javax.annotation.Nullable;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-
-public class ItemUtils {
+public class ItemUtil {
 
     public static final NamespacedKey key;
     private static final CaseInsensitiveMap<com.destroystokyo.paper.profile.PlayerProfile> playerProfilesCache;
@@ -722,7 +728,7 @@ public class ItemUtils {
             String[] s0 = splittedParametrs.getFirst().trim().split(":");
             mat = Material.matchMaterial(s0[0].trim());
             if (mat != null) {
-                builder.setType(mat);
+                builder.type(mat);
                 if (Ostrov.isInteger(s0[1].trim())) {
                     builder.amount(Integer.parseInt(s0[1].trim()));
                 } else {
@@ -734,7 +740,7 @@ public class ItemUtils {
         } else {
             mat = Material.matchMaterial(splittedParametrs.getFirst().trim());
             if (mat != null) {
-                builder.setType(mat);
+                builder.type(mat);
             } else {
                 Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + splittedParametrs.getFirst());
             }
@@ -1199,77 +1205,76 @@ public class ItemUtils {
 
     public static ItemBuilder buildBiomeIcon(final Biome b) {
         final ItemBuilder builder = new ItemBuilder(Material.TROPICAL_FISH_BUCKET);
-//System.out.println("getBiomeIcon "+b.toString());       
         if (b.toString().equalsIgnoreCase("NETHER") || b.toString().equalsIgnoreCase("NETHER_WASTES")) {
-            builder.setType(Material.NETHERRACK);
+            builder.type(Material.NETHERRACK);
         } else {
 
             switch (b) {
-                case BADLANDS -> builder.setType(Material.RED_SAND);
-                case BAMBOO_JUNGLE -> builder.setType(Material.BAMBOO);
-                case BEACH -> builder.setType(Material.HORN_CORAL_FAN);
-                case BIRCH_FOREST -> builder.setType(Material.BIRCH_LOG);
-                case COLD_OCEAN -> builder.setType(Material.BLUE_CONCRETE_POWDER);
-                case DARK_FOREST -> builder.setType(Material.DARK_OAK_LOG);
-                case MUSHROOM_FIELDS -> builder.setType(Material.MYCELIUM);
-                case DEEP_COLD_OCEAN -> builder.setType(Material.BLUE_CONCRETE);
-                case DEEP_FROZEN_OCEAN -> builder.setType(Material.BLUE_ICE);
-                case DEEP_LUKEWARM_OCEAN -> builder.setType(Material.LIGHT_BLUE_CONCRETE);
-                case DEEP_OCEAN -> builder.setType(Material.BLUE_WOOL);
-                case DESERT -> builder.setType(Material.SAND);
-                case END_BARRENS -> builder.setType(Material.END_STONE);
-                case END_HIGHLANDS -> builder.setType(Material.END_STONE_BRICKS);
-                case END_MIDLANDS -> builder.setType(Material.END_STONE_BRICKS);
-                case ERODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
-                case FLOWER_FOREST -> builder.setType(Material.ROSE_BUSH);
-                case WINDSWEPT_HILLS -> builder.setType(Material.GRANITE);
-                case FOREST -> builder.setType(Material.DARK_OAK_LOG);
-                case FROZEN_OCEAN -> builder.setType(Material.PACKED_ICE);
-                case FROZEN_RIVER -> builder.setType(Material.LIGHT_BLUE_DYE);
-                case ICE_SPIKES -> builder.setType(Material.ICE);
-                case JUNGLE -> builder.setType(Material.JUNGLE_LOG);
-                case LUKEWARM_OCEAN -> builder.setType(Material.LIGHT_BLUE_CONCRETE_POWDER);
-                case OCEAN -> builder.setType(Material.WATER_BUCKET);
-                case PLAINS -> builder.setType(Material.GRASS_BLOCK);
-                case MANGROVE_SWAMP -> builder.setType(Material.MANGROVE_ROOTS);
-                case RIVER -> builder.setType(Material.BLUE_DYE);
-                case SAVANNA -> builder.setType(Material.ACACIA_LOG);
-                case SAVANNA_PLATEAU -> builder.setType(Material.ACACIA_WOOD);
-                case SMALL_END_ISLANDS -> builder.setType(Material.END_STONE);
-                case SNOWY_BEACH -> builder.setType(Material.SNOW);
-                case SNOWY_TAIGA -> builder.setType(Material.WHITE_WOOL);
-                case SUNFLOWER_PLAINS -> builder.setType(Material.SUNFLOWER);
-                case SWAMP -> builder.setType(Material.LILY_PAD);
-                case TAIGA -> builder.setType(Material.SPRUCE_LOG);
-                case NETHER_WASTES -> builder.setType(Material.NETHERRACK);
-                case THE_END -> builder.setType(Material.END_STONE);
-                case THE_VOID -> builder.setType(Material.BEDROCK);
-                case WARM_OCEAN -> builder.setType(Material.CYAN_CONCRETE_POWDER);
-                case SNOWY_PLAINS -> builder.setType(Material.SNOW);
-                case SPARSE_JUNGLE -> builder.setType(Material.VINE);
-                case STONY_SHORE -> builder.setType(Material.GRAVEL);
-                case OLD_GROWTH_PINE_TAIGA -> builder.setType(Material.SPRUCE_WOOD);
-                case WINDSWEPT_FOREST -> builder.setType(Material.STRIPPED_OAK_LOG);
-                case WOODED_BADLANDS -> builder.setType(Material.DEAD_BUSH);
-                case WINDSWEPT_GRAVELLY_HILLS -> builder.setType(Material.ANDESITE);
-                case OLD_GROWTH_BIRCH_FOREST -> builder.setType(Material.BIRCH_WOOD);
-                case OLD_GROWTH_SPRUCE_TAIGA -> builder.setType(Material.STRIPPED_SPRUCE_LOG);
-                case WINDSWEPT_SAVANNA -> builder.setType(Material.STRIPPED_ACACIA_LOG);
-                case SOUL_SAND_VALLEY -> builder.setType(Material.SOUL_SAND);
-                case CRIMSON_FOREST -> builder.setType(Material.CRIMSON_NYLIUM);
-                case WARPED_FOREST -> builder.setType(Material.WARPED_NYLIUM);
-                case BASALT_DELTAS -> builder.setType(Material.BASALT);
-                case DRIPSTONE_CAVES -> builder.setType(Material.DRIPSTONE_BLOCK);
-                case LUSH_CAVES -> builder.setType(Material.BIG_DRIPLEAF);
-                case DEEP_DARK -> builder.setType(Material.SCULK_CATALYST);
-                case MEADOW -> builder.setType(Material.BEE_NEST);
-                case GROVE -> builder.setType(Material.DIRT_PATH);
-                case SNOWY_SLOPES -> builder.setType(Material.POWDER_SNOW);
-                case FROZEN_PEAKS -> builder.setType(Material.PACKED_ICE);
-                case JAGGED_PEAKS -> builder.setType(Material.DIORITE);
-                case STONY_PEAKS -> builder.setType(Material.STONE);
-                case CHERRY_GROVE -> builder.setType(Material.CHERRY_LOG);
-                case CUSTOM -> builder.setType(Material.BEDROCK);
+                case BADLANDS -> builder.type(Material.RED_SAND);
+                case BAMBOO_JUNGLE -> builder.type(Material.BAMBOO);
+                case BEACH -> builder.type(Material.HORN_CORAL_FAN);
+                case BIRCH_FOREST -> builder.type(Material.BIRCH_LOG);
+                case COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE_POWDER);
+                case DARK_FOREST -> builder.type(Material.DARK_OAK_LOG);
+                case MUSHROOM_FIELDS -> builder.type(Material.MYCELIUM);
+                case DEEP_COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE);
+                case DEEP_FROZEN_OCEAN -> builder.type(Material.BLUE_ICE);
+                case DEEP_LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE);
+                case DEEP_OCEAN -> builder.type(Material.BLUE_WOOL);
+                case DESERT -> builder.type(Material.SAND);
+                case END_BARRENS -> builder.type(Material.END_STONE);
+                case END_HIGHLANDS -> builder.type(Material.END_STONE_BRICKS);
+                case END_MIDLANDS -> builder.type(Material.END_STONE_BRICKS);
+                case ERODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
+                case FLOWER_FOREST -> builder.type(Material.ROSE_BUSH);
+                case WINDSWEPT_HILLS -> builder.type(Material.GRANITE);
+                case FOREST -> builder.type(Material.DARK_OAK_LOG);
+                case FROZEN_OCEAN -> builder.type(Material.PACKED_ICE);
+                case FROZEN_RIVER -> builder.type(Material.LIGHT_BLUE_DYE);
+                case ICE_SPIKES -> builder.type(Material.ICE);
+                case JUNGLE -> builder.type(Material.JUNGLE_LOG);
+                case LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE_POWDER);
+                case OCEAN -> builder.type(Material.WATER_BUCKET);
+                case PLAINS -> builder.type(Material.GRASS_BLOCK);
+                case MANGROVE_SWAMP -> builder.type(Material.MANGROVE_ROOTS);
+                case RIVER -> builder.type(Material.BLUE_DYE);
+                case SAVANNA -> builder.type(Material.ACACIA_LOG);
+                case SAVANNA_PLATEAU -> builder.type(Material.ACACIA_WOOD);
+                case SMALL_END_ISLANDS -> builder.type(Material.END_STONE);
+                case SNOWY_BEACH -> builder.type(Material.SNOW);
+                case SNOWY_TAIGA -> builder.type(Material.WHITE_WOOL);
+                case SUNFLOWER_PLAINS -> builder.type(Material.SUNFLOWER);
+                case SWAMP -> builder.type(Material.LILY_PAD);
+                case TAIGA -> builder.type(Material.SPRUCE_LOG);
+                case NETHER_WASTES -> builder.type(Material.NETHERRACK);
+                case THE_END -> builder.type(Material.END_STONE);
+                case THE_VOID -> builder.type(Material.BEDROCK);
+                case WARM_OCEAN -> builder.type(Material.CYAN_CONCRETE_POWDER);
+                case SNOWY_PLAINS -> builder.type(Material.SNOW);
+                case SPARSE_JUNGLE -> builder.type(Material.VINE);
+                case STONY_SHORE -> builder.type(Material.GRAVEL);
+                case OLD_GROWTH_PINE_TAIGA -> builder.type(Material.SPRUCE_WOOD);
+                case WINDSWEPT_FOREST -> builder.type(Material.STRIPPED_OAK_LOG);
+                case WOODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
+                case WINDSWEPT_GRAVELLY_HILLS -> builder.type(Material.ANDESITE);
+                case OLD_GROWTH_BIRCH_FOREST -> builder.type(Material.BIRCH_WOOD);
+                case OLD_GROWTH_SPRUCE_TAIGA -> builder.type(Material.STRIPPED_SPRUCE_LOG);
+                case WINDSWEPT_SAVANNA -> builder.type(Material.STRIPPED_ACACIA_LOG);
+                case SOUL_SAND_VALLEY -> builder.type(Material.SOUL_SAND);
+                case CRIMSON_FOREST -> builder.type(Material.CRIMSON_NYLIUM);
+                case WARPED_FOREST -> builder.type(Material.WARPED_NYLIUM);
+                case BASALT_DELTAS -> builder.type(Material.BASALT);
+                case DRIPSTONE_CAVES -> builder.type(Material.DRIPSTONE_BLOCK);
+                case LUSH_CAVES -> builder.type(Material.BIG_DRIPLEAF);
+                case DEEP_DARK -> builder.type(Material.SCULK_CATALYST);
+                case MEADOW -> builder.type(Material.BEE_NEST);
+                case GROVE -> builder.type(Material.DIRT_PATH);
+                case SNOWY_SLOPES -> builder.type(Material.POWDER_SNOW);
+                case FROZEN_PEAKS -> builder.type(Material.PACKED_ICE);
+                case JAGGED_PEAKS -> builder.type(Material.DIORITE);
+                case STONY_PEAKS -> builder.type(Material.STONE);
+                case CHERRY_GROVE -> builder.type(Material.CHERRY_LOG);
+                case CUSTOM -> builder.type(Material.BEDROCK);
             }
         }
 
@@ -1282,13 +1287,13 @@ public class ItemUtils {
         final ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
 
         switch (type) {
-            case ARMOR_STAND -> builder.setType(Material.ARMOR_STAND);
-            case ZOMBIE -> builder.setType(Material.ZOMBIE_HEAD);
-            case CREEPER -> builder.setType(Material.CREEPER_HEAD);
-            case PIGLIN -> builder.setType(Material.PIGLIN_HEAD);
-            case ENDER_DRAGON -> builder.setType(Material.DRAGON_HEAD);
+            case ARMOR_STAND -> builder.type(Material.ARMOR_STAND);
+            case ZOMBIE -> builder.type(Material.ZOMBIE_HEAD);
+            case CREEPER -> builder.type(Material.CREEPER_HEAD);
+            case PIGLIN -> builder.type(Material.PIGLIN_HEAD);
+            case ENDER_DRAGON -> builder.type(Material.DRAGON_HEAD);
             //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
-            default -> builder.setType(Material.NAME_TAG);
+            default -> builder.type(Material.NAME_TAG);
         }
 
         builder.name(Lang.t(type, Lang.RU));
@@ -1314,6 +1319,105 @@ public class ItemUtils {
         //}
         return type.name().endsWith("_EGG");
     }
+
+
+//MySQL Player Data Bridge
+//https://www.spigotmc.org/resources/mysql-inventory-bridge.7849/
+
+    public static String itemStackArrayToBase64(final ItemStack[] items) {
+
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream bukkitOutStream = new BukkitObjectOutputStream(outputStream);
+            // Write the size of the inventory
+            bukkitOutStream.writeInt(items.length);
+
+            // Save every element in the list
+            for (int i = 0; i < items.length; i++) {
+                if (MenuItemsManager.isSpecItem(items[i])) {
+                    bukkitOutStream.writeObject(ItemUtil.air);
+                } else {
+                    bukkitOutStream.writeObject(items[i]);
+                }
+            }
+
+            // Serialize that array
+            bukkitOutStream.close();
+            return Base64Coder.encodeLines(outputStream.toByteArray());
+
+        } catch (IOException e) {
+            Ostrov.log_err("itemStackArrayToBase64 - " + e.getMessage());
+            return "error";
+        }
+    }
+
+
+    public static ItemStack @org.jetbrains.annotations.Nullable [] itemStackArrayFromBase64(final String data) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            ItemStack[] items = new ItemStack[dataInput.readInt()];
+
+            // Read the serialized inventory
+            for (int i = 0; i < items.length; i++) {
+                final ItemStack is = (ItemStack) dataInput.readObject();
+                if (MenuItemsManager.isSpecItem(is)) {
+                    items[i] = ItemUtil.air;
+                } else {
+                    items[i] = is;
+                }
+            }
+
+            dataInput.close();
+            return items;
+
+        } catch (IllegalArgumentException | ClassNotFoundException | IOException e) {
+            Ostrov.log_err("itemStackArrayFromBase64 - " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    public static String potionEffectsToBase64(Collection<PotionEffect> collection) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            BukkitObjectOutputStream boos = new BukkitObjectOutputStream(baos);
+
+            boos.writeInt(collection.toArray().length);
+
+            for (int i = 0; i < collection.toArray().length; ++i) {
+                boos.writeObject(collection.toArray()[i]);
+            }
+
+            boos.close();
+            return Base64Coder.encodeLines(baos.toByteArray());
+        } catch (IOException e) {
+            Ostrov.log_err("potionEffectsToBase64 - " + e.getMessage());
+            return "error";
+        }
+    }
+
+    public static @org.jetbrains.annotations.Nullable Collection<PotionEffect> potionEffectsFromBase64(String s) {
+
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(s));
+            BukkitObjectInputStream bois = new BukkitObjectInputStream(bais);
+            PotionEffect[] apotioneffect = new PotionEffect[bois.readInt()];
+
+            final ArrayList<PotionEffect> arraylist = new ArrayList<>();
+            for (int i = 0; i < apotioneffect.length; ++i) {
+                arraylist.add((PotionEffect) bois.readObject());
+            }
+
+            bois.close();
+            return arraylist;
+        } catch (ClassNotFoundException | IOException e) {
+            Ostrov.log_err("potionEffectsFromBase64 - " + e.getMessage());
+            return null;
+        }
+    }
+
+
 
 }
 

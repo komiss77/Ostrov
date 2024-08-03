@@ -25,11 +25,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.RecipeChoice.ExactChoice;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,12 +38,13 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 
+
 public final class Crafts implements Initiable, Listener {
 
     public static final Map<NamespacedKey, Craft> crafts = new HashMap<>();
 
     public Crafts() {
-        if (!Config.crafts) {
+        if (!Cfg.crafts) {
             Ostrov.log_ok("§6Крафты выключены!");
             return;
         }
@@ -60,7 +61,7 @@ public final class Crafts implements Initiable, Listener {
     @Override
     public void reload() {
         HandlerList.unregisterAll(this);
-        if (!Config.crafts) {
+        if (!Cfg.crafts) {
             Ostrov.log_ok("§6Крафты выключены!");
             return;
         }
@@ -78,7 +79,7 @@ public final class Crafts implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (!Config.crafts) {
+        if (!Cfg.crafts) {
             Ostrov.log_ok("§6Крафты выключены!");
             return;
         }
@@ -117,45 +118,45 @@ public final class Crafts implements Initiable, Listener {
 
     public static void readCraft(final ConfigurationSection cs) {
         //ConfigurationSection cs = craftConfig.getConfigurationSection("crafts");
-        final ItemStack resultItem = ItemUtils.parseItem(cs.getString("result"), "=");
+        final ItemStack resultItem = ItemUtil.parseItem(cs.getString("result"), "=");
         final NamespacedKey nsk = new NamespacedKey(OStrap.space, cs.getName());
         //cs = craftConfig.getConfigurationSection("crafts." + c + ".recipe");
         final Recipe recipe;
         final ItemStack it;
         switch (cs.getString("type")) {//(craftConfig.getString("crafts." + c + ".type")) {
             case "smoker":
-                if (ItemUtils.isBlank((it = ItemUtils.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
                 recipe = new SmokingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
                 break;
             case "blaster":
-                if (ItemUtils.isBlank((it = ItemUtils.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
                 recipe = new BlastingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
                 break;
             case "campfire":
-                if (ItemUtils.isBlank((it = ItemUtils.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
                 recipe = new CampfireRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 500);
                 break;
             case "furnace":
-                if (ItemUtils.isBlank((it = ItemUtils.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
                 recipe = new FurnaceRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 200);
                 break;
             case "cutter":
-                if (ItemUtils.isBlank((it = ItemUtils.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
                 recipe = new StonecuttingRecipe(nsk, resultItem, CMDMatChoice.of(it));
                 break;
             case "smith":
-                it = ItemUtils.parseItem(cs.getString("recipe.a"), "=");
-                final ItemStack scd = ItemUtils.parseItem(cs.getString("recipe.b"), "=");
-                if (ItemUtils.isBlank(it, false) || ItemUtils.isBlank(scd, false)) return;
+                it = ItemUtil.parseItem(cs.getString("recipe.a"), "=");
+                final ItemStack scd = ItemUtil.parseItem(cs.getString("recipe.b"), "=");
+                if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
                 recipe = new SmithingTransformRecipe(nsk, resultItem, CMDMatChoice.of(
-                    ItemUtils.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                        ItemUtil.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    final ItemStack ii = ItemUtils.parseItem(cs.getString("recipe." + s), "=");
+                    final ItemStack ii = ItemUtil.parseItem(cs.getString("recipe." + s), "=");
                     if (!ii.getType().isAir()) {
-                        ((ShapelessRecipe) recipe).addIngredient(CMDMatChoice.of(ItemUtils.parseItem(cs.getString("recipe." + s), "=")));
+                        ((ShapelessRecipe) recipe).addIngredient(CMDMatChoice.of(ItemUtil.parseItem(cs.getString("recipe." + s), "=")));
                     }
                 }
                 break;
@@ -165,7 +166,7 @@ public final class Crafts implements Initiable, Listener {
                 final String shp = cs.getString("shape");
                 ((ShapedRecipe) recipe).shape(shp == null ? new String[]{"abc", "def", "ghi"} : shp.split(":"));
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), CMDMatChoice.of(ItemUtils.parseItem(cs.getString("recipe." + s), "=")));
+                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), CMDMatChoice.of(ItemUtil.parseItem(cs.getString("recipe." + s), "=")));
                 }
                 break;
         }
@@ -208,16 +209,16 @@ public final class Crafts implements Initiable, Listener {
                     return lrc;
                 case final FurnaceRecipe src:
                     return new FurnaceRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final SmokingRecipe src:
                     return new SmokingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final BlastingRecipe src:
                     return new BlastingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final CampfireRecipe src:
                     return new CampfireRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 default:
                     return null;
             }
@@ -246,15 +247,15 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack[] mtx = e.getInventory().getMatrix();
                 if (src == null) {
                     for (final ItemStack it : mtx) {
-                        if (ItemUtils.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
-                        e.getInventory().setResult(ItemUtils.air);
+                        if (ItemUtil.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
+                        e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
                 } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-8 2x3-4 3x2-4 3x3-2 магия крч
                     final Collection<RecipeChoice> rcs = src.getChoiceMap().values();
                     rcs.removeIf(c -> c == null);
                     for (final ItemStack it : mtx) {
-                        if (!ItemUtils.isBlank(it, false)) {
+                        if (!ItemUtil.isBlank(it, false)) {
                             final Iterator<RecipeChoice> rci = rcs.iterator();
                             while (rci.hasNext()) {
                                 if (rci.next().test(it)) {
@@ -267,7 +268,7 @@ public final class Crafts implements Initiable, Listener {
 
                     final CraftingInventory inv = e.getInventory();
                     if (rcs.size() != 0) {
-                        inv.setResult(ItemUtils.air);
+                        inv.setResult(ItemUtil.air);
                         Bukkit.removeRecipe(src.getKey());
                         final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
                         if (pl == null) return;
@@ -280,8 +281,8 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack[] mtx = e.getInventory().getMatrix();
                 if (src == null) {
                     for (final ItemStack it : mtx) {
-                        if (ItemUtils.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
-                        e.getInventory().setResult(ItemUtils.air);
+                        if (ItemUtil.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
+                        e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
                 } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-8 2x3-4 3x2-4 3x3-2 магия крч
@@ -290,7 +291,7 @@ public final class Crafts implements Initiable, Listener {
                         final Iterator<RecipeChoice> ri = rcs.iterator();
                         while (ri.hasNext()) {
                             final RecipeChoice chs = ri.next();
-                            if ((chs == null && ItemUtils.isBlank(ti, false)) || chs.test(ti)) {
+                            if ((chs == null && ItemUtil.isBlank(ti, false)) || chs.test(ti)) {
                                 ri.remove();
                                 break;
                             }
@@ -299,7 +300,7 @@ public final class Crafts implements Initiable, Listener {
 
                     final CraftingInventory inv = e.getInventory();
                     if (rcs.size() != 0) {
-                        inv.setResult(ItemUtils.air);
+                        inv.setResult(ItemUtil.air);
                         Bukkit.removeRecipe(src.getKey());
                         final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
                         if (pl == null) return;
@@ -345,7 +346,7 @@ public final class Crafts implements Initiable, Listener {
             final CookingRecipe<?> src = Crafts.getRecipe(((Keyed) rc).getKey(), CookingRecipe.class);
             final ItemStack ti = e.getSource();
             if (src == null) {
-                if (ItemUtils.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
+                if (ItemUtil.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
                 e.setTotalCookTime(Integer.MAX_VALUE);
             }
         }
@@ -361,11 +362,11 @@ public final class Crafts implements Initiable, Listener {
                 final SmithingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), SmithingRecipe.class);
                 final ItemStack ti = si.getInputMineral();
                 if (src == null) {
-                    if (ItemUtils.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
-                    si.setResult(ItemUtils.air);
+                    if (ItemUtil.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
+                    si.setResult(ItemUtil.air);
                 } else {
                     if (src.getAddition().test(ti)) return;
-                    si.setResult(ItemUtils.air);
+                    si.setResult(ItemUtil.air);
                 }
             }
         }
@@ -377,12 +378,12 @@ public final class Crafts implements Initiable, Listener {
         final StonecuttingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), StonecuttingRecipe.class);
         final StonecutterInventory sci = e.getStonecutterInventory();
         if (src == null) {
-            if (ItemUtils.isBlank(sci.getInputItem(), true) ||
-                !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
+            if (ItemUtil.isBlank(sci.getInputItem(), true) ||
+                    !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
         } else {
             if (src.getInputChoice().test(sci.getInputItem())) return;
         }
-        sci.setResult(ItemUtils.air);
+        sci.setResult(ItemUtil.air);
         e.setCancelled(true);
     }
 
@@ -400,7 +401,7 @@ public final class Crafts implements Initiable, Listener {
                 int ix = 0;
                 for (final ItemStack is : cri) {
                     if ((ix++) < start) continue;
-                    if (!ItemUtils.isBlank(is, false)) {
+                    if (!ItemUtil.isBlank(is, false)) {
                         giveItemAmt(p, is, is.getAmount());
                         is.setAmount(0);
                     }
@@ -414,7 +415,7 @@ public final class Crafts implements Initiable, Listener {
                         if (ch instanceof CMDMatChoice) {
                             final String gs = gridIts.get(ch);
                             gridIts.put((CMDMatChoice) ch, gs == null ?
-                                String.valueOf(en.getKey()) : gs + en.getKey());
+                                    String.valueOf(en.getKey()) : gs + en.getKey());
                         }
                     }
 
@@ -440,7 +441,7 @@ public final class Crafts implements Initiable, Listener {
                         final String slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                            kst.getType().getMaxStackSize() : 1, his / slots.length());
+                                kst.getType().getMaxStackSize() : 1, his / slots.length());
                         giveItemAmt(p, kst, his - (split * slots.length()));
                         if (split == 0) continue;
                         for (final char c : slots.toCharArray()) {
@@ -454,7 +455,7 @@ public final class Crafts implements Initiable, Listener {
                         int ir = 0;
                         for (final ItemStack is : cri) {
                             if ((ir++) < start) continue;
-                            if (!ItemUtils.isBlank(is, false)) {
+                            if (!ItemUtil.isBlank(is, false)) {
                                 giveItemAmt(p, is, is.getAmount());
                                 is.setAmount(0);
                             }
@@ -492,7 +493,7 @@ public final class Crafts implements Initiable, Listener {
                         final int slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                            kst.getType().getMaxStackSize() : 1, his / slots);
+                                kst.getType().getMaxStackSize() : 1, his / slots);
                         giveItemAmt(p, kst, his - (split * slots));
                         if (split == 0) continue;
                         for (int i = slots; i > 0; i--) {
@@ -507,7 +508,7 @@ public final class Crafts implements Initiable, Listener {
                         int ir = 0;
                         for (final ItemStack is : cri) {
                             if ((ir++) < start) continue;
-                            if (!ItemUtils.isBlank(is, false)) {
+                            if (!ItemUtil.isBlank(is, false)) {
                                 giveItemAmt(p, is, is.getAmount());
                                 is.setAmount(0);
                             }
@@ -523,9 +524,9 @@ public final class Crafts implements Initiable, Listener {
                 if (rc instanceof CookingRecipe) {
                     final CMDMatChoice chs = (CMDMatChoice) ((CookingRecipe<?>) rc).getInputChoice();
                     final ItemStack in = fni.getSmelting();
-                    if (!ItemUtils.isBlank(in, false)) {
+                    if (!ItemUtil.isBlank(in, false)) {
                         giveItemAmt(p, in, in.getAmount());
-                        fni.setSmelting(ItemUtils.air);
+                        fni.setSmelting(ItemUtil.air);
                     }
 
                     int invCnt = 0;
@@ -579,7 +580,7 @@ public final class Crafts implements Initiable, Listener {
     public void onSmith(final PrepareSmithingEvent e) {
         final SmithingInventory ci = e.getInventory();
         final ItemStack it = e.getResult();
-        if (!ItemUtils.isBlank(it, false)) {
+        if (!ItemUtil.isBlank(it, false)) {
             final ItemStack tr = ci.getInputTemplate();
             if (tr != null && Tag.ITEMS_TRIM_TEMPLATES.isTagged(tr.getType())) {
                 final Material mt = it.getType();
@@ -624,28 +625,28 @@ public final class Crafts implements Initiable, Listener {
 
                 final ItemStack add = ci.getInputMineral();
                 im.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(NamespacedKey.minecraft("generic.armor"),
-                    arm * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
+                        arm * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("generic.armor_toughness"),
-                    ath * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
+                        ath * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_anticnockback"),
-                    akb * (1d + ItemUtils.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
+                        akb * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(NamespacedKey.minecraft("generic.armor_max_health"),
-                    ItemUtils.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
+                        ItemUtil.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_damage"),
-                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
+                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_knockback"),
-                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
+                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_speed"),
-                    ItemUtils.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
+                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
                 im.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_move_speed"),
-                    ItemUtils.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
+                        ItemUtil.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
 
                 it.setItemMeta(im);
                 e.setResult(it);

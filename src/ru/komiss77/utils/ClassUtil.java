@@ -2,15 +2,59 @@ package ru.komiss77.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-public class ClassFinder {
+import ru.komiss77.Ostrov;
+
+
+public class ClassUtil {
 
     private static final char PKG_SEPARATOR = '.';
     private static final char DIR_SEPARATOR = '/';
+
+
+    public static <T extends Enum> T rotateEnum(T t) {
+        try {
+            Method values = t.getClass().getMethod("values");
+            if (t.ordinal() == ((T[]) values.invoke(t)).length - 1)
+                return ((T[]) values.invoke(t))[0];
+            else
+                return ((T[]) values.invoke(t))[t.ordinal() + 1];
+        } catch (Exception ex) {
+            return t;
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <G> G rndElmt(final G... arr) {
+        return arr[Ostrov.random.nextInt(arr.length)];
+    }
+
+    public static <G> G[] shuffle(final G[] ar) {
+        int chs = ar.length >> 2;
+        if (chs == 0) {
+            if (ar.length > 1) {
+                final G ne = ar[0];
+                ar[0] = ar[ar.length - 1];
+                ar[ar.length - 1] = ne;
+            }
+            return ar;
+        }
+        for (int i = ar.length - 1; i > chs; i--) {
+            final int ni = Ostrov.random.nextInt(i);
+            final G ne = ar[ni];
+            ar[ni] = ar[i];
+            ar[i] = ne;
+            chs += ((chs - ni) >> 31) + 1;
+        }
+        return ar;
+    }
+
 
     public static Class<?>[] getClasses(final File pluginFile, String packageName) {
         final List<Class<?>> classes = new ArrayList<>();

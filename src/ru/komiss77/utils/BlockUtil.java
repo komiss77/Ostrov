@@ -1,20 +1,29 @@
 package ru.komiss77.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
 
-import java.util.ArrayList;
-import java.util.List;
 
+public class BlockUtil {
 
-public class BlockUtils {
+    public static Block getSignAttachedBlock(final Block b) {
+        if (b.getState() instanceof final Sign sign
+                && sign.getBlockData() instanceof final WallSign signData) {
+            return b.getRelative(signData.getFacing().getOppositeFace());
 
+        }
+        return b.getRelative(BlockFace.DOWN);
+    }
 
     public static Block getHighestBlock(final World world, final int x, final int z) { //не отдавать null!!
-        final Location loc = LocationUtil.getHighestLoc(world, x, z);
+        final Location loc = LocUtil.getHighestLoc(world, x, z);
         return loc == null ? world.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING) : loc.getBlock().getRelative(BlockFace.UP);
         //Block block;
         //for ( block = world.getHighestBlockAt(x, z).getRelative(BlockFace.DOWN); 

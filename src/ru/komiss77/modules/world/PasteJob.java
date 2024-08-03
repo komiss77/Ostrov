@@ -2,7 +2,6 @@ package ru.komiss77.modules.world;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,8 +26,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
-import ru.komiss77.utils.ItemUtils;
-
+import ru.komiss77.utils.ItemUtil;
 
 class PasteJob implements Runnable {
 
@@ -473,7 +471,7 @@ class PasteJob implements Runnable {
                 if (split[i].equals("null")) {
                     ttl += 10;//inv.setItem(i, new ItemStack(Material.AIR));
                 } else {
-                    final ItemStack it = ItemUtils.parseItem(split[i], ";");
+                    final ItemStack it = ItemUtil.parseItem(split[i], ";");
                     content[i] = it;
                     ttl += it.getAmount();
                 }

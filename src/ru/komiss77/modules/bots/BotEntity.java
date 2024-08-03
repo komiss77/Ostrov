@@ -31,8 +31,8 @@ import ru.komiss77.modules.world.AStarPath;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.Craft;
 import ru.komiss77.version.CustomTag;
@@ -52,7 +52,7 @@ public class BotEntity extends ServerPlayer {
     public static final EntityDataAccessor<Byte> flags = DATA_SHARED_FLAGS_ID;
 
     private static final net.minecraft.world.item.ItemStack air
-        = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtils.air);
+            = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtil.air);
     private static final String[] empty = new String[]{"", ""};
 
     public final World world;
@@ -83,7 +83,7 @@ public class BotEntity extends ServerPlayer {
         inv = Craft.fromNMS(getInventory());
         tag = new CustomTag(getBukkitEntity());
         team = new SubTeam(name).include(name)
-            .tagVis(Team.OptionStatus.NEVER).seeInvis(false);
+                .tagVis(Team.OptionStatus.NEVER).seeInvis(false);
         team.send(world);
         BotManager.botByName.put(name, this);
     }
@@ -166,7 +166,7 @@ public class BotEntity extends ServerPlayer {
     @OverrideMe
     public void telespawn(final Location to, @Nullable final LivingEntity le) {
         Nms.sendWorldPackets(world, remListPlayerPacket(),
-            new ClientboundRemoveEntitiesPacket(this.hashCode()));
+                new ClientboundRemoveEntitiesPacket(this.hashCode()));
         //VM.server().sendWorldPackets(world,
         //        new PacketPlayOutEntityDestroy(this.aj()),
         //        remListPlayerPacket());
@@ -179,7 +179,7 @@ public class BotEntity extends ServerPlayer {
                 mb.setSilent(true);
                 mb.setPersistent(true);
                 mb.setRemoveWhenFarAway(false);
-                mb.customName(TCUtils.form(name));
+                mb.customName(TCUtils.format(name));
                 mb.setCustomNameVisible(true);
                 mb.setAdult();
             });
@@ -203,9 +203,9 @@ public class BotEntity extends ServerPlayer {
 
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
         Nms.sendWorldPackets(world,
-            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-            modListPlayerPacket(), //UPDATE_GAME_MODE
-            new ClientboundAddEntityPacket(this, 0, blockPosition()));
+                addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+                modListPlayerPacket(), //UPDATE_GAME_MODE
+                new ClientboundAddEntityPacket(this, 0, blockPosition()));
         swapToSlot(0);
 
 //		final Vector vc = to.toVector();
@@ -220,31 +220,31 @@ public class BotEntity extends ServerPlayer {
     private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
         //private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
         return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(),
-            true, 1, gameMode.getGameModeForPlayer(), getTabListDisplayName(), Optionull.map(getChatSession(), RemoteChatSession::asData)));
+                true, 1, gameMode.getGameModeForPlayer(), getTabListDisplayName(), Optionull.map(getChatSession(), RemoteChatSession::asData)));
         //return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
         //true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
     }
 
     private ClientboundPlayerInfoUpdatePacket addListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
-            ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
-            entryList());
+                ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
+                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
+                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+                entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket liveListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
-            ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
-            entryList());
+                ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
+                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
+                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+                entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket dieListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE),
-            entryList());
+                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE),
+                entryList());
     }
 
     private ClientboundPlayerInfoUpdatePacket modListPlayerPacket() {
@@ -258,6 +258,7 @@ public class BotEntity extends ServerPlayer {
     private ClientboundPlayerInfoRemovePacket remListPlayerPacket() {
         return new ClientboundPlayerInfoRemovePacket(Arrays.asList(this.uuid));
     }
+
 
 
     public ItemStack item(final EquipmentSlot slot) {
@@ -343,7 +344,7 @@ public class BotEntity extends ServerPlayer {
             mb.remove();
         }
         Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()),
-            modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId));
+                modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId));
     }
 
     public void remove() {
@@ -367,7 +368,7 @@ public class BotEntity extends ServerPlayer {
     }
 
     public void tab(final String prefix, final String affix, final String suffix) {
-        listName = PaperAdventure.asVanilla(TCUtils.form(prefix + affix + name + suffix));
+        listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
         Nms.sendWorldPacket(world, updListPlayerPacket());
     }
 
@@ -411,7 +412,7 @@ public class BotEntity extends ServerPlayer {
 
     public void removeAll(final Player pl) {
         Nms.sendPackets(pl, remListPlayerPacket(),
-            new ClientboundRemoveEntitiesPacket(this.hashCode()));
+                new ClientboundRemoveEntitiesPacket(this.hashCode()));
         team.remove(pl);
         tag.hideTo(pl);
     }
@@ -419,7 +420,7 @@ public class BotEntity extends ServerPlayer {
     public void updateAll(final Player pl) {
 //      pl.sendMessage("bot-" + name);
         Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this, 0, blockPosition()),
-            new ClientboundTeleportEntityPacket(this), new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
+                new ClientboundTeleportEntityPacket(this), new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         team.send(pl);
         tag.showTo(pl);
     }
@@ -429,7 +430,7 @@ public class BotEntity extends ServerPlayer {
         final net.minecraft.world.entity.EquipmentSlot[] eis = net.minecraft.world.entity.EquipmentSlot.values();
         if (le == null) {
             @SuppressWarnings("unchecked") final Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[] its
-                = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
+                    = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
             for (int i = its.length - 1; i >= 0; i--) {
                 its[i] = Pair.of(eis[i], air);
             }
@@ -438,7 +439,7 @@ public class BotEntity extends ServerPlayer {
         final EquipmentSlot[] ess = EquipmentSlot.values();
         final EntityEquipment eq = le.getEquipment();
         @SuppressWarnings("unchecked") final Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[] its
-            = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
+                = (Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>[]) new Pair<?, ?>[6];
         for (int i = its.length - 1; i >= 0; i--) {
             final ItemStack it = eq.getItem(ess[i]);
             its[i] = Pair.of(eis[i], net.minecraft.world.item.ItemStack.fromBukkitCopy(it));
@@ -469,8 +470,8 @@ public class BotEntity extends ServerPlayer {
         this.moveTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         final Vector vector = new Vector(loc.getX() - ps.x, loc.getY() - ps.y, loc.getZ() - ps.z);
         Nms.sendWorldPackets(world, new ClientboundRotateHeadPacket(this, (byte) (loc.getYaw() * 256 / 360)),
-            new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
-                (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
+                new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
+                        (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
     @OverrideMe
@@ -487,7 +488,7 @@ public class BotEntity extends ServerPlayer {
         e.getDrops().clear();
         final LivingEntity le = e.getEntity();
         le.getWorld().spawnParticle(Particle.CLOUD, le.getLocation()
-            .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
+                .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
         die(le);
     }
 
@@ -539,7 +540,7 @@ public class BotEntity extends ServerPlayer {
 
 //			if (bot.tryJump(loc, rplc, vc)) return;
 
-            final Player pl = LocationUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
+            final Player pl = LocUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
             if (pl == null) {
                 return;
             }

@@ -1,4 +1,4 @@
-package ru.komiss77;
+package ru.komiss77.modules.player;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,29 +9,27 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.jetbrains.annotations.Nullable;
+import ru.komiss77.*;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Table;
 import ru.komiss77.events.GroupChangeEvent;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.OConfig;
 import ru.komiss77.version.Nms;
 
 
 public class Perm {
 
     private static boolean pathPermissions;
-    public static final OstrovConfig localPerms;
+    public static final OConfig localPerms;
     private static final Set<String> defaultPerms;
     private static Map<String, Group> groups; //название в БД, группа
 
@@ -39,7 +37,7 @@ public class Perm {
     static {
         groups = new CaseInsensitiveMap<>();
         defaultPerms = new HashSet<>();
-        localPerms = Config.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
+        localPerms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
         localPerms.addDefault("default", Arrays.asList(
                 "chatformat.default"
             )
@@ -81,7 +79,7 @@ public class Perm {
         return groups.values();
     }
 
-    protected static int getStorageLimit(final Oplayer op) {
+    public static int getStorageLimit(final Oplayer op) {
         return getLimit(op, "storage") <= 90 ? Timer.getTime() + 7776000 : Timer.getTime() + getLimit(op, "storage") * 86400;
     }
 
@@ -94,7 +92,7 @@ public class Perm {
         ResultSet rs = null;
 
         try {
-            stmt = OstrovDB.getConnection().createStatement();
+            stmt = RemoteDB.getConnection().createStatement();
             rs = stmt.executeQuery("SELECT * FROM  " + Table.PEX_GROUPS.table_name + " WHERE type != 'off' ;"); //кинуло на home1 attempted  duplicate class definition
             while (rs.next()) {
                 loadedGroup.put(rs.getString("gr"), new Group(rs.getString("gr"), rs.getString("name"), rs.getString("inh"), rs.getString("type"), rs.getInt("price"), rs.getInt("inv_slot"), rs.getString("mat"), rs.getString("group_desc")));
@@ -208,7 +206,7 @@ public class Perm {
                             op.tabPrefix("§6✪ §f", p);
                         }
                     } else {
-                        if (OstrovDB.useOstrovData) {
+                        if (RemoteDB.useOstrovData) {
                             Ostrov.log_err("У игрока " + op.nik + " есть группа " + group_name + ", но её нет в базе групп!");
                         }
                     }

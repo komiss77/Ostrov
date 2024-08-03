@@ -2,13 +2,12 @@ package ru.komiss77.modules.signProtect;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Timer;
+import ru.komiss77.utils.StringUtil;
 
 
 class ProtectionData {
@@ -69,7 +68,7 @@ class ProtectionData {
 
     @Override
     public String toString() {
-        return valid + LocalDB.WORD_SPLIT + owner + LocalDB.LINE_SPLIT + ApiOstrov.toString(users, false);
+        return valid + LocalDB.WORD_SPLIT + owner + LocalDB.LINE_SPLIT + StringUtil.toString(users, ",");
     }
 
 }

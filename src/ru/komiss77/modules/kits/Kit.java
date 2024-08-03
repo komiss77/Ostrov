@@ -1,13 +1,11 @@
 package ru.komiss77.modules.kits;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.kits.KitManager.Rarity;
 import ru.komiss77.utils.ItemBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class Kit {
 

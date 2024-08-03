@@ -13,7 +13,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureClickEvent;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.LocUtil;
 
 
 public class TradeLst implements Listener {
@@ -48,7 +48,7 @@ public class TradeLst implements Listener {
         final Player p = e.getPlayer();
 
         //NoSelfTrade
-        if (p1Name.equals(p.getName())) {
+        if (p1Name.equals(p.getName())) { 
             p.sendMessage("§eТорговец ждёт второго участника..");
             return;
         }
@@ -71,10 +71,10 @@ public class TradeLst implements Listener {
                 @Override
                 public void run() {
                     if (p == null ||
-                        !p.isOnline() ||
-                        p.isDead() ||
-                        !p.getWorld().getName().equals(traderLocation.getWorld().getName()) ||
-                        LocationUtil.getDistance(p.getLocation(), traderLocation) > 30
+                            !p.isOnline() ||
+                            p.isDead() ||
+                            !p.getWorld().getName().equals(traderLocation.getWorld().getName()) ||
+                            LocUtil.getDistance(p.getLocation(), traderLocation) > 30
                     ) {
                         reset();
                         return;
@@ -103,7 +103,7 @@ public class TradeLst implements Listener {
 
             final Player p1 = Bukkit.getPlayer(p1Name); //первый участник
 
-            if (p1 == null || LocationUtil.getDistance(p1.getLocation(), traderLocation) > 30) {
+            if (p1 == null || LocUtil.getDistance(p1.getLocation(), traderLocation) > 30) {
                 p.sendMessage("§eГде же первый участник??..");
                 resetTrade();
                 return;

@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -14,8 +14,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-
-import java.util.List;
 
 
 public class BossBarCmd implements OCommand {

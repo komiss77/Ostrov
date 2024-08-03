@@ -1,5 +1,6 @@
 package ru.komiss77.modules.signProtect;
 
+import java.util.EnumSet;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -14,9 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
-
-import java.util.EnumSet;
 
 public class SignProtect {
     public static EnumSet<Material> lockables = EnumSet.of(
@@ -47,7 +47,7 @@ public class SignProtect {
 
 
     public static String getExpiriedInfo(final int validTo) {
-        return validTo == -1 ? "§6#Бессрочно" : "§6#" + ApiOstrov.dateFromStamp(validTo);
+        return validTo == -1 ? "§6#Бессрочно" : "§6#" + TimeUtil.dateFromStamp(validTo);
     }
 
 

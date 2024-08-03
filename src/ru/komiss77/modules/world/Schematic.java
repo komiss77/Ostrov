@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.minecraft.core.BlockPos;
@@ -29,7 +28,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.version.Craft;
 
 
@@ -200,7 +199,7 @@ public class Schematic {
 
             final Inventory inv = inventoryHolder.getInventory();
             for (final ItemStack is : inv.getContents()) {
-                sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtils.toString(is, ";")).append(",");
+                sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtil.toString(is, ";")).append(",");
             }
 
             if (bs instanceof Nameable nameable) {

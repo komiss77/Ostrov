@@ -28,7 +28,8 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.events.PlayerPVPEnterEvent;
@@ -159,7 +160,7 @@ public final class PvpCmd implements OCommand, Listener {
         return "Вкл/Выкл ПВП Режим";
     }
 
-    private static OstrovConfig config;
+    private static OConfig config;
 
     private static int battle_time;  //после первого удара - заносим обоих в режим боя
     public static int no_damage_on_tp;
@@ -259,7 +260,7 @@ public final class PvpCmd implements OCommand, Listener {
                             return;
                     }
 
-                    if (Config.disable_damage) {
+                    if (Cfg.disable_damage) {
                         e.setCancelled(true);
                         return;
                     }
@@ -300,7 +301,7 @@ public final class PvpCmd implements OCommand, Listener {
                                     if (damagerPlayer.getAttackCooldown() == 1f
                                         && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
                                         final ItemStack ofh = inv.getItemInOffHand();
-                                        if (ItemUtils.isBlank(ofh, false)) {
+                                        if (ItemUtil.isBlank(ofh, false)) {
                                             if (targetPlayer.isBlocking()) {
                                                 targetPlayer.setCooldown(Material.SHIELD, 40);
                                                 targetPlayer.playEffect(EntityEffect.SHIELD_BREAK);
@@ -358,7 +359,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
                                             && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
                                             final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                            if (ItemUtils.isBlank(ofh, false)) {
+                                            if (ItemUtil.isBlank(ofh, false)) {
                                                 if (targetPlayer.isBlocking()) {
                                                     targetPlayer.setCooldown(Material.SHIELD, 40);
                                                     targetPlayer.playEffect(EntityEffect.SHIELD_BREAK);
@@ -407,7 +408,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         if (damagerPlayer.getAttackCooldown() == 1f
                                             && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
                                             final ItemStack ofh = inv.getItemInOffHand();
-                                            if (ItemUtils.isBlank(ofh, false)) {
+                                            if (ItemUtil.isBlank(ofh, false)) {
                                                 if (tbe.block(target)) {
                                                     tbe.bash(target, true);
                                                 }
@@ -457,7 +458,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
                                                 && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                                if (ItemUtils.isBlank(ofh, false)) {
+                                                if (ItemUtil.isBlank(ofh, false)) {
                                                     if (tbe.block(target)) {
                                                         tbe.bash(target, true);
                                                     }
@@ -497,7 +498,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         if (dp.getAttackCooldown() == 1f && dp.isSprinting()
                                             && ItemClass.MELEE.has(hnd.getType())) {
                                             final ItemStack ofh = inv.getItemInOffHand();
-                                            if (!ItemUtils.isBlank(ofh, false) && ItemClass.MELEE.has(ofh.getType())) {
+                                            if (!ItemUtil.isBlank(ofh, false) && ItemClass.MELEE.has(ofh.getType())) {
                                                 Ostrov.sync(() -> {
                                                     final ItemStack noh = inv.getItemInOffHand();
                                                     if (dp.isValid() && target.isValid() && noh.equals(ofh)) {
@@ -547,7 +548,7 @@ public final class PvpCmd implements OCommand, Listener {
                         }
                     }
 
-                    final Entity damager = ApiOstrov.getDamager(e, true);
+                    final Entity damager = EntityUtil.getDamager(e, true);
 
                     if (damager != null && damager.getEntityId() == e.getEntity().getEntityId() && flags.get(PvpFlag.disable_self_hit)) {
                         e.setCancelled(true);
@@ -672,7 +673,7 @@ public final class PvpCmd implements OCommand, Listener {
                         case RIGHT_CLICK_AIR:
                             final Player p = e.getPlayer();
                             final ItemStack it = e.getItem();
-                            if (!ItemUtils.isBlank(it, false)) {
+                            if (!ItemUtil.isBlank(it, false)) {
                                 final Material mt = it.getType();
                                 if (e.getHand() == EquipmentSlot.HAND && !p.hasCooldown(mt)
                                     && ItemClass.MELEE_AXE.has(mt) && p.getAttackCooldown() == 1f) {
@@ -683,7 +684,7 @@ public final class PvpCmd implements OCommand, Listener {
                                             p.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
                                         p.addPotionEffect(slw);
                                         p.setCooldown(mt, 36);
-                                        p.getInventory().setItemInMainHand(ItemUtils.air);
+                                        p.getInventory().setItemInMainHand(ItemUtil.air);
                                         p.getInventory().setItemInMainHand(it);
                                     }
                                 }
@@ -1083,21 +1084,21 @@ public final class PvpCmd implements OCommand, Listener {
     }
 
     private static void loadConfig() {
-        config = Config.manager.getNewConfig("pvp.yml", new String[]{"Ostrov77 pvp config file"});
+        config = Cfg.manager.getNewConfig("pvp.yml", new String[]{"Ostrov77 pvp config file"});
 
         //портировать старые настройки и убрать из старого конфига
-        if (Config.getConfig().getConfigurationSection("modules.pvp") != null) {
+        if (Cfg.getConfig().getConfigurationSection("modules.pvp") != null) {
             try {
-                battle_time = Config.getConfig().getInt("modules.pvp.battle_mode_time");
-                no_damage_on_tp = Config.getConfig().getInt("player.invulnerability_on_join_or_teleport");
+                battle_time = Cfg.getConfig().getInt("modules.pvp.battle_mode_time");
+                no_damage_on_tp = Cfg.getConfig().getInt("player.invulnerability_on_join_or_teleport");
 
-                flags.put(PvpFlag.advanced_pvp, Config.getConfig().getBoolean("modules.pvp.advanced", false));
-                flags.put(PvpFlag.allow_pvp_command, Config.getConfig().getBoolean("modules.pvp.use_pvp_command", false));
-                flags.put(PvpFlag.antirelog, Config.getConfig().getBoolean("modules.pvp.kill_on_relog", false));
-                flags.put(PvpFlag.drop_inv_inbattle, Config.getConfig().getBoolean("modules.pvp.drop_inv_inbattle", false));
-                flags.put(PvpFlag.display_pvp_tag, Config.getConfig().getBoolean("modules.pvp.display_pvp_tag", false));
-                flags.put(PvpFlag.disable_creative_attack_to_mobs, Config.getConfig().getBoolean("modules.pvp.disable_creative_attack_to_mobs", false));
-                flags.put(PvpFlag.disable_creative_attack_to_player, Config.getConfig().getBoolean("modules.pvp.disable_creative_attack_to_player", false));
+                flags.put(PvpFlag.advanced_pvp, Cfg.getConfig().getBoolean("modules.pvp.advanced", false));
+                flags.put(PvpFlag.allow_pvp_command, Cfg.getConfig().getBoolean("modules.pvp.use_pvp_command", false));
+                flags.put(PvpFlag.antirelog, Cfg.getConfig().getBoolean("modules.pvp.kill_on_relog", false));
+                flags.put(PvpFlag.drop_inv_inbattle, Cfg.getConfig().getBoolean("modules.pvp.drop_inv_inbattle", false));
+                flags.put(PvpFlag.display_pvp_tag, Cfg.getConfig().getBoolean("modules.pvp.display_pvp_tag", false));
+                flags.put(PvpFlag.disable_creative_attack_to_mobs, Cfg.getConfig().getBoolean("modules.pvp.disable_creative_attack_to_mobs", false));
+                flags.put(PvpFlag.disable_creative_attack_to_player, Cfg.getConfig().getBoolean("modules.pvp.disable_creative_attack_to_player", false));
                 flags.put(PvpFlag.block_fly_on_pvp_mode, battle_time > 0);
                 flags.put(PvpFlag.block_elytra_on_pvp_mode, battle_time > 0);
                 flags.put(PvpFlag.block_command_on_pvp_mode, battle_time > 0);
@@ -1105,36 +1106,36 @@ public final class PvpCmd implements OCommand, Listener {
                     || flags.get(PvpFlag.disable_creative_attack_to_mobs) || flags.get(PvpFlag.disable_creative_attack_to_player)
                     || flags.get(PvpFlag.allow_pvp_command) || flags.get(PvpFlag.antirelog) || flags.get(PvpFlag.drop_inv_inbattle);
                 flags.put(PvpFlag.enable, enable);
-                Config.getConfig().removeKey("modules.pvp");
-                Config.getConfig().removeKey("player.invulnerability_on_join_or_teleport");
-                Config.getConfig().saveConfig();
+                Cfg.getConfig().removeKey("modules.pvp");
+                Cfg.getConfig().removeKey("player.invulnerability_on_join_or_teleport");
+                Cfg.getConfig().saveConfig();
 
             } catch (Exception ex) {
                 Ostrov.log_err("§4Не удалось портировать настройки PVP : " + ex.getMessage());
             }
         }
 
-        //enable = config.getBoolean("enable");
-        battle_time = config.getInt("battle_time", -1);
-        no_damage_on_tp = config.getInt("no_damage_on_tp", -1);
-        flags.replaceAll((f, v) -> config.getBoolean(f.name(), false));
+        //enable = Cfg.getBoolean("enable");
+        battle_time = Cfg.getConfig().getInt("battle_time", -1);
+        no_damage_on_tp = Cfg.getConfig().getInt("no_damage_on_tp", -1);
+        flags.replaceAll((f, v) -> Cfg.getConfig().getBoolean(f.name(), false));
         saveConfig();
     }
 
     //public static void init() {}
     public static void saveConfig() { //на будущее - для ГУИ настройки
-        config.set("enable", flags.get(PvpFlag.enable), "можно отключить игнорируя настройки ниже");
-        //config.set("allow_pvp_command", allow_pvp_command);
-        config.set("battle_time", battle_time);
-        config.set("no_damage_on_tp", no_damage_on_tp);
+        Cfg.getConfig().set("enable", flags.get(PvpFlag.enable), "можно отключить игнорируя настройки ниже");
+        //Cfg.set("allow_pvp_command", allow_pvp_command);
+        Cfg.getConfig().set("battle_time", battle_time);
+        Cfg.getConfig().set("no_damage_on_tp", no_damage_on_tp);
         for (final Map.Entry<PvpFlag, Boolean> en : flags.entrySet()) {
             final PvpFlag f = en.getKey();
             if (f == PvpFlag.enable) {
                 continue;
             }
-            config.set(f.name(), en.getValue());
+            Cfg.getConfig().set(f.name(), en.getValue());
         }
-        config.saveConfig();
+        Cfg.getConfig().saveConfig();
     }
 
 }

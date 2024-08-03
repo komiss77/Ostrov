@@ -13,7 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.Oplayer;
@@ -21,6 +21,8 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtils;
 
 import java.util.List;
@@ -42,7 +44,7 @@ public class HomeCmd implements OCommand {
                     return 0;
                 }
 
-                if (!Config.home_command) {
+                if (!Cfg.home_command) {
                     cs.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
                     return 0;
                 }
@@ -79,7 +81,7 @@ public class HomeCmd implements OCommand {
                         return 0;
                     }
 
-                    if (!Config.home_command) {
+                        if (!Cfg.home_command) {
                         cs.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
                         return 0;
                     }
@@ -89,7 +91,7 @@ public class HomeCmd implements OCommand {
 
                     if (op.homes.containsKey(home)) {
 
-                        final Location homeLoc = ApiOstrov.locFromString(op.homes.get(home));
+                        final Location homeLoc = LocUtil.stringToLoc(op.homes.get(home), false, true);
                         if (homeLoc != null) {
 
                             if (!homeLoc.getChunk().isLoaded()) {
@@ -112,7 +114,7 @@ public class HomeCmd implements OCommand {
 
                     } else {
 
-                        p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + ApiOstrov.listToString(op.homes.keySet(), ","));
+                        p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + StringUtil.listToString(op.homes.keySet(), ","));
 
                     }
                     return Command.SINGLE_SUCCESS;

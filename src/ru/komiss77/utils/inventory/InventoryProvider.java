@@ -1,6 +1,5 @@
 package ru.komiss77.utils.inventory;
 
-
 import org.bukkit.entity.Player;
 
 public interface InventoryProvider {

@@ -1,5 +1,8 @@
 package ru.komiss77.commands.tools;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -12,9 +15,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.utils.TCUtils;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
 
 public class OCmdBuilder {
 

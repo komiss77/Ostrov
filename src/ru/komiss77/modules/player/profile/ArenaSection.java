@@ -10,7 +10,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -89,7 +89,7 @@ public class ArenaSection implements InventoryProvider {
         pagination.page(pm.arenaPage);
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtils.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
+            content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtil.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.next().getPage();
                     content.getHost().open(p, pm.arenaPage);
@@ -98,7 +98,7 @@ public class ArenaSection implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtils.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
+            content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtil.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.previous().getPage();
                     content.getHost().open(p, pm.arenaPage);

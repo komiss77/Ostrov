@@ -1,5 +1,9 @@
 package ru.komiss77.modules.enchants;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
@@ -14,16 +18,10 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import ru.komiss77.utils.ItemUtil;
 
 public class EnchantManager implements Initiable, Listener {
 
@@ -90,7 +88,7 @@ public class EnchantManager implements Initiable, Listener {
     @Override
     public void reload() {
         HandlerList.unregisterAll(this);
-        if (!Config.enchants) return;
+        if (!Cfg.enchants) return;
 
         Ostrov.log_ok("§2Зачарования включены!");
         Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
@@ -98,7 +96,7 @@ public class EnchantManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (!Config.enchants) return;
+        if (!Cfg.enchants) return;
         Ostrov.log_ok("§6Зачарования выключены!");
     }
 
@@ -254,7 +252,7 @@ public class EnchantManager implements Initiable, Listener {
         for (final EquipmentSlot es : EquipmentSlot.values()) {
 
             final ItemStack it = eq.getItem(es);
-            if (!ItemUtils.isBlank(it, true)) {
+            if (!ItemUtil.isBlank(it, true)) {
 
                 for (final Map.Entry<Enchantment, Integer> en : it.getEnchantments().entrySet()) {
                     final Enchantment ench = en.getKey();

@@ -1,5 +1,7 @@
 package ru.komiss77.builder.menu;
 
+import java.util.ArrayList;
+import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -9,12 +11,8 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.*;
-
-import java.util.ArrayList;
-import java.util.TreeMap;
-
 
 public class ViewPerm implements InventoryProvider {
 
@@ -84,13 +82,13 @@ public class ViewPerm implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
@@ -142,13 +140,13 @@ public class ViewPerm implements InventoryProvider {
 
 
             if (!pagination.isLast()) {
-                contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+                contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> contents.getHost().open(p, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
-                contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+                contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> contents.getHost().open(p, pagination.previous().getPage()))
                 );
             }

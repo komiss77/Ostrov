@@ -1,5 +1,9 @@
 package ru.komiss77.builder.menu;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,20 +18,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerTextures;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.OstrovConfig;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SmartInventory;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.OConfig;
+import ru.komiss77.utils.inventory.*;
 
 /*
 Перенос текстур из плагина https://docs.tweetzy.ca/official-plugins/skulls     ca.tweetzy.skulls.Skulls
@@ -69,11 +65,11 @@ public class HeadSetup implements InventoryProvider {
     private int page;
     private final Block b;
     private HeadCategory selected = HeadCategory.Символы;
-    private static final OstrovConfig cfg;
+    private static OConfig cfg;
 
 
     static {
-        cfg = Config.manager.getNewConfig("heads.yml");
+        cfg = Cfg.manager.getNewConfig("heads.yml");
         headBase = new EnumMap<>(HeadCategory.class);
         headIdx = new EnumMap<>(HeadCategory.class);
         icons = new EnumMap<>(HeadCategory.class);
@@ -102,10 +98,10 @@ public class HeadSetup implements InventoryProvider {
 
     public static void openSetupMenu(final Player p, final Block b) {
         SmartInventory.builder()
-            .provider(new HeadSetup(b))
-            .size(6, 9)
-            .title("§2Характеристики сущности").build()
-            .open(p);
+                .provider(new HeadSetup(b))
+                .size(6, 9)
+                .title("§2Характеристики сущности").build()
+                .open(p);
     }
 
 
@@ -140,14 +136,14 @@ public class HeadSetup implements InventoryProvider {
                         cfg.set(selected.name + "." + name, null);
                         cfg.saveConfig();
                         reopen(p, content);
-//Ostrov.log_warn("is="+e.getCurrentItem()+" dis="+(TCUtils.deform(e.getCurrentItem().displayName())) );
-                        //final String n = TCUtils.stripColor(TCUtils.deform(e.getCurrentItem().displayName()));
+//Ostrov.log_warn("is="+e.getCurrentItem()+" dis="+(TCUtils.toString(e.getCurrentItem().displayName())) );
+                        //final String n = TCUtils.stripColor(TCUtils.toString(e.getCurrentItem().displayName()));
                         //net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer plainSerializer = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.se(e.getCurrentItem().displayName());
                         //final String n = ((TextComponent)e.getCurrentItem().displayName()).content();
                         //final Component c = e.getCurrentItem().displayName();
-//Ostrov.log_warn(" dis="+(TCUtils.deform(e.getCurrentItem().displayName())) );
+//Ostrov.log_warn(" dis="+(TCUtils.toString(e.getCurrentItem().displayName())) );
                         //p.sendMessage(c);
-                        //p.sendMessage("toString="+ TCUtils.deform(c));
+                        //p.sendMessage("toString="+ TCUtils.toString(c));
 
                     }
                     return;
@@ -174,10 +170,10 @@ public class HeadSetup implements InventoryProvider {
             ItemStack is;
             if (selected == hc) {
                 is = new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
-                    .name(hc.name())
-                    .lore("§7В базе : §3" + headIdx.get(hc).size())
-                    .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS)
-                    .build();
+                        .name(hc.name())
+                        .lore("§7В базе : §3" + headIdx.get(hc).size())
+                        .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS)
+                        .build();
                 //is.addUnsafeEnchantment(Enchantment.LUCK, 1);
             } else {
                 is = icons.get(hc);
@@ -194,18 +190,18 @@ public class HeadSetup implements InventoryProvider {
 
 
         if (to < idx.size()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e -> {
-                    page++;
-                    reopen(p, content);
-                })
+            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e -> {
+                        page++;
+                        reopen(p, content);
+                    })
             );
         }
 
         if (page > 0) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e -> {
-                    page--;
-                    reopen(p, content);
-                })
+            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e -> {
+                        page--;
+                        reopen(p, content);
+                    })
             );
         }
 

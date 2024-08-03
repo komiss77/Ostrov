@@ -13,7 +13,7 @@ import ru.komiss77.enums.Operation;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -67,7 +67,7 @@ public class MatrixLst implements Listener {
 //Ostrov.log("cheat "+p.name()+" "+type+":"+count);
             if (count % 10 == 0) {
                 //ApiOstrov.sendMessage(Operation.REPORT_SERVER, GM.this_server_name, 0, 0, 0, arg[0], LocationUtil.StringFromLoc(p.getLocation()), text);
-                SpigotChanellMsg.sendMessage(p, Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, p.getName(), LocationUtil.toString(p.getLocation()), "Подтверждён чит " + type + "," + count);
+                SpigotChanellMsg.sendMessage(p, Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0, p.getName(), LocUtil.toString(p.getLocation()), "Подтверждён чит " + type + "," + count);
             }
         } else {
             op.cheats.put(type, 1);

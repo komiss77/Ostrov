@@ -2,7 +2,6 @@ package ru.komiss77.listener;
 
 import java.util.HashMap;
 import java.util.stream.Collectors;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.enchantments.Enchantment;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtils;
 
 //https://github.com/ds58/Panilla
@@ -156,7 +155,7 @@ public class NbtLst {
     }
 
     public static boolean Invalid_anvill(final Player player, final ItemStack item) {
-        if (!ItemUtils.isBlank(item, false) && item.getType() == Material.ANVIL && item.getItemMeta() instanceof final Damageable dg) {
+        if (!ItemUtil.isBlank(item, false) && item.getType() == Material.ANVIL && item.getItemMeta() instanceof final Damageable dg) {
             if (dg.hasDamage()) {
                 return switch (dg.getDamage()) {
                     case 0, 1, 2 -> false;

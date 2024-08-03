@@ -3,7 +3,6 @@ package ru.komiss77.version;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;

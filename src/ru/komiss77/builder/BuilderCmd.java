@@ -1,5 +1,7 @@
 package ru.komiss77.builder;
 
+import java.util.Arrays;
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -15,7 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Perm;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.builder.menu.HeadSetup;
@@ -27,8 +29,6 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 
-import java.util.Arrays;
-import java.util.List;
 
 public class BuilderCmd implements OCommand {
 

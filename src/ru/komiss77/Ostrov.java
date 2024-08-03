@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.command.brigadier.Commands;
@@ -67,7 +66,7 @@ public class Ostrov extends JavaPlugin {
     public void onLoad() {
         instance = this;
         mgr = instance.getLifecycleManager();
-        Config.init(); // 1 !
+        Cfg.init(); // 1 !
         Nms.pathServer();
         Nms.chatFix();
     }
@@ -76,7 +75,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
-        OstrovDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
+        RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init();
 
         if (MOT_D.equals("pay")) { // для режима обработки донатиков
@@ -116,7 +115,7 @@ public class Ostrov extends JavaPlugin {
     public void onDisable() {
         SHUT_DOWN = true;
         HandlerList.unregisterAll(instance);
-        OstrovDB.Disconnect();
+        RemoteDB.Disconnect();
         if (MOT_D.length() == 3) return;
         for (final Player p : Bukkit.getOnlinePlayers()) {
             PM.onLeave(p, false);
@@ -129,8 +128,8 @@ public class Ostrov extends JavaPlugin {
         if (LocalDB.useLocalData) {
             LocalDB.Disconnect();
         }
-        if (OstrovDB.useOstrovData) {
-            OstrovDB.Disconnect();
+        if (RemoteDB.useOstrovData) {
+            RemoteDB.Disconnect();
         }
 
         modules.values().stream().forEach(
@@ -208,7 +207,7 @@ public class Ostrov extends JavaPlugin {
         //if ( Config.getConfig().getBoolean("modules.enable_jump_plate")) {
         //    Bukkit.getPluginManager().registerEvents(new JumpPlateLst__(), instance);
         //}
-        if (Config.getConfig().getBoolean("system.use_armor_equip_event")) {
+        if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
             Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);
         }
     }
@@ -325,7 +324,7 @@ public class Ostrov extends JavaPlugin {
 
 
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
-        OstrovDB.executePstAsync(Bukkit.getConsoleSender(),
+        RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
     }
 
@@ -345,7 +344,7 @@ public class Ostrov extends JavaPlugin {
         return full_sdf.format(date);
     }
 
-    protected static String getCurrentHourMin() {
+    public static String getCurrentHourMin() {
         return calendar.get(Calendar.HOUR_OF_DAY) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
     }
 

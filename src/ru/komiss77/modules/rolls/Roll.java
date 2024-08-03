@@ -1,13 +1,12 @@
 package ru.komiss77.modules.rolls;
 
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemType;
-import ru.komiss77.Config;
-import ru.komiss77.Ostrov;
-import ru.komiss77.utils.OstrovConfig;
-
 import java.util.HashMap;
 import java.util.function.Function;
+
+import org.bukkit.configuration.ConfigurationSection;
+import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
+import ru.komiss77.OConfig;
 
 public abstract class Roll<R> {
 
@@ -53,7 +52,7 @@ public abstract class Roll<R> {
     protected static final String EX = "ex";
 
     public Roll<R> save() {
-        final OstrovConfig irc = Config.manager.getNewConfig(CON_NAME);
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         final String dir = getClass().getSimpleName() + "." + id + ".";
         irc.set(dir + VAL, encode());
         irc.set(dir + NUM, number);
@@ -64,7 +63,7 @@ public abstract class Roll<R> {
     }
 
     public Roll<R> delete() {
-        final OstrovConfig irc = Config.manager.getNewConfig(CON_NAME);
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         irc.removeKey(getClass().getSimpleName() + "." + id);
         irc.saveConfig();
         return this;
@@ -93,7 +92,7 @@ public abstract class Roll<R> {
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
         rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
-        final OstrovConfig irc = Config.manager.getNewConfig(CON_NAME);
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
         if (cs == null) return;
         for (final String id : cs.getKeys(false)) {

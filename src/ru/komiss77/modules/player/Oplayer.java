@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Predicate;
-
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -41,6 +40,7 @@ import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
@@ -201,12 +201,12 @@ public class Oplayer {
 
         menu.tick(p); //обновление lore в меню ProfileManager
 
-        if (!hideScore && Config.ostrovStatScore && onlineSecond % 10 == 0) {
+        if (!hideScore && Cfg.ostrovStatScore && onlineSecond % 10 == 0) {
             showOstrovBoard();
         }
 
-        if (Config.tablist_header_footer) {
-            ApiOstrov.sendTabList(p, (eng ? "§7Server: §5" : "§7Сервер: §5") + GM.GAME.displayName + "§7 §6" + ApiOstrov.getCurrentHourMin(), (eng ? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
+        if (Cfg.tablist_header_footer) {
+            ApiOstrov.sendTabList(p, (eng ? "§7Server: §5" : "§7Сервер: §5") + GM.GAME.displayName + "§7 §6" + TimeUtil.getCurrentHourMin(), (eng ? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
         }
 //Ostrov.log_warn("op tick WANT_ARENA_JOIN="+dataString.get(Data.WANT_ARENA_JOIN));
         if (onlineSecond == 4) {
@@ -255,7 +255,7 @@ public class Oplayer {
     }
 
     public void updTabListName(final Player p) {
-        if (Config.tablist_name) {
+        if (Cfg.tablist_name) {
             final String displayName = isGuest ? "§8(Гость) " + beforeName + getDataString(Data.FAMILY) : beforeName + nik;
             p.playerListName(TCUtils.form(tabPreffix + displayName + tabSuffix));
         }

@@ -1,5 +1,9 @@
 package ru.komiss77.modules.enchants;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.set.RegistryKeySet;
@@ -13,10 +17,6 @@ import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemTypes;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class CustomEnchant implements Keyed {
 

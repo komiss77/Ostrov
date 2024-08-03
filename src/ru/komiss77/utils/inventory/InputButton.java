@@ -1,14 +1,12 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.function.Consumer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.utils.PlayerInput;
-
-import java.util.function.Consumer;
-
 
 public class InputButton extends ClickableItem {
 

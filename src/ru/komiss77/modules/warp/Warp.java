@@ -3,7 +3,7 @@ package ru.komiss77.modules.warp;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.LocUtil;
 
 
 public class Warp {
@@ -41,11 +41,11 @@ public class Warp {
         //if (loc==null) {
         //    loc = new XYZ ();//LocationUtil.stringToLoc(locString, false, true);
         //} 
-        return LocationUtil.stringToLoc(locString, false, true);//loc.getCenterLoc();
+        return LocUtil.stringToLoc(locString, false, true);//loc.getCenterLoc();
     }
 
     public void setLocation(final Location loc) {
-        locString = LocationUtil.toDirString(loc);
+        locString = LocUtil.toDirString(loc);
     }
 
 

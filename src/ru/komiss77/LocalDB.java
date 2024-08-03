@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -27,7 +26,8 @@ import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 
 
 public class LocalDB {
@@ -74,10 +74,10 @@ public class LocalDB {
     //при загрузке делаем синхронно, если нет локального соединения - будет подвисать!
     //при тесте сединения вызывается async из Timer
     public static void init() {
-        useLocalData = Config.getConfig().getBoolean("local_database.use");
-        String host = Config.getConfig().getString("local_database.mysql_host");
-        String user = Config.getConfig().getString("local_database.mysql_user");
-        String passw = Config.getConfig().getString("local_database.mysql_passw");
+        useLocalData = Cfg.getConfig().getBoolean("local_database.use");
+        String host = Cfg.getConfig().getString("local_database.mysql_host");
+        String user = Cfg.getConfig().getString("local_database.mysql_user");
+        String passw = Cfg.getConfig().getString("local_database.mysql_passw");
         url = host + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=" + user + "&password=" + passw;
         if (useLocalData) {
             connect();//connection = GetConnection();
@@ -161,14 +161,14 @@ public class LocalDB {
             if (p != null) {
                 if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
                 if (op.spyOrigin == null) {
-                    op.world_positions.put("logoutLoc", LocationUtil.toDirString(p.getLocation()));
-                    op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(p.getLocation()));
+                    op.world_positions.put("logoutLoc", LocUtil.toDirString(p.getLocation()));
+                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(p.getLocation()));
                 } else {
-                    op.world_positions.put("logoutLoc", LocationUtil.toDirString(op.spyOrigin));
-                    op.world_positions.put(p.getWorld().getName(), LocationUtil.toDirString(op.spyOrigin));
+                    op.world_positions.put("logoutLoc", LocUtil.toDirString(op.spyOrigin));
+                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(op.spyOrigin));
                 }
                 if (p.getRespawnLocation() != null) {
-                    op.world_positions.put("bedspawnLoc", LocationUtil.toString(p.getRespawnLocation()));
+                    op.world_positions.put("bedspawnLoc", LocUtil.toString(p.getRespawnLocation()));
                 }
             }
             for (String posName : op.world_positions.keySet()) {
@@ -216,11 +216,11 @@ public class LocalDB {
                 op.mysqlData.put("inventory", "");
                 op.mysqlData.put("armor", "");
             } else {
-                op.mysqlData.put("inventory", EncodeData.itemStackArrayToBase64(p.getInventory().getContents()));
-                op.mysqlData.put("armor", EncodeData.itemStackArrayToBase64(p.getInventory().getArmorContents()));
+                op.mysqlData.put("inventory", ItemUtil.itemStackArrayToBase64(p.getInventory().getContents()));
+                op.mysqlData.put("armor", ItemUtil.itemStackArrayToBase64(p.getInventory().getArmorContents()));
             }
-            op.mysqlData.put("ender", EncodeData.itemStackArrayToBase64(p.getEnderChest().getContents()));
-            op.mysqlData.put("potion", EncodeData.potionEffectsToBase64(p.getActivePotionEffects()));
+            op.mysqlData.put("ender", ItemUtil.itemStackArrayToBase64(p.getEnderChest().getContents()));
+            op.mysqlData.put("potion", ItemUtil.potionEffectsToBase64(p.getActivePotionEffects()));
 
             op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
         }
@@ -448,7 +448,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения инвентаря в предыдущей сессии для " + op.nik);
                     inventory = null;
                 } else {
-                    inventory = EncodeData.itemStackArrayFromBase64(rs.getString("inventory"));
+                    inventory = ItemUtil.itemStackArrayFromBase64(rs.getString("inventory"));
                 }
             }
 
@@ -459,7 +459,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения экипировки в предыдущей сессии для " + op.nik);
                     armor = null;
                 } else {
-                    armor = EncodeData.itemStackArrayFromBase64(rs.getString("armor"));
+                    armor = ItemUtil.itemStackArrayFromBase64(rs.getString("armor"));
                 }
             }
 
@@ -470,7 +470,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения enderChest в предыдущей сессии для " + op.nik);
                     ender = null;
                 } else {
-                    ender = EncodeData.itemStackArrayFromBase64(rs.getString("ender"));
+                    ender = ItemUtil.itemStackArrayFromBase64(rs.getString("ender"));
                 }
             }
 
@@ -481,16 +481,16 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения potionEffects в предыдущей сессии для " + op.nik);
                     potion = null;
                 } else {
-                    potion = EncodeData.potionEffectsFromBase64(rs.getString("potion"));
+                    potion = ItemUtil.potionEffectsFromBase64(rs.getString("potion"));
                 }
             }
 
 
             final String[] settingsAray = rs.getString("settings").isEmpty() ? null : rs.getString("settings").split(",");
 //p.sendMessage("load bedspawnLoc="+op.world_positions.get("bedspawnLoc"));            
-            final Location logout = LocationUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
+            final Location logout = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
 //p.sendMessage("load logout="+logout);            
-            final Location bedspawnLoc = LocationUtil.stringToLoc(op.world_positions.get("bedspawnLoc"), false, false);
+            final Location bedspawnLoc = LocUtil.stringToLoc(op.world_positions.get("bedspawnLoc"), false, false);
 
             Ostrov.sync(() -> {
 
@@ -642,8 +642,8 @@ public class LocalDB {
                 }
             case 18:
                 try {
-                    if (Config.set_gm) { //на многих минииграх ставится ГМ из конфига
-                        p.setGameMode(Config.gm_on_join);
+                    if (Cfg.set_gm) { //на многих минииграх ставится ГМ из конфига
+                        p.setGameMode(Cfg.gm_on_join);
                     } else {
                         p.setGameMode(GameMode.valueOf(s[17])); //если нет - восстановить сохранённый
                     }
@@ -762,7 +762,7 @@ public class LocalDB {
             health = maxhealth;
         }
         p.setHealth(health);
-        if (healthScale != 0 && Config.scale_health) {
+        if (healthScale != 0 && Cfg.scale_health) {
             p.setHealthScale(healthScale);
             p.setHealthScaled(true);
         } else {
@@ -779,7 +779,7 @@ public class LocalDB {
 
         //пермишены наверняка уже будут - загрузка локал начинается через 10 тиков после входа
         if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
-            if (Config.fly_command && p.hasPermission("ostrov.fly") && fly) {
+            if (Cfg.fly_command && p.hasPermission("ostrov.fly") && fly) {
                 p.setAllowFlight(true);
                 p.setFallDistance(0);
             } else {
@@ -789,21 +789,21 @@ public class LocalDB {
         }
 
 
-        if (Config.fly_command && Config.speed_command && p.hasPermission("ostrov.flyspeed") && flyspeed > 0) {
+        if (Cfg.fly_command && Cfg.speed_command && p.hasPermission("ostrov.flyspeed") && flyspeed > 0) {
             p.setFlySpeed((float) flyspeed / 10);
         } else {
             p.setFlySpeed(0.1F);
         }
 
 
-        if (Config.speed_command && (p.hasPermission("ostrov.walkspeed")) && walkspeed > 0) {
+        if (Cfg.speed_command && (p.hasPermission("ostrov.walkspeed")) && walkspeed > 0) {
             p.setWalkSpeed((float) walkspeed / 10);
         } else {
             p.setWalkSpeed(0.2F);
         }
 
 
-        if (Config.pweather_command && p.hasPermission("ostrov.pweather")) {
+        if (Cfg.pweather_command && p.hasPermission("ostrov.pweather")) {
             switch (pweather) {
                 case 0 -> p.setPlayerWeather(WeatherType.CLEAR);
                 case 1 -> p.setPlayerWeather(WeatherType.DOWNFALL);

@@ -1,22 +1,20 @@
 package ru.komiss77.builder.menu;
 
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
-import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.*;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import ru.komiss77.Ostrov;
+import ru.komiss77.RemoteDB;
+import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.inventory.*;
 
 public class LangEditor implements InventoryProvider {
 
@@ -65,13 +63,13 @@ public class LangEditor implements InventoryProvider {
 
 
         if (hasNext) {
-            content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> edit(p, page + 1))
             );
         }
 
         if (page > 0) {
-            content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> edit(p, page - 1))
             );
         }
@@ -109,7 +107,7 @@ public class LangEditor implements InventoryProvider {
             ResultSet rs = null;
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
 
                 rs = stmt.executeQuery("SELECT `rus` FROM `lang` ORDER BY `stamp` DESC LIMIT " + page * 45 + ",46");
 

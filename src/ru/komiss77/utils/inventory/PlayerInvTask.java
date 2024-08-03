@@ -1,9 +1,9 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.Objects;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Objects;
 
 class PlayerInvTask extends BukkitRunnable {
 

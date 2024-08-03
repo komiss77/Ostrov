@@ -1,5 +1,9 @@
 package ru.komiss77.modules.redis;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.*;
@@ -8,11 +12,6 @@ import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
 
 
 //Redis Database, база данных Redis) для организации постоянного хранения снепшотов (снимков) данных

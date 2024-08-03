@@ -3,7 +3,6 @@ package ru.komiss77.scoreboard;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedList;
-
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -13,7 +12,6 @@ import org.bukkit.scoreboard.Objective;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.Duo;
 import ru.komiss77.utils.TCUtils;
-
 
 public class SideBar {
 

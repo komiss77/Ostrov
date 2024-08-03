@@ -1,8 +1,9 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.*;
+
 import com.google.common.base.Preconditions;
 
-import java.util.*;
 
 /**
  * A class representing a pattern with arbitrary keys and values

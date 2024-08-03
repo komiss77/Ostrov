@@ -1,5 +1,6 @@
 package ru.komiss77.modules.kits;
 
+import java.util.Iterator;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -8,9 +9,6 @@ import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
-
-import java.util.Iterator;
-
 
 public class KitComponentEditor implements InventoryProvider {
 

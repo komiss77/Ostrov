@@ -2,17 +2,16 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.enums.Data;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -64,13 +63,13 @@ public class FriendMail implements InventoryProvider {
         }
 
         menuEntry.add(ClickableItem.of(new ItemBuilder(Material.REDSTONE)
-                .name("§cОчистить почту")
-                .build(), e -> {
-                op.setData(Data.FRIENDS_MSG_OFFLINE, 0);
-                mails.clear();
-                OstrovDB.executePstAsync(p, "DELETE FROM `fr_messages` WHERE `reciever`='" + op.nik + "';");
-                reopen(p, content);
-            }
+                        .name("§cОчистить почту")
+                        .build(), e -> {
+                    op.setData(Data.FRIENDS_MSG_OFFLINE, 0);
+                    mails.clear();
+                    RemoteDB.executePstAsync(p, "DELETE FROM `fr_messages` WHERE `reciever`='" + op.nik + "';");
+                    reopen(p, content);
+                }
         ));
 
 
@@ -79,18 +78,18 @@ public class FriendMail implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> {
-                    content.getHost().open(p, pagination.next().getPage());
-                }
+            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+                            -> {
+                        content.getHost().open(p, pagination.next().getPage());
+                    }
             ));
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> {
-                    content.getHost().open(p, pagination.previous().getPage());
-                })
+            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+                            -> {
+                        content.getHost().open(p, pagination.previous().getPage());
+                    })
             );
         }
 

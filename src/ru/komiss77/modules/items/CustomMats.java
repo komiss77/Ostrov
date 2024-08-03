@@ -1,5 +1,7 @@
 package ru.komiss77.modules.items;
 
+import javax.annotation.Nullable;
+import java.util.*;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,13 +15,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.OConfig;
 
-import javax.annotation.Nullable;
-import java.util.*;
 
 public abstract class CustomMats implements Keyed {
 
@@ -37,18 +37,18 @@ public abstract class CustomMats implements Keyed {
     protected CustomMats(final Integer cmd, final ItemStack... its) {
         this.cmd = cmd;
         this.key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
-        final OstrovConfig irc = Config.manager.getNewConfig(CON_NAME);
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         final Collection<String> itls = irc.getStringList(key().value());
         if (itls.isEmpty()) {
             for (final ItemStack it : its) {
-                if (ItemUtils.isBlank(it, false)) continue;
+                if (ItemUtil.isBlank(it, false)) continue;
                 mits.put(it.getType(), it);
             }
-            irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtils.toString(it, SEP)).toList());
+            irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.toString(it, SEP)).toList());
             irc.saveConfig();
         } else {
             for (final String is : itls) {
-                final ItemStack it = ItemUtils.parseItem(is, SEP);
+                final ItemStack it = ItemUtil.parseItem(is, SEP);
                 mits.put(it.getType(), it);
             }
         }

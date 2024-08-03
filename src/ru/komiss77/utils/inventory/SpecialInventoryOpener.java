@@ -1,5 +1,6 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.List;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -7,7 +8,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import ru.komiss77.utils.TCUtils;
 
-import java.util.List;
 
 public class SpecialInventoryOpener implements InventoryOpener {
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,7 +21,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.EulerAngle;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -31,15 +30,15 @@ import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.OConfig;
 
 
 public class FigureManager implements Initiable {
 
     private static final HashMap<Integer, Figure> figures; //ид фигуры, фигура - хранятся неизменно с запуска
     private static final List<Integer> ids;
-    private static OstrovConfig config;
+    private static OConfig config;
     public static ItemStack stick;
     private static final NamespacedKey key;
     private static BukkitTask task;
@@ -63,7 +62,7 @@ public class FigureManager implements Initiable {
             
         }*/
 
-        config = Config.manager.getNewConfig("figure.yml");
+        config = Cfg.manager.getNewConfig("figure.yml");
         figures = new HashMap<>();
         ids = new ArrayList<>();
         key = new NamespacedKey(Ostrov.instance, "figure");
@@ -96,7 +95,7 @@ public class FigureManager implements Initiable {
 
     public static void init() { //из острова postWorld
 
-        config = Config.manager.getNewConfig("figure.yml");
+        config = Cfg.manager.getNewConfig("figure.yml");
         figures.clear();
         ids.clear();
 
@@ -338,12 +337,12 @@ public class FigureManager implements Initiable {
         }
 
         if (equipment != null) {
-            config.set("фигуры." + figure.figureId + ".helmet", equipment.getHelmet().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getHelmet(), "<>"));
-            config.set("фигуры." + figure.figureId + ".chestplate", equipment.getChestplate().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getChestplate(), "<>"));
-            config.set("фигуры." + figure.figureId + ".leggins", equipment.getLeggings().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getLeggings(), "<>"));
-            config.set("фигуры." + figure.figureId + ".boots", equipment.getBoots().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getBoots(), "<>"));
-            config.set("фигуры." + figure.figureId + ".lefthand", equipment.getItemInMainHand().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getItemInMainHand(), "<>"));
-            config.set("фигуры." + figure.figureId + ".righhand", equipment.getItemInOffHand().getType() == Material.AIR ? "none" : ItemUtils.toString(equipment.getItemInOffHand(), "<>"));
+            config.set("фигуры." + figure.figureId + ".helmet", equipment.getHelmet().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getHelmet(), "<>"));
+            config.set("фигуры." + figure.figureId + ".chestplate", equipment.getChestplate().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getChestplate(), "<>"));
+            config.set("фигуры." + figure.figureId + ".leggins", equipment.getLeggings().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getLeggings(), "<>"));
+            config.set("фигуры." + figure.figureId + ".boots", equipment.getBoots().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getBoots(), "<>"));
+            config.set("фигуры." + figure.figureId + ".lefthand", equipment.getItemInMainHand().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getItemInMainHand(), "<>"));
+            config.set("фигуры." + figure.figureId + ".righhand", equipment.getItemInOffHand().getType() == Material.AIR ? "none" : ItemUtil.toString(equipment.getItemInOffHand(), "<>"));
         } else {
             config.set("фигуры." + figure.figureId + ".helmet", "none");
             config.set("фигуры." + figure.figureId + ".chestplate", "none");
@@ -413,32 +412,32 @@ public class FigureManager implements Initiable {
             as.setRightLegPose(angle);
 
             if (!config.getString("фигуры." + figure.figureId + ".helmet").equals("none"))
-                as.getEquipment().setHelmet(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".helmet"), "<>"));
+                as.getEquipment().setHelmet(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".helmet"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".chestplate").equals("none"))
-                as.getEquipment().setChestplate(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".chestplate"), "<>"));
+                as.getEquipment().setChestplate(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".chestplate"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".leggins").equals("none"))
-                as.getEquipment().setLeggings(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".leggins"), "<>"));
+                as.getEquipment().setLeggings(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".leggins"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".boots").equals("none"))
-                as.getEquipment().setBoots(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".boots"), "<>"));
+                as.getEquipment().setBoots(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".boots"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".lefthand").equals("none"))
-                as.getEquipment().setItemInMainHand(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".lefthand"), "<>"));
+                as.getEquipment().setItemInMainHand(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".lefthand"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".righhand").equals("none"))
-                as.getEquipment().setItemInOffHand(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".righhand"), "<>"));
+                as.getEquipment().setItemInOffHand(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".righhand"), "<>"));
 
         } else if (entity instanceof LivingEntity le) {
 
             if (!config.getString("фигуры." + figure.figureId + ".helmet").equals("none"))
-                le.getEquipment().setHelmet(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".helmet"), "<>"));
+                le.getEquipment().setHelmet(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".helmet"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".chestplate").equals("none"))
-                le.getEquipment().setChestplate(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".chestplate"), "<>"));
+                le.getEquipment().setChestplate(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".chestplate"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".leggins").equals("none"))
-                le.getEquipment().setLeggings(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".leggins"), "<>"));
+                le.getEquipment().setLeggings(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".leggins"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".boots").equals("none"))
-                le.getEquipment().setBoots(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".boots"), "<>"));
+                le.getEquipment().setBoots(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".boots"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".lefthand").equals("none"))
-                le.getEquipment().setItemInMainHand(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".lefthand"), "<>"));
+                le.getEquipment().setItemInMainHand(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".lefthand"), "<>"));
             if (!config.getString("фигуры." + figure.figureId + ".righhand").equals("none"))
-                le.getEquipment().setItemInOffHand(ItemUtils.parseItem(config.getString("фигуры." + figure.figureId + ".righhand"), "<>"));
+                le.getEquipment().setItemInOffHand(ItemUtil.parseItem(config.getString("фигуры." + figure.figureId + ".righhand"), "<>"));
             le.setCollidable(false);
         }
 

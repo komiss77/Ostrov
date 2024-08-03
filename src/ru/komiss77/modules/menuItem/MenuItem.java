@@ -1,5 +1,6 @@
 package ru.komiss77.modules.menuItem;
 
+import java.util.function.Consumer;
 import com.destroystokyo.paper.ClientOption;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,12 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtils;
-
-import java.util.Iterator;
-import java.util.function.Consumer;
-
 
 public class MenuItem {
 
@@ -37,7 +34,7 @@ public class MenuItem {
     public MenuItem(final String name, final ItemStack is) {
         this.name = name;
         id = name.hashCode();//ApiOstrov.generateId();
-        itemRu = ItemUtils.setCusomModelData(is, id);
+        itemRu = ItemUtil.setCusomModelData(is, id);
         itemEn = is.clone();
 
         final ItemMeta im = itemEn.getItemMeta();
@@ -66,7 +63,7 @@ public class MenuItem {
             }
         }
         final boolean ru = p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-        ItemUtils.giveItemTo(p, ru ? itemRu : itemEn, slot, false);
+        ItemUtil.giveItemTo(p, ru ? itemRu : itemEn, slot, false);
         return true;
 //System.out.println("================ SpecItem give name="+name);
         // return ItemUtils.Add_to_inv(p, slot, item.clone(), anycase, false); //менюшки нокогда не дублируем!!
@@ -81,12 +78,12 @@ public class MenuItem {
                 return;
             }
         }
-        ItemUtils.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
+        ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
             .equals("ru_ru") ? itemRu : itemEn, slot, true);
     }
 
     public void giveForce(final Player p, final int customSlot) {
-        ItemUtils.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
+        ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
             .equals("ru_ru") ? itemRu : itemEn, customSlot, true);
     }
 
@@ -123,7 +120,7 @@ public class MenuItem {
             mi = MenuItemsManager.fromItemStack(inv[i]);
             if (mi != null && this.id == mi.id) {
                 count++;
-                p.getInventory().setItem(i, ItemUtils.air);
+                p.getInventory().setItem(i, ItemUtil.air);
             }
         }
         return count;

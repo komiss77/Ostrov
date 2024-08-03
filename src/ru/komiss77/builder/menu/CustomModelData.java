@@ -1,11 +1,10 @@
 package ru.komiss77.builder.menu;
 
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InputButton.InputType;
@@ -66,7 +65,7 @@ public class CustomModelData implements InventoryProvider {
 
 
         if (to < Integer.MAX_VALUE) {
-            content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     page++;
                     reopen(p, content);
@@ -75,7 +74,7 @@ public class CustomModelData implements InventoryProvider {
         }
 
         if (page > 0) {
-            content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     page--;
                     reopen(p, content);

@@ -1,10 +1,7 @@
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import ru.komiss77.LocalDB;
-import ru.komiss77.utils.DateUtil;
+import ru.komiss77.utils.TimeUtil;
 
 public class test {
 
@@ -101,7 +98,7 @@ public class test {
                 + dateFromStamp(calendar.getTimeInMillis())
                 + " month=" + (calendar.get(Calendar.MONTH) + 1) + " DATE=" + calendar.get(Calendar.DATE) + " DAY_OF_WEEK=" + calendar.get(Calendar.DAY_OF_WEEK)
                 + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE)
-                + " " + DateUtil.dayOfWeekName(calendar.get(Calendar.DAY_OF_WEEK)));
+                + " " + TimeUtil.dayOfWeekName(calendar.get(Calendar.DAY_OF_WEEK)));
 
 
     }

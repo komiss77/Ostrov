@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Settings;
@@ -39,7 +37,7 @@ public class QuestManager implements Initiable {
         if (iAdvance != null) {
             iAdvance.unregister();//HandlerList.unregisterAll(iAdvance);
         }
-        if (Config.quests) {
+        if (Cfg.quests) {
             if (Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI") != null) {
                 Ostrov.log_ok("§2Квесты включены (AdvanceCrazy)");
                 iAdvance = new AdvanceCrazy();
@@ -66,7 +64,7 @@ public class QuestManager implements Initiable {
 
     @Override
     public void onDisable() {
-        if (Config.quests) {
+        if (Cfg.quests) {
             Ostrov.log_ok("§6Квесты выключены!");
             for (final Player pl : Bukkit.getOnlinePlayers()) {
                 iAdvance.resetProgress(pl, true);
@@ -75,14 +73,14 @@ public class QuestManager implements Initiable {
     }
 
     public static Quest byCode(final char code) {
-        if (!Config.quests) {
+        if (!Cfg.quests) {
             return null;
         }
         return Quest.codeMap.get(code);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
     }
 
     public static Quest byName(final String name) {
-        if (!Config.quests) {
+        if (!Cfg.quests) {
             return null;
         }
         return Quest.nameMap.get(name);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
@@ -92,7 +90,7 @@ public class QuestManager implements Initiable {
     @Slow(priority = 1)
     public static List<Quest> getQuests(final Predicate<Quest> pass) {
         final ArrayList<Quest> qs = new ArrayList<>();
-        if (!Config.quests) {
+        if (!Cfg.quests) {
             return qs;
         }
 
@@ -256,7 +254,7 @@ public class QuestManager implements Initiable {
 
 
     private static boolean disabled() {
-        if (!Config.quests) {
+        if (!Cfg.quests) {
             Ostrov.log_warn("Tried using while Quests are off!");
             return true;
         }

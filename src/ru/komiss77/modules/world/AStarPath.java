@@ -1,5 +1,8 @@
 package ru.komiss77.modules.world;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.LinkedList;
 import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.Pathfinder.PathResult;
 import org.bukkit.Location;
@@ -10,11 +13,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AStarFinder.Node;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.utils.FastMath;
-
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-
 
 public class AStarPath {
 

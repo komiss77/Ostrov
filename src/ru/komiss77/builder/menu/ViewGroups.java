@@ -1,19 +1,17 @@
 package ru.komiss77.builder.menu;
 
-
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import ru.komiss77.Perm;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class ViewGroups implements InventoryProvider {

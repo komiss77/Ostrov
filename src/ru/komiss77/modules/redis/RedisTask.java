@@ -1,10 +1,10 @@
 package ru.komiss77.modules.redis;
 
+import java.util.concurrent.Callable;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import ru.komiss77.Ostrov;
 
-import java.util.concurrent.Callable;
 
 public abstract class RedisTask<V> implements Runnable, Callable<V> {
 

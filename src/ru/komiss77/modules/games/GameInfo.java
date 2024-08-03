@@ -1,5 +1,8 @@
 package ru.komiss77.modules.games;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -12,10 +15,6 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class GameInfo {
 

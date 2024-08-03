@@ -3,7 +3,6 @@ package ru.komiss77.listener;
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
-
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -21,10 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
-import ru.komiss77.Initiable;
-import ru.komiss77.Ostrov;
+import ru.komiss77.*;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Module;
 import ru.komiss77.modules.player.Oplayer;
@@ -37,7 +33,7 @@ import ru.komiss77.utils.inventory.*;
 
 public final class LimiterLst implements Initiable, Listener {
 
-    private static final OstrovConfig cfg;
+    private static final OConfig cfg;
     private static final Listener interactLst, chunkLst, spawnLst, blockLst;
     private static final EnumMap<limiterFlag, Boolean> flags;
     private static final EnumMap<EntityGroup, Integer> groupsLimit;
@@ -55,7 +51,7 @@ public final class LimiterLst implements Initiable, Listener {
         chunkLst = new chunkLst();
         spawnLst = new spawnLst();
         blockLst = new blockLst();
-        cfg = Config.manager.getNewConfig("spawn_limiter.yml", new String[]{"", "Настройки лимитера", "ТУТ НИЧЕГО НЕ МЕНЯТЬ, РАБОТАТЬ ЧЕРЕЗ МЕНЮ!", ""});
+        cfg = Cfg.manager.getNewConfig("spawn_limiter.yml", new String[]{"", "Настройки лимитера", "ТУТ НИЧЕГО НЕ МЕНЯТЬ, РАБОТАТЬ ЧЕРЕЗ МЕНЮ!", ""});
         if (cfg.getConfigurationSection("mob_limiter") != null) { //вычистить старый конфиг
             cfg.set("mob_limiter", null);
             saveConfig();
@@ -195,7 +191,7 @@ public final class LimiterLst implements Initiable, Listener {
                 }
                 final Oplayer op = PM.getOplayer(e.getPlayer());
 
-                if (flags.get(limiterFlag.watchHandingSpawn) && ItemUtils.isSpawnEgg(mat)) {
+                if (flags.get(limiterFlag.watchHandingSpawn) && ItemUtil.isSpawnEgg(mat)) {
                     final EntityType et = EntityUtil.typeFromEgg(mat);
                     final String res = fastCheck(e.getClickedBlock().getLocation(), et);
                     if (res != null) {
@@ -207,7 +203,7 @@ public final class LimiterLst implements Initiable, Listener {
 
                 Entity entity = null;
 //Ostrov.log_warn("isMineCart?"+ItemUtils.isMineCart(mat));
-                if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtils.isMineCart(mat)) {
+                if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
                     e.setUseItemInHand(Event.Result.DENY);
                     if (Timer.has(p, "vehicle")) {
                         ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
@@ -258,9 +254,9 @@ public final class LimiterLst implements Initiable, Listener {
 
                 if (entity != null) {
                     if (p.getInventory().getItemInMainHand().getType() == mat) {
-                        p.getInventory().setItemInMainHand(ItemUtils.air);
+                        p.getInventory().setItemInMainHand(ItemUtil.air);
                     } else {
-                        p.getInventory().setItemInOffHand(ItemUtils.air);
+                        p.getInventory().setItemInOffHand(ItemUtil.air);
                     }
                 }
             } //end RIGHT_CLICK_BLOCK
@@ -288,20 +284,20 @@ public final class LimiterLst implements Initiable, Listener {
                 } else {
                     Timer.add(dLoc, 1);
                 }
-            } else if (ItemUtils.isSpawnEgg(mat)) {
+            } else if (ItemUtil.isSpawnEgg(mat)) {
                 final String res = fastCheck(e.getBlock().getLocation(), EntityUtil.typeFromEgg(mat));
                 if (res != null) {
                     cancel = true;//e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), e.getItem());
                     //e.setItem(ItemUtils.air);
                 }
-            } else if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtils.isMineCart(mat)) {
+            } else if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
                 cancel = true;//e.setCancelled(true);
             } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
                 cancel = true;//e.setCancelled(true);
             }
             if (cancel) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), e.getItem());
-                e.setItem(ItemUtils.air);
+                e.setItem(ItemUtil.air);
             }
         }
     }
@@ -432,7 +428,7 @@ public final class LimiterLst implements Initiable, Listener {
                     if (res != null) {
                         e.setCancelled(true);
                         if (e.getSpawnReason().name().startsWith("BUILD_")) {
-                            final Player find = LocationUtil.getNearestPlayer(e.getLocation(), 10);
+                            final Player find = LocUtil.getNearestPlayer(e.getLocation(), 10);
                             if (find != null) {
                                 find.sendMessage(res);
                             }
@@ -821,8 +817,8 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     g = EntityUtil.group(t);
                     if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
                     final Integer limit = entityTypeLimit.get(t);
-                    menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(t)
-                        .setType(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
+                    menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(t)
+                            .type(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
                         .lore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
                         .lore(limit == null ? "" : "§7ЛКМ §b+1")
                         .lore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
@@ -883,13 +879,13 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
 
 
             if (!pagination.isLast()) {
-                content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+                content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> content.getHost().open(p, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
-                content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+                content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> content.getHost().open(p, pagination.previous().getPage()))
                 );
             }

@@ -1,5 +1,10 @@
 package ru.komiss77.modules.games;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -22,21 +27,14 @@ import ru.komiss77.enums.Table;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.OConfig;
 import ru.komiss77.utils.TCUtils;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
 
 //не переименовывать!!!! другие плагины берут напрямую!
 public final class GM {
 
-    private static final OstrovConfig gameSigns;
+    private static final OConfig gameSigns;
 
     @Deprecated //на одном ядре может быть несколько игр, надо придумать что-то другое
     public static final Game GAME; //не передвигать! не переименовывать!!!! другие плагины берут напрямую!
@@ -53,7 +51,7 @@ public final class GM {
 
 
     static {
-        gameSigns = Config.manager.getNewConfig("gameSigns.yml", new String[]{"", "Ostrov77 gameSigns config file", ""});
+        gameSigns = Cfg.manager.getNewConfig("gameSigns.yml", new String[]{"", "Ostrov77 gameSigns config file", ""});
         gameSigns.saveConfig();
         GAME = Game.fromServerName(Ostrov.MOT_D);//Game.GLOBAL
         setLogo(GAME.defaultlogo);
@@ -117,7 +115,7 @@ public final class GM {
         //long curr;
 
         try {
-            pst = OstrovDB.getConnection().prepareStatement(" SELECT `name`,`motd`,`online`,`type`,`ts` FROM " + Table.BUNGEE_SERVERS.table_name + " WHERE  `ts` > '" + tsServer + "';");
+            pst = RemoteDB.getConnection().prepareStatement(" SELECT `name`,`motd`,`online`,`type`,`ts` FROM " + Table.BUNGEE_SERVERS.table_name + " WHERE  `ts` > '" + tsServer + "';");
             //pst.setLong(1, tsServer);
 
             rs = pst.executeQuery();//stmt.executeQuery( " SELECT `name`,`motd`,`online`,`type`  FROM "+Table.BUNGEE_SERVERS.table_name+" WHERE `stamp` >= "+fromStamp );
@@ -231,7 +229,7 @@ public final class GM {
 //Ostrov.log_warn("..........................");
 
 
-            pst = OstrovDB.getConnection().prepareStatement(" SELECT `rus`, `eng`, `ts`  FROM `lang` WHERE  `ts` > '" + tsLang + "';");
+            pst = RemoteDB.getConnection().prepareStatement(" SELECT `rus`, `eng`, `ts`  FROM `lang` WHERE  `ts` > '" + tsLang + "';");
             //pst.setLong(1, tsLang);
             rs = pst.executeQuery();//( " SELECT `rus`, `eng`  FROM `lang` WHERE  `stamp` >= "+Lang.updateStamp );
             Lang.updateBase(rs);
@@ -291,8 +289,8 @@ public final class GM {
      */
     private static void writeArenaStateToMySql(final Game game, final String arenaName, final GameState state, final int players, final String line0, final String line1, final String line2, final String line3) {
 //Ostrov.log("==writeArenaStateToMySql useOstrovData?"+OstrovDB.useOstrovData);
-        if (!OstrovDB.useOstrovData) return;
-        final Connection conn = OstrovDB.getConnection();
+        if (!RemoteDB.useOstrovData) return;
+        final Connection conn = RemoteDB.getConnection();
         if (conn == null) {
             Ostrov.log_warn("writeThisServerStateToOstrovDB - нет соединения с БД!");
             return;
@@ -535,7 +533,7 @@ public final class GM {
                     continue;
                 }
 
-                final Location loc = ApiOstrov.locFromString(loc_string);
+                final Location loc = LocUtil.stringToLoc(loc_string, false, false);
                 if (loc == null) {
                     Ostrov.log_err("loadGameSign -> Нет такой локации: " + loc_string + " для таблички " + gameSigns.getString("signs." + loc_string));
                     continue;
@@ -622,7 +620,7 @@ public final class GM {
 
     public static void addGameSign(final Player p, final Sign sign, final Game game, final String serverName, final String arenaName) {
         p.closeInventory();
-        final String locAsString = LocationUtil.toString(sign.getBlock().getLocation());
+        final String locAsString = LocUtil.toString(sign.getBlock().getLocation());
 
         GM.signs.put(locAsString, new GameSign(sign.getBlock().getLocation(), game, serverName, arenaName));
 

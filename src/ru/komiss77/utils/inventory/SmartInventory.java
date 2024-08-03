@@ -1,5 +1,6 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.*;
 import com.google.common.base.Preconditions;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -7,7 +8,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
-import java.util.*;
 
 //слоты сундука https://wiki.vg/Inventory
 //https://github.com/MinusKube/SmartInvs

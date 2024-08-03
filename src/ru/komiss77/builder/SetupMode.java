@@ -1,11 +1,8 @@
 package ru.komiss77.builder;
 
+import java.util.Set;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.Ostrov;
@@ -17,7 +14,6 @@ import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.Nms;
 
-import java.util.Set;
 
 
 public class SetupMode {

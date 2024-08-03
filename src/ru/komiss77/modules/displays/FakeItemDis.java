@@ -1,5 +1,9 @@
 package ru.komiss77.modules.displays;
 
+import java.util.HashSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Display;
@@ -15,10 +19,6 @@ import org.joml.Vector3f;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.TCUtils;
 
-import java.util.HashSet;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class FakeItemDis extends BukkitRunnable {
 

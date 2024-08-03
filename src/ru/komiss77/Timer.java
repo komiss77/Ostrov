@@ -3,12 +3,11 @@ package ru.komiss77;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -23,11 +22,14 @@ import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.games.ArenaInfo;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TimeUtil;
 
 
 public class Timer {
@@ -46,7 +48,7 @@ public class Timer {
     private static final int MIDNIGHT_STAMP;
     private static final AtomicBoolean lockQuery = new AtomicBoolean(false);
     private static final AtomicBoolean lockSecond = new AtomicBoolean(false);
-    private static final Map<Integer, OstrovDB.Qinfo> map;
+    private static final Map<Integer, RemoteDB.Qinfo> map;
     private static int count;
 
     static {
@@ -62,19 +64,19 @@ public class Timer {
 
     public static void init() {
 
-        auto_restart = Config.getConfig().getBoolean("system.autorestart.use");
-        rstHour = Config.getConfig().getInt("system.autorestart.hour", 3);
+        auto_restart = Cfg.getConfig().getBoolean("system.autorestart.use");
+        rstHour = Cfg.getConfig().getInt("system.autorestart.hour", 3);
         if (rstHour < 0 || rstHour > 23) rstHour = 3;
-        rstMin = Config.getConfig().getInt("system.autorestart.min", 30);
+        rstMin = Cfg.getConfig().getInt("system.autorestart.min", 30);
         if (rstMin < 0 || rstMin > 59) rstHour = 30;
         //restart_time = (rstHour<=9?"0"+rstHour:""+rstHour) + ":" + (rstMin<=9?"0"+rstMin:""+rstMin);
         if (auto_restart) Ostrov.log_ok("§6Установлено время авторестарта :" + rstHour + ":" + rstMin);
 
-        perms_autoupdate = Config.getConfig().getBoolean("ostrov_database.auto_reload_permissions");
-        reloadPermIntervalSec = Config.getConfig().getInt("ostrov_database.auto_reload_permissions_interval_min") * 60;
+        perms_autoupdate = Cfg.getConfig().getBoolean("ostrov_database.auto_reload_permissions");
+        reloadPermIntervalSec = Cfg.getConfig().getInt("ostrov_database.auto_reload_permissions_interval_min") * 60;
         if (reloadPermIntervalSec < 10 || reloadPermIntervalSec > 10800) reloadPermIntervalSec = 600;
         if (perms_autoupdate)
-            Ostrov.log_ok("§5Автообновление прав с интервалом " + ApiOstrov.secondToTime(reloadPermIntervalSec));
+            Ostrov.log_ok("§5Автообновление прав с интервалом " + TimeUtil.secondToTime(reloadPermIntervalSec));
         
        /* Ostrov.async( ()-> {
             try {
@@ -124,7 +126,7 @@ public class Timer {
                         Bukkit.getPluginManager().callEvent(new RestartWarningEvent(time_left));
                     }
                     if (time_left == 300 || time_left == 180 || time_left == 120 || time_left == 60) {
-                        Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
+                        Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
                     }
                     if (time_left == 15) {
                         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -170,7 +172,7 @@ public class Timer {
             public void run() {
 
                 //отправить запросы в БД острова
-                if (OstrovDB.useOstrovData && OstrovDB.ready && !OstrovDB.QUERY.isEmpty()) {
+                if (RemoteDB.useOstrovData && RemoteDB.ready && !RemoteDB.QUERY.isEmpty()) {
                     if (lockQuery.compareAndSet(false, true)) { //асинхронная задача не начиналась или выполнена
                         new BukkitRunnable() {
                             @Override
@@ -183,23 +185,23 @@ public class Timer {
 
                 if (!authMode) {
                     PM.getOplayers().stream().forEach((op) -> {
-                            op.tick++;
-                            if (op.tick == 20) {
-                                op.tick = 0;
-                                op.secondTick();
-                                if (jailMode && !op.isStaff) {
-                                    //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
-                                    banLeft = op.getDataInt(Data.BAN_TO) - getTime();
-                                    if (banLeft <= 0) {
-                                        ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
-                                    } else {
-                                        op.score.getSideBar().setTitle("§4Чистилище");
-                                        op.score.getSideBar().update(9, "§7До разбана:");
-                                        op.score.getSideBar().update(8, "§e" + ApiOstrov.secondToTime(banLeft));
+                                op.tick++;
+                                if (op.tick == 20) {
+                                    op.tick = 0;
+                                    op.secondTick();
+                                    if (jailMode && !op.isStaff) {
+                                        //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
+                                        banLeft = op.getDataInt(Data.BAN_TO) - getTime();
+                                        if (banLeft <= 0) {
+                                            ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
+                                        } else {
+                                            op.score.getSideBar().setTitle("§4Чистилище");
+                                            op.score.getSideBar().update(9, "§7До разбана:");
+                                            op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(banLeft));
+                                        }
                                     }
                                 }
                             }
-                        }
                     );
                 }
 
@@ -230,23 +232,23 @@ public class Timer {
                 }));
             }
 
-            if (OstrovDB.useOstrovData) {
+            if (RemoteDB.useOstrovData) {
 
                 if (second % 15 == 0) {
                     try {
-                        final Connection conn = OstrovDB.getConnection();
-                        if (conn == null || conn.isClosed() || !conn.isValid(1)) { //(!OstrovDB.ready) {
+                        final Connection conn = RemoteDB.getConnection();
+                        if (conn == null || conn.isClosed() || !conn.isValid(1)) { //(!RemoteDB.ready) {
                             Ostrov.log_warn("Timer - восстанавливаем соединение с Ostrov DB...");
-                            OstrovDB.connect();
+                            RemoteDB.connect();
                         }
                     } catch (SQLException ex) {
                         Ostrov.log_warn("Timer - проверка соединения с Ostrov DB : " + ex.getMessage());
                     }
                 }
 
-                if (OstrovDB.ready) {
+                if (RemoteDB.ready) {
                     if (Ostrov.server_id > 0 && second % 10 == 0) { //нашел себя в таблице - писать состояние каждые 10 сек
-                        OstrovDB.writeThisServerStateToOstrovDB();
+                        RemoteDB.writeThisServerStateToRemoteDB();
                     }
 
                     if (!authMode) {
@@ -297,10 +299,10 @@ public class Timer {
     private static void sendQuery() {
 //final long l = System.currentTimeMillis();
         Statement stmt = null;
-        OstrovDB.Qinfo qInfo;
+        RemoteDB.Qinfo qInfo;
         try {
-            stmt = OstrovDB.getConnection().createStatement();
-            while ((qInfo = OstrovDB.QUERY.poll()) != null) {
+            stmt = RemoteDB.getConnection().createStatement();
+            while ((qInfo = RemoteDB.QUERY.poll()) != null) {
                 try {
                     stmt.execute(qInfo.query);
                 } catch (SQLException | NullPointerException ex) {
@@ -431,12 +433,12 @@ public class Timer {
                 @Override
                 public void run() {
                     
-                    //checkOstrovDBConnection(asyncSecondCounter);
+                    //checkRemoteDBConnection(asyncSecondCounter);
                         
-                    if (OstrovDB.useOstrovData ) {//if (OstrovDB.useOstrovData && OstrovDB.connection!=null) {-не поставт флаг ostrovDbErrors!
+                    if (RemoteDB.useOstrovData ) {//if (RemoteDB.useOstrovData && RemoteDB.connection!=null) {-не поставт флаг RemoteDBErrors!
 
                         if (Ostrov.server_id>0 && asyncSecondCounter%10==0 ) { //нашел себя в таблице - писать состояние каждые 10 сек
-                            OstrovDB.writeThisServerStateToOstrovDB();
+                            RemoteDB.writeThisServerStateToRemoteDB();
                         }
 
                     }
@@ -455,17 +457,17 @@ public class Timer {
     
     
 
-  /*  public static  void checkOstrovDBConnection() {
-//Ostrov.log("checkOstrovDBConnection useOstrovData="+OstrovDB.useOstrovData+" asyncSecondCounter="+asyncSecondCounter);
+  /*  public static  void checkRemoteDBConnection() {
+//Ostrov.log("checkRemoteDBConnection useOstrovData="+RemoteDB.useOstrovData+" asyncSecondCounter="+asyncSecondCounter);
        // if (asyncSecondCounter%55==0 ) {
 
-//Ostrov.log("ostrovDbErrors="+ostrovDbErrors);
+//Ostrov.log("RemoteDBErrors="+RemoteDBErrors);
             // try {
-                 //if (OstrovDB.errors>=10 || OstrovDB.connection==null || OstrovDB.connection.isClosed() || !OstrovDB.connection.isValid(3)) {
-                 if (!OstrovDB.ready) {
-                    //ostrovDbErrors = false;
+                 //if (RemoteDB.errors>=10 || RemoteDB.connection==null || RemoteDB.connection.isClosed() || !RemoteDB.connection.isValid(3)) {
+                 if (!RemoteDB.ready) {
+                    //RemoteDBErrors = false;
                     Ostrov.log_warn("Timer - восстанавливаем соединение с Ostrov DB...");
-                    OstrovDB.connect();
+                    RemoteDB.connect();
                  }
             // } catch (SQLException ex) {
            //      Ostrov.log_err("Timer - соединение с Ostrov DB восстановить не удалось!");
@@ -522,13 +524,13 @@ public class Timer {
                             Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
                         if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
-                            Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
+                            Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
                         }
                         if (time_left==0) {
                             this.cancel();
                             //синхронный дисконнект от БД, чтобы не висело соединение
-                            if (OstrovDB.useOstrovData) {
-                                OstrovDB.Disconnect();
+                            if (RemoteDB.useOstrovData) {
+                                RemoteDB.Disconnect();
                             }                            
                             if (LocalDB.useLocalData) {
                                 LocalDB.Disconnect();
@@ -579,7 +581,7 @@ public class Timer {
                             Bukkit.getPluginManager().callEvent(new RestartWarningEvent ( time_left ) );
                         }
                         if (time_left==300 || time_left==180 || time_left==120 || time_left==60) {
-                            Bukkit.broadcast(TCUtils.form("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
+                            Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через "+time_left/60+" мин.!"));
                         }
                         if (time_left==0) {
                             this.cancel();

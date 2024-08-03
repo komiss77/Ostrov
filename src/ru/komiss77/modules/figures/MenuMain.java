@@ -1,9 +1,7 @@
 package ru.komiss77.modules.figures;
 
-
 import java.util.HashSet;
 import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

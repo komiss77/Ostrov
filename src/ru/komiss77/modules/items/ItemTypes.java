@@ -1,5 +1,9 @@
 package ru.komiss77.modules.items;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.set.RegistryKeySet;
@@ -7,11 +11,6 @@ import io.papermc.paper.registry.set.RegistrySet;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.OStrap;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ItemTypes {
 

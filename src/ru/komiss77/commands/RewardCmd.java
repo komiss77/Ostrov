@@ -9,8 +9,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
-import ru.komiss77.Perm;
+import ru.komiss77.RemoteDB;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
@@ -152,7 +152,7 @@ public class RewardCmd implements OCommand {
                             cs.sendMessage("§cГруппа дни > 0!");
                             return 0;
                         }
-                        OstrovDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `gr`, `days`) VALUES ('" + tgt + "', '" + oper + "', '" + amt + "')");
+                        RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `gr`, `days`) VALUES ('" + tgt + "', '" + oper + "', '" + amt + "')");
                         cs.sendMessage("§aГруппа " + oper + " для " + tgt + " на " + amt + "дн. : отправлена запись в БД");
                         return Command.SINGLE_SUCCESS;
                     }
@@ -182,7 +182,7 @@ public class RewardCmd implements OCommand {
                     }
 
                     if (type == RewardType.RIL && Ostrov.MOT_D.equals("pay")) {
-                        OstrovDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `rub`) VALUES ('" + tgt + "', '" + amt + "')");
+                        RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `rub`) VALUES ('" + tgt + "', '" + amt + "')");
                         cs.sendMessage("§a" + amt + " рил для " + tgt + " : отправлена запись в БД");
                         return Command.SINGLE_SUCCESS;
                     }

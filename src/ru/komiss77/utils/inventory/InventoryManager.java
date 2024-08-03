@@ -1,5 +1,6 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
 
-import java.util.*;
 
 //https://github.com/MinusKube/SmartInvs
 

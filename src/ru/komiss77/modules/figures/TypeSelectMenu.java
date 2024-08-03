@@ -1,8 +1,6 @@
 package ru.komiss77.modules.figures;
 
-
 import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -11,7 +9,7 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -131,13 +129,13 @@ public class TypeSelectMenu implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(player, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(player, pagination.previous().getPage()))
             );
         }

@@ -21,12 +21,14 @@ import ru.komiss77.modules.figures.MenuMain;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.profile.GameMenu;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.player.profile.TPA;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 public class CMD {
@@ -54,12 +56,12 @@ public class CMD {
                     return true;
                 }
                 SmartInventory.builder()
-                    .id(op.nik + "Game")
-                    .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
-                    .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
-                    .size(6, 9)
-                    .build()
-                    .open(p);
+                        .id(op.nik + "Game")
+                        .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
+                        .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
+                        .size(6, 9)
+                        .build()
+                        .open(p);
                 break;
 
             case "profile":
@@ -87,7 +89,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.settings_command) {
+                if (Cfg.settings_command) {
                     op.menu.openLocalSettings(p, true);
                 } else {
                     p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
@@ -102,12 +104,12 @@ public class CMD {
                 }
                 if (ApiOstrov.isLocalBuilder(p, true)) {
                     SmartInventory.builder()
-                        .id("MenuMain" + p.getName())
-                        .provider(new MenuMain())
-                        .size(1, 9)
-                        .title("§fФигуры")
-                        .build()
-                        .open(p);
+                            .id("MenuMain" + p.getName())
+                            .provider(new MenuMain())
+                            .size(1, 9)
+                            .title("§fФигуры")
+                            .build()
+                            .open(p);
                 }
                 break;
 
@@ -117,7 +119,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (!Config.home_command) {
+                if (!Cfg.home_command) {
                     p.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
                     return false;
                 }
@@ -134,8 +136,8 @@ public class CMD {
                     final TextComponent.Builder homes = Component.text().content("§b" + Lang.t(p, "Какую точку дома обновить? "));
                     for (final String homeName : op.homes.keySet()) {
                         homes.append(Component.text("§b- §e" + homeName + " ")
-                            .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - обновить точку дома") + " §6" + homeName)))
-                            .clickEvent(ClickEvent.runCommand("/sethome " + homeName)));
+                                .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - обновить точку дома") + " §6" + homeName)))
+                                .clickEvent(ClickEvent.runCommand("/sethome " + homeName)));
                     }
                     sender.sendMessage(homes.build());
 
@@ -143,16 +145,16 @@ public class CMD {
                 }
                 limit = Perm.getLimit(op, "home");
                 if (op.homes.containsKey(home)) {      //если есть такой, обновляем
-                    op.homes.put(home, LocationUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
+                    op.homes.put(home, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
                     op.mysqlData.put("homes", null); //пометить на сохранение
                     p.sendMessage("§2" + Lang.t(p, "Для дома ") + home + Lang.t(p, " установлена новая позиция."));
                     return true;
                 } else if (op.homes.size() >= limit) { //если ставим новый дом, проверяем лимит
-                    p.sendMessage("§c" + Lang.t(p, "Лимит точек дома для вашей группы: ") + limit + ", " + Lang.t(p, "Ваши дома") + ": §6" + ApiOstrov.listToString(op.homes.keySet(), ","));
+                    p.sendMessage("§c" + Lang.t(p, "Лимит точек дома для вашей группы: ") + limit + ", " + Lang.t(p, "Ваши дома") + ": §6" + StringUtil.listToString(op.homes.keySet(), ","));
                     p.sendMessage("§c" + Lang.t(p, "Удалите ненужный командой") + " /delhome");
                     return false;
                 } else {
-                    op.homes.put(home, LocationUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
+                    op.homes.put(home, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
                     op.mysqlData.put("homes", null); //пометить на сохранение
                     //if (home.equals("home")) p.setBedSpawnLocation(p.getLocation());
                     p.sendMessage("§2" + Lang.t(p, "Дом ") + ((home.equals("home")) ? "" : home) + Lang.t(p, " установлен!"));
@@ -164,13 +166,13 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.home_command) {
+                if (Cfg.home_command) {
                     if (arg.length == 0 && op.homes.size() > 1) { //если не указал дом, но их больше 1 - уточнить какой
                         final TextComponent.Builder homes = Component.text().content("§c" + Lang.t(p, "Какой дом удалить? "));
                         for (final String homeName : op.homes.keySet()) {
                             homes.append(Component.text("§b- §e" + homeName + " ")
-                                .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - удалить точку дома") + " §6" + homeName)))
-                                .clickEvent(ClickEvent.runCommand("/delhome " + homeName)));
+                                    .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - удалить точку дома") + " §6" + homeName)))
+                                    .clickEvent(ClickEvent.runCommand("/delhome " + homeName)));
                         }
                         sender.sendMessage(homes.build());
                         return false;
@@ -182,7 +184,7 @@ public class CMD {
                         op.mysqlData.put("homes", null); //пометить на сохранение
                         p.sendMessage("§4" + Lang.t(p, "Точка дома ") + (home.equals("home") ? "" : home) + Lang.t(p, " удалена!"));
                     } else
-                        p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + ApiOstrov.listToString(op.homes.keySet(), ","));
+                        p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + StringUtil.listToString(op.homes.keySet(), ","));
                     break;
                 } else p.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
 
@@ -202,7 +204,7 @@ public class CMD {
                     sender.sendMessage("§сне консольная команда!");
                     return true;
                 }
-                if (!Config.fly_command) {
+                if (!Cfg.fly_command) {
                     p.sendMessage("§c" + Lang.t(p, "Полёт отключён на этом сервере!"));
                     return false;
                 }
@@ -286,7 +288,7 @@ public class CMD {
                     ApiOstrov.moneyChange(from.getPlayer(), -price, "телепорт к " + p.getName());
                 }
                 Timer.del(p, "tp_request_from_" + arg[0]); //баг: тыкают много раз принять и снимают деньги
-                Timer.add(from.getPlayer(), "tpa_command", Config.tpa_command_delay); //задержка даётся вызывающему
+                Timer.add(from.getPlayer(), "tpa_command", Cfg.tpa_command_delay); //задержка даётся вызывающему
                 DelayTeleport.tp(from.getPlayer(), p.getLocation(), 3, "Вы переместились к " + p.getName(), true, true, DyeColor.YELLOW);
                 break;
 
@@ -307,7 +309,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.top_command) {
+                if (Cfg.top_command) {
                     if (p.hasPermission("ostrov.top")) {
                         DelayTeleport.tp(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation().add(0, 1, 0), 3, "Наивысшая точка над Вами..", true, true, DyeColor.BLUE);
                         //ApiOstrov.teleportSave(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation(), false );
@@ -323,7 +325,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.spawn_command) {
+                if (Cfg.spawn_command) {
                     if (WarpManager.exist("spawn")) {
                         DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
                     } else {
@@ -340,7 +342,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.back_command) {
+                if (Cfg.back_command) {
                     if (p.hasPermission("ostrov.back")) {
                         Location b1 = p.getLocation();
                         //if ( ! ApiOstrov.isLocationSave(p, op.last_death )) {
@@ -359,7 +361,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.get_command) {
+                if (Cfg.get_command) {
                     if (p.hasPermission("ostrov.get")) {
                         if (arg.length == 2) {
                             if (!ApiOstrov.isInteger(arg[1])) {
@@ -383,17 +385,17 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if ((Config.gm_command && p.hasPermission("ostrov.gm")) || ApiOstrov.canBeBuilder(p)) {
+                if ((Cfg.gm_command && p.hasPermission("ostrov.gm")) || ApiOstrov.canBeBuilder(p)) {
                     if (arg.length == 1) {
                         switch (arg[0]) {
                             case "0" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
                             case "1" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode creative " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode creative " + p.getName());
                             case "2" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode adventure " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode adventure " + p.getName());
                             case "3" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
                             default -> p.sendMessage("§cФормат: gm <0..3>");
                         }
                     } else {
@@ -404,16 +406,16 @@ public class CMD {
                     if (arg.length == 1) {
                         switch (arg[0]) {
                             case "0" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode survival " + p.getName());
                             case "3" ->
-                                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
+                                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "gamemode spectator " + p.getName());
                             default -> p.sendMessage("§cФормат: gm <0..3>");
                         }
                     } else {
                         p.sendMessage("§cФормат: gm <0..3>");
                     }
                 } else {
-                    if (!Config.gm_command) {
+                    if (!Cfg.gm_command) {
                         p.sendMessage("§cGm отключёна на этом сервере!");
                     } else {
                         p.sendMessage("§cУ Вас нет пава ostrov.gm !");
@@ -427,7 +429,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.tppos_command || op.hasGroup("youtuber")) {
+                if (Cfg.tppos_command || op.hasGroup("youtuber")) {
                     if (p.hasPermission("ostrov.tppos") || op.hasGroup("youtuber")) {
                         if (arg.length == 3) {
                             if (ApiOstrov.isInteger(arg[0]) && ApiOstrov.isInteger(arg[1]) && ApiOstrov.isInteger(arg[2])) {
@@ -454,7 +456,7 @@ public class CMD {
                     sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
                     return true;
                 }
-                if (Config.tphere_command) {
+                if (Cfg.tphere_command) {
                     if (p.hasPermission("ostrov.tphere")) {
                         if (arg.length == 1) {
                             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp " + arg[0] + " " + p.getName());
@@ -467,12 +469,12 @@ public class CMD {
             case "operm":
                 if (arg.length == 0 || (arg.length == 1 && arg[0].equalsIgnoreCase(sender.getName()))) { //админ - права других
                     SmartInventory.builder()
-                        .id("Права " + sender.getName())
-                        .provider(new ViewPerm((Player) sender))
-                        .size(6, 9)
-                        .title("Ваши права")
-                        .build()
-                        .open(p);
+                            .id("Права " + sender.getName())
+                            .provider(new ViewPerm((Player) sender))
+                            .size(6, 9)
+                            .title("Ваши права")
+                            .build()
+                            .open(p);
                     //sender.sendMessage("§c/operm <ник> [право]");
                     return false;
                 }
@@ -489,12 +491,12 @@ public class CMD {
 
                 if (arg.length == 1) {
                     SmartInventory.builder()
-                        .id("Права " + arg[0])
-                        .provider(new ViewPerm(Bukkit.getPlayer(arg[0])))
-                        .size(6, 9)
-                        .title("Права " + arg[0])
-                        .build()
-                        .open(p);
+                            .id("Права " + arg[0])
+                            .provider(new ViewPerm(Bukkit.getPlayer(arg[0])))
+                            .size(6, 9)
+                            .title("Права " + arg[0])
+                            .build()
+                            .open(p);
 
                 } else if (arg.length == 2) {
                     sender.sendMessage("§f" + arg[0] + " §7право " + arg[1] + " : " + (Bukkit.getPlayer(arg[0]).hasPermission(arg[1]) ? "§aДа" : "§4Нет"));
@@ -530,12 +532,12 @@ public class CMD {
             case "sound":
                 if (ApiOstrov.isLocalBuilder(sender, true)) {
                     SmartInventory.builder()
-                        .id("Sounds" + p.getName())
-                        .provider(new Sounds(0))
-                        .size(6, 9)
-                        .title("§2Звуки")
-                        .build()
-                        .open(p);
+                            .id("Sounds" + p.getName())
+                            .provider(new Sounds(0))
+                            .size(6, 9)
+                            .title("§2Звуки")
+                            .build()
+                            .open(p);
                 } else {
                     p.sendMessage("§cдоступно билдерам");
                 }

@@ -2,7 +2,6 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -24,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
-import ru.komiss77.Perm;
 import ru.komiss77.Timer;
 import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.commands.PvpCmd;
@@ -38,6 +36,7 @@ import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -246,7 +245,7 @@ public class PM {
                     TprCmd.rtp(p, w, 300, true, null);
                 }
                 p.sendMessage(op.eng ? "§cYou are banned and placed in purgatory." : "§cВы забанены и помещены в чистилище.");
-                p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + ApiOstrov.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.getTime()));
+                p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.getTime()));
                 p.sendMessage(op.eng ? "§cyou can return to the Ostrov." : "§cсможете вернуться на Остров.");
             }
         }

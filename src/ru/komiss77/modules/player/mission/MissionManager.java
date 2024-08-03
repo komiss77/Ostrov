@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,7 +18,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
@@ -30,6 +29,7 @@ import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -64,7 +64,7 @@ public class MissionManager {
         record.clear();
 //System.out.println("recordCopy="+recordCopy.size());        
         // Ostrov.async( ()-> {
-        final Connection conn = OstrovDB.getConnection();
+        final Connection conn = RemoteDB.getConnection();
         if (conn == null) return;
         Statement stmt = null;
         ResultSet rs = null;
@@ -195,7 +195,7 @@ public class MissionManager {
     //без флага добавить к предыдущему значению
     public static void onCustomStat(final Oplayer op, final String customStatName, final int value, final boolean reach) {
 //Bukkit.broadcastMessage("onCustomStat "+op.nik+" "+customStatName+" "+value+" ids="+op.missionIds.toString()+ " reach?"+reach);   
-        if (!OstrovDB.useOstrovData) {
+        if (!RemoteDB.useOstrovData) {
             //op.getPlayer().sendMessage("§cБД острова отключена!");
             return;
         }
@@ -245,7 +245,7 @@ public class MissionManager {
 
 //System.out.println("missions="+missions);
 
-            try (Statement stmt = OstrovDB.getConnection().createStatement();
+            try (Statement stmt = RemoteDB.getConnection().createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT * FROM `missionsProgress` WHERE `name` = '" + op.nik + "' ")) {
 
 
@@ -271,21 +271,21 @@ public class MissionManager {
                         //lore.add("§7Претенденты: §f"+mission.doing);
                         //ore.add("");
                         //lore.add("§fПринята:");
-                        //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                        //lore.add("§7"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                         //lore.add(Component.empty());
 
 
                         if (rs.getInt("completed") > 0) { //уже выполнена
 
                             lore.add(Component.empty());
-                            lore.add(Component.text("§a§lЗавершена §2" + ApiOstrov.dateFromStamp(rs.getInt("completed"))));
+                            lore.add(Component.text("§a§lЗавершена §2" + TimeUtil.dateFromStamp(rs.getInt("completed"))));
                             lore.add(Component.empty());
                             //lore.add("§8Награда: "+mission.reward+" рил");
                             //lore.add("§8Призовой фонд: "+mission.rewardFund*mission.reward+" рил" + (mission.rewardFund<=0?"исчерпан!":""));
                             //lore.add("§8Претенденты: "+mission.doing);
                             //lore.add(Component.empty());
                             //lore.add("§8Принята:");
-                            //lore.add("§8"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                            //lore.add("§8"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                             //lore.add(Component.empty());
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
@@ -301,10 +301,10 @@ public class MissionManager {
                             //lore.add("§7Претенденты: §f"+mission.doing);
                             lore.add(Component.empty());
                             //lore.add("§fПринята:");
-                            //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                            //lore.add("§7"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                             //lore.add(Component.empty());
                             lore.add(Component.text("§bПланируется, до начала:"));
-                            lore.add(Component.text("§f" + ApiOstrov.secondToTime(mission.activeFrom - Timer.getTime())));
+                            lore.add(Component.text("§f" + TimeUtil.secondToTime(mission.activeFrom - Timer.getTime())));
                             lore.add(Component.empty());
                             //lore.add("§7Уровень не менее §6"+mission.level);
                             //lore.add("§7Репутация не менее §6"+mission.reputation);
@@ -356,7 +356,7 @@ public class MissionManager {
 
                         } else { //прогресс
                             //lore.add("§fПринята:");
-                            //lore.add("§7"+ApiOstrov.dateFromStamp(rs.getInt("taken")));
+                            //lore.add("§7"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                             lore.add(Component.text("§fНаграда§7: §e" + mission.reward + " рил§7, §fПризовой фонд§7: §6" + mission.canComplete * mission.reward + " рил"));
                             lore.add(Component.text("§fПретенденты§7: §b" + mission.doing));
                             lore.add(Component.text("§f**********************"));
@@ -533,7 +533,7 @@ public class MissionManager {
 //System.out.println("missions="+missions);
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
                 rs = stmt.executeQuery("SELECT * FROM `missions` ORDER BY `activeFrom` DESC");
                 final List<Mission> list = new ArrayList<>();
                 while (rs.next()) {
@@ -583,8 +583,8 @@ public class MissionManager {
     //вызывается из Timer async каждую минуту!!
     public static void loadMissions() {
 //System.out.println("loadMissions 1");                                    
-        if (!OstrovDB.useOstrovData) return;
-        final Connection conn = OstrovDB.getConnection();
+        if (!RemoteDB.useOstrovData) return;
+        final Connection conn = RemoteDB.getConnection();
         if (conn == null) {
             Ostrov.log_warn("loadMissions - нет соединения с БД!");
             return;

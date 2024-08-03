@@ -37,11 +37,12 @@ import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
-import ru.komiss77.utils.TeleportLoc;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.MoveUtil;
 
 
 public class PlayerLst implements Listener {
@@ -210,7 +211,7 @@ public class PlayerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent e) {
-        if (ItemUtils.compareItem(e.getItemDrop().getItemStack(), InteractLst.passport, true)) {
+        if (ItemUtil.compareItem(e.getItemDrop().getItemStack(), InteractLst.passport, true)) {
             e.getItemDrop().remove();
             e.getPlayer().updateInventory();
         }
@@ -222,14 +223,14 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlace(BlockPlaceEvent e) {
         //PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
-        if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer())) e.setCancelled(true);
+        if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer())) e.setCancelled(true);
         //else if (!clear_stats) PM.Addbplace(e.getPlayer().getName());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBreak(BlockBreakEvent e) {
         //  PM.getOplayer(e.getPlayer().getName()).last_breack=Timer.Единое_время();
-        if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer())) e.setCancelled(true);
+        if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer())) e.setCancelled(true);
         //else if (!clear_stats) PM.get(e.getPlayer().getName());
     }
 
@@ -237,7 +238,7 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent e) {
         if (e.getRemover().getType() == EntityType.PLAYER && PM.exist(e.getRemover().getName())) {
-            if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getRemover())) e.setCancelled(true);
+            if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(e.getRemover())) e.setCancelled(true);
         }
 
     }
@@ -245,13 +246,13 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onHangingBreakEvent(HangingBreakEvent e) {
         if (e.getEntity() instanceof Player player) {
-            if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(player)) e.setCancelled(true);
+            if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(player)) e.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onPlayerItemFrameChangeEvent(final PlayerItemFrameChangeEvent e) {
-        if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
+        if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(e.getPlayer(), true)) {
             e.setCancelled(true);
             //return;
         }
@@ -272,15 +273,15 @@ public class PlayerLst implements Listener {
 
         switch (e.getRightClicked().getType()) {
 
-            case ARMOR_STAND -> e.setCancelled(Config.disable_break_place && !ApiOstrov.isLocalBuilder(p, true));
+            case ARMOR_STAND -> e.setCancelled(Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(p, true));
 
             case ITEM_FRAME, GLOW_ITEM_FRAME -> {
-                if (Config.disable_break_place && !ApiOstrov.isLocalBuilder(p, true)) {
+                if (Cfg.disable_break_place && !ApiOstrov.isLocalBuilder(p, true)) {
                     e.setCancelled(true);
                     return;
                 }
                 final ItemStack it = p.getInventory().getItemInMainHand();
-                if (ItemUtils.isBlank(it, false)) {
+                if (ItemUtil.isBlank(it, false)) {
                     break;
                 }
                 final ItemFrame ent;
@@ -321,7 +322,7 @@ public class PlayerLst implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void PlayerArmorStandManipulateEvent(PlayerArmorStandManipulateEvent e) {
-        if (Config.disable_break_place && !e.getPlayer().isOp()) e.setCancelled(true);
+        if (Cfg.disable_break_place && !e.getPlayer().isOp()) e.setCancelled(true);
     }
 
 
@@ -336,11 +337,11 @@ public class PlayerLst implements Listener {
         final Oplayer op = PM.getOplayer(e.getPlayer());
         if (op == null) return;
 
-        if (Config.home_command && op.homes.containsKey("home")) {
+        if (Cfg.home_command && op.homes.containsKey("home")) {
             final Player p = e.getPlayer();
-            Location loc = ApiOstrov.locFromString(op.homes.get("home"));
-            if (!TeleportLoc.isSafeLocation(loc)) {
-                loc = TeleportLoc.findNearestSafeLocation(loc, null);
+            Location loc = LocUtil.stringToLoc(op.homes.get("home"), false, true);
+            if (!MoveUtil.isSafeLocation(loc)) {
+                loc = MoveUtil.findSafeLocation(new WXYZ(loc)).getCenterLoc();
             }
             if (loc == null) {
                 p.sendMessage("§7Не получилось респавниться дома - точка дома может быть опасна.");
@@ -380,7 +381,7 @@ public class PlayerLst implements Listener {
             if (PvpCmd.no_damage_on_tp > 0) {
                 op.setNoDamage(PvpCmd.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
-            op.world_positions.put(world_from, LocationUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
+            op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
             // сохраняем точку выхода
         }
     }
@@ -454,7 +455,7 @@ public class PlayerLst implements Listener {
             if (!PM.exist(e.getEntity().getName())) return; //защита от бота
             switch (e.getCause()) {
                 case VOID:
-                    if (Config.disable_void) {
+                    if (Cfg.disable_void) {
                         e.setDamage(0);
                         e.getEntity().teleport(Bukkit.getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     }
@@ -473,7 +474,7 @@ public class PlayerLst implements Listener {
                      CONTACT, FIRE, FIRE_TICK, HOT_FLOOR, CRAMMING,
                      DROWNING, STARVATION, LAVA:
                 default:
-                    if (Config.disable_damage) e.setCancelled(true);
+                    if (Cfg.disable_damage) e.setCancelled(true);
                     //return;
             }
         } else {
@@ -482,7 +483,7 @@ public class PlayerLst implements Listener {
                 Ostrov.log_warn("Удалена бесконечно падающая в бездну сущность " + e.getEntity());
                 return;
             }
-            if (Config.disable_damage) e.setCancelled(true);
+            if (Cfg.disable_damage) e.setCancelled(true);
         }
     }
 //------------------------------------------------------------------------------ 
@@ -490,7 +491,7 @@ public class PlayerLst implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerLoseFood(FoodLevelChangeEvent e) {
-        if (Config.disable_hungry) {
+        if (Cfg.disable_hungry) {
             e.setCancelled(true);
             (e.getEntity()).setFoodLevel(20);
         }

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,8 +35,9 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.FastMath;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.version.Nms;
 
 public class Protocol77 implements Listener {
@@ -185,8 +185,8 @@ public class Protocol77 implements Listener {
             final PlayerInventory inv = pl.getInventory();
             final ItemStack it = inv.getItem(4);
             inv.setItem(4, sub);
-            if (!ItemUtils.isBlank(it, false)) {
-                ItemUtils.giveItemsTo(pl, it);
+            if (!ItemUtil.isBlank(it, false)) {
+                ItemUtil.giveItemsTo(pl, it);
             }
             inv.setHeldItemSlot(4);
         }
@@ -239,7 +239,7 @@ public class Protocol77 implements Listener {
                                                     + ((FastMath.abs(z) - dl) >> 31) + 2 < 0) continue;
                                                 final WXYZ cl = new WXYZ(lc).add(x, y, z);
                                                 if (Nms.getFastMat(lc.getWorld(), cl.x, cl.y, cl.z).isCollidable()) {
-                                                    bdm.put(cl.getCenterLoc(), dark ? ApiOstrov.rndElmt(bds) : cl.w.getBlockData(cl.x, cl.y, cl.z));
+                                                    bdm.put(cl.getCenterLoc(), dark ? ClassUtil.rndElmt(bds) : cl.w.getBlockData(cl.x, cl.y, cl.z));
                                                 }
                                             }
                                         }

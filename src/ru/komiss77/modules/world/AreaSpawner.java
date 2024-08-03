@@ -2,7 +2,6 @@ package ru.komiss77.modules.world;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import ru.komiss77.Ostrov;

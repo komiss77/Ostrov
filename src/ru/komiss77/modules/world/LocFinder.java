@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.FastMath;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.version.Nms;
 
 import javax.annotation.Nullable;
@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 public final class LocFinder {
 
     public static final MatCheck[] DEFAULT_CHECKS = {
-        (mat, y) -> LocationUtil.canStand(mat),
-        (mat, y) -> LocationUtil.isPassable(mat),
-        (mat, y) -> LocationUtil.isPassable(mat)
+            (mat, y) -> LocUtil.canStand(mat),
+            (mat, y) -> LocUtil.isPassable(mat),
+            (mat, y) -> LocUtil.isPassable(mat)
     };
 
     private final int minY;
@@ -29,7 +29,7 @@ public final class LocFinder {
                                   final int near, final LocFinder.MatCheck[] checks, final int yDst) {
         final int ofs2 = offset << 1;
         final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
-            Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
+                Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
         return new LocFinder(in, checks).find(false, near, yDst);
     }
 

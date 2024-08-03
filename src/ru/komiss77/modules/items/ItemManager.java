@@ -1,5 +1,10 @@
 package ru.komiss77.modules.items;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
@@ -22,13 +27,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class ItemManager implements Initiable, Listener {
 
@@ -139,7 +139,7 @@ public class ItemManager implements Initiable, Listener {
             if (eq != null) {
                 for (final EquipmentSlot es : EquipmentSlot.values()) {
                     final ItemStack is = eq.getItem(es);
-                    if (ItemUtils.isBlank(is, true)) continue;
+                    if (ItemUtil.isBlank(is, true)) continue;
                     final CustomMats cm = CustomMats.getCstmItm(is.getItemMeta());
                     if (cm == null) continue;
                     final List<EquipmentSlot> ess = cmp.get(cm);

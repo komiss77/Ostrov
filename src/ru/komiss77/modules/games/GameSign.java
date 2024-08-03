@@ -2,8 +2,8 @@ package ru.komiss77.modules.games;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
+import ru.komiss77.utils.BlockUtil;
 import ru.komiss77.utils.TCUtils;
 
 
@@ -23,7 +23,7 @@ public class GameSign {
         this.arena = arena;
         this.game = game;
 
-        attachement_loc = ApiOstrov.getSignAttachedBlock(signLoc.getBlock()).getLocation();
+        attachement_loc = BlockUtil.getSignAttachedBlock(signLoc.getBlock()).getLocation();
         attachement_mat = attachement_loc.getBlock().getType();
 
         if (!TCUtils.canChangeColor(attachement_mat)) {

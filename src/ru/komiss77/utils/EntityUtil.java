@@ -2,13 +2,34 @@ package ru.komiss77.utils;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.SpawnCategory;
+import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 
 
 public class EntityUtil {
+
+    public static @Nullable LivingEntity lastDamager(final LivingEntity ent, final boolean owner) {
+        return getDamager(ent.getLastDamageCause(), owner);
+    }
+
+    public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
+        if (e instanceof final EntityDamageByEntityEvent ev) {
+            if (ev.getDamager() instanceof Projectile && ((Projectile) ev.getDamager()).getShooter() instanceof final LivingEntity le) {
+                if (le instanceof final Tameable tm && owner) {
+                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
+                } else return le;
+            } else if (ev.getDamager() instanceof final LivingEntity le) {
+                if (le instanceof final Tameable tm && owner) {
+                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
+                } else return le;
+            }
+        }
+        return null;
+    }
+
 
     public static EntityGroup group(final Entity e) {
         return group(e.getType());

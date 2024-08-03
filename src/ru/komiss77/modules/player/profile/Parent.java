@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.modules.player.PM;

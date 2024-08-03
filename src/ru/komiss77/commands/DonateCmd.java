@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-
+import java.util.List;
 import com.destroystokyo.paper.ClientOption;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -15,8 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import ru.komiss77.utils.ItemBuilder;
-
-import java.util.List;
 
 
 public class DonateCmd implements OCommand {

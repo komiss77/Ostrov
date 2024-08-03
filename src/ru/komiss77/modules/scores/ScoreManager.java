@@ -2,7 +2,6 @@ package ru.komiss77.modules.scores;
 
 import java.util.HashMap;
 import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -16,9 +15,8 @@ import ru.komiss77.Ostrov;
 
 public class ScoreManager implements Initiable, Listener {
 
-    @Deprecated
-    protected static final HashMap<UUID, ScoreBoard> scores = new HashMap<>();
-
+    //@Deprecated
+    //protected static final HashMap<UUID, ScoreBoard> scores = new HashMap<>();
     protected static final HashMap<UUID, ScoreDis> lists = new HashMap<>();
     protected static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "score");
 

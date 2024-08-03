@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,7 +24,7 @@ import eu.endercentral.crazy_advancements.event.AdvancementScreenCloseEvent;
 import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import net.kyori.adventure.bossbar.BossBar;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.events.LocalDataLoadEvent;
@@ -33,7 +32,7 @@ import ru.komiss77.events.QuestCompleteEvent;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.quests.Quest.QuestFrame;
 import ru.komiss77.modules.quests.progs.IProgress;
-import ru.komiss77.utils.DonatEffect;
+import ru.komiss77.utils.ParticleUtil;
 import ru.komiss77.utils.TCUtils;
 
 //     https://www.spigotmc.org/resources/crazy-advancements-api.51741/
@@ -133,7 +132,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     }*/
 
     public void loadPlQs(final Player p, final Oplayer op) {
-        if (!Config.quests) return;
+        if (!Cfg.quests) return;
 
         mgr.addPlayer(p);
         for (final Quest rt : roots) {
@@ -187,7 +186,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         final String qss = op.mysqlData.get("quests");
-        if (qss == null || qss.isEmpty() || !Config.quests) return;
+        if (qss == null || qss.isEmpty() || !Cfg.quests) return;
         final String[] split = qss.split(LocalDB.LINE_SPLIT);
 //      p.sendMessage(Arrays.toString(split));
         int stamp;
@@ -240,7 +239,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
         if (ad != null && new QuestCompleteEvent(p, q).callEvent()) {
             mgr.grantAdvancement(p, ad);
             if (!silent) {
-                DonatEffect.spawnRandomFirework(p.getLocation());
+                ParticleUtil.spawnRandomFirework(p.getLocation());
                 final String chatColor = TCUtils.randomColor();
                 p.sendMessage(" ");
                 p.sendMessage(TCUtils.form(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));

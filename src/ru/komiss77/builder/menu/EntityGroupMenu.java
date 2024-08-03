@@ -1,5 +1,7 @@
 package ru.komiss77.builder.menu;
 
+import java.util.ArrayList;
+import java.util.Map;
 import ca.spottedleaf.moonrise.common.util.ChunkSystem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,13 +22,11 @@ import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
-import java.util.ArrayList;
-import java.util.Map;
 
 public class EntityGroupMenu implements InventoryProvider {
 
@@ -55,18 +55,18 @@ public class EntityGroupMenu implements InventoryProvider {
             final Cuboid c = new Cuboid(loc, radius * 2, 1, radius * 2);
             c.allign(loc);
             for (Chunk ch : c.getChunks(loc.getWorld())) {
-                chunks.put(LocationUtil.cLoc(ch), ch);
+                chunks.put(LocUtil.cLoc(ch), ch);
             }
         } else {
             for (Chunk ch : loc.getWorld().getLoadedChunks()) {
-                chunks.put(LocationUtil.cLoc(ch), ch);
+                chunks.put(LocUtil.cLoc(ch), ch);
             }
         }
         return chunks;
     }
 
     public static void toChunk(final Player p, final World world, final int cloc) {
-        final Chunk c = LocationUtil.getChunk(world.getName(), cloc);
+        final Chunk c = LocUtil.getChunk(world.getName(), cloc);
         toChunk(p, c);
     }
 
@@ -93,7 +93,7 @@ public class EntityGroupMenu implements InventoryProvider {
                 if (lc == null) {
                     continue;
                 }
-                int cLoc = LocationUtil.cLoc("", lc.locX, lc.locZ);
+                int cLoc = LocUtil.cLoc("", lc.locX, lc.locZ);
                 if (!chunks.containsKey(cLoc)) {
                     continue;
                 }
@@ -125,7 +125,7 @@ public class EntityGroupMenu implements InventoryProvider {
             final ValueSortedMap<String, Integer> count = new ValueSortedMap<>(true);
 
             for (TickingBlockEntity tbe : ((CraftWorld) world).getHandle().blockEntityTickers) {
-                int cLoc = LocationUtil.cLoc("", tbe.getPos().getX() >> 4, tbe.getPos().getZ() >> 4);
+                int cLoc = LocUtil.cLoc("", tbe.getPos().getX() >> 4, tbe.getPos().getZ() >> 4);
                 if (!chunks.containsKey(cLoc)) {
                     continue;
                 }
@@ -167,7 +167,7 @@ public class EntityGroupMenu implements InventoryProvider {
             }
 
             for (final Map.Entry<EntityType, Integer> entry : count.entrySet()) {
-                menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(entry.getKey())
+                menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(entry.getKey())
                     .name(Lang.t(entry.getKey(), p))
                     .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                     .lore("§7")
@@ -230,13 +230,13 @@ public class EntityGroupMenu implements InventoryProvider {
         pagination.setItemsPerPage(36);
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }

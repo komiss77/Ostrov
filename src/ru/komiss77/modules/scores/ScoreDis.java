@@ -1,5 +1,10 @@
 package ru.komiss77.modules.scores;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Entity;
@@ -16,11 +21,6 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.TCUtils;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.UUID;
 
 public class ScoreDis {
 

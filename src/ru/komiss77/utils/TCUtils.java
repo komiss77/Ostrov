@@ -1,5 +1,7 @@
 package ru.komiss77.utils;
 
+import java.util.*;
+import java.util.Map.Entry;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
@@ -22,8 +24,6 @@ import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
-import java.util.*;
-import java.util.Map.Entry;
 
 public class TCUtils {
 

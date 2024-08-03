@@ -1,5 +1,12 @@
 package ru.komiss77.modules.player.profile;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -20,24 +27,16 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
 import ru.komiss77.modules.player.profile.serverMenu.LocalMenuOpener;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class ProfileManager {
 
@@ -92,39 +91,39 @@ public class ProfileManager {
             case РЕЖИМЫ -> {
                 game = null; //при клике или переходе на режимы если открыты арены - сбросить на игры и переоткрыть
                 current = SmartInventory
-                    .builder()
-                    //.parent(parent)
-                    .id(op.nik + section.name())
-                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                    .provider(new GameMenu(false))
-                    .size(6, 9)
-                    .build()
-                    .open(p);
+                        .builder()
+                        //.parent(parent)
+                        .id(op.nik + section.name())
+                        .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                        .provider(new GameMenu(false))
+                        .size(6, 9)
+                        .build()
+                        .open(p);
             }
 
             case МИНИИГРЫ -> {
                 game = null; //при клике или переходе на режимы если открыты арены - сбросить на игры и переоткрыть
                 current = SmartInventory
-                    .builder()
-                    //.parent(parent)
-                    .id(op.nik + section.name())
-                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                    .provider(new GameMenu(true))
-                    .size(6, 9)
-                    .build()
-                    .open(p);
+                        .builder()
+                        //.parent(parent)
+                        .id(op.nik + section.name())
+                        .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                        .provider(new GameMenu(true))
+                        .size(6, 9)
+                        .build()
+                        .open(p);
             }
 
             case ВОЗМОЖНОСТИ -> {
                 if (localSettingsPage) {
                     current = SmartInventory
-                        .builder()
-                        .id(op.nik + section.name())
-                        .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                        .provider(new LocalSettings())
-                        .size(6, 9)
-                        .build()
-                        .open(p);
+                            .builder()
+                            .id(op.nik + section.name())
+                            .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                            .provider(new LocalSettings())
+                            .size(6, 9)
+                            .build()
+                            .open(p);
                 } else {
                     localSettingsPage = true;
                     LocalMenuOpener.open(p, op);
@@ -134,32 +133,32 @@ public class ProfileManager {
             case ПРОФИЛЬ -> {
                 profileMode = ProfileMode.Главное;
                 current = SmartInventory
-                    .builder()
-                    .id(op.nik + section.name())
-                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                    .provider(new ProfileSection())
-                    .size(6, 9)
-                    .build()
-                    .open(p);
+                        .builder()
+                        .id(op.nik + section.name())
+                        .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                        .provider(new ProfileSection())
+                        .size(6, 9)
+                        .build()
+                        .open(p);
             }
 
             case СТАТИСТИКА -> current = SmartInventory
-                .builder()
-                .id(op.nik + section.name())
-                .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                .provider(new StatSection())
-                .size(6, 9)
-                .build()
-                .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new StatSection())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
 
             case ДОСТИЖЕНИЯ -> current = SmartInventory
-                .builder()
-                .id(op.nik + section.name())
-                .title(op.eng ? section.item_nameEn : section.item_nameRu)
-                .provider(new AdvSection())
-                .size(6, 9)
-                .build()
-                .open(p);
+                    .builder()
+                    .id(op.nik + section.name())
+                    .title(op.eng ? section.item_nameEn : section.item_nameRu)
+                    .provider(new AdvSection())
+                    .size(6, 9)
+                    .build()
+                    .open(p);
 
             case МИССИИ -> MissionManager.openMissionsMenu(op, true);
 
@@ -190,13 +189,13 @@ public class ProfileManager {
         section = Section.ГРУППЫ;
         staffPage = false;
         current = SmartInventory
-            .builder()
-            .id(op.nik + section.name())
-            .provider(new Donate())
-            .size(6, 9)
-            .title(op.eng ? "§c|н§lSupport the project" : "§c|н§lПоддержать проект")
-            .build()
-            .open(op.getPlayer());
+                .builder()
+                .id(op.nik + section.name())
+                .provider(new Donate())
+                .size(6, 9)
+                .title(op.eng ? "§c|н§lSupport the project" : "§c|н§lПоддержать проект")
+                .build()
+                .open(op.getPlayer());
     }
 
     public void showStaff(final Oplayer op) {
@@ -212,13 +211,13 @@ public class ProfileManager {
             ResultSet rs = null;
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
 
                 //SELECT `id`,`bungeestaff`.`name`, `gr`, `master`, `data`,`sience`,`logout`,`reputation`,`phone`,`email`,`birth`,`land`,`city`, `discord`,`vk`,`youtube` FROM `bungeestaff` LEFT JOIN `userData` ON `bungeestaff`.`name` = `userData`.`name` ORDER BY `id` ASC
                 //rs = stmt.executeQuery( "SELECT * FROM "+Table.PEX_BUNGEE_STAFF.table_name+"  ORDER BY `id` ASC " );
                 rs = stmt.executeQuery("SELECT " + Table.PEX_BUNGEE_STAFF.table_name + ".`id`," + Table.PEX_BUNGEE_STAFF.table_name + ".`name`, `gr`, `master`, `data`,`sience`,`logout`,`reputation`,`phone`,`email`,`birth`,`land`,`city`, `discord`,`vk`,`youtube`"
-                    + " FROM " + Table.PEX_BUNGEE_STAFF.table_name + " LEFT JOIN " + Table.USER.table_name
-                    + " ON " + Table.PEX_BUNGEE_STAFF.table_name + ".`name` = " + Table.USER.table_name + ".`name` ORDER BY `id` ASC");
+                        + " FROM " + Table.PEX_BUNGEE_STAFF.table_name + " LEFT JOIN " + Table.USER.table_name
+                        + " ON " + Table.PEX_BUNGEE_STAFF.table_name + ".`name` = " + Table.USER.table_name + ".`name` ORDER BY `id` ASC");
                 Group group;
                 Material mat;
 
@@ -231,32 +230,32 @@ public class ProfileManager {
                     }
                     //`family`,`birth`, 
                     buttons.add(ClickableItem.empty(new ItemBuilder(mat)
-                        .flags(ItemFlag.HIDE_ATTRIBUTES)
-                        .name("§f" + rs.getString("name"))
-                        .lore("")
-                        .lore(group == null ? rs.getString("parent") : "§e" + group.chat_name)
-                        .lore(group == null ? "§cустаревшая" : "")
-                        .lore("")
-                        //.addLore("§7Назначение:")
-                        .lore(rs.getString("master"))
-                        .lore(rs.getString("data"))
-                        .lore("")
-                        .lore("репутация: " + (rs.getString("reputation") == null ? "0" : rs.getString("reputation")))
-                        .lore("страна: " + (rs.getString("land") == null ? "0" : rs.getString("land")))
-                        .lore("город: " + (rs.getString("city") == null ? "0" : rs.getString("city")))
-                        .lore("тел.: " + (rs.getString("phone") == null ? "0" : rs.getString("phone")))
-                        .lore("почта: " + (rs.getString("email") == null ? "0" : rs.getString("email")))
-                        .lore("ВК: " + (rs.getString("vk") == null ? "0" : rs.getString("vk")))
-                        .lore("ДС: " + (rs.getString("discord") == null ? "0" : rs.getString("discord")))
-                        .lore("Ютуб: " + (rs.getString("youtube") == null ? "0" : rs.getString("youtube")))
-                        .lore("")
-                        .lore("§7На сервере с")
-                        .lore(rs.getString("sience") == null ? "§7неизвестно" : ApiOstrov.dateFromStamp(rs.getInt("sience")))
-                        .lore("")
-                        .lore("§7Последняя активность:")
-                        .lore(rs.getString("logout") == null ? "§7неизвестно" : ApiOstrov.dateFromStamp(rs.getInt("logout")))
-                        .lore("")
-                        .build()
+                            .flags(ItemFlag.HIDE_ATTRIBUTES)
+                            .name("§f" + rs.getString("name"))
+                            .lore("")
+                            .lore(group == null ? rs.getString("parent") : "§e" + group.chat_name)
+                            .lore(group == null ? "§cустаревшая" : "")
+                            .lore("")
+                            //.addLore("§7Назначение:")
+                            .lore(rs.getString("master"))
+                            .lore(rs.getString("data"))
+                            .lore("")
+                            .lore("репутация: " + (rs.getString("reputation") == null ? "0" : rs.getString("reputation")))
+                            .lore("страна: " + (rs.getString("land") == null ? "0" : rs.getString("land")))
+                            .lore("город: " + (rs.getString("city") == null ? "0" : rs.getString("city")))
+                            .lore("тел.: " + (rs.getString("phone") == null ? "0" : rs.getString("phone")))
+                            .lore("почта: " + (rs.getString("email") == null ? "0" : rs.getString("email")))
+                            .lore("ВК: " + (rs.getString("vk") == null ? "0" : rs.getString("vk")))
+                            .lore("ДС: " + (rs.getString("discord") == null ? "0" : rs.getString("discord")))
+                            .lore("Ютуб: " + (rs.getString("youtube") == null ? "0" : rs.getString("youtube")))
+                            .lore("")
+                            .lore("§7На сервере с")
+                            .lore(rs.getString("sience") == null ? "§7неизвестно" : TimeUtil.dateFromStamp(rs.getInt("sience")))
+                            .lore("")
+                            .lore("§7Последняя активность:")
+                            .lore(rs.getString("logout") == null ? "§7неизвестно" : TimeUtil.dateFromStamp(rs.getInt("logout")))
+                            .lore("")
+                            .build()
                     ));
                 }
 
@@ -265,13 +264,13 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new CI_MultiPage(buttons, Section.ГРУППЫ.glassMat))
-                            .size(6, 9)
-                            .title(op.eng ? Section.ГРУППЫ.item_nameEn : Section.ГРУППЫ.item_nameRu)
-                            .build()
-                            .open(op.getPlayer());
+                                .builder()
+                                .id(op.nik + section.name())
+                                .provider(new CI_MultiPage(buttons, Section.ГРУППЫ.glassMat))
+                                .size(6, 9)
+                                .title(op.eng ? Section.ГРУППЫ.item_nameEn : Section.ГРУППЫ.item_nameRu)
+                                .build()
+                                .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -308,53 +307,53 @@ public class ProfileManager {
 
             final List<ClickableItem> buttons = new ArrayList<>();
 
-            try (Statement stmt = OstrovDB.getConnection().createStatement();
+            try (Statement stmt = RemoteDB.getConnection().createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT * FROM `withdraw` WHERE `name`='" + p.getName() + "' ORDER BY `time` DESC")) {
 
 
                 while (rs.next()) {
                     switch (rs.getString("status")) {
                         case "ожидание" -> buttons.add(ClickableItem.empty(new ItemBuilder(Material.WHITE_CANDLE)
-                            .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
-                            .lore("")
-                            .lore("§7сумма : §e" + rs.getInt("summ"))
-                            .lore("")
-                            .lore("§7Статус:")
-                            .lore("§fОжидает обработки")
-                            .lore("")
-                            .build()
+                                .name(TimeUtil.dateFromStamp(rs.getInt("time")))
+                                .lore("")
+                                .lore("§7сумма : §e" + rs.getInt("summ"))
+                                .lore("")
+                                .lore("§7Статус:")
+                                .lore("§fОжидает обработки")
+                                .lore("")
+                                .build()
                         ));
                         case "выполнено" -> buttons.add(ClickableItem.empty(new ItemBuilder(Material.LIME_CANDLE)
-                            .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
-                            .lore("")
-                            .lore("§7сумма : §e" + rs.getInt("summ"))
-                            .lore("")
-                            .lore("§7Статус:")
-                            .lore("§aвыполнено")
-                            .lore(ItemUtils.genLore(null, rs.getString("note"), "§7"))
-                            .lore("")
-                            .build()
+                                .name(TimeUtil.dateFromStamp(rs.getInt("time")))
+                                .lore("")
+                                .lore("§7сумма : §e" + rs.getInt("summ"))
+                                .lore("")
+                                .lore("§7Статус:")
+                                .lore("§aвыполнено")
+                                .lore(ItemUtil.genLore(null, rs.getString("note"), "§7"))
+                                .lore("")
+                                .build()
                         ));
                         case "ошибка" -> {
                             final int id = rs.getInt("id");
                             buttons.add(ClickableItem.of(new ItemBuilder(Material.RED_CANDLE)
-                                    .name(ApiOstrov.dateFromStamp(rs.getInt("time")))
-                                    .lore("")
-                                    .lore("§7сумма : §e" + rs.getInt("summ"))
-                                    .lore("")
-                                    .lore("§7Статус: §cошибка")
-                                    .lore("")
-                                    .lore(ItemUtils.genLore(null, rs.getString("note"), "§7"))
-                                    .lore("")
-                                    .lore("§7ЛКМ - §bповторить обработку")
-                                    .lore("")
-                                    .build(), e -> {
-                                    if (e.isLeftClick()) {
-                                        p.closeInventory();
-                                        OstrovDB.executePstAsync(p, "UPDATE `withdraw` SET `status`='ожидание' WHERE `id`=" + id);
-                                        p.sendMessage("§fЗаявка на вывод отправлена на повторную обработку");
+                                            .name(TimeUtil.dateFromStamp(rs.getInt("time")))
+                                            .lore("")
+                                            .lore("§7сумма : §e" + rs.getInt("summ"))
+                                            .lore("")
+                                            .lore("§7Статус: §cошибка")
+                                            .lore("")
+                                            .lore(ItemUtil.genLore(null, rs.getString("note"), "§7"))
+                                            .lore("")
+                                            .lore("§7ЛКМ - §bповторить обработку")
+                                            .lore("")
+                                            .build(), e -> {
+                                        if (e.isLeftClick()) {
+                                            p.closeInventory();
+                                            RemoteDB.executePstAsync(p, "UPDATE `withdraw` SET `status`='ожидание' WHERE `id`=" + id);
+                                            p.sendMessage("§fЗаявка на вывод отправлена на повторную обработку");
+                                        }
                                     }
-                                }
                             ));
                         }
                     }
@@ -366,21 +365,21 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new CI_MultiPage(buttons, Material.BLACK_STAINED_GLASS_PANE))
-                            .size(6, 9)
-                            .title("Профиль : Заявки на вывод")
-                            .build()
-                            .open(p);
+                                .builder()
+                                .id(op.nik + section.name())
+                                .provider(new CI_MultiPage(buttons, Material.BLACK_STAINED_GLASS_PANE))
+                                .size(6, 9)
+                                .title("Профиль : Заявки на вывод")
+                                .build()
+                                .open(p);
                     } else {
                         SmartInventory
-                            .builder()
-                            .provider(new MissionWithdrawViewMenu(buttons))
-                            .size(5, 9)
-                            .title("§l§lЗаявки на вывод")
-                            .build()
-                            .open(p);
+                                .builder()
+                                .provider(new MissionWithdrawViewMenu(buttons))
+                                .size(5, 9)
+                                .title("§l§lЗаявки на вывод")
+                                .build()
+                                .open(p);
                     }
                 }, 0);
 
@@ -402,12 +401,12 @@ public class ProfileManager {
         //if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Паспорт) {
         //stopLoadAnimations();
         current = SmartInventory.builder()
-            .id(op.nik + section.name())
-            .provider(new Passport())
-            .size(6, 9)
-            .title("Профиль : Паспорт") //не переименовывыть! юзает QuestManager
-            .build()
-            .open(p);
+                .id(op.nik + section.name())
+                .provider(new Passport())
+                .size(6, 9)
+                .title("Профиль : Паспорт") //не переименовывыть! юзает QuestManager
+                .build()
+                .open(p);
         // }// else p.sendMessage("уже другое меню"); }
         // }, 30);
     }
@@ -420,13 +419,13 @@ public class ProfileManager {
             if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Игнор) {
                 stopLoadAnimations();
                 current = SmartInventory
-                    .builder()
-                    .id(op.nik + section.name())
-                    .provider(new IgnoreList())
-                    .size(6, 9)
-                    .title("Профиль : Игнор")
-                    .build()
-                    .open(p);
+                        .builder()
+                        .id(op.nik + section.name())
+                        .provider(new IgnoreList())
+                        .size(6, 9)
+                        .title("Профиль : Игнор")
+                        .build()
+                        .open(p);
             }// else p.sendMessage("уже другое меню"); }
         }, 30);
     }
@@ -440,13 +439,13 @@ public class ProfileManager {
             if (section == Section.ПРОФИЛЬ && profileMode == ProfileMode.Пермишены) {
                 stopLoadAnimations();
                 current = SmartInventory
-                    .builder()
-                    .id(op.nik + section.name())
-                    .provider(new ShowPermissions())
-                    .size(6, 9)
-                    .title("Профиль : Права")
-                    .build()
-                    .open(p);
+                        .builder()
+                        .id(op.nik + section.name())
+                        .provider(new ShowPermissions())
+                        .size(6, 9)
+                        .title("Профиль : Права")
+                        .build()
+                        .open(p);
             }// else p.sendMessage("уже другое меню"); }
         }, 30);
     }
@@ -465,7 +464,7 @@ public class ProfileManager {
             ResultSet rs = null;
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
 
                 rs = stmt.executeQuery("SELECT * FROM " + Table.HISTORY.table_name + " WHERE `target` = '" + p.getName() + "'  ORDER BY `data` DESC LIMIT " + page * 36 + ",37");
 
@@ -479,15 +478,15 @@ public class ProfileManager {
                     } else {
                         type = HistoryType.by_action(rs.getString("action"));
                         buttons.add(ClickableItem.empty(new ItemBuilder(Material.matchMaterial(type.displayMat))
-                            .name(type.for_chat)
-                            .lore("§7источник : §b" + rs.getString("sender"))
-                            .lore("IP : " + rs.getString("target_ip"))
-                            .lore("")
-                            .lore(ItemUtils.genLore(null, rs.getString("report"), "§7"))
-                            .lore("")
-                            .lore(ApiOstrov.dateFromStamp(rs.getInt("data")))
-                            .lore("")
-                            .build()
+                                .name(type.for_chat)
+                                .lore("§7источник : §b" + rs.getString("sender"))
+                                .lore("IP : " + rs.getString("target_ip"))
+                                .lore("")
+                                .lore(ItemUtil.genLore(null, rs.getString("report"), "§7"))
+                                .lore("")
+                                .lore(TimeUtil.dateFromStamp(rs.getInt("data")))
+                                .lore("")
+                                .build()
                         ));
                         //logs.add(new Log(type.for_chat, rs.getString("sender"), rs.getString("target_ip"), rs.getString("report"), rs.getInt("data")));
                     }
@@ -501,13 +500,13 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new ShowJournal(buttons, page, next))
-                            .size(6, 9)
-                            .title("Профиль : Журнал")
-                            .build()
-                            .open(p);
+                                .builder()
+                                .id(op.nik + section.name())
+                                .provider(new ShowJournal(buttons, page, next))
+                                .size(6, 9)
+                                .title("Профиль : Журнал")
+                                .build()
+                                .open(p);
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -545,49 +544,49 @@ public class ProfileManager {
             ResultSet rs = null;
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
 
                 rs = stmt.executeQuery("SELECT `name`,`ipprotect`,`sience`,`logout`,`phone`,`email` FROM " + Table.USER.table_name + " WHERE `ip` = '" + op.getDataString(Data.IP) + "' ");
 
                 while (rs.next()) {
                     buttons.add(ClickableItem.empty(new ItemBuilder(rs.getString("name").equalsIgnoreCase(p.getName()) ? Material.WRITTEN_BOOK : Material.BOOK)
-                        .name("§e" + rs.getString("name"))
-                        .lore("")
-                        .lore("§7Защита по IP : " + (rs.getBoolean("ipprotect") ? "§cДа" : "§2Нет"))
-                        .lore("")
-                        .lore("§7Дата регистрации:")
-                        .lore(ApiOstrov.dateFromStamp(rs.getInt("sience")))
-                        .lore("")
-                        .lore("§7Последняя активность:")
-                        .lore(ApiOstrov.dateFromStamp(rs.getInt("logout")))
-                        .lore("")
-                        .lore("§7До автоудаления примерно:")
-                        .lore(ApiOstrov.secondToTime(8035200 - (Timer.getTime() - rs.getInt("logout"))))
-                        .lore("")
-                        .lore("тел.: " + rs.getString("phone"))
-                        .lore("почта.: " + rs.getString("email"))
-                        .lore("")
-                        .build()
+                            .name("§e" + rs.getString("name"))
+                            .lore("")
+                            .lore("§7Защита по IP : " + (rs.getBoolean("ipprotect") ? "§cДа" : "§2Нет"))
+                            .lore("")
+                            .lore("§7Дата регистрации:")
+                            .lore(TimeUtil.dateFromStamp(rs.getInt("sience")))
+                            .lore("")
+                            .lore("§7Последняя активность:")
+                            .lore(TimeUtil.dateFromStamp(rs.getInt("logout")))
+                            .lore("")
+                            .lore("§7До автоудаления примерно:")
+                            .lore(TimeUtil.secondToTime(8035200 - (Timer.getTime() - rs.getInt("logout"))))
+                            .lore("")
+                            .lore("тел.: " + rs.getString("phone"))
+                            .lore("почта.: " + rs.getString("email"))
+                            .lore("")
+                            .build()
                     ));
                 }
 
                 if (buttons.size() >= 5) {
                     buttons.add(ClickableItem.empty(new ItemBuilder(Material.REDSTONE)
-                        .name("§eИнформация о лимите")
-                        .lore("")
-                        .lore("§7Вы не можете добавить")
-                        .lore("§7новые аккаунты")
-                        .lore("")
-                        .build()
+                            .name("§eИнформация о лимите")
+                            .lore("")
+                            .lore("§7Вы не можете добавить")
+                            .lore("§7новые аккаунты")
+                            .lore("")
+                            .build()
                     ));
                 } else {
                     buttons.add(ClickableItem.empty(new ItemBuilder(Material.EMERALD)
-                        .name("§eИнформация о лимите")
-                        .lore("")
-                        .lore("§7Можно создать")
-                        .lore("§7аккаунтов : " + (5 - buttons.size()))
-                        .lore("")
-                        .build()
+                            .name("§eИнформация о лимите")
+                            .lore("")
+                            .lore("§7Можно создать")
+                            .lore("§7аккаунтов : " + (5 - buttons.size()))
+                            .lore("")
+                            .build()
                     ));
                 }
 
@@ -597,13 +596,13 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         //stopLoadAnimations();
                         current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new CI_OnePage(buttons, Section.ПРОФИЛЬ.glassMat))
-                            .size(6, 9)
-                            .title("Профиль : Аккаунты")
-                            .build()
-                            .open(p);
+                                .builder()
+                                .id(op.nik + section.name())
+                                .provider(new CI_OnePage(buttons, Section.ПРОФИЛЬ.glassMat))
+                                .size(6, 9)
+                                .title("Профиль : Аккаунты")
+                                .build()
+                                .open(p);
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -643,7 +642,7 @@ public class ProfileManager {
             Material mat;
 
             try {
-                stmt = OstrovDB.getConnection().createStatement();
+                stmt = RemoteDB.getConnection().createStatement();
 
                 rs = stmt.executeQuery("SELECT * FROM " + Table.PEX_BUNGEE_STAFF.table_name + " WHERE `name` = '" + op.nik + "' ");
                 while (rs.next()) {
@@ -654,14 +653,14 @@ public class ProfileManager {
                     }
 
                     buttons.add(ClickableItem.empty(new ItemBuilder(mat)
-                        .name(group == null ? rs.getString("parent") : "§e" + group.chat_name)
-                        .lore(group == null ? "§cустаревшая" : "")
-                        .lore("")
-                        .lore("§7Назначение:")
-                        .lore(rs.getString("data"))
-                        .lore(rs.getString("master").isEmpty() ? "" : "§7от " + rs.getString("master"))
-                        .lore("")
-                        .build()
+                            .name(group == null ? rs.getString("parent") : "§e" + group.chat_name)
+                            .lore(group == null ? "§cустаревшая" : "")
+                            .lore("")
+                            .lore("§7Назначение:")
+                            .lore(rs.getString("data"))
+                            .lore(rs.getString("master").isEmpty() ? "" : "§7от " + rs.getString("master"))
+                            .lore("")
+                            .build()
                     ));
                 }
                 rs.close();
@@ -675,17 +674,17 @@ public class ProfileManager {
                     }
 
                     buttons.add(ClickableItem.empty(new ItemBuilder(mat)
-                        .name(group == null ? rs.getString("parent") : "§e" + group.chat_name)
-                        .lore(group == null ? "§cустаревшая" : "")
-                        .lore("")
-                        .lore("§7Добавлено:")
-                        .lore(rs.getString("added"))
-                        .lore("")
-                        .lore("§7Действует до:")
-                        .lore(rs.getBoolean("forever") ? "навсегда" : ApiOstrov.dateFromStamp(rs.getInt("valid_to")))
-                        .lore("§7Примечания:")
-                        .lore(rs.getString("note"))
-                        .build()
+                            .name(group == null ? rs.getString("parent") : "§e" + group.chat_name)
+                            .lore(group == null ? "§cустаревшая" : "")
+                            .lore("")
+                            .lore("§7Добавлено:")
+                            .lore(rs.getString("added"))
+                            .lore("")
+                            .lore("§7Действует до:")
+                            .lore(rs.getBoolean("forever") ? "навсегда" : TimeUtil.dateFromStamp(rs.getInt("valid_to")))
+                            .lore("§7Примечания:")
+                            .lore(rs.getString("note"))
+                            .build()
                     ));
                 }
                 rs.close();
@@ -693,17 +692,17 @@ public class ProfileManager {
                 rs = stmt.executeQuery("SELECT * FROM " + Table.PEX_USER_PERMS.table_name + " WHERE `name` = '" + op.nik + "' ");
                 while (rs.next()) {
                     buttons.add(ClickableItem.empty(new ItemBuilder(Material.LIME_DYE)
-                        .name("§7пермишен")
-                        .lore("§f" + rs.getString("perm"))
-                        .lore("")
-                        .lore("§7Добавлено:")
-                        .lore(rs.getString("added"))
-                        .lore("")
-                        .lore("§7Действует до:")
-                        .lore(rs.getBoolean("forever") ? "навсегда" : ApiOstrov.dateFromStamp(rs.getInt("valid_to")))
-                        .lore("§7Примечания:")
-                        .lore(rs.getString("note"))
-                        .build()
+                            .name("§7пермишен")
+                            .lore("§f" + rs.getString("perm"))
+                            .lore("")
+                            .lore("§7Добавлено:")
+                            .lore(rs.getString("added"))
+                            .lore("")
+                            .lore("§7Действует до:")
+                            .lore(rs.getBoolean("forever") ? "навсегда" : TimeUtil.dateFromStamp(rs.getInt("valid_to")))
+                            .lore("§7Примечания:")
+                            .lore(rs.getString("note"))
+                            .build()
                     ));
                 }
 
@@ -713,13 +712,13 @@ public class ProfileManager {
 //System.out.println("rawData="+rawData);
                         stopLoadAnimations();
                         current = SmartInventory
-                            .builder()
-                            .id(op.nik + section.name())
-                            .provider(new GroupsAndPermsDB(buttons))
-                            .size(6, 9)
-                            .title(op.eng ? "Profile: Groups and perms" : "Профиль : Группы и права")
-                            .build()
-                            .open(p);
+                                .builder()
+                                .id(op.nik + section.name())
+                                .provider(new GroupsAndPermsDB(buttons))
+                                .size(6, 9)
+                                .title(op.eng ? "Profile: Groups and perms" : "Профиль : Группы и права")
+                                .build()
+                                .open(p);
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -759,13 +758,13 @@ public class ProfileManager {
         this.game = game;
         arenaPage = 0;
         current = SmartInventory
-            .builder()
-            .id(op.nik + section.name())
-            .provider(new ArenaSection())
-            .size(6, 9)
-            .title(Lang.t(p, "Арены ") + Lang.t(p, game.displayName))
-            .build()
-            .open(p);
+                .builder()
+                .id(op.nik + section.name())
+                .provider(new ArenaSection())
+                .size(6, 9)
+                .title(Lang.t(p, "Арены ") + Lang.t(p, game.displayName))
+                .build()
+                .open(p);
     }
 
     // ******** локальные субМеню **************
@@ -773,13 +772,13 @@ public class ProfileManager {
         section = Section.ВОЗМОЖНОСТИ;
         localdMode = LocalMode.TPA;
         current = SmartInventory
-            .builder()
-            .id(op.nik + op.menu.section.name())
-            .provider(new TPA())
-            .size(6, 9)
-            .title(op.eng ? "TP : Request" : "Телепорт : Запрос")
-            .build()
-            .open(op.getPlayer());
+                .builder()
+                .id(op.nik + op.menu.section.name())
+                .provider(new TPA())
+                .size(6, 9)
+                .title(op.eng ? "TP : Request" : "Телепорт : Запрос")
+                .build()
+                .open(op.getPlayer());
     }
 
     public void findRegions(final Player p) {
@@ -789,22 +788,22 @@ public class ProfileManager {
 
         final List<ClickableItem> buttons = new ArrayList<>();
 
-        //ItemUtils.Set_lore(bed, "§fВ этом привате вы пользователь!",   "§6Название: §b"+rg.getId(),   "§6Координаты: §7"+h_loc.getWorld().getName()+", "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - подробно" );
-        // ItemUtils.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().getName()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), (allow_rg_tp)?"§aЛевый клик - §2ТП В ЭТОТ ПРИВАТ":"§aЛевый клик - подробно", "§6Правый клик - §4УДАЛИТЬ" );
+        //ItemUtil.Set_lore(bed, "§fВ этом привате вы пользователь!",   "§6Название: §b"+rg.getId(),   "§6Координаты: §7"+h_loc.getWorld().getName()+", "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), "§aЛевый клик - подробно" );
+        // ItemUtil.Set_lore(bed, "§6Координаты: §7"+h_loc.getWorld().getName()+",", "§7  "+h_loc.getBlockX()+" x "+h_loc.getBlockY()+" x "+h_loc.getBlockZ(), (allow_rg_tp)?"§aЛевый клик - §2ТП В ЭТОТ ПРИВАТ":"§aЛевый клик - подробно", "§6Правый клик - §4УДАЛИТЬ" );
         final Map<ProtectedRegion, String> regions = WGhook.findPlayerRegions(p, null, true, true);
         final LocalPlayer lp = WorldGuardPlugin.inst().wrapPlayer(p);
 
         for (final ProtectedRegion rg : regions.keySet()) {
             //buttons.add( ClickableItem.empty(new ItemBuilder( rg.isOwner(p.getName()) ? Material.WARPED_FENCE : Material.CHAINMAIL_BOOTS )
             buttons.add(ClickableItem.empty(new ItemBuilder(rg.isOwner(lp) ? Material.WARPED_FENCE : Material.CHAINMAIL_BOOTS)
-                .name("§e" + rg.getId())
-                .lore("")
-                .lore(rg.isOwner(lp) ? "§7Вы - §6Владелец" : "§7Вы - §3Пользователь")
-                .lore("")
-                .lore("§6Координаты:")
-                .lore("§7" + regions.get(rg) + ", " + WGhook.getRegionLocationInfo(rg))
-                .lore("")
-                .build()
+                    .name("§e" + rg.getId())
+                    .lore("")
+                    .lore(rg.isOwner(lp) ? "§7Вы - §6Владелец" : "§7Вы - §3Пользователь")
+                    .lore("")
+                    .lore("§6Координаты:")
+                    .lore("§7" + regions.get(rg) + ", " + WGhook.getRegionLocationInfo(rg))
+                    .lore("")
+                    .build()
             ));
         }
 
@@ -812,13 +811,13 @@ public class ProfileManager {
             if (section == Section.ВОЗМОЖНОСТИ && localdMode == LocalMode.Регионы) {
                 stopLoadAnimations();
                 current = SmartInventory
-                    .builder()
-                    .id(op.nik + op.menu.section.name())
-                    .provider(new CI_OnePage(buttons, Section.ВОЗМОЖНОСТИ.glassMat))
-                    .size(6, 9)
-                    .title(op.eng ? "Yours regions" : "Регионы")
-                    .build()
-                    .open(op.getPlayer());
+                        .builder()
+                        .id(op.nik + op.menu.section.name())
+                        .provider(new CI_OnePage(buttons, Section.ВОЗМОЖНОСТИ.glassMat))
+                        .size(6, 9)
+                        .title(op.eng ? "Yours regions" : "Регионы")
+                        .build()
+                        .open(op.getPlayer());
             }// else p.sendMessage("уже другое меню"); }
         }, 30);
 
@@ -829,13 +828,13 @@ public class ProfileManager {
         localdMode = LocalMode.Дома;
 
         current = SmartInventory
-            .builder()
-            .id(op.nik + op.menu.section.name())
-            .provider(new HomeMenu(op))
-            .size(6, 9)
-            .title(op.eng ? "Yours homes" : "Точки дома")
-            .build()
-            .open(op.getPlayer());
+                .builder()
+                .id(op.nik + op.menu.section.name())
+                .provider(new HomeMenu(op))
+                .size(6, 9)
+                .title(op.eng ? "Yours homes" : "Точки дома")
+                .build()
+                .open(op.getPlayer());
 
     }
 
@@ -849,12 +848,12 @@ public class ProfileManager {
 
         //подставить игровое время на иконке профиля, если меньше недели
         if (op.getStat(Stat.PLAY_TIME) < 604800) {
-            setLine(p, Section.ПРОФИЛЬ.slot, 1, Lang.t(p, Stat.PLAY_TIME.desc) + ApiOstrov.secondToTime(op.getStat(Stat.PLAY_TIME)));
+            setLine(p, Section.ПРОФИЛЬ.slot, 1, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
         }
         //подставить наиграно за сегодня
-        setLine(p, Section.ПРОФИЛЬ.slot, 2, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + ApiOstrov.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
+        setLine(p, Section.ПРОФИЛЬ.slot, 2, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
         //поставить время до сброса дневной статы на иконке статы
-        setLine(p, Section.СТАТИСТИКА.slot, 3, "§3" + ApiOstrov.secondToTime(Timer.leftBeforeResetDayly()));
+        setLine(p, Section.СТАТИСТИКА.slot, 3, "§3" + TimeUtil.secondToTime(Timer.leftBeforeResetDayly()));
 
         switch (section) {
 
@@ -894,9 +893,9 @@ public class ProfileManager {
                 if (profileMode == ProfileMode.Главное) {
                     //на иконке с часиками
                     if (op.getStat(Stat.PLAY_TIME) < 604800) {
-                        setLine(p, 10, 4, Lang.t(p, Stat.PLAY_TIME.desc) + ApiOstrov.secondToTime(op.getStat(Stat.PLAY_TIME)));
+                        setLine(p, 10, 4, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
                     }
-                    setLine(p, 10, 5, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + ApiOstrov.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
+                    setLine(p, 10, 5, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
                 }
             }
 
@@ -909,20 +908,20 @@ public class ProfileManager {
             return;
         }
 
-        //im.getContents(p).get().getInventory().setItem(slot, ItemUtils.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+        //im.getContents(p).get().getInventory().setItem(slot, ItemUtil.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
         try {
             ItemStack is = current.getItem(slot);
             if (is != null && is.hasItemMeta()) {
                 ItemMeta im = is.getItemMeta();
                 if (im.hasLore()) {
                     List<Component> lore = is.getItemMeta().lore();
-                    lore.set(line, TCUtils.form(value));
+                    lore.set(line, TCUtils.format(value));
                     im.lore(lore);
                     is.setItemMeta(im);
                     current.setItem(slot, is);
                 }
             }
-            //current.setItem(slot, ItemUtils.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+            //current.setItem(slot, ItemUtil.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
         } catch (NoSuchElementException | NullPointerException ex) {
             Ostrov.log_warn("ProfileManager setLine : " + ex.getMessage());
             current = null;

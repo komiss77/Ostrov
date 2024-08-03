@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -146,13 +146,13 @@ public class EntityTypeMenu implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }

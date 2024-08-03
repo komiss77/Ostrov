@@ -2,26 +2,25 @@ package ru.komiss77.modules;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.ClickEvent.Action;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.StatFlag;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.OConfig;
 import ru.komiss77.utils.TCUtils;
 
 
 public final class Informator implements Initiable {
 
-    private static OstrovConfig inform;
+    private static OConfig inform;
     private static final List<Component> messagesRu;
     private static final List<Component> messagesEn;
     private static boolean use;
@@ -48,7 +47,7 @@ public final class Informator implements Initiable {
         messagesRu.clear();
         messagesEn.clear();
 
-        inform = Config.manager.getNewConfig("informator.yml", new String[]{"",
+        inform = Cfg.manager.getNewConfig("informator.yml", new String[]{"",
             "Ostrov77 autoinformator",
             "",
             "click actions: OPEN_URL CHANGE_PAGE OPEN_FILE RUN_COMMAND SUGGEST_COMMAND"});

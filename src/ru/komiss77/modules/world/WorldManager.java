@@ -3,7 +3,6 @@ package ru.komiss77.modules.world;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -16,7 +15,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.commands.WorldManagerCmd;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
@@ -24,7 +23,8 @@ import ru.komiss77.hook.DynmapFeatures;
 import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
-import ru.komiss77.utils.OstrovConfig;
+import ru.komiss77.OConfig;
+import ru.komiss77.utils.TimeUtil;
 
 
 public class WorldManager implements Initiable {
@@ -33,7 +33,7 @@ public class WorldManager implements Initiable {
     public static volatile WorldFillTask fillTask = null;
     public static volatile WorldTrimTask trimTask = null;
 
-    public static OstrovConfig config;
+    public static OConfig config;
     public static boolean shapeRound = true;
     public static boolean dynmapEnable = true;
     public static String dynmapMessage;
@@ -48,7 +48,7 @@ public class WorldManager implements Initiable {
 
         rt = Runtime.getRuntime();
 
-        config = Config.manager.getNewConfig("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""});
+        config = Cfg.manager.getNewConfig("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""});
         config.addDefault("roundBorder", false);
         config.addDefault("remountDelayTicks", 0);
         config.addDefault("dynmapBorderEnabled", false);
@@ -78,10 +78,10 @@ public class WorldManager implements Initiable {
         fillMemoryTolerance = config.getInt("fillMemoryTolerance", 500);
         buildWorldSuffix = config.getString("buildWorldSuffix", "build");
 
-        final int worldEndWipeAt = Config.getVariable().getInt("worldEndMarkToWipe", 0);
+        final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
         if (worldEndWipeAt > 0 && worldEndWipeAt < ApiOstrov.currentTimeSec()) {
-            Config.getVariable().set("worldEndMarkToWipe", 0);
-            Config.getVariable().saveConfig();
+            Cfg.getVariable().set("worldEndMarkToWipe", 0);
+            Cfg.getVariable().saveConfig();
 
             final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath() + "/world_the_end");
             WorldManagerCmd.deleteFile(endWorldFolder);
@@ -102,9 +102,9 @@ public class WorldManager implements Initiable {
     }
 
     public static void makeWorldEndToWipe(final int afterSecond) {
-        Config.getVariable().set("worldEndMarkToWipe", ApiOstrov.currentTimeSec() + afterSecond);
-        Config.getVariable().saveConfig();
-        Ostrov.log_warn("Край помечен на вайп через " + ApiOstrov.secondToTime(afterSecond));
+        Cfg.getVariable().set("worldEndMarkToWipe", ApiOstrov.currentTimeSec() + afterSecond);
+        Cfg.getVariable().saveConfig();
+        Ostrov.log_warn("Край помечен на вайп через " + TimeUtil.secondToTime(afterSecond));
     }
 
 

@@ -1,5 +1,8 @@
 package ru.komiss77.modules.redis;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -9,10 +12,6 @@ import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Subscriber implements Runnable {
 

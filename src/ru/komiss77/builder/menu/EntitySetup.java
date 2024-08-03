@@ -12,7 +12,7 @@ import org.bukkit.entity.Villager.Profession;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.FastMath;
+import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -193,7 +193,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : §e§l" + rt.name())
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final Rabbit.Type rt2 = FastMath.rotateEnum(rt);//Rabbit.Type.values()[rt.ordinal() + 1 % Rabbit.Type.values().length];
+                    final Rabbit.Type rt2 = ClassUtil.rotateEnum(rt);//Rabbit.Type.values()[rt.ordinal() + 1 % Rabbit.Type.values().length];
                     ((Rabbit) en).setRabbitType(rt2);//rabbitTypeNext(((Rabbit) en).getRabbitType()));
                     if (((Rabbit) en).getRabbitType() != Rabbit.Type.THE_KILLER_BUNNY) {
                         en.setCustomNameVisible(false);
@@ -222,7 +222,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
+                    final DyeColor dc2 = ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
                     ((Colorable) en).setColor(dc2);
                     reopen(p, content);
                 }
@@ -236,7 +236,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final DyeColor dc2 = FastMath.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
+                    final DyeColor dc2 = ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
                     ((Wolf) en).setCollarColor(dc2);
                     reopen(p, content);
                 }
@@ -251,7 +251,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : " + dc.name())
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final Llama.Color dc2 = FastMath.rotateEnum(dc);//Llama.Color.values()[dc.ordinal() + 1 % Llama.Color.values().length];
+                    final Llama.Color dc2 = ClassUtil.rotateEnum(dc);//Llama.Color.values()[dc.ordinal() + 1 % Llama.Color.values().length];
                     ((Llama) en).setColor(dc2);
                     reopen(p, content);
                 }
@@ -266,7 +266,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : " + dc.name())
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final Horse.Color dc2 = FastMath.rotateEnum(dc);//Horse.Color.values()[dc.ordinal() + 1 % Horse.Color.values().length];
+                    final Horse.Color dc2 = ClassUtil.rotateEnum(dc);//Horse.Color.values()[dc.ordinal() + 1 % Horse.Color.values().length];
                     ((Horse) en).setColor(dc2);
                     reopen(p, content);
                 }
@@ -332,7 +332,7 @@ public class EntitySetup implements InventoryProvider {
                 .lore("§fСейчас : " + dc.name())
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    final Parrot.Variant dc2 = FastMath.rotateEnum(dc);//Parrot.Variant.values()[dc.ordinal() + 1 % Parrot.Variant.values().length];
+                    final Parrot.Variant dc2 = ClassUtil.rotateEnum(dc);//Parrot.Variant.values()[dc.ordinal() + 1 % Parrot.Variant.values().length];
                     ((Parrot) en).setVariant(dc2);
                     reopen(p, content);
                 }

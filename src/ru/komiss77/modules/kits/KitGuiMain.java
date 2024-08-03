@@ -1,5 +1,6 @@
 package ru.komiss77.modules.kits;
 
+import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -9,9 +10,13 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.inventory.*;
-
-import java.util.ArrayList;
+import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.Pagination;
+import ru.komiss77.utils.inventory.SlotIterator;
+import ru.komiss77.utils.inventory.SlotPos;
 
 
 public class KitGuiMain implements InventoryProvider {
@@ -64,7 +69,7 @@ public class KitGuiMain implements InventoryProvider {
 
                 final int secondLeft = KitManager.getSecondLetf(player, kit);
                 if (secondLeft > 0) {
-                    giveInfo1 = "§cПолучить можно через " + ApiOstrov.secondToTime(secondLeft);
+                    giveInfo1 = "§cПолучить можно через " + TimeUtil.secondToTime(secondLeft);
                 } else {
                     giveInfo1 = "§fЛКМ §e- Получить набор.";
                 }
@@ -83,7 +88,7 @@ public class KitGuiMain implements InventoryProvider {
 
                     final int secondLeft = KitManager.getSecondLetf(player, kit);
                     if (secondLeft > 0) {
-                        giveInfo1 = "§cПолучить можно через " + ApiOstrov.secondToTime(secondLeft);
+                        giveInfo1 = "§cПолучить можно через " + TimeUtil.secondToTime(secondLeft);
                     } else {
                         giveInfo1 = "§fЛКМ §e- Получить набор.";
                     }
@@ -100,20 +105,20 @@ public class KitGuiMain implements InventoryProvider {
 
 
             item = new ItemBuilder(kit.logoItem)
-                .lore("")
-                .lore(kit.rarity.displayName)
-                .lore("")
-                .lore(kit.enabled ? "§aАктивен§7, " + (kit.needPermission ? "§eтребуется право" : "§aдоступен всем") : "§сЗаблокирован")
-                .lore("§7цена доступа: " + (kit.accesBuyPrice == 0 ? "§8бесплатно" : "§e" + kit.accesBuyPrice + " §7лони"))
-                .lore("§7цена получения: " + (kit.getPrice == 0 ? "§8бесплатно" : "§e" + kit.getPrice + " §7лони"))
-                .lore("§7продажа доступа: " + (kit.accesSellPrice == 0 ? "§8никакой выгоды" : "§b" + kit.accesSellPrice + " §7лони"))
-                .lore(kit.delaySec == 0 ? "§8интервал получения не установлен" : "§7интервал получения: §6" + ApiOstrov.secondToTime(kit.delaySec))
-                .lore("")
-                .lore("§fПКМ §7- §eпосмотреть состав")
-                .lore(giveInfo1)
-                .lore(giveInfo2)
-                .lore((kit.accesBuyPrice > 0 && op.hasKitAcces(kit.name)) ? "§9Shift+ПКМ §7- продать доступ за §e" + kit.accesSellPrice + " §7лони" : "")
-                .build();
+                    .lore("")
+                    .lore(kit.rarity.displayName)
+                    .lore("")
+                    .lore(kit.enabled ? "§aАктивен§7, " + (kit.needPermission ? "§eтребуется право" : "§aдоступен всем") : "§сЗаблокирован")
+                    .lore("§7цена доступа: " + (kit.accesBuyPrice == 0 ? "§8бесплатно" : "§e" + kit.accesBuyPrice + " §7лони"))
+                    .lore("§7цена получения: " + (kit.getPrice == 0 ? "§8бесплатно" : "§e" + kit.getPrice + " §7лони"))
+                    .lore("§7продажа доступа: " + (kit.accesSellPrice == 0 ? "§8никакой выгоды" : "§b" + kit.accesSellPrice + " §7лони"))
+                    .lore(kit.delaySec == 0 ? "§8интервал получения не установлен" : "§7интервал получения: §6" + TimeUtil.secondToTime(kit.delaySec))
+                    .lore("")
+                    .lore("§fПКМ §7- §eпосмотреть состав")
+                    .lore(giveInfo1)
+                    .lore(giveInfo2)
+                    .lore((kit.accesBuyPrice > 0 && op.hasKitAcces(kit.name)) ? "§9Shift+ПКМ §7- продать доступ за §e" + kit.accesSellPrice + " §7лони" : "")
+                    .build();
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
@@ -141,8 +146,8 @@ public class KitGuiMain implements InventoryProvider {
                     KitManager.openKitPrewiev(player, kit);
                     //reopen(player, contents);
                 }
-            }));
-
+            }));  
+            
         }
 
         pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
@@ -152,19 +157,19 @@ public class KitGuiMain implements InventoryProvider {
         //прятать если нет
         if (!pagination.isFirst()) {
             contents.set(2, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
-                -> contents.getHost().open(player, pagination.previous().getPage()))
+                    -> contents.getHost().open(player, pagination.previous().getPage()))
             );
             contents.set(3, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
-                -> contents.getHost().open(player, pagination.previous().getPage()))
+                    -> contents.getHost().open(player, pagination.previous().getPage()))
             );
         }
 
         if (!pagination.isLast()) {
             contents.set(2, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
-                -> contents.getHost().open(player, pagination.next().getPage()))
+                    -> contents.getHost().open(player, pagination.next().getPage()))
             );
             contents.set(3, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
-                -> contents.getHost().open(player, pagination.next().getPage()))
+                    -> contents.getHost().open(player, pagination.next().getPage()))
             );
         }
 

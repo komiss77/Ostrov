@@ -14,7 +14,8 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -129,7 +130,7 @@ public class SchemMainMenu implements InventoryProvider {
             .name("§fCоздать схематик")
             .build(), "название", newName -> {
 
-            if (newName.isEmpty() || newName.length() > 16 || !ApiOstrov.checkString(newName, true, true)) {
+            if (newName.isEmpty() || newName.length() > 16 || !StringUtil.checkString(newName, true, true)) {
                 p.sendMessage("§cНедопустимое название!");
                 PM.soundDeny(p);
                 return;
@@ -197,13 +198,13 @@ public class SchemMainMenu implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }

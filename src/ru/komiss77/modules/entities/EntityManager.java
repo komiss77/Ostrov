@@ -1,5 +1,8 @@
 package ru.komiss77.modules.entities;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import com.destroystokyo.paper.event.entity.WitchReadyPotionEvent;
 import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
@@ -20,10 +23,6 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
 import ru.komiss77.modules.world.WXYZ;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 
 public class EntityManager implements Initiable, Listener {
 

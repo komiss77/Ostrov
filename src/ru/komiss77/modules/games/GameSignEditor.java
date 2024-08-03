@@ -1,6 +1,5 @@
 package ru.komiss77.modules.games;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Sign;

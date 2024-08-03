@@ -1,12 +1,10 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
 
 //@SuppressWarnings({ "unchecked" })
 public class ClickableItem {

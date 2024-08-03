@@ -1,5 +1,7 @@
 package ru.komiss77.modules.world;
 
+import javax.annotation.Nullable;
+import java.util.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
@@ -9,9 +11,6 @@ import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.version.Nms;
-
-import javax.annotation.Nullable;
-import java.util.*;
 
 public class AStarFinder {//idea of UnAlike
 

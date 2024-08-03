@@ -1,9 +1,10 @@
 package ru.komiss77.modules.rolls;
 
+import java.util.*;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.utils.ClassUtil;
 
-import java.util.*;
 
 public class RollTree extends Roll<String[]> {
 
@@ -30,7 +31,7 @@ public class RollTree extends Roll<String[]> {
 
     @Override
     protected String[] asAmount(final int amt) {
-        ApiOstrov.shuffle(it);
+        ClassUtil.shuffle(it);
         return Arrays.copyOf(it, amt);
     }
 
@@ -40,10 +41,10 @@ public class RollTree extends Roll<String[]> {
         final ArrayList<R> lst = new ArrayList<>(amt);
         if (amt < it.length >> 1) {
             for (int i = 0; i < amt; i++) {
-                addGen(ApiOstrov.rndElmt(it), lst, cls);
+                addGen(ClassUtil.rndElmt(it), lst, cls);
             }
         } else {
-            ApiOstrov.shuffle(it);
+            ClassUtil.shuffle(it);
             for (int n = amt / it.length; n > 0; n--) {
                 for (final String rl : it) addGen(rl, lst, cls);
             }

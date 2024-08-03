@@ -1,10 +1,4 @@
-package ru.komiss77.utils;
-
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-import ru.komiss77.Config;
+package ru.komiss77;
 
 import java.io.File;
 import java.io.InputStream;
@@ -12,15 +6,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class OstrovConfig {
+
+public class OConfig {
     private int comments;
     //private final OstrovConfigManager manager;
 
     private final File file;
     private FileConfiguration config;
 
-    public OstrovConfig(final File configFile, final int comments) {
+    public OConfig(final File configFile, final int comments) {
         this.comments = comments;
         //this.manager = new OstrovConfigManager(plugin);
 
@@ -30,7 +29,7 @@ public class OstrovConfig {
     }
 
     @Deprecated
-    public OstrovConfig(InputStream configStream, File configFile, int comments, JavaPlugin plugin) {
+    public OConfig(InputStream configStream, File configFile, int comments, JavaPlugin plugin) {
         this.comments = comments;
         //this.manager = new OstrovConfigManager(plugin);
 
@@ -134,7 +133,7 @@ public class OstrovConfig {
 
     public void set(String path, Object value, String comment) {
         if (!this.config.contains(path)) {
-            this.config.set(Config.manager.getPluginName() + "_COMMENT_" + comments, " " + comment);
+            this.config.set(Cfg.manager.getPluginName() + "_COMMENT_" + comments, " " + comment);
             comments++;
         }
 
@@ -147,7 +146,7 @@ public class OstrovConfig {
         for (String comm : comment) {
 
             if (!this.config.contains(path)) {
-                this.config.set(Config.manager.getPluginName() + "_COMMENT_" + comments, " " + comm);
+                this.config.set(Cfg.manager.getPluginName() + "_COMMENT_" + comments, " " + comm);
                 comments++;
             }
 
@@ -158,7 +157,7 @@ public class OstrovConfig {
     }
 
     public void setHeader(String[] header) {
-        Config.manager.setHeader(this.file, header);
+        Cfg.manager.setHeader(this.file, header);
         this.comments = header.length + 2;
         this.reloadConfig();
     }
@@ -170,7 +169,7 @@ public class OstrovConfig {
 
     public void saveConfig() {
         String cfg = this.config.saveToString();
-        Config.manager.saveConfig(cfg, this.file);
+        Cfg.manager.saveConfig(cfg, this.file);
 
     }
 

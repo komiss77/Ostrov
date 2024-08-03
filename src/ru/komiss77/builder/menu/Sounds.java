@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -218,7 +218,7 @@ public class Sounds implements InventoryProvider {
         //pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
         if (to < Sound.values().length) {
-            content.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     page++;
                     reopen(p, content);
@@ -227,7 +227,7 @@ public class Sounds implements InventoryProvider {
         }
 
         if (page > 0) {
-            content.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     page--;
                     reopen(p, content);

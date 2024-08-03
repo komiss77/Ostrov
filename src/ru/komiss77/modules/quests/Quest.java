@@ -1,5 +1,9 @@
 package ru.komiss77.modules.quests;
 
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -8,12 +12,7 @@ import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.quests.progs.NumProg;
 import ru.komiss77.modules.quests.progs.VarProg;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemUtils;
-
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import ru.komiss77.utils.ItemUtil;
 
 public class Quest {
 
@@ -64,7 +63,7 @@ public class Quest {
 
         codeMap.put(code, this);
         nameMap.put(displayName, this);
-        loreMap.put(this, ItemUtils.genLore(null, description));
+        loreMap.put(this, ItemUtil.genLore(null, description));
 
 //        Quest rq = this;
 //        while (rq.code != ((rq = rq.parent).code));

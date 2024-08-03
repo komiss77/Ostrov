@@ -1,9 +1,7 @@
 package ru.komiss77;
 
-
 import java.util.Collection;
 import java.util.Locale;
-
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
@@ -26,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.utils.TCUtils;
+
 
 public class OStrap implements PluginBootstrap {
 

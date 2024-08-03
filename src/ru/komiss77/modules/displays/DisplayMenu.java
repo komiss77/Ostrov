@@ -16,12 +16,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Math;
 import org.joml.Vector3f;
-
 import net.kyori.adventure.text.Component;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
@@ -67,10 +67,10 @@ public class DisplayMenu implements InventoryProvider {
         };
 
         its.set(1, ClickableItem.from(new ItemBuilder(Material.ENDER_EYE)
-            .name("§9Способ Показа")
-            .lore("§7сейчас: " + bdesc)
-            .lore("§8ЛКМ - менять")
-            .build(), e -> {
+                .name("§9Способ Показа")
+                .lore("§7сейчас: " + bdesc)
+                .lore("§8ЛКМ - менять")
+                .build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 dis.setBillboard(bb);
                 reopen(p, its);
@@ -78,10 +78,10 @@ public class DisplayMenu implements InventoryProvider {
         }));
 
         its.set(3, ClickableItem.from(new ItemBuilder(Material.ENDER_PEARL)
-            .name("§5Телепорт к ноге")
-            .lore("§7на локацию " + new WXYZ(dis.getLocation(), false).toString())
-            .lore("§8ЛКМ - тп")
-            .build(), e -> {
+                .name("§5Телепорт к ноге")
+                .lore("§7на локацию " + new WXYZ(dis.getLocation(), false).toString())
+                .lore("§8ЛКМ - тп")
+                .build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 final Location dl = dis.getLocation();
                 dis.teleport(new WXYZ(p.getLocation()).getCenterLoc());
@@ -93,17 +93,17 @@ public class DisplayMenu implements InventoryProvider {
         final Transformation tr = dis.getTransformation();
         final Vector3f scl = tr.getScale();
         its.set(5, ClickableItem.from(new ItemBuilder(Material.DRIED_KELP_BLOCK)
-            .name("§2Изменить Размер")
-            .lore("§7сейчас: x=" + scl.x + ", y=" + scl.y + ", z=" + scl.z)
-            .lore("§8ЛКМ - менять")
-            .build(), e -> {
+                .name("§2Изменить Размер")
+                .lore("§7сейчас: x=" + scl.x + ", y=" + scl.y + ", z=" + scl.z)
+                .lore("§8ЛКМ - менять")
+                .build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 PlayerInput.get(InputType.ANVILL, p, text -> {
                     final String[] pts = text.split(";");
                     if (pts.length == 3) {
                         try {
                             dis.setTransformation(new Transformation(tr.getTranslation(), tr.getLeftRotation(),
-                                new Vector3f(Float.parseFloat(pts[0]), Float.parseFloat(pts[1]), Float.parseFloat(pts[2])), tr.getRightRotation()));
+                                    new Vector3f(Float.parseFloat(pts[0]), Float.parseFloat(pts[1]), Float.parseFloat(pts[2])), tr.getRightRotation()));
                         } catch (NumberFormatException ex) {
                             p.sendMessage("§cНеправильный формат!");
                         }
@@ -111,16 +111,16 @@ public class DisplayMenu implements InventoryProvider {
                         p.sendMessage("§cНеправильный формат!");
                     }
                     reopen(p, its);
-                }, ApiOstrov.toSigFigs(scl.x, (byte) 3) + ";"
-                    + ApiOstrov.toSigFigs(scl.y, (byte) 3) + ";"
-                    + ApiOstrov.toSigFigs(scl.z, (byte) 3));
+                }, StringUtil.toSigFigs(scl.x, (byte) 3) + ";"
+                        + StringUtil.toSigFigs(scl.y, (byte) 3) + ";"
+                        + StringUtil.toSigFigs(scl.z, (byte) 3));
             }
         }));
 
         its.set(7, ClickableItem.from(new ItemBuilder(Material.TNT)
-            .name("§4Уничтожить Дисплей")
-            .lore("§7ЛКМ - §cуничтожить")
-            .build(), e -> {
+                .name("§4Уничтожить Дисплей")
+                .lore("§7ЛКМ - §cуничтожить")
+                .build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 ConfirmationGUI.open(p, "§4Удалить Дисплей?", confirm -> {
                     if (confirm) {
@@ -139,10 +139,10 @@ public class DisplayMenu implements InventoryProvider {
             final Component currentText = tds.text();
 
             its.set(11, ClickableItem.from(new ItemBuilder(Material.LADDER)
-                .name("§яЦентровка Текста")
-                .lore("§7сейчас: §я" + tds.getAlignment().name())
-                .lore("§8ЛКМ - менять")
-                .build(), e -> {
+                    .name("§яЦентровка Текста")
+                    .lore("§7сейчас: §я" + tds.getAlignment().name())
+                    .lore("§8ЛКМ - менять")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     switch (tds.getAlignment()) {
                         case CENTER:
@@ -160,40 +160,40 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
             its.set(13, ClickableItem.from(new ItemBuilder(Material.GLOBE_BANNER_PATTERN)
-                .name("§6Текст")
-                .lore("§8ЛКМ - менять")
-                .build(), e -> {
+                    .name("§6Текст")
+                    .lore("§8ЛКМ - менять")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     PlayerInput.get(tds.getLineWidth() < 40 ? InputType.ANVILL : InputType.CHAT, p, text -> {
-                        tds.text(TCUtils.form(text));
+                        tds.text(TCUtils.format(text));
                         reopen(p, its);
-                    }, TCUtils.deform(currentText));
+                    }, TCUtils.toString(currentText));
                 }
             }));
 
             //its.set(13, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GLOBE_BANNER_PATTERN)
             //   .name("§6Текст")
             //   .addLore("§8ЛКМ - менять")
-            //   .build(), TCUtils.deform(currentText).replace('§', '&'), msg -> {
-            //   tds.text(TCUtils.form(msg.replace('&', '§')));
+            //   .build(), TCUtils.toString(currentText).replace('§', '&'), msg -> {
+            //   tds.text(TCUtils.format(msg.replace('&', '§')));
             //  reopen(p, its);
             // }));
 
             its.set(15, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FEATHER)
-                .name("§aДлинна Строки")
-                .lore("§7Клик - изменить §aдлинну")
-                .lore("§7сейчас длинна: §a" + tds.getLineWidth())
-                .build(),
-                String.valueOf(tds.getLineWidth()), msg -> {
+                    .name("§aДлинна Строки")
+                    .lore("§7Клик - изменить §aдлинну")
+                    .lore("§7сейчас длинна: §a" + tds.getLineWidth())
+                    .build(),
+                    String.valueOf(tds.getLineWidth()), msg -> {
                 tds.setLineWidth(Math.max(ApiOstrov.getInteger(msg), 10));
                 reopen(p, its);
             }));
 
             its.set(17, ClickableItem.from(new ItemBuilder(Material.BOOKSHELF)
-                .name("§аСейчас §оДисплей Текста")
-                .lore("§7Клик - поменять тип на:")
-                .lore("§7дисплей §оБлока")
-                .build(), e -> {
+                    .name("§аСейчас §оДисплей Текста")
+                    .lore("§7Клик - поменять тип на:")
+                    .lore("§7дисплей §оБлока")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     final BlockDisplay nd = dis.getWorld().spawn(dis.getLocation(), BlockDisplay.class);
                     nd.setPersistent(true);
@@ -205,9 +205,9 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
             its.set(19, ClickableItem.from(new ItemBuilder(Material.PLAYER_HEAD)
-                .name("§сПовернуть Дисплей")
-                .lore("§сповернуть §7куда смотришь")
-                .build(), e -> {
+                    .name("§сПовернуть Дисплей")
+                    .lore("§сповернуть §7куда смотришь")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     final Location loc = p.getLocation();
                     dis.setRotation(loc.getYaw(), loc.getPitch());
@@ -216,10 +216,10 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
             its.set(21, ClickableItem.from(new ItemBuilder(tds.isSeeThrough() ? Material.GLASS : Material.TINTED_GLASS)
-                .name("§фПрозрачность")
-                .lore("§7сейчас: §ф" + (tds.isSeeThrough() ? "прозрачный" : "цельный"))
-                .lore("§8ЛКМ - менять")
-                .build(), e -> {
+                    .name("§фПрозрачность")
+                    .lore("§7сейчас: §ф" + (tds.isSeeThrough() ? "прозрачный" : "цельный"))
+                    .lore("§8ЛКМ - менять")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     tds.setSeeThrough(!tds.isSeeThrough());
                     reopen(p, its);
@@ -227,10 +227,10 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
             its.set(23, ClickableItem.from(new ItemBuilder(Material.INK_SAC)
-                .name("§dТени")
-                .lore("§7сейчас " + (tds.isShadowed() ? "§dесть" : "§6нету"))
-                .lore("§8ЛКМ - менять")
-                .build(), e -> {
+                    .name("§dТени")
+                    .lore("§7сейчас " + (tds.isShadowed() ? "§dесть" : "§6нету"))
+                    .lore("§8ЛКМ - менять")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     tds.setShadowed(!tds.isShadowed());
                     reopen(p, its);
@@ -242,10 +242,10 @@ public class DisplayMenu implements InventoryProvider {
             eti = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§0.").build());
 
             its.set(9, ClickableItem.from(new ItemBuilder(Material.GLOBE_BANNER_PATTERN)
-                .name("§аСейчас §оДисплей Блока")
-                .lore("§7Клик - поменять тип на:")
-                .lore("§7дисплей §отекста")
-                .build(), e -> {
+                    .name("§аСейчас §оДисплей Блока")
+                    .lore("§7Клик - поменять тип на:")
+                    .lore("§7дисплей §отекста")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     final TextDisplay nd = dis.getWorld().spawn(dis.getLocation(), TextDisplay.class);
                     nd.setPersistent(true);
@@ -255,7 +255,7 @@ public class DisplayMenu implements InventoryProvider {
                     nd.setShadowed(true);
                     nd.setLineWidth(200);
                     nd.setTextOpacity((byte) -1);
-                    nd.text(TCUtils.form("§оКекст"));
+                    nd.text(TCUtils.format("§оКекст"));
 
                     replace(nd);
                     reopen(p, its);
@@ -264,11 +264,11 @@ public class DisplayMenu implements InventoryProvider {
 
             final BlockData bd = ((BlockDisplay) dis).getBlock();
             its.set(13, ClickableItem.from(new ItemBuilder(bd.getMaterial())
-                .name("§6Замена Блока")
-                .lore("§7ЛКМ §6блоком §7- поменять тип")
-                .lore("§7ПКМ §7- сделать камнем")
-                //.addLore("§7тот, на котором §6стоишь")
-                .build(), e -> {
+                    .name("§6Замена Блока")
+                    .lore("§7ЛКМ §6блоком §7- поменять тип")
+                    .lore("§7ПКМ §7- сделать камнем")
+                    //.addLore("§7тот, на котором §6стоишь")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent ice) {
                     if (ice.isLeftClick() && ice.getCursor().getType() != Material.AIR) {
                         Material mat = ice.getCursor().getType();
@@ -282,10 +282,10 @@ public class DisplayMenu implements InventoryProvider {
             }));
 
             its.set(17, ClickableItem.from(new ItemBuilder(Material.WRITABLE_BOOK)
-                .name("§аСейчас §яДисплей блока")
-                .lore("§7Клик - поменять тип на:")
-                .lore("§7дисплей §бпредмета")
-                .build(), e -> {
+                    .name("§аСейчас §яДисплей блока")
+                    .lore("§7Клик - поменять тип на:")
+                    .lore("§7дисплей §бпредмета")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     final ItemDisplay nd = dis.getWorld().spawn(dis.getLocation(), ItemDisplay.class);
                     nd.setPersistent(true);
@@ -305,10 +305,10 @@ public class DisplayMenu implements InventoryProvider {
             its.set(17, eti);
 
             its.set(9, ClickableItem.from(new ItemBuilder(Material.STONE)
-                .name("§аСейчас §чДисплей предмета")
-                .lore("§7Клик - поменять тип на:")
-                .lore("§7дисплей §отекста")
-                .build(), e -> {
+                    .name("§аСейчас §чДисплей предмета")
+                    .lore("§7Клик - поменять тип на:")
+                    .lore("§7дисплей §отекста")
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     final BlockDisplay nd = dis.getWorld().spawn(dis.getLocation(), BlockDisplay.class);
                     nd.setPersistent(true);
@@ -323,10 +323,10 @@ public class DisplayMenu implements InventoryProvider {
 
             final ItemStack it = ((ItemDisplay) dis).getItemStack();
             its.set(11, ClickableItem.from(new ItemBuilder(it == null ? dst : it)
-                .name("§6Замена Предмета")
-                .lore("§7Клик §6предметом §7- поменять")
-                .lore("§7на новый §6предмет")
-                .build(), e -> {
+                    .name("§6Замена Предмета")
+                    .lore("§7Клик §6предметом §7- поменять")
+                    .lore("§7на новый §6предмет")
+                    .build(), e -> {
                 if (e.getEvent() instanceof final InventoryClickEvent ev) {
                     ((ItemDisplay) dis).setItemStack(ev.getCursor());
                     reopen(p, its);
@@ -366,10 +366,10 @@ public class DisplayMenu implements InventoryProvider {
             };
 
             its.set(15, ClickableItem.from(new ItemBuilder(Material.COMPASS)
-                .name("§3Показ Предмета")
-                .lore("§7Клик - поменять способ §9показа")
-                .lore("§7сейчас: " + tdesc)
-                .build(), e -> {
+                    .name("§3Показ Предмета")
+                    .lore("§7Клик - поменять способ §9показа")
+                    .lore("§7сейчас: " + tdesc)
+                    .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     ((ItemDisplay) dis).setItemDisplayTransform(idt);
                     reopen(p, its);

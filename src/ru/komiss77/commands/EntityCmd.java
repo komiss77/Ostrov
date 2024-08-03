@@ -20,7 +20,7 @@ import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.*;
 
 import java.util.*;
@@ -135,13 +135,13 @@ class EntityServerView implements InventoryProvider {
         ));
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
@@ -324,7 +324,7 @@ class EntityGroupView implements InventoryProvider {
         int find;
         for (final EntityType type : count.keySet()) {
             find = count.get(type);
-            menuEntry.add(ClickableItem.of(ItemUtils.buildEntityIcon(type)
+            menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(type)
                 .name(Lang.t(type, p))
                 .amount(find > 64 ? 1 : find)
                 .lore("§7")
@@ -380,13 +380,13 @@ class EntityGroupView implements InventoryProvider {
         pagination.setItemsPerPage(36);
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }
@@ -430,7 +430,7 @@ class EntityTypeView implements InventoryProvider {
             for (final Entity e : p.getNearbyEntities(radius, radius, radius)) {
                 if (e.getType() == type) {
                     d = p.getLocation().distance(e.getLocation());
-                    //entitys.put(e, LocationUtil.getDistance(p.getLocation(), e.getLocation()));
+                    //entitys.put(e, LocUtil.getDistance(p.getLocation(), e.getLocation()));
                     entitys.put(e, (int) Math.floor(d));
                 }
             }
@@ -539,13 +539,13 @@ class EntityTypeView implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+            contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                 -> contents.getHost().open(p, pagination.next().getPage()))
             );
         }
 
         if (!pagination.isFirst()) {
-            contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+            contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                 -> contents.getHost().open(p, pagination.previous().getPage()))
             );
         }

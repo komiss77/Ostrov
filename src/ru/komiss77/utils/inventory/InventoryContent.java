@@ -1,13 +1,12 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import com.google.common.base.Preconditions;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 
 public interface InventoryContent {

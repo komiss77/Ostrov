@@ -1,5 +1,8 @@
 package ru.komiss77.modules.games;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -11,10 +14,6 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public final class ArenaInfo {
 

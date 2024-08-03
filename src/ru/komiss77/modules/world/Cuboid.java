@@ -1,7 +1,6 @@
 package ru.komiss77.modules.world;
 
 import java.util.*;
-
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.Location;
@@ -11,7 +10,7 @@ import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
-import ru.komiss77.utils.BlockUtils;
+import ru.komiss77.utils.BlockUtil;
 import ru.komiss77.version.Nms;
 
 //https://gist.github.com/ursinn/871525236408e33d4cbee607f7eff8ae
@@ -343,7 +342,7 @@ public class Cuboid {
             z += 1;
         }
         int y = (minY + maxY) >> 1;
-        final int yTop = BlockUtils.getHighestBlock(current.getWorld(), x, z).getY();
+        final int yTop = BlockUtil.getHighestBlock(current.getWorld(), x, z).getY();
         if (y < yTop) {
             y = yTop;
         }

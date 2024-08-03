@@ -1,5 +1,9 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.function.Predicate;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -14,14 +18,9 @@ import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.version.Nms;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.function.Predicate;
-
 
 //не переименовывать! юзают все плагины!
-public class LocationUtil {
+public class LocUtil {
 
     private static final BlockFace[] axis = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
     private static final BlockFace[] radial = {BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH, BlockFace.SOUTH_WEST, BlockFace.WEST, BlockFace.NORTH_WEST};
@@ -224,7 +223,7 @@ public class LocationUtil {
             }
 
             loc.setY(find_y);
-            if (TeleportLoc.isSafeLocation(loc)) { //тут будет найден блок в ногах, в конце убавить 1 !!!!
+            if (MoveUtil.isSafeLocation(loc)) { //тут будет найден блок в ногах, в конце убавить 1 !!!!
                 break;
             }
 

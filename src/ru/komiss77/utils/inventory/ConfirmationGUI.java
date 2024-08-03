@@ -1,13 +1,12 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
-
-import java.util.function.Consumer;
 
 public class ConfirmationGUI implements InventoryProvider {
     private final boolean sound;

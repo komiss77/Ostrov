@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -23,10 +22,11 @@ import ru.komiss77.enums.Table;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.version.Nms;
 
 
-public class OstrovDB {
+public class RemoteDB {
 
     public static boolean useOstrovData = false;
     public static boolean ready = false; //чтобы не пытались писать, пока нет соединения
@@ -54,13 +54,13 @@ public class OstrovDB {
     //true при Cfg.ReLoadAllConfig
     //false при OreloadCmd
     public static void init(final boolean loadGrous, final boolean async) {
-        url = Config.getConfig().getString("ostrov_database.mysql_host")
+        url = Cfg.getConfig().getString("ostrov_database.mysql_host")
             + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user="
-            + Config.getConfig().getString("ostrov_database.mysql_user")
+                + Cfg.getConfig().getString("ostrov_database.mysql_user")
             + "&password="
-            + Config.getConfig().getString("ostrov_database.mysql_passw");
+                + Cfg.getConfig().getString("ostrov_database.mysql_passw");
 
-        useOstrovData = Config.getConfig().getBoolean("ostrov_database.connect");
+        useOstrovData = Cfg.getConfig().getBoolean("ostrov_database.connect");
 //Ostrov.log("OstrovDB init useOstrovData?"+useOstrovData+" loadGrous?"+loadGrous);
         if (useOstrovData) {
 
@@ -213,7 +213,7 @@ public class OstrovDB {
     }
 
     //вызывается из Timer async!! useOstrovData и соединение чекать до вызова! 
-    public static void writeThisServerStateToOstrovDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
+    public static void writeThisServerStateToRemoteDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
         //if (!OstrovDB.useOstrovData) return;
 //Ostrov.log("--writeThisServerStateToOstrovDB--");
         // if (connection==null) {

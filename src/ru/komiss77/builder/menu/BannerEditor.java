@@ -1,5 +1,9 @@
 package ru.komiss77.builder.menu;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -15,17 +19,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 
 public class BannerEditor implements InventoryProvider {
 
@@ -170,7 +170,7 @@ public class BannerEditor implements InventoryProvider {
         }
 
         if (patterns.size() < 6) {
-            content.set(0, slot, ClickableItem.of(ItemUtils.add, e -> {
+            content.set(0, slot, ClickableItem.of(ItemUtil.add, e -> {
                 final Pattern pattern = new Pattern(DyeColor.WHITE, PatternType.BASE);
                 patterns.add(pattern);
                 editIdx = patterns.indexOf(pattern);

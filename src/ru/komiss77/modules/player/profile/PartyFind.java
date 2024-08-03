@@ -1,8 +1,6 @@
 package ru.komiss77.modules.player.profile;
 
-
 import java.util.ArrayList;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,8 +11,8 @@ import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -62,7 +60,7 @@ public class PartyFind implements InventoryProvider {
         for (final Player find : Bukkit.getOnlinePlayers()) {
 
             if (find.getName().equals(p.getName())) continue;
-            if (LocationUtil.getDistance(p.getLocation(), find.getLocation()) > 30) continue;
+            if (LocUtil.getDistance(p.getLocation(), find.getLocation()) > 30) continue;
 
             findOp = PM.getOplayer(find);
             if (findOp == null) continue;
@@ -198,7 +196,7 @@ public class PartyFind implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
+            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -206,7 +204,7 @@ public class PartyFind implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
+            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })

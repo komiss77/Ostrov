@@ -6,10 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.bukkit.entity.Player;
 import org.bukkit.World;
-
 // image output stuff, for debugging method at bottom of this file
 import org.bukkit.Bukkit;
 import ru.komiss77.ApiOstrov;

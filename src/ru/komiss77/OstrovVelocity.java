@@ -1,6 +1,5 @@
 package ru.komiss77;
 
-
 import com.google.inject.Inject;
 import com.velocitypowered.api.plugin.Plugin;
 

@@ -6,7 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.ViewPerm.SelectPlayer;
 import ru.komiss77.enums.Module;
@@ -20,8 +20,8 @@ import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -295,7 +295,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("")
             .build(), e -> {
             final ItemStack it = p.getInventory().getItemInOffHand();
-            if (ItemUtils.isBlank(it, false)) {
+            if (ItemUtil.isBlank(it, false)) {
                 p.sendMessage(Ostrov.PREFIX + "§cНужно держать что-то в левой руке!");
                 p.closeInventory();
             } else {
@@ -345,7 +345,7 @@ public class BuilderMain implements InventoryProvider {
         }));
 
 
-        if (Config.displays) {
+        if (Cfg.displays) {
             content.set(4, 1, ClickableItem.of(new ItemBuilder(Material.POPPED_CHORUS_FRUIT)
                 .name("§7Дисплеи §aВКЛЮЧЕНЫ")
                 .lore("§7Утилита")
@@ -361,14 +361,14 @@ public class BuilderMain implements InventoryProvider {
                 Display tds = null;
                 switch (e.getClick()) {
                     case DROP -> {
-                        Config.displays = false;
-                        Config.getConfig().set("modules.displays", false);
-                        Config.getConfig().saveConfig();
+                        Cfg.displays = false;
+                        Cfg.getConfig().set("modules.displays", false);
+                        Cfg.getConfig().saveConfig();
                         reopen(p, content);
                         return;
                     }
                     case LEFT -> {
-                        tds = LocationUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
+                        tds = LocUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
                         if (tds == null) {
                             p.closeInventory();
                             p.sendMessage("§6Дисплея рядом не найдено!");
@@ -376,7 +376,7 @@ public class BuilderMain implements InventoryProvider {
                         }
                     }
                     case SHIFT_LEFT -> {
-                        tds = LocationUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
+                        tds = LocUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
                         if (tds != null) {
                             tds.teleport(new WXYZ(loc).getCenterLoc());
                         } else {
@@ -390,7 +390,7 @@ public class BuilderMain implements InventoryProvider {
                         ((TextDisplay) tds).text(TCUtils.form("§оКекст"));
                     }
                     case SHIFT_RIGHT -> {
-                        final Display oldDis = LocationUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
+                        final Display oldDis = LocUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);
                         if (oldDis != null) {
                             switch (oldDis.getType()) {
                                 case BLOCK_DISPLAY -> {
@@ -442,9 +442,9 @@ public class BuilderMain implements InventoryProvider {
                 .lore("")
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    Config.displays = true;
-                    Config.getConfig().set("modules.displays", true);
-                    Config.getConfig().saveConfig();
+                    Cfg.displays = true;
+                    Cfg.getConfig().set("modules.displays", true);
+                    Cfg.getConfig().saveConfig();
                     reopen(p, content);
                 }
             }));
@@ -460,8 +460,8 @@ public class BuilderMain implements InventoryProvider {
                 .build(), e -> {
                 if (e.isRightClick()) {
                     SignProtectLst.enable = false;
-                    Config.getConfig().set("modules.signProtect", false);
-                    Config.getConfig().saveConfig();
+                    Cfg.getConfig().set("modules.signProtect", false);
+                    Cfg.getConfig().saveConfig();
                     Ostrov.getModule(Module.signProtect).onDisable();
                     reopen(p, content);
                 }
@@ -475,8 +475,8 @@ public class BuilderMain implements InventoryProvider {
                 .build(), e -> {
                 if (e.isLeftClick()) {
                     SignProtectLst.enable = true;
-                    Config.getConfig().set("modules.signProtect", true);
-                    Config.getConfig().saveConfig();
+                    Cfg.getConfig().set("modules.signProtect", true);
+                    Cfg.getConfig().saveConfig();
                     Ostrov.getModule(Module.signProtect).reload();
                     reopen(p, content);
                 }

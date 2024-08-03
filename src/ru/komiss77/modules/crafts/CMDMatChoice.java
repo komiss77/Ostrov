@@ -6,7 +6,7 @@ import org.bukkit.inventory.RecipeChoice.MaterialChoice;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import ru.komiss77.modules.items.CustomMats;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 
 import java.util.Objects;
 
@@ -44,7 +44,7 @@ public class CMDMatChoice extends MaterialChoice {
         final ItemStack ci = CustomMats.getCstmItm(cmd).getItem(mt);
         if (ci != null) return ci.asOne();
         final ItemStack it = new ItemStack(mt);
-        if (ItemUtils.isBlank(it, false)) return ItemUtils.air;
+        if (ItemUtil.isBlank(it, false)) return ItemUtil.air;
         final ItemMeta im = it.getItemMeta();
         im.setCustomModelData(cmd);
         it.setItemMeta(im);

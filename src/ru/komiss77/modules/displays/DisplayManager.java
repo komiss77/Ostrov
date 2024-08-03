@@ -1,5 +1,8 @@
 package ru.komiss77.modules.displays;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,9 +21,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.*;
 import ru.komiss77.utils.TCUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 public class DisplayManager implements Initiable, Listener {
 
@@ -37,7 +37,7 @@ public class DisplayManager implements Initiable, Listener {
     @Override
     public void reload() {
         HandlerList.unregisterAll(this);
-        if (Config.displays) {
+        if (Cfg.displays) {
             Ostrov.log_ok("§2Дисплеи включены!");
 
             Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
@@ -46,7 +46,7 @@ public class DisplayManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (Config.displays) {
+        if (Cfg.displays) {
             Ostrov.log_ok("§6Дисплеи выключены!");
 
             for (final HashSet<FakeItemDis> fis : animations.values()) {
@@ -107,7 +107,7 @@ public class DisplayManager implements Initiable, Listener {
     }
 
     public static FakeItemDis fakeItemAnimate(final Player pl, final Location loc) {
-        if (!Config.displays) {
+        if (!Cfg.displays) {
             Ostrov.log_warn("Tried creating ItemAnimation while Displays are off");
             return null;
         }
@@ -124,7 +124,7 @@ public class DisplayManager implements Initiable, Listener {
 
     public static boolean fakeTextAnimate(final Player pl, final Location loc, final String msg,
                                           final boolean xray, final boolean shadow, final int showForSec, final boolean timer) {
-        if (!Config.displays) {
+        if (!Cfg.displays) {
             Ostrov.log_warn("Tried creating TextAnimation while Displays are off");
             return false;
         }

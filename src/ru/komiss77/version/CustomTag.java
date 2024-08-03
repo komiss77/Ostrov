@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
-
 import io.papermc.paper.adventure.PaperAdventure;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;

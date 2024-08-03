@@ -1,5 +1,6 @@
 package ru.komiss77.modules.bots;
 
+import java.util.EnumSet;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -12,7 +13,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.world.WXYZ;
 
-import java.util.EnumSet;
 
 public class AfkBot extends BotEntity {
 

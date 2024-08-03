@@ -1,5 +1,7 @@
 package ru.komiss77.modules.items.menu;
 
+import java.util.Collection;
+import java.util.Collections;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -8,14 +10,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.inventory.*;
+import ru.komiss77.utils.StringUtil;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-
-import java.util.Collection;
-import java.util.Collections;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 public class AttrMenu implements InventoryProvider {
 
@@ -32,7 +35,7 @@ public class AttrMenu implements InventoryProvider {
         its.set(4, ClickableItem.from(new ItemBuilder(it).lore(" ").lore("§фКлик §7 - подтвердить").build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 SmartInventory.builder().id("Item " + p.getName()).provider(new ItemMenu(it.hasItemMeta() ? it : new ItemStack(it)))
-                    .size(3, 9).title("      §6Создание Предмета").build().open(p);
+                        .size(3, 9).title("      §6Создание Предмета").build().open(p);
             }
         }));
 
@@ -54,8 +57,8 @@ public class AttrMenu implements InventoryProvider {
 
             if (atm == null || atm.isEmpty()) {
                 its.set(slot, new InputButton(InputType.ANVILL,
-                    new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.name().toLowerCase())
-                        .lore("§7Сейчас: §8не указан").lore("§кКлик §7- изменить").build(), "", msg -> {
+                        new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.name().toLowerCase())
+                                .lore("§7Сейчас: §8не указан").lore("§кКлик §7- изменить").build(), "", msg -> {
                     if (msg.length() > 1) {
                         final double amt;
                         try {
@@ -93,9 +96,9 @@ public class AttrMenu implements InventoryProvider {
                 }));
             } else {
                 its.set(slot, new InputButton(InputType.ANVILL,
-                    new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.name().toLowerCase())
-                        .lore("§7Сейчас: §к" + getAtrStr(atm.iterator().next())).lore("§кКлик §7- изменить").build(),
-                    getAtrStr(atm.iterator().next()).substring(2), msg -> {
+                        new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.name().toLowerCase())
+                                .lore("§7Сейчас: §к" + getAtrStr(atm.iterator().next())).lore("§кКлик §7- изменить").build(),
+                        getAtrStr(atm.iterator().next()).substring(2), msg -> {
                     if (msg.length() > 1) {
                         final double amt;
                         try {
@@ -137,9 +140,9 @@ public class AttrMenu implements InventoryProvider {
 
     private String getAtrStr(final AttributeModifier atm) {
         return switch (atm.getOperation()) {
-            case ADD_SCALAR -> "§a%" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
-            case MULTIPLY_SCALAR_1 -> "§b*" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
-            default -> "§e+" + ApiOstrov.toSigFigs((float) atm.getAmount(), (byte) 3);
+            case ADD_SCALAR -> "§a%" + StringUtil.toSigFigs((float) atm.getAmount(), (byte) 3);
+            case MULTIPLY_SCALAR_1 -> "§b*" + StringUtil.toSigFigs((float) atm.getAmount(), (byte) 3);
+            default -> "§e+" + StringUtil.toSigFigs((float) atm.getAmount(), (byte) 3);
         };
     }
 }

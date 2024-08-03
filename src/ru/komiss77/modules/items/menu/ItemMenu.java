@@ -1,5 +1,8 @@
 package ru.komiss77.modules.items.menu;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,10 +16,6 @@ import ru.komiss77.utils.*;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 
 public class ItemMenu implements InventoryProvider {

@@ -1,19 +1,20 @@
 package ru.komiss77.utils;
 
-import org.bukkit.Material;
-import ru.komiss77.Config;
-import ru.komiss77.Ostrov;
-import ru.komiss77.objects.IntHashMap;
-
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import javax.annotation.Nonnull;
+
+import org.bukkit.Material;
+import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
+import ru.komiss77.Ostrov;
+import ru.komiss77.objects.IntHashMap;
 
 
 public class MaterialUtil {
 
-    private static final OstrovConfig config;
+    private static final OConfig config;
     private static final IntHashMap<Material> byInt;
     private static final EnumMap<Material, Integer> byMat;
 
@@ -21,7 +22,7 @@ public class MaterialUtil {
     static {
         byInt = new IntHashMap<>();
         byMat = new EnumMap<>(Material.class);
-        config = Config.manager.getNewConfig("matToChar.yml", new String[]{"", "Material to character config", ""});
+        config = Cfg.manager.getNewConfig("matToChar.yml", new String[]{"", "Material to character config", ""});
         //config.addDefault("use", false);
         config.saveConfig();
 

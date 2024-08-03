@@ -1,7 +1,6 @@
 package ru.komiss77.modules.player.profile;
 
 import java.util.EnumSet;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -9,7 +8,7 @@ import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.Perm;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.StatChangeEvent;

@@ -25,7 +25,7 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -154,7 +154,7 @@ public class FigureListener implements Listener {
 
         final Figure figure = FigureManager.getFigure(e.getRightClicked());
 //Ostrov.log("Interact figure="+figure);
-        if (ItemUtils.compareItem(FigureManager.stick, e.getPlayer().getInventory().getItemInMainHand(), false)) { //если тыкаем палкой
+        if (ItemUtil.compareItem(FigureManager.stick, e.getPlayer().getInventory().getItemInMainHand(), false)) { //если тыкаем палкой
             e.setCancelled(true);
             if (!ApiOstrov.isLocalBuilder(e.getPlayer(), true)) return;
 //System.out.println("onRighClick 2 fig="+fig);

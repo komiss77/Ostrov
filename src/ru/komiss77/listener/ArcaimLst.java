@@ -2,7 +2,6 @@ package ru.komiss77.listener;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
-
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
@@ -53,8 +52,8 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.LocationUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtils;
 import ru.komiss77.version.Nms;
 
@@ -131,7 +130,7 @@ public class ArcaimLst implements Listener {
     }
 
     private void check(final Block b) {
-        int cLoc = LocationUtil.cLoc(b.getLocation());
+        int cLoc = LocUtil.cLoc(b.getLocation());
         RC chunkRc = redstoneChunkClocks.get(cLoc);
         ;
         if (chunkRc == null) {
@@ -143,7 +142,7 @@ public class ArcaimLst implements Listener {
 //Ostrov.log_warn("CHUNK ARC cLoc="+cLoc+" count="+chunkRc.count+" avg="+(chunkRc.count/sec));
                 if (chunkRc.count / 5 > MAX_CHUNK_PULSES_PER_SEC) { //в секунду в среднем импульсов больше лимита
                     chunkRc.count = 0;//Timer.redstoneChunkClocks.remove(cLoc); не удалять rc, только перезапуск счётчика!
-                    Ostrov.log_warn("CHUNK RC REMOVE " + b.getType().name() + " at " + LocationUtil.toString(b.getLocation()));
+                    Ostrov.log_warn("CHUNK RC REMOVE " + b.getType().name() + " at " + LocUtil.toString(b.getLocation()));
                     remove(b); //на 5-й секунде проредит механизмы
                 }// else { //сброс для пересчёта в след. 5 сек.
                 //  chunkRc.stamp = Timer.getTime();
@@ -287,7 +286,7 @@ public class ArcaimLst implements Listener {
     public void onCreative(final InventoryCreativeEvent e) {
         final ItemStack cursor = e.getCursor();
 
-        if (ItemUtils.isBlank(cursor, true)
+        if (ItemUtil.isBlank(cursor, true)
             || ApiOstrov.isLocalBuilder(e.getWhoClicked(), false)
             || MenuItemsManager.isSpecItem(cursor)) return;
 

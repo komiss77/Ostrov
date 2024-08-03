@@ -1,6 +1,7 @@
 package ru.komiss77;
 
-
+import java.time.Duration;
+import java.util.*;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -8,70 +9,100 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
-import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.WallSign;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.jetbrains.annotations.Nullable;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.Module;
-import ru.komiss77.enums.Operation;
-import ru.komiss77.enums.Stat;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.utils.FastMath;
-import ru.komiss77.utils.LocationUtil;
 import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.TeleportLoc;
-
-import java.sql.Connection;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.StreamSupport;
+import ru.komiss77.utils.MoveUtil;
 
 
 public class ApiOstrov {
 
-    private static final String PATTERN_ENG = "[A-Za-z_]";
-    private static final String PATTERN_ENG_NUM = "\\w"; //[A-Za-z0-9_]";
-    private static final String PATTERN_ENG_RUS = "[A-Za-zА-Яа-я_]";
-    private static final String PATTERN_ENG_NUM_RUS = "[A-Za-z0-9А-Яа-я_]";
 
-    public static Initiable getModule(final Module module) {
-        return Ostrov.getModule(module);
+    public static void executeBungeeCmd(final Player p, final String command) { //команды на банжик передавать без /
+        SpigotChanellMsg.sendMessage(p, Operation.EXECUTE_BUNGEE_CMD, p.getName(), command);
     }
 
-    //всё по Оплееру
+    /**
+     * @param target игрок
+     * @param server название сервера, как в настройках bungeecord
+     * @param arena  название арены на сервере для вызова ArenaJoinEvent в плагине bsign
+     */
+    public static void sendToServer(final Player target, final String server, String arena) {
+//Ostrov.log("sendToServer server="+server+" arena="+arena);
+        if (server.equalsIgnoreCase(Ostrov.MOT_D)) {
+            Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(target, arena));
+        } else {
+            ResourcePacksLst.preDisconnect(target);
+            SpigotChanellMsg.sendMessage(target, Operation.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
+        }
+    }
+
+    //вроде часто нужно, пусть тут будет ссылочка
+    public static boolean teleportSave(final Player p, Location feetLoc, final boolean buildSafePlace) {
+        return MoveUtil.teleportSave(p, feetLoc, buildSafePlace);
+    }
+
+    /**
+     * @param name ник. Возвращает true если у игрока активен режим боя. Так же, можно использовать BattleModeEvent и BattleModeEndEvent
+     * @return
+     */
+    public static boolean inBattle(String name) {
+        return PM.inBattle(name);
+    }
+
+    public static void giveMenuItem(final Player p) {
+        MenuItemsManager.giveItem(p, "pipboy");//ItemUtils.Add_to_inv(p, 8, ItemUtils.pipboy, true, false);
+    }
+
+    public static boolean hasResourcePack(final Player p) {
+        if (ResourcePacksLst.use) {
+            final Oplayer op = PM.getOplayer(p);
+            return op == null || !op.resourcepack_locked;//ResourcePacks.Текстуры_утановлены(p);
+        } else {
+            return true;
+        }
+    }
+
+    // выдаст таймштамп, до которого нужно хранить данные игрока в БД с учётом групп
+    public static int getStorageLimit(final Oplayer op) {
+        return Perm.getStorageLimit(op);
+    }
+
+    // выдаст лимит для данного пермишена с учётом групп
+    public static int getLimit(final Oplayer op, final String perm) {
+        return Perm.getLimit(op, perm);
+    }
+
+    //@Dep устаревшее, просто пишем обшим образом, типо "при открытии инвентаря" вместо "когда ты открыла инвентарь"
+    //в играх очень часто нужно! самое недавнее что делал: в строителях "строил" или "строила" чем заменить одним словом?
+    public static boolean isFemale(final String name) {
+        final Oplayer op = PM.getOplayer(name);
+        return op != null && op.gender == PM.Gender.FEMALE;
+    }
+
+
+    //*************** стата *********************
     public static int getStat(final Player p, final Stat e_stat) {
         return PM.exists(p.getUniqueId()) ? PM.getOplayer(p).getStat(e_stat) : 0;
     }
 
-    @Deprecated
-    public static int getDaylyStat(final Player p, final Stat e_stat) {
-        return getDailyStat(p, e_stat);
-    }
-
+    //@Deprecated
+    //public static int getDaylyStat(final Player p, final Stat e_stat) {return getDailyStat(p, e_stat);}
     public static int getDailyStat(final Player p, final Stat e_stat) {
         return PM.exists(p.getUniqueId()) ? PM.getOplayer(p).getDailyStat(e_stat) : 0;
     }
@@ -124,36 +155,10 @@ public class ApiOstrov {
         final Oplayer op = PM.getOplayer(p);//StatManager.addExp(PM.getOplayer(p), ammount);
         if (op != null) op.addExp(p, ammount);
     }
-
-    /**
-     * @param name ник. Возвращает true если у игрока активен режим боя. Так же, можно использовать BattleModeEvent и BattleModeEndEvent
-     * @return
-     */
-    public static boolean inBattle(String name) {
-        return PM.inBattle(name);
-    }
-
-    public static void giveMenuItem(final Player p) {
-        MenuItemsManager.giveItem(p, "pipboy");//ItemUtils.Add_to_inv(p, 8, ItemUtils.pipboy, true, false);
-    }
-
-    public static boolean hasResourcePack(final Player p) {
-        if (ResourcePacksLst.use) {
-            final Oplayer op = PM.getOplayer(p);
-            return op == null || !op.resourcepack_locked;//ResourcePacks.Текстуры_утановлены(p);
-        } else {
-            return true;
-        }
-    }
+    //****************************************************
 
 
-    //public static boolean hasPermission(final String worldName, final String nik, String perm) {
-    //     final Oplayer op = PM.getOplayer(nik);
-    //     return op != null && Perm.hasPermissions(op, worldName, perm);
-    //  }
-
-
-    // друзья команды
+    //*************** друзья команды *********************
     public static boolean hasParty(final Player p) {
         final Oplayer op = PM.getOplayer(p.getUniqueId());
         return op != null && !op.getPartyMembers().isEmpty();//Ostrov.api_friends!=null && ApiFriends.hasParty(p);
@@ -161,7 +166,7 @@ public class ApiOstrov {
 
     public static boolean isInParty(final Player p1, final Player p2) {
         return PM.exists(p1.getUniqueId()) && !PM.getOplayer(p1.getUniqueId()).getPartyMembers().contains(p2.getName()) ||
-            PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
+                PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
     }
 
     public static List<String> getPartyPlayers(final Player p) {
@@ -187,65 +192,62 @@ public class ApiOstrov {
         final Oplayer op1 = PM.getOplayer(p1);
         return op1 != null && op1.friends.contains(p2);
     }
+    //****************************************************
 
 
-    public static boolean isNewDay() { //после рестарта определить, настал ли новый день
-        return Ostrov.newDay;
+    //*************** по билдеру *********************
+    public static boolean isSpyMode(final Player p) {
+        return PM.getOplayer(p).spyOrigin != null;//SpyCmd.isSpy(p.getName());
     }
 
-
-    /**
-     * @param target игрок
-     * @param server название сервера, как в настройках bungeecord
-     * @param arena  название арены на сервере для вызова ArenaJoinEvent в плагине bsign
-     */
-    public static void sendToServer(final Player target, final String server, String arena) {
-//Ostrov.log("sendToServer server="+server+" arena="+arena);
-        if (server.equalsIgnoreCase(Ostrov.MOT_D)) {
-            Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(target, arena));
-        } else {
-            ResourcePacksLst.preDisconnect(target);
-            SpigotChanellMsg.sendMessage(target, Operation.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
-        }
+    public static boolean canBeBuilder(final CommandSender cs) {
+        if (cs == null) return false;
+        if ((cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder")) return true;
+        final Oplayer op = PM.getOplayer(cs.getName());
+        return op != null && op.hasGroup("owner");
     }
 
-    public static Connection getLocalConnection() {
-        return LocalDB.getConnection();
-    }
-
-    public static Connection getOstrovConnection() {
-        return OstrovDB.getConnection();
-    }
-
-
-    public static boolean teleportSave(final Player p, Location feetLoc, final boolean buildSafePlace) {
-        return TeleportLoc.teleportSave(p, feetLoc, buildSafePlace);
-    }
-
-    //ентити
-
-    public static @Nullable LivingEntity lastDamager(final LivingEntity ent, final boolean owner) {
-        return getDamager(ent.getLastDamageCause(), owner);
-    }
-
-    public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
-        if (e instanceof final EntityDamageByEntityEvent ev) {
-            if (ev.getDamager() instanceof Projectile && ((Projectile) ev.getDamager()).getShooter() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
-            } else if (ev.getDamager() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
+    public static boolean isStaff(final CommandSender cs) {
+        return switch (cs) {
+            case null -> false;
+            case ConsoleCommandSender cns -> true;
+            case Player p -> {
+                final Oplayer op = PM.getOplayer(p);
+                yield op != null && op.isStaff;
             }
-        }
-        return null;
+            default -> false;
+        };
     }
 
+    public static boolean isLocalBuilder(final CommandSender cs) {
+        return isLocalBuilder(cs, false);
+    }
 
-    //   деньги
+    public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
+        switch (cs) {
+            case null:
+                return false;
+            case ConsoleCommandSender cns:
+                return true;
+            case Player p when canBeBuilder(p)://!! фиксить права в CDM case "gm", или не даст перейти в гм1
+                if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
+                    return true;
+                }
+                if (message) {
+                    final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                            .clickEvent(ClickEvent.runCommand("/builder")));
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+    //****************************************************
 
+
+    //*************** деньги *********************
     /**
      * @param target только онлайн игроки!
      * @param value  изменение, если убавить, то с минусом
@@ -254,15 +256,13 @@ public class ApiOstrov {
     public static void moneyChange(final Player target, final int value, final String source) {
         final Oplayer targetOp = PM.getOplayer(target.getUniqueId());
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI) + value);//moneySet(curr+value, send_update);
-//System.out.println("--moneyChange Data.MONEY="+getIntData(Data.MONEY));
         if (value > 9 || value < -9) { //по копейкам не уведомляем
             target.sendMessage(TCUtils.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
-                .clickEvent(ClickEvent.runCommand("/money balance")));
+                    .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
+                    .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
         }
-
     }
 
     /**
@@ -285,9 +285,10 @@ public class ApiOstrov {
         //if (PM.exists(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
         //else return 0;
     }
+    //****************************************************
 
 
-    // сообщения сохраняются и выводятся поочерёдно
+    //*************** всякие титры,бары *********************
     public static void sendTitle(final Player p, final String title, final String subtitle) {
         sendTitle(p, title, subtitle, 20, 40, 20);
     }
@@ -393,12 +394,10 @@ public class ApiOstrov {
     public static void sendTabList(final Player p, final String header, final String footer) {
         p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
     }
-
-
     // *****************************************************************************
 
 
-    //    числа
+    //*************** числа *********************
     public static int randInt(final int num1, final int num2) {
         if (num1 == num2) return num1;
         return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
@@ -435,6 +434,27 @@ public class ApiOstrov {
         }
     }
 
+    public static int generateId() {
+        final String createStamp = String.valueOf(System.currentTimeMillis());
+        return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
+    }
+    // *****************************************************************************
+
+
+    public static int currentTimeSec() {
+        return Timer.getTime();
+    }
+
+    public static void makeWorldEndToWipe(final int afterSecond) {
+        WorldManager.makeWorldEndToWipe(afterSecond);
+    }
+
+
+
+
+
+
+/* StringUtil
     public static String getPercentBar(final int max, final int current, final boolean withPercent) {
         if (current < 0 || current > max) return "§8||||||||||||||||||||||||| ";
 //System.out.println("max="+max+" curr="+current);
@@ -451,8 +471,120 @@ public class ApiOstrov {
         } else {
             return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
         }
+    }*/
+
+
+
+   /* ClassUtil @SuppressWarnings("unchecked")
+    public static <G> G rndElmt(final G... arr) {
+        return arr[Ostrov.random.nextInt(arr.length)];
     }
 
+    public static <G> G[] shuffle(final G[] ar) {
+        int chs = ar.length >> 2;
+        if (chs == 0) {
+            if (ar.length > 1) {
+                final G ne = ar[0];
+                ar[0] = ar[ar.length - 1];
+                ar[ar.length - 1] = ne;
+            }
+            return ar;
+        }
+        for (int i = ar.length - 1; i > chs; i--) {
+            final int ni = Ostrov.random.nextInt(i);
+            final G ne = ar[ni];
+            ar[ni] = ar[i];
+            ar[i] = ne;
+            chs += ((chs - ni) >> 31) + 1;
+        }
+        return ar;
+    }*/
+
+
+
+    /* MoveUtil
+    public static void moveDeny(final PlayerMoveEvent e) {//блокировка перемещения, для миниигр
+        if (e.getTo().getY() < e.getFrom().getY()) {
+            e.setTo(e.getFrom().add(0, 2, 0));
+        } else {
+            e.setTo(e.getFrom());
+        }
+    }*/
+
+
+
+
+    /* StringUtil
+    public static String toSigFigs(final double n, final byte sf) {
+        final String nm = String.valueOf(n);
+        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
+    }
+
+    @Deprecated
+    public static String toSigFigs(final float n, final byte sf) {
+        final String nm = String.valueOf(n);
+        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
+    }*/
+
+
+    //TimeUtil
+    //public static boolean isNewDay() { //после рестарта определить, настал ли новый день
+    //    return Ostrov.newDay;
+    //}
+
+
+    //ентити
+/* EntityUtil
+    public static @Nullable LivingEntity lastDamager(final LivingEntity ent, final boolean owner) {
+        return getDamager(ent.getLastDamageCause(), owner);
+    }
+
+    public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
+        if (e instanceof final EntityDamageByEntityEvent ev) {
+            if (ev.getDamager() instanceof Projectile && ((Projectile) ev.getDamager()).getShooter() instanceof final LivingEntity le) {
+                if (le instanceof final Tameable tm && owner) {
+                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
+                } else return le;
+            } else if (ev.getDamager() instanceof final LivingEntity le) {
+                if (le instanceof final Tameable tm && owner) {
+                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
+                } else return le;
+            }
+        }
+        return null;
+    }*/
+
+
+    //невостребовано вообще
+    /*public static Connection getLocalConnection() {
+        return LocalDB.getConnection();
+    }
+    public static Connection getOstrovConnection() {
+        return OstrovDB.getConnection();
+    }*/
+
+
+
+/* StringUtil
+    private static final String PATTERN_ENG = "[A-Za-z_]";
+    private static final String PATTERN_ENG_NUM = "\\w"; //[A-Za-z0-9_]";
+    private static final String PATTERN_ENG_RUS = "[A-Za-zА-Яа-я_]";
+    private static final String PATTERN_ENG_NUM_RUS = "[A-Za-z0-9А-Яа-я_]";*/
+
+    //невостребовано вообще
+    // public static Initiable getModule(final Module module) {
+    //return Ostrov.getModule(module);
+    // }
+
+
+    //public static boolean hasPermission(final String worldName, final String nik, String perm) {
+    //     final Oplayer op = PM.getOplayer(nik);
+    //     return op != null && Perm.hasPermissions(op, worldName, perm);
+    //  }
+
+
+
+    /* TimeUtil
     public static String secondToTime(int second) { //c днями и нед!
         if (second < 0) return "---";
         final int year = second / 30_758_400; //356*24*60*60
@@ -490,22 +622,21 @@ public class ApiOstrov {
 
     public static String getCurrentHourMin() {
         return Ostrov.getCurrentHourMin();
-    }
+    }*/
 
 
-    //   строки
-
+    /* use StingUtil
     public static String listToString(final Iterable<?> array, final String splitter) {
         if (array == null) return "";
        /* StringBuilder sb=new StringBuilder();
         array.forEach( (s) -> {
             sb.append(s).append(splitter);
         });
-        return sb.toString();*/
+        return sb.toString();
         return StreamSupport.stream(array.spliterator(), true)
-            .map(Object::toString)
-            .reduce((t, u) -> t + "," + u)
-            .orElse("");
+                .map(Object::toString)
+                .reduce((t, u) -> t + "," + u)
+                .orElse("");
     }
 
     @Deprecated
@@ -517,9 +648,9 @@ public class ApiOstrov {
     public static <E> String toString(final Collection<E> array, final String separator) {
         if (array == null || array.isEmpty()) return "";
         return array.stream()
-            .map(E::toString)
-            .reduce((t, u) -> t + separator + u)
-            .orElse("");
+                .map(E::toString)
+                .reduce((t, u) -> t + separator + u)
+                .orElse("");
     }
 
     public static String enumSetToString(final Set<?> enumSet) {
@@ -545,8 +676,9 @@ public class ApiOstrov {
         }
         return String.valueOf(ss);
     }
+    */
 
-    //   locations
+    /*use LocUtil
     public static String stringFromLoc(final Location loc) {
         return LocationUtil.toString(loc);
     }
@@ -554,17 +686,19 @@ public class ApiOstrov {
     public static Location locFromString(final String loc_as_string) {
         return LocationUtil.stringToLoc(loc_as_string, false, true);
     }
+*/
 
-
+    /*BlockUtils
     public static Block getSignAttachedBlock(final Block b) {
         if (b.getState() instanceof final Sign sign
-            && sign.getBlockData() instanceof final WallSign signData) {
+                && sign.getBlockData() instanceof final WallSign signData) {
             return b.getRelative(signData.getFacing().getOppositeFace());
 
         }
         return b.getRelative(BlockFace.DOWN);
-    }
+    }*/
 
+/* StringUtil
     public static String[] wrap(final String msg, final int length, final String newLine) {
         if (msg.length() < 2) return new String[]{msg};
         final char split = '\n';
@@ -587,143 +721,11 @@ public class ApiOstrov {
             message = message.replaceAll(PATTERN_ENG, "");
         }
         return allowSpace ? message.isBlank() : message.isEmpty();
-    }
-
-
-    public static boolean canBeBuilder(final CommandSender cs) {
-        if (cs == null) return false;
-        if (cs instanceof ConsoleCommandSender || cs.isOp() || cs.hasPermission("builder")) return true;
-        final Oplayer op = PM.getOplayer(cs.getName());
-        return op != null && op.hasGroup("owner");
-    }
-
-    public static boolean isStaff(final CommandSender cs) {
-        return switch (cs) {
-            case null -> false;
-            case ConsoleCommandSender cns -> true;
-            case Player p -> {
-                final Oplayer op = PM.getOplayer(p);
-                yield op != null && op.isStaff;
-            }
-            default -> false;
-        };
-    }
-
-    public static boolean isLocalBuilder(final CommandSender cs) {
-        return isLocalBuilder(cs, false);
-    }
-
-    public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
-        switch (cs) {
-            case null:
-                return false;
-            case ConsoleCommandSender cns:
-                return true;
-            case Player p when canBeBuilder(p)://!! фиксить права в CDM case "gm", или не даст перейти в гм1
-                if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
-                    return true;
-                }
-                if (message) {
-                    final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                        .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
-                        .clickEvent(ClickEvent.runCommand("/builder")));
-                }
-                return false;
-            default:
-                return false;
-        }
-    }
-
-    public static int generateId() {
-        final String createStamp = String.valueOf(System.currentTimeMillis());
-        return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
-    }
-
-    public static boolean isSpyMode(final Player p) {
-        return PM.getOplayer(p).spyOrigin != null;//SpyCmd.isSpy(p.getName());
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <G> G rndElmt(final G... arr) {
-        return arr[Ostrov.random.nextInt(arr.length)];
-    }
-
-    public static <G> G[] shuffle(final G[] ar) {
-        int chs = ar.length >> 2;
-        if (chs == 0) {
-            if (ar.length > 1) {
-                final G ne = ar[0];
-                ar[0] = ar[ar.length - 1];
-                ar[ar.length - 1] = ne;
-            }
-            return ar;
-        }
-        for (int i = ar.length - 1; i > chs; i--) {
-            final int ni = Ostrov.random.nextInt(i);
-            final G ne = ar[ni];
-            ar[ni] = ar[i];
-            ar[i] = ne;
-            chs += ((chs - ni) >> 31) + 1;
-        }
-        return ar;
-    }
-
-    public static String toSigFigs(final double n, final byte sf) {
-        final String nm = String.valueOf(n);
-        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
-    }
-
-    @Deprecated
-    public static String toSigFigs(final float n, final byte sf) {
-        final String nm = String.valueOf(n);
-        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
-    }
-
-    public static int currentTimeSec() {
-        return Timer.getTime();
-    }
-
-    public static void makeWorldEndToWipe(final int afterSecond) {
-        WorldManager.makeWorldEndToWipe(afterSecond);
-    }
-
-    public static void moveDeny(final PlayerMoveEvent e) {//блокировка перемещения, для миниигр
-        if (e.getTo().getY() < e.getFrom().getY()) {
-            e.setTo(e.getFrom().add(0, 2, 0));
-        } else {
-            e.setTo(e.getFrom());
-        }
-    }
-
-
-    public static void executeBungeeCmd(final Player p, final String command) { //команды на банжик передавать без /
-        SpigotChanellMsg.sendMessage(p, Operation.EXECUTE_BUNGEE_CMD, p.getName(), command);
-    }
-
-    /**
-     * @param op
-     * @return выдаст таймштамп, до которого нужно хранить данные игрока в БД с учётом групп
-     */
-    public static int getStorageLimit(final Oplayer op) {
-        return Perm.getStorageLimit(op);
-    }
-
-    /**
-     * @param op
-     * @param perm
-     * @return выдаст лимит для данного пермишена с учётом групп
-     */
-    public static int getLimit(final Oplayer op, final String perm) {
-        return Perm.getLimit(op, perm);
-    }
-
-    //@Dep устаревшее, просто пишем обшим образом, типо "при открытии инвентаря" вместо "когда ты открыла инвентарь"
-    //в играх очень часто нужно! самое недавнее что делал: в строителях "строил" или "строила" чем заменить одним словом?
-    public static boolean isFemale(final String name) {
-        final Oplayer op = PM.getOplayer(name);
-        return op != null && op.gender == PM.Gender.FEMALE;
-    }
+    }*/
 
 
 }
+
+
+
+

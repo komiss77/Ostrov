@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import com.mojang.datafixers.util.Pair;
@@ -16,7 +15,6 @@ import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.version.Nms;
-
 
 public class Area extends Cuboid {
 

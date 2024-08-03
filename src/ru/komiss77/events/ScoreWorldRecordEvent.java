@@ -3,7 +3,6 @@ package ru.komiss77.events;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import ru.komiss77.modules.scores.ScoreBoard;
 import ru.komiss77.modules.scores.ScoreDis;
 
 
@@ -16,21 +15,21 @@ public final class ScoreWorldRecordEvent extends Event implements Cancellable {
     private final int amt;
     private final ScoreDis display;
 
-    @Deprecated
-    private final ScoreBoard score;
-
+    // @Deprecated
+    // private final ScoreBoard score;
+/*
     @Deprecated
     public ScoreWorldRecordEvent(final String name, final int amt, final ScoreBoard score) {
         this.name = name;
         this.amt = amt;
         this.score = score;
         this.display = null;
-    }
+    }*/
 
     public ScoreWorldRecordEvent(final String name, final int amt, final ScoreDis score) {
         this.name = name;
         this.amt = amt;
-        this.score = null;
+        // this.score = null;
         this.display = score;
     }
 
@@ -91,10 +90,10 @@ public final class ScoreWorldRecordEvent extends Event implements Cancellable {
         return cancel;
     }
 
-    @Deprecated
-    public ScoreBoard getScoreBoard() {
-        return score;
-    }
+    ///@Deprecated
+    //public ScoreBoard getScoreBoard() {
+    //    return score;
+    //}
 
     public ScoreDis getScoreDis() {
         return display;

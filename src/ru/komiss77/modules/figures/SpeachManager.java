@@ -2,7 +2,6 @@ package ru.komiss77.modules.figures;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

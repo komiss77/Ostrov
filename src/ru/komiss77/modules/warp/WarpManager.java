@@ -1,5 +1,11 @@
 package ru.komiss77.modules.warp;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collection;
+import java.util.Set;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,14 +15,7 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.LocationUtil;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.Set;
+import ru.komiss77.utils.LocUtil;
 
 
 public final class WarpManager implements Initiable {
@@ -76,7 +75,7 @@ public final class WarpManager implements Initiable {
         int create_time;
 
         try {
-            stmt = ApiOstrov.getLocalConnection().createStatement();
+            stmt = LocalDB.getConnection().createStatement();
 
             rs = stmt.executeQuery("SHOW COLUMNS FROM `warps` LIKE 'type'");
             if (rs.next()) {
@@ -204,7 +203,7 @@ public final class WarpManager implements Initiable {
     public static void saveCounter(final String warpname, final int count) {
         if (!LocalDB.useLocalData) return;
         Ostrov.async(() -> {
-            try (Statement stmt = ApiOstrov.getLocalConnection().createStatement();) {
+            try (Statement stmt = LocalDB.getConnection().createStatement();) {
                 stmt.executeUpdate("UPDATE `warps` SET `use_counter`= '" + count + "' WHERE `name` = '" + warpname + "'  LIMIT 1");
                 stmt.close();
             } catch (SQLException e) {
@@ -216,7 +215,7 @@ public final class WarpManager implements Initiable {
     public static void delWarp(final Player p, final String warpName) {
         warps.remove(warpName);
         Ostrov.async(() -> {
-            try (Statement stmt = ApiOstrov.getLocalConnection().createStatement();) {
+            try (Statement stmt = LocalDB.getConnection().createStatement();) {
                 int res = stmt.executeUpdate("DELETE FROM `warps` WHERE `name` = '" + warpName + "'  LIMIT 1");
                 stmt.close();
 
@@ -238,7 +237,7 @@ public final class WarpManager implements Initiable {
         if (w == null) return;
         w.open = !w.open;
         Ostrov.async(() -> {
-            try (Statement stmt = ApiOstrov.getLocalConnection().createStatement();) {
+            try (Statement stmt = LocalDB.getConnection().createStatement();) {
                 stmt.executeUpdate("UPDATE `warps` SET `open`= '" + (w.open ? 1 : 0) + "' WHERE `name` = '" + warpName + "'  LIMIT 1");
                 stmt.close();
             } catch (SQLException e) {
@@ -250,7 +249,7 @@ public final class WarpManager implements Initiable {
     public static void setCost(final Warp w, final int cost) {
         w.use_cost = cost;
         Ostrov.async(() -> {
-            try (Statement stmt = ApiOstrov.getLocalConnection().createStatement();) {
+            try (Statement stmt = LocalDB.getConnection().createStatement();) {
                 stmt.executeUpdate("UPDATE `warps` SET `use_cost`= '" + w.use_cost + "' WHERE `name` = '" + w.warpName + "'  LIMIT 1");
                 stmt.close();
             } catch (SQLException e) {
@@ -263,17 +262,17 @@ public final class WarpManager implements Initiable {
         warps.put(warp.warpName, warp);
         Ostrov.async(() -> {
             try (
-                PreparedStatement pst = ApiOstrov.getLocalConnection().prepareStatement("INSERT INTO `warps` (`name`, `owner`, `loc`, `system`, `create_time` ) VALUES "
-                    + "( ?, ?, ?, ?, ? ) " +
-                    "ON DUPLICATE KEY UPDATE "
-                    + "dispalyMat ='" + warp.dispalyMat + "', "
-                    + "descr='" + warp.descr + "', "
-                    + "loc=VALUES(loc), "
-                    + "need_perm='" + (warp.need_perm ? 1 : 0) + "' ")
+                    PreparedStatement pst = LocalDB.getConnection().prepareStatement("INSERT INTO `warps` (`name`, `owner`, `loc`, `system`, `create_time` ) VALUES "
+                            + "( ?, ?, ?, ?, ? ) " +
+                            "ON DUPLICATE KEY UPDATE "
+                            + "dispalyMat ='" + warp.dispalyMat + "', "
+                            + "descr='" + warp.descr + "', "
+                            + "loc=VALUES(loc), "
+                            + "need_perm='" + (warp.need_perm ? 1 : 0) + "' ")
             ) {
                 pst.setString(1, warp.warpName);
                 pst.setString(2, warp.owner);
-                pst.setString(3, LocationUtil.toDirString(warp.getLocation()));
+                pst.setString(3, LocUtil.toDirString(warp.getLocation()));
                 pst.setBoolean(4, warp.system);
                 pst.setInt(5, ApiOstrov.currentTimeSec());
 

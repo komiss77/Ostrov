@@ -11,7 +11,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
-
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -20,8 +19,7 @@ import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
-import ru.komiss77.Timer;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.games.GM;
@@ -167,7 +165,7 @@ public class Lang {
 
     public static void upd(final String ruMsg, final String translateResult) {
         ruToEng.put(ruMsg, translateResult);
-        OstrovDB.executePstAsync(Bukkit.getConsoleSender(),
+        RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO `lang` (`lenght`, `rus`, `eng`, `ts`) VALUES ('" + ruMsg.length() + "', '" + ruMsg + "', '" + translateResult
                 + "', NOW()+0)  ON DUPLICATE KEY UPDATE eng=VALUES(eng), ts=NOW()+0;");
     }

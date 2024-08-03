@@ -17,7 +17,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.event.world.*;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
@@ -163,14 +163,14 @@ public class ServerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitySpawn(final EntitySpawnEvent e) {
-        if (Config.clear_old_ents) {
+        if (Cfg.clear_old_ents) {
             e.getEntity().setPersistent(false);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitiesLoad(final EntitiesLoadEvent e) {
-        if (Config.clear_old_ents) {
+        if (Cfg.clear_old_ents) {
             for (final Entity ent : e.getEntities()) {
                 if (!ent.isPersistent()) ent.remove();
             }
@@ -179,7 +179,7 @@ public class ServerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitiesUnload(final EntitiesUnloadEvent e) {
-        if (Config.clear_old_ents) {
+        if (Cfg.clear_old_ents) {
             for (final Entity ent : e.getEntities()) {
                 if (!ent.isPersistent()) ent.remove();
             }

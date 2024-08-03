@@ -15,7 +15,7 @@ import org.bukkit.event.Listener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 
 
@@ -127,7 +127,7 @@ public class Example implements Listener, CommandExecutor, TabCompleter {
 
     public void reload() {
         //HandlerList.unregisterAll(this);
-        Config.loadConfigs();
+        Cfg.loadConfigs();
         init();
     }
     

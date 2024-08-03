@@ -5,14 +5,11 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.TCUtils;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
-import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.DateTimeEditGui;
 import ru.komiss77.utils.inventory.InputButton;
@@ -50,29 +47,29 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(0, 4, ClickableItem.empty(new ItemBuilder(mi.mat)
-            .name("§7Информация о миссии")
-            .lore(mi.name)
-            .lore("§7ID миссии: §3" + (mi.id < 0 ? "не назначен (новая)" : mi.id))
-            .lore("§7Награда: §6" + mi.reward + " рил")
-            .lore("§7Могут выполнить: §6" + mi.canComplete + " чел.")
-            //.addLore("§7Будет доступна:")
-            .lore("§7Доступна с:")
-            .lore("§7" + ApiOstrov.dateFromStamp(mi.activeFrom))
-            .lore("§7Доступна по:")
-            .lore("§7" + ApiOstrov.dateFromStamp(mi.validTo))
-            .lore("")
-            .lore("§7Уровень не менее §6" + mi.level)
-            .lore("§7Репутация не менее §6" + mi.reputation)
-            .lore("")
-            .lore(Mission.getRequest(p, mi))
-            .build()));
+                .name("§7Информация о миссии")
+                .lore(mi.name)
+                .lore("§7ID миссии: §3" + (mi.id < 0 ? "не назначен (новая)" : mi.id))
+                .lore("§7Награда: §6" + mi.reward + " рил")
+                .lore("§7Могут выполнить: §6" + mi.canComplete + " чел.")
+                //.addLore("§7Будет доступна:")
+                .lore("§7Доступна с:")
+                .lore("§7" + TimeUtil.dateFromStamp(mi.activeFrom))
+                .lore("§7Доступна по:")
+                .lore("§7" + TimeUtil.dateFromStamp(mi.validTo))
+                .lore("")
+                .lore("§7Уровень не менее §6" + mi.level)
+                .lore("§7Репутация не менее §6" + mi.reputation)
+                .lore("")
+                .lore(Mission.getRequest(p, mi))
+                .build()));
 
 
         content.set(1, 0, ClickableItem.of(new ItemBuilder(mi.mat)
-            .name("§7Иконка")
-            .lore("§7Ткните сюда предметом из инвентаря")
-            .lore("§7для смены иконки")
-            .build(), e -> {
+                .name("§7Иконка")
+                .lore("§7Ткните сюда предметом из инвентаря")
+                .lore("§7для смены иконки")
+                .build(), e -> {
             if (e.isLeftClick() && e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 //e.setCancelled(true);
@@ -87,16 +84,16 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 1, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.ACACIA_SIGN)
-            .name("§7Название")
-            .lore("")
-            .lore("§7Сейчас: ")
-            .lore(mi.displayName())
-            .lore("")
-            .lore("§7ЛКМ - изменить")
-            .lore("")
-            .lore("§fТолько название,")
-            .lore("§fбез цвета!")
-            .build(), mi.name, newName -> {
+                .name("§7Название")
+                .lore("")
+                .lore("§7Сейчас: ")
+                .lore(mi.displayName())
+                .lore("")
+                .lore("§7ЛКМ - изменить")
+                .lore("")
+                .lore("§fТолько название,")
+                .lore("§fбез цвета!")
+                .build(), mi.name, newName -> {
             if (newName.length() > 32) {
                 p.sendMessage("§cСлишком длинное название! (лимит32)");
                 PM.soundDeny(p);
@@ -111,14 +108,14 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
-            .name("§7Цвет названия")
-            .lore(TCUtils.form(mi.nameColor + "ТИПА НАЗВАНИЕ"))
-            .lore("")
-            .lore("§7ЛКМ - изменить")
-            .lore("")
-            .lore("§fВ формате &цвет")
-            .lore("§fМожно кастомные и градиент!")
-            .build(), mi.nameColor.replaceAll("§", "&"), newColor -> {
+                .name("§7Цвет названия")
+                .lore(TCUtils.format(mi.nameColor + "ТИПА НАЗВАНИЕ"))
+                .lore("")
+                .lore("§7ЛКМ - изменить")
+                .lore("")
+                .lore("§fВ формате &цвет")
+                .lore("§fМожно кастомные и градиент!")
+                .build(), mi.nameColor.replaceAll("§", "&"), newColor -> {
             if (newColor.length() > 5) {
                 p.sendMessage("§cСлишком длинный цветовой код! (макс.5)");
                 PM.soundDeny(p);
@@ -133,15 +130,15 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.GOLD_INGOT)
-            .name("§7Награда за выполнение")
-            .amount(mi.reward)
-            .lore("§7")
-            .lore("§7Сейчас: §b" + mi.reward + " рил")
-            .lore("§7")
-            .lore("§7ЛКМ : +1 (макс.64)")
-            .lore("§7ПКМ : -1")
-            .lore("§7")
-            .build(), e -> {
+                .name("§7Награда за выполнение")
+                .amount(mi.reward)
+                .lore("§7")
+                .lore("§7Сейчас: §b" + mi.reward + " рил")
+                .lore("§7")
+                .lore("§7ЛКМ : +1 (макс.64)")
+                .lore("§7ПКМ : -1")
+                .lore("§7")
+                .build(), e -> {
             if (e.isLeftClick() && mi.reward < 64) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 mi.changed = true;
@@ -160,19 +157,19 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.CARTOGRAPHY_TABLE)
-            .name("§7Счётчик выполнений")
-            //.setAmount(mi.rewardFund)
-            .lore("§7Сколько человек могут")
-            .lore("§7выполнить данную миссию?")
-            .lore("§7")
-            .lore("§7Сейчас: §b" + (mi.canComplete))
-            .lore("§7Призовой фонд составит:")
-            .lore("§f" + mi.canComplete + "*" + mi.reward + "=" + mi.canComplete * mi.reward + " рил")
-            .lore("§7")
-            .lore("§7ЛКМ : +1 (макс.64)")
-            .lore("§7ПКМ : -1")
-            .lore("§7")
-            .build(), e -> {
+                .name("§7Счётчик выполнений")
+                //.setAmount(mi.rewardFund)
+                .lore("§7Сколько человек могут")
+                .lore("§7выполнить данную миссию?")
+                .lore("§7")
+                .lore("§7Сейчас: §b" + (mi.canComplete))
+                .lore("§7Призовой фонд составит:")
+                .lore("§f" + mi.canComplete + "*" + mi.reward + "=" + mi.canComplete * mi.reward + " рил")
+                .lore("§7")
+                .lore("§7ЛКМ : +1 (макс.64)")
+                .lore("§7ПКМ : -1")
+                .lore("§7")
+                .build(), e -> {
             if (e.isLeftClick() && mi.canComplete < 64) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 mi.changed = true;
@@ -191,16 +188,16 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 5, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.EXPERIENCE_BOTTLE)
-            .name("§eТребуемый уровень")
-            .lore("§7")
-            .lore("§7Сейчас: " + (mi.level == 0 ? "§fневажен" : "§b" + mi.level))
-            .lore("§7")
-            .lore("§7Требуемый уровень островитянина")
-            .lore("§7для выполнения миссии.")
-            .lore("§7")
-            .lore("§7ЛКМ - изменить")
-            .lore("§7")
-            .build(), "" + mi.level, imput -> {
+                .name("§eТребуемый уровень")
+                .lore("§7")
+                .lore("§7Сейчас: " + (mi.level == 0 ? "§fневажен" : "§b" + mi.level))
+                .lore("§7")
+                .lore("§7Требуемый уровень островитянина")
+                .lore("§7для выполнения миссии.")
+                .lore("§7")
+                .lore("§7ЛКМ - изменить")
+                .lore("§7")
+                .build(), "" + mi.level, imput -> {
             if (!ApiOstrov.isInteger(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
@@ -220,16 +217,16 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 6, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.EMERALD)
-            .name("§eТребуемая репутация")
-            .lore("§7")
-            .lore("§7Сейчас: §b" + mi.reputation)
-            .lore("§7")
-            .lore("§eТребуемая репутация островитянина")
-            .lore("§7для выполнения миссии.")
-            .lore("§7")
-            .lore("§7ЛКМ - изменить")
-            .lore("§7")
-            .build(), "" + mi.reputation, imput -> {
+                .name("§eТребуемая репутация")
+                .lore("§7")
+                .lore("§7Сейчас: §b" + mi.reputation)
+                .lore("§7")
+                .lore("§eТребуемая репутация островитянина")
+                .lore("§7для выполнения миссии.")
+                .lore("§7")
+                .lore("§7ЛКМ - изменить")
+                .lore("§7")
+                .build(), "" + mi.reputation, imput -> {
             if (!ApiOstrov.isInteger(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
@@ -249,17 +246,17 @@ public class MissionEditor implements InventoryProvider {
 
 
         content.set(1, 7, ClickableItem.of(new ItemBuilder(Material.CLOCK)
-            .name("§7Время начала")
-            .lore("§7")
-            //.addLore("§7Сейчас: ")
-            .lore("§f" + ApiOstrov.dateFromStamp(mi.activeFrom))
-            .lore("§7ЛКМ - изменить")
-            .lore("§7")
-            .lore("§7")
-            .lore(mi.activeFrom < Timer.getTime() ? "§eначало меньше текущего времени!" : "")
-            .lore(mi.activeFrom > mi.validTo ? "§cначало не может быть после окончания!!" : "")
-            .lore("§7")
-            .build(), e -> {
+                .name("§7Время начала")
+                .lore("§7")
+                //.addLore("§7Сейчас: ")
+                .lore("§f" + TimeUtil.dateFromStamp(mi.activeFrom))
+                .lore("§7ЛКМ - изменить")
+                .lore("§7")
+                .lore("§7")
+                .lore(mi.activeFrom < Timer.getTime() ? "§eначало меньше текущего времени!" : "")
+                .lore(mi.activeFrom > mi.validTo ? "§cначало не может быть после окончания!!" : "")
+                .lore("§7")
+                .build(), e -> {
             DateTimeEditGui.open(p, "старт миссии", mi.activeFrom, true, true, time -> {
                 // if (time<Timer.getTime()) {
                 //   p.sendMessage("§cначало не может быть в прошлом!");
@@ -277,16 +274,16 @@ public class MissionEditor implements InventoryProvider {
         }));
 
         content.set(1, 8, ClickableItem.of(new ItemBuilder(Material.CLOCK)
-            .name("§7Время окончания")
-            .lore("§7")
-            //.addLore("§7Сейчас: ")
-            .lore("§f" + ApiOstrov.dateFromStamp(mi.validTo))
-            .lore("§7")
-            .lore("§7ЛКМ - изменить")
-            .lore(mi.validTo > mi.validTo ? "§eокончание меньше текущего времени!" : "")
-            .lore(mi.validTo < mi.activeFrom ? "§cокончание не может быть раньше начала!" : "")
-            .lore("§7")
-            .build(), e -> {
+                .name("§7Время окончания")
+                .lore("§7")
+                //.addLore("§7Сейчас: ")
+                .lore("§f" + TimeUtil.dateFromStamp(mi.validTo))
+                .lore("§7")
+                .lore("§7ЛКМ - изменить")
+                .lore(mi.validTo > mi.validTo ? "§eокончание меньше текущего времени!" : "")
+                .lore(mi.validTo < mi.activeFrom ? "§cокончание не может быть раньше начала!" : "")
+                .lore("§7")
+                .build(), e -> {
             DateTimeEditGui.open(p, "окончание миссии", mi.validTo, true, true, time -> {
                 //if (time<Timer.getTime()) {
                 //    p.sendMessage("§cокончание не может быть в прошлом!");
@@ -322,30 +319,30 @@ public class MissionEditor implements InventoryProvider {
                 showAmmount = MissionManager.customStatsShowAmmount.containsKey(requestName) ? MissionManager.customStatsShowAmmount.get(requestName) : true;
 
                 content.set(slot, ClickableItem.of(new ItemBuilder(MissionManager.customStatMat(requestName))
-                    .name("§7Требование: §6customStat")
-                    .lore("§7значение String: §f" + requestName)
-                    .lore(showAmmount ? "§7колличество: §f" + currentAmmount : "§8колличество скрыто")
-                    .lore("")
-                    .lore("§7Будет показана как:")
-                    .lore(displayName + (showAmmount ? " §7: §d" + currentAmmount : ""))
-                    .lore("")
-                    .lore("§7ЛКМ - изменить тип")
-                    .lore("§7Шифт+ЛКМ - ввести значение")
-                    .lore(currentAmmount < 10000 ? "§7ПКМ - добавить" : "§8предел")
-                    .lore(currentAmmount > 1 ? "§7Шифт+ПКМ - убавить" : "§8предел")
-                    .lore("§7клав. Q - отменить требование")
-                    .lore("§7")
-                    .build(), e -> {
+                        .name("§7Требование: §6customStat")
+                        .lore("§7значение String: §f" + requestName)
+                        .lore(showAmmount ? "§7колличество: §f" + currentAmmount : "§8колличество скрыто")
+                        .lore("")
+                        .lore("§7Будет показана как:")
+                        .lore(displayName + (showAmmount ? " §7: §d" + currentAmmount : ""))
+                        .lore("")
+                        .lore("§7ЛКМ - изменить тип")
+                        .lore("§7Шифт+ЛКМ - ввести значение")
+                        .lore(currentAmmount < 10000 ? "§7ПКМ - добавить" : "§8предел")
+                        .lore(currentAmmount > 1 ? "§7Шифт+ПКМ - убавить" : "§8предел")
+                        .lore("§7клав. Q - отменить требование")
+                        .lore("§7")
+                        .build(), e -> {
                     mi.changed = true;
                     switch (e.getClick()) {
                         case LEFT -> {
                             SmartInventory.builder()
-                                .id("Выбор требования")
-                                .provider(new RequestSelect(mi))
-                                .size(6, 9)
-                                .title("Выбор требования")
-                                .build()
-                                .open(p);
+                                    .id("Выбор требования")
+                                    .provider(new RequestSelect(mi))
+                                    .size(6, 9)
+                                    .title("Выбор требования")
+                                    .build()
+                                    .open(p);
                             return;
                         }
                         case SHIFT_LEFT -> {
@@ -405,28 +402,28 @@ public class MissionEditor implements InventoryProvider {
             } else {
 
                 content.set(slot, ClickableItem.of(new ItemBuilder(Material.matchMaterial(stat.game.mat))
-                    .name("§7Требование: §3стата §b" + requestName)
-                    .lore("§7Игра: " + stat.game.displayName)
-                    .lore("")
-                    .lore("§7Будет показана как:")
-                    .lore(stat.game.displayName + "§7, " + stat.desc + "§d" + currentAmmount)
-                    .lore("")
-                    .lore("§7ЛКМ - изменить тип")
-                    .lore(currentAmmount < 100 ? "§7ПКМ - добавить" : "§8предел")
-                    .lore(currentAmmount > 1 ? "§7Шифт+ПКМ - убавить" : "§8предел")
-                    .lore("§7клав. Q - отменить требование")
-                    .lore("§7")
-                    .build(), e -> {
+                        .name("§7Требование: §3стата §b" + requestName)
+                        .lore("§7Игра: " + stat.game.displayName)
+                        .lore("")
+                        .lore("§7Будет показана как:")
+                        .lore(stat.game.displayName + "§7, " + stat.desc + "§d" + currentAmmount)
+                        .lore("")
+                        .lore("§7ЛКМ - изменить тип")
+                        .lore(currentAmmount < 100 ? "§7ПКМ - добавить" : "§8предел")
+                        .lore(currentAmmount > 1 ? "§7Шифт+ПКМ - убавить" : "§8предел")
+                        .lore("§7клав. Q - отменить требование")
+                        .lore("§7")
+                        .build(), e -> {
                     mi.changed = true;
                     switch (e.getClick()) {
                         case LEFT -> {
                             SmartInventory.builder()
-                                .id("Выбор требования")
-                                .provider(new RequestSelect(mi))
-                                .size(6, 9)
-                                .title("Выбор требования")
-                                .build()
-                                .open(p);
+                                    .id("Выбор требования")
+                                    .provider(new RequestSelect(mi))
+                                    .size(6, 9)
+                                    .title("Выбор требования")
+                                    .build()
+                                    .open(p);
                             return;
                         }
                         case RIGHT -> {
@@ -457,29 +454,29 @@ public class MissionEditor implements InventoryProvider {
 
         for (; slot <= 34; slot++) {
             content.set(slot, ClickableItem.of(new ItemBuilder(Material.FIREWORK_STAR)
-                .name("§7Свободный слот требования")
-                .lore("§7")
-                .lore("§7ЛКМ - задать")
-                .lore("§7")
-                .build(), e -> {
+                    .name("§7Свободный слот требования")
+                    .lore("§7")
+                    .lore("§7ЛКМ - задать")
+                    .lore("§7")
+                    .build(), e -> {
                 if (e.isLeftClick()) {
                     mi.changed = true;
                     SmartInventory.builder()
-                        .id("Выбор требования")
-                        .provider(new RequestSelect(mi))
-                        .size(6, 9)
-                        .title("Выбор требования")
-                        .build()
-                        .open(p);
+                            .id("Выбор требования")
+                            .provider(new RequestSelect(mi))
+                            .size(6, 9)
+                            .title("Выбор требования")
+                            .build()
+                            .open(p);
                 }
             }));
         }
 
 
         content.set(5, 0, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-            .headTexture(ItemUtils.Texture.previosPage)
-            .name("§7назад")
-            .build(), e -> {
+                .headTexture(ItemUtil.Texture.previosPage)
+                .name("§7назад")
+                .build(), e -> {
 
             MissionManager.openMissionsEditMenu(p);
         }));
@@ -487,22 +484,22 @@ public class MissionEditor implements InventoryProvider {
 
         if (mi.id > 0) {
             content.set(5, 3, ClickableItem.of(new ItemBuilder(Material.SOUL_CAMPFIRE)
-                .name("§eПерезапуск миссии")
-                .lore("§7")
-                .lore("§7Будет сброшен ИД,")
-                .lore("§7и миссия будет как новая.")
-                .lore("§7Старт установтся на §3сейчас")
-                //.addLore("§f"+ApiOstrov.dateFromStamp(mi.activeFrom))
-                .lore("§7")
-                .lore("§7Опции сброса:")
-                .lore("§6ЛКМ§7:срок на §f" + ApiOstrov.secondToTime(mi.validTo - mi.activeFrom))
-                .lore("§6ПКМ§7:со сроком на §fнеделю")
-                .lore("§7")
-                .lore("§7Счётчик выполнений установится на §630")
-                .lore("§7")
-                .lore("§cБез сохранения ничего не изменится!")
-                .lore("§7")
-                .build(), e -> {
+                    .name("§eПерезапуск миссии")
+                    .lore("§7")
+                    .lore("§7Будет сброшен ИД,")
+                    .lore("§7и миссия будет как новая.")
+                    .lore("§7Старт установтся на §3сейчас")
+                    //.addLore("§f"+ApiOstrov.dateFromStamp(mi.activeFrom))
+                    .lore("§7")
+                    .lore("§7Опции сброса:")
+                    .lore("§6ЛКМ§7:срок на §f" + TimeUtil.secondToTime(mi.validTo - mi.activeFrom))
+                    .lore("§6ПКМ§7:со сроком на §fнеделю")
+                    .lore("§7")
+                    .lore("§7Счётчик выполнений установится на §630")
+                    .lore("§7")
+                    .lore("§cБез сохранения ничего не изменится!")
+                    .lore("§7")
+                    .build(), e -> {
                 oldid = mi.id;
                 mi.id = -1;
                 mi.changed = true;
@@ -535,27 +532,27 @@ public class MissionEditor implements InventoryProvider {
 
         if (mi.changed) {
             content.set(5, 6, ClickableItem.of(new ItemBuilder(Material.JUKEBOX)
-                .name("§aСохранить изменения в БД")
-                .lore("§7")
-                .lore("§7Вы внесли изменения,")
-                .lore("§7рекомендуется сохранение.")
-                .lore("§7")
-                .lore("§7После сохранения данные")
-                .lore("§7о миссиях прогрузятся на все")
-                .lore("§7сервера в течении 5 минут.")
-                .lore("§7")
-                .lore("§cБез сохранения ничего не изменится!")
-                .lore("§7")
-                .build(), e -> {
+                    .name("§aСохранить изменения в БД")
+                    .lore("§7")
+                    .lore("§7Вы внесли изменения,")
+                    .lore("§7рекомендуется сохранение.")
+                    .lore("§7")
+                    .lore("§7После сохранения данные")
+                    .lore("§7о миссиях прогрузятся на все")
+                    .lore("§7сервера в течении 5 минут.")
+                    .lore("§7")
+                    .lore("§cБез сохранения ничего не изменится!")
+                    .lore("§7")
+                    .build(), e -> {
 
                 if (mi.id == -1) {
-                    OstrovDB.executePstAsync(p, "INSERT INTO `missions` (`name`, `nameColor`, `mat`, `level`, `reputation`, `request`, `reward`, `rewardFund`, `activeFrom`, `validTo`) "
-                        + "VALUES ('" + mi.name + "', '" + mi.nameColor + "', '" + mi.mat.name() + "', '" + mi.level + "', '" + mi.reputation + "', '" + Mission.getRequestString(mi) + "', '" + mi.reward + "', '" + mi.canComplete + "', '" + mi.activeFrom + "', '" + mi.validTo + "');");
+                    RemoteDB.executePstAsync(p, "INSERT INTO `missions` (`name`, `nameColor`, `mat`, `level`, `reputation`, `request`, `reward`, `rewardFund`, `activeFrom`, `validTo`) "
+                            + "VALUES ('" + mi.name + "', '" + mi.nameColor + "', '" + mi.mat.name() + "', '" + mi.level + "', '" + mi.reputation + "', '" + Mission.getRequestString(mi) + "', '" + mi.reward + "', '" + mi.canComplete + "', '" + mi.activeFrom + "', '" + mi.validTo + "');");
                     if (oldid != 0) {
-                        OstrovDB.executePstAsync(p, "DELETE FROM `missions` WHERE 'id'='" + oldid + "'; ");
+                        RemoteDB.executePstAsync(p, "DELETE FROM `missions` WHERE 'id'='" + oldid + "'; ");
                     }
                 } else {
-                    OstrovDB.executePstAsync(p, "UPDATE `missions` SET `name`='" + mi.name + "', `nameColor`='" + mi.nameColor + "', `mat`='" + mi.mat.name() + "', `level`='" + mi.level + "', `reputation`='" + mi.reputation + "', `request`='" + Mission.getRequestString(mi) + "', `reward`='" + mi.reward + "', `rewardFund`='" + mi.canComplete + "', `activeFrom`='" + mi.activeFrom + "', `validTo`='" + mi.validTo + "' WHERE `missionId`='" + mi.id + "'");
+                    RemoteDB.executePstAsync(p, "UPDATE `missions` SET `name`='" + mi.name + "', `nameColor`='" + mi.nameColor + "', `mat`='" + mi.mat.name() + "', `level`='" + mi.level + "', `reputation`='" + mi.reputation + "', `request`='" + Mission.getRequestString(mi) + "', `reward`='" + mi.reward + "', `rewardFund`='" + mi.canComplete + "', `activeFrom`='" + mi.activeFrom + "', `validTo`='" + mi.validTo + "' WHERE `missionId`='" + mi.id + "'");
                 }
                 MissionManager.openMissionsEditMenu(p);
             }));

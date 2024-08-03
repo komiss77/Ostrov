@@ -1,11 +1,10 @@
 package ru.komiss77.utils.inventory;
 
-
-import com.google.common.base.Preconditions;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <p>

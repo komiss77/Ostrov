@@ -1,13 +1,12 @@
 package ru.komiss77.modules.player.mission;
 
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
@@ -209,7 +208,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
                 }
 
                 op.setData(Data.RIL, current - ril);
-                OstrovDB.executePstAsync(p,
+                RemoteDB.executePstAsync(p,
                     "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
                 );
                 Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));

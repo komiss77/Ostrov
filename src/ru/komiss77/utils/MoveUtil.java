@@ -14,7 +14,7 @@ import ru.komiss77.version.Nms;
 
 
 //не переименовывать! юзают все плагины!
-public class TeleportLoc {
+public class MoveUtil {
 
     private static final int SEARCH_DST = 6;
 
@@ -57,7 +57,7 @@ public class TeleportLoc {
 //Ostrov.log_warn("+++++++ y=" + feetXYZ.y + " " + Nms.isSafeLocation(p, feetXYZ) + " add=-" + add + ((feetXYZ.y > y_max) ? " SKIP!!" : ""));
             feetXYZ.y = y_ori + add;
             if (feetXYZ.y < y_max) {
-                pt = Nms.isSafeLocation(p, feetXYZ);
+                pt = Nms.isSafeLocation(feetXYZ);
 //Ostrov.log_warn("y="+feetXYZ.y+" "+pt+" add="+add);
                 switch (pt) {
                     case DANGEROUS:
@@ -80,7 +80,7 @@ public class TeleportLoc {
                 feetXYZ.y = y_ori - add;
 //Ostrov.log_warn("----------- y="+feetXYZ.y+" "+Nms.isSafeLocation(p, feetXYZ)+" add=-"+add+add+((feetXYZ.y > y_max)?" SKIP!!":""));
                 if (feetXYZ.y > y_min) {
-                    pt = Nms.isSafeLocation(p, feetXYZ);
+                    pt = Nms.isSafeLocation(feetXYZ);
 //Ostrov.log_warn("y="+feetXYZ.y+" "+pt+" add=-"+add);
                     switch (pt) {
                         case DANGEROUS:
@@ -264,7 +264,7 @@ public class TeleportLoc {
         return true;
     }*/
 
-    public static WXYZ findSafeLocation(final Player p, final WXYZ feetLoc) {
+    public static WXYZ findSafeLocation(final WXYZ feetLoc) {
         //if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
         //    return feetLoc;
         //}
@@ -282,7 +282,7 @@ public class TeleportLoc {
         final int y_ori = feetLoc.y;//feet_y;
 
         //проверка указанного места
-        Nms.PlaceType safe = Nms.isSafeLocation(p, feetLoc);//isSafePlace(headMat, feetMat, downMat);
+        Nms.PlaceType safe = Nms.isSafeLocation(feetLoc);//isSafePlace(headMat, feetMat, downMat);
 
         //проверка на блок выше
         if (safe == Nms.PlaceType.SAFELY) {
@@ -290,7 +290,7 @@ public class TeleportLoc {
         }
 
         feetLoc.add(0, 1, 0);
-        safe = Nms.isSafeLocation(p, feetLoc);//TeleportLoc.isSafePlace(upHead, headMat, feetMat);
+        safe = Nms.isSafeLocation(feetLoc);//TeleportLoc.isSafePlace(upHead, headMat, feetMat);
 
         //проверка на блок ниже
         if (safe == Nms.PlaceType.SAFELY) {
@@ -298,7 +298,7 @@ public class TeleportLoc {
         }
 
         feetLoc.add(0, -2, 0);
-        safe = Nms.isSafeLocation(p, feetLoc);//TeleportLoc.isSafePlace(feetMat, downMat, subDown);
+        safe = Nms.isSafeLocation(feetLoc);//TeleportLoc.isSafePlace(feetMat, downMat, subDown);
 
         if (safe == Nms.PlaceType.SAFELY) {
             return feetLoc;
@@ -307,7 +307,7 @@ public class TeleportLoc {
         //сканируем с самого верха до самого низа
         feetLoc.y = y_max;
         for (; feetLoc.y > feetLoc.w.getMinHeight() + 1; feetLoc.y--) {
-            if (Nms.isSafeLocation(p, feetLoc) == Nms.PlaceType.SAFELY) { //вода или подходит для стояния - сойдёт
+            if (Nms.isSafeLocation(feetLoc) == Nms.PlaceType.SAFELY) { //вода или подходит для стояния - сойдёт
                 return feetLoc;
             }
         }
@@ -378,14 +378,14 @@ public class TeleportLoc {
         //final Material feetMat = Nms.getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY(), feetLoc.getBlockZ());
         //final Material downMat = Nms.getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY() - 1, feetLoc.getBlockZ());
         //return isSafePlace(headMat, feetMat, downMat);
-        return Nms.isSafeLocation(null, new WXYZ(feetLoc)) == Nms.PlaceType.SAFELY;//isSafeLocation(new WXYZ(feetLoc));
+        return Nms.isSafeLocation(new WXYZ(feetLoc)) == Nms.PlaceType.SAFELY;//isSafeLocation(new WXYZ(feetLoc));
     }
 
     @Deprecated
     public static boolean isSafePlace(final Material headMat, final Material feetMat, final Material downMat) {
         if (headMat == null || feetMat == null || downMat == null) return false;
-        return LocationUtil.isPassable(headMat) && LocationUtil.isPassable(feetMat)
-            && (LocationUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
+        return LocUtil.isPassable(headMat) && LocUtil.isPassable(feetMat)
+                && (LocUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
     }
 
     //public static boolean isSafeLocation(final WXYZ feetXYZ) {

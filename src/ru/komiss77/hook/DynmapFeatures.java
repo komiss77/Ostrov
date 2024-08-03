@@ -1,5 +1,8 @@
 package ru.komiss77.hook;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -11,10 +14,6 @@ import org.dynmap.markers.MarkerSet;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.wordBorder.CoordXZ;
 import ru.komiss77.modules.world.WorldManager;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class DynmapFeatures {
 

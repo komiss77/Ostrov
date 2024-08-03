@@ -10,7 +10,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.Config;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -51,19 +51,19 @@ public final class MenuItemsManager implements Initiable, Listener {
     public void reload() {
         HandlerList.unregisterAll(this);
         //items.clear(); удаляет предметы, созданные плагином!
-        item_lobby_mode = Config.getConfig().getBoolean("player.item_lobby_mode");
+        item_lobby_mode = Cfg.getConfig().getBoolean("player.item_lobby_mode");
 
-        if (Config.getConfig().getBoolean("player.give_pipboy")) {
-            Material mat = Material.matchMaterial(Config.getConfig().getString("system.pipboy_material"));
+        if (Cfg.getConfig().getBoolean("player.give_pipboy")) {
+            Material mat = Material.matchMaterial(Cfg.getConfig().getString("system.pipboy_material"));
             if (mat == null) mat = Material.CLOCK;
 
             final ItemStack is = new ItemBuilder(mat)
-                .name(Config.getConfig().getString("system.pipboy_name"))
+                    .name(Cfg.getConfig().getString("system.pipboy_name"))
 //                    .addEnchant(Enchantment.LUCK, 1)
-                .build();
+                    .build();
 
             final MenuItem pipboy = new MenuItem("pipboy", is);
-            pipboy.slot = Config.getConfig().getInt("player.give_pipboy_slot");
+            pipboy.slot = Cfg.getConfig().getInt("player.give_pipboy_slot");
             pipboy.give_on_join = true;
             pipboy.give_on_world_change = true;
             pipboy.can_move = !item_lobby_mode;
@@ -72,12 +72,12 @@ public final class MenuItemsManager implements Initiable, Listener {
             pipboy.anycase = true;
             pipboy.duplicate = false;
             pipboy.on_left_click = p -> {
-                final String cmd = Config.getConfig().getString("system.pipboy_left_click_command");
+                final String cmd = Cfg.getConfig().getString("system.pipboy_left_click_command");
                 if (!new PlayerCommandPreprocessEvent(p, cmd).callEvent()) return;
                 p.performCommand(cmd);
             };
             pipboy.on_right_click = p -> {
-                final String cmd = Config.getConfig().getString("system.pipboy_rigth_click_command");
+                final String cmd = Cfg.getConfig().getString("system.pipboy_rigth_click_command");
                 if (!new PlayerCommandPreprocessEvent(p, cmd).callEvent()) return;
                 p.performCommand(cmd);
             };

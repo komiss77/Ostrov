@@ -3,7 +3,6 @@ package ru.komiss77.modules.player.mission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -2,7 +2,7 @@ package ru.komiss77.modules.items;
 
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.rolls.Roll;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 
 public class ItemRoll extends Roll<ItemStack> {
 
@@ -32,11 +32,11 @@ public class ItemRoll extends Roll<ItemStack> {
 
     @Override
     protected String encode() {
-        return ItemUtils.toString(it, SEP);
+        return ItemUtil.toString(it, SEP);
     }
 
     public static void loadAll() {
-        load(ItemRoll.class, cs -> new ItemRoll(cs.getName(), ItemUtils.parseItem(cs.getString(VAL), SEP),
+        load(ItemRoll.class, cs -> new ItemRoll(cs.getName(), ItemUtil.parseItem(cs.getString(VAL), SEP),
             cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0)));
     }
 }

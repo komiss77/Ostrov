@@ -19,7 +19,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.*;
 
@@ -188,13 +188,13 @@ public class SpyCmd implements OCommand {
             pagination.setItemsPerPage(21);
 
             if (!pagination.isLast()) {
-                contents.set(5, 8, ClickableItem.of(ItemUtils.nextPage, e
+                contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> contents.getHost().open(player, pagination.next().getPage()))
                 );
             }
 
             if (!pagination.isFirst()) {
-                contents.set(5, 0, ClickableItem.of(ItemUtils.previosPage, e
+                contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> contents.getHost().open(player, pagination.previous().getPage()))
                 );
             }

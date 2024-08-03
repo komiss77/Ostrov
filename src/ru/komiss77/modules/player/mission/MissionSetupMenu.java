@@ -2,18 +2,17 @@ package ru.komiss77.modules.player.mission;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.OstrovDB;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -59,9 +58,9 @@ public class MissionSetupMenu implements InventoryProvider {
             lore.add(Component.empty()); //4
             lore.add(Component.text("§7Претенденты: §f" + mi.doing));
             lore.add(Component.text("§7Доступна с:"));
-            lore.add(Component.text("§7" + ApiOstrov.dateFromStamp(mi.activeFrom)));
+            lore.add(Component.text("§7" + TimeUtil.dateFromStamp(mi.activeFrom)));
             lore.add(Component.text("§7Доступна по:"));
-            lore.add(Component.text("§7" + ApiOstrov.dateFromStamp(mi.validTo)));
+            lore.add(Component.text("§7" + TimeUtil.dateFromStamp(mi.validTo)));
             lore.add(Component.empty());
             lore.add(Component.text("§7Уровень не менее §6" + mi.level));
             lore.add(Component.text("§7Репутация не менее §6" + mi.reputation));
@@ -88,33 +87,33 @@ public class MissionSetupMenu implements InventoryProvider {
             }
 
             buttons.add(ClickableItem.of(new ItemBuilder(displayMat)
-                    .name(mi.displayName())
-                    .deLore().lore(lore)
-                    .build(), e -> {
-                    if (e.getClick() == ClickType.LEFT) {
-                        MissionManager.editMission(p, mi);
-                    } else if (e.getClick() == ClickType.DROP) {
-                        OstrovDB.executePstAsync(p, "DELETE FROM `missions` WHERE `missionId` = '" + mi.id + "' ");
-                        missions.remove(mi);
-                        reopen(p, content);
+                            .name(mi.displayName())
+                            .lore(lore)
+                            .build(), e -> {
+                        if (e.getClick() == ClickType.LEFT) {
+                            MissionManager.editMission(p, mi);
+                        } else if (e.getClick() == ClickType.DROP) {
+                            RemoteDB.executePstAsync(p, "DELETE FROM `missions` WHERE `missionId` = '" + mi.id + "' ");
+                            missions.remove(mi);
+                            reopen(p, content);
+                        }
                     }
-                }
             ));
 
 
         }
 
         buttons.add(ClickableItem.of(
-                new ItemBuilder(Material.PLAYER_HEAD)
-                    .name("§aдобавить")
-                    .headTexture(ItemUtils.Texture.add)
-                    .lore("§7")
-                    .build(), e -> {
-                    final Mission mi = new Mission();
-                    mi.changed = true;
-                    MissionManager.editMission(p, mi);
-                }
-            )
+                        new ItemBuilder(Material.PLAYER_HEAD)
+                                .name("§aдобавить")
+                                .headTexture(ItemUtil.Texture.add)
+                                .lore("§7")
+                                .build(), e -> {
+                            final Mission mi = new Mission();
+                            mi.changed = true;
+                            MissionManager.editMission(p, mi);
+                        }
+                )
         );
 
 
@@ -124,18 +123,18 @@ public class MissionSetupMenu implements InventoryProvider {
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e
-                    -> {
-                    content.getHost().open(p, pagination.next().getPage());
-                }
+            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+                            -> {
+                        content.getHost().open(p, pagination.next().getPage());
+                    }
             ));
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e
-                    -> {
-                    content.getHost().open(p, pagination.previous().getPage());
-                })
+            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+                            -> {
+                        content.getHost().open(p, pagination.previous().getPage());
+                    })
             );
         }
 
@@ -143,9 +142,9 @@ public class MissionSetupMenu implements InventoryProvider {
 
 
         content.set(5, 0, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-            .headTexture(ItemUtils.Texture.previosPage)
-            .name("§7назад")
-            .build(), e -> {
+                .headTexture(ItemUtil.Texture.previosPage)
+                .name("§7назад")
+                .build(), e -> {
             if (PM.getOplayer(p).setup != null) {
                 PM.getOplayer(p).setup.openMainSetupMenu(p);
             } else {
@@ -155,32 +154,32 @@ public class MissionSetupMenu implements InventoryProvider {
 
 
         content.set(5, 2, ClickableItem.of(new ItemBuilder(Material.BOOK)
-                .name("§7Редактор названий customStat")
-                .build(), e -> {
-                SmartInventory.builder()
-                    .id("Редактор названий customStat")
-                    .provider(new CustomStatNameEditor())
-                    .size(6, 9)
-                    .title("Редактор названий customStat")
-                    .build()
-                    .open(p);
-            }
+                        .name("§7Редактор названий customStat")
+                        .build(), e -> {
+                    SmartInventory.builder()
+                            .id("Редактор названий customStat")
+                            .provider(new CustomStatNameEditor())
+                            .size(6, 9)
+                            .title("Редактор названий customStat")
+                            .build()
+                            .open(p);
+                }
         ));
 
 
         content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.REPEATER)
-                .name("§7Обновить список")
-                .build(), e -> {
-                MissionManager.openMissionsEditMenu(p);
-            }
+                        .name("§7Обновить список")
+                        .build(), e -> {
+                    MissionManager.openMissionsEditMenu(p);
+                }
         ));
 
         content.set(5, 5, ClickableItem.of(new ItemBuilder(Material.HOPPER_MINECART)
-                .name("§eПринудительная загрузка из БД")
-                .build(), e -> {
-                p.performCommand("mission forceload");//MissionManager.loadMissions();
-                MissionManager.openMissionsEditMenu(p);
-            }
+                        .name("§eПринудительная загрузка из БД")
+                        .build(), e -> {
+                    p.performCommand("mission forceload");//MissionManager.loadMissions();
+                    MissionManager.openMissionsEditMenu(p);
+                }
         ));
         
          

@@ -2,12 +2,11 @@ package ru.komiss77.modules.player.mission;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtils;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -58,13 +57,13 @@ public class MissionManageMenu implements InventoryProvider {
             pagination.setItemsPerPage(21);
 
             if (!pagination.isLast()) {
-                content.set(4, 8, ClickableItem.of(ItemUtils.nextPage, e -> {
+                content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }));
             }
 
             if (!pagination.isFirst()) {
-                content.set(4, 0, ClickableItem.of(ItemUtils.previosPage, e -> {
+                content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 }));
             }

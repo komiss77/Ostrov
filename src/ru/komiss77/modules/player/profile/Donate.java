@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Perm;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.enums.Data;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;

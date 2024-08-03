@@ -1,7 +1,6 @@
 package ru.komiss77.modules;
 
 import java.util.HashMap;
-
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -16,7 +15,6 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
-
 
 public class DelayTeleport {
 
