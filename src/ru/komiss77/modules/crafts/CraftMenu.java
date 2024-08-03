@@ -32,7 +32,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.crafts.Crafts.Craft;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -295,7 +295,7 @@ public class CraftMenu implements InventoryProvider {
                         ex.printStackTrace();
                     }
 
-                    p.sendMessage(TCUtils.format(Ostrov.PREFIX + "§7Крафт §к" + key + " §7завершен!"));
+                    p.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7Крафт §к" + key + " §7завершен!"));
                     p.closeInventory();
                 }));
         //final ClickableItem cl = ClickableItem.from(ItemUtil.air, e -> e.setCurrentItem(e.getCursor().asOne()));

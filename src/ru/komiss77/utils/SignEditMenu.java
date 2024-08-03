@@ -40,12 +40,12 @@ public class SignEditMenu implements InventoryProvider {
                 .name("§fПеред, Строка " + (line + 1))
                 .lore("§7Сейчас: ")
                 .lore(c)
-                .build(), TCUtils.deform(frontSide.line(line)).replace('§', '&'), msg -> {
+                .build(), TCUtil.deform(frontSide.line(line)).replace('§', '&'), msg -> {
                 if (msg.length() > 32) {
                     p.sendMessage("§cЛимит 32 символа!");
                     return;
                 }
-                frontSide.line(line_, TCUtils.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
+                frontSide.line(line_, TCUtil.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
                 sign.update();
                 reopen(p, content);
             }));
@@ -70,12 +70,12 @@ public class SignEditMenu implements InventoryProvider {
                 .name("§fЗад, Строка " + (line + 1))
                 .lore("§7Сейчас: ")
                 .lore(c)
-                .build(), TCUtils.deform(backSide.line(line)).replace('§', '&'), msg -> {
+                .build(), TCUtil.deform(backSide.line(line)).replace('§', '&'), msg -> {
                 if (msg.length() > 32) {
                     p.sendMessage("§cЛимит 32 символа!");
                     return;
                 }
-                backSide.line(line_, TCUtils.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
+                backSide.line(line_, TCUtil.form(msg.replace('&', '§')));//sign.getSide(Side.FRONT).line(line, TCUtils.form(msg));
                 sign.update();
                 reopen(p, content);
             }));

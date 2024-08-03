@@ -14,6 +14,7 @@ import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureClickEvent;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.ScreenUtil;
 
 
 public class TradeLst implements Listener {
@@ -83,11 +84,11 @@ public class TradeLst implements Listener {
 
                     sec--;
                     if (sec == 0) {
-                        ApiOstrov.sendActionBarDirect(p, "§cВторой участник не нашелся, торговец отменил сделку.");
+                        ScreenUtil.sendActionBarDirect(p, "§cВторой участник не нашелся, торговец отменил сделку.");
                         reset();
                         return;
                     }
-                    ApiOstrov.sendActionBarDirect(p, "§eЖдём второго участника обмена §7: §f" + sec);
+                    ScreenUtil.sendActionBarDirect(p, "§eЖдём второго участника обмена §7: §f" + sec);
                 }
 
                 private void reset() {

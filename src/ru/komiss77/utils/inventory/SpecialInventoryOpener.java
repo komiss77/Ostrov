@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class SpecialInventoryOpener implements InventoryOpener {
@@ -26,7 +26,7 @@ public class SpecialInventoryOpener implements InventoryOpener {
 
     @Override
     public Inventory getInventory(SmartInventory inv, Player player) {
-        Inventory handle = Bukkit.createInventory(player, inv.getType(), TCUtils.form(inv.getTitle()));
+        Inventory handle = Bukkit.createInventory(player, inv.getType(), TCUtil.form(inv.getTitle()));
         return handle;
     }
 

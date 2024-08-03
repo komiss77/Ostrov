@@ -5,11 +5,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -122,7 +121,7 @@ public class KitGuiMain implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
-                final Kit clickedKit = KitManager.kits.get(TCUtils.stripColor(e.getCurrentItem().getItemMeta().displayName()));
+                final Kit clickedKit = KitManager.kits.get(TCUtil.stripColor(e.getCurrentItem().getItemMeta().displayName()));
 //System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()) );
 
                 if (clickedKit == null) return;

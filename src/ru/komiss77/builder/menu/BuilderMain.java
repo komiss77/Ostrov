@@ -22,7 +22,7 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -387,7 +387,7 @@ public class BuilderMain implements InventoryProvider {
                     }
                     case RIGHT -> {
                         tds = p.getWorld().spawn(new WXYZ(p.getLocation()).getCenterLoc(), TextDisplay.class);
-                        ((TextDisplay) tds).text(TCUtils.form("§оКекст"));
+                        ((TextDisplay) tds).text(TCUtil.form("§оКекст"));
                     }
                     case SHIFT_RIGHT -> {
                         final Display oldDis = LocUtil.getClsChEnt(new WXYZ(loc), 100, Display.class, en -> true);

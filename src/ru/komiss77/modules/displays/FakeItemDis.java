@@ -17,7 +17,7 @@ import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class FakeItemDis extends BukkitRunnable {
@@ -57,7 +57,7 @@ public class FakeItemDis extends BukkitRunnable {
         });
 
         ine = at.getWorld().spawn(at, Interaction.class, in -> {
-            in.customName(TCUtils.form(""));
+            in.customName(TCUtil.form(""));
             in.setCustomNameVisible(false);
             in.setVisibleByDefault(false);
             in.setInteractionHeight(HGHT);
@@ -133,7 +133,7 @@ public class FakeItemDis extends BukkitRunnable {
     }
 
     public FakeItemDis setName(final String nm) {
-        ine.customName(TCUtils.form(nm));
+        ine.customName(TCUtil.form(nm));
         return this;
     }
 

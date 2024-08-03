@@ -32,7 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 //прибить private Plugin plugin;
@@ -627,7 +627,7 @@ public class AnvilGUI {
                 }
 
                 ItemMeta paperMeta = itemLeft.getItemMeta();
-                paperMeta.displayName(TCUtils.form(itemText));
+                paperMeta.displayName(TCUtil.form(itemText));
                 itemLeft.setItemMeta(paperMeta);
             }
 
@@ -693,7 +693,7 @@ public class AnvilGUI {
 
                 final ItemStack cloned = item.clone();
                 final ItemMeta meta = cloned.getItemMeta();
-                meta.displayName(TCUtils.form(text));
+                meta.displayName(TCUtil.form(text));
                 cloned.setItemMeta(meta);
                 anvilgui.getInventory().setItem(Slot.INPUT_LEFT, cloned);
             };
@@ -857,7 +857,7 @@ public class AnvilGUI {
          * @return The text of the rename field
          */
         public String getText() {
-            return outputItem.hasItemMeta() ? TCUtils.deform(outputItem.getItemMeta().displayName()) : "";
+            return outputItem.hasItemMeta() ? TCUtil.deform(outputItem.getItemMeta().displayName()) : "";
         }
     }
 }

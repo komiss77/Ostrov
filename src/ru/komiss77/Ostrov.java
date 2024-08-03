@@ -28,7 +28,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -58,7 +58,7 @@ public class Ostrov extends JavaPlugin {
         calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
         date = new java.util.Date(System.currentTimeMillis());
         full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
-        MOT_D = TCUtils.deform(Bukkit.motd());
+        MOT_D = TCUtil.deform(Bukkit.motd());
     }
 
 

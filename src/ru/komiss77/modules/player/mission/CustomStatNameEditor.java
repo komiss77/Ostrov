@@ -8,7 +8,7 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -38,7 +38,7 @@ public class CustomStatNameEditor implements InventoryProvider {
             final boolean showAmmount = MissionManager.customStatsShowAmmount.get(name);
 //Bukkit.broadcastMessage("key="+name+" val="+MissionManager.customStatsDisplayNames.get(name));
             final Material mat;// = MissionManager.customStatsDisplayNames.containsKey(name) ? MissionManager.customStatMat(name): Material.GUNPOWDER;
-            if (name.equals(TCUtils.stripColor(MissionManager.customStatsDisplayNames.get(name)))) {
+            if (name.equals(TCUtil.stripColor(MissionManager.customStatsDisplayNames.get(name)))) {
                 mat = Material.GUNPOWDER;
             } else {
                 mat = MissionManager.customStatMat(name);

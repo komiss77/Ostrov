@@ -15,7 +15,7 @@ import ru.komiss77.enums.StatFlag;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.OConfig;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public final class Informator implements Initiable {
@@ -25,8 +25,8 @@ public final class Informator implements Initiable {
     private static final List<Component> messagesEn;
     private static boolean use;
     private static int sec, curr_msg_Ru, curr_msg_En, interval = 0;
-    private static final Component guestNotifyRu = TCUtils.form(Ostrov.PREFIX + "§6§lВы играете §5§lРежиме Гостя§6§l, ваши данные §c§lне будут сохраняться§6§l! §a§lЗарегистрируйтесь §6§lдля полноценной игры!");
-    private static final Component guestNotifyEn = TCUtils.form(Ostrov.PREFIX + "§6§lYou are playing in §5§lGuest Mode§6§l, your player data §c§lwill not be saved§6§l! §a§lRegister §6§lfor complete game!");
+    private static final Component guestNotifyRu = TCUtil.form(Ostrov.PREFIX + "§6§lВы играете §5§lРежиме Гостя§6§l, ваши данные §c§lне будут сохраняться§6§l! §a§lЗарегистрируйтесь §6§lдля полноценной игры!");
+    private static final Component guestNotifyEn = TCUtil.form(Ostrov.PREFIX + "§6§lYou are playing in §5§lGuest Mode§6§l, your player data §c§lwill not be saved§6§l! §a§lRegister §6§lfor complete game!");
 
     static {
         messagesRu = new ArrayList<>();

@@ -3,8 +3,8 @@ package ru.komiss77.modules.quests;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.utils.ScreenUtil;
 
 
 public class AdvanceVanila implements IAdvance, Listener {
@@ -27,7 +27,7 @@ public class AdvanceVanila implements IAdvance, Listener {
 
     @Override
     public void sendToast(Player p, Material mt, String msg, Quest.QuestFrame frm) {
-        ApiOstrov.sendTitle(p, "", "§7Квест: " + msg, 20, 40, 20);
+        ScreenUtil.sendTitle(p, "", "§7Квест: " + msg, 20, 40, 20);
     }
 
     @Override

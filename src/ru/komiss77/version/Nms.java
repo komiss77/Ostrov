@@ -59,7 +59,7 @@ import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class Nms {
@@ -164,16 +164,16 @@ public class Nms {
       default:
         last = false;
       case 3:
-        comps[3] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(48, last ? suggest.length() : 65)));
+        comps[3] = PaperAdventure.asVanilla(TCUtil.form(suggest.substring(48, last ? suggest.length() : 65)));
         last = false;
       case 2:
-        comps[2] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(32, last ? suggest.length() : 47)));
+        comps[2] = PaperAdventure.asVanilla(TCUtil.form(suggest.substring(32, last ? suggest.length() : 47)));
         last = false;
       case 1:
-        comps[1] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(16, last ? suggest.length() : 31)));
+        comps[1] = PaperAdventure.asVanilla(TCUtil.form(suggest.substring(16, last ? suggest.length() : 31)));
         last = false;
       case 0:
-        comps[0] = PaperAdventure.asVanilla(TCUtils.form(suggest.substring(0, last ? suggest.length() : 15)));
+        comps[0] = PaperAdventure.asVanilla(TCUtil.form(suggest.substring(0, last ? suggest.length() : 15)));
         break;
     }
     final SignText signtext = new SignText(comps, comps, DyeColor.WHITE, true);

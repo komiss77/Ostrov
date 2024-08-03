@@ -156,7 +156,7 @@ public class ItemBuilder {
         if (name == null) {
             meta.displayName(null);
         } else if (name instanceof String) {
-            meta.displayName(TCUtils.format((String) name));
+            meta.displayName(TCUtil.form((String) name));
         } else if (name instanceof Component) {
             meta.displayName((Component) name);
         }
@@ -262,7 +262,7 @@ public class ItemBuilder {
         if (lore == null) lore = new ArrayList<>();
         if (o instanceof String s) {
             if (s.isEmpty()) lore.add(Component.empty());
-            else lore.add(TCUtils.format(s));
+            else lore.add(TCUtil.form(s));
         } else if (o instanceof Component c) {
             lore.add(c);
         } else if (o instanceof Collection<?> c) {
@@ -271,7 +271,7 @@ public class ItemBuilder {
             }
         } else if (o instanceof String[] ss) {
             for (final String s : ss) {
-                lore.add(TCUtils.format(s));
+                lore.add(TCUtil.form(s));
             }
         } else if (o instanceof Component[] cc) {
             Collections.addAll(lore, cc);
@@ -332,14 +332,14 @@ public class ItemBuilder {
     }
 
     public ItemBuilder repLore(final String from, final String to) {
-        return repLore(TCUtils.format(from), TCUtils.format(to));
+        return repLore(TCUtil.form(from), TCUtil.form(to));
     }
 
     public ItemBuilder repLore(final Component from, final Component to) {
         //final List<Component> lores = meta.lore();
         if (lore == null || lore.isEmpty()) return this;
         for (int i = 0; i < lore.size(); i++) {
-            if (TCUtils.compare(lore.get(i), from)) {
+            if (TCUtil.compare(lore.get(i), from)) {
                 lore.set(i, to);
             }
         }

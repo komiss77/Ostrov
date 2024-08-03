@@ -208,7 +208,7 @@ public class ParticleUtil {
 
                 loc.add(v);
                 //loc.getWorld().spawnParticle(Particle.FLAME, loc, 1, 0, 0, 0);//display(particle, location);
-                loc.getWorld().spawnParticle(Particle.FALLING_DUST, loc, 1, 0, 0, 0, Material.matchMaterial(TCUtils.randomDyeColor().toString() + "_WOOL").createBlockData());
+                loc.getWorld().spawnParticle(Particle.FALLING_DUST, loc, 1, 0, 0, 0, Material.matchMaterial(TCUtil.randomDyeColor().toString() + "_WOOL").createBlockData());
                 //.spawnParticle(Particle.FLAME, currentLocation, 1, 0, 0, 0);
                 loc.subtract(v);
             }
@@ -302,7 +302,7 @@ public class ParticleUtil {
                         }
                     }
                 );
-                ApiOstrov.sendTitleDirect(pl, "", "§7Шифт - остановить показ", 0, 30, 0);
+                ScreenUtil.sendTitleDirect(pl, "", "§7Шифт - остановить показ", 0, 30, 0);
             }
         }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
 
@@ -320,7 +320,7 @@ public class ParticleUtil {
 
         } else if (particleEffect.getDataType() == Particle.DustOptions.class) {
 
-            location.getWorld().spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtils.randomCol(), 1));
+            location.getWorld().spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtil.randomCol(), 1));
 
         } else if (particleEffect.getDataType() == BlockData.class) {
 
@@ -334,7 +334,7 @@ public class ParticleUtil {
             if (particleEffect.getDataType() == Void.class) {
                 p.spawnParticle(particleEffect, location, 6, 1, 1, 1);
             } else if (particleEffect.getDataType() == Particle.DustOptions.class) {
-                p.spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtils.randomCol(), 1));
+                p.spawnParticle(particleEffect, location, 6, 1, 1, 1, new Particle.DustOptions(TCUtil.randomCol(), 1));
             }
 
         }

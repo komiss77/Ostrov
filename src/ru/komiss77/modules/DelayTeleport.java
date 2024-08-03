@@ -15,6 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.ScreenUtil;
 
 public class DelayTeleport {
 
@@ -59,7 +60,7 @@ public class DelayTeleport {
 
                     if (p.getLocation().getBlockX() != x || p.getLocation().getBlockY() != y || p.getLocation().getBlockZ() != z) {
                         this.cancel();
-                        ApiOstrov.sendActionBarDirect(p, "§c" + Lang.t(p, "Перемещение отменяется!"));
+                        ScreenUtil.sendActionBarDirect(p, "§c" + Lang.t(p, "Перемещение отменяется!"));
                         tpData.remove(name);
                         return;
                     }
@@ -74,7 +75,7 @@ public class DelayTeleport {
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 5);
                         tpData.remove(name);
                     } else {
-                        ApiOstrov.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность") + " : §b" + sec);
+                        ScreenUtil.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность") + " : §b" + sec);
                     }
                 }
             }.runTaskTimer(Ostrov.instance, 0, 20)

@@ -30,7 +30,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import io.papermc.paper.math.Position;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
@@ -38,6 +37,7 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.version.Nms;
 
 public class Protocol77 implements Listener {
@@ -215,7 +215,7 @@ public class Protocol77 implements Listener {
                                     final String ttl = title[li];
                                     for (final Player pl : Bukkit.getOnlinePlayers()) {
                                         pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, 0.02f * i + 0.5f);
-                                        ApiOstrov.sendTitleDirect(pl, ttl, "", 0, 8, 4);
+                                        ScreenUtil.sendTitleDirect(pl, ttl, "", 0, 8, 4);
                                         pl.sendMessage(tx);
                                     }
                                 } else {

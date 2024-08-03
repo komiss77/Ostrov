@@ -29,7 +29,7 @@ import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.OConfig;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 //не переименовывать!!!! другие плагины берут напрямую!
 public final class GM {
@@ -76,7 +76,7 @@ public final class GM {
 
     public static void setLogo(final String logo) {
         chatLogo = Component.text()
-            .append(TCUtils.form(logo))
+            .append(TCUtil.form(logo))
             .hoverEvent(HoverEvent.showText(Component.text("Клик - перейти на сервер")))
             .clickEvent(ClickEvent.suggestCommand("/server " + Ostrov.MOT_D))
             .build();
@@ -501,14 +501,14 @@ public final class GM {
                 if (Tag.SIGNS.isTagged(b.getType()) || Tag.STANDING_SIGNS.isTagged(b.getType())) {
                     Sign sign = (Sign) b.getState();
                     final SignSide ssd = sign.getSide(Side.FRONT);
-                    ssd.line(0, TCUtils.form(ai.line0));
-                    ssd.line(1, TCUtils.form(ai.line1));
-                    ssd.line(2, TCUtils.form(ai.line2));
-                    ssd.line(3, TCUtils.form(ai.line3));
+                    ssd.line(0, TCUtil.form(ai.line0));
+                    ssd.line(1, TCUtil.form(ai.line1));
+                    ssd.line(2, TCUtil.form(ai.line2));
+                    ssd.line(3, TCUtil.form(ai.line3));
                     sign.update();
                 }
                 if (gs.attachement_loc != null) {
-                    final BlockData bd = TCUtils.changeColor(gs.attachement_mat, ai.state.attachedColor).createBlockData();
+                    final BlockData bd = TCUtil.changeColor(gs.attachement_mat, ai.state.attachedColor).createBlockData();
                     for (final Player p : gs.attachement_loc.getWorld().getPlayers()) {
                         p.sendBlockChange(gs.attachement_loc, bd);
                     }
@@ -631,10 +631,10 @@ public final class GM {
         if (ai != null) {
             ai.signs.add(locAsString);
             final SignSide ss = sign.getSide(Side.FRONT);
-            ss.line(0, TCUtils.form(ai.line0));
-            ss.line(1, TCUtils.form(ai.line1));
-            ss.line(2, TCUtils.form(ai.line2));
-            ss.line(3, TCUtils.form(ai.line3));
+            ss.line(0, TCUtil.form(ai.line0));
+            ss.line(1, TCUtil.form(ai.line1));
+            ss.line(2, TCUtil.form(ai.line2));
+            ss.line(3, TCUtil.form(ai.line3));
             sign.update();
         }
         GM.gameSigns.set("signs." + locAsString + ".game", game.name());

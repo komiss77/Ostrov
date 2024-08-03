@@ -27,8 +27,7 @@ import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 
 
@@ -126,7 +125,7 @@ public class Timer {
                         Bukkit.getPluginManager().callEvent(new RestartWarningEvent(time_left));
                     }
                     if (time_left == 300 || time_left == 180 || time_left == 120 || time_left == 60) {
-                        Bukkit.broadcast(TCUtils.format("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
+                        Bukkit.broadcast(TCUtil.form("§cВНИМАНИЕ! §cПерезапуск сервера через " + time_left / 60 + " мин.!"));
                     }
                     if (time_left == 15) {
                         for (Player p : Bukkit.getOnlinePlayers()) {

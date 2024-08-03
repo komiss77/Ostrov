@@ -43,6 +43,7 @@ import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.ScreenUtil;
 
 
 public class PlayerLst implements Listener {
@@ -103,9 +104,9 @@ public class PlayerLst implements Listener {
         p.setNoDamageTicks(20);
 
         if (Ostrov.MOT_D.equals("jail")) {
-            ApiOstrov.sendTabList(p, "§4ЧИСТИЛИЩЕ", "");
+            ScreenUtil.sendTabList(p, "§4ЧИСТИЛИЩЕ", "");
         } else {
-            ApiOstrov.sendTabList(p, "", "");//!! перед loadLocalData, или сбрасывает то, что поставила игра
+            ScreenUtil.sendTabList(p, "", "");//!! перед loadLocalData, или сбрасывает то, что поставила игра
         }
 
         if (LocalDB.useLocalData) {
@@ -424,7 +425,7 @@ public class PlayerLst implements Listener {
             }
 
             if (!p.isOp() && p.getGameMode().equals(GameMode.CREATIVE)) {
-                ApiOstrov.sendActionBar(p, "§cПВП в креативе заблокирован!");
+                ScreenUtil.sendActionBar(p, "§cПВП в креативе заблокирован!");
                 e.setCancelled(true);
             }
         }

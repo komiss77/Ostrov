@@ -29,7 +29,7 @@ import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.world.Land;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -62,7 +62,7 @@ public class ServerLst implements Listener {
     public void onDragonDeath(final EntityDeathEvent e) {
         if (e.getEntityType() == EntityType.ENDER_DRAGON && e.getEntity().getWorld().getEnvironment() == World.Environment.THE_END) {
             ApiOstrov.makeWorldEndToWipe(3 * 24 * 60 * 60);
-            Bukkit.broadcast(TCUtils.form("§bДракон побеждён, и край будет воссоздан через 3 дня!"));
+            Bukkit.broadcast(TCUtil.form("§bДракон побеждён, и край будет воссоздан через 3 дня!"));
         }
     }
 
@@ -70,7 +70,7 @@ public class ServerLst implements Listener {
     @EventHandler
     public void onChannelRegister(PlayerRegisterChannelEvent e) {
         if (e.getPlayer().getListeningPluginChannels().size() > 120) {
-            e.getPlayer().kick(TCUtils.form("Лимит регистрации каналов (max= 120)"));
+            e.getPlayer().kick(TCUtil.form("Лимит регистрации каналов (max= 120)"));
         }
     }
 

@@ -122,13 +122,13 @@ public class WorldManagerCmd implements OCommand {
                     for (final World ow : Bukkit.getWorlds()) {
                         final ChunkGenerator cg = ow.getGenerator();
                         final String wgn = cg == null ? null : cg.getClass().getName();
-                        cs.sendMessage(TCUtils.form(
+                        cs.sendMessage(TCUtil.form(
                                         "§b- §e" + ow.getName() +
                                                 " §7 (" + ow.getEnvironment().name() +
                                                 ", " + (wgn == null ? "null" :
                                                 (wgn.contains(".") ? wgn.substring(wgn.lastIndexOf(".") + 1) : wgn)) +
                                                 ", " + ow.getDifficulty().name() + ") §8>ТП< ")
-                                .hoverEvent(HoverEvent.showText(TCUtils.form("§7Чанков загружено: §6" + ow.getLoadedChunks().length +
+                                .hoverEvent(HoverEvent.showText(TCUtil.form("§7Чанков загружено: §6" + ow.getLoadedChunks().length +
                                         "§7, Игроки: §6" + ow.getPlayers().size() +
                                         "§7, ПВП: " + (ow.getPVP() ? "§4Да" : "§2Нет") +
                                         "§7, Энтити: §6" + ow.getEntities().size())))
@@ -208,7 +208,7 @@ public class WorldManagerCmd implements OCommand {
                                 WorldManager.delete(cs, wnm);
                             } else {
                                 if (Bukkit.getWorld(wnm) != null) {
-                                    pl.sendMessage(TCUtils.form("§2> §a§lКлик - ВЫГРУЗИТЬ мир без удаления файлов §2<")
+                                    pl.sendMessage(TCUtil.form("§2> §a§lКлик - ВЫГРУЗИТЬ мир без удаления файлов §2<")
                                             .clickEvent(ClickEvent.runCommand("wm unload " + wnm))
                                     );
                                 }

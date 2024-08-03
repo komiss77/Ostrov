@@ -10,7 +10,7 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
 import ru.komiss77.utils.inventory.InputButton;
@@ -136,7 +136,7 @@ public class MenuSetup implements InventoryProvider {
                 .lore("§7что нужно сделать.")
                 .lore("§7")
                 .build(), figure.getTag(), msg -> {
-                figure.setTag(TCUtils.stripColor(msg));
+                figure.setTag(TCUtil.stripColor(msg));
                 FigureManager.saveFigure(player, figure);
                 reopen(player, contents);
             }));
@@ -164,7 +164,7 @@ public class MenuSetup implements InventoryProvider {
                 .lore("§7")
                 .build(), figure.leftclickcommand, msg -> {
                 if (msg.contains("bossbar ") || msg.contains("op ")) {
-                    player.kick(TCUtils.form("В следующий раз вылет с должности"));
+                    player.kick(TCUtil.form("В следующий раз вылет с должности"));
                     Ostrov.log_err("Попытка ОП через фигуру: " + player.getName());
                 } else {
                     figure.leftclickcommand = msg;
@@ -192,7 +192,7 @@ public class MenuSetup implements InventoryProvider {
                 .lore("§7")
                 .build(), figure.rightclickcommand, msg -> {
                 if (msg.contains("bossbar ") || msg.contains("op ")) {
-                    player.kick(TCUtils.form("В следующий раз вылет с должности"));
+                    player.kick(TCUtil.form("В следующий раз вылет с должности"));
                     Ostrov.log_err("Попытка ОП через фигуру: " + player.getName());
                 } else {
                     figure.rightclickcommand = msg;

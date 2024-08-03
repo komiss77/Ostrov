@@ -141,8 +141,8 @@ public class InteractLst implements Listener {
         if (inHand != null && inHand.getType() == Material.NAME_TAG
                 && e.getAction().isRightClick() && GM.GAME.type == ServerType.ONE_GAME) {  //отловил баг на змейке, походу на минииграх это не надо
             final ItemMeta im = inHand.getItemMeta();
-            new InputButton(InputButton.InputType.ANVILL, inHand, im.hasDisplayName() ? TCUtils.toString(im.displayName()).replace('§', '&') : "Название", nm -> {
-                im.displayName(TCUtils.format(nm.replace('&', '§')));
+            new InputButton(InputButton.InputType.ANVILL, inHand, im.hasDisplayName() ? TCUtil.deform(im.displayName()).replace('§', '&') : "Название", nm -> {
+                im.displayName(TCUtil.form(nm.replace('&', '§')));
                 inHand.setItemMeta(im);
                 p.closeInventory();
             }).run(new ItemClickData(p, new InventoryClickEvent(p.getOpenInventory(), InventoryType.SlotType.CONTAINER, 0,
@@ -233,8 +233,8 @@ public class InteractLst implements Listener {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final Sign sign = (Sign) b.getState();
                     final SignSide ss = sign.getSide(Side.FRONT);
-                    final String line0 = TCUtils.stripColor(ss.line(0)).toLowerCase();
-                    final String line1 = TCUtils.stripColor(ss.line(1));
+                    final String line0 = TCUtil.stripColor(ss.line(0)).toLowerCase();
+                    final String line1 = TCUtil.stripColor(ss.line(1));
                     if (line0.isEmpty() || line1.isEmpty()) return;
                     switch (line0) {
                         case "[команда]" -> {
@@ -242,7 +242,7 @@ public class InteractLst implements Listener {
                             return;
                         }
                         case "[место]" -> {
-                            p.performCommand("warp " + TCUtils.stripColor(line1).toLowerCase());
+                            p.performCommand("warp " + TCUtil.stripColor(line1).toLowerCase());
                             return;
                         }
                     }
@@ -253,7 +253,7 @@ public class InteractLst implements Listener {
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 if (Cfg.disable_lava && inHand != null && inHand.getType().toString().contains("LAVA") && !ApiOstrov.isLocalBuilder(p, false)) {
                     e.setUseItemInHand(Event.Result.DENY);
-                    ApiOstrov.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
+                    ScreenUtil.sendActionBarDirect(p, "§cЛава запрещена на этом сервере!");
                     //return;
                 }
             }
@@ -267,7 +267,7 @@ public class InteractLst implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void Sign_edit(SignChangeEvent e) {
         final Player p = e.getPlayer();
-        final String line0 = TCUtils.stripColor(TCUtils.toString(e.line(0)));
+        final String line0 = TCUtil.stripColor(TCUtil.deform(e.line(0)));
 
         if (line0.equalsIgnoreCase("[Команда]") || line0.equalsIgnoreCase("[Место]")) {
             if (!ApiOstrov.isLocalBuilder(p, true)) {
@@ -279,9 +279,9 @@ public class InteractLst implements Listener {
             e.line(0, Component.text(line0.replaceAll("&", "§")));
         }
 
-        e.line(1, Component.text(TCUtils.toString(e.line(1)).replaceAll("&", "§")));
-        e.line(2, Component.text(TCUtils.toString(e.line(2)).replaceAll("&", "§")));
-        e.line(3, Component.text(TCUtils.toString(e.line(3)).replaceAll("&", "§")));
+        e.line(1, Component.text(TCUtil.deform(e.line(1)).replaceAll("&", "§")));
+        e.line(2, Component.text(TCUtil.deform(e.line(2)).replaceAll("&", "§")));
+        e.line(3, Component.text(TCUtil.deform(e.line(3)).replaceAll("&", "§")));
     }
 
 

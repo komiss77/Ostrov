@@ -19,7 +19,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.*;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 
 
 public class DisplayManager implements Initiable, Listener {
@@ -130,7 +131,7 @@ public class DisplayManager implements Initiable, Listener {
         }
 
         if (timer && Timer.has(pl, "FakeText")) {
-            ApiOstrov.sendActionBarDirect(pl, "§eПодождите немного перед просмотром!");
+            ScreenUtil.sendActionBarDirect(pl, "§eПодождите немного перед просмотром!");
             return false;
         }
 
@@ -162,7 +163,7 @@ public class DisplayManager implements Initiable, Listener {
                 }
 
                 if (i <= msg.length()) {
-                    tds.text(TCUtils.form(msg.substring(0, i)));
+                    tds.text(TCUtil.form(msg.substring(0, i)));
                 }
             }
         }.runTaskTimer(Ostrov.instance, 0, 1);

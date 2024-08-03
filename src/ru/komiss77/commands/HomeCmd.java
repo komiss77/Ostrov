@@ -12,7 +12,6 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.DelayTeleport;
@@ -23,7 +22,7 @@ import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 import java.util.List;
 
@@ -57,8 +56,8 @@ public class HomeCmd implements OCommand {
                     //p.sendMessage( "§bУ Вас несколько домов, выберите нужный: §6"+PM.OP_GetHomeList(p.name()).toString().replaceAll("\\[|\\]", "") );
                     final TextComponent.Builder homes = Component.text().content("§a" + Lang.t(p, "В какой дом вернуться? "));
                     for (final String homeName : op.homes.keySet()) {
-                        homes.append(TCUtils.form("§b- §e" + homeName + " ")
-                            .hoverEvent(HoverEvent.showText(TCUtils.form("§7" + Lang.t(p, "Клик - вернуться в точку дома") + " §6" + homeName)))
+                        homes.append(TCUtil.form("§b- §e" + homeName + " ")
+                            .hoverEvent(HoverEvent.showText(TCUtil.form("§7" + Lang.t(p, "Клик - вернуться в точку дома") + " §6" + homeName)))
                             .clickEvent(ClickEvent.runCommand("/home " + homeName)));
                     }
                     p.sendMessage(homes.build());

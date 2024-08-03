@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.enchants.EnchantManager;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class OStrap implements PluginBootstrap {
@@ -43,7 +43,7 @@ public class OStrap implements PluginBootstrap {
                 final @NonNull WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
                 for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
                     rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
-                        b -> b.description(TCUtils.form(ce.name()))
+                        b -> b.description(TCUtil.form(ce.name()))
                             .primaryItems(ce.isCommon() ? ce.targets().regSet() : RegistrySet.keySet(RegistryKey.ITEM))
                             .supportedItems(ce.isCommon() ? RegistrySet.keySet(RegistryKey.ITEM) : ce.targets().regSet())
                             .anvilCost(ce.anvilCost())

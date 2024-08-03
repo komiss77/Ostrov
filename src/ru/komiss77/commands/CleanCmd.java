@@ -2,9 +2,6 @@ package ru.komiss77.commands;
 
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,6 +9,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.hook.DynmapHook;
 import ru.komiss77.hook.WGhook;
@@ -25,12 +23,11 @@ import java.sql.Statement;
 import java.util.*;
 
 
-public class CleanCmd implements OCommand {
+public class CleanCmd {
 
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
+    public CleanCmd() {
         final String type = "type", world = "world";
-        return Commands.literal("clean").executes(cntx -> {
+        new OCmdBuilder("clean", "/clean <тип> <мир>").run(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (!(cs instanceof final Player pl)) {
                 cs.sendMessage("§eНе консольная команда!");
@@ -219,15 +216,14 @@ public class CleanCmd implements OCommand {
 
             }, 20);
             return Command.SINGLE_SUCCESS;
-        }).then(Resolver.string(type).suggests((cntx, sb)->{
+        }).then(Resolver.string(type)).suggest(cntx -> {
             if (cntx.getSource().getSender() instanceof final Player pl) {
                 if (!ApiOstrov.isStaff(pl) || !pl.isOp()) {
-                    return sb.buildFuture();
+                    return Set.of();
                 }
             }
-            sb.suggest("dynmap");
-            return sb.buildFuture();
-        }).then(Resolver.world(world).executes(cntx -> {
+            return Set.of("dynmap");
+        }, true).then(Resolver.world(world)).run(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (cs instanceof final Player pl) {
                 if (!ApiOstrov.isStaff(pl) || !pl.isOp()) {
@@ -244,22 +240,12 @@ public class CleanCmd implements OCommand {
                     DynmapHook.purge(Resolver.world(cntx, world).getName());
                     yield Command.SINGLE_SUCCESS;
                 }
-                default -> {
-                    cs.sendMessage("§cТакой тип нельзя очистить!");
-                    yield 0;
-                }
+                default -> 0;
             };
-        }))).build();
-    }
-
-    @Override
-    public List<String> aliases() {
-        return List.of("очистка");
-    }
-
-    @Override
-    public String description() {
-        return "Очистка данных";
+        })
+        .description("Очистка данных")
+        .aliases("очистка")
+        .register();
     }
 }
     

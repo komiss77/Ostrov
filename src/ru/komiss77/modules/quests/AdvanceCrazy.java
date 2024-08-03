@@ -33,7 +33,8 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.quests.Quest.QuestFrame;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.ParticleUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 
 //     https://www.spigotmc.org/resources/crazy-advancements-api.51741/
 
@@ -240,10 +241,10 @@ public class AdvanceCrazy implements IAdvance, Listener {
             mgr.grantAdvancement(p, ad);
             if (!silent) {
                 ParticleUtil.spawnRandomFirework(p.getLocation());
-                final String chatColor = TCUtils.randomColor();
+                final String chatColor = TCUtil.randomColor();
                 p.sendMessage(" ");
-                p.sendMessage(TCUtils.form(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));
-                p.sendMessage(TCUtils.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
+                p.sendMessage(TCUtil.form(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));
+                p.sendMessage(TCUtil.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
                 p.sendMessage(" ");
                 ad.displayToast(p);
             }
@@ -257,7 +258,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
         if (ad != null) {
             mgr.setCriteriaProgress(p, ad, progress);
             if (!silent) {
-                ApiOstrov.sendBossbarDirect(p, "§сПрогресс : §f" + q.displayName, 4, q.getBBColor(),
+                ScreenUtil.sendBossbarDirect(p, "§сПрогресс : §f" + q.displayName, 4, q.getBBColor(),
                     BossBar.Overlay.PROGRESS, q.amount == 0 ? 1f : (float) progress / q.amount);
             }
         }

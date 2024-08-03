@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Cfg;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class HatCmd {
@@ -56,7 +56,7 @@ public class HatCmd {
                     pl.getInventory().setHelmet(is);
                     pl.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 
-                    pl.sendMessage(TCUtils.form("§aВы одели ").append(Lang.t(is.getType(), pl)).append(TCUtils.form(" на голову!")));
+                    pl.sendMessage(TCUtil.form("§aВы одели ").append(Lang.t(is.getType(), pl)).append(TCUtil.form(" на голову!")));
 
                     return Command.SINGLE_SUCCESS;
                 })

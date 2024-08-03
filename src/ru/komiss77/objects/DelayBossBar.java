@@ -3,7 +3,7 @@ package ru.komiss77.objects;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.bossbar.BossBar;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class DelayBossBar {
@@ -36,7 +36,7 @@ public class DelayBossBar {
         op.timeBar = timeBar;
         op.bossbar.color(color);
         op.bossbar.overlay(style);
-        op.bossbar.name(TCUtils.form(text));
+        op.bossbar.name(TCUtil.form(text));
         op.bossbar.progress(timeBar ? 1f : (progress > 1f ? 1f : progress < 0f ? 0f : progress));
         p.showBossBar(op.bossbar);
     }

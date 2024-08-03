@@ -28,7 +28,8 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -389,9 +390,9 @@ public class MissionManager {
                                     current = progressMap.get(requestName);
                                     if (current >= request) {
                                         if (showAmmount) {
-                                            lore.add(Component.text("§a✔ §8" + TCUtils.stripColor(displayName) + current + " (" + request + ")"));
+                                            lore.add(Component.text("§a✔ §8" + TCUtil.stripColor(displayName) + current + " (" + request + ")"));
                                         } else {
-                                            lore.add(Component.text("§a✔ §8" + TCUtils.stripColor(displayName)));
+                                            lore.add(Component.text("§a✔ §8" + TCUtil.stripColor(displayName)));
                                         }
                                     } else {
                                         if (showAmmount) {
@@ -525,7 +526,7 @@ public class MissionManager {
 
         if (!MissionManager.canUseCommand(p, "edit")) return;
 
-        ApiOstrov.sendActionBar(p, "§6Загрузка данных...");
+        ScreenUtil.sendActionBar(p, "§6Загрузка данных...");
         Ostrov.async(() -> {
 
             Statement stmt = null;

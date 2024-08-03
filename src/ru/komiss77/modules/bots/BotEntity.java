@@ -33,7 +33,7 @@ import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Craft;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
@@ -179,7 +179,7 @@ public class BotEntity extends ServerPlayer {
                 mb.setSilent(true);
                 mb.setPersistent(true);
                 mb.setRemoveWhenFarAway(false);
-                mb.customName(TCUtils.format(name));
+                mb.customName(TCUtil.form(name));
                 mb.setCustomNameVisible(true);
                 mb.setAdult();
             });
@@ -368,7 +368,7 @@ public class BotEntity extends ServerPlayer {
     }
 
     public void tab(final String prefix, final String affix, final String suffix) {
-        listName = PaperAdventure.asVanilla(TCUtils.format(prefix + affix + name + suffix));
+        listName = PaperAdventure.asVanilla(TCUtil.form(prefix + affix + name + suffix));
         Nms.sendWorldPacket(world, updListPlayerPacket());
     }
 

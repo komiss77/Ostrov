@@ -88,10 +88,10 @@ public class ItemMenu implements InventoryProvider {
         }));
 
         its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
-            .name("§7Имя:§r " + (im.hasDisplayName() ? TCUtils.deform(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
+            .name("§7Имя:§r " + (im.hasDisplayName() ? TCUtil.deform(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
             .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
-            ? TCUtils.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
-            im.displayName(msg.equals("-") ? null : TCUtils.form(msg.replace('&', '§')));
+            ? TCUtil.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
+            im.displayName(msg.equals("-") ? null : TCUtil.form(msg.replace('&', '§')));
             it.setItemMeta(im);
             reopen(p, its);
         }));
@@ -99,7 +99,7 @@ public class ItemMenu implements InventoryProvider {
         ItemBuilder prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN);
         if (im.hasLore()) {
             prep.name("§7Описание:").lore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
-            for (final Component lr : im.lore()) prep.lore("- " + TCUtils.deform(lr).replace('§', '&'));
+            for (final Component lr : im.lore()) prep.lore("- " + TCUtil.deform(lr).replace('§', '&'));
         } else {
             prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
                 .lore(" ", "§eЛКМ §7- Добавить линию");
@@ -110,9 +110,9 @@ public class ItemMenu implements InventoryProvider {
             if (e.getClick().isLeftClick()) {
                 PlayerInput.get(InputType.ANVILL, p, text -> {
                     if (lrs == null) {
-                        im.lore(Arrays.asList(TCUtils.form(text)));
+                        im.lore(Arrays.asList(TCUtil.form(text)));
                     } else {
-                        lrs.add(TCUtils.form(text));
+                        lrs.add(TCUtil.form(text));
                         im.lore(lrs);
                     }
                     it.setItemMeta(im);

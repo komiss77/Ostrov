@@ -12,7 +12,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 public class MenuItem {
 
@@ -39,9 +39,9 @@ public class MenuItem {
 
         final ItemMeta im = itemEn.getItemMeta();
         im.setCustomModelData(id);
-        String displayName = im.hasDisplayName() ? TCUtils.deform(im.displayName()) : "";
+        String displayName = im.hasDisplayName() ? TCUtil.deform(im.displayName()) : "";
         displayName = Lang.t(displayName, Lang.EN);
-        im.displayName(TCUtils.form(displayName));
+        im.displayName(TCUtil.form(displayName));
 
         itemEn.setItemMeta(im);
     }

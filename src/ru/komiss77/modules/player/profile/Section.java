@@ -10,7 +10,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
@@ -718,7 +717,7 @@ public enum Section {
 
         final ItemStack is = new ItemStack(Material.PLAYER_HEAD);
         final ItemMeta im = is.getItemMeta();
-        im.displayName(TCUtils.format(op.eng ? section.item_nameEn : section.item_nameRu));
+        im.displayName(TCUtil.form(op.eng ? section.item_nameEn : section.item_nameRu));
         im.lore(lore);
         ItemUtil.setHeadTexture((SkullMeta) im, section.texture);
         is.setItemMeta(im);

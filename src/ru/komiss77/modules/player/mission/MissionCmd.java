@@ -323,10 +323,10 @@ public class MissionCmd implements OCommand {
                                             op.missionIds.add(id);//обновить missionIds
                                             op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds, ";"));//обновить Data.MISSION
                                             final int times = 50;
-                                            ApiOstrov.sendTitle(pl, Component.empty(), TCUtils.form("<gray>Принятие миссии ")
+                                            ScreenUtil.sendTitle(pl, Component.empty(), TCUtil.form("<gray>Принятие миссии ")
                                                     .append(mi.displayName()), times, times, times);
-                                            pl.sendMessage(TCUtils.form("<white>Вы приняли миссию ").append(mi.displayName())
-                                                    .append(TCUtils.form("<white>, выполните её до " + TimeUtil.dateFromStamp(mi.validTo)))
+                                            pl.sendMessage(TCUtil.form("<white>Вы приняли миссию ").append(mi.displayName())
+                                                    .append(TCUtil.form("<white>, выполните её до " + TimeUtil.dateFromStamp(mi.validTo)))
                                             );
                                             pl.getWorld().playSound(pl.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_2, 1, 1);
                                             Bukkit.getPluginManager().callEvent(new MissionEvent(pl, mi.name, MissionEvent.MissionAction.Accept));
@@ -390,7 +390,7 @@ public class MissionCmd implements OCommand {
                                         if (progress == null || progress.isEmpty()) {
 
                                             //op.getPlayer().sendMessage("§cнет прогресса по миссии "+mi.getDisplayName());
-                                            op.getPlayer().sendMessage(TCUtils.form("<red>нет прогресса по миссии").append(mi.displayName()));
+                                            op.getPlayer().sendMessage(TCUtil.form("<red>нет прогресса по миссии").append(mi.displayName()));
 
                                         } else {
 
@@ -431,7 +431,7 @@ public class MissionCmd implements OCommand {
                                                     op.addStat(Stat.REPUTATION, 1);
                                                     op.addStat(Stat.EXP, 10);
                                                     pl.sendMessage(" ");
-                                                    final String rc = TCUtils.randomColor();
+                                                    final String rc = TCUtil.randomColor();
                                                     pl.sendMessage(rc + "§m-----§4§k AA §eМиссия завершена §4§k AA" + rc + "§m-----");
                                                     pl.sendMessage(Component.text(" Миссия §7-> ", NamedTextColor.WHITE).append(mi.displayName()));
                                                     pl.sendMessage(" §fНаграда §7-> §e" + mi.reward + " рил");
@@ -449,8 +449,8 @@ public class MissionCmd implements OCommand {
                                                 Ostrov.sync(() -> ParticleUtil.spawnRandomFirework(pl.getLocation().clone().add(0, 2, 0)), 20);
                                             } else {
                                                 //op.getPlayer().sendMessage("§cУсловия миссии "+mi.getDisplayName()+ " не выполнены!");
-                                                op.getPlayer().sendMessage(TCUtils.form("<red>Условия миссии ")
-                                                        .append(mi.displayName()).append(TCUtils.form(" <red>не выполнены!"))
+                                                op.getPlayer().sendMessage(TCUtil.form("<red>Условия миссии ")
+                                                        .append(mi.displayName()).append(TCUtil.form(" <red>не выполнены!"))
                                                 );
                                             }
                                         }

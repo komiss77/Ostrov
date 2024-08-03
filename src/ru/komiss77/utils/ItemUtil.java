@@ -118,7 +118,7 @@ public class ItemUtil {
 
     public static ItemStack setName(final ItemStack is, final String name) {
         final ItemMeta im = is.getItemMeta();
-        im.displayName(TCUtils.form(name));
+        im.displayName(TCUtil.form(name));
         is.setItemMeta(im);
         return is;
     }
@@ -223,7 +223,7 @@ public class ItemUtil {
         if (text == null) return current;
         final Matcher regexMatcher = regex.matcher(text);
         while (regexMatcher.find()) {
-            current.add(TCUtils.form(color == null ? regexMatcher.group() : color + regexMatcher.group()));
+            current.add(TCUtil.form(color == null ? regexMatcher.group() : color + regexMatcher.group()));
         }
     /*final String[] блоки = text.replace('&', '§');
     //else блоки = {text};
@@ -261,11 +261,11 @@ public class ItemUtil {
         final String[] blocks = text.replace('&', '§').split("<br>");
         for (final String block : blocks) {
             if (block.length() <= 25) {
-                current.add(TCUtils.form(block));
+                current.add(TCUtil.form(block));
             } else {
                 final List<String> split = split(block, 25);
                 for (String line : split) {
-                    current.add(TCUtils.form(line));
+                    current.add(TCUtil.form(line));
                 }
             }
         }
@@ -549,7 +549,7 @@ public class ItemUtil {
     }
 
     public static String getName(final ItemStack is) {
-        return hasName(is) ? TCUtils.deform(is.getItemMeta().displayName()) : "";
+        return hasName(is) ? TCUtil.deform(is.getItemMeta().displayName()) : "";
     }
 
     public static void giveItemsTo(final Player p, final ItemStack... its) {
@@ -559,7 +559,7 @@ public class ItemUtil {
             left = true;
         }
         if (left) {
-            ApiOstrov.sendActionBarDirect(p, "§4В твоем инвентаре не было места, предмет выпал рядом!");
+            ScreenUtil.sendActionBarDirect(p, "§4В твоем инвентаре не было места, предмет выпал рядом!");
         }
     }
 
@@ -579,11 +579,11 @@ public class ItemUtil {
 
             final ItemMeta im = is.getItemMeta();
             if (im.hasDisplayName()) {
-                res.append(spl).append("name:").append(TCUtils.deform(im.displayName()).replace('§', '&'));
+                res.append(spl).append("name:").append(TCUtil.deform(im.displayName()).replace('§', '&'));
             }
 
             if (im.hasLore()) {
-                res.append(spl).append("lore:").append(im.lore().stream().map(TCUtils::deform).collect(Collectors.joining(":")));
+                res.append(spl).append("lore:").append(im.lore().stream().map(TCUtil::deform).collect(Collectors.joining(":")));
                 /*for (final Component lore :im.lore()) {
                     if (lore.isEmpty()) {
                         res=res+paramSplitter+"lore:&7";
@@ -780,7 +780,7 @@ public class ItemUtil {
                     case "lore":
                         final List<Component> lrs = new ArrayList<>();
                         for (int j = 1; j < param.length; j++) {
-                            lrs.add(TCUtils.form(param[j].replace('&', '§')));
+                            lrs.add(TCUtil.form(param[j].replace('&', '§')));
                         }
                         builder.lore(lrs);
                         //builder.addLore(splittedParametrs.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
@@ -998,7 +998,7 @@ public class ItemUtil {
                 final ItemMeta im2 = is2.getItemMeta();
                 if (im1.hasDisplayName() && im2.hasDisplayName()) { //если у обоих есть название
 
-                    if (TCUtils.compare(im1.displayName(), im2.displayName())) { //если название совпадает
+                    if (TCUtil.compare(im1.displayName(), im2.displayName())) { //если название совпадает
 
                         if (!checkLore) {
                             return true;
@@ -1016,7 +1016,7 @@ public class ItemUtil {
                                 return false;  //если размеры лоре не одинаковые - нет
                             }
                             for (int i = 0; i < lore1.size(); i++) {
-                                if (!TCUtils.compare(lore1.get(i), lore2.get(i))) {  //перебираем строки
+                                if (!TCUtil.compare(lore1.get(i), lore2.get(i))) {  //перебираем строки
                                     return false;  //хоть одна строка разная - предметы разные
                                 }
                             }
@@ -1049,12 +1049,12 @@ public class ItemUtil {
         final SignSide sd = sign.getSide(Side.FRONT);
         for (int ln = 0; !suggest.isEmpty() && ln < 4; ln++) {
             if (suggest.length() > 15) {
-                sd.line(ln, TCUtils.form(suggest.substring(0, 15)));
+                sd.line(ln, TCUtil.form(suggest.substring(0, 15)));
                 suggest = suggest.substring(15);
                 continue;
             }
 
-            sd.line(ln, TCUtils.form(suggest));
+            sd.line(ln, TCUtil.form(suggest));
             break;
         }
         sign.update();

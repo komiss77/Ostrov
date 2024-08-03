@@ -1,16 +1,11 @@
 package ru.komiss77.utils;
 
-import java.util.*;
-import java.util.Map.Entry;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.format.TextDecoration.State;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -24,8 +19,10 @@ import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
+import java.util.Map.Entry;
 
-public class TCUtils {
+
+public class TCUtil {
 
     //    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)§[0-9a-xа-я]");
     public static final TextComponent EMPTY;
@@ -537,7 +534,7 @@ public class TCUtils {
     }
 
     public static String setColorChar(final char ch, final Component str) {
-        return setColorChar(ch, toString(str));
+        return setColorChar(ch, deform(str));
     }
 
     private static String deLegacify(final String str) {
@@ -579,7 +576,7 @@ public class TCUtils {
     }
 
     //"§[^\s]"
-    @Slow(priority = 1)
+    /*@Slow(priority = 1)
     @Deprecated
     public static TextComponent format(final String str) {
         if (str == null || str.isEmpty()) {
@@ -896,13 +893,13 @@ public class TCUtils {
                 comps.add(Component.text(car[ln], stb.decorations(decs, true).color(gradTo).build()));
             }
         }
-    }
+    }*/
 
     public static boolean has(final Component parent, final Component has) {
         return parent.contains(has);
     }
 
-    @Slow(priority = 1)
+    /*@Slow(priority = 1)
     @Deprecated
     public static String toString(final Component cmp) {
         lstClr = null;
@@ -1023,9 +1020,7 @@ public class TCUtils {
         return color.asHexString().toUpperCase();
     }
 
-    private record Gradient(TextColor init, int start, boolean ext) {
-
-    }
+    private record Gradient(TextColor init, int start, boolean ext) {}*/
 
     public static boolean compare(final Component of, final Component to) {
         return deform(of).equals(deform(to));

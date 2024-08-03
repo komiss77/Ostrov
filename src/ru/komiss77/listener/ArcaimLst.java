@@ -54,7 +54,7 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 //https://github.com/ds58/Panilla
@@ -373,17 +373,17 @@ public class ArcaimLst implements Listener {
                     ab.tag("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.getEntity().setGravity(false);
                     p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_AMBIENT, 2f, 0.8f);
-                    p.sendMessage(GM.getLogo().append(TCUtils.form(
+                    p.sendMessage(GM.getLogo().append(TCUtil.form(
                         "§2komiss77 §7» О, привет, " + p.getName() + "! ты тут новичек?")));
                     Ostrov.sync(() -> {
                         if (!p.isValid() || !p.isOnline()) return;
                         p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_TRADE, 2f, 0.8f);
-                        p.sendMessage(GM.getLogo().append(TCUtils.form(
+                        p.sendMessage(GM.getLogo().append(TCUtil.form(
                             "§2komiss77 §7» Я тут заскучал строить уже, может ты мне сможешь помочь?")));
                         Ostrov.sync(() -> {
                             if (!p.isValid() || !p.isOnline()) return;
                             p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_YES, 2f, 0.8f);
-                            p.sendMessage(GM.getLogo().append(TCUtils.form(
+                            p.sendMessage(GM.getLogo().append(TCUtil.form(
                                 "§2komiss77 §7» Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
                             p.sendMessage("Ваш игроаой режим был изменен на Творческий режим");
                             p.setGameMode(GameMode.CREATIVE);

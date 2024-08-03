@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.enchantments.Enchantment;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 //https://github.com/ds58/Panilla
 //https://github.com/alexandrage/CreativeItemFilter/tree/master
@@ -63,11 +63,11 @@ public class NbtLst {
             final ItemMeta newMeta = metaCopierFactory.getCopier(oldMeta).copyValidMeta(oldMeta, newItem.getType());
 
             if (oldMeta.hasDisplayName()) {
-                newMeta.displayName(Component.text(StringUtils.clampString(TCUtils.deform(oldMeta.displayName()))));
+                newMeta.displayName(Component.text(StringUtils.clampString(TCUtil.deform(oldMeta.displayName()))));
             }
 
             if (oldMeta.hasLore()) { //яички с лоре через раздатчик крашат сервер
-                newMeta.lore(oldMeta.lore().stream().map(lr -> TCUtils.form(StringUtils.clampString(TCUtils.deform(lr)))).collect(Collectors.toList()));
+                newMeta.lore(oldMeta.lore().stream().map(lr -> TCUtil.form(StringUtils.clampString(TCUtil.deform(lr)))).collect(Collectors.toList()));
             }
 
             // copy enchantments
@@ -131,7 +131,7 @@ public class NbtLst {
     }
 
     public static boolean Invalid_name_lenght(final Player player, final ItemStack item) {
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtils.deform(item.getItemMeta().displayName()).length() > 40) {
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && TCUtil.deform(item.getItemMeta().displayName()).length() > 40) {
             player.sendMessage("Превышена длина имени!");
             return true;
         }
@@ -296,7 +296,7 @@ public class NbtLst {
                 newBookMeta.setGeneration(oldMeta.getGeneration());
             }
             if (oldMeta.hasPages() && oldMeta.pages().size() <= pages) {
-                newBookMeta.pages(oldMeta.pages().stream().map(cmp -> Component.text(StringUtils.clampString(TCUtils.deform(cmp), 16383))).collect(Collectors.toList()));
+                newBookMeta.pages(oldMeta.pages().stream().map(cmp -> Component.text(StringUtils.clampString(TCUtil.deform(cmp), 16383))).collect(Collectors.toList()));
             } else {
                 newBookMeta.pages(new Component[]{Component.text(" ")});
             }

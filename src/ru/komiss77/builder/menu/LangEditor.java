@@ -13,7 +13,7 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
 
 public class LangEditor implements InventoryProvider {
@@ -122,8 +122,8 @@ public class LangEditor implements InventoryProvider {
                         final String eng = Lang.getTranslate(rus);//rs.getString("eng");
 
                         buttons.add(new InputButton(InputButton.InputType.CHAT, new ItemBuilder(Material.PAPER)
-                            .name(TCUtils.form(rus))
-                            .lore(TCUtils.form(eng))
+                            .name(TCUtil.form(rus))
+                            .lore(TCUtil.form(eng))
                             .build(), eng.replaceAll("§", "&"), input -> {
                             input = input.replaceAll("&", "§");
                             Lang.upd(rus, input);

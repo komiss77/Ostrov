@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.Duo;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 public class SideBar {
 
@@ -29,7 +29,7 @@ public class SideBar {
         toAdd = new LinkedList<>();
         data = new HashMap<>();
         lines = new HashMap<>();
-        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.form(title));
+        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtil.form(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.displayName(Component.empty());
         obj.numberFormat(NumberFormat.blank());
@@ -40,7 +40,7 @@ public class SideBar {
         toAdd = new LinkedList<>();
         data = new HashMap<>();
         lines = new HashMap<>();
-        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtils.form(title));
+        obj = board.getScoreboard().registerNewObjective("status", Criteria.DUMMY, TCUtil.form(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.displayName(Component.empty());
         obj.numberFormat(NumberFormat.blank());
@@ -56,7 +56,7 @@ public class SideBar {
     }
 
     public SideBar title(final String name) {
-        obj.displayName(TCUtils.form(name));
+        obj.displayName(TCUtil.form(name));
         return this;
     }
 

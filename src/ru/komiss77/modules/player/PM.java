@@ -36,6 +36,7 @@ import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
 
@@ -236,7 +237,7 @@ public class PM {
         op.setLocalChat(false); //вернуть глобальный чат - фикс проблемы выхода с миниигр из мира карты
 
         if (Ostrov.MOT_D.equals("jail")) {
-            ApiOstrov.sendTabList(p, op.eng ? "§4PURGATORY" : "§4ЧИСТИЛИЩЕ", "");
+            ScreenUtil.sendTabList(p, op.eng ? "§4PURGATORY" : "§4ЧИСТИЛИЩЕ", "");
             if (op.isStaff) {
                 p.sendMessage(op.eng ? "§cYou're in maintenance purgatory.." : "§cВы в чистилище для тех.обслуживания.");
             } else {
@@ -251,7 +252,7 @@ public class PM {
         }
 
         if (ApiOstrov.canBeBuilder(p)) {
-            ApiOstrov.sendActionBarDirect(p, op.eng ? "§f* You are §eBuilder §fon this server." : "§f* У Вас есть право §eСтроителя §fна этом сервере.");
+            ScreenUtil.sendActionBarDirect(p, op.eng ? "§f* You are §eBuilder §fon this server." : "§f* У Вас есть право §eСтроителя §fна этом сервере.");
             p.sendMessage(op.eng ? builderMsgEn : builderMsgRu);
         }
 

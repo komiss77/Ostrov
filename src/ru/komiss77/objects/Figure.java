@@ -11,7 +11,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class Figure {
@@ -88,7 +88,7 @@ public class Figure {
         if (name.isEmpty()) {
             entity.setCustomNameVisible(false);
         } else {
-            entity.customName(TCUtils.form(name));
+            entity.customName(TCUtil.form(name));
             entity.setCustomNameVisible(true);
         }
     }

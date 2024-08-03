@@ -8,7 +8,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.WarpCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -66,7 +66,7 @@ public class WarpSetupMenu implements InventoryProvider {
             .lore("§7ЛКМ - редактировать")
             .lore("§7")
             .build(), w.descr, msg -> {
-            final String strip = TCUtils.stripColor(msg);
+            final String strip = TCUtil.stripColor(msg);
 
             if (strip.length() > 24) {
                 p.sendMessage("§cЛимит 24 символа!");

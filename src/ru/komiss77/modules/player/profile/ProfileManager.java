@@ -915,7 +915,7 @@ public class ProfileManager {
                 ItemMeta im = is.getItemMeta();
                 if (im.hasLore()) {
                     List<Component> lore = is.getItemMeta().lore();
-                    lore.set(line, TCUtils.format(value));
+                    lore.set(line, TCUtil.form(value));
                     im.lore(lore);
                     is.setItemMeta(im);
                     current.setItem(slot, is);

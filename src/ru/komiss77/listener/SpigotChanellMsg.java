@@ -12,7 +12,6 @@ import com.google.common.io.ByteStreams;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
 import org.bukkit.Sound;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.SeenCmd;
 import ru.komiss77.enums.Chanell;
@@ -28,7 +27,8 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Friends;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 
 
 //SPIGOT!!!
@@ -270,7 +270,7 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 p = Bukkit.getPlayerExact(senderInfo);
                 op = PM.getOplayer(senderInfo);
                 op.resetDaylyStat();
-                ApiOstrov.sendBossbar(p, "§cДневная статистика сброшена!", 6, Color.RED, Overlay.NOTCHED_12);
+                ScreenUtil.sendBossbar(p, "§cДневная статистика сброшена!", 6, Color.RED, Overlay.NOTCHED_12);
                 return;
             }
 
@@ -349,18 +349,18 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 final Player target = Bukkit.getPlayerExact(s1);
                 //System.out.println("333 who="+who+" target="+target);
                 if (target == null || !target.isOnline()) {
-                    sender.sendMessage(TCUtils.form("§cТелепорт не удалось завершить - " + s1 + " не найден!"));
+                    sender.sendMessage(TCUtil.form("§cТелепорт не удалось завершить - " + s1 + " не найден!"));
                     //return;
                 } else {
                     FriendTeleportEvent event = new FriendTeleportEvent(sender, target);
                     Bukkit.getPluginManager().callEvent(event);
                     if (event.isCanceled()) {
-                        sender.sendMessage(TCUtils.form("§cТелепорт не удалось завершить: " + event.cause));
-                        target.sendMessage(TCUtils.form("§cТелепорт не удалось завершить: " + event.cause));
+                        sender.sendMessage(TCUtil.form("§cТелепорт не удалось завершить: " + event.cause));
+                        target.sendMessage(TCUtil.form("§cТелепорт не удалось завершить: " + event.cause));
                     } else {
                         sender.teleport(target);
-                        sender.sendMessage(TCUtils.form("§6Вы телепортировались к " + target.getName()));
-                        target.sendMessage(TCUtils.form("§6К вам телепортировался " + senderInfo));
+                        sender.sendMessage(TCUtil.form("§6Вы телепортировались к " + target.getName()));
+                        target.sendMessage(TCUtil.form("§6К вам телепортировался " + senderInfo));
                     }
                 }
             }

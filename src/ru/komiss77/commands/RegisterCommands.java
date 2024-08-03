@@ -13,6 +13,7 @@ public class RegisterCommands {
     public static void register() {
         new HatCmd();//новый способ
         new PrefixCmd();//сравнение
+        new CleanCmd();
 
         Ostrov.log_ok("§5Регистрация команд:");
         Ostrov.regCommand(new AdminCmd());

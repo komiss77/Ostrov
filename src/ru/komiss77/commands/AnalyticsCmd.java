@@ -28,6 +28,7 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -64,7 +65,7 @@ public class AnalyticsCmd implements OCommand {
             Timer.add(pl, "anal", 5);
 
             pl.closeInventory();
-            ApiOstrov.sendBossbar(pl, "§5Сбор информации...", 5, Color.PINK, BossBar.Overlay.NOTCHED_6);
+            ScreenUtil.sendBossbar(pl, "§5Сбор информации...", 5, Color.PINK, BossBar.Overlay.NOTCHED_6);
 
             Ostrov.async(() -> {
 

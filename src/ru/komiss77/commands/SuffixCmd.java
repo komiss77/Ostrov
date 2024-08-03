@@ -11,7 +11,7 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 import java.util.List;
 
@@ -38,13 +38,13 @@ public class SuffixCmd implements OCommand {
                     }
 
                     final String sf = Resolver.string(cntx, suffix).replace("&k", "").replace("&", "§");
-                    if (TCUtils.strip(sf).length() > 8) {
-                        pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "<red>Суффикс не может превышать 8 символов (цвета не учитываются)."));
+                    if (TCUtil.strip(sf).length() > 8) {
+                        pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Суффикс не может превышать 8 символов (цвета не учитываются)."));
                         return 0;
                     }
 
                     op.setData(Data.SUFFIX, sf);
-                    pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый суффикс: " + sf));
+                    pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Твой новый суффикс: " + sf));
                     return Command.SINGLE_SUCCESS;
                 }))
             .build();

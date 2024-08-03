@@ -33,6 +33,7 @@ import ru.komiss77.*;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 public class SignProtectLst implements Initiable, Listener {
@@ -152,7 +153,7 @@ public class SignProtectLst implements Initiable, Listener {
                             e.getPlayer().sendMessage("§eДоступ к сундуку в режиме ОП");
                         } else {
                             e.setCancelled(true);
-                            ApiOstrov.sendActionBarDirect((Player) e.getPlayer(), "§cДоступ к сундуку ограничен!");
+                            ScreenUtil.sendActionBarDirect((Player) e.getPlayer(), "§cДоступ к сундуку ограничен!");
                         }
                         //e.getPlayer().sendMessage("Защищено");
                     }
@@ -221,7 +222,7 @@ public class SignProtectLst implements Initiable, Listener {
                         SignProtect.updateSign(s, new ProtectionData(e.getPlayer().getName()));
                     } else {
                         //e.getPlayer().sendMessage("§6Защита уже установлена!");
-                        ApiOstrov.sendActionBarDirect(e.getPlayer(), "§6Защита уже установлена!");
+                        ScreenUtil.sendActionBarDirect(e.getPlayer(), "§6Защита уже установлена!");
                     }
                 }
             }
@@ -323,7 +324,7 @@ public class SignProtectLst implements Initiable, Listener {
             final ProtectionData pd = ProtectionData.of(s);
             if (!pd.canUse(e.getPlayer())) {
                 e.setCancelled(true);
-                ApiOstrov.sendActionBarDirect(e.getPlayer(), "§eВы не можете взять книгу!");
+                ScreenUtil.sendActionBarDirect(e.getPlayer(), "§eВы не можете взять книгу!");
                 e.setCancelled(true);
             }
         }

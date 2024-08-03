@@ -10,7 +10,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class Mission {
@@ -37,7 +37,7 @@ public class Mission {
 
     public Component displayName() {
         if (displayName == null) {
-            displayName = TCUtils.form(nameColor + "§o" + name);
+            displayName = TCUtil.form(nameColor + "§o" + name);
         }
         return displayName;//TCUtils.(name, nameColor).decoration(TextDecoration.ITALIC, false);//TCUtils.toChat(nameColor)+name;
     }

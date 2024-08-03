@@ -14,7 +14,7 @@ import org.bukkit.material.Colorable;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -219,7 +219,7 @@ public class EntitySetup implements InventoryProvider {
             DyeColor dc = ((Colorable) en).getColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
                 .name("§fЦвет")
-                .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                .lore("§fСейчас : " + TCUtil.toChat(dc) + TCUtil.dyeDisplayName(dc))
                 .build(), e -> {
                 if (e.isLeftClick()) {
                     final DyeColor dc2 = ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
@@ -233,7 +233,7 @@ public class EntitySetup implements InventoryProvider {
             DyeColor dc = ((Wolf) en).getCollarColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
                 .name("§fЦвет")
-                .lore("§fСейчас : " + TCUtils.toChat(dc) + TCUtils.dyeDisplayName(dc))
+                .lore("§fСейчас : " + TCUtil.toChat(dc) + TCUtil.dyeDisplayName(dc))
                 .build(), e -> {
                 if (e.isLeftClick()) {
                     final DyeColor dc2 = ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];

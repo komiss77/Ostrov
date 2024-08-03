@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 public class ChestInventoryOpener implements InventoryOpener {
 
@@ -17,7 +17,7 @@ public class ChestInventoryOpener implements InventoryOpener {
         Preconditions.checkArgument(inv.getRows() >= 1 && inv.getRows() <= 6,
             "The row count for the chest inventory must be between 1 and 6, found: %s", inv.getRows());
 
-        Inventory handle = Bukkit.createInventory(player, inv.getRows() * inv.getColumns(), TCUtils.form(inv.getTitle()));
+        Inventory handle = Bukkit.createInventory(player, inv.getRows() * inv.getColumns(), TCUtil.form(inv.getTitle()));
 
         return handle;
     }

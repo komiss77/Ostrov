@@ -6,7 +6,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.enums.Data;
@@ -16,6 +15,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
+import ru.komiss77.utils.ScreenUtil;
 
 
 public class StatManager {
@@ -70,8 +70,8 @@ public class StatManager {
                 //final String achiv = descFromAchiv(stat, 0);
                 //ApiOstrov.sendBossbar(p, stat.game.displayName+" : §d"+(achiv.isEmpty() ? "Достижение!" : achiv)+"§7, "+stat.desc+newStatValue, 15, BarColor.YELLOW, BarStyle.SEGMENTED_6, false);
                 //ApiOstrov.sendTitle(p, achiv.isEmpty() ? "§fДостижение!" : "§e"+achiv, stat.game.displayName+"§7, "+stat.desc+newStatValue, 20, 40, 20);
-                ApiOstrov.sendBossbar(p, Lang.t(p, stat.game.displayName) + " : §d" + (newLevel == 5 ? "Достижение!" : topAdv(stat)) + "§7, " + Lang.t(p, stat.desc) + newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
-                ApiOstrov.sendTitle(p, newLevel == 5 ? "§e" + topAdv(stat) : "§fДостижение!", Lang.t(p, stat.game.displayName) + "§7, " + Lang.t(p, stat.desc) + newStatValue, 20, 40, 20);
+                ScreenUtil.sendBossbar(p, Lang.t(p, stat.game.displayName) + " : §d" + (newLevel == 5 ? "Достижение!" : topAdv(stat)) + "§7, " + Lang.t(p, stat.desc) + newStatValue, 8, Color.YELLOW, Overlay.NOTCHED_6);
+                ScreenUtil.sendTitle(p, newLevel == 5 ? "§e" + topAdv(stat) : "§fДостижение!", Lang.t(p, stat.game.displayName) + "§7, " + Lang.t(p, stat.desc) + newStatValue, 20, 40, 20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 1.5F);
             }
         }

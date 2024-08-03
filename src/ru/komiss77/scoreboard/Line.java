@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 //чтобы строчки были с цветом, они дрбавляются как тимы
@@ -23,7 +23,7 @@ public class Line {
     public Line(final CustomScore sb, final String value, final int line) {
         //final Player p = Bukkit.getPlayerExact(sb.ownerName);
         //if (p==null) return;
-        fakeValue = TCUtils.getColor(line) + "§r"; //невидимое значение - цветовой код + сброс цвета
+        fakeValue = TCUtil.getColor(line) + "§r"; //невидимое значение - цветовой код + сброс цвета
         // nmsTeam =  new PlayerTeam(((CraftScoreboard)sb.getScoreboard()).getHandle(), fakeValue);
         //Nms.sendPackets(p,
         //   ClientboundSetPlayerTeamPacket.createRemovePacket(nmsTeam), //подчистить старую, если была
@@ -79,6 +79,6 @@ public class Line {
             }
         }
 
-        team.prefix(TCUtils.form(content));
+        team.prefix(TCUtil.form(content));
     }
 }

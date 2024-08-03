@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import ru.komiss77.enums.Game;
 import ru.komiss77.utils.BlockUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class GameSign {
@@ -26,7 +26,7 @@ public class GameSign {
         attachement_loc = BlockUtil.getSignAttachedBlock(signLoc.getBlock()).getLocation();
         attachement_mat = attachement_loc.getBlock().getType();
 
-        if (!TCUtils.canChangeColor(attachement_mat)) {
+        if (!TCUtil.canChangeColor(attachement_mat)) {
             attachement_loc = null;
         }
     }

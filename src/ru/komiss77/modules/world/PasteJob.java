@@ -23,10 +23,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.ScreenUtil;
 
 class PasteJob implements Runnable {
 
@@ -167,7 +167,7 @@ class PasteJob implements Runnable {
         if (ticks % 5 == 0 && cs != null) {
             percent = (int) ((double) checked / cuboidSize * 100.0D);
             if (cs instanceof Player) {
-                ApiOstrov.sendActionBarDirect(Bukkit.getPlayer(cs.getName()), "§eвставка " + schem.getName() + ": §f" + percent + "%");
+                ScreenUtil.sendActionBarDirect(Bukkit.getPlayer(cs.getName()), "§eвставка " + schem.getName() + ": §f" + percent + "%");
             } else {
                 if (ticks % 20 == 0) cs.sendMessage("§eвставка " + schem.getName() + ": §f" + percent + "%");
             }

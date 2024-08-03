@@ -22,7 +22,7 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
 import ru.komiss77.utils.inventory.InputButton;
@@ -165,9 +165,9 @@ public class DisplayMenu implements InventoryProvider {
                     .build(), e -> {
                 if (e.getEvent() instanceof InventoryClickEvent) {
                     PlayerInput.get(tds.getLineWidth() < 40 ? InputType.ANVILL : InputType.CHAT, p, text -> {
-                        tds.text(TCUtils.format(text));
+                        tds.text(TCUtil.form(text));
                         reopen(p, its);
-                    }, TCUtils.toString(currentText));
+                    }, TCUtil.deform(currentText));
                 }
             }));
 
@@ -255,7 +255,7 @@ public class DisplayMenu implements InventoryProvider {
                     nd.setShadowed(true);
                     nd.setLineWidth(200);
                     nd.setTextOpacity((byte) -1);
-                    nd.text(TCUtils.format("§оКекст"));
+                    nd.text(TCUtil.form("§оКекст"));
 
                     replace(nd);
                     reopen(p, its);

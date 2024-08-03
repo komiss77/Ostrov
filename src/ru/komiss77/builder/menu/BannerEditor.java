@@ -20,7 +20,7 @@ import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -214,7 +214,7 @@ public class BannerEditor implements InventoryProvider {
             case Основа:
 
                 for (DyeColor dc : DyeColor.values()) {
-                    final Material m = TCUtils.changeColor(mat, dc);
+                    final Material m = TCUtil.changeColor(mat, dc);
                     content.add(ClickableItem.of(new ItemStack(m), e -> {
                         mat = m;
                         reopen(p, content);

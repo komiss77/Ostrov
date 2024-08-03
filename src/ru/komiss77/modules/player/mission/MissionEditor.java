@@ -98,7 +98,7 @@ public class MissionEditor implements InventoryProvider {
                 p.sendMessage("§cСлишком длинное название! (лимит32)");
                 PM.soundDeny(p);
             } else {
-                mi.name = TCUtils.stripColor(newName);
+                mi.name = TCUtil.stripColor(newName);
                 mi.displayName = null;
                 mi.changed = true;
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
@@ -109,7 +109,7 @@ public class MissionEditor implements InventoryProvider {
 
         content.set(1, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
                 .name("§7Цвет названия")
-                .lore(TCUtils.format(mi.nameColor + "ТИПА НАЗВАНИЕ"))
+                .lore(TCUtil.form(mi.nameColor + "ТИПА НАЗВАНИЕ"))
                 .lore("")
                 .lore("§7ЛКМ - изменить")
                 .lore("")

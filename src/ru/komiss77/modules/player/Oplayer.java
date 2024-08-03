@@ -39,7 +39,8 @@ import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
@@ -192,7 +193,7 @@ public class Oplayer {
         if (dataString.isEmpty() && getOnlineSec() > 1) {
             if (getOnlineSec() < 15) {
                 SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
-                ApiOstrov.sendActionBarDirect(p, "§5Ожидание данных с прокси..");
+                ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с прокси..");
                 return;
             } else if (getOnlineSec() == 15) {
                 p.sendMessage("§cДанные с прокси не получены, попробуйте перезайти!");
@@ -206,7 +207,7 @@ public class Oplayer {
         }
 
         if (Cfg.tablist_header_footer) {
-            ApiOstrov.sendTabList(p, (eng ? "§7Server: §5" : "§7Сервер: §5") + GM.GAME.displayName + "§7 §6" + TimeUtil.getCurrentHourMin(), (eng ? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
+            ScreenUtil.sendTabList(p, (eng ? "§7Server: §5" : "§7Сервер: §5") + GM.GAME.displayName + "§7 §6" + TimeUtil.getCurrentHourMin(), (eng ? "§fMain menu - §a/menu" : "  §fГлавное меню - §a/menu"));
         }
 //Ostrov.log_warn("op tick WANT_ARENA_JOIN="+dataString.get(Data.WANT_ARENA_JOIN));
         if (onlineSecond == 4) {
@@ -257,7 +258,7 @@ public class Oplayer {
     public void updTabListName(final Player p) {
         if (Cfg.tablist_name) {
             final String displayName = isGuest ? "§8(Гость) " + beforeName + getDataString(Data.FAMILY) : beforeName + nik;
-            p.playerListName(TCUtils.form(tabPreffix + displayName + tabSuffix));
+            p.playerListName(TCUtil.form(tabPreffix + displayName + tabSuffix));
         }
     }
 
@@ -283,14 +284,14 @@ public class Oplayer {
 
     public void onPVPEnter(final Player p, final int time,
                            final boolean blockFly, final boolean giveTag) {
-        ApiOstrov.sendActionBarDirect(p, (eng ? "§cBattle mode " : "§cРежим боя ") + time + (eng ? " sec." : " сек."));
+        ScreenUtil.sendActionBarDirect(p, (eng ? "§cBattle mode " : "§cРежим боя ") + time + (eng ? " sec." : " сек."));
         if (blockFly) {
 //            p.setFlySpeed(fly_speed);
             p.setAllowFlight(false);
             p.setFlying(false);
             if (p.isGliding()) {
                 p.setGliding(false);
-                ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
+                ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
             }
         }
         if (giveTag) beforeName("§4⚔ ", p);
@@ -299,7 +300,7 @@ public class Oplayer {
 
     public void onPVPEnd(final Player p,
                          final boolean blockFly, final boolean giveTag) {
-        ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§aТы больше не в бою!"));
+        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§aТы больше не в бою!"));
 //    	if (p == null) return;
         if (blockFly) {
 //            p.setFlySpeed(fly_speed);
@@ -412,15 +413,15 @@ public class Oplayer {
             SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag, xpCache, "", ""); //обновить на банжи
             dailyStat.put(Stat.EXP, getDaylyStat(Stat.EXP) + value); //увеличение дневного счётчика опыта
             SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag + Stat.diff, getDaylyStat(Stat.EXP), "", "");
-            ApiOstrov.sendTitle(p, "§7.", Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 20, 60, 40);
-            ApiOstrov.sendBossbar(p, Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 8, Color.GREEN, Overlay.NOTCHED_20);
+            ScreenUtil.sendTitle(p, "§7.", Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 20, 60, 40);
+            ScreenUtil.sendBossbar(p, Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 8, Color.GREEN, Overlay.NOTCHED_20);
         } else { //уровень не меняется - просто добавляем опыт
             //addStat(Stat.EXP, value); addStat нельзя - деадлок!
             stat.put(Stat.EXP, xpCache);
             dailyStat.put(Stat.EXP, getDaylyStat(Stat.EXP) + value);
             SpigotChanellMsg.sendMessage(getPlayer(), Operation.ADD_BUNGEE_STAT, nik, Stat.EXP.tag, value, "", ""); //на банжике уровень не пересчитываем!
             if (value > 10)
-                ApiOstrov.sendActionBar(getPlayer(), (curr_level * 25 - getStat(Stat.EXP) + 1) + (eng ? "§7 experience to next level" : "§7 опыта до следующего уровня")); //+1 - фикс, или писало 0 до след уровня
+                ScreenUtil.sendActionBar(getPlayer(), (curr_level * 25 - getStat(Stat.EXP) + 1) + (eng ? "§7 experience to next level" : "§7 опыта до следующего уровня")); //+1 - фикс, или писало 0 до след уровня
         }
     }
 
@@ -534,7 +535,7 @@ public class Oplayer {
         if (seconds > no_damage) {
             no_damage = seconds;
             if (actionBar) {
-                ApiOstrov.sendActionBar(getPlayer(), eng ? "§aYou have invulnerability for " + no_damage + " sec!" : "§aВам дарована неуязвимость на " + no_damage + " сек!");
+                ScreenUtil.sendActionBar(getPlayer(), eng ? "§aYou have invulnerability for " + no_damage + " sec!" : "§aВам дарована неуязвимость на " + no_damage + " сек!");
             }
         }
     }
@@ -654,7 +655,7 @@ public class Oplayer {
 
 
     public void updateGender() {
-        switch (TCUtils.strip(getDataString(Data.GENDER)).toLowerCase()) {
+        switch (TCUtil.strip(getDataString(Data.GENDER)).toLowerCase()) {
             case "девочка" -> gender = Gender.FEMALE;
             case "мальчик" -> gender = Gender.MALE;
             default -> gender = Gender.NEUTRAL;

@@ -178,7 +178,7 @@ public final class LimiterLst implements Initiable, Listener {
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK && (mat == Material.FIREWORK_ROCKET || mat == Material.FIREWORK_STAR)) {
                 if (Timer.has(e.getPlayer(), "firework")) {
                     e.setUseItemInHand(Event.Result.DENY);
-                    ApiOstrov.sendActionBarDirect(e.getPlayer(), "§eЧуть помедленнее!");
+                    ScreenUtil.sendActionBarDirect(e.getPlayer(), "§eЧуть помедленнее!");
                 } else {
                     Timer.add(e.getPlayer(), "firework", 1);
                 }
@@ -206,7 +206,7 @@ public final class LimiterLst implements Initiable, Listener {
                 if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
                     e.setUseItemInHand(Event.Result.DENY);
                     if (Timer.has(p, "vehicle")) {
-                        ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
+                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
                         return;
                     }
                     Timer.add(p, "vehicle", 2);
@@ -229,7 +229,7 @@ public final class LimiterLst implements Initiable, Listener {
                 } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
                     e.setUseItemInHand(Event.Result.DENY);
                     if (Timer.has(p, "vehicle")) {
-                        ApiOstrov.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
+                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
                         return;
                     }
                     Timer.add(p, "vehicle", 2);

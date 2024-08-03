@@ -12,7 +12,7 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 import java.util.List;
 
@@ -37,13 +37,13 @@ public class PrefixCmd implements OCommand {
                     }
 
                     final String pr = Resolver.string(cntx, prefix).replace("&k", "").replace("&", "§");
-                    if (TCUtils.strip(pr).length() > 8) {
-                        pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
+                    if (TCUtil.strip(pr).length() > 8) {
+                        pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
                         return 0;
                     }
 
                     op.setData(Data.PREFIX, pr);
-                    pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
+                    pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
                     return Command.SINGLE_SUCCESS;
                 })
                 .description("Ставит префикс")
@@ -71,13 +71,13 @@ public class PrefixCmd implements OCommand {
                             }
 
                             final String pr = Resolver.string(cntx, prefix).replace("&k", "").replace("&", "§");
-                            if (TCUtils.strip(pr).length() > 8) {
-                                pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
+                            if (TCUtil.strip(pr).length() > 8) {
+                                pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Префикс не может превышать 8 символов (цвета не учитываются)."));
                                 return 0;
                             }
 
                             op.setData(Data.PREFIX, pr);
-                            pl.sendMessage(TCUtils.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
+                            pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Твой новый префикс: " + pr));
                             return Command.SINGLE_SUCCESS;
                         }))
                 .build();

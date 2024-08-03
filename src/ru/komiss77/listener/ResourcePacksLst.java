@@ -47,7 +47,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 //не переименовывать!
 public final class ResourcePacksLst implements Initiable, OCommand {
@@ -96,7 +96,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     static {
         key = new ItemStack(Material.GOLDEN_SWORD);
         ItemMeta im = key.getItemMeta();
-        im.displayName(TCUtils.form("§bНажмите на ключик"));
+        im.displayName(TCUtil.form("§bНажмите на ключик"));
         im.setUnbreakable(true);
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         im.setCustomModelData(1);
@@ -104,7 +104,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
         lock = new ItemStack(Material.GOLDEN_SWORD);
         im = lock.getItemMeta();
-        im.displayName(TCUtils.form("§bНажмите на ключик"));
+        im.displayName(TCUtil.form("§bНажмите на ключик"));
         im.setUnbreakable(true);
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         im.setCustomModelData(2);
@@ -260,25 +260,25 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
                 case DECLINED -> {
                     op.resourcepack_locked = true;
-                    p.sendMessage(TCUtils.form("""
+                    p.sendMessage(TCUtil.form("""
                             §e*******************************************************************
                             §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
                             §2>>> §aКлик сюда для решения. §2<<<
                             §e*******************************************************************
                             """)
-                            .hoverEvent(HoverEvent.showText(TCUtils.form("§5§oНажми для перехода")))
+                            .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для перехода")))
                             .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
                 }
 
                 case FAILED_DOWNLOAD -> {
                     op.resourcepack_locked = true;
-                    p.sendMessage(TCUtils.form("""
+                    p.sendMessage(TCUtil.form("""
                             §e*******************************************************************
                             §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
                             §2>>> §aКлик сюда для ручной загрузки. §2<<<
                             §e*******************************************************************
                             """)
-                            .hoverEvent(HoverEvent.showText(TCUtils.form("§5§oНажми для загрузки")))
+                            .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для загрузки")))
                             .clickEvent(ClickEvent.openUrl(link)));
                 }
 
@@ -309,7 +309,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             //if ( !use || !block_menu) return;
             final Oplayer op = PM.getOplayer(e.getPlayer().getName());
             //if (op==null) return;
-            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака") || op.menu.isProfileInventory(TCUtils.deform(e.getView().title()))) {
+            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака") || op.menu.isProfileInventory(TCUtil.deform(e.getView().title()))) {
                 return;
             }
             if (op.resourcepack_locked) {
@@ -325,7 +325,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             if (e.getSlot() < 0 || e.getSlot() > 44 || e.getCurrentItem() == null || e.getCurrentItem().getType().isAir())
                 return;
 
-            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
+            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
                 e.setCancelled(true);
                 final Player p = (Player) e.getWhoClicked();
                 final Oplayer op = PM.getOplayer(p);
@@ -349,7 +349,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             final Oplayer op = PM.getOplayer(e.getPlayer().getName());
             if (op == null) return;
             if (e.getInventory().getType() != InventoryType.CHEST) return;
-            if (TCUtils.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
+            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
                 if (op.resourcepack_locked) {
                     pack_err((Player) e.getPlayer());
                 }
@@ -369,15 +369,15 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
     private static void pack_err(final Player p) {
         p.sendMessage("");
-        p.sendMessage(TCUtils.form("§cВы не сможете играть на этом сервере без пакета ресурсов!\n§eЧто делать?:")
-                .append(TCUtils.form("§aВариант 1: Попытаться еще раз. §5§o>Клик сюда для установки<")
-                        .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для установки")))
+        p.sendMessage(TCUtil.form("§cВы не сможете играть на этом сервере без пакета ресурсов!\n§eЧто делать?:")
+                .append(TCUtil.form("§aВариант 1: Попытаться еще раз. §5§o>Клик сюда для установки<")
+                        .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для установки")))
                         .clickEvent(ClickEvent.runCommand("/rp")))
-                .append(TCUtils.form("§aВариант 2: Установить вручную. §5§o>Клик сюда для загрузки пакета<")
-                        .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для установки")))
+                .append(TCUtil.form("§aВариант 2: Установить вручную. §5§o>Клик сюда для загрузки пакета<")
+                        .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для установки")))
                         .clickEvent(ClickEvent.openUrl(link)))
-                .append(TCUtils.form("§aВариант 3: Исправить настройки. §5§o>Клик сюда для перехода<")
-                        .hoverEvent(HoverEvent.showText(TCUtils.form("§b§oНажми для перехода")))
+                .append(TCUtil.form("§aВариант 3: Исправить настройки. §5§o>Клик сюда для перехода<")
+                        .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для перехода")))
                         .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ"))));
         p.sendMessage("");
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 1, 1);
@@ -386,7 +386,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
     public static void openCheckMenu(final Player p) {
         if (!use) return; //не открывать менюшку, а то берутся предметы
-        final Inventory rp_check = Bukkit.createInventory(null, 45, TCUtils.form("§4Проверка Ресурс-пака"));
+        final Inventory rp_check = Bukkit.createInventory(null, 45, TCUtil.form("§4Проверка Ресурс-пака"));
         for (int i = 0; i < 44; i++) {
             rp_check.addItem(lock);
         }

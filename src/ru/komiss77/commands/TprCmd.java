@@ -25,8 +25,7 @@ import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WXYZ;
-
-
+import ru.komiss77.utils.ScreenUtil;
 
 
 public class TprCmd implements OCommand {
@@ -155,7 +154,7 @@ public class TprCmd implements OCommand {
 
                 if (!force) {
                     if (p.getLocation().getBlockX() != x || p.getLocation().getBlockY() != y || p.getLocation().getBlockZ() != z) {
-                        ApiOstrov.sendActionBarDirect(p, "§c" + Lang.t(p, "ТП отменяется!"));
+                        ScreenUtil.sendActionBarDirect(p, "§c" + Lang.t(p, "ТП отменяется!"));
                         this.cancel();
                         tpData.remove(name);
                         return;
@@ -169,9 +168,9 @@ public class TprCmd implements OCommand {
                 } else {
 
                     if (force) {
-                        ApiOstrov.sendActionBarDirect(p, "§8" + Lang.t(p, "Поиск места") + ": §3" + (100 - find_try) + "%");
+                        ScreenUtil.sendActionBarDirect(p, "§8" + Lang.t(p, "Поиск места") + ": §3" + (100 - find_try) + "%");
                     } else {
-                        ApiOstrov.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность, ищем!") + " §b" + (100 - find_try) + "%");
+                        ScreenUtil.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность, ищем!") + " §b" + (100 - find_try) + "%");
                     }
 
                 }

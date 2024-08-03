@@ -19,7 +19,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.events.ScoreWorldRecordEvent;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.ThreadSafe;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 
 public class ScoreDis {
@@ -86,7 +86,7 @@ public class ScoreDis {
             }
         }
         final String text = sb.toString();
-        td.text(TCUtils.form(score));
+        td.text(TCUtil.form(score));
         new BukkitRunnable() {
             Entity etd = td;
             int i = score.length() + 1;
@@ -99,12 +99,12 @@ public class ScoreDis {
                 }
 
                 if ((i++) == text.length()) {
-                    ((TextDisplay) etd).text(TCUtils.form(text));
+                    ((TextDisplay) etd).text(TCUtil.form(text));
                     cancel();
                     return;
                 }
 
-                td.text(TCUtils.form(text.substring(0, i)));
+                td.text(TCUtil.form(text.substring(0, i)));
             }
         }.runTaskTimer(Ostrov.instance, 2, 2);
     }

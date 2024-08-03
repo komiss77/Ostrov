@@ -1,14 +1,9 @@
 package ru.komiss77;
 
-import java.time.Duration;
 import java.util.*;
 import com.destroystokyo.paper.ClientOption;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.Title.Times;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -24,9 +19,8 @@ import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.utils.FastMath;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.MoveUtil;
 
 
@@ -235,8 +229,8 @@ public class ApiOstrov {
                 }
                 if (message) {
                     final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                    p.sendMessage(TCUtils.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                            .hoverEvent(HoverEvent.showText(TCUtils.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                    p.sendMessage(TCUtil.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                            .hoverEvent(HoverEvent.showText(TCUtil.form(eng ? "§7Click - enable" : "§7Клик - включить")))
                             .clickEvent(ClickEvent.runCommand("/builder")));
                 }
                 return false;
@@ -257,8 +251,8 @@ public class ApiOstrov {
         final Oplayer targetOp = PM.getOplayer(target.getUniqueId());
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI) + value);//moneySet(curr+value, send_update);
         if (value > 9 || value < -9) { //по копейкам не уведомляем
-            target.sendMessage(TCUtils.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(TCUtils.form("§5Клик - сколько стало?")))
+            target.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("§5Клик - сколько стало?")))
                     .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
@@ -287,9 +281,9 @@ public class ApiOstrov {
     }
     //****************************************************
 
-
+    //ScreenUtil
     //*************** всякие титры,бары *********************
-    public static void sendTitle(final Player p, final String title, final String subtitle) {
+    /*public static void sendTitle(final Player p, final String title, final String subtitle) {
         sendTitle(p, title, subtitle, 20, 40, 20);
     }
 
@@ -353,7 +347,7 @@ public class ApiOstrov {
 
     // сообщения сохраняются и выводятся поочерёдно
     public static void sendBossbar(final Player p, final String text, final int seconds,
-                                   final BossBar.Color color, final BossBar.Overlay style, final float progress) {
+        final BossBar.Color color, final BossBar.Overlay style, final float progress) {
         final Oplayer op = PM.getOplayer(p);
         if (op != null) {
             if (op.barTime > 0) {
@@ -366,14 +360,14 @@ public class ApiOstrov {
 
     // сообщения сохраняются и выводятся поочерёдно
     public static void sendBossbarDirect(final Player p, final String text, final int seconds,
-                                         final BossBar.Color color, final BossBar.Overlay style, final float progress) {
+        final BossBar.Color color, final BossBar.Overlay style, final float progress) {
         final Oplayer op = PM.getOplayer(p);
         if (op != null) DelayBossBar.apply(op, p, text, seconds, color, style, progress, false);
     }
 
     // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbar(final Player p, final String text, final int seconds,
-                                   final BossBar.Color color, final BossBar.Overlay style) {
+    public static void sendBossbar(final Player p, final String text,
+        final int seconds, final BossBar.Color color, final BossBar.Overlay style) {
         final Oplayer op = PM.getOplayer(p);
         if (op != null) {
             if (op.barTime > 0) {
@@ -385,15 +379,15 @@ public class ApiOstrov {
     }
 
     // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbarDirect(final Player p, final String text, final int seconds,
-                                         final BossBar.Color color, final BossBar.Overlay style) {
+    public static void sendBossbarDirect(final Player p, final String text,
+        final int seconds, final BossBar.Color color, final BossBar.Overlay style) {
         final Oplayer op = PM.getOplayer(p);
         if (op != null) DelayBossBar.apply(op, p, text, seconds, color, style, 1f, true);
     }
 
     public static void sendTabList(final Player p, final String header, final String footer) {
         p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
-    }
+    }*/
     // *****************************************************************************
 
 

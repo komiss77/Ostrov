@@ -128,8 +128,8 @@ public class PlayerInput implements Listener {
 
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(TCUtils.format("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
-                        .hoverEvent(HoverEvent.showText(TCUtils.format("§7Клик - подставить текст для редактирования")))
+                p.sendMessage(TCUtil.form("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
+                        .hoverEvent(HoverEvent.showText(TCUtil.form("§7Клик - подставить текст для редактирования")))
                         .clickEvent(ClickEvent.suggestCommand(sugg)));
             }
 
@@ -159,7 +159,7 @@ public class PlayerInput implements Listener {
         if (data.type == InputType.CHAT) {
             p.sendMessage("");
             p.sendMessage("§aЗначение получено: ");
-            p.sendMessage(TCUtils.format("§f" + data.getResult()));
+            p.sendMessage(TCUtil.form("§f" + data.getResult()));
             p.sendMessage("");
         } else if (data.type == InputType.SIGN) {
             if (data.xyz != null) {

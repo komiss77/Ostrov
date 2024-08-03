@@ -91,13 +91,10 @@ public class StringUtil {
 
     public static String getPercentBar(final int max, final int current, final boolean withPercent) {
         if (current < 0 || current > max) return "§8||||||||||||||||||||||||| ";
-//System.out.println("max="+max+" curr="+current);
         final double percent = (double) current / max * 100;
         int p10 = (int) (percent * 10);
         final double percent1d = ((double) p10 / 10); //чтобы не показывало 100
         int pos = p10 / 40;
-        //StringBuilder sb = new StringBuilder("§a||||||||||||||||||||||||| ");
-        //return sb.insert(pos, "§8").append(percent1d).append("%").toString();
         if (pos < 2) pos = 2;
         else if (pos > 26) pos = 26;
         if (withPercent) {

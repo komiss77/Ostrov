@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 
 //https://github.com/Owen1212055/CustomNames
 //https://wiki.vg/Entity_metadata#Display
@@ -58,13 +58,13 @@ public class CustomTag {
         taggedLink = new WeakReference<>(tagged);//entity;
         passengerOffset = tagged.getHeight(); //= ridingOffset;
         real = tagged.isValid();
-        name = PaperAdventure.asVanilla(TCUtils.form(tagged.getName() + "\n\n"));
+        name = PaperAdventure.asVanilla(TCUtil.form(tagged.getName() + "\n\n"));
     }
 
     //Can contain \n for >1 lines
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
-        this.name = PaperAdventure.asVanilla(TCUtils.form(name + "\n\n"));
+        this.name = PaperAdventure.asVanilla(TCUtil.form(name + "\n\n"));
         if (visible) {
             sendTrackersPacket(spawnPacket());
         }

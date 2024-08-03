@@ -11,7 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
-import ru.komiss77.utils.TCUtils;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Craft;
 import ru.komiss77.version.Nms;
 
@@ -24,7 +24,7 @@ public class SubTeam {
     public SubTeam(final Team tm) {
         nmsTeam = new PlayerTeam(Craft.toNMS().getScoreboard(), tm.getName());
         nmsTeam.getPlayers().addAll(tm.getEntries());
-        color(TCUtils.toChar(tm.color()));
+        color(TCUtil.toChar(tm.color()));
         prefix(tm.prefix());
         suffix(tm.suffix());
         collide(tm.getOption(Team.Option.COLLISION_RULE));
@@ -65,7 +65,7 @@ public class SubTeam {
     }
 
     public SubTeam prefix(final String prefix) {
-        return prefix(TCUtils.form(prefix));
+        return prefix(TCUtil.form(prefix));
     }
 
     public SubTeam prefix(final Component prefix) {
@@ -74,7 +74,7 @@ public class SubTeam {
     }
 
     public SubTeam suffix(final String suffix) {
-        return suffix(TCUtils.form(suffix));
+        return suffix(TCUtil.form(suffix));
     }
 
     public SubTeam suffix(final Component suffix) {
