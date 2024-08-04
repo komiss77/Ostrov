@@ -68,7 +68,7 @@ public class HeadSetup implements InventoryProvider {
     private int page;
     private final Block b;
     private HeadCategory selected = HeadCategory.Символы;
-    private static OConfig cfg;
+    private static final OConfig cfg;
 
 
     static {
