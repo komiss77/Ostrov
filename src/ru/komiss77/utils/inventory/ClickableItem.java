@@ -230,7 +230,7 @@ public class ClickableItem_ {
         return item;
     }
 
-    public void setLore(final List<String> lore) {
+    public void lore(final List<String> lore) {
         meta.deLore().lore(lore);
         item.setItemMeta(meta);
     }
@@ -239,7 +239,7 @@ public class ClickableItem_ {
         if (!meta.hasLore()) return;
         final List<String> lore = meta.getLore();
         lore.set(line, str);
-        setLore(lore);
+        lore(lore);
     }
     
     

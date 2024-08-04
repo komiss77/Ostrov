@@ -7,10 +7,10 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -66,7 +66,7 @@ public class StatSection implements InventoryProvider {
             final ItemStack stat_item = new ItemBuilder(Material.matchMaterial(game.mat))
                 .name(Lang.t(p, game.displayName))
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
-                    .setLore(lore)
+                    .lore(lore)
                 .build();
 
             //menuEntry.add(ClickableItem.empty(stat_item));

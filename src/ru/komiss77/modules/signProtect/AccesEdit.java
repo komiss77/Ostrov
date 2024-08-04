@@ -106,7 +106,7 @@ public class AccesEdit implements InventoryProvider {
         .addLore("§7")
         .build(),  "ник", msg -> {
 
-        final String strip = TCUtils.stripColor(msg);
+        final String strip = TCUtils.strip(msg);
 
         if(strip.length()>16 ) {
           p.sendMessage("§cЛимит 16 символов!");

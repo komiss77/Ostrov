@@ -66,7 +66,7 @@ public class WarpSetupMenu implements InventoryProvider {
             .lore("§7ЛКМ - редактировать")
             .lore("§7")
             .build(), w.descr, msg -> {
-            final String strip = TCUtil.stripColor(msg);
+            final String strip = TCUtil.strip(msg);
 
             if (strip.length() > 24) {
                 p.sendMessage("§cЛимит 24 символа!");

@@ -10,12 +10,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class KitGuiMain implements InventoryProvider {
@@ -121,12 +116,12 @@ public class KitGuiMain implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
-                final Kit clickedKit = KitManager.kits.get(TCUtil.stripColor(e.getCurrentItem().getItemMeta().displayName()));
-//System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()) );
+                final Kit clickedKit = KitManager.kits.get(TCUtil.strip(e.getCurrentItem().getItemMeta().displayName()));
+//System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.strip(e.getCurrentItem().getItemMeta().getDisplayName()) );
 
                 if (clickedKit == null) return;
                 if (e.isLeftClick()) { //проверка на выключен везде!!
-//System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()) );
+//System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.strip(e.getCurrentItem().getItemMeta().getDisplayName()) );
                     if (kit.accesBuyPrice > 0 && !op.hasKitAcces(clickedKit.name)) {
                         player.closeInventory();
                         player.performCommand("kit buyacces " + clickedKit.name);

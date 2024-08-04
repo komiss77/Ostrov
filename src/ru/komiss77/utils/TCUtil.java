@@ -1,5 +1,6 @@
 package ru.komiss77.utils;
 
+import java.util.Map.Entry;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
@@ -18,8 +19,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
-
-import java.util.Map.Entry;
 
 
 public class TCUtil {
@@ -361,8 +360,8 @@ public class TCUtil {
         };
     }
 
-    @Deprecated
-    public static String stripColor(final String str) {
+    /*@Deprecated
+    public static String strip(final String str) {
         if (str.isEmpty()) {
             return "";
         }
@@ -495,16 +494,16 @@ public class TCUtil {
     }
 
     @Deprecated
-    public static String stripColor(final Component cmp) {
+    public static String strip(final Component cmp) {
         final StringBuilder sb = new StringBuilder();
         if (cmp instanceof TextComponent) {
-            sb.append(stripColor(((TextComponent) cmp).content()));
+            sb.append(strip(((TextComponent) cmp).content()));
         }
         for (final Component ch : cmp.children()) {
-            sb.append(stripColor(ch));
+            sb.append(strip(ch));
         }
         return sb.toString();
-    }
+    }*/
 
     public static String strip(final String str) {
         return MiniMessage.miniMessage().stripTags(deLegacify(str));
@@ -513,10 +512,10 @@ public class TCUtil {
     public static String strip(final Component cmp) {
         final StringBuilder sb = new StringBuilder();
         if (cmp instanceof TextComponent) {
-            sb.append(stripColor(((TextComponent) cmp).content()));
+            sb.append(strip(((TextComponent) cmp).content()));
         }
         for (final Component ch : cmp.children()) {
-            sb.append(stripColor(ch));
+            sb.append(strip(ch));
         }
         return sb.toString();
     }

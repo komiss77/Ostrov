@@ -6,10 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.player.Perm;
 import ru.komiss77.enums.Data;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -56,7 +56,7 @@ public class Donate implements InventoryProvider {
                 .name(group.chat_name)
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
                 //.addLore("")
-                    .setLore(group.lore)
+                    .lore(group.lore)
                 //.addLore("")
                 //.addLore("§f15 дней §7- §b"+group.getPrice(15))
                 //.addLore("§f1 месяц §7- §b"+group.getPrice(31))

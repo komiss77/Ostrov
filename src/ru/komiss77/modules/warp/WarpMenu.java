@@ -13,15 +13,7 @@ import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
 
 
 public class WarpMenu implements InventoryProvider {
@@ -183,7 +175,7 @@ public class WarpMenu implements InventoryProvider {
                     .lore("§7ЛКМ - создать")
                     .lore("§7")
                     .build(), "название", msg -> {
-                final String strip = TCUtil.stripColor(msg);
+                final String strip = TCUtil.strip(msg);
 
                 if (strip.length() > 24) {
                     p.sendMessage("§cЛимит 24 символа!");
@@ -263,7 +255,7 @@ public class WarpMenu implements InventoryProvider {
                     return;
                 }
 
-                final String strip = TCUtil.stripColor(msg);
+                final String strip = TCUtil.strip(msg);
 
                 if (strip.length() > 24) {
                     p.sendMessage("§cЛимит 24 символа!");

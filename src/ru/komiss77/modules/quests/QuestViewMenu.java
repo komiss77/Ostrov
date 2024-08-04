@@ -12,12 +12,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class QuestViewMenu implements InventoryProvider {
@@ -48,7 +43,7 @@ public class QuestViewMenu implements InventoryProvider {
                 } else {
                     final ItemStack is = new ItemBuilder(Material.RAW_GOLD)
                         .name(q.displayName)
-                            .setLore(Quest.loreMap.get(q))
+                            .lore(Quest.loreMap.get(q))
                         .lore("§aАктивно" + (q.amount > 0 ? "§7, прогресс: §f" + pr.getProg() + " §7из §f" + q.amount : ""))
                         .lore(builder ? "§b*Отладка: §eЛКМ-завершить" : "")
                         .lore(builder && q.amount > 0 ? "§b*Отладка: §eПКМ-добавить прогресс" : "")
@@ -69,7 +64,7 @@ public class QuestViewMenu implements InventoryProvider {
                 }
             } else if (builder) {
                 buttons.add(ClickableItem.of(new ItemBuilder(Material.FIREWORK_STAR)
-                        .name(q.displayName).setLore(Quest.loreMap.get(q))
+                        .name(q.displayName).lore(Quest.loreMap.get(q))
                     .lore("§6Предстоит").lore("§7Откроется после выполнения §e" + q.parent.displayName)
                     .lore("§b*Отладка: §eЛКМ-завершить")
                     .lore("§b*Отладка: §eПКМ-добавить прогресс")

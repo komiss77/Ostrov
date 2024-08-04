@@ -233,8 +233,8 @@ public class InteractLst implements Listener {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final Sign sign = (Sign) b.getState();
                     final SignSide ss = sign.getSide(Side.FRONT);
-                    final String line0 = TCUtil.stripColor(ss.line(0)).toLowerCase();
-                    final String line1 = TCUtil.stripColor(ss.line(1));
+                    final String line0 = TCUtil.strip(ss.line(0)).toLowerCase();
+                    final String line1 = TCUtil.strip(ss.line(1));
                     if (line0.isEmpty() || line1.isEmpty()) return;
                     switch (line0) {
                         case "[команда]" -> {
@@ -242,7 +242,7 @@ public class InteractLst implements Listener {
                             return;
                         }
                         case "[место]" -> {
-                            p.performCommand("warp " + TCUtil.stripColor(line1).toLowerCase());
+                            p.performCommand("warp " + TCUtil.strip(line1).toLowerCase());
                             return;
                         }
                     }
@@ -267,7 +267,7 @@ public class InteractLst implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void Sign_edit(SignChangeEvent e) {
         final Player p = e.getPlayer();
-        final String line0 = TCUtil.stripColor(TCUtil.deform(e.line(0)));
+        final String line0 = TCUtil.strip(TCUtil.deform(e.line(0)));
 
         if (line0.equalsIgnoreCase("[Команда]") || line0.equalsIgnoreCase("[Место]")) {
             if (!ApiOstrov.isLocalBuilder(p, true)) {

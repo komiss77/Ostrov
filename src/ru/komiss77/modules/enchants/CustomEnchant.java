@@ -259,8 +259,8 @@ public abstract class CustomEnchant implements Keyed {
         im.lore(Arrays.asList(displayName(lvl)));
         return;
       }
-      final String rnm = TCUtils.stripColor(info.rusName);
-      lrs.removeIf(lr -> TCUtils.stripColor(lr).startsWith(rnm));
+      final String rnm = TCUtils.strip(info.rusName);
+      lrs.removeIf(lr -> TCUtils.strip(lr).startsWith(rnm));
       if (lvl > 0) {
         lrs.add(displayName(lvl));
         im.lore(lrs);

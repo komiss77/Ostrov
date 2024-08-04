@@ -20,11 +20,13 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
-import ru.komiss77.*;
 import ru.komiss77.builder.SetupMode;
-import ru.komiss77.enums.*;
 import ru.komiss77.commands.PvpCmd;
+import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.games.GM;
@@ -711,7 +713,7 @@ public class Oplayer {
     public static String genderEnd_Существительное(final String name) {
         final Oplayer op = PM.getOplayer(name);
         if (op!=null) {
-            return switch (TCUtils.stripColor(op.getDataString(Data.GENDER)).toLowerCase()) {
+            return switch (TCUtils.strip(op.getDataString(Data.GENDER)).toLowerCase()) {
                 case "девочка" -> "а";
                 case "бесполоe", "гермафродит" -> "о";
                 default -> "";
@@ -721,6 +723,6 @@ public class Oplayer {
 
     public static boolean isFemale(final String name) {
         final Oplayer op = PM.getOplayer(name);
-        return op!=null && TCUtils.stripColor(op.getDataString(Data.GENDER)).equalsIgnoreCase("девочка");
+        return op!=null && TCUtils.strip(op.getDataString(Data.GENDER)).equalsIgnoreCase("девочка");
     }
 */

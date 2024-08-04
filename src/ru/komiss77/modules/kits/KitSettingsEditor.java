@@ -2,22 +2,18 @@ package ru.komiss77.modules.kits;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import net.kyori.adventure.text.Component;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SlotPos;
 
 
 public class KitSettingsEditor implements InventoryProvider {
@@ -49,7 +45,7 @@ public class KitSettingsEditor implements InventoryProvider {
             if (e.isLeftClick() && e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 //e.setCancelled(true);
-                kit.logoItem.setType(e.getCursor().getType());
+                kit.logoItem = new ItemBuilder(kit.logoItem).type(e.getCursor().getType().asItemType()).build();
                 kit.modifyed = true;
                 e.getView().getBottomInventory().addItem(new ItemStack[]{e.getCursor()});
                 e.getView().setCursor(new ItemStack(Material.AIR));
@@ -95,15 +91,15 @@ public class KitSettingsEditor implements InventoryProvider {
                         if (lrl.size() > 1) {
                             kit.modifyed = true;
                             final List<Component> addLore = new ArrayList<>(lrl);
-                            addLore.remove(addLore.size() - 1);
-                            kit.logoItem = new ItemBuilder(kit.logoItem).setLore(addLore).build();
+                            addLore.removeLast();
+                            kit.logoItem = new ItemBuilder(kit.logoItem).lore(addLore).build();
                             reopen(player, contents);
                         }
 
                     } else if (e.isLeftClick()) {
                         PlayerInput.get(InputType.ANVILL, player, value -> {
                             kit.modifyed = true;
-                            kit.logoItem = new ItemBuilder(kit.logoItem).setLore(value).build();
+                            kit.logoItem = new ItemBuilder(kit.logoItem).lore(value).build();
                             reopen(player, contents);
                         }, "строка..");
 
@@ -192,7 +188,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
             }
-            final int price = Integer.valueOf(newValue);
+            final int price = Integer.parseInt(newValue);
             if (price < 0 || price > 100000) {
                 player.sendMessage("§cОт 0 до 100000!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
@@ -216,7 +212,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
             }
-            final int price = Integer.valueOf(newValue);
+            final int price = Integer.parseInt(newValue);
             if (price < 0 || price > 100000) {
                 player.sendMessage("§cОт 0 до 100000!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
@@ -243,7 +239,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
             }
-            final int price = Integer.valueOf(newValue);
+            final int price = Integer.parseInt(newValue);
             if (price < 0 || price > 100000) {
                 player.sendMessage("§cОт 0 до 100000!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
@@ -268,7 +264,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
             }
-            final int delay = Integer.valueOf(newValue);
+            final int delay = Integer.parseInt(newValue);
             if (delay < 0 || delay > 100000) {
                 player.sendMessage("§cОт 0 до 100000!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
@@ -302,7 +298,7 @@ public class KitSettingsEditor implements InventoryProvider {
             ));
 
             contents.set(5, 6, ClickableItem.of(new ItemBuilder(Material.NETHER_STAR).name("сохранить на диск").build(), e -> {
-                        KitManager.saveKit((Player) e.getWhoClicked(), kit);
+                        KitManager.saveKit(e.getWhoClicked(), kit);
                         reopen(player, contents);
                     }
             ));

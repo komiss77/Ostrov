@@ -50,11 +50,11 @@ public class DynmapFactions {
     //https://colorscheme.ru/html-colors.html
     
     /*protected static String getDescription (final Faction f) {
-        return  "<div class=\"regioninfo\"><div class=\"infowindow\"><span style=\"font-size:120%;\">"+ChatColor.stripColor(f.name())+
-                        "</span><br /> <span style=\"font-weight:bold;color:#00FFFF\">"+ChatColor.stripColor(f.tagLine)+
+        return  "<div class=\"regioninfo\"><div class=\"infowindow\"><span style=\"font-size:120%;\">"+ChatColor.strip(f.name())+
+                        "</span><br /> <span style=\"font-weight:bold;color:#00FFFF\">"+ChatColor.strip(f.tagLine)+
                         "</span><br /> Лидер: <span style=\"font-weight:bold;color:#FFFFFF\">"+f.getOwner()+
                         "</span><br /> Участников: <span style=\"font-weight:bold;color:#FFFF00\">"+f.getMembers().size()+
-                        "</span><br /> Уровень: <span style=\"font-weight:bold;color:#B0E0E6\">"+ChatColor.stripColor(Level.getLevelIcon(f.getLevel()))+
+                        "</span><br /> Уровень: <span style=\"font-weight:bold;color:#B0E0E6\">"+ChatColor.strip(Level.getLevelIcon(f.getLevel()))+
                         "</span><br /> Религия: <span style=\"font-weight:bold;color:#B0E0E6\">"+f.getReligy().name()+
                         (f.isOnline() ? "</span><br /> Статус: <span style=\"color:#00FF00;\">online" : "</span><br /> Статус: <span style=\"color:#008080;\">offline")+
                         "</span></div></div>"
@@ -87,7 +87,7 @@ public class DynmapFactions {
         //if (m!=null) {
         //    m.deleteMarker();
         //}
-        final String lbl = "база "+ChatColor.stripColor(f.name());
+        final String lbl = "база "+ChatColor.strip(f.name());
 
         //Marker home = markers.remove(f.factionId);
 

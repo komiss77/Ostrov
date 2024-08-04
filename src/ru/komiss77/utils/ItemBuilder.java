@@ -1,6 +1,5 @@
 package ru.komiss77.utils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
@@ -25,8 +24,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtil.Texture;
-//im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-//Validate.isTrue(item.getType() == Material.PLAYER_HEAD, "skullOwner() only applicable for skulls!", new Object[0]);
 
 public class ItemBuilder {
 
@@ -36,7 +33,7 @@ public class ItemBuilder {
     private @Nullable ItemMeta meta;
     private Color color;
     private List<Component> lore;
-    private String skullOwnerUuid;
+    private UUID skullOwnerUuid;
     private String skullTexture;
     private PotionType basePotionType;
     private List<PotionEffect> customPotionEffects = null;
@@ -48,8 +45,7 @@ public class ItemBuilder {
             wrong = true;
             lore = List.of(Component.text(mat == null ? "mat==null" : "mat==" + mat.name()));
         } else {
-            type = mat.asItemType();//meta = null;при создании поле итак null
-            //lore = new ArrayList<>(); создаём только, если надо
+            type = mat.asItemType();
             maxStack = mat.getMaxStackSize();
         }
     }
@@ -60,7 +56,6 @@ public class ItemBuilder {
             lore = List.of(Component.text("itemType==null"));
         } else {
             type = itemType;//meta = null;при создании поле итак null
-            //lore = new ArrayList<>(); создаём только, если надо
             maxStack = itemType.getMaxStackSize();
         }
     }
@@ -87,7 +82,20 @@ public class ItemBuilder {
         if (meta == null || !type.getItemMetaClass().isInstance(meta)) {
             meta = ((CraftItemType<?>) type).getItemMeta(meta);
         }
-        return true;
+        return meta != null;
+    }
+
+    public <M extends ItemMeta> ItemBuilder meta(final @Nullable M mt) {
+        if (mt == null) return this;
+        final ItemStack it = type.createItemStack();
+        it.setItemMeta(mt);
+        meta = it.getItemMeta();
+        return this;
+    }
+
+    public ItemBuilder customMeta(final Consumer<ItemMeta> applier) {
+        if (checkMeta()) applier.accept(this.meta);
+        return this;
     }
 
     public <M extends ItemMeta> ItemBuilder customMeta(final Class<M> meta, final Consumer<M> applier) {
@@ -99,7 +107,8 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder asType(final ItemType tp) {
+    public ItemBuilder type(final ItemType tp) {
+        if (tp == null) return this;
         type = tp;
         if (meta == null) return this;
         checkMeta();
@@ -157,71 +166,97 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * @param name null-сброс, или String/Component
-     * @return
-     */
-    public ItemBuilder name(@Nullable final Object name) {
+    public ItemBuilder name(@Nullable final String name) {
         if (checkMeta()) {
-            if (name == null) {
-                meta.displayName(null);
-            } else if (name instanceof String) {
-                meta.displayName(TCUtil.form((String) name));
-            } else if (name instanceof Component) {
-                meta.displayName((Component) name);
-            }
+            meta.displayName(name == null ? null : TCUtil.form(name));
         }
         return this;
     }
 
-
-    public ItemBuilder persistentData(@Nullable final String key, @Nonnull final Object data) {
+    public ItemBuilder name(@Nullable final Component name) {
         if (checkMeta()) {
-            final NamespacedKey nsk = key == null ? ItemUtil.key : new NamespacedKey(Ostrov.instance, key);
-            if (data instanceof Integer) {
-                meta.getPersistentDataContainer().set(nsk, PersistentDataType.INTEGER, (Integer) data);
-            } else if (data instanceof String) {
-                meta.getPersistentDataContainer().set(nsk, PersistentDataType.STRING, (String) data);
-            }
+            meta.displayName(name);
         }
         return this;
     }
 
-    /**
-     * Добавить нечто к лор. null игнорируется
+    public ItemBuilder lore(final String s) {
+        if (s==null) return this;
+        if (s.isEmpty()) lore.add(Component.empty());
+        else lore.add(TCUtil.form(s));
+        return this;
+    }
+
+    public ItemBuilder lore(final Collection<String> sc) {
+        if (sc==null || sc.isEmpty()) return this;
+        for (final String s : sc) lore.add(TCUtil.form(s));
+        return this;
+    }
+
+    public ItemBuilder lore(final Component c) {
+        if (c==null) return this;
+        else lore.add(c);
+        return this;
+    }
+
+    public ItemBuilder lore(final List<Component> lc) {
+        if (lc==null || lc.isEmpty()) return this;
+        lore.addAll(lc);
+        return this;
+    }
+
+    public ItemBuilder lore(final Component... lores) {
+        if (lores == null) return this;
+        for (final Component c : lores) {
+            lore(c);
+        }
+        return this;
+    }
+
+    public ItemBuilder lore(final String... lores) {
+        if (lores == null) return this;
+        for (final String c : lores) {
+            lore(c);
+        }
+        return this;
+    }
+
+//    @Deprecated
+    /*
      * @param o = String, Component, Collection<String>, Collection<Component>, Component[]
      * @return ItemBuilder
      */
-    public ItemBuilder lore(Object o) {
+    /*public ItemBuilder lore(Object o) {
         if (o == null) return this;
         if (lore == null) lore = new ArrayList<>();
-        if (o instanceof String s) {
-            if (s.isEmpty()) lore.add(Component.empty());
-            else lore.add(TCUtil.form(s));
-        } else if (o instanceof Component c) {
-            lore.add(c);
-        } else if (o instanceof Collection<?> c) {
-            for (Object x : c) {
-                lore(x);
-            }
-        } else if (o instanceof String[] ss) {
-            for (final String s : ss) {
-                lore.add(TCUtil.form(s));
-            }
-        } else if (o instanceof Component[] cc) {
-            Collections.addAll(lore, cc);
+        switch (o) {
+            case String s:
+                if (s.isEmpty()) lore.add(Component.empty());
+                else lore.add(TCUtil.form(s));
+                break;
+            case Component c:
+                lore.add(c);
+                break;
+            case Collection<?> c:
+                for (Object x : c) {
+                    lore(x);
+                }
+                break;
+            case String[] ss:
+                for (final String s : ss) {
+                    lore.add(TCUtil.form(s));
+                }
+                break;
+            case Component[] cc:
+                Collections.addAll(lore, cc);
+                break;
+            default:
+                break;
         }
-        //if (s.isEmpty()) lore.add(Component.text(""));
-        //else lore.add(TCUtils.format(s));
         return this;
     }
 
-    /**
-     * Добавить несколько нечто к лор. null игнорируется
-     *
-     * @param lores = String..., Component...
-     * @return ItemBuilder
-     */
+    @Deprecated
     public ItemBuilder lore(final Object... lores) {
         if (lores == null) return this;
         for (final Object o : lores) {
@@ -230,12 +265,8 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
-     * Поставить свой лор. null-удалить лор (вместо deLore)
-     * @param o
-     * @return
-     */
-    public ItemBuilder setLore(final Object o) { //иногда нужен простой быстрый метод
+    @Deprecated
+    public ItemBuilder lore(final Object o) { //иногда нужен простой быстрый метод
         if (o == null) {
             lore = null;
             return this;
@@ -244,27 +275,26 @@ public class ItemBuilder {
             lore.clear();
         }
         return lore(o);
+    }*/
+
+    public ItemBuilder deLore() {
+        if (lore == null) {
+            lore = new ArrayList<>();
+        } else {
+            lore.clear();
+        }
+        return this;
     }
 
+    public ItemBuilder repLore(final String from, final String to) {
+        return repLore(TCUtil.form(from), TCUtil.form(to));
+    }
 
-    /**
-     * Замена строки или компонента в лоре
-     *
-     * @param from String or Component
-     * @param to   String or Component
-     * @return ItemBuilder
-     */
-    public ItemBuilder repLore(Object from, Object to) {
+    public ItemBuilder repLore(final Component from, final Component to) {
         if (lore == null || lore.isEmpty()) return this;
-        if (from instanceof String) {
-            from = TCUtil.form((String) from);
-        }
-        if (to instanceof String) {
-            to = TCUtil.form((String) to);
-        }
         for (int i = 0; i < lore.size(); i++) {
-            if (TCUtil.compare(lore.get(i), (Component) from)) {
-                lore.set(i, (Component) to);
+            if (TCUtil.compare(lore.get(i), from)) {
+                lore.set(i, to);
             }
         }
         return this;
@@ -280,16 +310,25 @@ public class ItemBuilder {
 
     public void trim(final TrimMaterial mat, final TrimPattern pat) {
         if (checkMeta()) {
-            if (meta instanceof ArmorMeta) {
-                ((ArmorMeta) meta).setTrim(new ArmorTrim(mat, pat));
-            }
+            customMeta(ArmorMeta.class, am ->
+                am.setTrim(new ArmorTrim(mat, pat)));
         }
+    }
+
+    public ItemBuilder enchant(final Enchantment enchant) {
+        return enchant(enchant, 1);
     }
 
     public ItemBuilder enchant(final Enchantment enchant, final int level) {
         if (enchants == null) enchants = new HashMap<>();
         if (level < 1) enchants.remove(enchant);
         else enchants.put(enchant, level);
+        return this;
+    }
+
+    public ItemBuilder disEnchant() {
+        if (meta != null) meta.removeEnchantments();
+        if (enchants != null) enchants.clear();
         return this;
     }
 
@@ -307,6 +346,11 @@ public class ItemBuilder {
         return this;
     }
 
+    @Deprecated
+    public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op) {
+         attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
+         return this;
+      }
 
     public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slotGroup) {
         if (checkMeta()) {
@@ -329,7 +373,8 @@ public class ItemBuilder {
         return this;
     }
 
-   /* вроде очень редко нужно, думаю не страшно будет ставить всегда одним методом через float
+    //вроде очень редко нужно, думаю не страшно будет ставить всегда одним методом через float
+    //хз мне нужно довольно часто
     public ItemBuilder durability(final int dur) {
         if (checkMeta()) {
             if (meta instanceof final Damageable dr && dr.hasMaxDamage()) {
@@ -339,7 +384,7 @@ public class ItemBuilder {
             }
         }
         return this;
-    }*/
+    }
 
     public ItemBuilder durability(final float dur) {
         if (checkMeta()) {
@@ -365,6 +410,7 @@ public class ItemBuilder {
         return this;
     }
 
+    //взял глинт закомментил (((
     public ItemBuilder glint(final @Nullable Boolean glint) {
         if (glint == null && (meta == null || !meta.hasEnchantmentGlintOverride())) return this;
         if (checkMeta()) {
@@ -373,28 +419,43 @@ public class ItemBuilder {
         return this;
     }
 
-    /**
+    /*
      * поставить владельца головы
      *
      * @param skullOwner OfflinePlayer, UUID или UUID.asString
      * @return
      */
-    public ItemBuilder skullOf(Object skullOwner) {
+    /*public ItemBuilder skullOf(Object skullOwner) {
         if (skullOwner instanceof OfflinePlayer op) {
             skullOwnerUuid = op.getUniqueId().toString();
         } else if (skullOwner instanceof UUID) {
-            skullOwnerUuid = ((UUID) skullOwner).toString();
+            skullOwnerUuid = skullOwner.toString();
         } else if (skullOwner instanceof String) {
             skullOwnerUuid = (String) skullOwner;
         }
         return this;
+    }*/
+
+    public ItemBuilder skullOf(final OfflinePlayer pl) {
+        skullOwnerUuid = pl.getUniqueId();
+        return this;
     }
 
-    /**
+    public ItemBuilder skullOf(final UUID id) {
+        skullOwnerUuid = id;
+        return this;
+    }
+
+    public ItemBuilder skullOf(final String name) { //хз что вернет)
+        skullOwnerUuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+        return this;
+    }
+
+    /*
      * @param texture Texture или String вида <a href="https://minecraft-heads.com/custom-heads/">...</a>
      * @return ItemBuilder
      */
-    public ItemBuilder headTexture(Object texture) {
+    /*public ItemBuilder headTexture(Object texture) {
         //if (texture.length()<70) return setCustomHeadUrl(texture); //фикс!!
         if (texture == null) return this;
         if (texture instanceof Texture) {
@@ -404,6 +465,15 @@ public class ItemBuilder {
             this.skullTexture = (String) texture;
         }
         return this;
+    }*/
+
+    public ItemBuilder headTexture(final String texture) {
+        this.skullTexture = texture;
+        return this;
+    }
+
+    public ItemBuilder headTexture(final Texture texture) {
+        return headTexture(texture.value);
     }
 
     public ItemBuilder color(final Color color) {
@@ -500,177 +570,90 @@ public class ItemBuilder {
         item.setItemMeta(meta);
         return item;
     }
-}
-
-
-//public ItemBuilder skullOf(final String uuidAsString) {
-//     skullOwnerUuid = uuidAsString;
-//     return this;
-// }
-
-//public ItemBuilder headTexture(final Texture texture) {
-//    return headTexture(texture.value);
-//}
-
-// public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op) {
-//      attribute(attribute, amount, op, mat.getEquipmentSlot().getGroup());//setAttribute(attribute, amount, op, item.getType().getEquipmentSlot());
-//     return this;
-//  }
-
-
-//public ItemBuilder enchant(final Enchantment enchantment) {
-//     return enchant(enchantment, 1);
-// }
-
-//public ItemBuilder removeSlotAttribute() {
-//    if (meta == null)
-//        meta = Bukkit.getItemFactory().getItemMeta(mat);//item.getItemMeta();//meta.removeAttributeModifier(item.getType().getEquipmentSlot());
-//     meta.removeAttributeModifier(mat.getEquipmentSlot());
-//     return this;
-//}
-
-
-// public ItemBuilder setCustomHeadUrl(final String url) {
-//     if (!url.startsWith("http://")) skullTexture = "http://textures.minecraft.net/texture/" + url;
-//      else skullTexture = url;
-//      return this;
-//  }
-
-
-//public ItemBuilder repLore(final String from, final String to) {
-//    return repLore(TCUtil.form(from), TCUtil.form(to));
-//}
-
-// public ItemBuilder disEnchant() {
-//     if (meta != null) meta.removeEnchantments();
-//     if (enchants != null) enchants.clear();
-//    return this;
-// }
-
-
-    /*@Deprecated
-    public ItemBuilder unsafeEnchantment(final Enchantment enchantment, final int level) {
-        return enchant(enchantment, level);
-    }
-
-    @Deprecated
-    public ItemBuilder clearEnchantment() {
-        return clearEnchants();
-    }
-
-
-    public ItemBuilder clearEnchants() {
-        if (meta != null) meta.removeEnchantments();
-        enchants.clear();
-        return this;
-    }*/
-
-
-//иногда нужен простой быстрый метод
-//public ItemBuilder setLore(final List<Component> lore) { //иногда нужен простой быстрый метод
-//    this.lore = lore;
-//     return this;
-//}
-
-    /* @Deprecated
-     public ItemBuilder setLore(final Object... lores) {
-         if (lores == null) {
-             lore = null;
-             return this;
-         }
-         if (lores.length == 0) return this;
-         if (lore != null) {
-             lore.clear();
-         }
-         return lore(lores);
-     }
-
-
-    public ItemBuilder deLore() {
-        if (lore == null) {
-            lore = new ArrayList<>();
-        } else {
-            lore.clear();
-        }
-        return this;
-    }
- */
-
-    /*
-    public ItemBuilder persistentData(final String key, final String data) {
-        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        meta.getPersistentDataContainer().set(new NamespacedKey(Ostrov.instance, key), PersistentDataType.STRING, data);
-        return this;
-    }
-
-    public ItemBuilder persistentData(final String key, final int data) {
-        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        meta.getPersistentDataContainer().set(new NamespacedKey(Ostrov.instance, key), PersistentDataType.INTEGER, data);
-        return this;
-    }
-
-    public ItemBuilder persistentData(final String data) {
-        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.STRING, data);
-        return this;
-    }
-
-    public ItemBuilder persistentData(final int data) {
-        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        meta.getPersistentDataContainer().set(ItemUtils.key, PersistentDataType.INTEGER, data);
-        return this;
-    }*/
-
 /*
-    public ItemBuilder name(@Nullable final Component name) {
-        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(mat);//meta = item.getItemMeta();
-        meta.displayName(name);
-        return this;
-    }
-
-    public ItemBuilder addLore(final String s) {
-        if (s == null) return this;
-        if (lore == null) lore = new ArrayList<>();
-        if (s.isEmpty()) lore.add(Component.text(""));
-        else lore.add(TCUtils.format(s));
-        return this;
-    }
-
-    public ItemBuilder addLore(final Collection<String> sc) {
-        if (sc == null || sc.isEmpty()) return this;
-        if (lore == null) lore = new ArrayList<>();
-        for (final String s : sc) lore.add(TCUtils.format(s));
-        return this;
-    }
-
-    public ItemBuilder addLore(final Component c) {
-        if (c == null) return this;
-        if (lore == null) lore = new ArrayList<>();
-        else lore.add(c);
-        return this;
-    }
-
-    public ItemBuilder addLore(final List<Component> lc) {
-        if (lc == null || lc.isEmpty()) return this;
-        if (lore == null) lore = new ArrayList<>();
-        lore.addAll(lc);
-        return this;
-    }
-
-    public ItemBuilder addLore(final Component... lores) {
-        if (lores == null) return this;
-        for (final Component c : lores) {
-            addLore(c);
+    public ItemStack build() {
+        if (amount < 1) {
+            amount = 1;
+        } else if (amount > maxStack) {
+            amount = maxStack;
         }
-        return this;
-    }
-
-    public ItemBuilder addLore(final String... lores) {
-        if (lores == null) return this;
-        for (final String c : lores) {
-            addLore(c);
+        final ItemStack item = type.createItemStack(amount);//new ItemStack(mat, amount);
+        if (!lore.isEmpty()) {
+            if (meta == null) meta = item.getItemMeta();
+            meta.lore(lore);
         }
-        return this;
+
+        if (maxStack != type.getMaxStackSize()) {
+            meta.setMaxStackSize(maxStack);
+        }
+
+        switch (mat) {
+
+            case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
+                if (basePotionType != null || customPotionEffects != null) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final PotionMeta potionMeta = (PotionMeta) meta;
+                    if (basePotionType != null) potionMeta.setBasePotionType(basePotionType);
+                    if (customPotionEffects != null && !customPotionEffects.isEmpty()) {
+                        for (final PotionEffect ef : customPotionEffects) {
+                            potionMeta.addCustomEffect(ef, true);
+                        }
+                    }
+                    if (color != null) {
+                        potionMeta.setColor(color);
+                    }
+                }
+                break;
+
+            case PLAYER_HEAD:
+                if (meta == null) meta = item.getItemMeta();
+                final SkullMeta skullMeta = (SkullMeta) meta;
+
+                if (skullOwnerUuid != null && !skullOwnerUuid.isEmpty()) {
+                    final UUID uuid = UUID.fromString(skullOwnerUuid);
+                    final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+                    skullMeta.setOwningPlayer(offlinePlayer);
+                }
+
+                if (skullTexture != null && !skullTexture.isEmpty()) {
+                    ItemUtil.setHeadTexture(skullMeta, skullTexture);
+                }
+                break;
+
+            case LEATHER_BOOTS, LEATHER_CHESTPLATE, LEATHER_HELMET,
+                    LEATHER_LEGGINGS, LEATHER_HORSE_ARMOR:
+                if (color != null) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
+                    leatherMeta.setColor(color);
+                }
+                break;
+
+            case ENCHANTED_BOOK://для книг чары в storage
+                if (enchants != null && !enchants.isEmpty()) {
+                    if (meta == null) meta = item.getItemMeta();
+                    final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) meta;
+                    for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {//ignoreLevelRestriction
+                        enchantedBookMeta.addStoredEnchant(en.getKey(), en.getValue(), false);
+                    }
+                }
+                enchants = null;
+                break;
+
+            default:
+                break; //для обычных предметов просто кидаем чары - а для дригих не кидаем????? не заслужили тип????
+        }
+
+        if (enchants != null && !enchants.isEmpty()) {
+            if (meta == null) meta = item.getItemMeta();
+            for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {
+                meta.addEnchant(en.getKey(), en.getValue(), true);
+            }
+        }
+
+        if (meta != null) item.setItemMeta(meta);
+        return item;
     }*/
 
-//@Deprecated
+
+}

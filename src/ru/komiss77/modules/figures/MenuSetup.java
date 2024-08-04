@@ -11,12 +11,7 @@ import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
 
 
 public class MenuSetup implements InventoryProvider {
@@ -136,7 +131,7 @@ public class MenuSetup implements InventoryProvider {
                 .lore("§7что нужно сделать.")
                 .lore("§7")
                 .build(), figure.getTag(), msg -> {
-                figure.setTag(TCUtil.stripColor(msg));
+                figure.setTag(TCUtil.strip(msg));
                 FigureManager.saveFigure(player, figure);
                 reopen(player, contents);
             }));

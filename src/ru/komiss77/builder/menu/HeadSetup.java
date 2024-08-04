@@ -19,11 +19,14 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerTextures;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.OConfig;
-import ru.komiss77.utils.inventory.*;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 /*
 Перенос текстур из плагина https://docs.tweetzy.ca/official-plugins/skulls     ca.tweetzy.skulls.Skulls
@@ -137,7 +140,7 @@ public class HeadSetup implements InventoryProvider {
                         cfg.saveConfig();
                         reopen(p, content);
 //Ostrov.log_warn("is="+e.getCurrentItem()+" dis="+(TCUtils.toString(e.getCurrentItem().displayName())) );
-                        //final String n = TCUtils.stripColor(TCUtils.toString(e.getCurrentItem().displayName()));
+                        //final String n = TCUtils.strip(TCUtils.toString(e.getCurrentItem().displayName()));
                         //net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer plainSerializer = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.se(e.getCurrentItem().displayName());
                         //final String n = ((TextComponent)e.getCurrentItem().displayName()).content();
                         //final Component c = e.getCurrentItem().displayName();

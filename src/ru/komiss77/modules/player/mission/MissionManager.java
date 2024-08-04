@@ -1,10 +1,6 @@
 package ru.komiss77.modules.player.mission;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +8,8 @@ import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
@@ -291,7 +287,7 @@ public class MissionManager {
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
                                 .name(mission.displayName())
-                                    .setLore(lore)
+                                    .lore(lore)
                                 .build()
                             ));
 
@@ -314,7 +310,7 @@ public class MissionManager {
                             //lore.add(Component.empty());
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.SUGAR)
                                 .name(mission.displayName())
-                                    .setLore(lore)
+                                    .lore(lore)
                                 .build()
                             ));
 
@@ -326,7 +322,7 @@ public class MissionManager {
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
                                 .name(mission.displayName())
-                                    .setLore(lore)
+                                    .lore(lore)
                                 .build()
                             ));
 
@@ -345,7 +341,7 @@ public class MissionManager {
 
                             buttonsDone.add(ClickableItem.of(new ItemBuilder(Material.GUNPOWDER)
                                     .name(mission.displayName())
-                                    .setLore(lore)
+                                    .lore(lore)
                                     .build(), e -> {
                                     if (e.getClick() == ClickType.DROP) {
                                         op.getPlayer().performCommand("mission deny " + missionId);
@@ -390,9 +386,9 @@ public class MissionManager {
                                     current = progressMap.get(requestName);
                                     if (current >= request) {
                                         if (showAmmount) {
-                                            lore.add(Component.text("§a✔ §8" + TCUtil.stripColor(displayName) + current + " (" + request + ")"));
+                                            lore.add(Component.text("§a✔ §8" + TCUtil.strip(displayName) + current + " (" + request + ")"));
                                         } else {
-                                            lore.add(Component.text("§a✔ §8" + TCUtil.stripColor(displayName)));
+                                            lore.add(Component.text("§a✔ §8" + TCUtil.strip(displayName)));
                                         }
                                     } else {
                                         if (showAmmount) {
@@ -423,7 +419,7 @@ public class MissionManager {
                                 lore.add(Component.text("§fЛКМ §7- §eЗавершить и получить награду!"));
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
                                             .name(mission.displayName())
-                                        .setLore(lore)
+                                        .lore(lore)
                                         .enchant(Enchantment.FORTUNE, 1)
                                             .flags(ItemFlag.HIDE_ENCHANTS)
                                             .build(), e -> {
@@ -437,7 +433,7 @@ public class MissionManager {
                                 lore.add(Component.text("§7(§cвесь прогресс будет потерян!§7)"));
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
                                         .name(mission.displayName())
-                                        .setLore(lore)
+                                        .lore(lore)
                                         .build(), e -> {
                                         if (e.getClick() == ClickType.DROP) {
                                             op.getPlayer().performCommand("mission deny " + missionId);
@@ -453,7 +449,7 @@ public class MissionManager {
                         
                        /* buttons.add(ClickableItem.empty(new ItemBuilder(mission.mat)
                             .name(mission.displayName())
-                            .setLore(lore)
+                            .lore(lore)
                             .build()
                         ));*/
 

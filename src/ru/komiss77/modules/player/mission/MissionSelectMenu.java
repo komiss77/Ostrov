@@ -10,17 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class MissionSelectMenu implements InventoryProvider {
@@ -102,7 +97,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.empty(new ItemBuilder(mi.mat)
                             .name(mi.displayName())
-                                .setLore(lore)
+                                .lore(lore)
                             .build())
                         );
 
@@ -123,7 +118,7 @@ public class MissionSelectMenu implements InventoryProvider {
                     lore.add(Component.empty());
                     buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                             .name(mi.displayName())
-                            .setLore(lore)
+                            .lore(lore)
                             .build(), e -> {
                             if (e.getClick() == ClickType.DROP) {
                                 p.performCommand("mission deny " + mi.id);
@@ -180,7 +175,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                                 .name(mi.displayName())
-                                .setLore(lore)
+                                .lore(lore)
                                 .build(), e -> {
                                 if (e.isLeftClick()) {
                                     p.performCommand("mission accept " + mi.id);
@@ -194,7 +189,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                                 .name(mi.displayName())
-                                .setLore(lore)
+                                .lore(lore)
                                 .build(), e -> {
                                 PM.soundDeny(p);
                             }

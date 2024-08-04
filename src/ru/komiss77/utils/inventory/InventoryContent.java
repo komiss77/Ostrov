@@ -725,7 +725,7 @@ public class InventoryContent_ {
         return this;
     }
     /*кинуло размер
-    public InventoryContent setLore (final int row, final int column, final List<String> lore) {
+    public InventoryContent lore (final int row, final int column, final List<String> lore) {
         final ItemStack is = inventory.getItem(host.getColumns() * row + column);
         if (is==null || !is.hasItemMeta()) return this;
         final ItemMeta im = is.getItemMeta();

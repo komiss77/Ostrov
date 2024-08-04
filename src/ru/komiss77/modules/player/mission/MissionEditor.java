@@ -2,20 +2,15 @@ package ru.komiss77.modules.player.mission;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.*;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.DateTimeEditGui;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
 
 public class MissionEditor implements InventoryProvider {
 
@@ -98,7 +93,7 @@ public class MissionEditor implements InventoryProvider {
                 p.sendMessage("§cСлишком длинное название! (лимит32)");
                 PM.soundDeny(p);
             } else {
-                mi.name = TCUtil.stripColor(newName);
+                mi.name = TCUtil.strip(newName);
                 mi.displayName = null;
                 mi.changed = true;
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);

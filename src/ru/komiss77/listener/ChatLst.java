@@ -23,7 +23,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.Perm;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.Data;
@@ -33,6 +32,7 @@ import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.ScreenUtil;
@@ -331,12 +331,12 @@ public class ChatLst implements Listener {
 
         //сообщение
         bRU.append(msgRU.color(MSG_COLOR)
-                .hoverEvent(HoverEvent.showText(Component.text("§7to english: \n§f" + ce.stripMsgEn + "\n§7click - §cignore")))
-                .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
+            .hoverEvent(HoverEvent.showText(TCUtil.form("§7to english: \n§f" + ce.stripMsgEn + "\n§7click - §cignore")))
+            .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
         );
         bEN.append(msgEN.color(MSG_COLOR)
-                .hoverEvent(HoverEvent.showText(Component.text("§7по русски: \n§f" + ce.stripMsgRu + "\n§7Клик - §cв игнор")))
-                .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
+            .hoverEvent(HoverEvent.showText(TCUtil.form("§7по русски: \n§f" + ce.stripMsgRu + "\n§7Клик - §cв игнор")))
+            .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
         );
 
 

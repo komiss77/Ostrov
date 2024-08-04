@@ -19,7 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.*;
+import ru.komiss77.Ostrov;
+import ru.komiss77.RemoteDB;
+import ru.komiss77.Timer;
 import ru.komiss77.enums.*;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.games.ArenaInfo;
@@ -33,7 +35,10 @@ import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
 import ru.komiss77.modules.player.profile.serverMenu.LocalMenuOpener;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -908,7 +913,7 @@ public class ProfileManager {
             return;
         }
 
-        //im.getContents(p).get().getInventory().setItem(slot, ItemUtil.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+        //im.getContents(p).get().getInventory().setItem(slot, ItemUtil.loreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
         try {
             ItemStack is = current.getItem(slot);
             if (is != null && is.hasItemMeta()) {
@@ -921,7 +926,7 @@ public class ProfileManager {
                     current.setItem(slot, is);
                 }
             }
-            //current.setItem(slot, ItemUtil.setLoreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
+            //current.setItem(slot, ItemUtil.loreLine(im.getContents(p).get().getInventory().getItem(slot), line, value));  //set(Section.СТАТИСТИКА.slot, im.getContents(p).get().g);
         } catch (NoSuchElementException | NullPointerException ex) {
             Ostrov.log_warn("ProfileManager setLine : " + ex.getMessage());
             current = null;

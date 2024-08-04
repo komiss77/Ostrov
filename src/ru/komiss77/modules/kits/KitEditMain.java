@@ -5,18 +5,12 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
 
 
 public class KitEditMain implements InventoryProvider {
@@ -59,7 +53,7 @@ public class KitEditMain implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
-                //final Kit clickedKit = KitManager.kits.get(ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName()));
+                //final Kit clickedKit = KitManager.kits.get(ChatColor.strip(e.getCurrentItem().getItemMeta().getDisplayName()));
                 //if (clickedKit==null) return;
                 if (e.isLeftClick()) {
                     KitManager.openKitSettingsEditor(player, kit);
