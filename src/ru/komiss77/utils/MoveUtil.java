@@ -8,6 +8,7 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.version.Nms;
@@ -30,11 +31,14 @@ public class MoveUtil {
             Ostrov.sync(() -> teleportSave(p, feetLoc, buildSafePlace));
             return true;
         }
-
-        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
-            p.teleport(feetLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-            return true;
-        }
+        //аркаим и билдер кидает в небо - как-то не очень, пусть работает для всех, не особо грузит.
+        //if (ApiOstrov.isLocalBuilder(p)) {
+        //    p.sendMessage("teleportSave для билдера");
+        //}
+        //if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
+        //    p.teleport(feetLoc.getWorld().getHighestBlockAt(feetLoc).getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+        //    return true;
+        //}
 
         //отфильтровка высоты за пределами по оси Y
         final int y_max = feetLoc.getWorld().getEnvironment() == World.Environment.NETHER ? feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3 :
