@@ -72,7 +72,7 @@ public class EntityServerMenu implements InventoryProvider {
 
             menuEntry.add(ClickableItem.of(new ItemBuilder(Material.HEART_OF_THE_SEA)
                 .name("§f" + world.getName())
-                .deLore().lore(lore)
+                    .setLore(lore)
                 .lore("§7")
                 .lore("§7ЛКМ - подробно по миру")
                 .lore("§7")

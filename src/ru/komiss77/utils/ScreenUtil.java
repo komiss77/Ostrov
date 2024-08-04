@@ -1,5 +1,6 @@
 package ru.komiss77.utils;
 
+import java.time.Duration;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -7,9 +8,6 @@ import org.bukkit.entity.Player;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.DelayBossBar;
-
-import java.time.Duration;
-
 
 public class ScreenUtil {
 

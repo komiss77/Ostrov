@@ -56,7 +56,7 @@ public class Donate implements InventoryProvider {
                 .name(group.chat_name)
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
                 //.addLore("")
-                .deLore().lore(group.lore)
+                    .setLore(group.lore)
                 //.addLore("")
                 //.addLore("§f15 дней §7- §b"+group.getPrice(15))
                 //.addLore("§f1 месяц §7- §b"+group.getPrice(31))

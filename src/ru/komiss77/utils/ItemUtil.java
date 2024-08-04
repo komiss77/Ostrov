@@ -110,7 +110,8 @@ public class ItemUtil {
     }
 
     public static ItemStack setCusomModelData(final ItemStack is, final int id) {
-        final ItemMeta im = is.getItemMeta();
+        if (is == null) return is;
+        final ItemMeta im = is.hasItemMeta() ? is.getItemMeta() : Bukkit.getItemFactory().getItemMeta(is.getType());//is.getItemMeta();
         im.setCustomModelData(id);
         is.setItemMeta(im);
         return is;

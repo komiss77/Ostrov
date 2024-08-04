@@ -48,7 +48,7 @@ public class QuestViewMenu implements InventoryProvider {
                 } else {
                     final ItemStack is = new ItemBuilder(Material.RAW_GOLD)
                         .name(q.displayName)
-                        .deLore().lore(Quest.loreMap.get(q))
+                            .setLore(Quest.loreMap.get(q))
                         .lore("§aАктивно" + (q.amount > 0 ? "§7, прогресс: §f" + pr.getProg() + " §7из §f" + q.amount : ""))
                         .lore(builder ? "§b*Отладка: §eЛКМ-завершить" : "")
                         .lore(builder && q.amount > 0 ? "§b*Отладка: §eПКМ-добавить прогресс" : "")
@@ -69,7 +69,7 @@ public class QuestViewMenu implements InventoryProvider {
                 }
             } else if (builder) {
                 buttons.add(ClickableItem.of(new ItemBuilder(Material.FIREWORK_STAR)
-                    .name(q.displayName).deLore().lore(Quest.loreMap.get(q))
+                        .name(q.displayName).setLore(Quest.loreMap.get(q))
                     .lore("§6Предстоит").lore("§7Откроется после выполнения §e" + q.parent.displayName)
                     .lore("§b*Отладка: §eЛКМ-завершить")
                     .lore("§b*Отладка: §eПКМ-добавить прогресс")

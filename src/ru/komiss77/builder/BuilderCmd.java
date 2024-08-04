@@ -17,6 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
@@ -43,6 +44,7 @@ public class BuilderCmd implements OCommand {
             .lore("§e настроить")
             .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
             .build();
+
         bmi = new MenuItemBuilder("bmi", buildMenu)
             .slot(0)
             //.rightClickCmd("builder")

@@ -102,7 +102,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.empty(new ItemBuilder(mi.mat)
                             .name(mi.displayName())
-                            .deLore().lore(lore)
+                                .setLore(lore)
                             .build())
                         );
 
@@ -123,7 +123,7 @@ public class MissionSelectMenu implements InventoryProvider {
                     lore.add(Component.empty());
                     buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                             .name(mi.displayName())
-                            .deLore().lore(lore)
+                            .setLore(lore)
                             .build(), e -> {
                             if (e.getClick() == ClickType.DROP) {
                                 p.performCommand("mission deny " + mi.id);
@@ -180,7 +180,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                                 .name(mi.displayName())
-                                .deLore().lore(lore)
+                                .setLore(lore)
                                 .build(), e -> {
                                 if (e.isLeftClick()) {
                                     p.performCommand("mission accept " + mi.id);
@@ -194,7 +194,7 @@ public class MissionSelectMenu implements InventoryProvider {
 
                         buttons.add(ClickableItem.of(new ItemBuilder(mi.mat)
                                 .name(mi.displayName())
-                                .deLore().lore(lore)
+                                .setLore(lore)
                                 .build(), e -> {
                                 PM.soundDeny(p);
                             }

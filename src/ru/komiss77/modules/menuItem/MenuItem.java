@@ -9,8 +9,9 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -34,16 +35,20 @@ public class MenuItem {
     public MenuItem(final String name, final ItemStack is) {
         this.name = name;
         id = name.hashCode();//ApiOstrov.generateId();
-        itemRu = ItemUtil.setCusomModelData(is, id);
-        itemEn = is.clone();
 
-        final ItemMeta im = itemEn.getItemMeta();
-        im.setCustomModelData(id);
-        String displayName = im.hasDisplayName() ? TCUtil.deform(im.displayName()) : "";
+        itemRu = new ItemBuilder(is).modelData(id).build();//ItemUtil.setCusomModelData(is, id);
+
+        String displayName = is.hasItemMeta() && is.getItemMeta().hasDisplayName() ? TCUtil.deform(is.getItemMeta().displayName()) : "";
         displayName = Lang.t(displayName, Lang.EN);
-        im.displayName(TCUtil.form(displayName));
+        //im.displayName(TCUtils.form(displayName));
 
-        itemEn.setItemMeta(im);
+        itemEn = new ItemBuilder(is).name(displayName).modelData(id).build();//is.clone();
+        //final ItemMeta im = itemEn.getItemMeta();
+        //im.setCustomModelData(id);
+        //String displayName = im.hasDisplayName() ? TCUtils.deform(im.displayName()) : "";
+        //displayName = Lang.t(displayName, Lang.EN);
+        //im.displayName(TCUtils.form(displayName));
+        //itemEn.setItemMeta(im);
     }
 
     public ItemStack getItem() {

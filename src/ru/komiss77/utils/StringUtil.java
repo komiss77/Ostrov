@@ -1,10 +1,9 @@
 package ru.komiss77.utils;
 
-import org.apache.commons.lang.WordUtils;
-
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.StreamSupport;
+import org.apache.commons.lang.WordUtils;
 
 public class StringUtil {
 
