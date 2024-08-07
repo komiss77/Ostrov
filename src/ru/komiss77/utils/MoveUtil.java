@@ -6,6 +6,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.ApiOstrov;
@@ -395,7 +396,13 @@ public class MoveUtil {
     //public static boolean isSafeLocation(final WXYZ feetXYZ) {
     //     return Nms.isSafeLocation(feetXYZ);
     // }
-
+    public static void moveDeny(final PlayerMoveEvent e) {//блокировка перемещения, для миниигр
+        if (e.getTo().getY() < e.getFrom().getY()) {
+            e.setTo(e.getFrom().add(0, 2, 0));
+        } else {
+            e.setTo(e.getFrom());
+        }
+    }
 }
 
 

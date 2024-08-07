@@ -2,7 +2,6 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!!!! если в идее пропали мавен зависимости, в билд.градле.ктс закоментить paperweight.paperDevBundle, рестарт,раскоментить,рестарт и прогрузит
 
 
-ItemBuilder сократить методы и убрать гет/сет
 вроде нет тэга
 при смене ГМ тэг остаётся
 

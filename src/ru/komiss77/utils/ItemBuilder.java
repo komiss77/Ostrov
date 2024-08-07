@@ -182,6 +182,7 @@ public class ItemBuilder {
 
     public ItemBuilder lore(final String s) {
         if (s==null) return this;
+        if (lore == null) lore = new ArrayList<>();
         if (s.isEmpty()) lore.add(Component.empty());
         else lore.add(TCUtil.form(s));
         return this;
@@ -189,18 +190,21 @@ public class ItemBuilder {
 
     public ItemBuilder lore(final Collection<String> sc) {
         if (sc==null || sc.isEmpty()) return this;
+        if (lore == null) lore = new ArrayList<>();
         for (final String s : sc) lore.add(TCUtil.form(s));
         return this;
     }
 
     public ItemBuilder lore(final Component c) {
         if (c==null) return this;
+        if (lore == null) lore = new ArrayList<>();
         else lore.add(c);
         return this;
     }
 
     public ItemBuilder lore(final List<Component> lc) {
         if (lc==null || lc.isEmpty()) return this;
+        if (lore == null) lore = new ArrayList<>();
         lore.addAll(lc);
         return this;
     }
@@ -278,11 +282,12 @@ public class ItemBuilder {
     }*/
 
     public ItemBuilder deLore() {
-        if (lore == null) {
-            lore = new ArrayList<>();
-        } else {
-            lore.clear();
-        }
+        lore = null;
+        //if (lore == null) {
+        //    lore = new ArrayList<>();
+        //} else {
+        //     lore.clear();
+        // }
         return this;
     }
 
@@ -410,7 +415,7 @@ public class ItemBuilder {
         return this;
     }
 
-    //взял глинт закомментил (((
+    //взял глинт закомментил (((  наверное, случайно. сорян
     public ItemBuilder glint(final @Nullable Boolean glint) {
         if (glint == null && (meta == null || !meta.hasEnchantmentGlintOverride())) return this;
         if (checkMeta()) {
