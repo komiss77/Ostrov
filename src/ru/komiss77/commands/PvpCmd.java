@@ -1,5 +1,9 @@
 package ru.komiss77.commands;
 
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
@@ -33,8 +37,8 @@ import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.events.PlayerPVPEnterEvent;
-import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.bots.BotManager;
+import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
@@ -46,11 +50,6 @@ import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 import ru.komiss77.utils.inventory.SmartInventory;
-
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 public final class PvpCmd implements OCommand, Listener {
 
@@ -160,7 +159,7 @@ public final class PvpCmd implements OCommand, Listener {
         return "Вкл/Выкл ПВП Режим";
     }
 
-    private static OConfig config;
+    public static OConfig config;
 
     private static int battle_time;  //после первого удара - заносим обоих в режим боя
     public static int no_damage_on_tp;
@@ -330,7 +329,7 @@ public final class PvpCmd implements OCommand, Listener {
                                         }
                                     }
                                 } else {
-                                    final BotEntity dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                    final Botter dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId()) : null;
                                     if (dbe != null) {//B v P
                                         targetHand = targetPlayer.getInventory().getItemInMainHand();
                                         final Material mt = targetHand.getType();
@@ -350,14 +349,14 @@ public final class PvpCmd implements OCommand, Listener {
 
                                         final LivingEntity dle = (LivingEntity) e.getDamager();
                                         final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                        if (dbe.parry(dle)) {
+                                        if (dbe.isParrying(dle)) {
                                             e.setDamage(0d);
                                             e.setCancelled(true);
                                             return;
                                         }
 
                                         if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
-                                            && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                            && dle.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
                                             final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                             if (ItemUtil.isBlank(ofh, false)) {
                                                 if (targetPlayer.isBlocking()) {
@@ -379,16 +378,16 @@ public final class PvpCmd implements OCommand, Listener {
                                     }
                                 }
                             } else {
-                                final BotEntity tbe = BotManager.enable ? BotManager.getBot(target.getEntityId(), BotEntity.class) : null;
+                                final Botter tbe = BotManager.enable ? BotManager.getBot(target.getEntityId()) : null;
                                 if (tbe != null) {// # v B
                                     if (e.getDamager().getType() == EntityType.PLAYER) {// P v B
                                         final Player damagerPlayer = (Player) e.getDamager();
                                         targetHand = tbe.item(EquipmentSlot.HAND);
                                         if (targetHand != null) {
                                             final Material mt = targetHand.getType();
-                                            if (tbe.parry(target) && ItemClass.MELEE.has(mt)) {
+                                            if (tbe.isParrying(target) && ItemClass.MELEE.has(mt)) {
                                                 target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 2f, 0.8f);
-                                                tbe.parry(target, false);
+                                                tbe.parrying(target, false);
                                                 if (!e.isCritical()) {
                                                     e.setDamage(0d);
                                                     e.setCancelled(true);
@@ -409,8 +408,8 @@ public final class PvpCmd implements OCommand, Listener {
                                             && damagerPlayer.isSprinting() && ItemClass.MELEE_AXE.has(damagerHand.getType())) {
                                             final ItemStack ofh = inv.getItemInOffHand();
                                             if (ItemUtil.isBlank(ofh, false)) {
-                                                if (tbe.block(target)) {
-                                                    tbe.bash(target, true);
+                                                if (tbe.isBlocking(target)) {
+                                                    tbe.bashed(target, true);
                                                 }
                                             } else if (ItemClass.MELEE.has(ofh.getType()) && ItemClass.MELEE.has(damagerHand.getType())) {
                                                 Ostrov.sync(() -> {
@@ -430,14 +429,14 @@ public final class PvpCmd implements OCommand, Listener {
                                             }
                                         }
                                     } else {
-                                        final BotEntity dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                        final Botter dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId()) : null;
                                         if (dbe != null) {// B v B
                                             targetHand = tbe.item(EquipmentSlot.HAND);
                                             if (targetHand != null) {
                                                 final Material mt = targetHand.getType();
-                                                if (tbe.parry(target) && ItemClass.MELEE.has(mt)) {
+                                                if (tbe.isParrying(target) && ItemClass.MELEE.has(mt)) {
                                                     target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 2f, 0.8f);
-                                                    tbe.parry(target, false);
+                                                    tbe.parrying(target, false);
                                                     if (!e.isCritical()) {
                                                         e.setDamage(0d);
                                                         e.setCancelled(true);
@@ -449,18 +448,18 @@ public final class PvpCmd implements OCommand, Listener {
 
                                             final LivingEntity dle = (LivingEntity) e.getDamager();
                                             final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                            if (dbe.parry(dle)) {
+                                            if (dbe.isParrying(dle)) {
                                                 e.setDamage(0d);
                                                 e.setCancelled(true);
                                                 return;
                                             }
 
                                             if (hnd != null && ItemClass.MELEE_AXE.has(hnd.getType())
-                                                && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                                && dle.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                                 if (ItemUtil.isBlank(ofh, false)) {
-                                                    if (tbe.block(target)) {
-                                                        tbe.bash(target, true);
+                                                    if (tbe.isBlocking(target)) {
+                                                        tbe.bashed(target, true);
                                                     }
                                                 } else if (ItemClass.MELEE.has(ofh.getType()) && ItemClass.MELEE.has(hnd.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
                                                     Ostrov.sync(() -> {
@@ -516,18 +515,18 @@ public final class PvpCmd implements OCommand, Listener {
                                             }
                                         }
                                     } else {
-                                        final BotEntity dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId(), BotEntity.class) : null;
+                                        final Botter dbe = BotManager.enable ? BotManager.getBot(e.getDamager().getEntityId()) : null;
                                         if (dbe != null) {// B v M
                                             final LivingEntity dle = (LivingEntity) e.getDamager();
                                             final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                            if (dbe.parry(dle)) {
+                                            if (dbe.isParrying(dle)) {
                                                 e.setDamage(0d);
                                                 e.setCancelled(true);
                                                 return;
                                             }
 
                                             if (hnd != null && ItemClass.MELEE.has(hnd.getType())
-                                                && dle.getLocation().distanceSquared(target.getLocation()) < BotEntity.DHIT_DST_SQ) {
+                                                && dle.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                                 if (ofh != null && ItemClass.MELEE.has(ofh.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
                                                     Ostrov.sync(() -> {

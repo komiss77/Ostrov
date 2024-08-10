@@ -1,9 +1,7 @@
 plugins {
   `java-library`
-  //`maven-publish`
-  id("io.papermc.paperweight.userdev") version "1.7.1"
+  id("io.papermc.paperweight.userdev") version "1.7.2"
   id("xyz.jpenilla.run-paper") version "2.3.0"
-  //id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "ru.ostrov77"
@@ -12,12 +10,9 @@ description = "ostrov77"
 
 dependencies {
   paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
-  compileOnly(fileTree("libs"))// api(fileTree("libs"))
+  compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.1.1")
   annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
-  //implementation("redis.clients:jedis:4.3.1")
-  //api("redis.clients:jedis:4.3.1")
-  //extraLibs group: 'net.java.dev.jna', name: 'jna-platform', version: '4.2.2'
 }
 
 repositories {
@@ -27,11 +22,6 @@ repositories {
   }
   mavenCentral()
 }
-
-//configurations {
-// configuration that holds jars to include in the jar
-//extraLibs
-//}
 
 sourceSets {
   main {
@@ -48,7 +38,6 @@ tasks {
   // Configure reobfJar to run when invoking the build task
   assemble {
     dependsOn(reobfJar)
-    //dependsOn(withType<Jar>())
   }
 
   java {
@@ -73,52 +62,7 @@ tasks {
     outputJar.set(layout.buildDirectory.file("Ostrov.jar"))
   }
 
-
-  //withType<Jar> {
-  //  enabled = true
-  //   isZip64 = true
-  //   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-  //  archiveFileName.set("$project.jar")
-
-  //  from(sourceSets.main.get().output)
-  //   dependsOn(configurations.compileClasspath)
-  //   from({
-  //     configurations.compileClasspath.get().filter {
-  //       it.name.endsWith("jar")
-  //    }.map { zipTree(it) }
-  //   }) {
-  //    exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
-  //  }
-  //}
-
   jar {
-    //from(fileTree("libs/jedis"))
-    //from(files("libs/jedis-4.3.1.jar"))
     from(zipTree("libs/jedis-4.3.1.zip"))
   }
-
-  // jar {
-  //from files('path/to/file.class', 'path/to/otherfile.class'
-  // or
-  //from fileTree('path/to/dir') {
-  //  include '**/*.class'
-  //}
-  //   from (fileTree("jedis"))
-  //    include ('**/*.class')
-  //  }
-  //}
-
-  //https://imperceptiblethoughts.com/shadow/configuration/dependencies/#embedding-jar-files-inside-your-shadow-jar
-  /*shadowJar {
-    dependencies {
-      exclude(dependency("org.json:json:.*"))
-      exclude(dependency("org.slf4j:slf4j-api:.*"))
-      exclude(dependency("com.google.code.gson:gson:.*"))
-    }
-    //mergeServiceFiles() - у ромы вместо relocate
-    relocate("redis.clients.jedis", "ru.komiss77.modules.redis.jedis")
-    relocate("redis.clients.util", "ru.komiss77.modules.redis.jedisutil")
-    //minimize()
-  }*/
 }

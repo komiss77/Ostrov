@@ -14,8 +14,8 @@ import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.bots.BotManager;
+import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.InputButton;
@@ -61,43 +61,43 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
     public void channelRead(final @NotNull ChannelHandlerContext chc, final @NotNull Object packet) throws Exception {
         //switch по getSimpleName не прокатит - названия другие - обфусцированы!
 
-        if (packet instanceof final ServerboundInteractPacket ip) { // Paper start - PlayerUseUnknownEntityEvent
-            if (BotManager.enable) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
-                final int id = ip.getEntityId();
-                for (final BotEntity bot : BotManager.botById.values()) {
-                    if (bot.hashCode() == id) {
-                        interactIdField.set(ip, bot.rid);
-                        break;
+        switch (packet) {
+            case final ServerboundInteractPacket ip -> {
+                if (BotManager.enable) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
+                    final int id = ip.getEntityId();
+                    for (final Botter bot : BotManager.botById.values()) {
+                        if (bot.hashCode() == id) {
+                            interactIdField.set(ip, bot.rid());
+                            break;
+                        }
                     }
-                }
+                }  // Paper start - PlayerUseUnknownEntityEvent
             }
-
-        } else if (packet instanceof ServerboundSignUpdatePacket sup) {
-            //пакет ввода с таблички - не отдаём в сервер!
-            final Player p = op.getPlayer();
-            if (p != null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
-                final String result = sup.getLines()[0] + " " + sup.getLines()[1] + " " + sup.getLines()[2] + " " + sup.getLines()[3];
-                Ostrov.sync(() -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0);
-                return;
-            }
-
-        } else if (packet instanceof ServerboundPlayerActionPacket pa) {
-            //блокировка ломания фэйкогого блока
-            if (pa.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
-                if (op.hasFakeBlock && op.fakeBlock.containsKey(pa.getPos().asLong())) {
+            case final ServerboundSignUpdatePacket sup -> {
+                //пакет ввода с таблички - не отдаём в сервер!
+                final Player p = op.getPlayer();
+                if (p != null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
+                    final String result = sup.getLines()[0] + " " + sup.getLines()[1] + " " + sup.getLines()[2] + " " + sup.getLines()[3];
+                    Ostrov.sync(() -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0);
                     return;
                 }
             }
-
-
-        } else if (packet instanceof ServerboundUseItemOnPacket uip) {
-            //блокировка клика на фэйковый блок
-            if (uip.getHitResult() != null) {
+            case final ServerboundPlayerActionPacket pa -> {
+                //блокировка ломания фэйкогого блока
+                if (pa.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
+                    if (op.hasFakeBlock && op.fakeBlock.containsKey(pa.getPos().asLong())) {
+                        return;
+                    }
+                }
+            }
+            case final ServerboundUseItemOnPacket uip -> {
+                //блокировка клика на фэйковый блок
                 if (op.hasFakeBlock && op.fakeBlock.containsKey(uip.getHitResult().getBlockPos().asLong())) {
                     return;
                 }
             }
-
+            default -> {
+            }
         }
 
 
@@ -186,7 +186,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             }
 
             if (packet instanceof ClientboundBundlePacket clientboundBundlePacket) {
-                final Iterator pit = clientboundBundlePacket.subPackets().iterator();
+                final Iterator<?> pit = clientboundBundlePacket.subPackets().iterator();
                 while (pit.hasNext()) {
                     final Object pc = pit.next();
                     if (pc instanceof final ClientboundAddEntityPacket p) {

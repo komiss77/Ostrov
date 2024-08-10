@@ -3,14 +3,13 @@ package ru.komiss77.modules.bots;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,8 +36,8 @@ import ru.komiss77.objects.IntHashMap;
 public class BotManager implements Initiable, Listener {
 
     public static boolean enable;
-    public static final IntHashMap<BotEntity> botById;
-    protected static final CaseInsensitiveMap<BotEntity> botByName;
+    public static final IntHashMap<Botter> botById;
+    protected static final CaseInsensitiveMap<Botter> botByName;
     protected static final CaseInsensitiveMap<String[]> skin;
     //protected static final HashMap<String, String> skinSignatures;
 
@@ -64,9 +63,9 @@ public class BotManager implements Initiable, Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final ArrayList<BotEntity> rbs = new ArrayList<>();
-                for (final IntHashMap.Entry<BotEntity> en : botById.entrySet()) {
-                    final BotEntity be = en.getValue();
+                final ArrayList<Botter> rbs = new ArrayList<>();
+                for (final IntHashMap.Entry<Botter> en : botById.entrySet()) {
+                    final Botter be = en.getValue();
                     if (!be.isDead()) {
                         final LivingEntity le = be.getEntity();
                         if (le == null || !le.isValid() || le.getEntityId() != en.getKey()) {
@@ -77,9 +76,9 @@ public class BotManager implements Initiable, Listener {
 
                 if (!rbs.isEmpty()) {
                     Ostrov.sync(() -> {
-                        for (final BotEntity be : rbs) {
+                        for (final Botter be : rbs) {
                             Ostrov.log(be.name() + " bugged out");
-                            be.onBug();
+                            be.bug();
                         }
                     });
                 }
@@ -120,8 +119,8 @@ public class BotManager implements Initiable, Listener {
         //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
-            for (final BotEntity be : botByName.values()) {
-                if (be.world.getUID().equals(id)) {
+            for (final Botter be : botByName.values()) {
+                if (be.world().getUID().equals(id)) {
                     be.updateAll(pl);
                 }
             }
@@ -134,8 +133,8 @@ public class BotManager implements Initiable, Listener {
         //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
         final UUID id = pl.getWorld().getUID();
         Ostrov.async(() -> {
-            for (final BotEntity be : botByName.values()) {
-                if (be.world.getUID().equals(id)) {
+            for (final Botter be : botByName.values()) {
+                if (be.world().getUID().equals(id)) {
                     be.updateAll(pl);
                 }
             }
@@ -149,25 +148,25 @@ public class BotManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(final PlayerInteractAtEntityEvent e) {
-        final BotEntity be = botById.get(e.getRightClicked().getEntityId());
+        final Botter be = botById.get(e.getRightClicked().getEntityId());
         if (be != null) {
-            be.onInteract(e);
+            be.interact(e);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
-        final BotEntity be = botById.get(e.getEntity().getEntityId());
+        final Botter be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
-            be.onDamage(e);
+            be.damage(e);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onDeath(final EntityDeathEvent e) {
-        final BotEntity be = botById.get(e.getEntity().getEntityId());
+        final Botter be = botById.get(e.getEntity().getEntityId());
         if (be != null) {
-            be.onDeath(e);
+            be.death(e);
         }
     }
 
@@ -178,33 +177,27 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-
-    @Nullable
-    public static <B extends BotEntity> B createBot(final String name, final Class<B> botClass, final Function<String, B> creator) {
+    public static Botter createBot(final String name, final World w, final Botter.Extention ext) {
         if (!enable) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
             return null;
         }
 
-        final BotEntity be = botByName.get(name);
-        try {
+        final Botter be = botByName.get(name);
+        if (be != null) return be;
+        return new BotEntity(name, w, ext);
+        /*try {
             return be != null && be.getClass().isAssignableFrom(botClass) ? botClass.cast(be) : creator.apply(name);
         } catch (IllegalArgumentException | SecurityException ex) {
             Ostrov.log_err("BotManager createBot : " + ex.getMessage());
             //e.printStackTrace();
             return null;
-        }
-    }
-
-    @Nullable
-    @Deprecated
-    public static <B extends BotEntity> B createBot(final String name, final Class<B> botClass, final Supplier<B> onCreate) {
-        return createBot(name, botClass, nm -> onCreate.get());
+        }*/
     }
 
     public static void clearBots() {
-        final Set<BotEntity> en = new HashSet<>(botById.values());
-        for (final BotEntity bt : en) {
+        final Set<Botter> en = new HashSet<>(botById.values());
+        for (final Botter bt : en) {
             bt.remove();
         }
     }
@@ -214,15 +207,13 @@ public class BotManager implements Initiable, Listener {
     }
 
     @Nullable
-    public static <B extends BotEntity> B getBot(final int rid, final Class<B> cls) {
-        final BotEntity be = botById.get(rid);
-        return be == null ? null : cls.cast(be);
+    public static Botter getBot(final int rid) {
+        return botById.get(rid);
     }
 
     @Nullable
-    public static <B extends BotEntity> B getBot(final String name, final Class<B> cls) {
-        final BotEntity be = botByName.get(name);
-        return be == null ? null : cls.cast(be);
+    public static Botter getBot(final String name) {
+        return botByName.get(name);
     }
 
     public static void regSkin(final String name) {
@@ -232,10 +223,12 @@ public class BotManager implements Initiable, Listener {
         }
         Ostrov.async(() -> {
             try {
-                final InputStreamReader irn = new InputStreamReader(new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openStream());
+                final InputStreamReader irn = new InputStreamReader(URI
+                    .create("https://api.mojang.com/users/profiles/minecraft/" + name).toURL().openStream());
                 final String id = (String) ((JSONObject) new JSONParser().parse(irn)).get("id");
 
-                final InputStreamReader tsr = new InputStreamReader(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").openStream());
+                final InputStreamReader tsr = new InputStreamReader(URI
+                    .create("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").toURL().openStream());
                 final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).get(0));
                 skin.put(name, new String[]{(String) ppt.get("value"), (String) ppt.get("signature")});
             } catch (NullPointerException | IOException | ParseException e) {

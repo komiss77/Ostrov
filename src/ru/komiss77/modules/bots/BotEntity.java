@@ -1,8 +1,13 @@
 package ru.komiss77.modules.bots;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
-import com.destroystokyo.paper.entity.ai.GoalKey;
-import com.destroystokyo.paper.entity.ai.GoalType;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
@@ -15,6 +20,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
@@ -25,66 +31,53 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.world.AStarPath;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Craft;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 
-
-public class BotEntity extends ServerPlayer {
+public class BotEntity extends ServerPlayer implements Botter {
 
     public static final EntityDataAccessor<Byte> flags = DATA_SHARED_FLAGS_ID;
 
     private static final net.minecraft.world.item.ItemStack air
-            = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtil.air);
+        = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtil.air);
     private static final String[] empty = new String[]{"", ""};
 
-    public final World world;
-    //    public final CustomScore score;
-    public final CustomTag tag;
-    public final SubTeam team;
+    private final World world;
+    private final Extention ext;
+    //    protected final CustomScore score;
+    private final CustomTag tag;
+    private final SubTeam team;
 
     //private final PlayerInventory inv;
     private final PlayerInventory inv;
 
-    public int rid;
+    private int rid;
     private boolean isDead;
     private WeakReference<LivingEntity> rplc;
-    //    private String prefix, affix, suffix;
-    public static final double DHIT_DST_SQ = 4d;
-    public static final int PARRY_TICKS = 40;
-    public static final int BASH_TICKS = 40;
 
-    protected BotEntity(final String name, final World world) {
+    protected BotEntity(final String name, final World world, final Extention ext) {
         super(MinecraftServer.getServer(), Craft.toNMS(world), getProfile(name), ClientInformation.createDefault());
         this.name = name;
         this.world = world;
+        this.ext = ext;
         rid = -1;
 
-        lastBash = -BASH_TICKS;
-        lastParry = -PARRY_TICKS;
+        lastBash = -Botter.BASH_TICKS;
+        lastParry = -Botter.PARRY_TICKS;
         rplc = new WeakReference<>(null);
         inv = Craft.fromNMS(getInventory());
         tag = new CustomTag(getBukkitEntity());
         team = new SubTeam(name).include(name)
-                .tagVis(Team.OptionStatus.NEVER).seeInvis(false);
+            .tagVis(Team.OptionStatus.NEVER).seeInvis(false);
         team.send(world);
+
         BotManager.botByName.put(name, this);
     }
 
@@ -95,7 +88,19 @@ public class BotEntity extends ServerPlayer {
         return gameProfile;
     }
 
-    public int lastBusy;
+    public void rid(final int rid) {
+        this.rid = rid;
+    }
+
+    public int rid() {
+        return rid;
+    }
+
+    public World world() {
+        return world;
+    }
+
+    protected int lastBusy;
 
     public boolean busy(final LivingEntity mb, @Nullable final Boolean set, final int tks) {
         if (set != null) {
@@ -104,37 +109,56 @@ public class BotEntity extends ServerPlayer {
         return mb.getTicksLived() - lastBusy < tks;
     }
 
-    public boolean block(final LivingEntity mb) {
-        return false;
+    private boolean block;
+
+    public boolean isBlocking(final LivingEntity mb) {
+        return block;
     }
 
-    public void block(final LivingEntity mb, final boolean set) {
-//		lastBash = is ? mb.getTicksLived() : -BASH_TICKS;
+    public void blocking(final LivingEntity mb, final boolean set) {
+        if (isBashed(mb)) return;
+        final boolean ofh;
+        if (item(EquipmentSlot.HAND).getType() == Material.SHIELD) {
+            ofh = true;
+        } else if (item(EquipmentSlot.OFF_HAND).getType() == Material.SHIELD) {
+            ofh = false;
+        } else {
+            this.block = false;
+            this.setLivingEntityFlag(1, false);
+            this.setLivingEntityFlag(2, false);
+            return;
+        }
+        this.setLivingEntityFlag(1, true);
+        this.setLivingEntityFlag(2, ofh);
+        Nms.sendWorldPackets(mb.getWorld(), new ClientboundSetEntityDataPacket(this.getId(),
+            List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
+        this.block = set;
     }
 
     private int lastBash;
 
-    public boolean bash(final LivingEntity mb) {
-        return mb.getTicksLived() - lastBash < BASH_TICKS;
+    public boolean isBashed(final LivingEntity mb) {
+        return mb.getTicksLived() - lastBash < Botter.BASH_TICKS;
     }
 
-    public void bash(final LivingEntity mb, final boolean set) {
-        lastBash = set ? mb.getTicksLived() : -BASH_TICKS;
+    public void bashed(final LivingEntity mb, final boolean set) {
+        lastBash = set ? mb.getTicksLived() : -Botter.BASH_TICKS;
+        if (set) blocking(mb, false);
     }
 
     private int lastParry;
 
-    public boolean parry(final LivingEntity mb) {
-        return mb.getTicksLived() - lastParry < PARRY_TICKS;
+    public boolean isParrying(final LivingEntity mb) {
+        return mb.getTicksLived() - lastParry < Botter.PARRY_TICKS;
     }
 
-    public void parry(final LivingEntity mb, final boolean set) {
+    public void parrying(final LivingEntity mb, final boolean set) {
         if (set) {
             world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
             world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
             lastParry = mb.getTicksLived();
         } else {
-            lastParry = -PARRY_TICKS;
+            lastParry = -Botter.PARRY_TICKS;
         }
     }
 
@@ -145,6 +169,10 @@ public class BotEntity extends ServerPlayer {
         world.playSound(mb.getLocation(), Sound.ENTITY_GENERIC_HURT, 1f, 1.2f);
     }
 
+    public void swingHand(final boolean main) {
+        if (main) swing(InteractionHand.MAIN_HAND);
+        else swing(InteractionHand.OFF_HAND);
+    }
 
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
         if (ofh) {
@@ -163,14 +191,9 @@ public class BotEntity extends ServerPlayer {
         }
     }
 
-    @OverrideMe
     public void telespawn(final Location to, @Nullable final LivingEntity le) {
         Nms.sendWorldPackets(world, remListPlayerPacket(),
-                new ClientboundRemoveEntitiesPacket(this.hashCode()));
-        //VM.server().sendWorldPackets(world,
-        //        new PacketPlayOutEntityDestroy(this.aj()),
-        //        remListPlayerPacket());
-
+            new ClientboundRemoveEntitiesPacket(this.hashCode()));
         if (le == null || !le.isValid() || isDead) {
             BotManager.botById.remove(rid);
             isDead = false;
@@ -186,35 +209,27 @@ public class BotEntity extends ServerPlayer {
             this.rplc = new WeakReference<>(pz);
             this.rid = pz.getEntityId();
             Bukkit.getMobGoals().removeAllGoals(pz);
-            Bukkit.getMobGoals().addGoal(pz, 0, getGoal(pz));
-            BotManager.botById.put(rid, this);
-            parry(pz, false);
-            bash(pz, false);
-            block(pz, false);
+            Bukkit.getMobGoals().addGoal(pz, 0, goal(pz));
+            parrying(pz, false);
+            bashed(pz, false);
+            blocking(pz, false);
 //			hs.teleportAsync(to);
         } else {
             le.teleportAsync(to);
         }
-
-        try {
-            this.setGameMode(GameType.SURVIVAL); //?? setGameMode просто отправляет пакет игроку причём с эвентом (follow usage), переделать на нужные методы
-        } catch (NullPointerException e) {
-        }
-
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
         Nms.sendWorldPackets(world,
-                addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-                modListPlayerPacket(), //UPDATE_GAME_MODE
-                new ClientboundAddEntityPacket(this, 0, blockPosition()));
+            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+            modListPlayerPacket(), //UPDATE_GAME_MODE
+            new ClientboundAddEntityPacket(this, 0, blockPosition()),
+            new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, GameType.SURVIVAL.getId()));
         swapToSlot(0);
-
-//		final Vector vc = to.toVector();
-//		pss.add(vc); pss.add(vc); pss.add(vc); pss.add(vc);
+        ext.spawn(this, getEntity());
     }
 
     @OverrideMe
-    public Goal<Mob> getGoal(final Mob org) {
-        return new BotGoal(this);
+    protected Goal<Mob> goal(final Mob org) {
+        return ext.goal(this, org);
     }
 
     private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
@@ -319,11 +334,7 @@ public class BotEntity extends ServerPlayer {
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
-    @OverrideMe
-    public void dropInv(final Location loc) {
-    }
-
-    public LivingEntity getEntity() {
+    public @Nullable LivingEntity getEntity() {
         final LivingEntity mb = rplc.get();
         return mb == null || !mb.isValid() ? null : mb;
     }
@@ -332,25 +343,23 @@ public class BotEntity extends ServerPlayer {
         return isDead;
     }
 
-    public void die(@Nullable final LivingEntity mb) {
-        try {
-            this.setGameMode(GameType.SPECTATOR); //?? setGameMode просто отправляет пакет игроку причём с эвентом (follow usage), переделать на нужные методы
-        } catch (NullPointerException e) {
-        }
-
+    public void hide(@Nullable final LivingEntity mb) {
+        ext.hide(this, mb);
         isDead = true;
         if (mb != null) {
             BotManager.botById.remove(rid);
             mb.remove();
         }
         Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()),
-                modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId));
+            modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId),
+            new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, GameType.SPECTATOR.getId()));
     }
 
     public void remove() {
+        ext.remove(this);
         BotManager.botByName.remove(name);
         BotManager.botById.remove(rid);
-        die(getEntity());
+        hide(getEntity());
         Nms.sendWorldPackets(world, remListPlayerPacket());// VM.server().sendWorldPackets(world, remListPlayerPacket());
         this.remove(RemovalReason.KILLED);//this.a(RemovalReason.a);
         team.remove(world);
@@ -372,7 +381,7 @@ public class BotEntity extends ServerPlayer {
         Nms.sendWorldPacket(world, updListPlayerPacket());
     }
 
-    /*public void color(@Nullable final NamedTextColor color) {
+    /*protected void color(@Nullable final NamedTextColor color) {
       if (color == null) {
         setGlowingTag(false);
         team.color(NamedTextColor.WHITE);
@@ -397,17 +406,6 @@ public class BotEntity extends ServerPlayer {
 
     public boolean isTagVisTo(final Player pl) {
         return tag.canSee(pl);
-    }
-
-
-    @OverrideMe
-    public boolean isTagVisFor(final Player p) {
-        return true;
-    }
-
-    @OverrideMe
-    public boolean isSeenBy(final Player p) {
-        return true;
     }
 
     public void removeAll(final Player pl) {
@@ -447,8 +445,8 @@ public class BotEntity extends ServerPlayer {
         return Arrays.asList(its);
     }
 
-    @OverrideMe
-    public void pickupIts(final Location loc) {
+    public void pickup(final Location loc) {
+        ext.pickup(this, loc);
         /*for (final Item it : w.getEntitiesByClass(Item.class)) {
 			//rplc.getWorld().getPlayers().get(0).sendMessage(loc.distanceSquared(it.getLocation()) + "");
 			if (loc.distanceSquared(it.getLocation()) < 4d && it.getPickupDelay() == 0) {
@@ -464,6 +462,10 @@ public class BotEntity extends ServerPlayer {
 		}*/
     }
 
+    public void drop(final Location loc) {
+        ext.drop(this, loc);
+    }
+
     public void move(final Location loc, final Vector vc, final boolean look) {
         if (look) loc.setDirection(vc);
         final Vec3 ps = this.position();
@@ -474,97 +476,19 @@ public class BotEntity extends ServerPlayer {
                         (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
     }
 
-    @OverrideMe
-    public void onInteract(final PlayerInteractAtEntityEvent e) {
+    public void interact(final PlayerInteractAtEntityEvent e) {
+        ext.click(this, e);
     }
 
-    @OverrideMe
-    public void onDamage(final EntityDamageEvent e) {
-        hurt((LivingEntity) e.getEntity());
+    public void damage(final EntityDamageEvent e) {
+        ext.damage(this, e);
     }
 
-    @OverrideMe
-    public void onDeath(final EntityDeathEvent e) {
-        e.getDrops().clear();
-        final LivingEntity le = e.getEntity();
-        le.getWorld().spawnParticle(Particle.CLOUD, le.getLocation()
-                .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
-        die(le);
+    public void death(final EntityDeathEvent e) {
+        ext.death(this, e);
     }
 
-    public void onBug() {
-        remove();
+    public void bug() {
+        ext.bug(this);
     }
-
-    private static class BotGoal implements Goal<Mob> {
-
-        private static final GoalKey<Mob> key = GoalKey.of(Mob.class, new NamespacedKey(Ostrov.instance, "bot"));
-
-        private final BotEntity bot;
-        private final AStarPath arp;
-
-        private BotGoal(final BotEntity bot) {
-            this.bot = bot;
-            this.arp = new AStarPath((Mob) bot.getEntity(), 1000, true);
-        }
-
-        @Override
-        public boolean shouldActivate() {
-            return true;
-        }
-
-        @Override
-        public boolean shouldStayActive() {
-            return true;
-        }
-
-        @Override
-        public void start() {
-        }
-
-        @Override
-        public void stop() {
-        }
-
-        @Override
-        public void tick() {
-            final Mob rplc = (Mob) bot.getEntity();
-            if (rplc == null || !rplc.isValid()) {
-                return;
-            }
-
-            //Bukkit.broadcast(Component.text("le-" + rplc.name()));
-            final Location loc = rplc.getLocation();
-            final Location eyel = rplc.getEyeLocation();
-            final Vector vc = eyel.getDirection();
-
-//			if (bot.tryJump(loc, rplc, vc)) return;
-
-            final Player pl = LocUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
-            if (pl == null) {
-                return;
-            }
-
-            if (!arp.hasTgt()) {
-                arp.setTgt(new WXYZ(pl.getLocation()));
-            }
-            arp.tickGo(1.5d);
-
-            bot.move(loc, vc, true);
-        }
-
-        @Override
-        public @NotNull
-        GoalKey<Mob> getKey() {
-            return key;
-        }
-
-        @Override
-        public @NotNull
-        EnumSet<GoalType> getTypes() {
-            return EnumSet.of(GoalType.MOVE, GoalType.LOOK);
-        }
-    }
-
-
 }

@@ -1,6 +1,7 @@
 package ru.komiss77;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
@@ -65,5 +66,10 @@ public class OStrap implements PluginBootstrap {
     public static <E extends Keyed> E retrieve(final RegistryKey<E> reg, final Key key) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.get(TypedKey.create(reg, key));
+    }
+
+    public static <E extends Keyed> List<E> retrieveAll(final RegistryKey<E> reg) {
+        final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
+        return rg.stream().toList();
     }
 }
