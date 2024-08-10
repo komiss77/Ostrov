@@ -177,7 +177,7 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
-    public static Botter createBot(final String name, final World w, final Botter.Extention ext) {
+    public static Botter createBot(final String name, final World w, final Botter.Extent ext) {
         if (!enable) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
             return null;

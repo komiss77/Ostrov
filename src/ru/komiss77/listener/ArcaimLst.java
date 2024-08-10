@@ -395,7 +395,7 @@ public class ArcaimLst implements Listener {
     }
 
 
-    private static class AdminExt implements Botter.Extention {
+    private static class AdminExt implements Botter.Extent {
 
         final WeakReference<Player> trf;
 
@@ -411,7 +411,7 @@ public class ArcaimLst implements Listener {
         public void click(Botter bt, PlayerInteractAtEntityEvent e) {}
 
         public void death(Botter bt, EntityDeathEvent e) {
-            Botter.Extention.super.death(bt, e);
+            Botter.Extent.super.death(bt, e);
         }
 
         @Override

@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
@@ -50,7 +51,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     private static final String[] empty = new String[]{"", ""};
 
     private final World world;
-    private final Extention ext;
+    private final Extent ext;
     //    protected final CustomScore score;
     private final CustomTag tag;
     private final SubTeam team;
@@ -62,7 +63,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     private boolean isDead;
     private WeakReference<LivingEntity> rplc;
 
-    protected BotEntity(final String name, final World world, final Extention ext) {
+    protected BotEntity(final String name, final World world, final Extent ext) {
         super(MinecraftServer.getServer(), Craft.toNMS(world), getProfile(name), ClientInformation.createDefault());
         this.name = name;
         this.world = world;
@@ -98,6 +99,19 @@ public class BotEntity extends ServerPlayer implements Botter {
 
     public World world() {
         return world;
+    }
+
+    public Extent extent() {
+        return ext;
+    }
+
+    public <E extends Extent> E extent(final Class<E> cls) {
+        try {
+            return ext.getClass().isAssignableFrom(cls) ? cls.cast(ext) : null;
+        } catch (IllegalArgumentException | SecurityException ex) {
+            Ostrov.log_err("BotEntity extent : " + ex.getMessage());
+            return null;
+        }
     }
 
     protected int lastBusy;

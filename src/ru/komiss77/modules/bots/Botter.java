@@ -36,6 +36,10 @@ public interface Botter {
 
     World world();
 
+    Extent extent();
+
+    <E extends Extent> E extent(final Class<E> cls);
+
     boolean busy(final LivingEntity mb, @Nullable final Boolean set, final int tks);
 
     boolean isBlocking(final LivingEntity mb);
@@ -127,7 +131,7 @@ public interface Botter {
             && bt.name().equals(name());
     }*/
 
-    interface Extention {
+    interface Extent {
         void create(final Botter bt);
 
         void remove(final Botter bt);

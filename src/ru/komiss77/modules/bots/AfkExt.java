@@ -19,7 +19,7 @@ import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.world.WXYZ;
 
 
-public class AfkExt implements Botter.Extention {
+public class AfkExt implements Botter.Extent {
 
     private final WXYZ loc;
 
