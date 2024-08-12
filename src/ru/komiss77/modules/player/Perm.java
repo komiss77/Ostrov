@@ -180,6 +180,7 @@ public class Perm {
     //- включении билдера
     // - команда opreload groups
     public static void calculatePerms(final Player p, final Oplayer op, final boolean notify) {
+        if (Ostrov.SHUT_DOWN) return; //IllegalArgumentException: Plugin Ostrov v3.4 is disabled
         op.isStaff = false;
 
         try {

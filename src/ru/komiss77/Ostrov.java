@@ -354,8 +354,9 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    public static void sync(final Runnable runnable) { //sync ( ()->{} ,1 );
-        if (runnable == null) return;
+    public static void sync(final Runnable runnable) { //use sync ( ()->{} ,1 );
+        if (runnable == null || SHUT_DOWN)
+            return; //SHUT_DOWN для фикса IllegalPluginAccessException: Plugin attempted to register task while disabled
         if (Bukkit.isPrimaryThread()) {
             runnable.run();
         } else {
@@ -373,7 +374,7 @@ public class Ostrov extends JavaPlugin {
         if (delayTicks == 0) {
             sync(runnable);
         } else {
-            if (runnable == null) return;
+            if (runnable == null || SHUT_DOWN) return;
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -384,7 +385,7 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void async(final Runnable runnable) { //sync ( ()->{} ,1 );
-        if (runnable == null) return;
+        if (runnable == null || SHUT_DOWN) return;
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -398,7 +399,7 @@ public class Ostrov extends JavaPlugin {
         if (delayTicks == 0) {
             async(runnable);
         } else {
-            if (runnable == null) return;
+            if (runnable == null || SHUT_DOWN) return;
             new BukkitRunnable() {
                 @Override
                 public void run() {

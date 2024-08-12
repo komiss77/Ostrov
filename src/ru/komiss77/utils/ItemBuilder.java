@@ -127,7 +127,8 @@ public class ItemBuilder {
         return type;
     }
 
-    public ItemBuilder data(final String key, final Serializable data) {
+    //если ключ нуль - использует готовый ключ острова
+    public ItemBuilder data(@Nullable final String key, final Serializable data) {
         if (checkMeta()) {
             switch (data) {
                 case final Byte d -> data(key, d, PersistentDataType.BYTE);

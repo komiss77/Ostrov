@@ -1,6 +1,7 @@
 package ru.komiss77.builder.menu;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import net.kyori.adventure.text.Component;
@@ -44,20 +45,20 @@ public class BannerEditor implements InventoryProvider {
     //если хоть раз меню откроется, статичные мапы прогрузятся и меню у всех будет работать быстрее
     private static final HashMap<Character, Pattern[]> alphabetBordered;
     private static final HashMap<Character, Pattern[]> alphabetNotBordered;
-    private static final HashMap<PatternType, ItemStack> patternExample;
+    private static final EnumMap<PatternType, ItemStack> patternExample;
 
     static {
         alphabetBordered = new HashMap<>();
         for (char c : symbols.toCharArray()) {
             final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, true);
-            alphabetBordered.put(c, list.toArray(new Pattern[0]));
+            alphabetBordered.put(c, list.toArray(new Pattern[list.size()]));
         }
         alphabetNotBordered = new HashMap<>();
         for (char c : symbols.toCharArray()) {
             final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, false);
-            alphabetNotBordered.put(c, list.toArray(new Pattern[0]));
+            alphabetNotBordered.put(c, list.toArray(new Pattern[list.size()]));
         }
-        patternExample = new HashMap<>();
+        patternExample = new EnumMap<>(PatternType.class);
         for (PatternType patternType : PatternType.values()) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
             patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
@@ -225,7 +226,7 @@ public class BannerEditor implements InventoryProvider {
 
                 for (char c : symbols.toCharArray()) {
                     content.add(ClickableItem.of(genBanner(inverted(bordered, c) ? Material.BLACK_BANNER : Material.WHITE_BANNER,
-                        "§f" + c,
+                            "§f" + String.valueOf(c),
                         List.of(Component.text("§fЛКМ §7- §1наложить слои")),
                         bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
                         patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, bordered);
@@ -239,7 +240,7 @@ public class BannerEditor implements InventoryProvider {
             case Маска:
                 for (PatternType patternType : PatternType.values()) {
                     content.add(ClickableItem.of(patternExample.get(patternType), e -> {
-                        patterns.set(editIdx, ((BannerMeta) patternExample.get(patternType).getItemMeta()).getPatterns().getFirst());
+                        patterns.set(editIdx, ((BannerMeta) patternExample.get(patternType).getItemMeta()).getPatterns().get(0));
                         reopen(p, content);
                     }));
                 }
@@ -819,4 +820,4 @@ public class BannerEditor implements InventoryProvider {
 
 }
 
-enum EditMode {Нет, Основа, Символ, Маска, Цвет}
+enum EditMode {Нет, Основа, Символ, Маска, Цвет};
