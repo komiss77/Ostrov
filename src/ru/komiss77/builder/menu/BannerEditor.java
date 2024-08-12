@@ -45,7 +45,7 @@ public class BannerEditor implements InventoryProvider {
     //если хоть раз меню откроется, статичные мапы прогрузятся и меню у всех будет работать быстрее
     private static final HashMap<Character, Pattern[]> alphabetBordered;
     private static final HashMap<Character, Pattern[]> alphabetNotBordered;
-    private static final EnumMap<PatternType, ItemStack> patternExample;
+    private static final HashMap<PatternType, ItemStack> patternExample;
 
     static {
         alphabetBordered = new HashMap<>();
@@ -58,7 +58,7 @@ public class BannerEditor implements InventoryProvider {
             final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, false);
             alphabetNotBordered.put(c, list.toArray(new Pattern[list.size()]));
         }
-        patternExample = new EnumMap<>(PatternType.class);
+        patternExample = new HashMap<>();
         for (PatternType patternType : PatternType.values()) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
             patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
