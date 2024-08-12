@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -36,18 +37,9 @@ import ru.komiss77.objects.IntHashMap;
 public class BotManager implements Initiable, Listener {
 
     public static boolean enable;
-    public static final IntHashMap<Botter> botById;
-    protected static final CaseInsensitiveMap<Botter> botByName;
-    protected static final CaseInsensitiveMap<String[]> skin;
-    //protected static final HashMap<String, String> skinSignatures;
-
-    static {
-        botById = new IntHashMap<>();
-        botByName = new CaseInsensitiveMap<>();
-        skin = new CaseInsensitiveMap<>();
-        //skinSignatures = new HashMap<>();
-    }
-
+    public static final IntHashMap<Botter> botById = new IntHashMap<>();
+    protected static final CaseInsensitiveMap<Botter> botByName = new CaseInsensitiveMap<>();
+    protected static final CaseInsensitiveMap<String[]> skin = new CaseInsensitiveMap<>();
 
     public BotManager() {
 
@@ -193,6 +185,17 @@ public class BotManager implements Initiable, Listener {
             //e.printStackTrace();
             return null;
         }*/
+    }
+
+    public static Botter createBot(final String name, final World w, final Function<Botter, Botter.Extent> exs) {
+        if (!enable) {
+            Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
+            return null;
+        }
+
+        final Botter be = botByName.get(name);
+        if (be != null) return be;
+        return new BotEntity(name, w, exs);
     }
 
     public static void clearBots() {

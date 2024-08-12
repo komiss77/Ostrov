@@ -3,7 +3,10 @@ package ru.komiss77.version;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.mojang.serialization.DataResult;
@@ -37,7 +40,6 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -71,9 +73,10 @@ public class Nms {
 
   static {
     vanilaCommandToDisable = Arrays.asList("execute",
-            "bossbar", "defaultgamemode", "me", "help", "kick", "kill", "tell",
-            "say", "spreadplayers", "teammsg", "tellraw", "trigger",
-            "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf", "save-all", "save-off", "save-on", "setidletimeout", "publish");
+        "bossbar", "defaultgamemode", "me", "help", "kick", "kill", "tell",
+        "say", "spreadplayers", "teammsg", "tellraw", "trigger",
+        "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf",
+        "save-all", "save-off", "save-on", "setidletimeout", "publish");
     chatKey = Key.key("ostrov_chat", "listener");
     mutableBlockPosition = new BlockPos.MutableBlockPos(0, 0, 0);
     sign = ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState();
@@ -382,6 +385,10 @@ public class Nms {
     return Craft.toNMS(w).spigotConfig.itemDespawnRate;
   }
 
+  public static void sendBlockCrack(final Player p, final WXYZ bl, final float state) {
+    p.sendBlockDamage(bl.getCenterLoc(), state);
+  }
+
   /*
   Slots 0-8 are as follows: 0 crafting output, 1-4 crafting input,
   5 helmet, 6 chestplate, 7 leggings, and 8 boots. Then, 9-35 work exactly the same as setItem(). The hotbar
@@ -391,9 +398,8 @@ public class Nms {
     Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
     final ServerPlayer sp = Craft.toNMS(p); //5-шлем
     sp.connection.send(new ClientboundContainerSetSlotPacket(sp.inventoryMenu.containerId,
-            sp.inventoryMenu.getStateId(), playerInventorySlot, CraftItemStack.asNMSCopy(item)));
+        sp.inventoryMenu.getStateId(), playerInventorySlot, net.minecraft.world.item.ItemStack.fromBukkitCopy(item)));
   }
-
 
   public static void sendChunkChange(final Player p, final Chunk chunk) {
     chunk.getWorld().refreshChunk(chunk.getX(), chunk.getZ());
@@ -505,211 +511,4 @@ public class Nms {
     for (Player p : w.getPlayers()) if (send.test(p)) Craft.toNMS(p).connection.send(cbp);
   }
 
-
 }
-/*
-    //if (!state.getFluidState().isEmpty()) {
-    //}
-    /*
-        private static BlockPos snapToSurface(LivingEntity breeze, Vec3 pos) {
-          ClipContext clipContext = new ClipContext(pos, pos.relative(Direction.DOWN, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze);
-          HitResult hitResult = breeze.level().clip(clipContext);
-          if (hitResult.getType() == HitResult.Type.BLOCK) {
-              return BlockPos.containing(hitResult.getLocation()).above();
-          } else {
-              ClipContext clipContext2 = new ClipContext(pos, pos.relative(Direction.UP, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze);
-              HitResult hitResult2 = breeze.level().clip(clipContext2);
-              return hitResult2.getType() == HitResult.Type.BLOCK ? BlockPos.containing(hitResult.getLocation()).above() : null;
-          }
-      }
-      @VisibleForTesting
-      public static boolean hasLineOfSight(Breeze breeze, Vec3 jumpPos) {
-          Vec3 vec3 = new Vec3(breeze.getX(), breeze.getY(), breeze.getZ());
-          return !(jumpPos.distanceTo(vec3) > 50.0)
-              && breeze.level().clip(new ClipContext(vec3, jumpPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, breeze)).getType() == HitResult.Type.MISS;
-      }
-
-//Vec3 vec3 = LongJump.randomPointBehindTarget(sp, sp.getRandom());
-//ClipContext clipContext = new ClipContext(vec3, vec3.relative(Direction.DOWN, 10.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, sp);
-//HitResult hitResult = sp.level().clip(clipContext);
-
-//final net.minecraft.world.phys.shapes.VoxelShape blockCollision = clipContext.getBlockShape(state, sl, mutableBlockPosition);
-//final net.minecraft.world.phys.BlockHitResult blockHit = blockCollision.isEmpty() ? null : sl.clipWithInteractionOverride(from, to, mutableBlockPosition, blockCollision, state);
-
-    /*if (hasCollision) {
-      VoxelShape cs = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
-      //shape = state.getInteractionShape(sl, mutableBlockPosition);//.clip(start, end, pos);//state.getShape(sl, mutableBlockPosition);
-      p.sendMessage("collision UP"
-              +" X="+cs.min(Direction.Axis.X)+"/"+cs.max(Direction.Axis.X)
-              +" Y="+cs.min(Direction.Axis.Y)+"/"+cs.max(Direction.Axis.Y)
-              +" Z="+cs.min(Direction.Axis.Z)+"/"+cs.max(Direction.Axis.Z)
-      );
-    }/
-
- */
-
-//лишнее, предлагаемый текст не надо подсвечивать, так не изменить первый цветовой код
-        /*EnumColor color = EnumColor.a;
-        if (suggest.length() >= 2 && (suggest.charAt(0) == '§' || suggest.charAt(0) == '&')) {
-            switch (suggest.charAt(1)) {
-                case '0' -> color = EnumColor.a;
-                case '1' -> color = EnumColor.b;
-                case '2' -> color = EnumColor.c;
-                case '3' -> color = EnumColor.d;
-                case '4' -> color = EnumColor.e;
-                case '5' -> color = EnumColor.f;
-                case '6' -> color = EnumColor.g;
-                case '7' -> color = EnumColor.h;
-                case '8' -> color = EnumColor.i;
-                case '9' -> color = EnumColor.j;
-                case 'a' -> color = EnumColor.k;
-                case 'b' -> color = EnumColor.l;
-                case 'c' -> color = EnumColor.m;
-                case 'd' -> color = EnumColor.n;
-                case 'e' -> color = EnumColor.o;
-                case 'f' -> color = EnumColor.p;
-            }
-            suggest = suggest.substring(2);
-        }*/
-
-
-
-
-
-
-
-  /*
-  private static Method getNmsMethod(final String path, final String methodName) {
-      try {
-          return Class.forName(Bukkit.getServer().getClass().getPackageName() + path).getDeclaredMethod(methodName);
-      } catch (NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-          Ostrov.log_err("Server getNmsMethod : "+ex.getMessage());
-          //e.printStackTrace();
-          return null;
-      }
-  }
-
-
-  private static Field getIdFld(final Class<?> cls) {
-      final Field fld = cls.getDeclaredFields()[0];
-      fld.setAccessible(true);
-      return fld;
-  }
-
-  /*
-  @Override
-  public ServerLel toNMS(final World w) {
-      try {
-          return (ServerLevel) CraftWorldMethod.invoke(w);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          return null;
-      }
-  }
-
-
-  @Override
-  public net.minecraft.world.entity.Entity toNMS(final Entity en) {
-      try {
-          return (net.minecraft.world.entity.Entity) CraftEntityMethod.invoke(en);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          return null;
-      }
-  }
-
-
-  @Override
-  public EntityLiving toNMS(final LivingEntity le) {
-      try {
-          return (EntityLiving) CraftLivingEntityMethod.invoke(le);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          return null;
-      }
-  }
-
-
-  @Override
-  public ServerPlayer toNMS(final Player p) {
-      try {
-          return (ServerPlayer) CraftPlayerMethod.invoke(p);
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          return null;
-      }
-  }
-
-
-  @Override
-  public DedicatedServer toNMS() {
-      return nmsServer;
-  }
-
-      @Override
-  public byte[] encodeBase64(byte[] binaryData) {
-      return org.apache.commons.codec.binary.Base64.encodeBase64(binaryData);
-  }
-
-
-
-  @Override
-  public void chatFix() { // Chat Report fix  https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
-      final ServerOutPacketHandler handler = new ServerOutPacketHandler();
-      //подслушать исходящие от сервера пакеты
-      io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
-              chatKey,
-              channel -> channel.pipeline().addAfter("packet_handler", "ostrov_chat_handler", handler)
-      );
-      Ostrov.log_ok("§bchatFix - блокировка уведомлений подписи чата");
-  }
-
-
-    @Override
-    public void addPacketSpy () {
-       // final In handler = new In();  -так слушает все пакеты, а не отдельного игрока
-       // io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(
-       //         chatKey, channel -> channel.pipeline().addBefore("packet_handler", "ostrov_spy", handler)
-       // );
-    }
-       */
-    /*
-    @Override //добавляется в bungeeDataHandler
-    public PlayerPacketHandler addPacketSpy (final Player p, final Oplayer op) {
-        final PlayerPacketHandler packetSpy = new PlayerPacketHandler(op);
-        final ChannelPipeline pipeline = ((CraftPlayer)p).getHandle().connection.connection.channel.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
-Connection packet_handler = (Connection) pipeline.get("packet_handler");
-Ostrov.log("---- addPacketSpy packet_handler="+packet_handler);
-      pipeline.addBefore("packet_handler", "ostrov_"+p.getName(), packetSpy);
-        return packetSpy;
-    }
-
-
-    @Override
-    public void removePacketSpy (final Player p) {  //при дисконнекте
-        final Channel channel = ((CraftPlayer)p).getHandle().connection.connection.channel; //EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeline
-        channel.eventLoop().submit(() -> {
-            channel.pipeline().remove("ostrov_"+p.getName());
-            return null;
-        });
-    }
-*/
-
-     /*
-    @Override
-    public void sendPacket(final Player p, final Packet<?> packet) {
-        ((CraftPlayer)p).getHandle().connection.send(packet);
-    }
-
-
-    @Override
-    @SafeVarargs
-    public final void sendWorldPackets(final World w, final Packet... ps) {
-        if (ps.length == 1) {
-            final Packet packet = ps[0];
-            for (Player p : w.getPlayers()) {  //for (final EntityPlayer ep : ((WorldServer) w).x()) {
-                sendPacket(p, packet);//toNMS(p).c.c.a(packet);//ep.c.c.a(packet);
-            }
-        } else {
-            final ClientboundBundlePacket packets = new ClientboundBundlePacket(Arrays.asList(ps));
-            for (Player p : w.getPlayers()) { //for (final EntityPlayer ep : ((WorldServer) w).x()) {
-                sendPacket(p, packets);//toNMS(p).c.c.a(packets);//ep.c.c.a(packets);
-            }
-        }
-    }*/

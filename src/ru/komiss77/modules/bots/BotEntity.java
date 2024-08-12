@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.mojang.authlib.GameProfile;
@@ -68,6 +69,25 @@ public class BotEntity extends ServerPlayer implements Botter {
         this.name = name;
         this.world = world;
         this.ext = ext;
+        rid = -1;
+
+        lastBash = -Botter.BASH_TICKS;
+        lastParry = -Botter.PARRY_TICKS;
+        rplc = new WeakReference<>(null);
+        inv = Craft.fromNMS(getInventory());
+        tag = new CustomTag(getBukkitEntity());
+        team = new SubTeam(name).include(name)
+            .tagVis(Team.OptionStatus.NEVER).seeInvis(false);
+        team.send(world);
+
+        BotManager.botByName.put(name, this);
+    }
+
+    protected BotEntity(final String name, final World world, final Function<Botter, Extent> exs) {
+        super(MinecraftServer.getServer(), Craft.toNMS(world), getProfile(name), ClientInformation.createDefault());
+        this.name = name;
+        this.world = world;
+        this.ext = exs.apply(this);
         rid = -1;
 
         lastBash = -Botter.BASH_TICKS;
