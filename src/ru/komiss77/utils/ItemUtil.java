@@ -45,6 +45,92 @@ import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
+/*
+	SPEED  СКОРОСТЬ
+    SLOWNESS  МЕДЛЕННОСТЬ
+    HASTE  УСКОРЕНИЕ
+    MINING FATIGUE  УСТАЛОСТЬ ОТ ДОБЫЧИ
+    STRENGTH  СИЛА
+    INSTANT HEALTH  МГНОВЕННОЕ ЗДОРОВЬЕ
+    INSTANT DAMAGE  МГНОВЕННЫЙ УРОН
+    JUMP BOOST  УСИЛИЕ ПРЫЖКА
+    NAUSEA  ТОШНОТА
+    REGENERATION  РЕГЕНЕРАЦИЯ
+    RESISTANCE  СОПРОТИВЛЕНИЕ
+    FIRE RESISTANCE  СОПРОТИВЛЕНИЕ ОГНЮ
+    WATER BREATHING  ВОДНОЕ ДЫХАНИЕ
+    INVISIBILITY  НЕВИДИМОСТЬ
+    BLINDNESS  СЛЕПОТА
+    NIGHT VISION  НОЧНОЕ ЗРЕНИЕ
+    HUNGER  ГОЛОД
+    WEAKNESS  СЛАБОСТЬ
+    POISON  ЯД
+    WITHER  УВЯДЕНИЕ
+    HEALTH BOOST  УВЕЛИЧЕНИЕ ЗДОРОВЬЯ
+    ABSORPTION  ПОГЛОЩЕНИЕ
+    SATURATION  НАСЫЩЕНИЕ
+    GLOWING  СВЕТЛЕНИЕ
+    LEVITATION  ЛЕВИТАЦИЯ
+    LUCK  УДАЧА
+    UNLUCK  НЕУДАЧА
+    SLOW FALLING  МЕДЛЕННОЕ ПАДЕНИЕ
+    CONDUIT POWER  СИЛА ПРОВОДНИКА
+    DOLPHINS GRACE  ГРАЦИЯ ДЕЛЬФИНОВ
+    BAD OMEN  ДУРНОЕ ЗНАМЕНИЕ
+    HERO OF THE VILLAGE ГЕРОЙ ДЕРЕВНИ
+    DARKNESS  ТЬМА
+    TRIAL OMEN  ПРЕДЗНАМЕНИЕ ИСПЫТАНИЯ
+    RAID OMEN  ПРЕДЗНАМЕНИЕ РЕЙДА
+    WIND CHARGED  ЗАРЯЖЕННОСТЬ ВЕТРОМ
+    WEAVING  ТКАЧЕСТВО
+    OOZING  СОЧАЩИЙ
+    INFESTED  ЗАРАЖЕННЫЙ
+ */
+
+/*
+ЗАЩИТА;
+ЗАЩИТА_ОТ_ОГНЯ;
+ПАДЕНИЕ_ПЕРЬЯ;
+ЗАЩИТА_ОТ_ВЗРЫВА;
+ЗАЩИТА_ОТ_СНАРТИКА;
+ДЫХАНИЕ;
+АКВА_АФФИННОСТЬ;
+ШИПЫ;
+ГЛУБИНА_БЕГА;
+МОРОЗ_ХОД;
+СВЯЗЫВАЮЩЕЕ_ПРОКЛЯТИЕ;
+ОСТРОСТЬ;
+РАЗБИТЬ;
+БОГ_ЧЛЕНИСТОНОГ;
+ОТБИТЬ;
+ОГНЕННЫЙ_АСПЕКТ;
+ГРАБЛЕНИЕ;
+РАЗМЫШЛЕНИЕ_КРАЯ;
+ЭФФЕКТИВНОСТЬ;
+ШЕЛКОВОЕ_КАСАНИЕ;
+НЕРАЗРЫВ;
+УДАРСТВО;
+СИЛА;
+УДАР;
+ПЛАМЯ;
+БЕСКОНЕЧНОСТЬ;
+УДАЧА_МОРЯ;
+ПРИМАШКА;
+ВЕРНОСТЬ;
+ПРОНЗАНИЕ;
+БЕГ;
+НАПРАВЛЕНИЕ;
+МНОГОУДАРНЫЙ;
+БЫСТРЫЙ_ЗАРЯД;
+ПРОБИВАНИЕ;
+ПЛОТНОСТЬ;
+ПРОРЫВ;
+ВЕТРОВОЙ_ВЗРЫВ;
+ИСПРАВЛЕНИЕ;
+ИСЧЕЗНОВЕНИЕ_ПРОКЛЯТИЯ;
+СКОРОСТЬ_ДУШИ;
+БЫСТРЫЙ_СЛЕД;
+ */
 
 public class ItemUtil {
 
