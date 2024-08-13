@@ -1,6 +1,7 @@
 package ru.komiss77.builder.menu;
 
-import net.kyori.adventure.text.Component;
+import java.util.List;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -11,6 +12,7 @@ import org.bukkit.entity.*;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
+import ru.komiss77.OStrap;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemBuilder;
@@ -24,6 +26,8 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class EntitySetup implements InventoryProvider {
 
 
+    private static final List<Profession> VILL_PROFS = OStrap.retrieveAll(RegistryKey.VILLAGER_PROFESSION);
+    private static final List<Villager.Type> VILL_TYPES = OStrap.retrieveAll(RegistryKey.VILLAGER_TYPE);
     private final ClickableItem c = ClickableItem.empty(new ItemStack(Material.GLOW_LICHEN));
     private final Entity en;
 
@@ -44,67 +48,38 @@ public class EntitySetup implements InventoryProvider {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
         content.fillBorders(c);
 
+        switch (en) {
+            case final Villager vg:
 
-        if (en instanceof LivingEntity le) {
+                final Profession prof = vg.getProfession();
+                final int pi = VILL_PROFS.indexOf(prof);
+                final int psz = VILL_PROFS.size();
+                final Profession prof_prev = VILL_PROFS.get((pi - 1 + psz) % psz);
+                final Profession prof_next = VILL_PROFS.get((pi + 1) % psz);
 
-            content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
-                    .lore("")
-                    .lore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
-                    .lore("")
-                    .build(), e -> {
-                if (e.isLeftClick()) {
-                    le.setAI(!le.hasAI());
-                }
-                reopen(p, content);
-            }));
-
-        }
-
-        if (en instanceof Ageable) {
-            content.add(ClickableItem.of(new ItemBuilder(((Ageable) en).isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Ageable) en).isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
-                    .build(), e -> {
-                if (e.isLeftClick()) {
-                    if (((Ageable) en).isAdult()) {
-                        ((Ageable) en).setBaby();
-                    } else {
-                        ((Ageable) en).setAdult();
-                    }
-                    reopen(p, content);
-                }
-            }));
-        } //else if (en instanceof Zombie) {
-        //    ((Zombie) en).setBaby(!((Zombie) en).isBaby());
-        //}
-
-        if (en.getType() == EntityType.VILLAGER) {
-
-            final Profession prof = ((Villager) en).getProfession();
-            final Profession prof_prev = Profession.values()[(prof.ordinal() - 1 + Profession.values().length) % Profession.values().length];
-            final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
-
-            content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
+                content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
                     .name("§fПрофессия")
                     .lore("")
-                    .lore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
-                    .lore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                    .lore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
+                    .lore(TCUtil.form("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                    .lore(TCUtil.form("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                    .lore(TCUtil.form("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
                     .lore("")
                     .build(), e -> {
-                if (e.isLeftClick()) {
-                    ((Villager) en).setProfession(prof_next);
-                } else if (e.isRightClick()) {
-                    ((Villager) en).setProfession(prof_prev);
-                }
-                reopen(p, content);
-            }));
+                    if (e.isLeftClick()) {
+                        vg.setProfession(prof_next);
+                    } else if (e.isRightClick()) {
+                        vg.setProfession(prof_prev);
+                    }
+                    reopen(p, content);
+                }));
 
-            final Villager.Type type = ((Villager) en).getVillagerType();
-            final Villager.Type type_prev = Villager.Type.values()[(type.ordinal() - 1 + Villager.Type.values().length) % Villager.Type.values().length];
-            final Villager.Type type_next = Villager.Type.values()[type.ordinal() + 1 % Villager.Type.values().length];
+                final Villager.Type type = vg.getVillagerType();
+                final int ti = VILL_TYPES.indexOf(prof);
+                final int tsz = VILL_TYPES.size();
+                final Villager.Type type_prev = VILL_TYPES.get((ti - 1 + tsz) % tsz);
+                final Villager.Type type_next = VILL_TYPES.get((ti + 1) % tsz);
 
-            content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
+                content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
                     .name("§fТип")
                     .lore("")
                     .lore("§7ПКМ - сделать §6" + type_prev)
@@ -112,16 +87,48 @@ public class EntitySetup implements InventoryProvider {
                     .lore("§7ЛКМ - сделать §6" + type_next)
                     .lore("")
                     .build(), e -> {
-                if (e.isLeftClick()) {
-                    ((Villager) en).setVillagerType(type_next);
-                } else if (e.isRightClick()) {
-                    ((Villager) en).setVillagerType(type_prev);
-                }
-                reopen(p, content);
-            }));
+                    if (e.isLeftClick()) {
+                        vg.setVillagerType(type_next);
+                    } else if (e.isRightClick()) {
+                        vg.setVillagerType(type_prev);
+                    }
+                    reopen(p, content);
+                }));
+                break;
+            case final Ageable ag:
+                content.add(ClickableItem.of(new ItemBuilder(ag.isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name(ag.isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        if (ag.isAdult()) {
+                            ag.setBaby();
+                        } else {
+                            ag.setAdult();
+                        }
+                        reopen(p, content);
+                    }
+                }));
+                break;
+            case final LivingEntity le:
+                content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
+                    .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
+                    .lore("")
+                    .lore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
+                    .lore("")
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        le.setAI(!le.hasAI());
+                    }
+                    reopen(p, content);
+                }));
+                break;
+            default:
+                break;
+        }
 
-        } else if (en.getType() == EntityType.ZOMBIE_VILLAGER) {
+        //TODO заканчиваем то что сверху
 
+        if (en.getType() == EntityType.ZOMBIE_VILLAGER) {
             final Profession prof = ((ZombieVillager) en).getVillagerProfession();
             final Profession prof_prev = Profession.values()[(prof.ordinal() - 1 + Profession.values().length) % Profession.values().length];
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
@@ -129,9 +136,9 @@ public class EntitySetup implements InventoryProvider {
             content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
                 .name("§fПрофессия")
                 .lore("")
-                    .lore(Component.text("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
-                    .lore(Component.text("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                    .lore(Component.text("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore(TCUtil.form("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore(TCUtil.form("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .lore(TCUtil.form("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
                 .lore("")
                 .build(), e -> {
                 if (e.isLeftClick()) {
@@ -203,11 +210,15 @@ public class EntitySetup implements InventoryProvider {
         }
 
         if (en.getType() == EntityType.SHEEP) {
-            content.add(ClickableItem.of(new ItemBuilder(((Sheep) en).isSheared() ? Material.LIME_DYE : Material.CLAY_BALL)
-                    .name(((Sheep) en).isSheared() ? "§6Стриженная" : "§6Мохнатая")
+            content.add(ClickableItem.of(new ItemBuilder(((Sheep) en).readyToBeSheared() ? Material.CLAY_BALL : Material.LIME_DYE)
+                .name(((Sheep) en).readyToBeSheared() ? "§6Мохнатая" : "§6Стриженная")
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    ((Sheep) en).setSheared(!((Sheep) en).isSheared());
+                    if (((Sheep) en).readyToBeSheared()) {
+                        ((Sheep) en).shear();
+                    } else {
+//                        ((Sheep) en).setSheared(false); Deprecated
+                    }
                     reopen(p, content);
                 }
             }));
