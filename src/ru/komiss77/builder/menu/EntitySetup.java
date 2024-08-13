@@ -43,7 +43,6 @@ public class EntitySetup implements InventoryProvider {
             .open(p);
     }
 
-
     @Override
     public void init(final Player p, final InventoryContent content) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
