@@ -375,7 +375,6 @@ public class MoveUtil {
     }
 
     //не менять, юзают плагины!
-    @Deprecated
     public static boolean isSafeLocation(final Location feetLoc) {
         if (feetLoc == null) return false;
         //final World w = feetLoc.getWorld();

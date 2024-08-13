@@ -415,7 +415,7 @@ public class ApiOstrov {
         }
     }
 
-    @Deprecated
+    //@Deprecated мне удобнее получать без лишних аргументов, где по дефолту MIN_VALUE
     public static int getInteger(final String s) {
         return getInteger(s, Integer.MIN_VALUE);
     }
