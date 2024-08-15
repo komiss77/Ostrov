@@ -66,7 +66,7 @@ public class Ostrov extends JavaPlugin {
     public void onLoad() {
         instance = this;
         mgr = instance.getLifecycleManager();
-        Cfg.init(); // 1 !
+        //Cfg.init(); // 1 !  загрузится само при первом обращении
         Nms.pathServer();
         Nms.chatFix();
     }
@@ -76,7 +76,7 @@ public class Ostrov extends JavaPlugin {
     public void onEnable() {
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
-        Timer.init();
+        Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
 
         if (MOT_D.equals("pay")) { // для режима обработки донатиков
             log_warn("§bРежим PAY");

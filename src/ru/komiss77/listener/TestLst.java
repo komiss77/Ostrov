@@ -1,5 +1,7 @@
 package ru.komiss77.listener;
 
+import eu.endercentral.crazy_advancements.NameKey;
+import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -57,8 +59,8 @@ public class TestLst implements Listener {
                 //p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
-
-                    Nms.sendFakeEquip(p, 5, new ItemStack(e.getClickedBlock().getType()));
+//p.sendMessage("new AdvancementManager");
+                    //Nms.sendFakeEquip(p, 5, new ItemStack(e.getClickedBlock().getType()));
 
                 } else {
 

@@ -1,7 +1,27 @@
 name: Ostrov
 version: '3.4'
-main: ru.komiss77.Ostrov
 description: Main Ostrov plugin
 api-version: '1.21'
+
+main: ru.komiss77.Ostrov
 bootstrapper: ru.komiss77.OStrap
 loader: ru.komiss77.OLoader
+
+dependencies:
+  #bootstrap:
+  # Let's say that RegistryPlugin registers some data that your plugin needs to use
+  # We don't need this during runtime, so it's not required in the server section.
+  # However, can be added to both if needed
+  #Matrix:
+  #load: AFTER
+  #required: false
+  #join-classpath: true # Defaults to true
+  server:
+    CrazyAdvancementsAPI: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true
+    Matrix: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true

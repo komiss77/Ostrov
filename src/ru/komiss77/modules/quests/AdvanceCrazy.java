@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import eu.endercentral.crazy_advancements.CrazyAdvancementsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,13 +40,27 @@ import ru.komiss77.utils.TCUtil;
 //     https://www.spigotmc.org/resources/crazy-advancements-api.51741/
 
 
+
 public class AdvanceCrazy implements IAdvance, Listener {
 
-    private static final AdvancementManager mgr = new AdvancementManager(new NameKey("ostrov", "pls"));
-    private static final Map<Quest, Advancement> adm = new HashMap<>();
-    private static Quest[] roots = new Quest[0]; //для отправки в порядке наслодования, или не отображаются некоторые
-    protected static Consumer<Player> onAdvCls = p -> {
-    };
+    private static final CrazyAdvancementsAPI ac = (CrazyAdvancementsAPI) Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI");
+
+
+    private static final NameKey key;
+    private static final AdvancementManager mgr; //new AdvancementManager(new NameKey("ostrov", "pls"));
+    private static final Map<Quest, Advancement> adm;// = new HashMap<>();
+    private static Quest[] roots;// = new Quest[0]; //для отправки в порядке наслодования, или не отображаются некоторые
+    protected static Consumer<Player> onAdvCls;// = p -> {};
+
+    static {
+        key = new NameKey("ostrov", "pls");
+        mgr = new AdvancementManager(null, new Player[0]);//AdvancementManager.getAccessibleManager(key);
+        adm = new HashMap<>();
+        roots = new Quest[0];
+        onAdvCls = p -> {
+        };
+    }
+
 
     public AdvanceCrazy() {
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());

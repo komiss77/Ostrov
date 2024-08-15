@@ -140,9 +140,9 @@ public class WGhook {
 
     public static Location regionCenter(final Player p, final ProtectedRegion rg) {
         if (worldguard_platform == null) return p.getLocation();
-        final int x = Math.abs((rg.getMaximumPoint().getBlockX() + rg.getMinimumPoint().getBlockX()) / 2);
-        final int z = Math.abs((rg.getMaximumPoint().getBlockZ() + rg.getMinimumPoint().getBlockZ()) / 2);
-        int y = (rg.getMaximumPoint().getBlockY() + rg.getMinimumPoint().getBlockY()) / 2;
+        final int x = Math.abs((rg.getMaximumPoint().x() + rg.getMinimumPoint().x()) / 2);
+        final int z = Math.abs((rg.getMaximumPoint().z() + rg.getMinimumPoint().z()) / 2);
+        int y = (rg.getMaximumPoint().y() + rg.getMinimumPoint().y()) / 2;
         final int yTop = BlockUtil.getHighestBlock(p.getWorld(), x, z).getY();
         if (y < yTop) y = yTop;
         if (y < p.getLocation().getBlockY()) y = p.getLocation().getBlockY();
@@ -150,9 +150,9 @@ public class WGhook {
     }
 
     public static String getRegionLocationInfo(final ProtectedRegion rg) {
-        final int x = Math.abs((rg.getMaximumPoint().getBlockX() + rg.getMinimumPoint().getBlockX()) / 2);
-        final int z = Math.abs((rg.getMaximumPoint().getBlockZ() + rg.getMinimumPoint().getBlockZ()) / 2);
-        int y = (rg.getMaximumPoint().getBlockY() + rg.getMinimumPoint().getBlockY()) / 2;
+        final int x = Math.abs((rg.getMaximumPoint().x() + rg.getMinimumPoint().x()) / 2);
+        final int z = Math.abs((rg.getMaximumPoint().z() + rg.getMinimumPoint().z()) / 2);
+        int y = (rg.getMaximumPoint().y() + rg.getMinimumPoint().y()) / 2;
         return x + "," + y + "," + z;
     }
 

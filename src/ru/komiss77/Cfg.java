@@ -15,7 +15,7 @@ import ru.komiss77.modules.signProtect.SignProtectLst;
 public class Cfg {
 
 
-    public static OConfigManager manager;
+    public static final OConfigManager manager;
 
     private static OConfig ostrovConfig;
     private static OConfig variable;
@@ -75,10 +75,12 @@ public class Cfg {
     public static boolean displays;
     public static boolean quests;
 
+    static {
+        manager = new OConfigManager(Ostrov.getInstance());
+        init();
+    }
 
     public static void init() {
-
-        manager = new OConfigManager(Ostrov.getInstance());
 
         loadConfigs();
 

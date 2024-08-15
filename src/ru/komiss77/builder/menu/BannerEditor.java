@@ -3,6 +3,7 @@ package ru.komiss77.builder.menu;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -17,6 +18,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import ru.komiss77.OStrap;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
@@ -37,7 +39,7 @@ public class BannerEditor implements InventoryProvider {
     private Material mat;
     private List<Pattern> patterns;
     private int editIdx; //индекс редактируемого слоя
-    private EditMode mode = EditMode.Нет;
+    private EditMode mode = EditMode.NO;
     private boolean bordered = true;
     private static final String symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.";
 
@@ -46,19 +48,21 @@ public class BannerEditor implements InventoryProvider {
     private static final HashMap<Character, Pattern[]> alphabetNotBordered;
     private static final HashMap<PatternType, ItemStack> patternExample;
 
+    private static final List<PatternType> PARRENTS = OStrap.retrieveAll(RegistryKey.BANNER_PATTERN);
+
     static {
         alphabetBordered = new HashMap<>();
         for (char c : symbols.toCharArray()) {
             final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, true);
-            alphabetBordered.put(c, list.toArray(new Pattern[list.size()]));
+            alphabetBordered.put(c, list.toArray(new Pattern[0]));
         }
         alphabetNotBordered = new HashMap<>();
         for (char c : symbols.toCharArray()) {
             final List<Pattern> list = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, false);
-            alphabetNotBordered.put(c, list.toArray(new Pattern[list.size()]));
+            alphabetNotBordered.put(c, list.toArray(new Pattern[0]));
         }
         patternExample = new HashMap<>();
-        for (PatternType patternType : PatternType.values()) {
+        for (PatternType patternType : PARRENTS) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
             patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
                 List.of(Component.text("§7ЛКМ - §aвыбрать")),
@@ -96,8 +100,8 @@ public class BannerEditor implements InventoryProvider {
             mat = b.getType();
         }
 
-        if (mode != EditMode.Нет) {
-            if (mode == EditMode.Основа) {
+        if (mode != EditMode.NO) {
+            if (mode == EditMode.BASE) {
                 content.set(1, 0, select);
             } else {
                 content.set(1, editIdx + 1, select);
@@ -113,14 +117,14 @@ public class BannerEditor implements InventoryProvider {
             .lore("§fШифт+ПКМ §7- §9символ без рамки")
             .build(), e -> {
             if (e.getClick() == ClickType.LEFT) {
-                mode = EditMode.Основа;
+                mode = EditMode.BASE;
                 reopen(p, content);
             } else if (e.getClick() == ClickType.RIGHT) {
-                mode = EditMode.Символ;
+                mode = EditMode.CHAR;
                 bordered = true;
                 reopen(p, content);
             } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
-                mode = EditMode.Символ;
+                mode = EditMode.CHAR;
                 bordered = false;
                 reopen(p, content);
             }
@@ -140,25 +144,25 @@ public class BannerEditor implements InventoryProvider {
                     switch (e.getClick()) {
                         case LEFT -> {
                             editIdx = idx;
-                            mode = EditMode.Маска;
+                            mode = EditMode.MASK;
                             reopen(p, content);
                         }
                         case RIGHT -> {
                             editIdx = idx;
-                            mode = EditMode.Цвет;
+                            mode = EditMode.COLOR;
                             reopen(p, content);
                         }
                         case SHIFT_RIGHT -> {
                             if (idx != 0) {
                                 final Pattern ptBefore = patterns.set(idx - 1, pt);
                                 patterns.set(idx, ptBefore);
-                                mode = EditMode.Нет;
+                                mode = EditMode.NO;
                                 reopen(p, content);
                             }
                         }
                         case DROP -> {
                             patterns.remove(idx);
-                            mode = EditMode.Нет;
+                            mode = EditMode.NO;
                             reopen(p, content);
                         }
                     }
@@ -173,7 +177,7 @@ public class BannerEditor implements InventoryProvider {
                 final Pattern pattern = new Pattern(DyeColor.WHITE, PatternType.BASE);
                 patterns.add(pattern);
                 editIdx = patterns.indexOf(pattern);
-                mode = EditMode.Маска; //ниже сразу развернёт выбор
+                mode = EditMode.MASK; //ниже сразу развернёт выбор
                 reopen(p, content);
             }));
             slot++;
@@ -210,7 +214,7 @@ public class BannerEditor implements InventoryProvider {
 
         switch (mode) {
 
-            case Основа:
+            case BASE:
 
                 for (DyeColor dc : DyeColor.values()) {
                     final Material m = TCUtil.changeColor(mat, dc);
@@ -221,31 +225,31 @@ public class BannerEditor implements InventoryProvider {
                 }
                 break;
 
-            case Символ:
+            case CHAR:
 
                 for (char c : symbols.toCharArray()) {
                     content.add(ClickableItem.of(genBanner(inverted(bordered, c) ? Material.BLACK_BANNER : Material.WHITE_BANNER,
-                            "§f" + String.valueOf(c),
+                            "§f" + c,
                         List.of(Component.text("§fЛКМ §7- §1наложить слои")),
                         bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
                         patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, bordered);
-                        mode = EditMode.Нет;
+                        mode = EditMode.NO;
                         reopen(p, content);
                     }));
                 }
 
                 break;
 
-            case Маска:
-                for (PatternType patternType : PatternType.values()) {
+            case MASK:
+                for (PatternType patternType : PARRENTS) {
                     content.add(ClickableItem.of(patternExample.get(patternType), e -> {
-                        patterns.set(editIdx, ((BannerMeta) patternExample.get(patternType).getItemMeta()).getPatterns().get(0));
+                        patterns.set(editIdx, ((BannerMeta) patternExample.get(patternType).getItemMeta()).getPatterns().getFirst());
                         reopen(p, content);
                     }));
                 }
                 break;
 
-            case Цвет:
+            case COLOR:
                 final PatternType patternType = patterns.get(editIdx).getPattern();
                 for (DyeColor dc : DyeColor.values()) {
                     final Pattern pattern = new Pattern(dc, patternType);
@@ -819,4 +823,4 @@ public class BannerEditor implements InventoryProvider {
 
 }
 
-enum EditMode {Нет, Основа, Символ, Маска, Цвет};
+enum EditMode {NO, BASE, CHAR, MASK, COLOR};
