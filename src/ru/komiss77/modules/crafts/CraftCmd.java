@@ -2,104 +2,109 @@ package ru.komiss77.modules.crafts;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.mojang.brigadier.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.tools.OCmdBuilder;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.utils.inventory.SmartInventory;
 
-public class CraftCmd implements CommandExecutor, TabCompleter {
+public class CraftCmd {
 
-    @Override
-    public List<String> onTabComplete(final CommandSender send, final Command cmd, final String al, final String[] args) {
-        if (send instanceof Player) {
-            final List<String> sugg = new ArrayList<>();
-            if (args.length == 1) {
-                if (ApiOstrov.isLocalBuilder(send, false)) {
-                    sugg.add("edit");
-                    sugg.add("remove");
+    public CraftCmd() {
+        final String act = "action", name = "name";
+        new OCmdBuilder("craft", "/craft edit|remove [имя]")
+            .then(Resolver.string(act)).suggest(cntx -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
+                    return Set.of();
                 }
-            } else if (args.length == 2 && (args[0].equalsIgnoreCase("edit") ||
-                args[0].equalsIgnoreCase("remove")) && ApiOstrov.isLocalBuilder(send, false)) {
-                for (final NamespacedKey rk : Crafts.crafts.keySet()) {
-                    sugg.add(rk.getKey());
+                return Set.of("edit", "remove");
+            }, false).then(Resolver.string(name)).suggest(cntx -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
+                    return Set.of();
                 }
-            }
-            return sugg;
-        }
-        return Collections.emptyList();
-    }
+                return Crafts.crafts.keySet().stream()
+                    .map(NamespacedKey::getKey).collect(Collectors.toSet());
+            }, false).run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player pl)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
 
-    @Override
-    public boolean onCommand(final CommandSender send, final Command cmd, final String label, final String[] args) {
-        if (label.equalsIgnoreCase("craft") && send instanceof Player) {
-            final Player p = (Player) send;
-            //админ комманды
-            if (args.length == 2) {
-                switch (args[0]) {
-                    case "edit":
-                        if (ApiOstrov.isLocalBuilder(send, true)) {
-                            SmartInventory
-                                .builder()
-                                .id("Craft " + p.getName())
-                                .provider(new CraftMenu(args[1], false))
-                                .size(3, 9).title("§eСоздание Крафта " + args[1])
-                                .build()
-                                .open(p);
+                final String nm;
+                return switch (Resolver.string(cntx, act)) {
+                    case "edit" -> {
+                        if (!ApiOstrov.isLocalBuilder(cs, true)) {
+                            pl.sendMessage("§cДоступно только билдерам!");
+                            yield 0;
                         }
-                        break;
-                    case "remove":
-                        if (ApiOstrov.isLocalBuilder(send, true)) {
-                            final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(
-                                new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
-                            if (craftConfig.getKeys(false).contains(args[1])) {
-                                craftConfig.set(args[1], null);
-                                Bukkit.removeRecipe(new NamespacedKey(OStrap.space, args[1]));
-                                Crafts.rmvRecipe(new NamespacedKey(OStrap.space, args[1]));
-                                p.sendMessage("§7Крафт §e" + args[1] + " §7убран!");
-                                try {
-                                    craftConfig.save(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                p.sendMessage("§cНет такого крафта!");
-                            }
+
+                        nm = Resolver.string(cntx, name);
+                        SmartInventory
+                            .builder()
+                            .id("Craft " + pl.getName())
+                            .provider(new CraftMenu(nm, false))
+                            .size(3, 9).title("§eСоздание Крафта " + nm)
+                            .build()
+                            .open(pl);
+                        yield Command.SINGLE_SUCCESS;
+                    }
+                    case "remove" -> {
+                        if (!ApiOstrov.isLocalBuilder(cs, true)) {
+                            pl.sendMessage("§cДоступно только билдерам!");
+                            yield 0;
                         }
-                        break;
-                    case "view":
-                        if (Bukkit.getRecipe(new NamespacedKey(OStrap.space, args[1])) == null) {
-                            p.sendMessage("§cТакого крафта не существует!");
-                        } else {
-                            SmartInventory
-                                .builder()
-                                .id("Craft " + p.getName())
-                                .provider(new CraftMenu(args[1], true))
-                                .size(3, 9).title("§eПросмотр Крафта " + args[1])
-                                .build()
-                                .open(p);
+
+                        nm = Resolver.string(cntx, name);
+                        final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(
+                            new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
+                        if (!craftConfig.getKeys(false).contains(nm)) {
+                            pl.sendMessage("§cНет такого крафта!");
+                            yield 0;
                         }
-                        break;
-                    default:
-                        p.sendMessage("§cНеправельный синтакс комманды!");
-                        break;
-                }
-            } else {
-                p.sendMessage("§cНеправельный синтакс комманды!");
-            }
-        }
-        return true;
+                        craftConfig.set(nm, null);
+                        Bukkit.removeRecipe(new NamespacedKey(OStrap.space, nm));
+                        Crafts.rmvRecipe(new NamespacedKey(OStrap.space, nm));
+                        pl.sendMessage("§7Крафт §e" + nm + " §7убран!");
+                        try {
+                            craftConfig.save(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        yield Command.SINGLE_SUCCESS;
+                    }
+                    case "view" -> {
+                        nm = Resolver.string(cntx, name);
+                        if (Bukkit.getRecipe(new NamespacedKey(OStrap.space, nm)) == null) {
+                            pl.sendMessage("§cТакого крафта не существует!");
+                            yield 0;
+                        }
+                        SmartInventory
+                            .builder()
+                            .id("Craft " + pl.getName())
+                            .provider(new CraftMenu(nm, true))
+                            .size(3, 9).title("§eПросмотр Крафта " + nm)
+                            .build()
+                            .open(pl);
+                        yield Command.SINGLE_SUCCESS;
+                    }
+                    default -> {
+                        pl.sendMessage("§cНеправельный синтакс комманды!");
+                        yield 0;
+                    }
+                };
+            })
+            .description("Редактор крафтов")
+            .aliases("крафт")
+            .register();
     }
 }

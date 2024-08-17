@@ -104,34 +104,34 @@ public class EnchantManager implements Initiable, Listener {
     public void onDamage(final EntityDamageEvent e) {
         if (e instanceof final EntityDamageByEntityEvent ee
             && ee.getDamager() instanceof LivingEntity) {
-            enchAct(((LivingEntity) ee.getDamager()).getEquipment(), ee);
+            enchAct((LivingEntity) ee.getDamager(), ee);
         }
 
         if (e.getEntity() instanceof LivingEntity) {
-            enchAct(((LivingEntity) e.getEntity()).getEquipment(), e);
+            enchAct((LivingEntity) e.getEntity(), e);
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onProj(final ProjectileHitEvent e) {
         if (e.getEntity().getShooter() instanceof final LivingEntity le) {
-            enchAct(le.getEquipment(), e);
+            enchAct(le, e);
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onShoot(final EntityShootBowEvent e) {
-        enchAct(e.getEntity().getEquipment(), e);
+        enchAct(e.getEntity(), e);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onBreak(final BlockBreakEvent e) {
-        enchAct(e.getPlayer().getEquipment(), e);
+        enchAct(e.getPlayer(), e);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onInt(final PlayerInteractEvent e) {
-        enchAct(e.getPlayer().getEquipment(), e);
+        enchAct(e.getPlayer(), e);
     }
 
   /*@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
@@ -247,10 +247,11 @@ public class EnchantManager implements Initiable, Listener {
     e.setResult(it);
   }*/
 
-    private void enchAct(final EntityEquipment eq, final Event e) {
+    private void enchAct(final LivingEntity le, final Event e) {
         final Map<CustomEnchant, List<EnchData>> active = new HashMap<>();
+        final EntityEquipment eq = le.getEquipment();
         for (final EquipmentSlot es : EquipmentSlot.values()) {
-
+            if (!le.canUseEquipmentSlot(es)) continue;
             final ItemStack it = eq.getItem(es);
             if (!ItemUtil.isBlank(it, true)) {
 

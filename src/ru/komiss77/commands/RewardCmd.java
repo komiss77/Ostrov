@@ -1,5 +1,7 @@
 package ru.komiss77.commands;
 
+import java.util.Arrays;
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -10,15 +12,12 @@ import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
-import ru.komiss77.modules.player.Perm;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
-
-import java.util.Arrays;
-import java.util.List;
 
 
 public class RewardCmd implements OCommand {
@@ -129,7 +128,7 @@ public class RewardCmd implements OCommand {
                     }
 
                     if (value.length() > 1) {
-                        final int v = Integer.valueOf(value.substring(0, value.length() - 1), 0);
+                        final int v = ApiOstrov.getInteger(value.substring(0, value.length() - 1), 0);
                         amt = switch (value.charAt(value.length() - 1)) {
                             case 'h' -> v * 60 * 60;
                             case 'd' -> v * 24 * 60 * 60;
@@ -137,7 +136,7 @@ public class RewardCmd implements OCommand {
                             default -> 0;
                         };
                     } else {
-                        amt = Integer.valueOf(value, 0);
+                        amt = ApiOstrov.getInteger(value, 0);
                     }
 
                     if (amt == 0) {

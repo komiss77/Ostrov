@@ -27,6 +27,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
@@ -176,7 +177,9 @@ public final class PvpCmd implements OCommand, Listener {
     private static final PotionEffect spd = new PotionEffect(PotionEffectType.HASTE, 2, 255, true, false, false);
     private static final PotionEffect slw = new PotionEffect(PotionEffectType.MINING_FATIGUE, 32, 255, true, false, false);
     private static final HashSet<Integer> noClds = new HashSet<>();
-    private static final int DHIT_CLD = 4;
+
+    public static final int DHIT_CLD = 4;
+    public static final int BLCK_CLD = 0;
 
     static {
         flags = new EnumMap<>(PvpFlag.class);
@@ -363,14 +366,16 @@ public final class PvpCmd implements OCommand, Listener {
                                                     targetPlayer.setCooldown(Material.SHIELD, 40);
                                                     targetPlayer.playEffect(EntityEffect.SHIELD_BREAK);
                                                 }
-                                            } else if (ItemClass.MELEE.has(ofh.getType()) && ItemClass.MELEE.has(hnd.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
+                                            } else if (ItemClass.MELEE.has(ofh.getType())
+                                                && ItemClass.MELEE.has(hnd.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
+                                                dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
                                                 Ostrov.sync(() -> {
                                                     final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                     final LivingEntity ndp = dbe.getEntity();
                                                     if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
-                                                        dbe.busy(dle, true, DHIT_CLD);
                                                         target.setNoDamageTicks(-1);
                                                         dbe.attack(dle, target, true);
+                                                        dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
                                                     }
                                                 }, DHIT_CLD);
                                             }
@@ -461,14 +466,16 @@ public final class PvpCmd implements OCommand, Listener {
                                                     if (tbe.isBlocking(target)) {
                                                         tbe.bashed(target, true);
                                                     }
-                                                } else if (ItemClass.MELEE.has(ofh.getType()) && ItemClass.MELEE.has(hnd.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
+                                                } else if (ItemClass.MELEE.has(ofh.getType())
+                                                    && ItemClass.MELEE.has(hnd.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
+                                                    dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
                                                     Ostrov.sync(() -> {
                                                         final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                         final LivingEntity ndp = dbe.getEntity();
                                                         if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
-                                                            dbe.busy(dle, true, DHIT_CLD);
                                                             target.setNoDamageTicks(-1);
                                                             dbe.attack(dle, target, true);
+                                                            dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
                                                         }
                                                     }, DHIT_CLD);
                                                 }
@@ -528,14 +535,15 @@ public final class PvpCmd implements OCommand, Listener {
                                             if (hnd != null && ItemClass.MELEE.has(hnd.getType())
                                                 && dle.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                                if (ofh != null && ItemClass.MELEE.has(ofh.getType()) && !dbe.busy(dle, null, DHIT_CLD)) {
+                                                if (ofh != null && ItemClass.MELEE.has(ofh.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
+                                                    dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
                                                     Ostrov.sync(() -> {
                                                         final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                         final LivingEntity ndp = dbe.getEntity();
                                                         if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
-                                                            dbe.busy(dle, true, DHIT_CLD);
                                                             target.setNoDamageTicks(-1);
                                                             dbe.attack(dle, target, true);
+                                                            dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
                                                         }
                                                     }, DHIT_CLD);
                                                 }
@@ -584,6 +592,11 @@ public final class PvpCmd implements OCommand, Listener {
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
                 public void onCld(final PlayerAttackEntityCooldownResetEvent e) {
                     e.setCancelled(noClds.remove(e.getPlayer().getEntityId()));
+                }
+
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+                public void onJoin(final PlayerJoinEvent e) {
+                    e.getPlayer().setShieldBlockingDelay(BLCK_CLD);
                 }
 
             };
@@ -876,32 +889,6 @@ public final class PvpCmd implements OCommand, Listener {
 
     }
 
-    /*public static void pvpBattleModeBegin(final Oplayer op, final Player p, final int battle_time) { //эвент вызывается в Pvp.Проверка_режима_пвп()
-//        op.getPlayer().sendMessage("8-" + op.pvp_time);
-        if (op.pvp_time == 0) {
-        	op.onPVPEnter(p, battle_time, flags.get(PvpFlag.block_fly_on_pvp_mode), flags.get(PvpFlag.display_pvp_tag));
-            ApiOstrov.sendActionBar(op.nik, "§cРежим боя " + battle_time + " сек.!");
-            if (p != null) {
-                op.fly_speed = p.getFlySpeed();
-                op.allow_fly = p.getAllowFlight();
-                op.in_fly = p.isFlying();
-                //не убирай p.isFlying(), из-за этого помню ловил баги - типа игрок не в полёте, флай блокируется, потом пытаешься включить полёт и ничего не получается
-                if (flags.get(PvpFlag.block_fly_on_pvp_mode) && p.isFlying()) { 
-                    p.setFlying(false); 
-                    p.setAllowFlight(false);
-                    p.setFlySpeed(0.1F);
-                }
-                
-//                p.setWalkSpeed(0.2F); // хз если вообще нужно, просто откл. локальные настройки на пвп серверах...
-
-                if (flags.get(PvpFlag.display_pvp_tag)) {
-                    op.nameColor("§4⚔ ", p);
-                }
-            }
-        }
-        op.pvp_time = battle_time;
-
-    }*/
     public static void pvpBeginFor(final Oplayer op, final Player p, final int time) {
         op.onPVPEnter(p, time, flags.get(PvpFlag.block_fly_on_pvp_mode), flags.get(PvpFlag.display_pvp_tag));
     }

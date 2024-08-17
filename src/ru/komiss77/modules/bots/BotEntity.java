@@ -33,6 +33,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
@@ -71,8 +72,6 @@ public class BotEntity extends ServerPlayer implements Botter {
         this.ext = ext;
         rid = -1;
 
-        lastBash = -Botter.BASH_TICKS;
-        lastParry = -Botter.PARRY_TICKS;
         rplc = new WeakReference<>(null);
         inv = Craft.fromNMS(getInventory());
         tag = new CustomTag(getBukkitEntity());
@@ -81,6 +80,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         team.send(world);
 
         BotManager.botByName.put(name, this);
+        ext.create(this);
     }
 
     protected BotEntity(final String name, final World world, final Function<Botter, Extent> exs) {
@@ -90,8 +90,6 @@ public class BotEntity extends ServerPlayer implements Botter {
         this.ext = exs.apply(this);
         rid = -1;
 
-        lastBash = -Botter.BASH_TICKS;
-        lastParry = -Botter.PARRY_TICKS;
         rplc = new WeakReference<>(null);
         inv = Craft.fromNMS(getInventory());
         tag = new CustomTag(getBukkitEntity());
@@ -100,6 +98,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         team.send(world);
 
         BotManager.botByName.put(name, this);
+        ext.create(this);
     }
 
     private static GameProfile getProfile(final String name) {
@@ -109,9 +108,9 @@ public class BotEntity extends ServerPlayer implements Botter {
         return gameProfile;
     }
 
-    public void rid(final int rid) {
+    /*public void rid(final int rid) {
         this.rid = rid;
-    }
+    }*/
 
     public int rid() {
         return rid;
@@ -134,65 +133,81 @@ public class BotEntity extends ServerPlayer implements Botter {
         }
     }
 
-    protected int lastBusy;
+    private static final byte USE_MAIN = 1, USE_OFF = 3, USE_STOP = 0;
+    private static final int NO_USE = -1;
+    private int lastUseTick = NO_USE;
+    private int lastAct = NO_USE;
+    private EquipmentSlot lastHand = EquipmentSlot.HAND;
 
-    public boolean busy(final LivingEntity mb, @Nullable final Boolean set, final int tks) {
-        if (set != null) {
-            lastBusy = set ? mb.getTicksLived() : -tks;
+    public void use(final LivingEntity mb, final int actID, final EquipmentSlot hand, final boolean use) {
+        final byte data;
+        switch (hand) {
+            case HAND:
+                data = USE_MAIN;
+                break;
+            case OFF_HAND:
+                data = USE_OFF;
+                break;
+            default:
+                Ostrov.log_warn("BotEntity tried using non-hand");
+                return;
         }
-        return mb.getTicksLived() - lastBusy < tks;
+        if (hand == lastHand && lastAct == actID && lastUseTick != NO_USE) {
+            if (use) return;
+            lastUseTick = NO_USE;
+            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, USE_STOP, true);
+        } else {
+            if (!use) return;
+            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, data, true);
+            lastUseTick = mb.getTicksLived();
+            lastHand = hand;
+            lastAct = actID;
+        }
+        Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
+            List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
     }
 
-    private boolean block;
+    public int useTicks(final LivingEntity mb) {
+        if (lastUseTick == NO_USE) return NO_USE;
+        return mb.getTicksLived() - lastUseTick + 1;
+    }
+
+    public int useTicks(final LivingEntity mb, final int actID) {
+        if (lastUseTick == NO_USE || lastAct != actID) return 0;
+        return mb.getTicksLived() - lastUseTick + 1;
+    }
+
+    public int useTicks(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
+        if (lastUseTick == NO_USE || hand != lastHand || lastAct != actID) return 0;
+        return mb.getTicksLived() - lastUseTick + 1;
+    }
 
     public boolean isBlocking(final LivingEntity mb) {
-        return block;
+        final ItemStack it = item(lastHand);
+        if (it == null) return false;
+        return it.getType() == Material.SHIELD
+            && useTicks(mb, BLOCK_ACT) > PvpCmd.BLCK_CLD;
     }
-
-    public void blocking(final LivingEntity mb, final boolean set) {
-        if (isBashed(mb)) return;
-        final boolean ofh;
-        if (item(EquipmentSlot.HAND).getType() == Material.SHIELD) {
-            ofh = true;
-        } else if (item(EquipmentSlot.OFF_HAND).getType() == Material.SHIELD) {
-            ofh = false;
-        } else {
-            this.block = false;
-            this.setLivingEntityFlag(1, false);
-            this.setLivingEntityFlag(2, false);
-            return;
-        }
-        this.setLivingEntityFlag(1, true);
-        this.setLivingEntityFlag(2, ofh);
-        Nms.sendWorldPackets(mb.getWorld(), new ClientboundSetEntityDataPacket(this.getId(),
-            List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
-        this.block = set;
-    }
-
-    private int lastBash;
 
     public boolean isBashed(final LivingEntity mb) {
-        return mb.getTicksLived() - lastBash < Botter.BASH_TICKS;
+        return useTicks(mb, Botter.BASH_ACT) != 0;
     }
 
     public void bashed(final LivingEntity mb, final boolean set) {
-        lastBash = set ? mb.getTicksLived() : -Botter.BASH_TICKS;
-        if (set) blocking(mb, false);
+        use(mb, Botter.BASH_ACT, lastHand, set);
     }
 
-    private int lastParry;
-
     public boolean isParrying(final LivingEntity mb) {
-        return mb.getTicksLived() - lastParry < Botter.PARRY_TICKS;
+        return useTicks(mb, Botter.PARRY_ACT, EquipmentSlot.HAND) != 0;
     }
 
     public void parrying(final LivingEntity mb, final boolean set) {
         if (set) {
             world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
             world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
-            lastParry = mb.getTicksLived();
+            use(mb, Botter.PARRY_ACT, EquipmentSlot.HAND, true);
         } else {
-            lastParry = -Botter.PARRY_TICKS;
+            use(mb, Botter.PARRY_ACT, EquipmentSlot.HAND, false);
         }
     }
 
@@ -218,10 +233,12 @@ public class BotEntity extends ServerPlayer implements Botter {
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 3));// VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
+            use(from, lastAct, EquipmentSlot.OFF_HAND, false);
         } else {
             from.attack(to);
             world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 0));//VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
+            use(from, lastAct, EquipmentSlot.HAND, false);
         }
     }
 
@@ -244,9 +261,9 @@ public class BotEntity extends ServerPlayer implements Botter {
             this.rid = pz.getEntityId();
             Bukkit.getMobGoals().removeAllGoals(pz);
             Bukkit.getMobGoals().addGoal(pz, 0, goal(pz));
-            parrying(pz, false);
-            bashed(pz, false);
-            blocking(pz, false);
+            lastHand = EquipmentSlot.HAND;
+            lastUseTick = NO_USE;
+            lastAct = NO_USE;
 //			hs.teleportAsync(to);
         } else {
             le.teleportAsync(to);
@@ -256,8 +273,10 @@ public class BotEntity extends ServerPlayer implements Botter {
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
             new ClientboundAddEntityPacket(this, 0, blockPosition()),
+            new ClientboundTeleportEntityPacket(this),
             new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, GameType.SURVIVAL.getId()));
         swapToSlot(0);
+//        Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage("spawned " + getEntity()));
         ext.spawn(this, getEntity());
     }
 
@@ -326,29 +345,31 @@ public class BotEntity extends ServerPlayer implements Botter {
     public void swapToSlot(final int slot) {
         try {
             inv.setHeldItemSlot(slot);
-        } catch (NullPointerException e) {
-        }
+        } catch (NullPointerException e) {}
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
+            use(mb, lastAct, EquipmentSlot.HAND, false);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
-    public void item(final ItemStack it, final EquipmentSlot slot) {
+    public void item(final EquipmentSlot slot, final ItemStack it) {
         inv.setItem(slot, it);
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(slot, it);
+            if (slot.isHand()) use(mb, lastAct, slot, false);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
 
-    public void item(final ItemStack it, final int slot) {
+    public void item(final int slot, final ItemStack it) {
         inv.setItem(slot, it);
         if (slot == getHandSlot()) {
             final LivingEntity mb = getEntity();
             if (mb != null) {
+                use(mb, lastAct, EquipmentSlot.HAND, false);
                 mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
             }
             Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
