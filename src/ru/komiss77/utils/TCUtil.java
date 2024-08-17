@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
+import org.intellij.lang.annotations.Subst;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
@@ -124,8 +125,17 @@ public class TCUtil {
         chrIx.put('м', CustomTextColor.MITHRIL);//durability
         clrIx.put(Color.fromRGB(CustomTextColor.MITHRIL.value()), CustomTextColor.MITHRIL);
 
-        msg = MiniMessage.builder().tags(
-            TagResolver.builder()
+        TagResolver.Builder trb = TagResolver.builder();
+        trb = trb.resolver(StandardTags.defaults());
+        for (final Entry<String, CustomTextColor> en : CustomTextColor.VALUES.entrySet()) {
+            @Subst("")
+            final String key = en.getKey();
+            trb = trb.resolver(TagResolver.resolver(key,
+                Tag.styling(TextColor.color(en.getValue().value()))));
+        }
+        msg = MiniMessage.builder().tags(trb.build()).build();
+        /*msg = MiniMessage.builder().tags(
+            trb
                 .resolver(StandardTags.defaults())
                 .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))//Янтарный
                 .resolver(TagResolver.resolver("apple", Tag.styling(TextColor.color(0x88BB44))))//Салатовый
@@ -137,7 +147,7 @@ public class TCUtil {
                 .resolver(TagResolver.resolver("sky", Tag.styling(TextColor.color(0xAADDDD))))//Небесный
                 .resolver(TagResolver.resolver("stale", Tag.styling(TextColor.color(0x446666))))//Черствый
                 .resolver(TagResolver.resolver("mithril", Tag.styling(TextColor.color(0xB0C0C0))))//Мифриловый
-                .build()).build();
+                .build()).build();*/
     }
 
     public static ItemStack changeColor(ItemStack source, byte new_color) {
@@ -536,6 +546,7 @@ public class TCUtil {
         return setColorChar(ch, deform(str));
     }
 
+    @Slow(priority = 1)
     private static String deLegacify(final String str) {
         String fin = str;
         for (final Entry<Character, TextColor> en : chrIx.entrySet()) {
@@ -560,10 +571,13 @@ public class TCUtil {
         fin = fin.replace(STYLE + "n", "<underlined>");
         fin = fin.replace(STYLE + "o", "<italic>");
         fin = fin.replace(STYLE + "r", "<reset>");
+        for (final Entry<String, CustomTextColor> en : CustomTextColor.VALUES.entrySet()) {
+            fin = fin.replace(":" + en.getKey(), ":#" + Integer.toHexString(en.getValue().value()));
+        }
         return fin;
     }
 
-    @Slow(priority = 1)
+    @Slow(priority = 2)
     public static Component form(final String str) {
         if (str == null || str.isEmpty()) return EMPTY;
         return msg.deserialize(deLegacify(str));

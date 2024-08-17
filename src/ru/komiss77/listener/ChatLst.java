@@ -65,10 +65,10 @@ public class ChatLst implements Listener {
 
     static {
         NIK_COLOR = switch (Ostrov.calendar.get(Calendar.MONTH)) {
-            case 11, 0, 1 -> "<gradient:sky:blue>grg</gradient>";
-            case 2, 3, 4 -> "<gradient:olive:green>grg</gradient>";
-            case 8, 9, 10 -> "<gradient:beige:gold>grg</gradient>";
-            default -> "<gradient:red:green>grg";
+            case 11, 0, 1 -> "<gradient:sky:blue>";
+            case 2, 3, 4 -> "<gradient:olive:green>";
+            case 8, 9, 10 -> "<gradient:beige:gold>";
+            default -> "<gradient:apple:dark_aqua>";
         };
         MSG_COLOR = NamedTextColor.GRAY;
         SUGGEST_MUTE_TOOLTIP_RU = TCUtil.form("§кКлик - выдать молчанку");
