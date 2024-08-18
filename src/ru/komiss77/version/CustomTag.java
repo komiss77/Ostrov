@@ -4,7 +4,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+import io.netty.buffer.Unpooled;
 import io.papermc.paper.adventure.PaperAdventure;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -13,7 +15,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -58,13 +59,13 @@ public class CustomTag {
         taggedLink = new WeakReference<>(tagged);//entity;
         passengerOffset = tagged.getHeight(); //= ridingOffset;
         real = tagged.isValid();
-        name = PaperAdventure.asVanilla(TCUtil.form(tagged.getName() + "\n\n"));
+        name = PaperAdventure.asVanilla(TCUtil.form(tagged.getName() + "\n"));
     }
 
     //Can contain \n for >1 lines
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
-        this.name = PaperAdventure.asVanilla(TCUtil.form(name + "\n\n"));
+        this.name = PaperAdventure.asVanilla(TCUtil.form(name + "\n"));
         if (visible) {
             sendTrackersPacket(spawnPacket());
         }
@@ -145,17 +146,18 @@ public class CustomTag {
 
         final ClientboundSetEntityDataPacket initialCreatePacket = new ClientboundSetEntityDataPacket(
             tagEntityId,
-            List.of(ofData(DATA_POSE, Pose.CROAKING),
-                ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
+            List.of(ofData(DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, (byte) 3))//center view
         );
 
         final ClientboundSetEntityDataPacket syncDataPacket = syncPacket();
 
-        //final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        //buf.writeVarInt(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
-        //buf.writeVarIntArray(idArray);
-        //final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(buf);
-        final ClientboundSetPassengersPacket mountPacket = new ClientboundSetPassengersPacket(Craft.toNMS(tgt));
+        final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeVarInt(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
+        buf.writeVarIntArray(idArray);
+        final ClientboundSetPassengersPacket mountPacket = ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
+//        final TagPassengerPacket mountPacket = new TagPassengerPacket(Craft.toNMS(tgt), tagEntityId);
+
+
 
         return new ClientboundBundlePacket(
             List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)
@@ -180,4 +182,22 @@ public class CustomTag {
     private static SynchedEntityData.DataValue<?> ofData(EntityDataAccessor key, Object value) {
         return SynchedEntityData.DataValue.create(key, value);
     }
+
+    /*private static class TagPassengerPacket extends ClientboundSetPassengersPacket {
+
+        private final int tagID;
+
+        public TagPassengerPacket(final Entity entity, final int tagID) {
+            super(entity);
+            this.tagID = tagID;
+        }
+
+        public int[] getPassengers() {
+            final int[] ps = super.getPassengers();
+            final int[] ids = new int[ps.length + 1];
+            System.arraycopy(ps, 0, ids, 0, ps.length);
+            ids[ids.length - 1] = tagID;
+            return ids;
+        }
+    }*/
 }

@@ -1,5 +1,10 @@
 package ru.komiss77.modules.crafts;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
 import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 import com.google.common.collect.Multimap;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
@@ -31,12 +36,6 @@ import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-
 
 
 public final class Crafts implements Initiable, Listener {
@@ -44,14 +43,7 @@ public final class Crafts implements Initiable, Listener {
     public static final Map<NamespacedKey, Craft> crafts = new HashMap<>();
 
     public Crafts() {
-        if (!Cfg.crafts) {
-            Ostrov.log_ok("§6Крафты выключены!");
-            return;
-        }
-
-        Ostrov.instance.getCommand("craft").setExecutor(new CraftCmd());
         reload();
-        //Bukkit.getPluginManager().registerEvents(new CraftListener(), Ostrov.instance);
     }
 
     @Override
@@ -74,6 +66,8 @@ public final class Crafts implements Initiable, Listener {
 
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
         Crafts.loadCrafts();
+        new CraftCmd();
+
         Ostrov.log_ok("§2Крафты запущены!");
     }
 

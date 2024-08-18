@@ -31,20 +31,27 @@ public interface Botter {
 
     //    private String prefix, affix, suffix;
     double DHIT_DST_SQ = 4d;
-    int PARRY_TICKS = 40;
     int BASH_TICKS = 40;
+    int BLOCK_ACT = 1;
+    int PARRY_ACT = 2;
+    int BASH_ACT = 3;
+    int DHIT_ACT = 4;
 
     World world();
 
     Extent extent();
 
+    void use(final LivingEntity mb, final int actID, final EquipmentSlot hand, final boolean use);
+
+    int useTicks(final LivingEntity mb);
+
+    int useTicks(final LivingEntity mb, final int actID);
+
+    int useTicks(final LivingEntity mb, final int actID, final EquipmentSlot hand);
+
     <E extends Extent> E extent(final Class<E> cls);
 
-    boolean busy(final LivingEntity mb, @Nullable final Boolean set, final int tks);
-
     boolean isBlocking(final LivingEntity mb);
-
-    void blocking(final LivingEntity mb, final boolean set);
 
     boolean isBashed(final LivingEntity mb);
 
@@ -70,9 +77,9 @@ public interface Botter {
 
     void swapToSlot(final int slot);
 
-    void item(final ItemStack it, final EquipmentSlot slot);
+    void item(final EquipmentSlot slot, final ItemStack it);
 
-    void item(final ItemStack it, final int slot);
+    void item(final int slot, final ItemStack it);
 
     Inventory inv();
 
@@ -86,7 +93,7 @@ public interface Botter {
 
     void remove();
 
-    void rid(final int rid);
+//    void rid(final int rid);
 
     int rid();
 
