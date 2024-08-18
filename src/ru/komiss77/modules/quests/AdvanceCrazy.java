@@ -43,9 +43,6 @@ import ru.komiss77.utils.TCUtil;
 
 public class AdvanceCrazy implements IAdvance, Listener {
 
-    private static final CrazyAdvancementsAPI ac = (CrazyAdvancementsAPI) Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI");
-
-
     private static final NameKey key;
     private static final AdvancementManager mgr; //new AdvancementManager(new NameKey("ostrov", "pls"));
     private static final Map<Quest, Advancement> adm;// = new HashMap<>();
