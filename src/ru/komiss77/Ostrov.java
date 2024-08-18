@@ -8,17 +8,16 @@ import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.komiss77.commands.CMD;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.RegisterCommands;
 import ru.komiss77.enums.Chanell;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
@@ -43,7 +42,7 @@ public class Ostrov extends JavaPlugin {
     public static int server_id = -1;
 
     private static final Map<String, Initiable> modules;
-    public static boolean newDay, vault, dynmap, wg, advance;
+    public static boolean newDay, dynmap, wg, advance;
     public static boolean SHUT_DOWN; //по этому плагу другие плагины не будут сохранять данные асинх   org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled
     public static boolean STARTUP = true; //до окончания прогрузки всех миров
     public static final Calendar calendar;
@@ -60,6 +59,15 @@ public class Ostrov extends JavaPlugin {
         full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
         MOT_D = TCUtil.deform(Bukkit.motd());
     }
+
+
+    //на папер плагин не работает
+    @Override
+    //вызывается из CraftServer  public ChunkGenerator getGenerator(String world), если указать в bukkit.yml worlds: world: generator: Ostrov
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return new EmptyChunkGenerator();
+    }
+
 
 
     @Override
@@ -132,7 +140,7 @@ public class Ostrov extends JavaPlugin {
             RemoteDB.Disconnect();
         }
 
-        modules.values().stream().forEach(
+        modules.values().forEach(
             (module) -> (module).onDisable()
         );
         log_ok("§4Остров выгружен!");
@@ -151,33 +159,6 @@ public class Ostrov extends JavaPlugin {
     public static void regCommand(final OCommand cmd) {
         mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());
-        /*final String player = "player", xp = "xp";
-        event.registrar().register(
-          Commands.literal("tellxp")
-            .then(Resolver.player(player).suggests((cntx, sb) -> {
-              return CompletableFuture.completedFuture(sb.suggest(cntx.getSource().getSender().getName()).build());
-              })
-              .executes(cntx-> {
-                if (cntx.getSource().getExecutor() instanceof final Player pl) {
-                  final Player opl = Resolver.player(cntx, player);
-
-                  pl.sendMessage("Player " + opl + " has " + opl.getTotalExperience() + " exp points!");
-                }
-                return Command.SINGLE_SUCCESS;
-              })
-              .then(Resolver.integer(xp, 0)
-                .executes(cntx -> {
-                  if (cntx.getSource().getExecutor() instanceof final Player pl) {
-                    final Player opl = Resolver.player(cntx, player);
-                    final int value = Resolver.integer(cntx, xp);
-
-                    pl.sendMessage("Player " + opl + " needs " + value + " exp points!");
-                  }
-                  return Command.SINGLE_SUCCESS;
-              }))).build(),
-          "Experience tell command",
-          List.of("texp")
-        );*/
         });
     }
 
@@ -199,14 +180,7 @@ public class Ostrov extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
         Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
-        //Bukkit.getPluginManager().registerEvents(new InvLst(), instance);
-        //if (Bukkit.getPluginManager().getPlugin("TradeSystem")!=null) {
-        //     Bukkit.getPluginManager().registerEvents(new TradeLst(), instance);
-        //}
-        //Bukkit.getPluginManager().registerEvents(new SignLst(), instance);
-        //if ( Config.getConfig().getBoolean("modules.enable_jump_plate")) {
-        //    Bukkit.getPluginManager().registerEvents(new JumpPlateLst__(), instance);
-        //}
+
         if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
             Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);
         }
@@ -220,7 +194,7 @@ public class Ostrov extends JavaPlugin {
         GM.onWorldsLoadDone(); //прописать состояние серверов на таблички
         //Bukkit.getPluginManager().registerEvents(GM.gmListener, Ostrov.instance);
 
-        modules.values().stream().forEach(
+        modules.values().forEach(
             (module) -> {
                 try {
                     (module).postWorld();
@@ -230,35 +204,27 @@ public class Ostrov extends JavaPlugin {
             }
         );
 
-        new WorldsLoadCompleteEvent().callEvent();
-        ; // оповестить остальные плагины
+        new WorldsLoadCompleteEvent().callEvent(); // оповестить остальные плагины
         Ostrov.STARTUP = false;
 
-        switch (GM.GAME) {
-            case AR -> {
-                Bukkit.getServer().getPluginManager().registerEvents(new ArcaimLst(), instance);
-                //PlayerPacketHandler.nbtCheck.set(true);
-                log_ok("§eПодключены ивенты для сервера Аркаим");
-            }
-            default -> {
-                if (Ostrov.MOT_D.equals("home1")) {
-                    Bukkit.getServer().getPluginManager().registerEvents(new ArcaimLst(), instance);
-                    //PlayerPacketHandler.nbtCheck.set(true);
-                    log_warn("§eПодключен nbtCheck для home1");
-                }
-            }
+        if (GM.GAME == Game.AR) {
+            Bukkit.getServer().getPluginManager().registerEvents(new ArcaimLst(), instance);
+            //PlayerPacketHandler.nbtCheck.set(true);
+            log_ok("§eПодключены ивенты для сервера Аркаим");
         }
+        //if (Ostrov.MOT_D.equals("home1")) {
+        //    Bukkit.getServer().getPluginManager().registerEvents(new ArcaimLst(), instance);
+        //    log_warn("§eПодключен nbtCheck для home1");
+        //}
+
     }
 
 
     public static void initModules() {
         log_ok("§5===== Инициализация модулей =====");
         for (final Module module : Module.values()) {
-//Ostrov.log_warn("module="+module);
             try {
                 modules.put(module.name(), module.clazz.getDeclaredConstructor().newInstance());
-                //} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-                //InvocationTargetException | NullPointerException | NoSuchMethodException | NoClassDefFoundError ex) {
             } catch (Exception ex) {
                 log_err("**** инициализацяя " + module + " : " + ex.getMessage());
                 ex.printStackTrace();
@@ -276,22 +242,11 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    @Override
-    public boolean onCommand(CommandSender cs, org.bukkit.command.Command comm, String s, String[] arg) {
-        return CMD.CommandHamdler(cs, comm, s, arg);
-    }
-
-
     public static Ostrov getInstance() {
         return Ostrov.instance;
     }
 
 
-    @Override
-    //вызывается из CraftServer  public ChunkGenerator getGenerator(String world), если указать в bukkit.yml worlds: world: generator: Ostrov
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        return new EmptyChunkGenerator();
-    }
 
     public static String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";
     public static String prefixWARN = "§e[§6Остров§e] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[33m";
@@ -329,15 +284,6 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    public static boolean isInteger(final String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }
-
 
     public static String dateFromStamp(int stamp_in_second) {
         date.setTime(stamp_in_second * 1000L);
@@ -347,12 +293,6 @@ public class Ostrov extends JavaPlugin {
     public static String getCurrentHourMin() {
         return calendar.get(Calendar.HOUR_OF_DAY) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
     }
-
-
-    public static Calendar getCalendar() {
-        return calendar;
-    }
-
 
     public static void sync(final Runnable runnable) { //use sync ( ()->{} ,1 );
         if (runnable == null || SHUT_DOWN)
@@ -416,9 +356,63 @@ public class Ostrov extends JavaPlugin {
 
 
 
+    /*public static boolean isInteger(final String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }*/
+
+//Bukkit.getPluginManager().registerEvents(new InvLst(), instance);
+//if (Bukkit.getPluginManager().getPlugin("TradeSystem")!=null) {
+//     Bukkit.getPluginManager().registerEvents(new TradeLst(), instance);
+//}
+//Bukkit.getPluginManager().registerEvents(new SignLst(), instance);
+//if ( Config.getConfig().getBoolean("modules.enable_jump_plate")) {
+//    Bukkit.getPluginManager().registerEvents(new JumpPlateLst__(), instance);
+//}
+
+//public static Calendar getCalendar() {
+//    return calendar;
+//}
+
+//@Override
+//public boolean onCommand(CommandSender cs, org.bukkit.command.Command comm, String s, String[] arg) {
+//    return CMD.CommandHamdler(cs, comm, s, arg);
+//}
 
 
 
+
+        /*final String player = "player", xp = "xp";
+        event.registrar().register(
+          Commands.literal("tellxp")
+            .then(Resolver.player(player).suggests((cntx, sb) -> {
+              return CompletableFuture.completedFuture(sb.suggest(cntx.getSource().getSender().getName()).build());
+              })
+              .executes(cntx-> {
+                if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                  final Player opl = Resolver.player(cntx, player);
+
+                  pl.sendMessage("Player " + opl + " has " + opl.getTotalExperience() + " exp points!");
+                }
+                return Command.SINGLE_SUCCESS;
+              })
+              .then(Resolver.integer(xp, 0)
+                .executes(cntx -> {
+                  if (cntx.getSource().getExecutor() instanceof final Player pl) {
+                    final Player opl = Resolver.player(cntx, player);
+                    final int value = Resolver.integer(cntx, xp);
+
+                    pl.sendMessage("Player " + opl + " needs " + value + " exp points!");
+                  }
+                  return Command.SINGLE_SUCCESS;
+              }))).build(),
+          "Experience tell command",
+          List.of("texp")
+        );*/
 
 
 

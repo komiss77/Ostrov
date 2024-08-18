@@ -1,6 +1,5 @@
 package ru.komiss77.commands;
 
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -16,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.ViewPerm;
+import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.figures.MenuMain;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
@@ -33,85 +33,111 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 public class CMD {
 
+    public CMD() {
 
-    public static boolean CommandHamdler(CommandSender sender, Command cmd, String label, String[] arg) {
+        new OCmdBuilder("menu")
+                .run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    final Oplayer op = PM.getOplayer(p);
+                    op.menu.openLocalMenu(p);
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .aliases("меню")
+                .description("серверное меню")
+                .register();
+
+        new OCmdBuilder("settings")
+                .run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    if (!Cfg.settings_command) {
+                        p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
+                        return 0;
+                    }
+                    final Oplayer op = PM.getOplayer(p);
+                    op.menu.openLocalSettings(p, true);
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .description("Личные настройки")
+                .register();
+
+        new OCmdBuilder("sound")
+                .run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    if (ApiOstrov.isLocalBuilder(p, true)) {
+                        SmartInventory.builder()
+                                .id("Sounds" + p.getName())
+                                .provider(new Sounds(0))
+                                .size(6, 9)
+                                .title("§2Звуки")
+                                .build()
+                                .open(p);
+                    } else {
+                        p.sendMessage("§cдоступно билдерам");
+                    }
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .description("Sound player")
+                .register();
+
+        new OCmdBuilder("figure")
+                .run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    if (ApiOstrov.isLocalBuilder(p, true)) {
+                        SmartInventory.builder()
+                                .id("MenuMain" + p.getName())
+                                .provider(new MenuMain())
+                                .size(1, 9)
+                                .title("§fФигуры")
+                                .build()
+                                .open(p);
+                    } else {
+                        p.sendMessage("§cдоступно билдерам");
+                    }
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .description("Личные настройки")
+                .register();
+
+        new OCmdBuilder("lobby")
+                .run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    p.performCommand("server lobby");
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .aliases("hub")
+                .description("Личные настройки")
+                .register();
+
+
+    }
+
+    public static boolean handle(CommandSender sender, String label, String[] arg) {
         if (Ostrov.MOT_D.length() == 3 || sender == null) return false;
-
         final Player p = sender instanceof Player ? (Player) sender : null;
         final Oplayer op = p == null ? null : PM.getOplayer(p);
-
         String home;
         int limit;
-
-        //if ( pvp_battle_time > 1 && PM.inBattle(s) ) {            -- перенёс в PlayerCommandPreprocessEvent
-        //    p.sendMessage( "§cРежим боя - команды заблокированы! Осталось " + Timer.CD_left(p.name(), "pvp") + " сек." );
-        //    return false;
-        // }
-
         switch (label) {
-
-            case "serv":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                SmartInventory.builder()
-                        .id(op.nik + "Game")
-                        .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
-                        .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
-                        .size(6, 9)
-                        .build()
-                        .open(p);
-                break;
-
-            case "profile":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                if (op.isGuest) {
-                    sender.sendMessage(Ostrov.PREFIX + "§eИгровые данные Гостей не сохраняются!");
-                    return true;
-                }
-                op.menu.open(p, Section.ПРОФИЛЬ);//p.openInventory(GM.main_inv);
-                break;
-
-            case "menu":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                PM.getOplayer(p).menu.openLocalMenu(p);//p.performCommand(Cfg.GetCongig().getString("modules.command.menu"));
-                break;
-
-            case "settings":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                if (Cfg.settings_command) {
-                    op.menu.openLocalSettings(p, true);
-                } else {
-                    p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
-                }
-                break;
-
-
-            case "figure":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                if (ApiOstrov.isLocalBuilder(p, true)) {
-                    SmartInventory.builder()
-                            .id("MenuMain" + p.getName())
-                            .provider(new MenuMain())
-                            .size(1, 9)
-                            .title("§fФигуры")
-                            .build()
-                            .open(p);
-                }
-                break;
 
 
             case "sethome":
@@ -188,15 +214,6 @@ public class CMD {
                     break;
                 } else p.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
 
-
-            case "lobby":
-            case "hub":
-                if (op == null) {
-                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                    return true;
-                }
-                p.performCommand("server lobby");//ApiOstrov.sendToServer(p, "lobby0", "");
-                break;
 
 
             case "fly":
@@ -514,7 +531,45 @@ public class CMD {
                 break;
 
                 
-/*        case "ohelp":
+/*
+
+
+
+
+            case "lobby":
+            case "hub":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                p.performCommand("server lobby");//ApiOstrov.sendToServer(p, "lobby0", "");
+                break;
+
+            case "figure":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                if (ApiOstrov.isLocalBuilder(p, true)) {
+                    SmartInventory.builder()
+                            .id("MenuMain" + p.getName())
+                            .provider(new MenuMain())
+                            .size(1, 9)
+                            .title("§fФигуры")
+                            .build()
+                            .open(p);
+                }
+                break;
+
+
+
+
+
+
+
+
+
+  case "ohelp":
             if ( arg.length == 0 )  {
                 Help(p,0);
             } else {
@@ -529,7 +584,54 @@ public class CMD {
             break;
 */
 
-            case "sound":
+            /*case "serv":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                SmartInventory.builder()
+                        .id(op.nik + "Game")
+                        .title(op.eng ? Section.РЕЖИМЫ.item_nameEn : Section.РЕЖИМЫ.item_nameRu)
+                        .provider(new GameMenu(op.menu.section == Section.МИНИИГРЫ))
+                        .size(6, 9)
+                        .build()
+                        .open(p);
+                break;*/
+
+            /*case "profile":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                if (op.isGuest) {
+                    sender.sendMessage(Ostrov.PREFIX + "§eИгровые данные Гостей не сохраняются!");
+                    return true;
+                }
+                op.menu.open(p, Section.ПРОФИЛЬ);//p.openInventory(GM.main_inv);
+                break;*/
+
+           /* case "menu":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                PM.getOplayer(p).menu.openLocalMenu(p);//p.performCommand(Cfg.GetCongig().getString("modules.command.menu"));
+                break;*/
+
+           /* case "settings":
+                if (op == null) {
+                    sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
+                    return true;
+                }
+                if (Cfg.settings_command) {
+                    op.menu.openLocalSettings(p, true);
+                } else {
+                    p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
+                }
+                break;*/
+
+
+         /*   case "sound":
                 if (ApiOstrov.isLocalBuilder(sender, true)) {
                     SmartInventory.builder()
                             .id("Sounds" + p.getName())
@@ -540,7 +642,7 @@ public class CMD {
                             .open(p);
                 } else {
                     p.sendMessage("§cдоступно билдерам");
-                }
+                }*/
 
 
             default:

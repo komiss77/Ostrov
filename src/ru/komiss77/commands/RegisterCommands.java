@@ -11,6 +11,9 @@ public class RegisterCommands {
     //private static Ostrov plugin;
 
     public static void register() {
+
+        new CMD();//кучка команд
+
         new HatCmd();//новый способ
         new PrefixCmd();//сравнение
         new CleanCmd();
