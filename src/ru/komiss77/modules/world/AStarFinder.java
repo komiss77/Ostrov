@@ -20,6 +20,11 @@ public class AStarFinder {//idea of UnAlike
     private static final LinkedList<Node> EMPTY = new LinkedList<>();
 
     @ThreadSafe
+    public static LinkedList<? extends XYZ> xyzPath(final WXYZ from, final WXYZ to, final int maxNodes, final boolean jump) {
+        return getPath(getClsWlk(from), getClsWlk(to), maxNodes, jump);
+    }
+
+    @ThreadSafe
     protected static LinkedList<Node> findPath(final WXYZ from, final WXYZ to, final int maxNodes, final boolean jump) {
         return getPath(getClsWlk(from), getClsWlk(to), maxNodes, jump);
     }
@@ -35,17 +40,17 @@ public class AStarFinder {//idea of UnAlike
         bgn.set(0, from.distAbs(to));
         end.set(0, 0);
 
-        final int fsl = end.getSLoc();
+        final int finSLoc = end.getSLoc();
 //		final SortedList<Node> sls = new SortedList<>();
         final IntHashMap<Node> open = new IntHashMap<>();
-        final HashSet<Integer> clsd = new HashSet<>();
+        final HashSet<Integer> closed = new HashSet<>();
         open.put(bgn.getSLoc(), bgn);
 
-        int ci = 0;
+        int count = 0;
         Node min = null;
         Node curr = null;
         while (true) {
-            ci++;
+            count++;
             if (curr == null) {
                 for (final Node nd : open.values()) {
                     if (curr == null || nd.cost < curr.cost) {
@@ -58,81 +63,81 @@ public class AStarFinder {//idea of UnAlike
                         Ostrov.log_warn("No A* values found");
                         return new LinkedList<>();
                     }
-                    ci = maxNodes;//конец
+                    count = maxNodes;//конец
                     curr = min;
                 }
             }
 
-            final int csl = curr.getSLoc();
+            final int currSLoc = curr.getSLoc();
             if (min == null || curr.yaw < min.yaw) {
                 min = curr;
             }
-            open.remove(csl);
-            clsd.add(csl);
+            open.remove(currSLoc);
+            closed.add(currSLoc);
 
 //			curr = open.pollFirst();
 //			final Location loc = curr.getCenterLoc(from.w);
 //			Bukkit.getOnlinePlayers().forEach(p -> p.sendBlockChange(loc, Material.RED_CARPET.createBlockData()));
 //			if (ci < 40) Bukkit.broadcast(Component.text(curr.toString() + " " + curr.pitch + " " + curr.yaw + " " + curr.cost));
 
-            if (csl == fsl || ci == maxNodes) {
+            if (currSLoc == finSLoc || count == maxNodes) {
                 final LinkedList<Node> path = new LinkedList<>();
+                if (curr.yaw > min.yaw) curr = min;
                 path.add(curr);
                 int dff = 0;
                 while (true) {
-                    final Node crp = curr.prnt;
-                    if (crp.getSLoc() == curr.getSLoc()) {
+                    final Node currParent = curr.prnt;
+                    if (currParent.getSLoc() == curr.getSLoc()) {
                         path.addFirst(curr);
                         break;
                     }
 
-                    if (curr.distAbs(crp) == 1) {
+                    if (curr.distAbs(currParent) == 1) {
 //						Bukkit.getConsoleSender().sendMessage("c-" + curr.toString() + ", p-" + crp.toString() + ", d-" + curr.distAbs(crp));
-                        final int d = ((curr.x - crp.x) << 1) + curr.z - crp.z;
-                        if (d == dff) {
-                            curr = crp;
+                        final int encDst = ((curr.x - currParent.x) << 1) + curr.z - currParent.z;
+                        if (encDst == dff) {
+                            curr = currParent;
                             continue;
                         }
-                        dff = d;
+                        dff = encDst;
                     } else {
                         dff = 0;
                         curr.jump = true;
                     }
 
                     path.addFirst(curr);
-                    curr = crp;
+                    curr = currParent;
                 }
                 return path;
             }
 
-            Node nxt = null;
+            Node next = null;
             for (final XYZ near : getNear(from.w, curr, jump)) {
-                final int slc = near.getSLoc();
-                if (clsd.contains(slc)) {
-                    continue;
-                }
-                final Node nghNode = open.get(slc);
-                final int hDst = curr.pitch + curr.distAbs(near);
+                final int nearSLoc = near.getSLoc();
+                if (closed.contains(nearSLoc)) continue;
+
+                final Node nghNode = open.get(nearSLoc);
+                final int homeDist = curr.pitch + curr.distAbs(near);
                 if (nghNode == null) {
-                    final Node nwNode = new Node(near).set(hDst, end.distAbs(near));
-                    nwNode.prnt = curr;
-                    open.put(slc, nwNode);
-                    if (nxt == null) {
-                        nxt = nwNode.cost < curr.cost ? nwNode : null;
+                    final Node newNode = new Node(near).set(homeDist, end.distAbs(near));
+                    newNode.prnt = curr;
+                    open.put(nearSLoc, newNode);
+                    if (next == null) {
+                        next = newNode.cost < curr.cost ? newNode : null;
                     } else {
-                        nxt = nwNode.cost < nxt.cost ? nwNode : null;
+                        next = newNode.cost < next.cost ? newNode : null;
                     }
-                } else if (nghNode.pitch > hDst) {
-                    nghNode.set(hDst, nghNode.yaw);
+                } else if (nghNode.pitch > homeDist) {
+                    nghNode.set(homeDist, nghNode.yaw);
                     nghNode.prnt = curr;
-                    if (nxt == null) {
-                        nxt = nghNode.cost < curr.cost ? nghNode : null;
+                    if (next == null) {
+                        next = nghNode.cost < curr.cost ? nghNode : null;
                     } else {
-                        nxt = nghNode.cost < nxt.cost ? nghNode : null;
+                        next = nghNode.cost < next.cost ? nghNode : null;
                     }
                 }
             }
-            curr = nxt;
+            curr = next;
         }
     }
 

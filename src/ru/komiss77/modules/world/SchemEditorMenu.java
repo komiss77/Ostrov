@@ -1,19 +1,15 @@
 package ru.komiss77.modules.world;
 
-import ru.komiss77.builder.SetupMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.builder.SetupMode;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.*;
 
 
 public class SchemEditorMenu implements InventoryProvider {
@@ -72,9 +68,9 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.max == null) {
             contents.set(1, 4, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                .name("§7верхняя точка кубоида.")
+                .name("§7Верхняя точка кубоида")
                 .lore("§7")
-                .lore("§7Клик - установить.")
+                .lore("§7Клик - установить")
                 .build(), e -> {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                 sm.max = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation(); //блок под ногами, или получается на 1 выше чем стоишь
@@ -85,15 +81,15 @@ public class SchemEditorMenu implements InventoryProvider {
         } else {
             //p.sendBlockChange(sm.pos2, Material.EMERALD_BLOCK.createBlockData());
             contents.set(1, 4, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                .name("§7верхняя точка кубоида.")
+                .name("§7Верхняя точка кубоида")
                 .lore("§7")
-                .lore("§7ЛКМ-тп")
-                .lore("§7ПКМ-установить")
+                .lore("§7ЛКМ - установить")
+                .lore("§7ПКМ - тп")
                 .build(), e -> {
-                if (e.isLeftClick()) {
+                if (e.isRightClick()) {
                     p.teleport(sm.max.clone().add(0.5, 1, 0.5)); //тп над блоком, чтобы выделение было под ногами
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
-                } else if (e.isRightClick()) {
+                } else if (e.isLeftClick()) {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                     //p.sendBlockChange(sm.pos2, Material.AIR.createBlockData());
                     sm.max = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation(); //блок под ногами, или получается на 1 выше чем стоишь
@@ -108,7 +104,7 @@ public class SchemEditorMenu implements InventoryProvider {
         if (selected) {
 
             contents.set(2, 3, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                .name("§7Повернуть на 90град.")
+                .name("§7Повернуть на 90град")
                 .lore("§7ЛКМ - повернуть сетку")
                 .lore("§7ПКМ - повернуть с содержимым")
                 .build(), e -> {
@@ -120,7 +116,7 @@ public class SchemEditorMenu implements InventoryProvider {
             }));
 
             contents.set(3, 3, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                .name("§7Повернуть на 180град.")
+                .name("§7Повернуть на 180град")
                 .lore("§7ЛКМ - повернуть сетку")
                 .lore("§7ПКМ - повернуть с содержимым")
                 .build(), e -> {
@@ -132,7 +128,7 @@ public class SchemEditorMenu implements InventoryProvider {
             }));
 
             contents.set(3, 2, ClickableItem.of(new ItemBuilder(Material.SHULKER_SHELL)
-                .name("§7Повернуть на 270град.")
+                .name("§7Повернуть на 270град")
                 .lore("§7ЛКМ - повернуть сетку")
                 .lore("§7ПКМ - повернуть с содержимым")
                 .build(), e -> {
@@ -153,36 +149,32 @@ public class SchemEditorMenu implements InventoryProvider {
             if (sm.spawnPoint == null) {
 
                 contents.set(1, 6, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                    .name("§7точка спавна кубоида")
+                    .name("§7Точка спавна кубоида")
                     .lore("§7(не обязательно)")
                     .lore("§cне установлена")
-                    .lore("§7ПКМ-установить")
+                    .lore("§7Клик - установить")
                     .build(), e -> {
-                    if (e.isRightClick()) {
-                        if (!sm.cuboid.contains(p.getLocation())) {
-                            p.sendMessage("§cДля установки точки надо быть в кубоиде");
-                            PM.soundDeny(p);
-                        } else {
-                            sm.setSpawn(p);
-                            reopen(p, contents);
-                        }
-                    } else {
+                    if (!sm.cuboid.contains(p.getLocation())) {
+                        p.sendMessage("§cДля установки точки надо быть в кубоиде");
                         PM.soundDeny(p);
+                    } else {
+                        sm.setSpawn(p);
+                        reopen(p, contents);
                     }
                 }));
 
             } else {
 
                 contents.set(1, 6, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                    .name("§7точка спавна кубоида")
+                    .name("§7Точка спавна кубоида")
                     .lore("§7(не обязательно)")
-                    .lore("§7ЛКМ-тп")
-                    .lore("§7ПКМ-установить")
+                    .lore("§7ЛКМ - установить")
+                    .lore("§7ПКМ - тп")
                     .build(), e -> {
-                    if (e.isLeftClick()) {
+                    if (e.isRightClick()) {
                         p.teleport(sm.spawnPoint.clone().add(0.5, 0, 0.5));
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
-                    } else if (e.isRightClick()) {
+                    } else if (e.isLeftClick()) {
                         sm.setSpawn(p);
                         reopen(p, contents);
                     } else {
@@ -198,9 +190,9 @@ public class SchemEditorMenu implements InventoryProvider {
 
         if (sm.min == null) {
             contents.set(4, 1, ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                .name("§7нижняя точка кубоида.")
+                .name("§7Нижняя точка кубоида")
                 .lore("§7")
-                .lore("§7Клик - установить.")
+                .lore("§7Клик - установить")
                 .build(), e -> {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                 sm.min = p.getLocation();
@@ -211,15 +203,15 @@ public class SchemEditorMenu implements InventoryProvider {
         } else {
             //p.sendBlockChange(style.getPos1(p.getWorld().getName()), Material.EMERALD_BLOCK.createBlockData());
             contents.set(4, 1, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-                .name("§7нижняя точка кубоида.")
+                .name("§7Нижняя точка кубоида")
                 .lore("§7")
-                .lore("§7ЛКМ-тп")
-                .lore("§7ПКМ-установить")
+                .lore("§7ЛКМ - установить")
+                .lore("§7ПКМ - тп")
                 .build(), e -> {
-                if (e.isLeftClick()) {
+                if (e.isRightClick()) {
                     p.teleport(sm.min);
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1, 5);
-                } else if (e.isRightClick()) {
+                } else if (e.isLeftClick()) {
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                     //p.sendBlockChange(sm.pos1, Material.AIR.createBlockData());
                     sm.min = p.getLocation();

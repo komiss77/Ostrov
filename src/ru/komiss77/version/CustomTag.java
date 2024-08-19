@@ -39,13 +39,13 @@ public class CustomTag {
     private boolean visible = true;
 
 
-    private static final EntityDataAccessor<?> DATA_POSE, DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
+    private static final EntityDataAccessor<?> DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
         DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
 
     //      new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), glowingByte
     //https://wiki.vg/Entity_metadata#Display
     static {
-        DATA_POSE = new EntityDataAccessor<>(6, EntityDataSerializers.POSE);
+//        DATA_POSE = new EntityDataAccessor<>(6, EntityDataSerializers.POSE);
         DATA_BILLBOARD_RENDER_CONSTRAINTS_ID = new EntityDataAccessor<>(15, EntityDataSerializers.BYTE);
         DATA_TEXT_ID = new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT);
         DATA_LINE_WIDTH_ID = Display.TextDisplay.DATA_LINE_WIDTH_ID;

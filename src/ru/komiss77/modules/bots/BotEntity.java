@@ -139,7 +139,30 @@ public class BotEntity extends ServerPlayer implements Botter {
     private int lastAct = NO_USE;
     private EquipmentSlot lastHand = EquipmentSlot.HAND;
 
-    public void use(final LivingEntity mb, final int actID, final EquipmentSlot hand, final boolean use) {
+    public void startUse(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
+        final byte data;
+        switch (hand) {
+            case HAND:
+                data = USE_MAIN;
+                break;
+            case OFF_HAND:
+                data = USE_OFF;
+                break;
+            default:
+                Ostrov.log_warn("BotEntity tried using non-hand");
+                return;
+        }
+        if (hand != lastHand || lastAct != actID || lastUseTick == NO_USE) {
+            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, data, true);
+            lastUseTick = mb.getTicksLived();
+            lastHand = hand;
+            lastAct = actID;
+            Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
+                List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
+        }
+    }
+
+    public void stopUse(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
         final byte data;
         switch (hand) {
             case HAND:
@@ -153,18 +176,11 @@ public class BotEntity extends ServerPlayer implements Botter {
                 return;
         }
         if (hand == lastHand && lastAct == actID && lastUseTick != NO_USE) {
-            if (use) return;
             lastUseTick = NO_USE;
             this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, USE_STOP, true);
-        } else {
-            if (!use) return;
-            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, data, true);
-            lastUseTick = mb.getTicksLived();
-            lastHand = hand;
-            lastAct = actID;
+            Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
+                List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
         }
-        Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
-            List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
     }
 
     public int useTicks(final LivingEntity mb) {
@@ -194,7 +210,8 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     public void bashed(final LivingEntity mb, final boolean set) {
-        use(mb, Botter.BASH_ACT, lastHand, set);
+        if (set) startUse(mb, Botter.BASH_ACT, lastHand);
+        else stopUse(mb, Botter.BASH_ACT, lastHand);
     }
 
     public boolean isParrying(final LivingEntity mb) {
@@ -205,9 +222,9 @@ public class BotEntity extends ServerPlayer implements Botter {
         if (set) {
             world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
             world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
-            use(mb, Botter.PARRY_ACT, EquipmentSlot.HAND, true);
+            startUse(mb, Botter.PARRY_ACT, EquipmentSlot.HAND);
         } else {
-            use(mb, Botter.PARRY_ACT, EquipmentSlot.HAND, false);
+            stopUse(mb, Botter.PARRY_ACT, EquipmentSlot.HAND);
         }
     }
 
@@ -233,12 +250,12 @@ public class BotEntity extends ServerPlayer implements Botter {
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 3));// VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
-            use(from, lastAct, EquipmentSlot.OFF_HAND, false);
+            stopUse(from, lastAct, EquipmentSlot.OFF_HAND);
         } else {
             from.attack(to);
             world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 0));//VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
-            use(from, lastAct, EquipmentSlot.HAND, false);
+            stopUse(from, lastAct, EquipmentSlot.HAND);
         }
     }
 
@@ -349,7 +366,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
-            use(mb, lastAct, EquipmentSlot.HAND, false);
+            stopUse(mb, lastAct, EquipmentSlot.HAND);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
@@ -359,7 +376,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(slot, it);
-            if (slot.isHand()) use(mb, lastAct, slot, false);
+            if (slot.isHand()) stopUse(mb, lastAct, slot);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
@@ -369,8 +386,8 @@ public class BotEntity extends ServerPlayer implements Botter {
         if (slot == getHandSlot()) {
             final LivingEntity mb = getEntity();
             if (mb != null) {
-                use(mb, lastAct, EquipmentSlot.HAND, false);
                 mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
+                stopUse(mb, lastAct, EquipmentSlot.HAND);
             }
             Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         }

@@ -1,27 +1,20 @@
 package ru.komiss77.listener;
 
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.bukkit.Material;
+import org.bukkit.block.BlockType;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.bots.AfkExt;
-import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.LocUtil;
 
 public class TestLst implements Listener {
 
@@ -45,9 +38,19 @@ public class TestLst implements Listener {
 
                 if (p.isSneaking()) {
                     op.tag(true);
-                    op.tag("dddd", "dddf");
+                    op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
                     op.tag(false);
+
+                    final BlockData bd = BlockType.GOLD_BLOCK.createBlockData();
+                    LocUtil.traceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, b -> {
+                        p.sendBlockChange(b.getLocation(), bd);
+                        return b.getType() != Material.AIR;
+                    });
+                    /*final BlockData bd = BlockType.YELLOW_CARPET.createBlockData();
+                    for (final XYZ lc : AStarFinder.xyzPath(new WXYZ(p.getTargetBlockExact(100)), new WXYZ(p.getLocation()), 10000, true)) {
+                        p.sendBlockChange(lc.getCenterLoc(p.getWorld()), bd);
+                    }*/
                 }
 
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -56,21 +59,19 @@ public class TestLst implements Listener {
                 //p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
-//p.sendMessage("new AdvancementManager");
-                    //Nms.sendFakeEquip(p, 5, new ItemStack(e.getClickedBlock().getType()));
 
-                    final MiniMessage mm = MiniMessage.builder().tags(
+                    /*final MiniMessage mm = MiniMessage.builder().tags(
                         TagResolver.builder()
                             .resolver(StandardTags.defaults())
                             .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))
                             .build()).build();
 
                     p.sendMessage(mm.deserialize("<red>I am the storm that is <amber>approaching"));
-                    p.sendMessage(mm.deserialize("<red>I am the storm that is <gradient:red:amber>approaching"));
+                    p.sendMessage(mm.deserialize("<red>I am the storm that is <gradient:red:amber>approaching"));*/
 
                 } else {
 
-                    if (bt == null) {
+                    /*if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));
                         bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
                     }
@@ -90,7 +91,7 @@ public class TestLst implements Listener {
                         bt.item(EquipmentSlot.HAND, new ItemStack(Material.BOW));
                     }, 200);
 
-                    p.sendMessage("block");
+                    p.sendMessage("block");*/
                 }
 
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {

@@ -116,10 +116,10 @@ public class TCUtil {
         clrIx.put(Color.fromRGB(CustomTextColor.INDIGO.value()), CustomTextColor.INDIGO);
         chrIx.put('о', CustomTextColor.OLIVE);//peace
         clrIx.put(Color.OLIVE, CustomTextColor.OLIVE);
-        chrIx.put('р', CustomTextColor.ORCHID);//love
-        clrIx.put(Color.fromRGB(CustomTextColor.ORCHID.value()), CustomTextColor.ORCHID);
-        chrIx.put('н', CustomTextColor.SKYBLUE);//calm
-        clrIx.put(Color.fromRGB(CustomTextColor.SKYBLUE.value()), CustomTextColor.SKYBLUE);
+        chrIx.put('р', CustomTextColor.PINK);//love
+        clrIx.put(Color.fromRGB(CustomTextColor.PINK.value()), CustomTextColor.PINK);
+        chrIx.put('н', CustomTextColor.SKY);//calm
+        clrIx.put(Color.fromRGB(CustomTextColor.SKY.value()), CustomTextColor.SKY);
         chrIx.put('ч', CustomTextColor.STALE);//future
         clrIx.put(Color.fromRGB(CustomTextColor.STALE.value()), CustomTextColor.STALE);
         chrIx.put('м', CustomTextColor.MITHRIL);//durability
@@ -143,7 +143,7 @@ public class TCUtil {
                 .resolver(TagResolver.resolver("maroon", Tag.styling(TextColor.color(0xBB2244))))//Кардинный
                 .resolver(TagResolver.resolver("indigo", Tag.styling(TextColor.color(0xAAAADD))))//Сиреневый
                 .resolver(TagResolver.resolver("olive", Tag.styling(TextColor.color(0xBBDDAA))))//Оливковый
-                .resolver(TagResolver.resolver("orchid", Tag.styling(TextColor.color(0xDDAABB))))//Малиновый
+                .resolver(TagResolver.resolver("pink", Tag.styling(TextColor.color(0xDDAABB))))//Малиновый
                 .resolver(TagResolver.resolver("sky", Tag.styling(TextColor.color(0xAADDDD))))//Небесный
                 .resolver(TagResolver.resolver("stale", Tag.styling(TextColor.color(0x446666))))//Черствый
                 .resolver(TagResolver.resolver("mithril", Tag.styling(TextColor.color(0xB0C0C0))))//Мифриловый

@@ -17,8 +17,8 @@ public class CustomTextColor implements TextColor {
     public static final CustomTextColor CARDINAL = new CustomTextColor("cardinal", 0xBB2244);//Кардинный
     public static final CustomTextColor INDIGO = new CustomTextColor("indigo", 0xAAAADD);//Сиреневый
     public static final CustomTextColor OLIVE = new CustomTextColor("olive", 0xBBDDAA);//Оливковый
-    public static final CustomTextColor ORCHID = new CustomTextColor("orchid", 0xDDAABB);//Малиновый
-    public static final CustomTextColor SKYBLUE = new CustomTextColor("skyblue", 0xAADDDD);//Небесный
+    public static final CustomTextColor PINK = new CustomTextColor("pink", 0xDDAABB);//Малиновый
+    public static final CustomTextColor SKY = new CustomTextColor("sky", 0xAADDDD);//Небесный
     public static final CustomTextColor STALE = new CustomTextColor("stale", 0x446666);//Черствый
     public static final CustomTextColor MITHRIL = new CustomTextColor("mithril", 0xB0C0C0);//Мифриловый
 

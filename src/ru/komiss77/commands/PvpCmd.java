@@ -368,14 +368,14 @@ public final class PvpCmd implements OCommand, Listener {
                                                 }
                                             } else if (ItemClass.MELEE.has(ofh.getType())
                                                 && ItemClass.MELEE.has(hnd.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
-                                                dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
+                                                dbe.startUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                 Ostrov.sync(() -> {
                                                     final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                     final LivingEntity ndp = dbe.getEntity();
                                                     if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
                                                         target.setNoDamageTicks(-1);
                                                         dbe.attack(dle, target, true);
-                                                        dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
+                                                        dbe.stopUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                     }
                                                 }, DHIT_CLD);
                                             }
@@ -468,14 +468,14 @@ public final class PvpCmd implements OCommand, Listener {
                                                     }
                                                 } else if (ItemClass.MELEE.has(ofh.getType())
                                                     && ItemClass.MELEE.has(hnd.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
-                                                    dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
+                                                    dbe.startUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                     Ostrov.sync(() -> {
                                                         final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                         final LivingEntity ndp = dbe.getEntity();
                                                         if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
                                                             target.setNoDamageTicks(-1);
                                                             dbe.attack(dle, target, true);
-                                                            dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
+                                                            dbe.stopUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                         }
                                                     }, DHIT_CLD);
                                                 }
@@ -536,14 +536,14 @@ public final class PvpCmd implements OCommand, Listener {
                                                 && dle.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
                                                 final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                                 if (ofh != null && ItemClass.MELEE.has(ofh.getType()) && dbe.useTicks(dle, Botter.DHIT_ACT) == 0) {
-                                                    dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, true);
+                                                    dbe.startUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                     Ostrov.sync(() -> {
                                                         final ItemStack noh = dbe.item(EquipmentSlot.OFF_HAND);
                                                         final LivingEntity ndp = dbe.getEntity();
                                                         if (ndp != null && target.isValid() && noh != null && noh.equals(ofh)) {
                                                             target.setNoDamageTicks(-1);
                                                             dbe.attack(dle, target, true);
-                                                            dbe.use(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND, false);
+                                                            dbe.stopUse(dle, Botter.DHIT_ACT, EquipmentSlot.OFF_HAND);
                                                         }
                                                     }, DHIT_CLD);
                                                 }

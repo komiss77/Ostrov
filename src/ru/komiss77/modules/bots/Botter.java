@@ -41,7 +41,9 @@ public interface Botter {
 
     Extent extent();
 
-    void use(final LivingEntity mb, final int actID, final EquipmentSlot hand, final boolean use);
+    void startUse(final LivingEntity mb, final int actID, final EquipmentSlot hand);
+
+    void stopUse(final LivingEntity mb, final int actID, final EquipmentSlot hand);
 
     int useTicks(final LivingEntity mb);
 

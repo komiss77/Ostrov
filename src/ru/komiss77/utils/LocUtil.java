@@ -423,7 +423,8 @@ public class LocUtil {
             }
 
 //            w.spawnParticle(Particle.FLAME, org.clone().add(sideDistX, sideDistY, sideDistZ), 2, 0d, 0d, 0d, 0d);
-            if (done.test(w.getBlockAt(mapX, mapY, mapZ)) || (mapX == finX && mapY == finY && mapZ == finZ)) return;
+            if (done.test(w.getBlockAt(mapX, mapY, mapZ)) ||
+                ((mapX - finX) * stepX > 0 || (mapY - finY) * stepY > 0 || (mapZ - finZ) * stepZ > 0)) return;
         }
     }
 

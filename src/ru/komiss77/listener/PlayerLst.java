@@ -157,6 +157,12 @@ public class PlayerLst implements Listener {
 
     //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void toggleFly(final PlayerToggleFlightEvent e) {
+        final Player p = e.getPlayer();
+        if (!e.isFlying()) return;
+        PM.getOplayer(p).tag.visible(true);
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void toggleSneak(final PlayerToggleSneakEvent e) {

@@ -1,9 +1,9 @@
 package ru.komiss77.modules.player.profile;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -30,56 +30,56 @@ public enum Section {
 
     МИНИИГРЫ(
             45,
-            "§b|с§lВыбор Игры",
-            "§b|с§lGame Selection",
+            "<gradient:aqua:apple>§lВыбор Игры",
+            "<gradient:aqua:apple>§lGame Selection",
             "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
             Material.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     РЕЖИМЫ(
             45,
-            "§b|с§lВыбор Игры",
-            "§b|с§lGame Selection",
+            "<gradient:aqua:apple>§lВыбор Игры",
+            "<gradient:aqua:apple>§lGame Selection",
             "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
             Material.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     ВОЗМОЖНОСТИ(
             46,
-            "§с|3§lВозможности",
-            "§с|3§lAbilities",
+            "<gradient:apple:dark_aqua>§lВозможности",
+            "<gradient:apple:dark_aqua>§lAbilities",
             "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
             Material.LIME_STAINED_GLASS_PANE
     ),
 
     ПРОФИЛЬ(
             47,
-            "§3|d§lПрофиль",
-            "§3|d§lProfile",
+            "<gradient:dark_aqua:light_purple>§lПрофиль",
+            "<gradient:dark_aqua:light_purple>§lProfile",
             "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1",
             Material.GRAY_STAINED_GLASS_PANE
     ),
 
     СТАТИСТИКА(
             48,
-            "§d|9§lСтатистика",
-            "§d|9§lStatistics",
+            "<gradient:light_purple:blue>§lСтатистика",
+            "<gradient:light_purple:blue>§lStatistics",
             "5b4ddb8abed660825b68b922e22a9558c2f208938bd438eaeaccdc3941",
             Material.PURPLE_STAINED_GLASS_PANE
     ),
 
     ДОСТИЖЕНИЯ(
             49,
-            "§9|н§lДостижения",
-            "§9|н§lAchievements",
+            "<gradient:blue:sky>§lДостижения",
+            "<gradient:blue:sky>§lAchievements",
             "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f",
             Material.BROWN_STAINED_GLASS_PANE
     ),
 
     МИССИИ(
             50,
-            "§н|6§lМиссии",
-            "§н|6§lMissions",
+            "<gradient:sky:gold>§lМиссии",
+            "<gradient:sky:gold>§lMissions",
             "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
             Material.ORANGE_STAINED_GLASS_PANE
     ),
@@ -94,16 +94,16 @@ public enum Section {
 
     КОМАНДА(
             52,
-            "§6|c§l§lКоманда",
-            "§6|c§lParty",
+            "<gradient:gold:red>§lКоманда",
+            "<gradient:gold:red>§lParty",
             "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
             Material.RED_STAINED_GLASS_PANE
     ),
 
     ГРУППЫ(
             53,
-            "§c|ф§lПривилегии",
-            "§c|ф§lDonations",
+            "<gradient:red:indigo>§lПривилегии",
+            "<gradient:red:indigo>§lDonations",
             "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
             Material.YELLOW_STAINED_GLASS_PANE
     ),
