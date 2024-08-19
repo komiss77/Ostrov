@@ -22,10 +22,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.RestartWarningEvent;
-import ru.komiss77.hook.DynmapHook;
-import ru.komiss77.hook.MatrixLst;
-import ru.komiss77.hook.TradeSystemHook;
-import ru.komiss77.hook.WGhook;
+import ru.komiss77.hook.*;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.world.Land;
 import ru.komiss77.modules.world.WorldManager;
@@ -99,9 +96,9 @@ public class ServerLst implements Listener {
 
             case "CrazyAdvancementsAPI" -> Ostrov.advance = true;
 
-//           case "HolographicDisplays" -> {
-//                Ostrov.hdHolo = true;
-//            }	
+            case "ProCosmetics" -> {
+                ProCosmeticsHook.hook(e.getPlugin());
+            }
 
             case "dynmap" -> DynmapHook.hook(e.getPlugin());
 

@@ -28,20 +28,22 @@ public class RewardCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
+
             .then(Resolver.string(player).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                        return sb.buildFuture();
-                    }
-                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                    return sb.buildFuture();
-                })
-                .then(Resolver.string(item).suggests((cntx, sb) -> {
                         if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                             return sb.buildFuture();
                         }
-                        Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                        Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                         return sb.buildFuture();
                     })
+
+                    .then(Resolver.string(item).suggests((cntx, sb) -> {
+                                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                                    return sb.buildFuture();
+                                }
+                                Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                                return sb.buildFuture();
+                            })
                     .then(Resolver.string(op).suggests((cntx, sb) -> {
                         if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                             return sb.buildFuture();

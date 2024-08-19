@@ -25,3 +25,19 @@ dependencies:
       load: AFTER
       required: false
       join-classpath: true
+    ProCosmetics: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true
+    dynmap: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true
+    FastAsyncWorldEdit: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true
+    WorldGuard: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true

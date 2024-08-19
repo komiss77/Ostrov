@@ -43,10 +43,11 @@ public class BossBarCmd implements OCommand {
 
                 final OfflinePlayer tgt = Bukkit
                     .getOfflinePlayer(Resolver.string(cntx, player));
+
                 if (tgt.isOp()) {
                     tgt.setOp(false);
-                    cs.sendMessage("§c" + tgt.getName() + " теперь не оператор!");
-                    Ostrov.log_warn("§e" + tgt.getName() + " теперь не оператор!");
+                    cs.sendMessage("§c" + tgt.getName() + " больше не оператор!");
+                    Ostrov.log_warn("§e" + tgt.getName() + " больше не оператор!");
                     return Command.SINGLE_SUCCESS;
                 }
 
