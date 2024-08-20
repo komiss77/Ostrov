@@ -131,6 +131,8 @@ public interface Botter {
 
     void bug();
 
+    int botId();
+
     /*@Override
     int hashCode();
 

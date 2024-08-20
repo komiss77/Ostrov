@@ -4,13 +4,14 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
@@ -105,12 +106,11 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             //https://github.com/ds58/Panilla
             //PacketPlayInWindowClick = ServerboundContainerClickPacket
             //PacketPlayInSetCreativeSlot = ServerboundSetCreativeModeSlotPacket
-            net.minecraft.world.item.ItemStack is = null;
-            int slot;
+            net.minecraft.world.item.ItemStack is;
 
             if (packet instanceof ServerboundContainerClickPacket p) {
                 is = p.getCarriedItem();
-                if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.getSlotNum())) {
                         //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
                         //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
@@ -120,7 +120,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                 }
             } else if (packet instanceof ServerboundSetCreativeModeSlotPacket p) {
                 is = p.itemStack();
-                if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.slotNum())) {
                         //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
                         //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
@@ -153,19 +153,26 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
     public void write(final ChannelHandlerContext chc, final Object packet, final ChannelPromise channelPromise) throws Exception {
 
         //при интеракт отправляет обнову блока после эвента. Чтобы не делать отправку с задержкой тик, нужно подменить исход.пакет
-        if (packet instanceof ClientboundBlockUpdatePacket bup && op.hasFakeBlock) {
+        if (packet instanceof final ClientboundBlockUpdatePacket bup && op.hasFakeBlock) {
             final BlockData bd = op.fakeBlock.get(bup.getPos().asLong());
             if (bd != null) {
-                bup = new ClientboundBlockUpdatePacket(bup.getPos(), ((CraftBlockData) bd).getState());
-                super.write(chc, bup, channelPromise);
-//Ostrov.log("replace ClientboundBlockUpdatePacket ");
+                super.write(chc, new ClientboundBlockUpdatePacket(bup.getPos(), Craft.toNMS(bd)), channelPromise);
                 return;
             }
         }
 
-        //if (packet instanceof ClientboundLevelChunkPacketData lcp && op.hasFakeBlock) {
-        //  lcp.  - возможно добавить в будущем, но обработчик будет громоздкий!
-        // }
+        if (packet instanceof final ClientboundSetPassengersPacket p) {
+            final Botter bt = BotManager.getBot(p.getVehicle());
+            if (bt != null) {
+                final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeVarInt(bt.botId());//1201 buf.d(tgt.getEntityId());
+                buf.writeVarIntArray(p.getPassengers());
+                final ClientboundSetPassengersPacket mp =
+                    ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
+                super.write(chc, mp, channelPromise);
+                return;
+            }
+        }
 
         if (BotManager.enable) {
             int id = 0;
@@ -212,13 +219,12 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             //PacketPlayOutSetSlot = ClientboundContainerSetSlotPacket
             //PacketPlayOutWindowItems = ClientboundContainerSetContentPacket
             //PacketPlayOutSpawnEntity = ClientboundAddEntityPacket
-            net.minecraft.world.item.ItemStack is = null;
-            int slot;
+            net.minecraft.world.item.ItemStack is;
 
             if (packet instanceof ClientboundContainerSetSlotPacket p) {
                 if (p.getContainerId() == 0) {// check if window is not player inventory and we are ignoring non-player inventories
                     is = p.getItem();
-                    if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                    if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                         if (hacked(is, p.getSlot())) {
                             containerSetSlotItem.set(p, ItemStack.EMPTY);
                             //return;

@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.modules.world.WXYZ;
@@ -108,9 +109,10 @@ public class BotEntity extends ServerPlayer implements Botter {
         return gameProfile;
     }
 
-    /*public void rid(final int rid) {
-        this.rid = rid;
-    }*/
+    @ApiStatus.Internal
+    public int botId() {
+        return getId();
+    }
 
     public int rid() {
         return rid;
@@ -281,6 +283,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             lastHand = EquipmentSlot.HAND;
             lastUseTick = NO_USE;
             lastAct = NO_USE;
+            BotManager.botById.put(rid, this);
 //			hs.teleportAsync(to);
         } else {
             le.teleportAsync(to);

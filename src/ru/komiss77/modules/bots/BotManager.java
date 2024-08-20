@@ -17,9 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -169,6 +167,22 @@ public class BotManager implements Initiable, Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onTeleport(final EntityTeleportEvent e) {
+        if (e.getEntity() instanceof final LivingEntity le) {
+            final Botter be = botById.get(le.getEntityId());
+            if (be != null) be.telespawn(le.getLocation(), le);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onFish(final EntityMountEvent e) {
+        if (e.getEntity() instanceof final LivingEntity le) {
+            final Botter be = botById.get(le.getEntityId());
+            if (be != null) be.telespawn(le.getLocation(), le);
+        }
+    }
+
     public static Botter createBot(final String name, final World w, final Botter.Extent ext) {
         if (!enable) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
@@ -232,7 +246,7 @@ public class BotManager implements Initiable, Listener {
 
                 final InputStreamReader tsr = new InputStreamReader(URI
                     .create("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").toURL().openStream());
-                final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).get(0));
+                final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).getFirst());
                 skin.put(name, new String[]{(String) ppt.get("value"), (String) ppt.get("signature")});
             } catch (NullPointerException | IOException | ParseException e) {
             }

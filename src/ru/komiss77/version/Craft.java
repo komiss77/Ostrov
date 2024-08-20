@@ -54,6 +54,10 @@ public class Craft {
         return ((CraftEntity) ent).getHandle();
     }
 
+    public static net.minecraft.world.level.block.state.BlockState toNMS(final BlockData bd) {
+        return ((CraftBlockData) bd).getState();
+    }
+
     public static BlockData fromNMS(final BlockState bs) {
         return CraftBlockData.fromData(bs);
     }
