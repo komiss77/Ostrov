@@ -85,13 +85,13 @@ public class LocUtil {
 
             if (split.length >= 5) {
                 try {
-                    //if (Ostrov.isInteger(split[4]) ) {
+                    //if (ApiOstrov.isInteger(split[4]) ) {
                     loc.setYaw(Integer.parseInt(split[4]));
                     //} else {
                     //    Ostrov.log_warn("Декодер локации : yaw - не числo : >"+loc_string+"<");
                     //}
                     if (split.length == 6) {
-                        //if (Ostrov.isInteger(split[5]) ) {
+                        //if (ApiOstrov.isInteger(split[5]) ) {
                         loc.setPitch(Integer.parseInt(split[5]));
                         //} else {
                         //    Ostrov.log_warn("Декодер локации : pitch - не числo : >"+loc_string+"<");

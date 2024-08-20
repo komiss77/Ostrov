@@ -1,9 +1,9 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -816,7 +816,7 @@ public class ItemUtil {
             mat = Material.matchMaterial(s0[0].trim());
             if (mat != null) {
                 builder.type(mat);
-                if (Ostrov.isInteger(s0[1].trim())) {
+                if (ApiOstrov.isInteger(s0[1].trim())) {
                     builder.amount(Integer.parseInt(s0[1].trim()));
                 } else {
                     Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, неправильное колличество §f" + s0[1]);

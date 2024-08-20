@@ -164,7 +164,7 @@ public class PassportCmd implements OCommand {
                 case KARMA -> value = (int_value < 0 ? "§4" : (int_value > 0 ? "§2" : "§1")) + int_value;
 
                 case BIRTH -> {
-                    if (value.length() == 10 && Ostrov.isInteger(value.substring(6, 10))) {
+                    if (value.length() == 10 && ApiOstrov.isInteger(value.substring(6, 10))) {
                         value = value + " (" + (Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(value.substring(6, 10))) + ")";
                     }
                 }

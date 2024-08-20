@@ -184,7 +184,7 @@ public class ServerCmd implements OCommand {
     }
 
     private int trySend(final Player pl, final String serv) {
-        return trySend(pl, serv, null);
+        return trySend(pl, serv, "");
     }
 
     private int trySend(final Player pl, final String serv, final String arena) {

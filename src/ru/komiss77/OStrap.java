@@ -12,6 +12,7 @@ import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.event.RegistryEvents;
 import io.papermc.paper.registry.event.WritableRegistry;
+import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import net.kyori.adventure.key.Key;
@@ -46,7 +47,8 @@ public class OStrap implements PluginBootstrap {
                     rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
                         b -> b.description(TCUtil.form(ce.name()))
                             .primaryItems(ce.isCommon() ? ce.targets().regSet() : RegistrySet.keySet(RegistryKey.ITEM))
-                            .supportedItems(ce.isCommon() ? RegistrySet.keySet(RegistryKey.ITEM) : ce.targets().regSet())
+                            .supportedItems(ce.isCommon() ? RegistrySet.keySet(ItemTypeTagKeys.ENCHANTABLE_DURABILITY
+                                .registryKey()) : ce.targets().regSet())
                             .anvilCost(ce.anvilCost())
                             .maxLevel(ce.maxLevel())
                             .weight(ce.weight())
