@@ -7,15 +7,16 @@ import java.util.Set;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.set.RegistryKeySet;
+import io.papermc.paper.registry.set.RegistrySet;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.items.ItemTypes;
 
 
 public abstract class CustomEnchant implements Keyed {
@@ -211,7 +212,7 @@ public abstract class CustomEnchant implements Keyed {
 
     public abstract Set<EquipmentSlotGroup> slots();
 
-    public abstract ItemTypes targets();
+    public abstract RegistryKeySet<ItemType> targets();
 
     public abstract RegistryKeySet<Enchantment> conflicts();
 
@@ -233,7 +234,7 @@ public abstract class CustomEnchant implements Keyed {
 
     public abstract int weight();
 
-    public abstract boolean isCommon();
+    public abstract boolean isInTable();
 
     public Enchantment getEnch() {
         return OStrap.retrieve(RegistryKey.ENCHANTMENT, getKey());
@@ -424,8 +425,8 @@ public abstract class CustomEnchant implements Keyed {
         }
 
         @Override
-        public ItemTypes targets() {
-            return ItemTypes.EMPTY;
+        public RegistryKeySet<ItemType> targets() {
+            return RegistrySet.keySet(RegistryKey.ITEM);
         }
 
         @Override
@@ -449,7 +450,7 @@ public abstract class CustomEnchant implements Keyed {
         }
 
         @Override
-        public boolean isCommon() {
+        public boolean isInTable() {
             return false;
         }
 

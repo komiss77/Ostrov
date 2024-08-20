@@ -12,7 +12,6 @@ import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.event.RegistryEvents;
 import io.papermc.paper.registry.event.WritableRegistry;
-import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import net.kyori.adventure.key.Key;
@@ -20,6 +19,7 @@ import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +31,8 @@ import ru.komiss77.utils.TCUtil;
 public class OStrap implements PluginBootstrap {
 
     public static final String space = "ostrov";
+    private static final RegistryKeySet<ItemType>
+        noIts = RegistrySet.keySet(RegistryKey.ITEM);
 
     public static NamespacedKey key(final String key) {
         return new NamespacedKey(space, key.toLowerCase(Locale.ROOT));
@@ -46,9 +48,8 @@ public class OStrap implements PluginBootstrap {
                 for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
                     rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
                         b -> b.description(TCUtil.form(ce.name()))
-                            .primaryItems(ce.isCommon() ? ce.targets().regSet() : RegistrySet.keySet(RegistryKey.ITEM))
-                            .supportedItems(ce.isCommon() ? RegistrySet.keySet(ItemTypeTagKeys.ENCHANTABLE_DURABILITY
-                                .registryKey()) : ce.targets().regSet())
+                            .primaryItems(ce.isInTable() ? ce.targets() : noIts)
+                            .supportedItems(ce.isInTable() ? noIts : ce.targets())
                             .anvilCost(ce.anvilCost())
                             .maxLevel(ce.maxLevel())
                             .weight(ce.weight())
