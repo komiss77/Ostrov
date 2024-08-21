@@ -4,13 +4,16 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -25,27 +28,27 @@ import ru.komiss77.utils.inventory.InputButton;
 public class PlayerPacketHandler extends ChannelDuplexHandler {
 
     private final Oplayer op;
-    public static Field interactIdField; //ServerboundInteractPacket - подмена ид для бота
+//    public static Field interactIdField; //ServerboundInteractPacket - подмена ид для бота
     public static Field moveIdField; //ClientboundMoveEntityPacket - получение ид бота
-    public static Field containerClickItem; //ServerboundContainerClickPacket - подмена входящего хакнутого предмета
-    public static Field creativeSlotItem; //ServerboundSetCreativeModeSlotPacket - подмена входящего хакнутого предмета
-    public static Field containerSetSlotItem; //ClientboundContainerSetSlotPacket - подмена исходящего хакнутого предмета
+//    public static Field containerClickItem; //ServerboundContainerClickPacket - подмена входящего хакнутого предмета
+//    public static Field creativeSlotItem; //ServerboundSetCreativeModeSlotPacket - подмена входящего хакнутого предмета
+//    public static Field containerSetSlotItem; //ClientboundContainerSetSlotPacket - подмена исходящего хакнутого предмета
     public static AtomicBoolean nbtCheck = new AtomicBoolean(false);
 
     static {
         try {
             //утилитка поиска номера поля - не удалять!!
             //int i=0; for (Field f : ClientboundContainerSetSlotPacket.class.getDeclaredFields()) {Ostrov.log_warn(i+"="+f.getName()); i++;}
-            interactIdField = ServerboundInteractPacket.class.getDeclaredFields()[0]; //по entityId не прокатит - на запущеном имена обфусцированны!
-            interactIdField.setAccessible(true);
+//            interactIdField = ServerboundInteractPacket.class.getDeclaredFields()[1]; //по entityId не прокатит - на запущеном имена обфусцированны!
+//            interactIdField.setAccessible(true);
             moveIdField = ClientboundMoveEntityPacket.class.getDeclaredFields()[0];
             moveIdField.setAccessible(true);
-            containerClickItem = ServerboundContainerClickPacket.class.getDeclaredFields()[6];
-            containerClickItem.setAccessible(true);
-            creativeSlotItem = ServerboundSetCreativeModeSlotPacket.class.getDeclaredFields()[1];
-            creativeSlotItem.setAccessible(true);
-            containerSetSlotItem = ClientboundContainerSetSlotPacket.class.getDeclaredFields()[5];
-            containerSetSlotItem.setAccessible(true);
+//            containerClickItem = ServerboundContainerClickPacket.class.getDeclaredFields()[8];
+//            containerClickItem.setAccessible(true);
+//            creativeSlotItem = ServerboundSetCreativeModeSlotPacket.class.getDeclaredFields()[2];
+//            creativeSlotItem.setAccessible(true);
+//            containerSetSlotItem = ClientboundContainerSetSlotPacket.class.getDeclaredFields()[5];
+//            containerSetSlotItem.setAccessible(true);
         } catch (ArrayIndexOutOfBoundsException ex) {
             Ostrov.log_err("PlayerPacketHandler getIdField : " + ex.getMessage());
             //ex.printStackTrace();
@@ -63,42 +66,42 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
         //switch по getSimpleName не прокатит - названия другие - обфусцированы!
 
         switch (packet) {
-            case final ServerboundInteractPacket ip -> {
+            case final ServerboundInteractPacket ip:
                 if (BotManager.enable) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
                     final int id = ip.getEntityId();
                     for (final Botter bot : BotManager.botById.values()) {
                         if (bot.hashCode() == id) {
-                            interactIdField.set(ip, bot.rid());
-                            break;
+                            final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                            ServerboundInteractPacket.STREAM_CODEC.encode(buf, ip);
+
+                            super.channelRead(chc, reId(buf, bot.rid()));
+                            return;
                         }
                     }
                 }  // Paper start - PlayerUseUnknownEntityEvent
-            }
-            case final ServerboundSignUpdatePacket sup -> {
-                //пакет ввода с таблички - не отдаём в сервер!
+                break;
+            case final ServerboundSignUpdatePacket sup://пакет ввода с таблички - не отдаём в сервер!
                 final Player p = op.getPlayer();
                 if (p != null && PlayerInput.inputData.containsKey(p)) {  // в паспорте final String[] split = msg.split(" ");
                     final String result = sup.getLines()[0] + " " + sup.getLines()[1] + " " + sup.getLines()[2] + " " + sup.getLines()[3];
                     Ostrov.sync(() -> PlayerInput.onInput(p, InputButton.InputType.SIGN, result), 0);
                     return;
                 }
-            }
-            case final ServerboundPlayerActionPacket pa -> {
-                //блокировка ломания фэйкогого блока
+                break;
+            case final ServerboundPlayerActionPacket pa://блокировка ломания фэйкогого блока
                 if (pa.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
                     if (op.hasFakeBlock && op.fakeBlock.containsKey(pa.getPos().asLong())) {
                         return;
                     }
                 }
-            }
-            case final ServerboundUseItemOnPacket uip -> {
-                //блокировка клика на фэйковый блок
+                break;
+            case final ServerboundUseItemOnPacket uip://блокировка клика на фэйковый блок
                 if (op.hasFakeBlock && op.fakeBlock.containsKey(uip.getHitResult().getBlockPos().asLong())) {
                     return;
                 }
-            }
-            default -> {
-            }
+                break;
+            default:
+                break;
         }
 
 
@@ -112,20 +115,19 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                 is = p.getCarriedItem();
                 if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.getSlotNum())) {
-                        //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
-                        //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
-                        containerClickItem.set(p, ItemStack.EMPTY);
-                        //return;
+//                        containerClickItem.set(p, ItemStack.EMPTY);
+                        super.channelRead(chc, new ServerboundContainerClickPacket(p.getContainerId(), p.getStateId(),
+                            p.getSlotNum(), p.getButtonNum(), p.getClickType(), ItemStack.EMPTY, p.getChangedSlots()));
+                        return;
                     }
                 }
             } else if (packet instanceof ServerboundSetCreativeModeSlotPacket p) {
                 is = p.itemStack();
                 if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.slotNum())) {
-                        //cброс предмета = PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(entityPlayer.bR.j, entityPlayer.bR.k(), slot, new ItemStack(Blocks.a));
-                        //ClientboundContainerSetSlotPacket packet = new ClientboundContainerSetSlotPacket();
-                        creativeSlotItem.set(p, ItemStack.EMPTY);
-                        //return;
+//                        creativeSlotItem.set(p, ItemStack.EMPTY);
+                        super.channelRead(chc, new ServerboundSetCreativeModeSlotPacket(p.slotNum(), ItemStack.EMPTY));
+                        return;
                     }
                 }
             }
@@ -165,7 +167,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             final Botter bt = BotManager.getBot(p.getVehicle());
             if (bt != null) {
                 final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                buf.writeVarInt(bt.botId());//1201 buf.d(tgt.getEntityId());
+                buf.writeVarInt(bt.hashCode());
                 buf.writeVarIntArray(p.getPassengers());
                 final ClientboundSetPassengersPacket mp =
                     ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
@@ -226,8 +228,10 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                     is = p.getItem();
                     if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                         if (hacked(is, p.getSlot())) {
-                            containerSetSlotItem.set(p, ItemStack.EMPTY);
-                            //return;
+//                            containerSetSlotItem.set(p, ItemStack.EMPTY);
+                            super.write(chc, new ClientboundContainerSetSlotPacket(p.getContainerId(),
+                                p.getStateId(), p.getSlot(), ItemStack.EMPTY), channelPromise);
+                            return;
                         }
                     }
                 }
@@ -255,6 +259,114 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
         }
 
         super.write(chc, packet, channelPromise);
+    }
+
+    private static ServerboundInteractPacket reId(final FriendlyByteBuf buf, final int id) {
+        final FriendlyByteBuf reBuf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.readVarInt();
+        reBuf.writeVarInt(id);
+        final ActionType atp = buf.readEnum(ActionType.class);
+        reBuf.writeEnum(atp);
+        final Action action = atp.reader.apply(buf);
+        action.write(reBuf);
+        reBuf.writeBoolean(buf.readBoolean());
+        return ServerboundInteractPacket.STREAM_CODEC.decode(reBuf);
+    }
+
+    interface Action {
+        ActionType getType();
+
+        void dispatch(ServerboundInteractPacket.Handler handler);
+
+        void write(FriendlyByteBuf buf);
+    }
+
+    enum ActionType {
+        INTERACT(InteractionAction::new),
+        ATTACK(buf -> ATTACK_ACTION),
+        INTERACT_AT(InteractionAtLocationAction::new);
+
+        final Function<FriendlyByteBuf, Action> reader;
+
+        ActionType(final Function<FriendlyByteBuf, Action> handlerGetter) {
+            this.reader = handlerGetter;
+        }
+    }
+
+    static final Action ATTACK_ACTION = new Action() {
+        @Override
+        public ActionType getType() {
+            return ActionType.ATTACK;
+        }
+
+        @Override
+        public void dispatch(ServerboundInteractPacket.Handler handler) {
+            handler.onAttack();
+        }
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+        }
+    };
+
+    static class InteractionAction implements Action {
+        private final InteractionHand hand;
+
+        InteractionAction(InteractionHand hand) {
+            this.hand = hand;
+        }
+
+        private InteractionAction(FriendlyByteBuf buf) {
+            this.hand = buf.readEnum(InteractionHand.class);
+        }
+
+        @Override
+        public ActionType getType() {
+            return ActionType.INTERACT;
+        }
+
+        @Override
+        public void dispatch(ServerboundInteractPacket.Handler handler) {
+            handler.onInteraction(this.hand);
+        }
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            buf.writeEnum(this.hand);
+        }
+    }
+
+    static class InteractionAtLocationAction implements Action {
+        private final InteractionHand hand;
+        private final Vec3 location;
+
+        InteractionAtLocationAction(InteractionHand hand, Vec3 pos) {
+            this.hand = hand;
+            this.location = pos;
+        }
+
+        private InteractionAtLocationAction(FriendlyByteBuf buf) {
+            this.location = new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat());
+            this.hand = buf.readEnum(InteractionHand.class);
+        }
+
+        @Override
+        public ActionType getType() {
+            return ActionType.INTERACT_AT;
+        }
+
+        @Override
+        public void dispatch(ServerboundInteractPacket.Handler handler) {
+            handler.onInteraction(this.hand, this.location);
+        }
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            buf.writeFloat((float)this.location.x);
+            buf.writeFloat((float)this.location.y);
+            buf.writeFloat((float)this.location.z);
+            buf.writeEnum(this.hand);
+        }
     }
 }
 

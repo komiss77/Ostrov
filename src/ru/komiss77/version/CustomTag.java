@@ -152,12 +152,10 @@ public class CustomTag {
         final ClientboundSetEntityDataPacket syncDataPacket = syncPacket();
 
         final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeVarInt(tgt.getEntityId());//1201 buf.d(tgt.getEntityId());
+        buf.writeVarInt(tgt.getEntityId());
         buf.writeVarIntArray(idArray);
-        final ClientboundSetPassengersPacket mountPacket = ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
-//        final TagPassengerPacket mountPacket = new TagPassengerPacket(Craft.toNMS(tgt), tagEntityId);
-
-
+        final ClientboundSetPassengersPacket mountPacket =
+            ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
 
         return new ClientboundBundlePacket(
             List.of(spawnPacket, initialCreatePacket, syncDataPacket, mountPacket)

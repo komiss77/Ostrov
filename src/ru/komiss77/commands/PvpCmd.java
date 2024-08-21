@@ -24,7 +24,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -672,11 +671,13 @@ public final class PvpCmd implements OCommand, Listener {
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
                 public void onIntr(final PlayerInteractEvent e) {
                     final InventoryView iv = e.getPlayer().getOpenInventory();
-                    if (iv.getType() == InventoryType.SHULKER_BOX) {
-                        e.setCancelled(true);
-                        e.setUseInteractedBlock(Result.DENY);
-                        e.setUseItemInHand(Result.DENY);
-                        return;
+                    switch (iv.getType()) {
+                        default:
+                            e.setCancelled(true);
+                            e.setUseInteractedBlock(Result.DENY);
+                            e.setUseItemInHand(Result.DENY);
+                            return;
+                        case CRAFTING, CREATIVE:
                     }
 
                     switch (e.getAction()) {

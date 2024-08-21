@@ -3,9 +3,9 @@ package ru.komiss77.modules.items;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bukkit.Material;
 
+@Deprecated
 public class ItemClass {
 
     protected static final Map<String, ItemClass> VALUES = new HashMap<>();
