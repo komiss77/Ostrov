@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -8,11 +9,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.*;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
+import ru.komiss77.Timer;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.ViewPerm;
 import ru.komiss77.commands.tools.OCmdBuilder;
@@ -22,8 +25,6 @@ import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
-import ru.komiss77.modules.player.profile.GameMenu;
-import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.player.profile.TPA;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
@@ -346,7 +347,7 @@ public class CMD {
                     if (WarpManager.exist("spawn")) {
                         DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
                     } else {
-                        DelayTeleport.tp(p, Bukkit.getWorlds().get(0).getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                        DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
                     }
                 } else {
                     p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
@@ -361,15 +362,10 @@ public class CMD {
                 }
                 if (Cfg.back_command) {
                     if (p.hasPermission("ostrov.back")) {
-                        Location b1 = p.getLocation();
-                        //if ( ! ApiOstrov.isLocationSave(p, op.last_death )) {
-                        //    p.sendMessage( "§cТелепорт в место гибели слишком опасен!"); 
-                        //    return false;
-                        //} else {
-                        DelayTeleport.tp(p, op.last_death, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
-                        op.last_death = b1;//PM.OP_Set_back_location(p.name(), b1);
-                        //}
-                    } else p.sendMessage("§c" + Lang.t(p, "У Вас нет пава ostrov.back !"));
+                        final Location bl = Optional.of(p.getLastDeathLocation()).orElseGet(
+                            () -> Optional.of(p.getRespawnLocation()).orElseGet(() -> p.getWorld().getSpawnLocation()));
+                        DelayTeleport.tp(p, bl, 3, Lang.t(p, "Телепортируем тебя на предыдущую позицию"), true, true, DyeColor.BROWN);
+                    } else p.sendMessage("§c" + Lang.t(p, "У тебя нет пава ostrov.back!"));
                 } else p.sendMessage("§c" + Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
                 break;
 

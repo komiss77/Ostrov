@@ -1,36 +1,29 @@
 package ru.komiss77.modules.player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
-import org.bukkit.Sound;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.builder.BuilderCmd;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
@@ -349,7 +342,7 @@ public class PM {
         BuilderCmd.end(op);
 
         //в saveLocalData инвентарь не сохранит
-        if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) && PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && op.pvp_time > 0) {      //если удрал во время боя
+        if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {      //если удрал во время боя
             final List<ItemStack> drop = new ArrayList<>();
             for (ItemStack is : p.getInventory().getContents()) {
                 if (is != null && !MenuItemsManager.isSpecItem(is)) {

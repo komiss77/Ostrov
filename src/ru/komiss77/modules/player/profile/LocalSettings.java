@@ -11,8 +11,8 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.StatFlag;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
@@ -51,7 +51,7 @@ public class LocalSettings implements InventoryProvider {
         }
 
 
-        if (PvpCmd.getFlag(PvpCmd.PvpFlag.allow_pvp_command)) {
+        if (PvPManager.getFlag(PvPManager.PvpFlag.allow_pvp_command)) {
 
             content.set(1, 1, ClickableItem.of(new ItemBuilder(op.pvp_allow ? Material.DIAMOND_SWORD : Material.SHIELD)
                     .name("§7Разрешение ПВП")

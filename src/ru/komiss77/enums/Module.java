@@ -10,6 +10,7 @@ import ru.komiss77.modules.crafts.Crafts;
 import ru.komiss77.modules.displays.DisplayManager;
 import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.modules.entities.EntityManager;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.kits.KitManager;
@@ -47,6 +48,7 @@ public enum Module {
     rolls(RollManager.class),
     items(ItemManager.class),
     redis(RDS.class),
+    pvp(PvPManager.class),
     ;
 
     public final Class<? extends Initiable> clazz;

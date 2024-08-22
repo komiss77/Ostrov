@@ -243,7 +243,7 @@ public class RDS implements Initiable {
         try {
             final List<Object> data = (List<Object>) unifiedJedis.sendCommand(Protocol.Command.TIME);
             if (!data.isEmpty()) {
-                final String s = new String((byte[]) data.get(0));
+                final String s = new String((byte[]) data.getFirst());
                 return Long.parseLong(s);//getRedisTime(times);
             }
             //final List<String> times = new ArrayList<>();

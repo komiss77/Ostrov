@@ -25,10 +25,10 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.builder.SetupMode;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
@@ -100,8 +100,6 @@ public class Oplayer {
     public ProfileManager menu;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
-    public Location last_death = Bukkit.getWorlds().getFirst().getSpawnLocation();
-
     public String chat_group = " ---- ";
     private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
     private String tagPreffix = "", tagSuffix = "";
@@ -151,7 +149,7 @@ public class Oplayer {
 
         if (pvp_time > 0) {
             pvp_time--;
-            if (pvp_time == 0) PvpCmd.pvpEndFor(this, p);    //не переставлять!!
+            if (pvp_time == 0) PvPManager.pvpEndFor(this, p);    //не переставлять!!
         }
 
         if (nextAb > 0) {

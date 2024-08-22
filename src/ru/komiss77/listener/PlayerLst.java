@@ -28,10 +28,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.LocalDataLoadEvent;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
@@ -73,8 +73,7 @@ public class PlayerLst implements Listener {
 //            if (cmd.startsWith("builder") || cmd.startsWith("gm")) return;
             final Oplayer op = PM.getOplayer(p);
             if (op.setup == null) { //запоминаем только если не активен билдер!
-                final String cmd = e.getMessage().replaceFirst("/", "");
-                op.lastCommand = cmd;
+                op.lastCommand = e.getMessage().replaceFirst("/", "");
             }
         }
     }
@@ -359,7 +358,7 @@ public class PlayerLst implements Listener {
 
         if (op.pvp_time > 0) {
             Ostrov.sync(() -> {
-                PvpCmd.pvpEndFor(op, e.getPlayer()); //восстановить настроки до начала битвы, убрать тэги
+                PvPManager.pvpEndFor(op, e.getPlayer()); //восстановить настроки до начала битвы, убрать тэги
             }, 5);
         }
 
@@ -385,8 +384,8 @@ public class PlayerLst implements Listener {
                 return;
             }
 
-            if (PvpCmd.no_damage_on_tp > 0) {
-                op.setNoDamage(PvpCmd.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
+            if (PvPManager.no_damage_on_tp > 0) {
+                op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
             op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
             // сохраняем точку выхода
@@ -464,7 +463,7 @@ public class PlayerLst implements Listener {
                 case VOID:
                     if (Cfg.disable_void) {
                         e.setDamage(0);
-                        e.getEntity().teleport(Bukkit.getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        e.getEntity().teleport(Bukkit.getWorlds().getFirst().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     }
                     return;
                 //чары шипы на оружие-ранит нападающего

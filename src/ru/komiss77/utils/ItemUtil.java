@@ -627,6 +627,10 @@ public class ItemUtil {
         return false;
     }
 
+    public static boolean is(final ItemStack item, final ItemType type) {
+        return item != null && type.equals(item.getType().asItemType());
+    }
+
     public static boolean isBlank(final ItemStack item, final boolean checkMeta) {
         return item == null || item.getType().isAir() || (checkMeta && !item.hasItemMeta());
     }

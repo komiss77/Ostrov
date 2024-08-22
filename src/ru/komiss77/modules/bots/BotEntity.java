@@ -33,7 +33,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.PvpCmd;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
@@ -192,7 +192,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         final ItemStack it = item(lastHand);
         if (it == null) return false;
         return it.getType() == Material.SHIELD
-            && useTicks(mb, BLOCK_ACT) > PvpCmd.BLCK_CLD;
+            && useTicks(mb, BLOCK_ACT) > PvPManager.BLCK_CLD;
     }
 
     public boolean isBashed(final LivingEntity mb) {

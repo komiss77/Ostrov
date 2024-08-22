@@ -16,9 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import ru.komiss77.commands.PvpCmd;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.LocalDataLoadEvent;
+import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -212,7 +212,7 @@ public class LocalDB {
             op.mysqlData.put("potion", "null");//potion = "null";
 
         } else if (PLAYER_DATA_SQL) {
-            if (PvpCmd.getFlag(PvpCmd.PvpFlag.drop_inv_inbattle) && PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && op.pvp_time > 0) {
+            if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {
                 op.mysqlData.put("inventory", "");
                 op.mysqlData.put("armor", "");
             } else {
@@ -523,8 +523,8 @@ public class LocalDB {
                     applyLocalSettings(p, settingsAray);
                 }
 
-                if (PvpCmd.no_damage_on_tp > 0) {
-                    op.setNoDamage(PvpCmd.no_damage_on_tp, true);
+                if (PvPManager.no_damage_on_tp > 0) {
+                    op.setNoDamage(PvPManager.no_damage_on_tp, true);
                 }
 
                 final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
@@ -616,7 +616,7 @@ public class LocalDB {
         sb.append(p.getTotalExperience()).append(","); //15
         sb.append((int) (p.getSaturation() * 1000)).append(","); //16
         sb.append(p.getGameMode().name()).append(","); //17
-        sb.append(PvpCmd.getFlag(PvpCmd.PvpFlag.antirelog) && op.pvp_time > 0 ? "1" : "0").append(","); //18
+        sb.append(PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0 ? "1" : "0").append(","); //18
 
         return sb.toString();
     }
@@ -690,7 +690,7 @@ public class LocalDB {
                     Ostrov.log_err("applyLocalSettings " + p.getName() + " maxhealth");
                 }
             case 13:
-                if (!s[12].equals("1")) PvpCmd.pvpOff(PM.getOplayer(p));
+                if (!s[12].equals("1")) PvPManager.pvpOff(PM.getOplayer(p));
                 //case 12:
                 //try { ptime = Integer.parseInt(s[11]); } catch (NumberFormatException ex) { Ostrov.log_err("applyLocalSettings "+p.getName()+" ptime"); }
                 //case 11:

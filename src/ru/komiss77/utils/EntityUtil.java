@@ -1,10 +1,18 @@
 package ru.komiss77.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 
@@ -30,6 +38,70 @@ public class EntityUtil {
         return null;
     }
 
+    public List<Projectile> shoot(final LivingEntity shooter, final ItemStack prj) {
+        ItemStack weapon = shooter.getEquipment().getItemInMainHand();
+
+        if (!ItemType.BOW.equals(weapon.getType().asItemType())
+            && !ItemType.CROSSBOW.equals(weapon.getType().asItemType())) {
+            weapon = shooter.getEquipment().getItemInOffHand();
+        }
+
+        if (!ItemType.BOW.equals(weapon.getType().asItemType())
+            && !ItemType.CROSSBOW.equals(weapon.getType().asItemType())) {
+            return List.of();
+        }
+
+        final Class<? extends AbstractArrow> arc;
+        if (ItemType.ARROW.equals(prj.getType().asItemType())) {
+            arc = Arrow.class;
+        } else if (ItemType.SPECTRAL_ARROW.equals(prj.getType().asItemType())) {
+            arc = SpectralArrow.class;
+        } else if (ItemType.TIPPED_ARROW.equals(prj.getType().asItemType())) {
+            arc = Arrow.class;
+        } else if (ItemType.FIREWORK_ROCKET.equals(prj.getType().asItemType())) {
+            final List<Projectile> arrows = new ArrayList<>();
+            final int arrowCount = weapon.getEnchantmentLevel(Enchantment.MULTISHOT) > 0 ? 3 : 1;
+
+            for (int i = 0; i < arrowCount; i++) {
+                final Firework arrow = shooter.launchProjectile(Firework.class);
+                if (prj.getItemMeta() instanceof final FireworkMeta fm) arrow.setFireworkMeta(fm);
+
+                if (i > 0) {
+                    final Vector spread = arrow.getVelocity().getCrossProduct(
+                        new Vector(0, 1, 0)).normalize().multiply(0.3d * (i == 1 ? -1d : 1d));
+                    arrow.setVelocity(arrow.getVelocity().add(spread));
+                }
+
+                arrows.add(arrow);
+            }
+
+            return arrows;
+        } else return List.of();
+
+        final List<Projectile> arrows = new ArrayList<>();
+        final int arrowCount = weapon.getEnchantmentLevel(Enchantment.MULTISHOT) > 0 ? 3 : 1;
+
+        for (int i = 0; i < arrowCount; i++) {
+            final AbstractArrow arrow = shooter.launchProjectile(arc);
+            if (arrow instanceof Arrow ar) {
+                if (prj.getItemMeta() instanceof final PotionMeta pm) {
+                    ar.setBasePotionType(pm.getBasePotionType());
+                }
+            }
+            arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+            arrow.setWeapon(weapon);
+
+            if (i > 0) {
+                final Vector spread = arrow.getVelocity().getCrossProduct(
+                    new Vector(0, 1, 0)).normalize().multiply(0.3d * (i == 1 ? -1d : 1d));
+                arrow.setVelocity(arrow.getVelocity().add(spread));
+            }
+
+            arrows.add(arrow);
+        }
+
+        return arrows;
+    }
 
     public static EntityGroup group(final Entity e) {
         return group(e.getType());
@@ -248,7 +320,7 @@ public class EntityUtil {
         public final String displayName;
         public final Material displayMat;
 
-        private EntityGroup(final String displayName, final Material displayMat) {
+        EntityGroup(final String displayName, final Material displayMat) {
             this.displayName = displayName;
             this.displayMat = displayMat;
         }
