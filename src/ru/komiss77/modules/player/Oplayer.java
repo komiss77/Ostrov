@@ -53,10 +53,8 @@ public class Oplayer {
     public static final int ACTION_BAR_INTERVAL = 3;
     public final String nik;
     public final UUID id;
-    //public final PlayerPacketHandler packetSpy;
-    public boolean eng; //true - english; false - russian 
-    //public Locale locale; нет смысла дублировать, он есть p.locale
-    public int karmaCalc, reputationCalc; //просчитывается в 
+    public boolean eng; //true - english; false - russian
+    public int karmaCalc, reputationCalc; //просчитывается в
     private final int loginTime = ApiOstrov.currentTimeSec();
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа
@@ -100,6 +98,8 @@ public class Oplayer {
     public ProfileManager menu;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
+    public Location last_death;
+
     public String chat_group = " ---- ";
     private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
     private String tagPreffix = "", tagSuffix = "";
@@ -113,6 +113,7 @@ public class Oplayer {
     public Location spyOrigin;//public BukkitTask spyTask;
     public Gender gender = Gender.NEUTRAL;
     public String lastCommand; //последняя команда введёная билдером
+    public String tpRequestFrom; //от кого пришел запрос на ТП
 
     //Боссбар, титры, экшэнбар с задержками
     public final List<String> delayActionbars = new ArrayList<>();

@@ -152,7 +152,7 @@ public class PvPManager implements Initiable {
                     if (op == null) {
                         return;
                     }
-
+                    op.last_death = p.getLocation(); //вайвай, зачем убрал??
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0) {            //дроп инвентаря
                         if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
                             for (final ItemStack is : p.getInventory().getContents()) {

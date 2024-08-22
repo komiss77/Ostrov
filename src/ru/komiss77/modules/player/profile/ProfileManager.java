@@ -779,7 +779,7 @@ public class ProfileManager {
         current = SmartInventory
                 .builder()
                 .id(op.nik + op.menu.section.name())
-                .provider(new TPA())
+                .provider(new TpaMenu())
                 .size(6, 9)
                 .title(op.eng ? "TP : Request" : "Телепорт : Запрос")
                 .build()

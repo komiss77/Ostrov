@@ -26,7 +26,7 @@ import ru.komiss77.utils.TCUtil;
 
 import java.util.List;
 
-
+@Deprecated
 public class HomeCmd implements OCommand {
 
     //запрос банжи, если есть - разкодировать raw

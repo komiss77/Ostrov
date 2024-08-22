@@ -15,7 +15,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import ru.komiss77.ApiOstrov;
 
+//не нужна команда, блокстэйт можно найти через команду /entity
 
+
+@Deprecated
 public class BlockstateCmd {
 
     public static boolean execute(Player p, String[] arg) {

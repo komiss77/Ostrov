@@ -8,23 +8,24 @@ import ru.komiss77.modules.player.mission.MissionCmd;
 
 
 public class RegisterCommands {
-    //private static Ostrov plugin;
 
     public static void register() {
+        Ostrov.log_ok("§5Регистрация команд:");
 
-        new CMD();//кучка команд
+        new CMD();//100500 команд
+        Ostrov.regCommand(new FlyCmd());
 
         new HatCmd();//новый способ
         new PrefixCmd();//сравнение
         new CleanCmd();
 
-        Ostrov.log_ok("§5Регистрация команд:");
         Ostrov.regCommand(new AdminCmd());
         Ostrov.regCommand(new SuffixCmd());
         Ostrov.regCommand(new ProfileCmd());
         Ostrov.regCommand(new InvseeCmd());
         Ostrov.regCommand(new SeenCmd());
         Ostrov.regCommand(new WarpCmd());
+        Ostrov.regCommand(new TpaCmd());
         Ostrov.regCommand(new KitCmd());
         Ostrov.regCommand(new PvpCmd());
         Ostrov.regCommand(new ServerCmd());
@@ -40,15 +41,14 @@ public class RegisterCommands {
         Ostrov.regCommand(new ReportCmd());
         Ostrov.regCommand(new MissionCmd());
         Ostrov.regCommand(new AnalyticsCmd());
-        Ostrov.regCommand(new HomeCmd());
         Ostrov.regCommand(new SkinCmd());
         Ostrov.regCommand(new TprCmd());
         Ostrov.regCommand(new BuilderCmd());
         Ostrov.regCommand(new DonateCmd());
         Ostrov.regCommand(new ResourcePacksLst());
+        //Ostrov.regCommand(new HomeCmd()); переделка на ГУИ
 
 //        plugin.getCommand("statreach").setExecutor(new StatReachCmd());
-//        plugin.getCommand("world").setExecutor(new WorldCmd());
 //        plugin.getCommand("nbtfind").setExecutor(new NbtfindCmd(plugin));
 //        plugin.getCommand("nbtcheck").setExecutor(new NbtcheckCmd(plugin));
     }

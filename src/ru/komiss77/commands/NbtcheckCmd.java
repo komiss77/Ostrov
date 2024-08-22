@@ -8,6 +8,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.listener.NbtLst;
 import ru.komiss77.modules.player.PM;
 
+@Deprecated
 public class NbtcheckCmd implements CommandExecutor {
 
 

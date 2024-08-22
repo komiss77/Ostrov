@@ -10,6 +10,7 @@ import ru.komiss77.Cfg;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.utils.inventory.*;
 
+@Deprecated
 public class WorldCmd implements Listener, CommandExecutor {
 
 

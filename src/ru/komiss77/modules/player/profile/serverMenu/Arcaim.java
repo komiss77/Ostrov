@@ -109,12 +109,12 @@ public class Arcaim implements InventoryProvider {
         }));
 
 
-        content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
+        content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
                 .name("§eРегионы")
                 .enchant(Enchantment.KNOCKBACK, 1)
                 .lore("§fУправление регионами.")
                 .lore("§7Создание, удаление,")
-                .lore("§7Установка точек ТП (домов),")
+                .lore("§7Установка точек ТП в регионе,")
                 .lore("§7Настройка флагов.")
                 .lore("")
                 .build(), e -> {
@@ -124,10 +124,10 @@ public class Arcaim implements InventoryProvider {
         }));
 
 
-        content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
+        content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
                 .name("§eВернуться в свой регион")
-                .lore("§7Дом любимый дом.")
-                .lore("§7Создание, удаление,")
+                //.lore("§7Дом любимый дом.")
+                //.lore("§7Создание, удаление,")
                 .lore("§7Откроется меню выбора")
                 .lore("§7региона, в который вернуться.")
                 .lore("")
@@ -135,6 +135,16 @@ public class Arcaim implements InventoryProvider {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land home");
+        }));
+
+
+        content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
+                .name("§eУправление точками дома")
+                //.lore("")
+                //.lore("§eУправление точками дома")
+                //.lore("")
+                .build(), e -> {
+            pm.openHomes(p);
         }));
 
 
