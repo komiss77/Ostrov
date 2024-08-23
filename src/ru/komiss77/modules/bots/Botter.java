@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
@@ -31,33 +32,31 @@ public interface Botter {
 
     //    private String prefix, affix, suffix;
     double DHIT_DST_SQ = 4d;
-    int BASH_TICKS = 40;
+    /*int BASH_TICKS = 40;
     int BLOCK_ACT = 1;
     int PARRY_ACT = 2;
     int BASH_ACT = 3;
-    int DHIT_ACT = 4;
+    int DHIT_ACT = 4;*/
 
     World world();
 
     Extent extent();
 
-    void startUse(final LivingEntity mb, final int actID, final EquipmentSlot hand);
+    void startUse(final LivingEntity mb, final EquipmentSlot hand);
 
-    void stopUse(final LivingEntity mb, final int actID, final EquipmentSlot hand);
+    void stopUse(final LivingEntity mb);
 
     int useTicks(final LivingEntity mb);
 
-    int useTicks(final LivingEntity mb, final int actID);
+    void useTicks(final LivingEntity mb, final int ticks);
 
-    int useTicks(final LivingEntity mb, final int actID, final EquipmentSlot hand);
+    ItemType usedType();
+
+    EquipmentSlot usedHand();
 
     <E extends Extent> E extent(final Class<E> cls);
 
     boolean isBlocking(final LivingEntity mb);
-
-    boolean isBashed(final LivingEntity mb);
-
-    void bashed(final LivingEntity mb, final boolean set);
 
     boolean isParrying(final LivingEntity mb);
 

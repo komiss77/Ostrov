@@ -138,10 +138,10 @@ public class BotEntity extends ServerPlayer implements Botter {
     private static final byte USE_MAIN = 1, USE_OFF = 3, USE_STOP = 0;
     private static final int NO_USE = -1;
     private int lastUseTick = NO_USE;
-    private int lastAct = NO_USE;
+    private ItemType lastType = ItemType.AIR;
     private EquipmentSlot lastHand = EquipmentSlot.HAND;
 
-    public void startUse(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
+    public void startUse(final LivingEntity mb, final EquipmentSlot hand) {
         final byte data;
         switch (hand) {
             case HAND:
@@ -154,19 +154,22 @@ public class BotEntity extends ServerPlayer implements Botter {
                 Ostrov.log_warn("BotEntity tried using non-hand");
                 return;
         }
-        if (hand != lastHand || lastAct != actID || lastUseTick == NO_USE) {
+        if (hand != lastHand || lastUseTick == NO_USE) {
             this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, data, true);
             lastUseTick = mb.getTicksLived();
             lastHand = hand;
-            lastAct = actID;
+            final ItemStack hit = item(hand);
+            lastType = hit == null ? ItemType.AIR : hit.getType().asItemType();
             Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
                 List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
         }
     }
 
-    public void stopUse(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
-        if (hand == lastHand && lastAct == actID && lastUseTick != NO_USE) {
+    public void stopUse(final LivingEntity mb) {
+        if (lastUseTick != NO_USE) {
             lastUseTick = NO_USE;
+            lastType = ItemType.AIR;
+            lastHand = EquipmentSlot.HAND;
             this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, USE_STOP, true);
             Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
                 List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
@@ -178,43 +181,36 @@ public class BotEntity extends ServerPlayer implements Botter {
         return mb.getTicksLived() - lastUseTick + 1;
     }
 
-    public int useTicks(final LivingEntity mb, final int actID) {
-        if (lastUseTick == NO_USE || lastAct != actID) return 0;
-        return mb.getTicksLived() - lastUseTick + 1;
+    public void useTicks(final LivingEntity mb, final int ticks) {
+        if (ticks == lastUseTick) return;
+        lastUseTick = ticks + 1;
     }
 
-    public int useTicks(final LivingEntity mb, final int actID, final EquipmentSlot hand) {
-        if (lastUseTick == NO_USE || hand != lastHand || lastAct != actID) return 0;
-        return mb.getTicksLived() - lastUseTick + 1;
+    public ItemType usedType() {
+        return lastType;
+    }
+
+    public EquipmentSlot usedHand() {
+        return lastHand;
     }
 
     public boolean isBlocking(final LivingEntity mb) {
-        final ItemStack it = item(lastHand);
-        if (it == null) return false;
-        return it.getType() == Material.SHIELD
-            && useTicks(mb, BLOCK_ACT) > PvPManager.BLCK_CLD;
-    }
-
-    public boolean isBashed(final LivingEntity mb) {
-        return useTicks(mb, Botter.BASH_ACT) != 0;
-    }
-
-    public void bashed(final LivingEntity mb, final boolean set) {
-        if (set) startUse(mb, Botter.BASH_ACT, lastHand);
-        else stopUse(mb, Botter.BASH_ACT, lastHand);
+        return ItemType.SHIELD.equals(lastType) && useTicks(mb) > PvPManager.BLCK_CLD;
     }
 
     public boolean isParrying(final LivingEntity mb) {
-        return useTicks(mb, Botter.PARRY_ACT, EquipmentSlot.HAND) != 0;
+        return PvPManager.CAN_PARRY.contains(lastType) && useTicks(mb) != 0;
     }
 
     public void parrying(final LivingEntity mb, final boolean set) {
-        if (set) {
-            world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
-            world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
-            startUse(mb, Botter.PARRY_ACT, EquipmentSlot.HAND);
-        } else {
-            stopUse(mb, Botter.PARRY_ACT, EquipmentSlot.HAND);
+        if (PvPManager.CAN_PARRY.contains(item(EquipmentSlot.HAND))) {
+            if (set) {
+                world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
+                world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
+                startUse(mb, EquipmentSlot.HAND);
+            } else if (lastHand == EquipmentSlot.HAND) {
+                stopUse(mb);
+            }
         }
     }
 
@@ -240,12 +236,12 @@ public class BotEntity extends ServerPlayer implements Botter {
             eq.setItemInOffHand(eq.getItemInMainHand(), true);
             eq.setItemInMainHand(it, true);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 3));// VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 3));
-            stopUse(from, lastAct, EquipmentSlot.OFF_HAND);
+            if (lastHand == EquipmentSlot.OFF_HAND) stopUse(from);
         } else {
             from.attack(to);
             world.playSound(from, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 0.8f);
             Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, 0));//VM.server().sendWorldPackets(world, new PacketPlayOutAnimation(this, 0));
-            stopUse(from, lastAct, EquipmentSlot.HAND);
+            if (lastHand == EquipmentSlot.HAND) stopUse(from);
         }
     }
 
@@ -269,8 +265,8 @@ public class BotEntity extends ServerPlayer implements Botter {
             Bukkit.getMobGoals().removeAllGoals(pz);
             Bukkit.getMobGoals().addGoal(pz, 0, goal(pz));
             lastHand = EquipmentSlot.HAND;
+            lastType = ItemType.AIR;
             lastUseTick = NO_USE;
-            lastAct = NO_USE;
             BotManager.botById.put(rid, this);
 //			hs.teleportAsync(to);
         } else {
@@ -361,7 +357,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
-            stopUse(mb, lastAct, EquipmentSlot.HAND);
+            if (lastHand == EquipmentSlot.HAND) stopUse(mb);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
@@ -371,7 +367,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         final LivingEntity mb = getEntity();
         if (mb != null) {
             mb.getEquipment().setItem(slot, it);
-            if (slot.isHand()) stopUse(mb, lastAct, slot);
+            if (slot.isHand() && lastHand == slot) stopUse(mb);
         }
         Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
     }
@@ -382,7 +378,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             final LivingEntity mb = getEntity();
             if (mb != null) {
                 mb.getEquipment().setItem(EquipmentSlot.HAND, item(slot));
-                stopUse(mb, lastAct, EquipmentSlot.HAND);
+                if (lastHand == EquipmentSlot.HAND) stopUse(mb);
             }
             Nms.sendWorldPacket(world, new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         }
