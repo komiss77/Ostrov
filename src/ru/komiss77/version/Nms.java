@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
@@ -216,6 +217,20 @@ public class Nms {
     final ServerLevel sl = Craft.toNMS(loc.getWorld());
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
     return iBlockData.getBukkitMaterial();
+  }
+
+  //для избавления твиста от НМС.
+  public static void setFastMat(final WXYZ wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
+    final ServerLevel sl = Craft.toNMS(wxyz.w);
+    final net.minecraft.world.level.block.state.BlockState bs = ((CraftBlockData) mat.createBlockData()).getState();
+    for (byte x_ = 0; x_ < sizeX; x_++) {
+      for (byte z_ = 0; z_ < sizeZ; z_++) {
+        for (byte y_ = 0; y_ < sizeY; y_++) {
+          mutableBlockPosition.set(wxyz.x + x_, wxyz.y + y_, wxyz.z + z_);
+          CraftBlock.setTypeAndData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs, false);//sl.setBlock(mutableBlockPosition, bs,)
+        }
+      }
+    }
   }
 
 

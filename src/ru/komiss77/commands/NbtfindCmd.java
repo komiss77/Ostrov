@@ -12,6 +12,7 @@ import ru.komiss77.listener.NbtLst;
 import ru.komiss77.modules.player.PM;
 
 
+@Deprecated
 public class NbtfindCmd implements CommandExecutor {
 
     //private Ostrov creativeGuard;

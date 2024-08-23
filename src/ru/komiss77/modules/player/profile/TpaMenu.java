@@ -25,11 +25,11 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-public class TPA implements InventoryProvider {
+public class TpaMenu implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ДРУЗЬЯ.glassMat).name("§8.").build());
 
-
+/*
     public static void onTpaCmd(final Player p, final Oplayer op, final String targetName) {
         if (targetName == null) {
             op.menu.openTPAsection(p);
@@ -78,6 +78,8 @@ public class TPA implements InventoryProvider {
             return;
         }
         Timer.add(target, "tp_request_from_" + p.getName(), 15);
+        targetOp.tpRequestFrom = targetName;
+
         target.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
                 .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
                 .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
@@ -87,7 +89,7 @@ public class TPA implements InventoryProvider {
 
         p.sendMessage("§6Запрос на телепорт " + target.getName() + " отправлен, действетт 15сек.");
     }
-
+*/
 
     @Override
     public void onClose(final Player p, final InventoryContent content) {
@@ -242,9 +244,11 @@ public class TPA implements InventoryProvider {
                                     if (find.isOnline()) {
                                         p.closeInventory();
                                         Timer.add(find, "tp_request_from_" + p.getName(), 15);
+                                        PM.getOplayer(find).tpRequestFrom = p.getName();
                                         find.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
                                                 .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
-                                                .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
+                                                //.clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
+                                                .clickEvent(ClickEvent.runCommand("/tpaccept"))
                                                 .append(Component.text(" §4>§cв игнор§4<")
                                                         .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
                                                         .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));

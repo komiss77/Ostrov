@@ -29,43 +29,46 @@ public class RewardCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
 
-            .then(Resolver.string(player).suggests((cntx, sb) -> {
-                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                            return sb.buildFuture();
-                        }
-                        Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                        return sb.buildFuture();
-                    })
-
-                    .then(Resolver.string(item).suggests((cntx, sb) -> {
-                                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                .then(Resolver.string(player).suggests((cntx, sb) -> {
+                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                                        return sb.buildFuture();
+                                    }
+                                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                                     return sb.buildFuture();
-                                }
-                                Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
-                                return sb.buildFuture();
-                            })
-                    .then(Resolver.string(op).suggests((cntx, sb) -> {
-                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                            return sb.buildFuture();
-                        }
-                        switch (Resolver.string(cntx, item)) {
-                            case "permission":
-                            case "perm":
-                                sb.suggest("ostrov.perm");
-                                sb.suggest(Ostrov.MOT_D + ".builder");
-                                break;
-                            case "group":
-                                for (final Group g : Perm.getGroups()) {
-                                    if (!g.isStaff()) sb.suggest(g.name);
-                                }
-                                break;
-                            default:
-                                sb.suggest("add");
-                                sb.suggest("get");
-                                break;
-                        }
-                        return sb.buildFuture();
-                    }).then(Resolver.string(val).suggests((cntx, sb) -> {
+                                })
+
+                                .then(Resolver.string(item).suggests((cntx, sb) -> {
+                                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                                                        return sb.buildFuture();
+                                                    }
+                                                    Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                                                    return sb.buildFuture();
+                                                })
+
+                                                .then(Resolver.string(op).suggests((cntx, sb) -> {
+                                                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                                                                        return sb.buildFuture();
+                                                                    }
+                                                                    switch (Resolver.string(cntx, item)) {
+                                                                        case "permission":
+                                                                        case "perm":
+                                                                            sb.suggest("ostrov.perm");
+                                                                            sb.suggest(Ostrov.MOT_D + ".builder");
+                                                                            break;
+                                                                        case "group":
+                                                                            for (final Group g : Perm.getGroups()) {
+                                                                                if (!g.isStaff()) sb.suggest(g.name);
+                                                                            }
+                                                                            break;
+                                                                        default:
+                                                                            sb.suggest("add");
+                                                                            sb.suggest("get");
+                                                                            break;
+                                                                    }
+                                                                    return sb.buildFuture();
+                                                                })
+
+                                                                .then(Resolver.string(val).suggests((cntx, sb) -> {
                                 if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                                     return sb.buildFuture();
                                 }
@@ -87,17 +90,24 @@ public class RewardCmd implements OCommand {
                                 }
                                 return sb.buildFuture();
                             })
+
                             .executes(tryReward())
-                            .then(Resolver.string(reason).suggests((cntx, sb) -> {
+
+                                                                                .then(Resolver.string(reason).suggests((cntx, sb) -> {
                                     if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
                                         return sb.buildFuture();
                                     }
                                     sb.suggest("Ostrov");
                                     return sb.buildFuture();
                                 })
-                                .executes(tryReward()))
-                    ))))
-            .build();
+
+                                                                                                .executes(tryReward())
+                                                                                )
+                                                                )
+                                                )
+                                )
+                )
+                .build();
     }
 
     private static Command<CommandSourceStack> tryReward() {

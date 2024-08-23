@@ -125,7 +125,7 @@ public class Daaria implements InventoryProvider {
             .enchant(Enchantment.KNOCKBACK, 1)
             .lore("§fУправление регионами.")
             .lore("§7Создание, удаление,")
-            .lore("§7Установка точек ТП (домов),")
+                .lore("§7Установка точек ТП в регионе,")
             .lore("§7Настройка флагов.")
             .lore("")
             .build(), e -> {
@@ -137,8 +137,8 @@ public class Daaria implements InventoryProvider {
 
         content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
             .name("§eВернуться в свой регион")
-            .lore("§7Дом любимый дом.")
-            .lore("§7Создание, удаление,")
+                //.lore("§7Дом любимый дом.")
+                //.lore("§7Создание, удаление,")
             .lore("§7Откроется меню выбора")
             .lore("§7региона, в который вернуться.")
             .lore("")
@@ -149,7 +149,7 @@ public class Daaria implements InventoryProvider {
         }));
 
 
-        content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
+        /*content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
             .name("§eВернуться домой")
             .lore("")
             .lore("§7Дом любимый дом")
@@ -158,14 +158,14 @@ public class Daaria implements InventoryProvider {
             p.closeInventory();
             pm.current = null;
             p.performCommand("home");
-        }));
+        }));*/
 
 
         content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
             .name("§eУправление точками дома")
-            .lore("")
-            .lore("§eУправление точками дома")
-            .lore("")
+                //.lore("")
+                //.lore("§eУправление точками дома")
+                //.lore("")
             .build(), e -> {
             pm.openHomes(p);
         }));
