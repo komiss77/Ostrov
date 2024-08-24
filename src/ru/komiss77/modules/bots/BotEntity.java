@@ -222,6 +222,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     public void swingHand(final boolean main) {
+        this.swinging = false;
         if (main) swing(InteractionHand.MAIN_HAND);
         else swing(InteractionHand.OFF_HAND);
     }
@@ -245,48 +246,116 @@ public class BotEntity extends ServerPlayer implements Botter {
         }
     }
 
-    public void telespawn(final Location to, @Nullable final LivingEntity le) {
+    protected void teleport(final LivingEntity mb, final Location to) {
+        Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()));
+        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
+        Nms.sendWorldPackets(world,
+            new ClientboundAddEntityPacket(this, 0,
+                new BlockPos(to.getBlockX(), to.getBlockY(), to.getBlockZ())),
+            new ClientboundTeleportEntityPacket(this),
+            new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
+        tag(true);
+        ext.teleport(this, mb);
+    }
+
+    public LivingEntity telespawn(final @Nullable LivingEntity mb, final Location to) {
+        if (mb != null && mb.isValid()) {
+            mb.teleportAsync(to);
+            return mb;
+        }
+
         Nms.sendWorldPackets(world, remListPlayerPacket(),
             new ClientboundRemoveEntitiesPacket(this.hashCode()));
-        if (le == null || !le.isValid() || isDead) {
-            BotManager.botById.remove(rid);
-            isDead = false;
-            final PigZombie pz = world.spawn(to, PigZombie.class, false, mb -> {
-                mb.setVisibleByDefault(false);
-                mb.setSilent(true);
-                mb.setPersistent(true);
-                mb.setRemoveWhenFarAway(false);
-                mb.customName(TCUtil.form(name));
-                mb.setCustomNameVisible(true);
-                mb.setAdult();
-            });
-            this.rplc = new WeakReference<>(pz);
-            this.rid = pz.getEntityId();
-            Bukkit.getMobGoals().removeAllGoals(pz);
-            Bukkit.getMobGoals().addGoal(pz, 0, goal(pz));
-            lastHand = EquipmentSlot.HAND;
-            lastType = ItemType.AIR;
-            lastUseTick = NO_USE;
-            BotManager.botById.put(rid, this);
-//			hs.teleportAsync(to);
-        } else {
-            le.teleportAsync(to);
-        }
-        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
+
+        isDead = false;
+        lastHand = EquipmentSlot.HAND;
+        lastType = ItemType.AIR;
+        lastUseTick = NO_USE;
+        BotManager.botById.remove(rid);
+        final Vindicator vc = world.spawn(to, Vindicator.class, false, v -> {
+            v.setVisibleByDefault(false);
+            v.setSilent(true);
+            v.setPersistent(true);
+            v.setRemoveWhenFarAway(false);
+            v.customName(TCUtil.form(name));
+            v.setCustomNameVisible(true);
+        });
+        this.rplc = new WeakReference<>(vc);
+        this.rid = vc.getEntityId();
+        Bukkit.getMobGoals().removeAllGoals(vc);
+        Bukkit.getMobGoals().addGoal(vc, 0, goal(vc));
+        BotManager.botById.put(rid, this);
         currMode = GameType.SURVIVAL;
+
+        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
         Nms.sendWorldPackets(world,
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
             new ClientboundAddEntityPacket(this, 0, blockPosition()),
-            new ClientboundTeleportEntityPacket(this));
-//            new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, GameType.SURVIVAL.getId())
-//        new ClientboundPlayerInfoUpdatePacket(EnumSet.of(null), new ClientboundPlayerInfoUpdatePacket
-//            .Entry(getUUID(), getGameProfile(), true, 0, GameType.SURVIVAL, null, null));
-//        gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+            new ClientboundTeleportEntityPacket(this),
+            new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         swapToSlot(0);
-//        Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage("spawned " + getEntity()));
         ext.spawn(this, getEntity());
+        tag(true);
+        return vc;
     }
+
+    /*public void telespawn(final Location to, @Nullable final LivingEntity le) {
+        final EntitySnapshot es;
+        final double maxHp, hp;
+        if (le instanceof Vindicator && le.isValid()) {
+            es = le.createSnapshot();
+            BotManager.botById.remove(rid);
+            le.remove();
+            maxHp = le.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+            hp = le.getHealth();
+        } else {
+            es = null;
+            maxHp = 0d;
+            hp = 0d;
+        }
+        isDead = true;
+        currMode = GameType.SPECTATOR;
+        Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()),
+            modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId));
+        BotManager.botById.remove(rid);
+        isDead = false;
+        final Vindicator vc = es == null ? world
+            .spawn(to, Vindicator.class, false, mb -> {
+            mb.setVisibleByDefault(false);
+            mb.setSilent(true);
+            mb.setPersistent(true);
+            mb.setRemoveWhenFarAway(false);
+            mb.customName(TCUtil.form(name));
+            mb.setCustomNameVisible(true);
+        }) : (Vindicator) es.createEntity(to);
+        if (maxHp != 0d) vc.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHp);
+        if (hp != 0d) vc.setHealth(hp);
+        this.rplc = new WeakReference<>(vc);
+        this.rid = vc.getEntityId();
+        Bukkit.getMobGoals().removeAllGoals(vc);
+        Bukkit.getMobGoals().addGoal(vc, 0, goal(vc));
+        lastHand = EquipmentSlot.HAND;
+        lastType = ItemType.AIR;
+        lastUseTick = NO_USE;
+        BotManager.botById.put(rid, this);
+        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
+        currMode = GameType.SURVIVAL;
+        final EntityEquipment eq = le.getEquipment();
+        for (final EquipmentSlot esl : EquipmentSlot.values()) {
+            if (esl == EquipmentSlot.BODY) continue;
+            eq.setItem(esl, inv.getItem(esl), true);
+        }
+        Nms.sendWorldPackets(world,
+            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
+            modListPlayerPacket(), //UPDATE_GAME_MODE
+            new ClientboundAddEntityPacket(this, 0, blockPosition()),
+            new ClientboundTeleportEntityPacket(this),
+            new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
+        swapToSlot(0);
+        tag(true);
+        ext.spawn(this, getEntity());
+    }*/
 
     @OverrideMe
     protected Goal<Mob> goal(final Mob org) {

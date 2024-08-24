@@ -4,12 +4,10 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -54,15 +52,17 @@ public class BotManager implements Initiable, Listener {
             @Override
             public void run() {
                 final ArrayList<Botter> rbs = new ArrayList<>();
-                for (final IntHashMap.Entry<Botter> en : botById.entrySet()) {
-                    final Botter be = en.getValue();
-                    if (!be.isDead()) {
-                        final LivingEntity le = be.getEntity();
-                        if (le == null || !le.isValid() || le.getEntityId() != en.getKey()) {
-                            rbs.add(be);
+                try {
+                    for (final IntHashMap.Entry<Botter> en : botById.entrySet()) {
+                        final Botter be = en.getValue();
+                        if (!be.isDead()) {
+                            final LivingEntity le = be.getEntity();
+                            if (le == null || !le.isValid() || le.getEntityId() != en.getKey()) {
+                                rbs.add(be);
+                            }
                         }
                     }
-                }
+                } catch (ConcurrentModificationException ex) {}
 
                 if (!rbs.isEmpty()) {
                     Ostrov.sync(() -> {
@@ -171,15 +171,17 @@ public class BotManager implements Initiable, Listener {
     public void onTeleport(final EntityTeleportEvent e) {
         if (e.getEntity() instanceof final LivingEntity le) {
             final Botter be = botById.get(le.getEntityId());
-            if (be != null) be.telespawn(le.getLocation(), le);
+            if (be != null) {
+                final Location to = e.getTo();
+                if (to == null) return;
+                ((BotEntity) be).teleport(le, to);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onFish(final EntityMountEvent e) {
         if (e.getEntity() instanceof final LivingEntity le) {
-            final Botter be = botById.get(le.getEntityId());
-            if (be != null) be.telespawn(le.getLocation(), le);
         }
     }
 

@@ -3,17 +3,22 @@ package ru.komiss77.listener;
 import org.bukkit.Material;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.modules.bots.AfkExt;
+import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 
 public class TestLst implements Listener {
@@ -71,27 +76,21 @@ public class TestLst implements Listener {
 
                 } else {
 
-                    /*if (bt == null) {
+                    if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));
                         bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
+                    } else {
+                        final LivingEntity le = bt.getEntity();
+                        if (le != null && le.isValid()) {
+                            le.teleport(p.getLocation());
+                        }
                     }
 
-                    bt.use(bt.getEntity(), Botter.BLOCK_ACT, EquipmentSlot.OFF_HAND, true);
-                    Ostrov.sync(() -> {
-                        bt.use(bt.getEntity(), Botter.BLOCK_ACT, EquipmentSlot.HAND, false);
-                        p.sendMessage("block2");
-                    }, 40);
-                    final int BOW_ACT = 5;
-                    Ostrov.sync(() -> {
-                        bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
+                    /*Ostrov.sync(() -> {
                         bt.item(EquipmentSlot.HAND, new ItemStack(Material.BOW));
-                        bt.use(bt.getEntity(), BOW_ACT, EquipmentSlot.HAND, true);
-                    }, 80);
-                    Ostrov.sync(() -> {
-                        bt.item(EquipmentSlot.HAND, new ItemStack(Material.BOW));
-                    }, 200);
+                    }, 200);*/
 
-                    p.sendMessage("block");*/
+                    p.sendMessage("tp");
                 }
 
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {

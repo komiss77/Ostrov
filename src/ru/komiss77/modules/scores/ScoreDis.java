@@ -139,7 +139,7 @@ public class ScoreDis {
         } else {
             ranks.add(plc - 1, name);
             if (ranks.size() > length) {
-                stats.remove(ranks.remove(ranks.size() - 1));
+                stats.remove(ranks.removeLast());
             }
         }
 

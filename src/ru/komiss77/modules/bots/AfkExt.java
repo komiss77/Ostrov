@@ -6,9 +6,9 @@ import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.util.Vector;
@@ -29,18 +29,23 @@ public class AfkExt implements Botter.Extent {
 
     @Override
     public void create(final Botter bt) {
-        bt.telespawn(loc.getCenterLoc(), null);
+        bt.telespawn(null, loc.getCenterLoc());
         bt.tab("", ChatLst.NIK_COLOR, "");
         bt.tag("§3А вот и ", ChatLst.NIK_COLOR, " §2заспавнен");
     }
 
     public void remove(Botter bt) {}
-    public void bug(Botter bt) {}
+    public void teleport(Botter bt, LivingEntity le) {}
     public void spawn(Botter bt, @Nullable LivingEntity le) {}
     public void hide(Botter bt, @Nullable LivingEntity le) {}
     public void click(Botter bt, PlayerInteractAtEntityEvent e) {}
-    public void death(Botter bt, EntityDeathEvent e) {}
-    public void damage(Botter bt, EntityDamageEvent e) {}
+    public void death(Botter bt, EntityDeathEvent e) {
+        e.getDrops().clear();
+        final LivingEntity le = e.getEntity();
+        le.getWorld().spawnParticle(Particle.CLOUD, le.getLocation()
+            .add(0d, 1d, 0d), 20, 0.1d, 0.5d, 0.1d, 0.04d);
+        bt.remove();
+    }
     public void pickup(Botter bt, Location loc) {}
     public void drop(Botter bt, Location loc) {}
 

@@ -68,7 +68,7 @@ public interface Botter {
 
     void attack(final LivingEntity from, final Entity to, final boolean ofh);
 
-    void telespawn(final Location to, @Nullable final LivingEntity le);
+    LivingEntity telespawn(final @Nullable LivingEntity mb, final Location to);
 
     ItemStack item(final EquipmentSlot slot);
 
@@ -147,6 +147,7 @@ public interface Botter {
             bt.remove();
         }
 
+        void teleport(final Botter bt, final LivingEntity le);
         void spawn(final Botter bt, final @Nullable LivingEntity le);
         void hide(final Botter bt, final @Nullable LivingEntity le);
 

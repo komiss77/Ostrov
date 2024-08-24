@@ -20,6 +20,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -30,6 +31,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignText;
@@ -42,9 +44,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
@@ -59,6 +64,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.notes.Slow;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
@@ -87,7 +93,6 @@ public class Nms {
   public static boolean isServerStopped() {
     return Craft.toNMS().hasStopped();
   }
-
 
   //ЛКМ и ПКМ на фейковый блок будут игнорироваться! Еще можно будет добавить подмену блока при получении чанка
   public static void fakeBlock(final Player p, final Location loc, final BlockData bd) {
@@ -390,11 +395,24 @@ public class Nms {
     }
   }
 
+  @Slow(priority = 1)
+  public static FoodComponent getFood(final ItemStack it) {
+    final FoodComponent fc = it.getItemMeta().getFood();
+    final net.minecraft.world.item.ItemStack fi = net.minecraft.world.item.ItemStack.fromBukkitCopy(it);
+    final FoodProperties fp = fi.getItem().components().get(DataComponents.FOOD);
+    fc.setCanAlwaysEat(fp.canAlwaysEat());
+    fc.setNutrition(fp.nutrition());
+    fc.setSaturation(fp.saturation());
+    fc.setEatSeconds(fp.eatSeconds());
+    return fc;
+//    fc.setUsingConvertsTo(fp.usingConvertsTo().orElseGet(() ->
+//        new net.minecraft.world.item.ItemStack(Items.AIR)).asBukkitCopy());
+//    fc.setEffects(fp.effects().getFirst().effect());
+  }
 
   public static int getTps() {
     return MinecraftServer.TPS;
   }
-
 
   public static int getitemDespawnRate(final World w) { //skyworld
     return Craft.toNMS(w).spigotConfig.itemDespawnRate;
@@ -424,6 +442,11 @@ public class Nms {
     final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(
             nmsChunk, ws.getLightEngine(), null, null, true);
     sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
+  }
+
+  public static void swing(final LivingEntity le, final EquipmentSlot hand) {
+    Craft.toNMS(le).swinging = false;
+    le.swingHand(hand);
   }
 
   public static void setAggro(final Mob le, final boolean aggro) {

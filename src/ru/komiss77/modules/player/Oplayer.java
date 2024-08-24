@@ -159,7 +159,7 @@ public class Oplayer {
                 if (!delayActionbars.isEmpty()) {
                     nextAb = ACTION_BAR_INTERVAL;
                     final String ab = delayActionbars.removeFirst();
-                    p.sendActionBar(Component.text(ab));
+                    p.sendActionBar(TCUtil.form(ab));
                 }
             }
         }

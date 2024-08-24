@@ -166,7 +166,7 @@ public class RewardCmd implements OCommand {
                 case REP:
                 case KARMA:
                 case RIL:
-                    amt = Integer.valueOf(value, 0);
+                    amt = Math.max(ApiOstrov.getInteger(value, 0), 0);
                     if (amt < 1) {
                         cs.sendMessage("§eКолличество - целое положительное число!");
                         Ostrov.log_warn("reward error: " + type.name() + ", " + oper + ", " + value);

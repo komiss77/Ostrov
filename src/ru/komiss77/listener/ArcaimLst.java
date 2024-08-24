@@ -42,7 +42,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,12 +76,11 @@ public class ArcaimLst implements Listener {
     public static final NamespacedKey key;
     public static final int MAX_CHUNK_PULSES_PER_SEC = 50;
     private static final IntHashMap<RC> redstoneChunkClocks;
-    private static final BukkitTask task;
 
     static {
         key = new NamespacedKey(Ostrov.instance, "redstoneclock");
         redstoneChunkClocks = new IntHashMap<>();
-        task = new BukkitRunnable() {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 if (!redstoneChunkClocks.isEmpty()) {
@@ -363,7 +361,7 @@ public class ArcaimLst implements Listener {
                 p.teleport(loc);
                 final Botter ab = BotManager.createBot(admin, p.getWorld(), new AdminExt(p));
                 if (ab != null) {
-                    ab.telespawn(loc, null);
+                    ab.telespawn(null, loc);
                     ab.tab("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.tag("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.getEntity().setGravity(false);
@@ -405,6 +403,8 @@ public class ArcaimLst implements Listener {
 
         public void create(Botter bt) {}
         public void remove(Botter bt) {}
+
+        public void teleport(Botter bt, LivingEntity le) {}
         public void spawn(Botter bt, @Nullable LivingEntity le) {}
         public void hide(Botter bt, @Nullable LivingEntity le) {}
 
