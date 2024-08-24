@@ -13,7 +13,7 @@ import ru.komiss77.modules.player.profile.Section;
 
 import java.util.List;
 
-
+@Deprecated
 public class ProfileCmd implements OCommand {
 
     @Override

@@ -12,6 +12,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.inventory.SmartInventory;
 
+@Deprecated
 public class AdminCmd implements OCommand {
 
     @Override

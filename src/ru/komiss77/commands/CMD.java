@@ -1,40 +1,51 @@
 package ru.komiss77.commands;
 
 import com.mojang.brigadier.Command;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import ru.komiss77.*;
+import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
-import ru.komiss77.builder.menu.ViewPerm;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.commands.tools.OCmdBuilder;
-import ru.komiss77.commands.tools.Resolver;
-import ru.komiss77.enums.Data;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.figures.MenuMain;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.player.Perm;
+import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 public class CMD {
 
     public CMD() {
+
+        new OCmdBuilder("admin").run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    final Oplayer op = PM.getOplayer(p);
+                    if (op.hasGroup("xpanitely") || op.hasGroup("owner")) {
+                        SmartInventory.builder().id("Admin " + cs.getName())
+                                .provider(new AdminInv()).size(3, 9)
+                                .title("§dМеню Абьюзера")
+                                .build().open(p);
+                        return Command.SINGLE_SUCCESS;
+                    }
+                    cs.sendMessage("§cУ вас нету разрешения на это!");
+                    return 0;
+                })
+                .aliases("админ")
+                .description("Открывает меню Абьюзера")
+                .register();
 
         new OCmdBuilder("home").run(cntx -> {
                     final CommandSender cs = cntx.getSource().getSender();
@@ -43,7 +54,7 @@ public class CMD {
                         return 0;
                     }
                     final Oplayer op = PM.getOplayer(p);
-                    //op.menu.openLocalMenu(p);
+                    op.menu.openHomes(p);
                     return com.mojang.brigadier.Command.SINGLE_SUCCESS;
                 })
                 .aliases("sethome", "delhome")
@@ -79,6 +90,24 @@ public class CMD {
                     return com.mojang.brigadier.Command.SINGLE_SUCCESS;
                 })
                 .description("Личные настройки")
+                .register();
+
+        new OCmdBuilder("profile").run(cntx -> {
+                    final CommandSender cs = cntx.getSource().getSender();
+                    if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                    }
+                    final Oplayer op = PM.getOplayer(p);
+                    if (op.menu == null) {
+                        p.sendMessage("§eПодождите, данные ещё не получены..");
+                        return 0;
+                    }
+                    op.menu.open(p, Section.ПРОФИЛЬ);
+                    p.playSound(p.getLocation(), Sound.BLOCK_COMPOSTER_EMPTY, 2, 2);
+                    return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                })
+                .description("Открывает Профиль")
                 .register();
 
         new OCmdBuilder("sound").run(cntx -> {
@@ -324,8 +353,16 @@ public class CMD {
 
     }
 
+    public static int getTpPrice(final Player p, final Location loc) {
+        if (p.hasPermission("ostrov.tpa.free")) return 0;
+        //учесть разные миры   Cannot measure distance between world and world_the_end
+        if (!p.getWorld().getName().equals(loc.getWorld().getName())) return 10;
 
-    public static boolean handle(CommandSender sender, String label, String[] arg) {
+        return 5;
+    }
+
+}
+ /*   public static boolean handle(CommandSender sender, String label, String[] arg) {
         if (Ostrov.MOT_D.length() == 3 || sender == null) return false;
         final Player p = sender instanceof Player ? (Player) sender : null;
         final Oplayer op = p == null ? null : PM.getOplayer(p);
@@ -414,7 +451,7 @@ public class CMD {
 
 
                 
-/*
+
 
 
             case "gm":
@@ -652,7 +689,7 @@ public class CMD {
                             .open(p);
                 } else {
                     p.sendMessage("§cдоступно билдерам");
-                }*/
+                }
 
 
             default:

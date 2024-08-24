@@ -15,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.commands.OCommand;
-import ru.komiss77.commands.RegisterCommands;
+import ru.komiss77.commands.REGISTER;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GlobalLogType;
@@ -88,7 +88,7 @@ public class Ostrov extends JavaPlugin {
 
         if (MOT_D.equals("pay")) { // для режима обработки донатиков
             log_warn("§bРежим PAY");
-            RegisterCommands.registerPay();
+            REGISTER.registerPay();
             return;
         }
 
@@ -96,7 +96,7 @@ public class Ostrov extends JavaPlugin {
 
         if (MOT_D.length() == 3) { // для серверов авторизации
             log_warn("§bРежим Auth");
-            RegisterCommands.registerAuth();
+            REGISTER.registerAuth();
             Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), this);
             if (MOT_D.startsWith("nb")) {
                 new FigureManager();
@@ -112,7 +112,7 @@ public class Ostrov extends JavaPlugin {
 
         initModules();
 
-        RegisterCommands.register(); //после модулей!!
+        REGISTER.register(); //после модулей!!
 
         log_ok("§2Остров готов к работе!");
 

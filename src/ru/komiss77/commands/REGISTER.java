@@ -7,21 +7,22 @@ import ru.komiss77.modules.kits.KitCmd;
 import ru.komiss77.modules.player.mission.MissionCmd;
 
 
-public class RegisterCommands {
+public class REGISTER {
 
     public static void register() {
         Ostrov.log_ok("§5Регистрация команд:");
 
         new CMD();//100500 команд
         Ostrov.regCommand(new FlyCmd());
+        Ostrov.regCommand(new OpermCmd());
+        Ostrov.regCommand(new TpposCMD());
+        Ostrov.regCommand(new TphereCmd());
 
         new HatCmd();//новый способ
         new PrefixCmd();//сравнение
         new CleanCmd();
 
-        Ostrov.regCommand(new AdminCmd());
         Ostrov.regCommand(new SuffixCmd());
-        Ostrov.regCommand(new ProfileCmd());
         Ostrov.regCommand(new InvseeCmd());
         Ostrov.regCommand(new SeenCmd());
         Ostrov.regCommand(new WarpCmd());
@@ -46,7 +47,10 @@ public class RegisterCommands {
         Ostrov.regCommand(new BuilderCmd());
         Ostrov.regCommand(new DonateCmd());
         Ostrov.regCommand(new ResourcePacksLst());
+
         //Ostrov.regCommand(new HomeCmd()); переделка на ГУИ
+        //Ostrov.regCommand(new AdminCmd()); мелкие команды без аргументов в CMD
+        //Ostrov.regCommand(new ProfileCmd());
 
 //        plugin.getCommand("statreach").setExecutor(new StatReachCmd());
 //        plugin.getCommand("nbtfind").setExecutor(new NbtfindCmd(plugin));

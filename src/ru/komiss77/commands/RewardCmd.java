@@ -3,6 +3,7 @@ package ru.komiss77.commands;
 import java.util.Arrays;
 import java.util.List;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -16,6 +17,7 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
 
@@ -29,78 +31,69 @@ public class RewardCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
 
-                .then(Resolver.string(player).suggests((cntx, sb) -> {
-                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                        return sb.buildFuture();
+                .then(Resolver.string(player).suggests((cntx, sb) -> { //0
+                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                        PM.suggester(sb);//Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                                     }
-                                    Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                                     return sb.buildFuture();
                                 })
 
-                                .then(Resolver.string(item).suggests((cntx, sb) -> {
-                                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                                        return sb.buildFuture();
+                                .then(Resolver.string(item).suggests((cntx, sb) -> { //1
+                                                    Ostrov.log_warn("can?" + ApiOstrov.canBeBuilder(cntx.getSource().getExecutor()));
+                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                                        Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
                                                     }
-                                                    Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
                                                     return sb.buildFuture();
                                                 })
 
-                                                .then(Resolver.string(op).suggests((cntx, sb) -> {
-                                                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                                                        return sb.buildFuture();
-                                                                    }
-                                                                    switch (Resolver.string(cntx, item)) {
-                                                                        case "permission":
-                                                                        case "perm":
-                                                                            sb.suggest("ostrov.perm");
-                                                                            sb.suggest(Ostrov.MOT_D + ".builder");
-                                                                            break;
-                                                                        case "group":
-                                                                            for (final Group g : Perm.getGroups()) {
-                                                                                if (!g.isStaff()) sb.suggest(g.name);
+                                                .then(Resolver.string(op).suggests((cntx, sb) -> { //2
+                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                                                        switch (arg(sb, 1)) { //1=RewardType. Resolver.string(cntx, item)) { игнорит код ниже
+                                                                            case "permission", "perm" -> {
+                                                                                sb.suggest("ostrov.perm");
+                                                                                sb.suggest(Ostrov.MOT_D + ".builder");
                                                                             }
-                                                                            break;
-                                                                        default:
-                                                                            sb.suggest("add");
-                                                                            sb.suggest("get");
-                                                                            break;
+                                                                            case "group" -> {
+                                                                                for (final Group g : Perm.getGroups()) {
+                                                                                    if (!g.isStaff()) sb.suggest(g.name);
+                                                                                }
+                                                                            }
+                                                                            default -> {
+                                                                                sb.suggest("add");
+                                                                                sb.suggest("get");
+                                                                            }
+                                                                        }
                                                                     }
                                                                     return sb.buildFuture();
                                                                 })
 
-                                                                .then(Resolver.string(val).suggests((cntx, sb) -> {
-                                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                    return sb.buildFuture();
-                                }
-                                switch (Resolver.string(cntx, item)) {
-                                    case "permission":
-                                    case "perm":
-                                    case "group":
-                                        sb.suggest("1h");
-                                        sb.suggest("10h");
-                                        sb.suggest("1d");
-                                        sb.suggest("7d");
-                                        sb.suggest("1m");
-                                        break;
-                                    default:
-                                        sb.suggest("10");
-                                        sb.suggest("100");
-                                        sb.suggest("1000");
-                                        break;
+                                                                .then(Resolver.string(val).suggests((cntx, sb) -> {//3
+                                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                                                                        switch (arg(sb, 2)) { //2=operation. Resolver.string(cntx, item)) { игнорит код нижеResolver.string(cntx, item)) {
+                                                                                            case "permission", "perm", "group" -> {
+                                                                                                sb.suggest("1h");
+                                                                                                sb.suggest("10h");
+                                                                                                sb.suggest("1d");
+                                                                                                sb.suggest("7d");
+                                                                                                sb.suggest("1m");
+                                                                                            }
+                                                                                            default -> {
+                                                                                                sb.suggest("10");
+                                                                                                sb.suggest("100");
+                                                                                                sb.suggest("1000");
+                                                                                            }
+                                                                                        }
                                 }
                                 return sb.buildFuture();
                             })
-
                             .executes(tryReward())
 
                                                                                 .then(Resolver.string(reason).suggests((cntx, sb) -> {
-                                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
-                                        return sb.buildFuture();
-                                    }
-                                    sb.suggest("Ostrov");
-                                    return sb.buildFuture();
-                                })
-
+                                                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                                                                                        sb.suggest("Ostrov");
+                                                                                                    }
+                                                                                                    return sb.buildFuture();
+                                                                                                })
                                                                                                 .executes(tryReward())
                                                                                 )
                                                                 )
@@ -240,7 +233,19 @@ public class RewardCmd implements OCommand {
         cs.sendMessage("§a");
     }
 
-
+    private static String arg(SuggestionsBuilder sb, int position) {
+        int idx = sb.getInput().indexOf(" ");
+        if (idx < 0) {
+            return "";
+        } else {
+            final String[] arg = sb.getInput().substring(idx + 1).split(" ");
+            if (position < arg.length) {
+                return arg[position];
+            } else {
+                return "";
+            }
+        }
+    }
     //reward <ник>  <тип_награды> <параметр>           <колл-во>  <источник>
     //reward komiss77 loni          add                   1000     ostrov
     //reward komiss77 loni          get                   500   ostrov

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -64,6 +65,15 @@ public class PM {
         //textEdit.put(Data.NOTES, 256);
     }
 
+    public static List<String> suggester(final String starting) {
+        //Ostrov.log_warn("suggest starting=>"+starting+"<");
+        return oplayersByName.keySet().stream().filter(name -> name.regionMatches(true, 0, starting, 0, starting.length()))
+                .limit(30).collect(Collectors.toList());
+    }
+
+    public static void suggester(final SuggestionsBuilder sb) {
+        suggester(sb.getRemaining()).forEach(s -> sb.suggest(s));
+    }
 
     public static void setOplayerFun(final Function<HumanEntity, ? extends Oplayer> opSup, final boolean remake) {
         PM.opSup = opSup;

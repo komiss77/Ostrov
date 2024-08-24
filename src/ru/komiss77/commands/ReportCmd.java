@@ -43,6 +43,7 @@ public class ReportCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         final String player = "player", reason = "reason";
+
         return Commands.literal("report")
             .executes(cntx -> {
                 final CommandSender cs = cntx.getSource().getExecutor();
@@ -50,11 +51,11 @@ public class ReportCmd implements OCommand {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-
                 openAllReports(cs, PM.getOplayer(pl), 0);
                 return Command.SINGLE_SUCCESS;
             })
-            .then(Resolver.string(player).suggests((cntx, sb) -> {
+
+                .then(Resolver.string(player).suggests((cntx, sb) -> {
                 Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                 return sb.buildFuture();
             }).executes(cntx -> {
@@ -66,38 +67,41 @@ public class ReportCmd implements OCommand {
 
                 openPlayerReports(cs, PM.getOplayer(p), Resolver.string(cntx, player), 0);
                 return Command.SINGLE_SUCCESS;
-            }).then(Resolver.string(reason).suggests((cntx, sb) -> {
-                sb.suggest("читы");
-                sb.suggest("гриф");
-                sb.suggest("неадекват");
-                return sb.buildFuture();
-            }).executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
-                final String tnm = Resolver.string(cntx, player);
-                if (tnm.equalsIgnoreCase(cs.getName())) {
-                    cs.sendMessage("§cНа себя жалобы не принимаются!");
-                    return 0;
-                }
+                                })
+                                .then(Resolver.string(reason).suggests((cntx, sb) -> {
+                                            sb.suggest("читы");
+                                            sb.suggest("гриф");
+                                            sb.suggest("неадекват");
+                                            return sb.buildFuture();
+                                        }).executes(cntx -> {
+                                            final CommandSender cs = cntx.getSource().getExecutor();
+                                            final String tnm = Resolver.string(cntx, player);
+                                            if (tnm.equalsIgnoreCase(cs.getName())) {
+                                                cs.sendMessage("§cНа себя жалобы не принимаются!");
+                                                return 0;
+                                            }
 
-                final String rsn = Resolver.string(cntx, reason);
-                final Player pl = cs instanceof Player ? (Player) cs : null;
-                final Player target = Bukkit.getPlayer(tnm);
+                                            final String rsn = Resolver.string(cntx, reason);
+                                            final Player pl = cs instanceof Player ? (Player) cs : null;
+                                            final Player target = Bukkit.getPlayer(tnm);
 
-                //вычитывать из локальной копии!!
-                if (pl == null) { //консоль
-              /*if (consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
-                cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
-                return true;
-              }
-              consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());*/
-                    SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
-                            Ostrov.MOT_D, 0, 0, 0, tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
-                } else {
-                    SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
-                            LocUtil.toString(pl.getLocation()), tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn, "");
-                }
-                return Command.SINGLE_SUCCESS;
-            })))
+                                            //вычитывать из локальной копии!!
+                                            if (pl == null) { //консоль
+                  /*if (consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
+                    cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
+                    return true;
+                  }
+                  consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());*/
+                                                SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
+                                                        Ostrov.MOT_D, 0, 0, 0, tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
+                                            } else {
+                                                SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
+                                                        LocUtil.toString(pl.getLocation()), tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn, "");
+                                            }
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                                )
+                )
             .build();
     }
 

@@ -16,7 +16,6 @@ import ru.komiss77.utils.inventory.*;
 
 public class ViewPerm implements InventoryProvider {
 
-
     // private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();;
     private final Player target;
 
@@ -101,14 +100,7 @@ public class ViewPerm implements InventoryProvider {
 
     public static class SelectPlayer implements InventoryProvider {
 
-
         private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-        ;
-
-
-        public SelectPlayer() {
-        }
-
 
         @Override
         public void init(final Player p, final InventoryContent contents) {
