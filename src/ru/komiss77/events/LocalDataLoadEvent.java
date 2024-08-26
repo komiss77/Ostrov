@@ -1,13 +1,12 @@
 package ru.komiss77.events;
 
+import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import ru.komiss77.modules.player.Oplayer;
-
-import java.util.Map;
 
 
 public class LocalDataLoadEvent extends Event implements Cancellable {
@@ -16,13 +15,11 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
     private final Player p;
     private final Oplayer op;
     private boolean cancel;
-    private final boolean isFirstJoin;
     private Location logoutLoc;
 
     public LocalDataLoadEvent(final Player p, final Oplayer op, final Location logoutLoc) {
         this.p = p;
         this.op = op;
-        this.isFirstJoin = op.firstJoin;
         this.logoutLoc = logoutLoc;
     }
 

@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -23,8 +24,6 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtil;
-
-import java.util.List;
 
 @Deprecated
 public class HomeCmd implements OCommand {
@@ -97,7 +96,7 @@ public class HomeCmd implements OCommand {
                                 homeLoc.getChunk().load();
                             }
 
-                            final WXYZ save = new LocFinder(new WXYZ(homeLoc)).find(false, 3, 1);
+                            final WXYZ save = new LocFinder(new WXYZ(homeLoc)).find(LocFinder.DYrect.BOTH, 3, 1);
                             if (save != null) {
                                 DelayTeleport.tp(p, save.getCenterLoc(), 5, "§2" + Lang.t(p, "Дом милый дом!"), true, true, DyeColor.YELLOW);
                                 p.sendMessage("§4" + Lang.t(p, "Дома что-то случилось, некуда вернуться! Дух Острова перенёс Вас в ближайшее безопасное место."));

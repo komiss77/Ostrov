@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.LocalDataLoadEvent;
+import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -341,6 +342,8 @@ public class LocalDB {
             return;
         }
 
+        Ostrov.sync(() -> p.performCommand(ResourcePacksLst.rpCMD));
+
         if (op.isGuest) {
             op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
             op.mysqlData.put("uuid", p.getUniqueId().toString());
@@ -530,7 +533,7 @@ public class LocalDB {
                 final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
                 Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
                 if (e.getLogoutLocation() != null) { //плагины могут изменять
-                    final WXYZ loc = new LocFinder(new WXYZ(e.getLogoutLocation()), LocFinder.DEFAULT_CHECKS).find(false, 5, 1);
+                    final WXYZ loc = new LocFinder(new WXYZ(e.getLogoutLocation()), LocFinder.DEFAULT_CHECKS).find(LocFinder.DYrect.BOTH, 5, 1);
                     if (loc != null) p.teleport(loc.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
 //                    ApiOstrov.teleportSave(p, e.getLogoutLocation(), true);
                 }
@@ -812,13 +815,6 @@ public class LocalDB {
         } else {
             p.resetPlayerWeather();
         }
- /*
-        if ( CMD.ptime_command && p.hasPermission("ostrov.ptime") && ptime > 1) {
-            p.setPlayerTime(ptime*1000, rtime);
-        } else {
-            p.resetPlayerTime();
-        }*/
-
 
     }
 

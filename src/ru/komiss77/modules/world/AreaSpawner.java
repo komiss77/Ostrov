@@ -17,7 +17,7 @@ public abstract class AreaSpawner {
 
     protected abstract int yDst();
 
-    protected abstract LocFinder.MatCheck[] checks();
+    protected abstract LocFinder.TypeCheck[] checks();
 
     public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls) {
         final WXYZ loc = LocFinder.findInArea(from, radius(), offset(), NEAR, checks(), yDst());

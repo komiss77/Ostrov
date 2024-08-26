@@ -1,14 +1,19 @@
 package ru.komiss77;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.*;
-import ru.komiss77.enums.*;
+import org.bukkit.entity.Player;
+import ru.komiss77.enums.Data;
+import ru.komiss77.enums.Operation;
+import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.listener.SpigotChanellMsg;
@@ -20,8 +25,8 @@ import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.FastMath;
-import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.TCUtil;
 
 
 public class ApiOstrov {
@@ -46,9 +51,9 @@ public class ApiOstrov {
         }
     }
 
-    //вроде часто нужно, пусть тут будет ссылочка
-    public static boolean teleportSave(final Player p, Location feetLoc, final boolean buildSafePlace) {
-        return MoveUtil.teleportSave(p, feetLoc, buildSafePlace);
+    @Deprecated // юзаем напрямую
+    public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
+        return MoveUtil.safeTP(p, feetLoc, buildSafePlace);//тестить будем
     }
 
     /**
@@ -65,8 +70,9 @@ public class ApiOstrov {
 
     public static boolean hasResourcePack(final Player p) {
         if (ResourcePacksLst.use) {
-            final Oplayer op = PM.getOplayer(p);
-            return op == null || !op.resourcepack_locked;//ResourcePacks.Текстуры_утановлены(p);
+            return p.hasResourcePack();
+//            final Oplayer op = PM.getOplayer(p);
+//            return op == null || !op.resourcepack_locked;//ResourcePacks.Текстуры_утановлены(p);
         } else {
             return true;
         }

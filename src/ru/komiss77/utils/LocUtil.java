@@ -3,11 +3,13 @@ package ru.komiss77.utils;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.function.Predicate;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -245,15 +247,21 @@ public class LocUtil {
     }
 
     //годится ли блок для головы?
+    @Deprecated
     public static boolean isPassable(final Material mat) {
-        if (mat.isAir()) return true;
-        return switch (mat) {
-            case BARRIER, STRUCTURE_VOID, CHORUS_FLOWER,
-                 CHORUS_PLANT, SWEET_BERRY_BUSH, BAMBOO, VINE, WEEPING_VINES,
-                 MOSS_CARPET, TWISTING_VINES, LADDER, LILY_PAD -> true;
-            case LAVA -> false;
-            default -> !mat.isCollidable();
-        };
+        return isPassable(mat.asBlockType());
+    }
+
+    private static final Set<BlockType> PASS = Set.of(BlockType.BARRIER, BlockType.STRUCTURE_VOID,
+        BlockType.CHORUS_PLANT, BlockType.SWEET_BERRY_BUSH, BlockType.BAMBOO, BlockType.VINE,
+        BlockType.WEEPING_VINES, BlockType.TWISTING_VINES, BlockType.LADDER, BlockType.LILY_PAD);
+    //годится ли блок для головы?
+    public static boolean isPassable(final BlockType tp) {
+        if (tp == null) return false;
+        if (tp.isAir()) return true;
+        if (BlockType.LAVA.equals(tp)) return false;
+        else if (PASS.contains(tp)) return true;
+        else return !tp.hasCollision();
     }
 
     @Deprecated
@@ -262,13 +270,11 @@ public class LocUtil {
     }
 
     public static boolean canStand(Material mat) {
-        //switch (mat) {
-        //case LAVA:
-        //case WATER:
-        //case BEDROCK:
-        //return false;
-        //}
-        return mat != Material.LAVA && mat.isSolid();
+        return canStand(mat.asBlockType());
+    }
+
+    public static boolean canStand(final BlockType tp) {
+        return tp != null && !BlockType.LAVA.equals(tp) && tp.isSolid();
     }
 
     @Slow(priority = 1)

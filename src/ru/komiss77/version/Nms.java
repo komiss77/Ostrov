@@ -3,10 +3,7 @@ package ru.komiss77.version;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.mojang.serialization.DataResult;
@@ -14,6 +11,8 @@ import com.mojang.serialization.DynamicOps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
+import io.papermc.paper.math.BlockPosition;
+import io.papermc.paper.math.Position;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandSourceStack;
@@ -39,9 +38,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -54,7 +53,6 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotConfig;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -86,7 +84,7 @@ public class Nms {
         "save-all", "save-off", "save-on", "setidletimeout", "publish");
     chatKey = Key.key("ostrov_chat", "listener");
     mutableBlockPosition = new BlockPos.MutableBlockPos(0, 0, 0);
-    sign = ((CraftBlockData) Material.OAK_SIGN.createBlockData()).getState();
+    sign = Craft.toNMS(Material.OAK_SIGN.createBlockData());
     signId = BlockEntityType.getKey(BlockEntityType.SIGN).toString();
   }
 
@@ -206,38 +204,110 @@ public class Nms {
   }
 
 
-  public static @NotNull Material getFastMat(final World w, int x, int y, int z) {
+  @Deprecated
+  public static Material getFastMat(final World w, int x, int y, int z) {
     final ServerLevel sl = Craft.toNMS(w);
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(x, y, z));
     return iBlockData.getBukkitMaterial();
   }
 
-  public static @NotNull Material getFastMat(final WXYZ loc) {
+  public static BlockType fastType(final World w, int x, int y, int z) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(x, y, z));
+    return Craft.fromNMS(iBlockData.getBlock());
+  }
+
+  @Deprecated
+  public static Material getFastMat(final WXYZ loc) {
     final ServerLevel sl = Craft.toNMS(loc.w);
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.x, loc.y, loc.z));
     return iBlockData.getBukkitMaterial();
   }
 
-  public static @NotNull Material getFastMat(final Location loc) {
+  public static BlockType fastType(final WXYZ loc) {
+    final ServerLevel sl = Craft.toNMS(loc.w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.x, loc.y, loc.z));
+    return Craft.fromNMS(iBlockData.getBlock());
+  }
+
+  @Deprecated
+  public static Material getFastMat(final Location loc) {
     final ServerLevel sl = Craft.toNMS(loc.getWorld());
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
     return iBlockData.getBukkitMaterial();
   }
 
+  public static BlockType fastType(final Location loc) {
+    final ServerLevel sl = Craft.toNMS(loc.getWorld());
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+    return Craft.fromNMS(iBlockData.getBlock());
+  }
+
+  public static BlockData fastData(final World w, int x, int y, int z) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(x, y, z));
+    return iBlockData.createCraftBlockData();
+  }
+
+  public static BlockData fastData(final WXYZ loc) {
+    final ServerLevel sl = Craft.toNMS(loc.w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.x, loc.y, loc.z));
+    return iBlockData.createCraftBlockData();
+  }
+
+  public static BlockData fastData(final Location loc) {
+    final ServerLevel sl = Craft.toNMS(loc.getWorld());
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+    return iBlockData.createCraftBlockData();
+  }
+
   //для избавления твиста от НМС.
+  @Deprecated
   public static void setFastMat(final WXYZ wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
+    final List<BlockPosition> poss = new ArrayList<>();
+    for (int x_ = 0; x_ != sizeX; x_++) {
+      for (int z_ = 0; z_ != sizeY; z_++) {
+        for (int y_ = 0; y_ != sizeZ; y_++) {
+          poss.add(Position.block(wxyz.x + x_,
+              wxyz.y + y_, wxyz.z + z_));
+        }
+      }
+    }
+    fastType(wxyz.w, poss, mat.asBlockType());
+  }
+
+  public static void fastType(final World w, final List<BlockPosition> poss, final BlockType bt) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState bs = Craft.toNMS(bt).defaultBlockState();
+    for (final BlockPosition bp : poss) {
+      mutableBlockPosition.set(bp.blockX(), bp.blockY(), bp.blockZ());
+      setNmsData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs);
+    }
+  }
+
+  public static void fastData(final WXYZ wxyz, final BlockPosition dims, final BlockData bd) {
     final ServerLevel sl = Craft.toNMS(wxyz.w);
-    final net.minecraft.world.level.block.state.BlockState bs = ((CraftBlockData) mat.createBlockData()).getState();
-    for (byte x_ = 0; x_ < sizeX; x_++) {
-      for (byte z_ = 0; z_ < sizeZ; z_++) {
-        for (byte y_ = 0; y_ < sizeY; y_++) {
+    final BlockState bs = Craft.toNMS(bd);
+    for (int x_ = 0; x_ != dims.blockX(); x_++) {
+      for (int z_ = 0; z_ != dims.blockY(); z_++) {
+        for (int y_ = 0; y_ != dims.blockZ(); y_++) {
           mutableBlockPosition.set(wxyz.x + x_, wxyz.y + y_, wxyz.z + z_);
-          CraftBlock.setTypeAndData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs, false);//sl.setBlock(mutableBlockPosition, bs,)
+          setNmsData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs);
         }
       }
     }
   }
 
+  //упрощенный вид
+  private static final int FST_FLAGS = 2 | 16 | 1024;
+  private static void setNmsData(final ServerLevel sl, final BlockPos.MutableBlockPos pos, final BlockState old, final BlockState curr) {
+    if (old.hasBlockEntity() && curr.getBlock() != old.getBlock()) {
+      sl.removeBlockEntity(pos);
+    }
+
+    final boolean success = sl.setBlock(pos, curr, FST_FLAGS); // NOTIFY | NO_OBSERVER | NO_PLACE (custom)
+    if (success) sl.sendBlockUpdated(pos, old, curr, 3);
+  }
 
   public enum PlaceType {
     SAFELY, FLUID, AIR, DANGEROUS;

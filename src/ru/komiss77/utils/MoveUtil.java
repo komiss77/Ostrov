@@ -1,16 +1,22 @@
 package ru.komiss77.utils;
 
-import org.bukkit.*;
+import java.lang.ref.WeakReference;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.version.Nms;
 
@@ -18,13 +24,65 @@ import ru.komiss77.version.Nms;
 //не переименовывать! юзают все плагины!
 public class MoveUtil {
 
-    private static final int SEARCH_DST = 6;
 
     //учесть поиск дна океана и лавы
     //p может быть null
     //  findSaveLocation вернуть GameMode.CREATIVE
+    private static final int MAX_DST = 3;
 
+    public static boolean safeTP(final Player p, final Location feetLoc, final boolean force) {
+        final LocFinder.Check[] mts = {
+            (LocFinder.DataCheck) (dt, y) -> {
+                if (dt instanceof Snow) return ((Snow) dt).getLayers() > 4;//снег
+                final BlockType bt = dt.getMaterial().asBlockType();
+                return LocUtil.canStand(bt) && !BlockType.BEDROCK.equals(bt);//крыша мира (как в незере)
+            },
+            (LocFinder.DataCheck) (dt, y) -> {
+                if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
+                return LocUtil.isPassable(dt.getMaterial().asBlockType());
+            },
+            (LocFinder.DataCheck) (dt, y) -> {
+                if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
+                return LocUtil.isPassable(dt.getMaterial().asBlockType());
+            }
+        };
+        final Location finLoc;
+        final WXYZ loc = new LocFinder(new WXYZ(feetLoc), mts).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+        if (loc == null) {
+            final LocFinder.Check[] ars = {
+                (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
+                (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
+                (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
+            };
+            final WXYZ alc = new LocFinder(new WXYZ(feetLoc), ars).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+            if (alc == null) return false;
 
+            alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.YELLOW_STAINED_GLASS, false);
+            new BukkitRunnable() {
+                final WeakReference<Player> prf = new WeakReference<>(p);
+
+                @Override
+                public void run() {
+                    final Player pl = prf.get();
+                    if (pl == null || !pl.isOnline() || pl.isDead()
+                        || pl.getLocation().getBlockX() != alc.x || pl.getLocation().getBlockZ() != alc.z) {
+                        alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.AIR);
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(Ostrov.instance, 30, 10);
+            finLoc = alc.getCenterLoc();
+        } else finLoc = loc.getCenterLoc();
+
+        p.setVelocity(p.getVelocity().zero());
+        p.setFallDistance(0);
+        finLoc.setYaw(p.getEyeLocation().getYaw());
+        finLoc.setPitch(p.getEyeLocation().getPitch());
+        p.teleport(finLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
+        return true;
+    }
+
+    @Deprecated // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
@@ -135,7 +193,7 @@ public class MoveUtil {
                 return true;
             }
             case AIR -> {
-                buldPlatform(p, feetXYZ, Material.YELLOW_STAINED_GLASS, Material.AIR);
+                buildPlatform(p, feetXYZ, Material.YELLOW_STAINED_GLASS, Material.AIR);
                 return true;
             }
             case FLUID -> {
@@ -172,7 +230,7 @@ public class MoveUtil {
                         }
                     }
                 }
-                buldPlatform(p, feetXYZ, platformMat, downMat);
+                buildPlatform(p, feetXYZ, platformMat, downMat);
                 return true;
             }
             case DANGEROUS -> {
@@ -220,7 +278,7 @@ public class MoveUtil {
         return true;
     }
 
-    private static void buldPlatform(final Player p, final WXYZ feetXYZ, final Material platformMat, final Material backMat) {
+    private static void buildPlatform(final Player p, final WXYZ feetXYZ, final Material platformMat, final Material backMat) {
         feetXYZ.getBlock().getRelative(BlockFace.DOWN).setType(platformMat);
         new BukkitRunnable() {
             final String name = p.getName();

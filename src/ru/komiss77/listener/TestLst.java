@@ -20,6 +20,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.MoveUtil;
 
 public class TestLst implements Listener {
 
@@ -111,12 +112,12 @@ public class TestLst implements Listener {
                 if (p.isSneaking()) {
 
                     p.sendMessage("§3teleportSave DOWN");
-                    ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, -100, 0), false);
+                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, -100, 0), true);
 
                 } else {
 
                     p.sendMessage("§3teleportSave UP");
-                    ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, 100, 0), false);
+                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, 100, 0), true);
 
                 }
                 //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));

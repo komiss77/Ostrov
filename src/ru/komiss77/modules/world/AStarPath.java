@@ -34,19 +34,24 @@ public class AStarPath {
     private final int maxNodes;
     private final boolean jump;
     private final double jmpSpd;
-//	private final int id;
+
+    //	private final int id;
 
     private WXYZ tgt;
     private Node[] steps;
-    private int tgtSet;
     private int next;
+
     private int jumpKd;
+    private boolean isJump;
+
     private int lastDst;
     private int stuckCnt;
-    private boolean move;
-    private boolean isJump;
+
     private NextState nxs;
     private Boolean done;
+
+    //    private int tgtSet;
+//    private boolean move;
 
     public AStarPath(final Mob mb, final int maxNodes, final boolean jump) {
         mrf = new WeakReference<>(mb);
@@ -58,7 +63,7 @@ public class AStarPath {
         nxs = null;
         tgt = null;
         done = null;
-        tgtSet = 0;
+//        tgtSet = 0;
         next = 0;
         jumpKd = 0;
         lastDst = 0;
@@ -83,7 +88,7 @@ public class AStarPath {
     @Nullable
     public Boolean tickGo(final double speed) {
         if (tgt == null) return null;
-        if (!move) return done = false;
+//        if (!move) return done = false;
 
         final Mob mb = mrf.get();
         if (mb == null || !mb.isValid()) {
@@ -133,7 +138,7 @@ public class AStarPath {
                     if (dst < 2) next(NextState.FALL);
                 } else {
                     if (nxt.jump && jump) {
-                        if (dst == 0 || FastMath.absInt(crr.y - lc.getBlockY()) == dst)
+                        if (dst == 0 || FastMath.abs(crr.y - lc.getBlockY()) == dst)
                             next(NextState.JUMP);
                     } else {
                         next(crr.distAbs(nxt) < 3 ? NextState.WALK : NextState.FAST);
@@ -195,7 +200,15 @@ public class AStarPath {
     @Slow(priority = 2)
     public void setTgt(final WXYZ to) {
         pth.stopPathfinding();
+        nxs = NextState.WALK;
         tgt = to;
+        final Mob mb = mrf.get();
+        if (mb == null) return;
+        final LinkedList<Node> stps = AStarFinder.findPath(new WXYZ(mb.getLocation()), to, maxNodes, jump);
+        steps = stps.toArray(new Node[0]);
+        next = 0;
+
+        /*tgt = to;
         done = null;
         this.tgtSet++;
         final int tgtSet = this.tgtSet;
@@ -212,21 +225,24 @@ public class AStarPath {
             steps = stps.toArray(new Node[0]);
             next = 0;
             move = true;
-        });
+        });*/
     }
 
     public void delTgt() {
-        if (tgtSet != 0) {
+        steps = non;
+        next = 0;
+        tgt = null;
+        /*if (tgtSet != 0) {
             steps = non;
             tgtSet = 0;
             next = 0;
             tgt = null;
             move = false;
-        }
+        }*/
     }
 
     public boolean hasTgt() {
-        return tgtSet != 0;
+        return tgt != null;
     }
 
     private void jump(final LivingEntity rplc, final Location from, final XYZ curr) {
