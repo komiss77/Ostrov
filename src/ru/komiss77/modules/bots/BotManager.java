@@ -9,6 +9,8 @@ import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +21,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -180,8 +183,25 @@ public class BotManager implements Initiable, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onLoad(final EntitiesLoadEvent e) {
+        for (final Entity ent : e.getEntities()) {
+            if (!(ent instanceof final LivingEntity le)) continue;
+            if (ent.getType() != Botter.TYPE
+                || le.getMaximumAir() != BotEntity.BOT_ID) continue;
+            final Botter be = botById.get(ent.getEntityId());
+            if (be == null) {
+                ent.remove();
+                continue;
+            }
+//            be.remove();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onFish(final EntityMountEvent e) {
-        if (e.getEntity() instanceof final LivingEntity le) {
+        if (e.getEntity() instanceof final FishHook fh) {
+            final Botter be = botById.get(e.getMount().getEntityId());
+            if (be != null) Ostrov.log_ok("bot hooked");
         }
     }
 

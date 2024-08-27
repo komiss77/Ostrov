@@ -220,8 +220,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
                                 case SUCCESSFULLY_LOADED -> pack_ok(p);
 
-                                case DECLINED -> {
-//                                    op.resourcepack_locked = true;
+                                case DECLINED -> //op.resourcepack_locked = true;
                                     p.sendMessage(TCUtil.form("""
                                     §e*******************************************************************
                                     §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
@@ -230,7 +229,6 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                                     """)
                                     .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для перехода")))
                                     .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
-                                }
 
                                 case FAILED_DOWNLOAD -> {
 //                                    op.resourcepack_locked = true;

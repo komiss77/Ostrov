@@ -205,7 +205,7 @@ public class AStarPath {
         final Mob mb = mrf.get();
         if (mb == null) return;
         final LinkedList<Node> stps = AStarFinder.findPath(new WXYZ(mb.getLocation()), to, maxNodes, jump);
-        steps = stps.toArray(new Node[0]);
+        steps = stps.toArray(non);
         next = 0;
 
         /*tgt = to;

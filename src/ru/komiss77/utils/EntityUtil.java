@@ -1,19 +1,23 @@
 package ru.komiss77.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import ru.komiss77.Ostrov;
 
 
@@ -24,21 +28,15 @@ public class EntityUtil {
     }
 
     public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
-        if (e instanceof final EntityDamageByEntityEvent ev) {
-            if (ev.getDamager() instanceof Projectile && ((Projectile) ev.getDamager()).getShooter() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
-            } else if (ev.getDamager() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
-            }
+        if (e.getDamageSource().getCausingEntity() instanceof final LivingEntity le) {
+            if (le instanceof final Tameable tm && owner) {
+                return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
+            } else return le;
         }
         return null;
     }
 
-    public List<Projectile> shoot(final LivingEntity shooter, final ItemStack prj) {
+    public static List<Projectile> shoot(final LivingEntity shooter, final ItemStack prj) {
         ItemStack weapon = shooter.getEquipment().getItemInMainHand();
 
         if (!ItemType.BOW.equals(weapon.getType().asItemType())
@@ -101,6 +99,71 @@ public class EntityUtil {
         }
 
         return arrows;
+    }
+
+    public static void indicate(final Location at, final String ind, final Player to) {
+        final Location elc = to.getEyeLocation();
+        final Location loc = new Location(at.getWorld(), 1.4d * at.getX() - 0.4d * elc.getX(),
+            at.getY(), 1.4d * at.getZ() - 0.4d * elc.getZ());
+        final float size = Math.max((float) elc.distanceSquared(loc) * 0.008f, 1.2f);
+        final float dx = 0.5f - Ostrov.random.nextFloat(), dz = 0.5f - Ostrov.random.nextFloat();
+        final float small = size * 0.4f;
+        final TextDisplay tds = at.getWorld().spawn(loc, TextDisplay.class, td -> {
+            final Transformation tm = td.getTransformation();
+            td.setTransformation(new Transformation(new Vector3f(dz * small, small, dx * small),
+                tm.getLeftRotation(), new Vector3f(size), tm.getRightRotation()));
+            td.setBackgroundColor(Color.fromARGB(0));
+            td.setBillboard(Display.Billboard.VERTICAL);
+            td.setTextOpacity((byte) 0);
+            td.setVisibleByDefault(false);
+            td.text(TCUtil.form(ind));
+            td.setSeeThrough(true);
+            td.setShadowed(true);
+            td.setViewRange(200f);
+        });
+
+        to.showEntity(Ostrov.instance, tds);
+        Ostrov.sync(() -> {
+            tds.setInterpolationDelay(0);
+            tds.setInterpolationDuration(20);
+            final Transformation tm = tds.getTransformation();
+            tds.setTransformation(new Transformation(new Vector3f(dx * size, size, dz * size),
+                tm.getLeftRotation(), new Vector3f(small), tm.getRightRotation()));
+            tds.setTextOpacity((byte) -127);
+            Ostrov.sync(() -> tds.remove(), 24);
+        }, 2);
+    }
+
+    public static void indicate(final Location at, final String ind, final Collection<Player> to) {
+        double dst_sq = 0;
+        for (final Player pl : to) dst_sq += pl.getEyeLocation().distanceSquared(at);
+        final float size = Math.max((float) dst_sq / to.size() * 0.008f, 1.2f);
+        final float dx = 0.5f - Ostrov.random.nextFloat(), dz = 0.5f - Ostrov.random.nextFloat();
+        final float small = size * 0.4f;
+        final TextDisplay tds = at.getWorld().spawn(at, TextDisplay.class, td -> {
+            final Transformation tm = td.getTransformation();
+            td.setTransformation(new Transformation(new Vector3f(dz * small, small, dx * small),
+                tm.getLeftRotation(), new Vector3f(size), tm.getRightRotation()));
+            td.setBackgroundColor(Color.fromARGB(0));
+            td.setBillboard(Display.Billboard.VERTICAL);
+            td.setTextOpacity((byte) 255);
+            td.setVisibleByDefault(false);
+            td.text(TCUtil.form(ind));
+            td.setSeeThrough(true);
+            td.setShadowed(true);
+            td.setViewRange(200f);
+        });
+
+        for (final Player pl : to) pl.showEntity(Ostrov.instance, tds);
+        Ostrov.sync(() -> {
+            tds.setInterpolationDelay(0);
+            tds.setInterpolationDuration(20);
+            final Transformation tm = tds.getTransformation();
+            tds.setTransformation(new Transformation(new Vector3f(dx * size, size, dz * size),
+                tm.getLeftRotation(), new Vector3f(small), tm.getRightRotation()));
+            tds.setTextOpacity((byte) -127);
+            Ostrov.sync(() -> tds.remove(), 24);
+        }, 2);
     }
 
     public static EntityGroup group(final Entity e) {
@@ -309,12 +372,12 @@ public class EntityUtil {
         TICKABLE_TILE("§3TickableTile", Material.BLUE_SHULKER_BOX);
 
         public static EntityGroup matchGroup(String groupName) {
-            for (EntityGroup g : EntityGroup.values()) {
+            for (EntityGroup g : values()) {
                 if (g.name().equalsIgnoreCase(groupName)) {
                     return g;
                 }
             }
-            return EntityGroup.UNDEFINED;
+            return UNDEFINED;
         }
 
         public final String displayName;

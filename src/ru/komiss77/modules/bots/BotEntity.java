@@ -21,7 +21,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
@@ -47,6 +46,7 @@ import ru.komiss77.version.Nms;
 public class BotEntity extends ServerPlayer implements Botter {
 
     public static final EntityDataAccessor<Byte> flags = DATA_SHARED_FLAGS_ID;
+    public static final int BOT_ID = 1337;//random val
 
     private static final net.minecraft.world.item.ItemStack air
         = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtil.air);
@@ -222,9 +222,8 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     public void swingHand(final boolean main) {
+        Nms.sendWorldPackets(world, new ClientboundAnimatePacket(this, main ? 0 : 3));
         this.swinging = false;
-        if (main) swing(InteractionHand.MAIN_HAND);
-        else swing(InteractionHand.OFF_HAND);
     }
 
     public void attack(final LivingEntity from, final Entity to, final boolean ofh) {
@@ -279,6 +278,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             v.setRemoveWhenFarAway(false);
             v.customName(TCUtil.form(name));
             v.setCustomNameVisible(true);
+            v.setMaximumAir(BOT_ID);
         });
         this.rplc = new WeakReference<>(vc);
         this.rid = vc.getEntityId();

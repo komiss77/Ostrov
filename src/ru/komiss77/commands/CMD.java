@@ -7,7 +7,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.komiss77.*;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Cfg;
+import ru.komiss77.Timer;
 import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.WorldSetupMenu;
@@ -251,7 +253,7 @@ public class CMD {
                         if (WarpManager.exist("spawn")) {
                             DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
                         } else {
-                            DelayTeleport.tp(p, Bukkit.getWorlds().get(0).getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                            DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
                         }
                     } else {
                         p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
@@ -270,13 +272,15 @@ public class CMD {
                     if (Cfg.back_command) {
                         if (p.hasPermission("ostrov.back")) {
                             final Oplayer op = PM.getOplayer(p);
-                            if (op.last_death == null) {
+                            final Location dlc = p.getLastDeathLocation();
+                            if (dlc == null) {
                                 p.sendMessage("§c" + Lang.t(p, "Вы еще не погибали!"));
                                 return 0;
                             }
-                            Location b1 = p.getLocation();
-                            DelayTeleport.tp(p, op.last_death, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
-                            op.last_death = b1;
+                            final Location cl = p.getLocation();
+                            DelayTeleport.tp(p, dlc, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
+                            p.setLastDeathLocation(cl);
+                            //op.last_death = b1;
                         } else {
                             p.sendMessage("§c" + Lang.t(p, "У Вас нет пава ostrov.back !"));
                             return 0;

@@ -98,7 +98,7 @@ public class Oplayer {
     public ProfileManager menu;
     private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
-    public Location last_death;
+//    public Location last_death; //p.getLastDeathLocation()
 
     public String chat_group = " ---- ";
     private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";

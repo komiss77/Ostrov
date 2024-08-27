@@ -10,10 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -31,7 +28,11 @@ import ru.komiss77.utils.LocUtil;
 public interface Botter {
 
     //    private String prefix, affix, suffix;
+    EntityType TYPE = EntityType.VINDICATOR;
     double DHIT_DST_SQ = 4d;
+    double SPEED_RUN = 1.25d;
+    double SPEED_WALK = 1.1d;
+    double SPEED_SLOW = 0.8d;
     /*int BASH_TICKS = 40;
     int BLOCK_ACT = 1;
     int PARRY_ACT = 2;

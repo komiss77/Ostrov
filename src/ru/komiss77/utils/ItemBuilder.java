@@ -159,6 +159,7 @@ public class ItemBuilder {
 
     public ItemBuilder amount(final int ammount) {
         this.amount = ammount;    //item.setAmount(amount);
+//        if (amount > maxStack) maxStack(ammount);
         return this;
     }
 
@@ -354,9 +355,9 @@ public class ItemBuilder {
 
     @Deprecated
     public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op) {
-         attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
-         return this;
-      }
+        attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
+        return this;
+    }
 
     public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op, @Nullable final EquipmentSlotGroup slotGroup) {
         if (checkMeta()) {
@@ -503,15 +504,14 @@ public class ItemBuilder {
     public ItemStack build() {
         if (wrong) {
             return new ItemBuilder(Material.BEDROCK)
-                    .name("§cКривой предмет!")
-                    .lore(lore)
-                    .build();
+                .name("§cКривой предмет!")
+                .lore(lore)
+                .build();
         }
         if (amount < 1) {
             return ItemUtil.air.clone();
-        } else if (amount > maxStack) {
-            amount = maxStack;
         }
+
         final ItemStack item = type.createItemStack(amount);
         if (meta == null) meta = item.getItemMeta();
         if (meta == null) return item;
@@ -576,90 +576,6 @@ public class ItemBuilder {
         item.setItemMeta(meta);
         return item;
     }
-/*
-    public ItemStack build() {
-        if (amount < 1) {
-            amount = 1;
-        } else if (amount > maxStack) {
-            amount = maxStack;
-        }
-        final ItemStack item = type.createItemStack(amount);//new ItemStack(mat, amount);
-        if (!lore.isEmpty()) {
-            if (meta == null) meta = item.getItemMeta();
-            meta.lore(lore);
-        }
-
-        if (maxStack != type.getMaxStackSize()) {
-            meta.setMaxStackSize(maxStack);
-        }
-
-        switch (mat) {
-
-            case POTION, TIPPED_ARROW, LINGERING_POTION, SPLASH_POTION:
-                if (basePotionType != null || customPotionEffects != null) {
-                    if (meta == null) meta = item.getItemMeta();
-                    final PotionMeta potionMeta = (PotionMeta) meta;
-                    if (basePotionType != null) potionMeta.setBasePotionType(basePotionType);
-                    if (customPotionEffects != null && !customPotionEffects.isEmpty()) {
-                        for (final PotionEffect ef : customPotionEffects) {
-                            potionMeta.addCustomEffect(ef, true);
-                        }
-                    }
-                    if (color != null) {
-                        potionMeta.setColor(color);
-                    }
-                }
-                break;
-
-            case PLAYER_HEAD:
-                if (meta == null) meta = item.getItemMeta();
-                final SkullMeta skullMeta = (SkullMeta) meta;
-
-                if (skullOwnerUuid != null && !skullOwnerUuid.isEmpty()) {
-                    final UUID uuid = UUID.fromString(skullOwnerUuid);
-                    final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                    skullMeta.setOwningPlayer(offlinePlayer);
-                }
-
-                if (skullTexture != null && !skullTexture.isEmpty()) {
-                    ItemUtil.setHeadTexture(skullMeta, skullTexture);
-                }
-                break;
-
-            case LEATHER_BOOTS, LEATHER_CHESTPLATE, LEATHER_HELMET,
-                    LEATHER_LEGGINGS, LEATHER_HORSE_ARMOR:
-                if (color != null) {
-                    if (meta == null) meta = item.getItemMeta();
-                    final LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
-                    leatherMeta.setColor(color);
-                }
-                break;
-
-            case ENCHANTED_BOOK://для книг чары в storage
-                if (enchants != null && !enchants.isEmpty()) {
-                    if (meta == null) meta = item.getItemMeta();
-                    final EnchantmentStorageMeta enchantedBookMeta = (EnchantmentStorageMeta) meta;
-                    for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {//ignoreLevelRestriction
-                        enchantedBookMeta.addStoredEnchant(en.getKey(), en.getValue(), false);
-                    }
-                }
-                enchants = null;
-                break;
-
-            default:
-                break; //для обычных предметов просто кидаем чары - а для дригих не кидаем????? не заслужили тип????
-        }
-
-        if (enchants != null && !enchants.isEmpty()) {
-            if (meta == null) meta = item.getItemMeta();
-            for (final Map.Entry<Enchantment, Integer> en : enchants.entrySet()) {
-                meta.addEnchant(en.getKey(), en.getValue(), true);
-            }
-        }
-
-        if (meta != null) item.setItemMeta(meta);
-        return item;
-    }*/
 
 
 }

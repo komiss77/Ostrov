@@ -1,5 +1,6 @@
 package ru.komiss77.scoreboard;
 
+import java.util.List;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -14,8 +15,6 @@ import org.bukkit.scoreboard.Team;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Craft;
 import ru.komiss77.version.Nms;
-
-import java.util.List;
 
 public class SubTeam {
 
@@ -59,7 +58,9 @@ public class SubTeam {
     }
 
     public SubTeam color(final NamedTextColor color) {
-        final ChatFormatting c = ChatFormatting.getByName(color.toString().toUpperCase());
+//        Bukkit.broadcast(TCUtil.form("ic- " +  color.toString()));
+        final ChatFormatting c = PaperAdventure.asVanilla(color);
+//        Bukkit.broadcast(TCUtil.form("fc- " + (c == null ? ChatFormatting.WHITE : c).name()));
         nmsTeam.setColor(c == null ? ChatFormatting.WHITE : c);
         return this;
     }
