@@ -4,10 +4,11 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 
 !!!!Could not set generator for default world 'world': Plugin 'Ostrov v3.4' is not enabled yet (is it load:STARTUP?)
 
-home gui
+home gui - пункт LandAdminCmd
 влить регионгуи в остров, в меню домов показывать и регионы
 при смене ГМ тэг остаётся
-
+убрать из suggest получение аргумента через Resolver.string
+рома переделал безоп.ТП ?
 
 база композиций стоек для брони https://minecraft-heads.com/armor-stands
 кастомные биомы тема https://www.spigotmc.org/threads/how-to-create-custom-biomes.512105/page-2

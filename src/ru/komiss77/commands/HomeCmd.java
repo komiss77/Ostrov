@@ -1,5 +1,10 @@
 package ru.komiss77.commands;
 
+@Deprecated
+public class HomeCmd {
+
+}
+/*
 import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -130,3 +135,4 @@ public class HomeCmd implements OCommand {
         return "Телеппорт на дом";
     }
 }
+*/

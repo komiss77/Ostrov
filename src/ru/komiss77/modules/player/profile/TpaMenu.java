@@ -12,7 +12,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Timer;
-import ru.komiss77.commands.CMD;
+import ru.komiss77.commands.IOO5OOCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
@@ -226,7 +226,7 @@ public class TpaMenu implements InventoryProvider {
 
             } else {
 
-                price = CMD.getTpPrice(p, find.getLocation());
+              price = IOO5OOCmd.getTpPrice(p, find.getLocation());
 
                 final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
                         .name(find.getName())

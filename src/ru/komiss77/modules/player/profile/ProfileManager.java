@@ -33,6 +33,7 @@ import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
 import ru.komiss77.modules.player.profile.serverMenu.LocalMenuOpener;
+import ru.komiss77.modules.regions.menu.RegionMenu;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.ItemBuilder;
@@ -833,13 +834,28 @@ public class ProfileManager {
         localdMode = LocalMode.Дома;
 
         current = SmartInventory
-                .builder()
-                .id(op.nik + op.menu.section.name())
-                .provider(new HomeMenu(op))
-                .size(6, 9)
-                .title(op.eng ? "Yours homes" : "Точки дома")
-                .build()
-                .open(op.getPlayer());
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new HomeMenu(op))
+            .size(6, 9)
+            .title(op.eng ? "Yours homes" : "Точки дома")
+            .build()
+            .open(op.getPlayer());
+
+    }
+
+    public void openRegions(final Player p) {
+        section = Section.ВОЗМОЖНОСТИ;
+        localdMode = LocalMode.Регионы;
+
+        current = SmartInventory
+            .builder()
+            .id(op.nik + op.menu.section.name())
+            .provider(new RegionMenu(op))
+            .size(6, 9)
+            .title(op.eng ? "Yours regions" : "Ваши регионы")
+            .build()
+            .open(op.getPlayer());
 
     }
 

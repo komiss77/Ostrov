@@ -1,5 +1,9 @@
 package ru.komiss77.hook;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -17,19 +21,15 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.regions.RM;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.BlockUtil;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-
-// https://enginehub.org/
-// https://worldguard.enginehub.org/en/latest/developer/regions/managers/
 
 // не переименовывать! используют другие плагины
+// https://enginehub.org/
+// https://worldguard.enginehub.org/en/latest/developer/regions/managers/
 
 public class WGhook {
 
@@ -40,43 +40,43 @@ public class WGhook {
         worldguard_platform = WorldGuard.getInstance().getPlatform();
         Ostrov.wg = true;
         Ostrov.log_ok("§bПодключен WorldGuard !");
+
+        switch (GM.GAME) {
+            case DA, AR -> RM.onWgHook();
+            default -> {
+            }
+        }
+
+        if (Ostrov.MOT_D.equals("home")) RM.onWgHook(); //отладка
+
     }
 
 
     public static int purgeDeadRegions(final Collection<String> validUsers, final Set<UUID> validUuids) {
         int result = 0;
-
         for (World w : Bukkit.getWorlds()) {
-
             final RegionManager rm = getRegionManager(w);
-
             //final Set <String> toDel = new HashSet<>();
-
             for (ProtectedRegion rg : rm.getRegions().values()) {
                 //rm.getRegions().values().stream().forEach( (rg) -> {
-
                 boolean valid = false;
-
                 for (String name : rg.getOwners().getPlayers()) {
                     if (validUsers.contains(name)) {
                         valid = true;
                         break;
                     }
                 }
-
                 for (UUID uuid : rg.getOwners().getUniqueIds()) {
                     if (validUuids.contains(uuid)) {
                         valid = true;
                         break;
                     }
                 }
-
                 if (!valid) {
                     //toDel.add(rg.getId());
                     rm.removeRegion(rg.getId());
                     result++;
                 }
-                
                 /*if ( rg.getOwners().contains(name) ) {
                     rg.getOwners().removePlayer(name);
                 } else if (uuid!=null && rg.getOwners().contains(uuid)) {
@@ -87,12 +87,10 @@ public class WGhook {
                     rg.getMembers().removePlayer(uuid);
                 }*/
             }
-
             // for (final String id : toDel) {
             //     rm.removeRegion(id);
             //      result++;
             //   }
-
         }
         return result;
     }
@@ -100,12 +98,9 @@ public class WGhook {
 
     public static Map<ProtectedRegion, String> findPlayerRegions(final org.bukkit.entity.Player p, final World world, final boolean owner, final boolean member) {
         if (worldguard_platform == null) return null;
-
         Map<ProtectedRegion, String> regions = new ValueSortedMap<>();
         //LocalPlayer lp = Ostrov.getWorldGuard().wrapPlayer(p);
-
         if (world == null) {
-
             Bukkit.getWorlds().stream().forEach((w) -> {
                 final RegionManager rm = getRegionManager(w);
                 rm.getRegions().values().stream().forEach((rg) -> {
@@ -116,7 +111,6 @@ public class WGhook {
                     }
                 });
             });
-
         } else {
             final RegionManager rm = getRegionManager(world);
             rm.getRegions().values().stream().forEach((rg) -> {
@@ -175,6 +169,17 @@ public class WGhook {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

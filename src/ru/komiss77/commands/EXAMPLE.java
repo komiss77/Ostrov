@@ -19,121 +19,126 @@ import ru.komiss77.modules.player.PM;
 
 public class EXAMPLE implements OCommand {
 
-    private static final String COMMAND = "example";
-    private static final List<String> ALIASES = List.of("aliase");
-    private static final String DESCRIPTION = "команда";
-    private static final boolean CAN_CONSOLE = false;
+  private static final String COMMAND = "example";
+  private static final List<String> ALIASES = List.of("aliase");
+  private static final String DESCRIPTION = "команда";
+  private static final boolean CAN_CONSOLE = false;
 
 
-    private static final String arg0 = "arg0", arg1 = "arg1", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
+  private static final String arg0 = "arg0", arg1 = "arg1", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
 
-        return Commands.literal(COMMAND)
+  @Override
+  public LiteralCommandNode<CommandSourceStack> command() {
 
-                .executes(executor())//выполнение без аргументов
+    return Commands.literal(COMMAND)
 
-                //1 аргумент
-                .then(Resolver.string(arg0).suggests((cntx, sb) -> {
+        .executes(executor())//выполнение без аргументов
 
-                                    //обычно 0 аргумент - имя игрока
-                                    PM.suggester(sb.getRemaining()).forEach(s -> sb.suggest(s));
+        //1 аргумент
+        .then(Resolver.string(arg0)
+            .suggests((cntx, sb) -> {
 
-                                    return sb.buildFuture();
-                                })
-                                .executes(executor())//выполнение c 1 аргументом
+              //обычно 0 аргумент - имя игрока
+              PM.suggester(sb.getRemaining()).forEach(s -> sb.suggest(s));
 
-                                //2 аргумента
-                                .then(Resolver.string(arg1).suggests((cntx, sb) -> {
-                                                    final CommandSender cs = cntx.getSource().getSender();
-                                                    final String playerName = arg(sb, 0); //обычно 0 аргумент - имя игрока
-                                                    final Player target = Bukkit.getPlayerExact(playerName);
-                                                    if (target != null) {
+              return sb.buildFuture();
+            })
+            .executes(executor())//выполнение c 1 аргументом
 
-                                                    }
-                                                    return sb.buildFuture();
-                                                })
-                                                .executes(executor())//выполнение c 2 аргументами
+            //2 аргумента
+            .then(Resolver.string(arg1)
+                .suggests((cntx, sb) -> {
+                  final CommandSender cs = cntx.getSource().getSender();
+                  final String playerName = arg(sb, 0); //обычно 0 аргумент - имя игрока
+                  final Player target = Bukkit.getPlayerExact(playerName);
+                  if (target != null) {
 
-                                                //3 аргумента
-                                                .then(Resolver.string(arg2).suggests((cntx, sb) -> {
-                                                                    //sb.suggest("третий");
-                                                                    return sb.buildFuture();
-                                                                })
-                                                                .executes(executor())//выполнение c 3 аргументами
+                  }
+                  return sb.buildFuture();
+                })
+                .executes(executor())//выполнение c 2 аргументами
 
-                                                                //4 аргумента
-                                                                .then(Resolver.string(arg3).suggests((cntx, sb) -> {
-                                                                                    //sb.suggest("четвёртый");
-                                                                                    return sb.buildFuture();
-                                                                                })
-                                                                                .executes(executor())//выполнение c 4 аргументами
+                //3 аргумента
+                .then(Resolver.string(arg2)
+                    .suggests((cntx, sb) -> {
+                      //sb.suggest("третий");
+                      return sb.buildFuture();
+                    })
+                    .executes(executor())//выполнение c 3 аргументами
 
-                                                                                //5 аргументов
-                                                                                .then(Resolver.string(arg4).suggests((cntx, sb) -> {
-                                                                                                    //sb.suggest("пятый");
-                                                                                                    return sb.buildFuture();
-                                                                                                })
-                                                                                                .executes(executor())//выполнение c 5 аргументами
+                    //4 аргумента
+                    .then(Resolver.string(arg3)
+                        .suggests((cntx, sb) -> {
+                          //sb.suggest("четвёртый");
+                          return sb.buildFuture();
+                        })
+                        .executes(executor())//выполнение c 4 аргументами
 
-                                                                                )
-                                                                )
-                                                )
-                                )
+                        //5 аргументов
+                        .then(Resolver.string(arg4)
+                            .suggests((cntx, sb) -> {
+                              //sb.suggest("пятый");
+                              return sb.buildFuture();
+                            })
+                            .executes(executor())//выполнение c 5 аргументами
+
+                        )
+                    )
                 )
+            )
+        )
 
-                .build();
+        .build();
+  }
+
+
+  private static Command<CommandSourceStack> executor() {
+    return cntx -> {
+      final CommandSender sender = cntx.getSource().getSender();
+      final Player p = (sender instanceof Player) ? (Player) sender : null;
+      if (!CAN_CONSOLE && p == null) {
+        sender.sendMessage("§eНе консольная команда!");
+        return 0;
+      }
+      int idx = cntx.getInput().indexOf(" ");
+      final String[] arg; //интересуют только аргументы, сама команда типа известна
+      if (idx < 0) {
+        arg = new String[0]; //"без параметров!");
+      } else {
+        arg = cntx.getInput().substring(idx + 1).split(" ");
+      }
+      //тут юзаем по старинке со всеми аргументами   /команда arg[0] ... arg[4]
+
+
+      return Command.SINGLE_SUCCESS;
+    };
+  }
+
+
+  private static String arg(SuggestionsBuilder sb, int position) {
+    int idx = sb.getInput().indexOf(" ");
+    if (idx < 0) {
+      return "";
+    } else {
+      final String[] arg = sb.getInput().substring(idx + 1).split(" ");
+      if (position < arg.length) {
+        return arg[position];
+      } else {
+        return "";
+      }
     }
+  }
 
 
-    private static Command<CommandSourceStack> executor() {
-        return cntx -> {
-            final CommandSender sender = cntx.getSource().getSender();
-            final Player p = (sender instanceof Player) ? (Player) sender : null;
-            if (!CAN_CONSOLE && p == null) {
-                sender.sendMessage("§eНе консольная команда!");
-                return 0;
-            }
-            int idx = cntx.getInput().indexOf(" ");
-            final String[] arg; //интересуют только аргументы, сама команда типа известна
-            if (idx < 0) {
-                arg = new String[0]; //"без параметров!");
-            } else {
-                arg = cntx.getInput().substring(idx + 1).split(" ");
-            }
-            //тут юзаем по старинке со всеми аргументами   /команда arg[0] ... arg[4]
+  @Override
+  public List<String> aliases() {
+    return ALIASES;
+  }
 
-
-            return Command.SINGLE_SUCCESS;
-        };
-    }
-
-
-    private static String arg(SuggestionsBuilder sb, int position) {
-        int idx = sb.getInput().indexOf(" ");
-        if (idx < 0) {
-            return "";
-        } else {
-            final String[] arg = sb.getInput().substring(idx + 1).split(" ");
-            if (position < arg.length) {
-                return arg[position];
-            } else {
-                return "";
-            }
-        }
-    }
-
-
-
-    @Override
-    public List<String> aliases() {
-        return ALIASES;
-    }
-
-    @Override
-    public String description() {
-        return DESCRIPTION;
-    }
+  @Override
+  public String description() {
+    return DESCRIPTION;
+  }
 
 }
 

@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.ProfileManager;
@@ -119,23 +121,26 @@ public class Daaria implements InventoryProvider {
         
 */
 
+        if (Ostrov.wg) {
+            content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
+                .name("§eРегионы")
+                .lore("§fУправление регионами.")
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .flags(ItemFlag.HIDE_ENCHANTS)
+                .build(), e -> {
+                pm.openRegions(p);
+            }));
+        } else {
+            content.set(2, 1, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)
+                .name("§cРегионы")
+                .lore("§cНет WG!")
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .flags(ItemFlag.HIDE_ENCHANTS)
+                .build()));
+        }
 
-        content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
-            .name("§eРегионы")
-            .enchant(Enchantment.KNOCKBACK, 1)
-            .lore("§fУправление регионами.")
-            .lore("§7Создание, удаление,")
-                .lore("§7Установка точек ТП в регионе,")
-            .lore("§7Настройка флагов.")
-            .lore("")
-            .build(), e -> {
-            //p.closeInventory();
-            pm.current = null;
-            p.performCommand("land");
-        }));
 
-
-        content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
+       /*  content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
             .name("§eВернуться в свой регион")
                 //.lore("§7Дом любимый дом.")
                 //.lore("§7Создание, удаление,")
@@ -149,7 +154,7 @@ public class Daaria implements InventoryProvider {
         }));
 
 
-        /*content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
+       content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
             .name("§eВернуться домой")
             .lore("")
             .lore("§7Дом любимый дом")
@@ -161,8 +166,8 @@ public class Daaria implements InventoryProvider {
         }));*/
 
 
-        content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
-            .name("§eУправление точками дома")
+        content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
+            .name("§eДома")
                 //.lore("")
                 //.lore("§eУправление точками дома")
                 //.lore("")

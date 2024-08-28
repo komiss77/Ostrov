@@ -31,76 +31,81 @@ public class RewardCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
 
-                .then(Resolver.string(player).suggests((cntx, sb) -> { //0
-                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
-                                        PM.suggester(sb);//Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                                    }
-                                    return sb.buildFuture();
-                                })
+            .then(Resolver.string(player)
+                .suggests((cntx, sb) -> { //0
+                  if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                    PM.suggester(sb);//Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+                  }
+                  return sb.buildFuture();
+                })
 
-                                .then(Resolver.string(item).suggests((cntx, sb) -> { //1
-                                                    Ostrov.log_warn("can?" + ApiOstrov.canBeBuilder(cntx.getSource().getExecutor()));
-                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
-                                                        Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
-                                                    }
-                                                    return sb.buildFuture();
-                                                })
+                .then(Resolver.string(item)
+                    .suggests((cntx, sb) -> { //1
+                      Ostrov.log_warn("can?" + ApiOstrov.canBeBuilder(cntx.getSource().getExecutor()));
+                      if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                        Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
+                      }
+                      return sb.buildFuture();
+                    })
 
-                                                .then(Resolver.string(op).suggests((cntx, sb) -> { //2
-                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
-                                                                        switch (arg(sb, 1)) { //1=RewardType. Resolver.string(cntx, item)) { игнорит код ниже
-                                                                            case "permission", "perm" -> {
-                                                                                sb.suggest("ostrov.perm");
-                                                                                sb.suggest(Ostrov.MOT_D + ".builder");
-                                                                            }
-                                                                            case "group" -> {
-                                                                                for (final Group g : Perm.getGroups()) {
-                                                                                    if (!g.isStaff()) sb.suggest(g.name);
-                                                                                }
-                                                                            }
-                                                                            default -> {
-                                                                                sb.suggest("add");
-                                                                                sb.suggest("get");
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    return sb.buildFuture();
-                                                                })
+                    .then(Resolver.string(op)
+                        .suggests((cntx, sb) -> { //2
+                          if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                            switch (arg(sb, 1)) { //1=RewardType. Resolver.string(cntx, item)) { игнорит код ниже
+                              case "permission", "perm" -> {
+                                sb.suggest("ostrov.perm");
+                                sb.suggest(Ostrov.MOT_D + ".builder");
+                              }
+                              case "group" -> {
+                                for (final Group g : Perm.getGroups()) {
+                                  if (!g.isStaff()) sb.suggest(g.name);
+                                }
+                              }
+                              default -> {
+                                sb.suggest("add");
+                                sb.suggest("get");
+                              }
+                            }
+                          }
+                          return sb.buildFuture();
+                        })
 
-                                                                .then(Resolver.string(val).suggests((cntx, sb) -> {//3
-                                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
-                                                                                        switch (arg(sb, 2)) { //2=operation. Resolver.string(cntx, item)) { игнорит код нижеResolver.string(cntx, item)) {
-                                                                                            case "permission", "perm", "group" -> {
-                                                                                                sb.suggest("1h");
-                                                                                                sb.suggest("10h");
-                                                                                                sb.suggest("1d");
-                                                                                                sb.suggest("7d");
-                                                                                                sb.suggest("1m");
-                                                                                            }
-                                                                                            default -> {
-                                                                                                sb.suggest("10");
-                                                                                                sb.suggest("100");
-                                                                                                sb.suggest("1000");
-                                                                                            }
-                                                                                        }
+                        .then(Resolver.string(val)
+                            .suggests((cntx, sb) -> {//3
+                              if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                switch (arg(sb, 2)) { //2=operation. Resolver.string(cntx, item)) { игнорит код нижеResolver.string(cntx, item)) {
+                                  case "permission", "perm", "group" -> {
+                                    sb.suggest("1h");
+                                    sb.suggest("10h");
+                                    sb.suggest("1d");
+                                    sb.suggest("7d");
+                                    sb.suggest("1m");
+                                  }
+                                  default -> {
+                                    sb.suggest("10");
+                                    sb.suggest("100");
+                                    sb.suggest("1000");
+                                  }
+                                }
                                 }
                                 return sb.buildFuture();
                             })
                             .executes(tryReward())
 
-                                                                                .then(Resolver.string(reason).suggests((cntx, sb) -> {
-                                                                                                    if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
-                                                                                                        sb.suggest("Ostrov");
-                                                                                                    }
-                                                                                                    return sb.buildFuture();
-                                                                                                })
-                                                                                                .executes(tryReward())
-                                                                                )
-                                                                )
-                                                )
-                                )
+                            .then(Resolver.string(reason)
+                                .suggests((cntx, sb) -> {
+                                  if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                    sb.suggest("Ostrov");
+                                  }
+                                  return sb.buildFuture();
+                                })
+                                .executes(tryReward())
+                            )
+                        )
+                    )
                 )
-                .build();
+            )
+            .build();
     }
 
     private static Command<CommandSourceStack> tryReward() {
@@ -255,6 +260,6 @@ public class RewardCmd implements OCommand {
     //reward komiss77 group          vip                  5d       ostrov
     //reward komiss77 exp            add                   1000     ostrov
 }
-    
-    
- 
+
+
+

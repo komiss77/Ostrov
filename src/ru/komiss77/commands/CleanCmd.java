@@ -1,6 +1,11 @@
 package ru.komiss77.commands;
 
-
+import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
 import com.mojang.brigadier.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -14,13 +19,6 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.hook.DynmapHook;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.objects.CaseInsensitiveSet;
-
-import java.io.File;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
 
 
 public class CleanCmd {

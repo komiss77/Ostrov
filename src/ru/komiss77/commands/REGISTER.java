@@ -12,7 +12,7 @@ public class REGISTER {
     public static void register() {
         Ostrov.log_ok("§5Регистрация команд:");
 
-        new CMD();//100500 команд
+        new IOO5OOCmd();//100500 команд
         Ostrov.regCommand(new FlyCmd());
         Ostrov.regCommand(new OpermCmd());
         Ostrov.regCommand(new TpposCMD());
