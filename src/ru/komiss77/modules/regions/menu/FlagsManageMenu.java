@@ -18,14 +18,12 @@ import ru.komiss77.utils.inventory.SlotIterator;
 import ru.komiss77.utils.inventory.SlotPos;
 
 
-public class FlagsSetupMenu implements InventoryProvider {
+public class FlagsManageMenu implements InventoryProvider {
 
   private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build();
-  ;
   private final ProtectedRegion region;
 
-
-  public FlagsSetupMenu(final ProtectedRegion region) {
+  public FlagsManageMenu(final ProtectedRegion region) {
     this.region = region;
   }
 

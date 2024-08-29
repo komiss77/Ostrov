@@ -26,6 +26,23 @@ public class IOO5OOCmd {
 
   public IOO5OOCmd() {
 
+    new OCmdBuilder("land")
+        .run(cntx -> {
+          final CommandSender cs = cntx.getSource().getSender();
+          if (!(cs instanceof final Player p)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
+          if (!Ostrov.wg) {
+            p.sendMessage("§cПомошник привата недоступен (нет WG)!");
+            return 0;
+          }
+          PM.getOplayer(p).menu.openRegions(p);
+          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        })
+        .description("Помошник привата")
+        .register();
+
     new OCmdBuilder("admin")
         .run(cntx -> {
           final CommandSender cs = cntx.getSource().getSender();

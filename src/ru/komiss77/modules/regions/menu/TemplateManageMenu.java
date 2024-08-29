@@ -3,7 +3,6 @@ package ru.komiss77.modules.regions.menu;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.regions.RM;
 import ru.komiss77.modules.regions.Template;
 import ru.komiss77.utils.ItemBuilder;
@@ -20,20 +19,10 @@ public class TemplateManageMenu implements InventoryProvider {
   @Override
   public void init(final Player p, final InventoryContent contents) {
 
-    //final ArrayList<Template> list = new ArrayList<>(TemplateManager.getTemplates(p.getWorld()));
-    //Collections.sort(list);
-
     for (final Template t : RM.templates.values()) {
-      final ItemStack is = new ItemBuilder((t.getIconMat() == null) ? Material.OAK_FENCE : t.getIconMat().getType())
-          .name(t.name)
-          .lore(t.displayname)
-          //final ArrayList <String> list2 = new ArrayList(template.getDescription());
-          //list2.replaceAll(s -> TCUtil.translateAlternateColorCodes('&', s));
-          .lore(t.description)
-          .build();
 
-      //final RegionClaim claim;
-      contents.add(ClickableItem.of(is, e -> {
+
+      contents.add(ClickableItem.of(t.editorIcon(true), e -> {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         RM.editTemplate(p, t);
       }));
@@ -46,6 +35,7 @@ public class TemplateManageMenu implements InventoryProvider {
         p.sendMessage("§cТакая заготовка уже есть");
       } else {
         final Template t = new Template(name);
+        t.description.add("§7Краткое описание");
         RM.templates.put(t.name, t);
         RM.saveTemplate(t);
         RM.editTemplate(p, t);

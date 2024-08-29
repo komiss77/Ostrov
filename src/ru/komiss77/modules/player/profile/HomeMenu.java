@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.Cfg;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.Oplayer;
@@ -40,6 +41,15 @@ public class HomeMenu implements InventoryProvider {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
+      if (!Cfg.home_command) {
+        content.add(ClickableItem.empty(new ItemBuilder(Material.TRIAL_KEY)
+                .name("§c" + Lang.t(p, "Дома отключены на этом сервере!"))
+                .build()
+            )
+        );
+        return;
+      }
+
         for (final String homeName : op.homes.keySet()) {
 
             final ItemStack homeIcon = new ItemBuilder(Material.GRAY_BED)
@@ -52,27 +62,27 @@ public class HomeMenu implements InventoryProvider {
                 .build();
 
             content.add(ClickableItem.of(homeIcon, e -> {
-                    switch (e.getClick()) {
-                        case LEFT:
-                            p.closeInventory();
-                            DelayTeleport.tp(p, LocUtil.stringToLoc(op.homes.get(homeName), false, false),
-                                3, "§2Дом, милый дом", true, true, DyeColor.GREEN);
-                            break;
-                        case SHIFT_RIGHT:
-                            p.closeInventory();
-                            op.homes.put(homeName, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
-                            op.mysqlData.put("homes", null); //пометить на сохранение
-                            p.sendMessage("§2" + Lang.t(p, "Установлена новая позиция для дома ") + homeName);
-                            break;
-                        case DROP:
-                            op.homes.remove(homeName);
-                            op.mysqlData.put("homes", null); //пометить на сохранение
-                            p.sendMessage("§4" + Lang.t(p, "Точка дома удалена!"));
-                            reopen(p, content);
-                            break;
-                        default:
-                            break;
-                    }
+              switch (e.getClick()) {
+                case LEFT -> {
+                  p.closeInventory();
+                  DelayTeleport.tp(p, LocUtil.stringToLoc(op.homes.get(homeName), false, false),
+                      3, "§2Дом, милый дом", true, true, DyeColor.GREEN);
+                }
+                case SHIFT_RIGHT -> {
+                  p.closeInventory();
+                  op.homes.put(homeName, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
+                  op.mysqlData.put("homes", null); //пометить на сохранение
+                  p.sendMessage("§2" + Lang.t(p, "Установлена новая позиция для дома ") + homeName);
+                }
+                case DROP -> {
+                  op.homes.remove(homeName);
+                  op.mysqlData.put("homes", null); //пометить на сохранение
+                  p.sendMessage("§4" + Lang.t(p, "Точка дома удалена!"));
+                  reopen(p, content);
+                }
+                default -> {
+                }
+              }
                 }
             ));
         }

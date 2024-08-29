@@ -17,7 +17,7 @@ public class Cfg {
 
     public static final OConfigManager manager;
 
-    private static OConfig ostrovConfig;
+    private static OConfig cfg;
     private static OConfig variable;
 
     //для PM
@@ -25,12 +25,10 @@ public class Cfg {
     public static boolean tablist_header_footer = false;
     public static boolean tablist_name = false;
     public static boolean scale_health = false;
-    //public static boolean nameTag = false;    
 
     //для ServerListener
     public static boolean clear_old_ents;
     public static boolean block_nether_portal;
-    //    public static boolean disable_weather; уже в gamerule есть
     public static boolean disable_blockspread;
     public static boolean disable_ice_melt;
 
@@ -48,8 +46,6 @@ public class Cfg {
     //для CMD
     public static boolean home_command;
     public static boolean fly_command;
-    //    public static boolean fly_block_atack_on_fly;
-//    public static boolean fly_off_on_damage;
     public static int tpa_command_delay;
     public static boolean save_location_on_world_change;
     public static int tpr_command_delay;
@@ -91,196 +87,190 @@ public class Cfg {
             getVariable().saveConfig();
         }
 
-        ostrovStatScore = ostrovConfig.getBoolean("player.show_ostrov_info_on_scoreboard");
-        tablist_header_footer = ostrovConfig.getBoolean("player.set_tab_list_header_footer");
-        tablist_name = ostrovConfig.getBoolean("player.set_tab_list_name");
-        scale_health = ostrovConfig.getBoolean("player.scale_health");
-        block_nether_portal = ostrovConfig.getBoolean("world.block_nether_portal");
-//        disable_weather = config.getBoolean("world.disable_weather");
-        disable_blockspread = ostrovConfig.getBoolean("world.disable_blockspread");
-        disable_ice_melt = ostrovConfig.getBoolean("world.disable_ice_melt");
-        clear_old_ents = ostrovConfig.getBoolean("world.clear_old_ents");
+        ostrovStatScore = cfg.getBoolean("player.show_ostrov_info_on_scoreboard");
+        tablist_header_footer = cfg.getBoolean("player.set_tab_list_header_footer");
+        tablist_name = cfg.getBoolean("player.set_tab_list_name");
+        scale_health = cfg.getBoolean("player.scale_health");
+        block_nether_portal = cfg.getBoolean("world.block_nether_portal");
+        disable_blockspread = cfg.getBoolean("world.disable_blockspread");
+        disable_ice_melt = cfg.getBoolean("world.disable_ice_melt");
+        clear_old_ents = cfg.getBoolean("world.clear_old_ents");
 
-        set_gm = ostrovConfig.getBoolean("player.change_gamemode_on_join");
-        gm_on_join = GameMode.valueOf(ostrovConfig.getString("player.gamemode_set_to"));
-        walkspeed_on_join = Float.parseFloat(ostrovConfig.getString("player.walkspeed_on_join"));
-        clear_stats = ostrovConfig.getBoolean("player.clear_stats");
-        disable_void = ostrovConfig.getBoolean("player.disable_void");
-        disable_damage = ostrovConfig.getBoolean("player.disable_damage");
-        disable_hungry = ostrovConfig.getBoolean("player.disable_hungry");
-        disable_break_place = ostrovConfig.getBoolean("player.disable_break_place");
-        disable_lava = ostrovConfig.getBoolean("player.disable_lava");
+        set_gm = cfg.getBoolean("player.change_gamemode_on_join");
+        gm_on_join = GameMode.valueOf(cfg.getString("player.gamemode_set_to"));
+        walkspeed_on_join = Float.parseFloat(cfg.getString("player.walkspeed_on_join"));
+        clear_stats = cfg.getBoolean("player.clear_stats");
+        disable_void = cfg.getBoolean("player.disable_void");
+        disable_damage = cfg.getBoolean("player.disable_damage");
+        disable_hungry = cfg.getBoolean("player.disable_hungry");
+        disable_break_place = cfg.getBoolean("player.disable_break_place");
+        disable_lava = cfg.getBoolean("player.disable_lava");
 
-        home_command = ostrovConfig.getBoolean("modules.command.home.use");
-        fly_command = ostrovConfig.getBoolean("modules.command.fly.use");
+        home_command = cfg.getBoolean("modules.command.home.use");
+        fly_command = cfg.getBoolean("modules.command.fly.use");
 //        fly_block_atack_on_fly=config.getBoolean("modules.command.fly.disable_atack_on_fly");
 //        fly_off_on_damage=config.getBoolean("modules.command.fly.fly_off_on_damage");
-        tpa_command_delay = ostrovConfig.getInt("modules.command.tpa");
-        save_location_on_world_change = ostrovConfig.getBoolean("modules.save_location_on_world_change");
-        tpr_command_delay = ostrovConfig.getInt("modules.command.tpr");
-        back_command = ostrovConfig.getBoolean("modules.command.back");
-        settings_command = ostrovConfig.getBoolean("modules.command.settings");
-        get_command = ostrovConfig.getBoolean("modules.command.get");
-        world_command = ostrovConfig.getBoolean("modules.command.world");
-        tppos_command = ostrovConfig.getBoolean("modules.command.tppos");
-        tphere_command = ostrovConfig.getBoolean("modules.command.tphere");
-        spawn_command = ostrovConfig.getBoolean("modules.command.spawn");
-        gm_command = ostrovConfig.getBoolean("modules.command.gm");
-        invsee_command = ostrovConfig.getBoolean("modules.command.invsee");
-        speed_command = ostrovConfig.getBoolean("modules.command.speed");
-        pweather_command = ostrovConfig.getBoolean("modules.command.pweather");
-        ptime_command = ostrovConfig.getBoolean("modules.command.ptime");
-        repair_command = ostrovConfig.getBoolean("modules.command.repair");
-        heal_command = ostrovConfig.getBoolean("modules.command.heal");
-        top_command = ostrovConfig.getBoolean("modules.command.top");
-        spy_command = ostrovConfig.getBoolean("modules.command.top");
+        tpa_command_delay = cfg.getInt("modules.command.tpa");
+        save_location_on_world_change = cfg.getBoolean("modules.save_location_on_world_change");
+        tpr_command_delay = cfg.getInt("modules.command.tpr");
+        back_command = cfg.getBoolean("modules.command.back");
+        settings_command = cfg.getBoolean("modules.command.settings");
+        get_command = cfg.getBoolean("modules.command.get");
+        world_command = cfg.getBoolean("modules.command.world");
+        tppos_command = cfg.getBoolean("modules.command.tppos");
+        tphere_command = cfg.getBoolean("modules.command.tphere");
+        spawn_command = cfg.getBoolean("modules.command.spawn");
+        gm_command = cfg.getBoolean("modules.command.gm");
+        invsee_command = cfg.getBoolean("modules.command.invsee");
+        speed_command = cfg.getBoolean("modules.command.speed");
+        pweather_command = cfg.getBoolean("modules.command.pweather");
+        ptime_command = cfg.getBoolean("modules.command.ptime");
+        repair_command = cfg.getBoolean("modules.command.repair");
+        heal_command = cfg.getBoolean("modules.command.heal");
+        top_command = cfg.getBoolean("modules.command.top");
+        spy_command = cfg.getBoolean("modules.command.top");
         //nameTag=config.getBoolean("modules.name_tag_manager");
 
-        enchants = ostrovConfig.getBoolean("modules.enchants");
-        crafts = ostrovConfig.getBoolean("modules.crafts");
-        displays = ostrovConfig.getBoolean("modules.displays");
-        quests = ostrovConfig.getBoolean("modules.quests");
-        BotManager.enable = ostrovConfig.getBoolean("modules.bots");
-        EntityManager.enable = ostrovConfig.getBoolean("modules.entities");
-        ItemManager.enable = ostrovConfig.getBoolean("modules.materials");
-        SignProtectLst.enable = ostrovConfig.getBoolean("modules.signProtect");
+        enchants = cfg.getBoolean("modules.enchants");
+        crafts = cfg.getBoolean("modules.crafts");
+        displays = cfg.getBoolean("modules.displays");
+        quests = cfg.getBoolean("modules.quests");
+        BotManager.enable = cfg.getBoolean("modules.bots");
+        EntityManager.enable = cfg.getBoolean("modules.entities");
+        ItemManager.enable = cfg.getBoolean("modules.materials");
+        SignProtectLst.enable = cfg.getBoolean("modules.signProtect");
 
     }
 
 
     public static void loadConfigs() {
 
-        ostrovConfig = manager.getNewConfig("config.yml", new String[]{"", "Ostrov77 config file", ""});
+        cfg = manager.getNewConfig("config.yml", new String[]{"", "Ostrov77 config file", ""});
         variable = manager.getNewConfig("variable.yml");
-
 
         //Remove
         // config.removeKey("modules.command.pvp");
-        //config.removeKey("player.keep_inventory");
-        // config.removeKey("modules.command.warp");
-        //config.removeKey("modules.command.shop");
-        //config.removeKey("world.spawn");
-        //config.removeKey("");""
+        //ostrovConfig.set("player.teleport_on_first_join", null);//config.addDefault("player.teleport_on_first_join", false, c0);
+
 
 
         String[] c0 = {"---------", "player settings", "---------", "gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR",
             "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
-        ostrovConfig.set("player.teleport_on_first_join", null);//config.addDefault("player.teleport_on_first_join", false, c0);
-        ostrovConfig.addDefault("player.change_gamemode_on_join", false, c0);
-        ostrovConfig.addDefault("player.gamemode_set_to", "ADVENTURE");
-        ostrovConfig.addDefault("player.walkspeed_on_join", "0.1F");
-        ostrovConfig.addDefault("player.clear_stats", false);
-        ostrovConfig.addDefault("player.disable_void", false);
-        ostrovConfig.addDefault("player.disable_damage", false);
-        ostrovConfig.addDefault("player.disable_hungry", false);
-        ostrovConfig.addDefault("player.disable_break_place", false);
-        ostrovConfig.addDefault("player.item_lobby_mode", false);
-        ostrovConfig.addDefault("player.block_fly_pvp", false);
-        ostrovConfig.addDefault("player.give_pipboy", false, "выдавать часики при входе");
-        ostrovConfig.addDefault("player.give_pipboy_slot", 0);
+        cfg.addDefault("player.change_gamemode_on_join", false, c0);
+        cfg.addDefault("player.gamemode_set_to", "ADVENTURE");
+        cfg.addDefault("player.walkspeed_on_join", "0.1F");
+        cfg.addDefault("player.clear_stats", false);
+        cfg.addDefault("player.disable_void", false);
+        cfg.addDefault("player.disable_damage", false);
+        cfg.addDefault("player.disable_hungry", false);
+        cfg.addDefault("player.disable_break_place", false);
+        cfg.addDefault("player.item_lobby_mode", false);
+        cfg.addDefault("player.block_fly_pvp", false);
+        cfg.addDefault("player.give_pipboy", false, "выдавать часики при входе");
+        cfg.addDefault("player.give_pipboy_slot", 0);
         //config.addDefault("player.invulnerability_on_join_or_teleport", -1);
-        ostrovConfig.addDefault("player.set_tab_list_header_footer", true);
-        ostrovConfig.addDefault("player.set_tab_list_name", true);
-        ostrovConfig.addDefault("player.scale_health", false);
-        ostrovConfig.addDefault("player.disable_lava", false);
-        ostrovConfig.addDefault("player.show_ostrov_info_on_scoreboard", false);
+        cfg.addDefault("player.set_tab_list_header_footer", true);
+        cfg.addDefault("player.set_tab_list_name", true);
+        cfg.addDefault("player.scale_health", false);
+        cfg.addDefault("player.disable_lava", false);
+        cfg.addDefault("player.show_ostrov_info_on_scoreboard", false);
 
 
         String[] c1 = {"---------", "modules manager", "---------"};
 //    config.addDefault("modules.name_tag_manager", false);
-        ostrovConfig.addDefault("modules.enable_jump_plate", false, c1);
-        ostrovConfig.addDefault("modules.teleport_gui", false);
-        ostrovConfig.addDefault("modules.nbt_checker", false);
+        cfg.addDefault("modules.enable_jump_plate", false, c1);
+        cfg.addDefault("modules.teleport_gui", false);
+        cfg.addDefault("modules.nbt_checker", false);
 
-        ostrovConfig.addDefault("modules.enchants", false);
-        ostrovConfig.addDefault("modules.crafts", false);
-        ostrovConfig.addDefault("modules.displays", false);
-        ostrovConfig.addDefault("modules.quests", false);
-        ostrovConfig.addDefault("modules.bots", false);
-        ostrovConfig.addDefault("modules.entities", false);
-        ostrovConfig.addDefault("modules.materials", false);
-        ostrovConfig.addDefault("modules.signProtect", false);
+        cfg.addDefault("modules.enchants", false);
+        cfg.addDefault("modules.crafts", false);
+        cfg.addDefault("modules.displays", false);
+        cfg.addDefault("modules.quests", false);
+        cfg.addDefault("modules.bots", false);
+        cfg.addDefault("modules.entities", false);
+        cfg.addDefault("modules.materials", false);
+        cfg.addDefault("modules.signProtect", false);
 
 
-        ostrovConfig.addDefault("modules.command.home.use", false);
+        cfg.addDefault("modules.command.home.use", false);
 
-        ostrovConfig.addDefault("modules.command.fly.use", false);
-        ostrovConfig.addDefault("modules.command.fly.disable_atack_on_fly", false);
-        ostrovConfig.addDefault("modules.command.fly.fly_off_on_damage", false);
+        cfg.addDefault("modules.command.fly.use", false);
+        cfg.addDefault("modules.command.fly.disable_atack_on_fly", false);
+        cfg.addDefault("modules.command.fly.fly_off_on_damage", false);
 
-        ostrovConfig.addDefault("modules.command.tpa", -1);
-        ostrovConfig.addDefault("modules.save_location_on_world_change", false);
-        ostrovConfig.addDefault("modules.command.tpr", -1, "random teleport. value - cooldown, -1 to disable.");
+        cfg.addDefault("modules.command.tpa", -1);
+        cfg.addDefault("modules.save_location_on_world_change", false);
+        cfg.addDefault("modules.command.tpr", -1, "random teleport. value - cooldown, -1 to disable.");
 
-        ostrovConfig.addDefault("modules.command.hat", true);
-        ostrovConfig.addDefault("modules.command.back", false);
-        ostrovConfig.addDefault("modules.command.settings", false);
-        ostrovConfig.addDefault("modules.command.get", false);
-        ostrovConfig.addDefault("modules.command.world", false);
-        ostrovConfig.addDefault("modules.command.tppos", false);
-        ostrovConfig.addDefault("modules.command.tphere", false);
-        ostrovConfig.addDefault("modules.command.spawn", false);
-        ostrovConfig.addDefault("modules.command.gm", false);
-        ostrovConfig.addDefault("modules.command.invsee", false);
-        ostrovConfig.addDefault("modules.command.speed", false);
-        ostrovConfig.addDefault("modules.command.pweather", false);
-        ostrovConfig.addDefault("modules.command.ptime", false);
+        cfg.addDefault("modules.command.hat", true);
+        cfg.addDefault("modules.command.back", false);
+        cfg.addDefault("modules.command.settings", false);
+        cfg.addDefault("modules.command.get", false);
+        cfg.addDefault("modules.command.world", false);
+        cfg.addDefault("modules.command.tppos", false);
+        cfg.addDefault("modules.command.tphere", false);
+        cfg.addDefault("modules.command.spawn", false);
+        cfg.addDefault("modules.command.gm", false);
+        cfg.addDefault("modules.command.invsee", false);
+        cfg.addDefault("modules.command.speed", false);
+        cfg.addDefault("modules.command.pweather", false);
+        cfg.addDefault("modules.command.ptime", false);
 
-        ostrovConfig.addDefault("modules.command.heal", false);
-        ostrovConfig.addDefault("modules.command.repair", false);
-        ostrovConfig.addDefault("modules.command.spy", false);
-        ostrovConfig.addDefault("modules.command.top", false);
-        ostrovConfig.addDefault("modules.teleport_to_region_in_settings_menu", false);
+        cfg.addDefault("modules.command.heal", false);
+        cfg.addDefault("modules.command.repair", false);
+        cfg.addDefault("modules.command.spy", false);
+        cfg.addDefault("modules.command.top", false);
+        cfg.addDefault("modules.teleport_to_region_in_settings_menu", false);
 
-        ostrovConfig.addDefault("modules.command.kit", false);
-        ostrovConfig.addDefault("modules.command.menu", "serv");
+        cfg.addDefault("modules.command.kit", false);
+        cfg.addDefault("modules.command.menu", "serv");
 
-        ostrovConfig.set("modules.command.warp.canSetPrivate", null);//config.addDefault("modules.command.warp.canSetPrivate", true);
+        cfg.set("modules.command.warp.canSetPrivate", null);//config.addDefault("modules.command.warp.canSetPrivate", true);
 
 
         String[] c2 = {"---------", "world managment", "---------"};
-        ostrovConfig.addDefault("world.disable_weather", false, c2);
-        ostrovConfig.addDefault("world.disable_blockspread", false);
-        ostrovConfig.addDefault("world.disable_ice_melt", false);
-        ostrovConfig.addDefault("world.clear_old_ents", false);
+        cfg.addDefault("world.disable_weather", false, c2);
+        cfg.addDefault("world.disable_blockspread", false);
+        cfg.addDefault("world.disable_ice_melt", false);
+        cfg.addDefault("world.clear_old_ents", false);
 
 
         String[] c3 = {"---------", "system settings", "---------"};
-        ostrovConfig.addDefault("system.autorestart.use", true, c3);
-        ostrovConfig.addDefault("system.autorestart.hour", 3, "час рестарта. ");
-        ostrovConfig.addDefault("system.autorestart.min", ApiOstrov.randInt(1, 59), "минута рестарта (при создании конфига-рандомная)");
-        ostrovConfig.addDefault("system.pipboy_material", "CLOCK");
-        ostrovConfig.addDefault("system.pipboy_name", "§a§lМеню сервера - нажми ПКМ!");
-        ostrovConfig.addDefault("system.pipboy_rigth_click_command", "menu");
-        ostrovConfig.addDefault("system.pipboy_left_click_command", "menu");
-        ostrovConfig.addDefault("system.prefix.use_preffix_suffix_wothout_deluxechat", false); //работают когда нет делюксчата
-        ostrovConfig.addDefault("system.prefix.prefix_name_space", "§2 "); //работают когда нет делюксчата
-        ostrovConfig.addDefault("system.prefix.name_suffix_space", "§7 ");//работают когда нет делюксчата
-        ostrovConfig.addDefault("system.prefix.suffix_message_space", "§7§o≫ §7");  //работают когда нет делюксчата
-        ostrovConfig.addDefault("system.use_armor_equip_event", false);
+        cfg.addDefault("system.autorestart.use", true, c3);
+        cfg.addDefault("system.autorestart.hour", 3, "час рестарта. ");
+        cfg.addDefault("system.autorestart.min", ApiOstrov.randInt(1, 59), "минута рестарта (при создании конфига-рандомная)");
+        cfg.addDefault("system.pipboy_material", "CLOCK");
+        cfg.addDefault("system.pipboy_name", "§a§lМеню сервера - нажми ПКМ!");
+        cfg.addDefault("system.pipboy_rigth_click_command", "menu");
+        cfg.addDefault("system.pipboy_left_click_command", "menu");
+        cfg.addDefault("system.prefix.use_preffix_suffix_wothout_deluxechat", false); //работают когда нет делюксчата
+        cfg.addDefault("system.prefix.prefix_name_space", "§2 "); //работают когда нет делюксчата
+        cfg.addDefault("system.prefix.name_suffix_space", "§7 ");//работают когда нет делюксчата
+        cfg.addDefault("system.prefix.suffix_message_space", "§7§o≫ §7");  //работают когда нет делюксчата
+        cfg.addDefault("system.use_armor_equip_event", false);
 
 
         //работа с БД глобальной
         String[] c4 = {"---------", "ostrov_database", "---------"};
-        ostrovConfig.addDefault("ostrov_database.connect", false, c4);
-        ostrovConfig.addDefault("ostrov_database.auto_reload_permissions", false);
-        ostrovConfig.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
-        ostrovConfig.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
-        ostrovConfig.addDefault("ostrov_database.mysql_user", "user");
-        ostrovConfig.addDefault("ostrov_database.mysql_passw", "pass");
+        cfg.addDefault("ostrov_database.connect", false, c4);
+        cfg.addDefault("ostrov_database.auto_reload_permissions", false);
+        cfg.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
+        cfg.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
+        cfg.addDefault("ostrov_database.mysql_user", "user");
+        cfg.addDefault("ostrov_database.mysql_passw", "pass");
         //config.addDefault("ostrov_database.write_server_state_to_bungee_table", false);
-        ostrovConfig.addDefault("ostrov_database.games_info_for_server_menu_load", false);
-        ostrovConfig.addDefault("ostrov_database.games_info_for_server_menu_send", false);
+        cfg.addDefault("ostrov_database.games_info_for_server_menu_load", false);
+        cfg.addDefault("ostrov_database.games_info_for_server_menu_send", false);
 
 
         String[] c5 = {"---------", "local database", "---------"};
-        ostrovConfig.addDefault("local_database.use", false, c5);
-        ostrovConfig.addDefault("local_database.mysql_host", "jdbc:mysql://localhost/server");
-        ostrovConfig.addDefault("local_database.mysql_user", "user");
-        ostrovConfig.addDefault("local_database.mysql_passw", "pass");
+        cfg.addDefault("local_database.use", false, c5);
+        cfg.addDefault("local_database.mysql_host", "jdbc:mysql://localhost/server");
+        cfg.addDefault("local_database.mysql_user", "user");
+        cfg.addDefault("local_database.mysql_passw", "pass");
 
 
-        ostrovConfig.saveConfig();
+        cfg.saveConfig();
 
 
         variable.addDefault("last_day", getDay());
@@ -301,7 +291,7 @@ public class Cfg {
 
 
     public static OConfig getConfig() {
-        return ostrovConfig;
+        return cfg;
     }
 
 

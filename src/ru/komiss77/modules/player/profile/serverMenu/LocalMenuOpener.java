@@ -1,6 +1,7 @@
 package ru.komiss77.modules.player.profile.serverMenu;
 
 import org.bukkit.entity.Player;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.profile.Section;
@@ -49,7 +50,19 @@ public class LocalMenuOpener {
                 break;
 
             default:
-                op.menu.openLastSection(p);
+                if (Ostrov.debug()) {
+                    op.menu.section = Section.ВОЗМОЖНОСТИ;
+                    op.menu.current = SmartInventory
+                        .builder()
+                        .id(op.nik + op.menu.section.name())
+                        .provider(new Daaria())
+                        .size(6, 9)
+                        .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                        .build()
+                        .open(p);
+                } else {
+                    op.menu.openLastSection(p);
+                }
                 break;
 
         }

@@ -690,7 +690,7 @@ public class MissionManager {
 
 
     protected static boolean canUseCommand(final Player p, final String command) {
-        if (GM.GAME != Game.LOBBY && !Ostrov.MOT_D.equals("home1")) {
+      if (GM.GAME != Game.LOBBY && !Ostrov.debug()) {
             p.sendMessage("§cУправлять миссиями можно только в лобби!");
             return false;
         }

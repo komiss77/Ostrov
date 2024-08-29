@@ -32,7 +32,10 @@ public class TemplateEditorMenu implements InventoryProvider {
     contents.fillRow(4, ClickableItem.empty(TemplateEditorMenu.filler));
 
 
-    contents.set(0, 4, ClickableItem.of(new ItemBuilder(t.getIconMat())
+    contents.set(0, 4, ClickableItem.empty(t.editorIcon(false)));
+
+
+    contents.set(1, 0, ClickableItem.of(new ItemBuilder(t.iconMat)
         .name("§7Установить иконку")
         .lore("§7Ткните сюда предметом из инвентаря")
         .lore("§7для смены иконки")
@@ -40,48 +43,50 @@ public class TemplateEditorMenu implements InventoryProvider {
       if (e.getClick() == ClickType.LEFT && e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
         t.iconMat = e.getCursor().getType();
-        e.getView().getBottomInventory().addItem(new ItemStack[]{e.getCursor()});
-        e.getView().setCursor(new ItemStack(Material.AIR));
+        RM.saveTemplate(t);
         reopen(p, contents);
       }
     }));
 
 
-    contents.set(1, 0, new InputButton(InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
+    contents.set(1, 1, new InputButton(InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
         .name("§7Отображаемое название")
         .lore("§7Текущее: §6" + t.displayname)
-        .build(), t.displayname, dn -> {
+        .build(), TCUtil.translateAlternateColorCodes('§', t.displayname), s -> {
       p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
-      t.displayname = dn;
+      t.displayname = TCUtil.translateAlternateColorCodes('&', s);
+      RM.saveTemplate(t);
       reopen(p, contents);
     }));
 
 
     //Описание
-    contents.set(1, 1, ClickableItem.of(new ItemBuilder(Material.BOOK)
+    contents.set(1, 2, ClickableItem.of(new ItemBuilder(Material.BOOK)
             .name("§7Описание")
             .lore("§7Текущее:")
             .lore(t.description)
             .lore("")
             .lore("§aЛКМ §7добавить строку")
-            .lore("§aПКМ §7удалить последнюю строку.")
+        .lore(!t.description.isEmpty() ? "§aПКМ §7удалить последнюю строку." : "")
             .build(), e -> {
           if (e.getClick() == ClickType.RIGHT) {
             if (!t.description.isEmpty()) {
               t.description.remove(t.description.size() - 1);
+              RM.saveTemplate(t);
               reopen(p, contents);
             }
-          } else {
+          } else if (e.getClick() == ClickType.LEFT) {
             PlayerInput.get(InputButton.InputType.ANVILL, p, s -> {
               t.description.add(TCUtil.translateAlternateColorCodes('&', s));
+              RM.saveTemplate(t);
               reopen(p, contents);
-            }, "строка..");
+            }, "строка");
           }
         }
     ));
 
 
-    contents.set(1, 2, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
+    contents.set(1, 3, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
             .name("§7Разрешенные миры")
             .lore("§7В этом мире:")
             .lore(t.allowedWorlds.contains(p.getWorld().getName()) ? "§2§lДА" : "§4§lНЕТ")
@@ -100,7 +105,7 @@ public class TemplateEditorMenu implements InventoryProvider {
     ));
 
     //Цена
-    contents.set(1, 3, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_NUGGET)
+    contents.set(1, 4, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_NUGGET)
         .name("§7Цена")
         .lore("§7Сейчас: §6" + t.price + " §7лони")
         .build(), String.valueOf(t.price), s4 -> {
@@ -110,6 +115,7 @@ public class TemplateEditorMenu implements InventoryProvider {
       } else {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
         t.price = Integer.parseInt(s4);
+        RM.saveTemplate(t);
         reopen(p, contents);
       }
     }
@@ -117,7 +123,7 @@ public class TemplateEditorMenu implements InventoryProvider {
 
 
     //Возврат денег
-    contents.set(1, 4, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_NUGGET)
+    contents.set(1, 5, new InputButton(InputType.ANVILL, new ItemBuilder(Material.GOLD_NUGGET)
         .name("§7Возврат денег")
         .lore("§7Данная сумма будет §aполучена")
         .lore("§7игроком после удаления региона.")
@@ -129,6 +135,7 @@ public class TemplateEditorMenu implements InventoryProvider {
       } else {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
         t.refund = Integer.parseInt(s5);
+        RM.saveTemplate(t);
         reopen(p, contents);
       }
     }
@@ -136,7 +143,7 @@ public class TemplateEditorMenu implements InventoryProvider {
 
 
     //Размер
-    contents.set(SlotPos.of(1, 5), new InputButton(InputType.ANVILL, new ItemBuilder(Material.BEACON)
+    contents.set(1, 6, new InputButton(InputType.ANVILL, new ItemBuilder(Material.BEACON)
         .name("§7Размер")
         .lore("§7Сейчас: §6" + t.size)
         .lore("§7Длинна каждой стороны")
@@ -144,38 +151,35 @@ public class TemplateEditorMenu implements InventoryProvider {
         .build(), String.valueOf(t.size), s6 -> {
       if (!ApiOstrov.isInteger(s6)) {
         p.sendMessage("§cВведите целое число!");
-        reopen(p, contents);
       } else {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
         t.size = Integer.parseInt(s6);
-        reopen(p, contents);
+        RM.saveTemplate(t);
       }
+      reopen(p, contents);
     }
     ));
 
 
     //Материал ограждения
-    contents.set(1, 6, ClickableItem.of(new ItemBuilder(t.borderMaterial == null ? Material.BARRIER : t.borderMaterial)
+    contents.set(1, 7, ClickableItem.of(new ItemBuilder(t.borderMaterial == null ? Material.BARRIER : t.borderMaterial)
             .name("§7Материал ограждения")
             .lore("§7Ткните сюда предметом из инвентаря")
-            .lore("§7для установки материала.")
-            .lore("ПКМ - не строить ограду")
+        .lore("§7для установки материала.")
+        .lore("§6(только _FENCE !)")
+        .lore("")
+        .lore("§fПКМ §7- §4не строить ограду")
             .build(), e -> {
           if (e.getClick() == ClickType.LEFT) {
-            if (e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
-              if (!e.getCursor().getType().isBlock()) {
-                p.sendMessage("§cЭтот материал не может быть блоком!");
-                reopen(p, contents);
-              } else {
+            if (e.getCursor() != null && e.getCursor().getType().name().endsWith("_FENCE")) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 t.borderMaterial = e.getCursor().getType();
-                e.getView().getBottomInventory().addItem(new ItemStack[]{e.getCursor()});
-                e.getView().setCursor(new ItemStack(Material.AIR));
+              RM.saveTemplate(t);
                 reopen(p, contents);
-              }
             }
           } else if (e.getClick() == ClickType.RIGHT) {
             t.borderMaterial = null;
+            RM.saveTemplate(t);
             reopen(p, contents);
           }
         }
@@ -183,29 +187,28 @@ public class TemplateEditorMenu implements InventoryProvider {
 
 
     //права
-    contents.set(1, 7, ClickableItem.of(new ItemBuilder(Material.BLAZE_POWDER)
+    contents.set(1, 8, ClickableItem.of(new ItemBuilder(t.permission ? Material.PINK_DYE : Material.GRAY_DYE)
         .name("§7Право для покупки")
         .lore(!t.permission ? "§8Не требуется" : "§f" + t.permission())
         .lore("")
-        .lore(!t.permission ? "§aЛКМ -§cтребовать право" : "§aЛКМ -§aне требовать право")
+        .lore(!t.permission ? "§fЛКМ -§cтребовать право" : "§fЛКМ -§aне требовать право")
         .build(), e -> {
       if (e.getClick() == ClickType.LEFT) {
         t.permission = !t.permission;
+        RM.saveTemplate(t);
+        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
         reopen(p, contents);
       }
     }));
 
 
-    //сохранить
-    contents.set(2, 4, ClickableItem.of(new ItemBuilder(Material.EMERALD).name("§2Сохранить заготовку").build(), p1 -> {
-          RM.saveTemplate(t);
-          RM.openTemplateAdmin(p);
-        }
+    contents.set(2, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
+        .name("§7Назад")
+        .build(), e -> RM.openTemplateAdmin(p)
     ));
 
-
     //удалить заготовку
-    contents.set(2, 7, ClickableItem.of(new ItemBuilder(Material.TNT)
+    contents.set(2, 8, ClickableItem.of(new ItemBuilder(Material.TNT)
         .name("§4Удалить заготовку")
         .lore("§7После удаления заготовку не будет")
         .lore("§7доступна для покупки игроками.")
@@ -227,7 +230,6 @@ public class TemplateEditorMenu implements InventoryProvider {
 
   class WorldSelectMenu implements InventoryProvider {
 
-    private static final ItemStack fill = new ItemBuilder(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build();
     private final Template t;
 
     public WorldSelectMenu(final Template template) {
@@ -238,15 +240,13 @@ public class TemplateEditorMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent contents) {
       p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
-      contents.fillRect(0, 0, 2, 8, ClickableItem.empty(fill));
-
       int c = 0;
       boolean allow;
       for (final World w : Bukkit.getWorlds()) {
         allow = t.allowedWorlds.contains(w.getName());
         contents.add(ClickableItem.of(new ItemBuilder(allow ? getWorldMat(w) : Material.GRAY_DYE)
                 .name(w.getName())
-                .lore(allow ? "§7ЛКМ - §4Запретить" : "§2Разрешить")
+            .lore(allow ? "§7ЛКМ - §4Запретить" : "§7ЛКМ - §2Разрешить")
                 .lore("")
                 .build(), e -> {
               if (!t.allowedWorlds.remove(w.getName())) {
@@ -259,7 +259,7 @@ public class TemplateEditorMenu implements InventoryProvider {
         if (c == 7) break;
       }
 
-      contents.set(2, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
+      contents.set(0, 8, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
           RM.editTemplate(p, t)
       ));
 

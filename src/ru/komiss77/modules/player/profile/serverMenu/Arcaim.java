@@ -123,7 +123,7 @@ public class Arcaim implements InventoryProvider {
       } else {
         content.set(1, 2, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)
             .name("§cРегионы")
-            .lore("§cНет WG!")
+            .lore("§c§mНет WG!")
             .enchant(Enchantment.KNOCKBACK, 1)
             .flags(ItemFlag.HIDE_ENCHANTS)
             .build()));

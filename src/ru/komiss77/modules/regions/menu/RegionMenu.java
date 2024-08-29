@@ -5,7 +5,6 @@ import java.util.List;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -42,10 +41,8 @@ public class RegionMenu implements InventoryProvider {
   @Override
   public void init(final Player p, final InventoryContent content) {
     p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-
     //линия - разделитель
     content.fillRow(4, fill);
-
     //выставить иконки внизу
     for (Section section : Section.values()) {
       content.set(section.slot, Section.getMenuItem(section, op));
@@ -54,10 +51,8 @@ public class RegionMenu implements InventoryProvider {
     final Pagination pagination = content.pagination();
     final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
-
     final List<ProtectedRegion> owned = new ArrayList<>();
-    //final List<ProtectedRegion> member = new ArrayList<>();
-    final LocalPlayer lp = WorldGuardPlugin.inst().wrapPlayer(p);
+    final LocalPlayer lp = WGhook.inst.wrapPlayer(p);
 
     int rgCount = 1;
     Template t;
@@ -127,15 +122,7 @@ public class RegionMenu implements InventoryProvider {
 
     }
 
-
-    //if (rgCount==1) {
-    //    content.add( ClickableItem.empty( new ItemBuilder(Material.BARRIER).name("§4Нет регионов!").lore( ItemUtil.genLore(null, "Не найдено ни одного вашего региона в каком-либо мире!", "§c") ).build() ) );
-    //}
-
-
-    int limit;//
-
-
+    int limit;
     if (ApiOstrov.isLocalBuilder(p)) {
       limit = 77;
     } else {
@@ -157,22 +144,31 @@ public class RegionMenu implements InventoryProvider {
       final Location spl = p.getWorld().getSpawnLocation();
       final int dst = Math.max(Math.abs(bv.x() - spl.getBlockX()), Math.abs(bv.y() - spl.getBlockZ()));
       if (dst > RM.NO_CLAIM_AREA && !ApiOstrov.isLocalBuilder(p, true)) {
-        problems.add("§cРегион можно создать в §6" + RM.NO_CLAIM_AREA);
-        problems.add(" §cблоках от спавна. §7(сейчас:§6" + dst + "§7");
-        //problems.add("Твоя дистанция - §6" + dst + " §cблоков.");
+        problems.add("§cОтойдите на §6" + RM.NO_CLAIM_AREA + " §cм. от спавна! §7(сейчас:§6" + dst + "§7)");
         problems.add("");
       }
     }
 
     final ApplicableRegionSet rgSet = rm.getApplicableRegions(bv);
     if (rgSet.size() > 0) {
-      problems.add(" §cВы находитесь в каком-то регионе.");
+      problems.add(" §cВы находитесь в каком-то регионе, покиньте его!");
       problems.add("");
     }
 
+    boolean has = false;
+    for (Template tp : RM.templates.values()) {
+      if (tp.allowedWorlds.contains(p.getWorld().getName())) {
+        has = true;
+        break;
+      }
+    }
+    if (!has) {
+      problems.add(" §cВ этом мире нельзя создать регион!.");
+      problems.add("");
+    }
 
     if (problems.isEmpty()) {
-      menuEntry.add(ClickableItem.of(new ItemBuilder(Material.TRIAL_KEY)
+      menuEntry.add(ClickableItem.of(new ItemBuilder(ItemUtil.add)
               .name("§aСоздать регион")
               .lore("")
               .build(), e -> {

@@ -33,21 +33,23 @@ import ru.komiss77.utils.BlockUtil;
 
 public class WGhook {
 
+    public static WorldGuardPlugin inst;
     public static WorldGuardPlatform worldguard_platform;
-
+    public static RegionContainer container;
 
     public static void hook(final Plugin plugin) {
+        inst = WorldGuardPlugin.inst();
         worldguard_platform = WorldGuard.getInstance().getPlatform();
+        container = worldguard_platform.getRegionContainer();
         Ostrov.wg = true;
         Ostrov.log_ok("§bПодключен WorldGuard !");
 
         switch (GM.GAME) {
             case DA, AR -> RM.onWgHook();
             default -> {
+                if (Ostrov.debug()) RM.onWgHook(); //отладка
             }
         }
-
-        if (Ostrov.MOT_D.equals("home")) RM.onWgHook(); //отладка
 
     }
 
@@ -96,14 +98,14 @@ public class WGhook {
     }
 
 
-    public static Map<ProtectedRegion, String> findPlayerRegions(final org.bukkit.entity.Player p, final World world, final boolean owner, final boolean member) {
+    public static Map<ProtectedRegion, String> findPlayerRegions(final Player p, final World world, final boolean owner, final boolean member) {
         if (worldguard_platform == null) return null;
         Map<ProtectedRegion, String> regions = new ValueSortedMap<>();
         //LocalPlayer lp = Ostrov.getWorldGuard().wrapPlayer(p);
         if (world == null) {
             Bukkit.getWorlds().stream().forEach((w) -> {
                 final RegionManager rm = getRegionManager(w);
-                rm.getRegions().values().stream().forEach((rg) -> {
+                rm.getRegions().values().stream().forEach(rg -> {
                     if (owner && rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.getName())) {
                         regions.put(rg, w.getName());
                     } else if (member && rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.getName())) {
@@ -113,7 +115,7 @@ public class WGhook {
             });
         } else {
             final RegionManager rm = getRegionManager(world);
-            rm.getRegions().values().stream().forEach((rg) -> {
+            rm.getRegions().values().stream().forEach(rg -> {
                 if (owner && rg.getOwners().contains(p.getUniqueId()) || rg.getOwners().contains(p.getName())) {
                     regions.put(rg, world.getName());
                 } else if (member && rg.getMembers().contains(p.getUniqueId()) || rg.getMembers().contains(p.getName())) {
@@ -152,18 +154,18 @@ public class WGhook {
 
 
     public static RegionManager getRegionManager(final World world) {
-        final RegionContainer container = worldguard_platform.getRegionContainer();
+        //final RegionContainer container = worldguard_platform.getRegionContainer();
         return container.get(BukkitAdapter.adapt(world));
     }
 
     public static boolean canBuild(final Player p, final Location loc) {
-        final RegionQuery query = worldguard_platform.getRegionContainer().createQuery();
+        final RegionQuery query = container.createQuery();
         final LocalPlayer lp = WorldGuardPlugin.inst().wrapPlayer(p);
         return query.testState(BukkitAdapter.adapt(loc), lp, Flags.BUILD);
     }
 
     public static ApplicableRegionSet getRegionsOnLocation(final Location loc) {
-        final RegionQuery query = worldguard_platform.getRegionContainer().createQuery();
+        final RegionQuery query = container.createQuery();
         return query.getApplicableRegions(BukkitAdapter.adapt(loc));
     }
 

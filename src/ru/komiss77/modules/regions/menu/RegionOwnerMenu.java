@@ -161,7 +161,7 @@ public class RegionOwnerMenu implements InventoryProvider {
           p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
           SmartInventory.builder()
               .id("regiongui.flagMenu")
-              .provider(new FlagsSetupMenu(this.region))
+              .provider(new FlagsManageMenu(this.region))
               .size(5, 9)
               .title("§fУправление флагами региона")
               .build()

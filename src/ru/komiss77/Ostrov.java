@@ -349,7 +349,9 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-
+    public static boolean debug() {
+        return MOT_D.equals("home1");
+    }
 }
 
 

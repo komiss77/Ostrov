@@ -19,14 +19,14 @@ import ru.komiss77.utils.BlockUtil;
 import ru.komiss77.utils.ScreenUtil;
 
 
-public class PreviewBlock {
+public class PreviewTask {
 
   private final BukkitTask render;
   private final Set<Location> toSetLine;
   private final Set<Location> toResetLine;
   private final Template template;
 
-  public PreviewBlock(final Player p, final Template template) {
+  public PreviewTask(final Player p, final Template template) {
 
     final String playerName = p.getName();
     final String worldName = p.getWorld().getName();

@@ -132,7 +132,7 @@ public class Daaria implements InventoryProvider {
             }));
         } else {
             content.set(2, 1, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)
-                .name("§cРегионы")
+                .name("§c§mРегионы")
                 .lore("§cНет WG!")
                 .enchant(Enchantment.KNOCKBACK, 1)
                 .flags(ItemFlag.HIDE_ENCHANTS)

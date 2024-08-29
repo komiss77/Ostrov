@@ -17,6 +17,7 @@ import ru.komiss77.modules.items.menu.ItemMenu;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
+import ru.komiss77.modules.regions.RM;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
@@ -234,6 +235,39 @@ public class BuilderMain implements InventoryProvider {
             .build(), e -> {
             LimiterLst.openMenu(p);
         }));
+
+        if (Ostrov.wg) {
+            content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
+                .name("§fРегионы")
+                .lore("")
+                .lore("§7ЛКМ - редактор заготовок")
+                .lore("")
+                .build(), e -> {
+                RM.openTemplateAdmin(p);
+            }));
+        } else {
+            content.set(2, 7, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)
+                .name("§fРегионы")
+                .lore("§c§mНет WG!")
+                .build()
+            ));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         content.set(3, 1, ClickableItem.of(new ItemBuilder(Material.NOTE_BLOCK)

@@ -66,14 +66,25 @@ public class PlayerLst implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void Command(final PlayerCommandPreprocessEvent e) throws CommandException {
+//Ostrov.log_warn("PlayerCommandPreprocessEvent "+e.getMessage());
         //final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
         // final String cmd = args[0].toLowerCase();
         final Player p = e.getPlayer();
-        if (ApiOstrov.canBeBuilder(p)) {
+        if (ApiOstrov.isLocalBuilder(p, false)) {
 //            if (cmd.startsWith("builder") || cmd.startsWith("gm")) return;
             final Oplayer op = PM.getOplayer(p);
             if (op.setup == null) { //запоминаем только если не активен билдер!
                 op.lastCommand = e.getMessage().replaceFirst("/", "");
+            }
+            return;
+        }
+        if (Ostrov.wg) {
+            if (e.getMessage().startsWith("/rg") || e.getMessage().startsWith("/region")) {
+                if (e.getMessage().contains("claim") || e.getMessage().contains("define")) {
+                    e.setCancelled(true);
+                    PM.getOplayer(p).menu.openRegions(p);
+                    //e.setMessage("land");
+                }
             }
         }
     }
