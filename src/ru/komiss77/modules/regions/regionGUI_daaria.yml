@@ -1,0 +1,452 @@
+regenOnDelete: false
+
+flags:
+  ast:
+    displayname: '&7ast'
+    enabled: true
+    iconMat: GRAY_DYE
+  receive-chat:
+    displayname: '&7receive-chat'
+    enabled: true
+    iconMat: LIGHT_GRAY_DYE
+  dynmap-boost:
+    displayname: '&7dynmap-boost'
+    enabled: true
+    iconMat: LIGHT_GRAY_DYE
+  other-explosion:
+    displayname: '&7other-explosion'
+    iconMat: none
+    enabled: false
+  water-flow:
+    displayname: '&7water-flow'
+    iconMat: none
+    enabled: false
+  leaf-decay:
+    displayname: '&7leaf-decay'
+    iconMat: none
+    enabled: false
+  nonplayer-protection-domains:
+    displayname: '&7nonplayer-protection-domains'
+    iconMat: none
+    enabled: false
+  heal-min-health:
+    displayname: '&7heal-min-health'
+    iconMat: none
+    enabled: false
+  coral-fade:
+    displayname: '&7coral-fade'
+    iconMat: none
+    enabled: false
+  wind-charge-burst:
+    displayname: '&7wind-charge-burst'
+    iconMat: none
+    enabled: false
+  mob-damage:
+    displayname: '&7mob-damage'
+    iconMat: none
+    enabled: false
+  feed-delay:
+    displayname: '&7feed-delay'
+    iconMat: none
+    enabled: false
+  ravager-grief:
+    displayname: '&7ravager-grief'
+    iconMat: none
+    enabled: false
+  mushroom-growth:
+    displayname: '&7mushroom-growth'
+    iconMat: none
+    enabled: true
+  lightning:
+    displayname: '&7lightning'
+    iconMat: none
+    enabled: false
+  feed-amount:
+    displayname: '&7feed-amount'
+    iconMat: none
+    enabled: false
+  enderman-grief:
+    displayname: '&7enderman-grief'
+    iconMat: none
+    enabled: false
+  pvp:
+    displayname: '&7pvp'
+    iconMat: none
+    enabled: false
+  exit:
+    displayname: '&7exit'
+    iconMat: none
+    enabled: false
+  exit-override:
+    displayname: '&7exit-override'
+    iconMat: none
+    enabled: false
+  vine-growth:
+    displayname: '&7vine-growth'
+    iconMat: none
+    enabled: false
+  heal-max-health:
+    displayname: '&7heal-max-health'
+    iconMat: none
+    enabled: true
+  damage-animals:
+    displayname: '&7damage-animals'
+    iconMat: none
+    enabled: false
+  snow-melt:
+    displayname: '&7snow-melt'
+    iconMat: none
+    enabled: true
+  tnt:
+    displayname: '&7tnt'
+    iconMat: none
+    enabled: false
+  exit-via-teleport:
+    displayname: '&7exit-via-teleport'
+    iconMat: none
+    enabled: false
+  time-lock:
+    displayname: '&7time-lock'
+    iconMat: none
+    enabled: false
+  feed-max-hunger:
+    displayname: '&7feed-max-hunger'
+    iconMat: none
+    enabled: false
+  deny-message:
+    displayname: '&7deny-message'
+    iconMat: none
+    enabled: false
+  frosted-ice-form:
+    displayname: '&7frosted-ice-form'
+    iconMat: none
+    enabled: false
+  mycelium-spread:
+    displayname: '&7mycelium-spread'
+    iconMat: none
+    enabled: false
+  block-trampling:
+    displayname: '&7block-trampling'
+    iconMat: none
+    enabled: false
+  ice-melt:
+    displayname: '&7ice-melt'
+    iconMat: none
+    enabled: false
+  chest-access:
+    displayname: '&7chest-access'
+    iconMat: none
+    enabled: false
+  weather-lock:
+    displayname: '&7weather-lock'
+    iconMat: none
+    enabled: false
+  fire-spread:
+    displayname: '&7fire-spread'
+    iconMat: none
+    enabled: true
+  enderdragon-block-damage:
+    displayname: '&7enderdragon-block-damage'
+    iconMat: none
+    enabled: false
+  sleep:
+    displayname: '&7sleep'
+    iconMat: none
+    enabled: false
+  block-break:
+    displayname: '&7block-break'
+    iconMat: none
+    enabled: false
+  entity-painting-destroy:
+    displayname: '&7entity-painting-destroy'
+    iconMat: none
+    enabled: false
+  teleport-message:
+    displayname: '&7teleport-message'
+    iconMat: none
+    enabled: false
+  exit-deny-message:
+    displayname: '&7exit-deny-message'
+    iconMat: none
+    enabled: false
+  lighter:
+    displayname: '&7lighter'
+    iconMat: none
+    enabled: false
+  use-dripleaf:
+    displayname: '&7use-dripleaf'
+    iconMat: none
+    enabled: false
+  pistons:
+    displayname: '&7pistons'
+    iconMat: none
+    enabled: false
+  block-place:
+    displayname: '&7block-place'
+    iconMat: none
+    enabled: false
+  enderpearl:
+    displayname: '&7enderpearl'
+    iconMat: ENDER_PEARL
+    enabled: true
+  soil-dry:
+    displayname: '&7soil-dry'
+    iconMat: none
+    enabled: false
+  exp-drops:
+    displayname: '&7exp-drops'
+    iconMat: none
+    enabled: false
+  copper-fade:
+    displayname: '&7copper-fade'
+    iconMat: none
+    enabled: false
+  fall-damage:
+    displayname: '&7fall-damage'
+    iconMat: none
+    enabled: false
+  game-mode:
+    displayname: '&7game-mode'
+    iconMat: none
+    enabled: false
+  item-frame-rotation:
+    displayname: '&7item-frame-rotation'
+    iconMat: none
+    enabled: false
+  potion-splash:
+    displayname: '&7potion-splash'
+    iconMat: none
+    enabled: true
+  lava-flow:
+    displayname: '&7lava-flow'
+    iconMat: none
+    enabled: false
+  grass-growth:
+    displayname: '&7grass-growth'
+    iconMat: none
+    enabled: false
+  notify-leave:
+    displayname: '&7notify-leave'
+    iconMat: none
+    enabled: false
+  lava-fire:
+    displayname: '&7lava-fire'
+    iconMat: none
+    enabled: true
+  use:
+    displayname: '&7use'
+    iconMat: none
+    enabled: false
+  snow-fall:
+    displayname: '&7snow-fall'
+    iconMat: none
+    enabled: false
+  firework-damage:
+    displayname: '&7firework-damage'
+    iconMat: none
+    enabled: false
+  heal-delay:
+    displayname: '&7heal-delay'
+    iconMat: none
+    enabled: false
+  use-anvil:
+    displayname: '&7use-anvil'
+    iconMat: none
+    enabled: false
+  respawn-anchors:
+    displayname: '&7respawn-anchors'
+    iconMat: none
+    enabled: false
+  wither-damage:
+    displayname: '&7wither-damage'
+    iconMat: none
+    enabled: false
+  ice-form:
+    displayname: '&7ice-form'
+    iconMat: none
+    enabled: false
+  chorus-fruit-teleport:
+    displayname: '&7chorus-fruit-teleport'
+    iconMat: none
+    enabled: false
+  mob-spawning:
+    displayname: '&7mob-spawning'
+    iconMat: none
+    enabled: false
+  crop-growth:
+    displayname: '&7crop-growth'
+    iconMat: none
+    enabled: false
+  natural-hunger-drain:
+    displayname: '&7natural-hunger-drain'
+    iconMat: none
+    enabled: false
+  entry:
+    displayname: '&7entry'
+    iconMat: none
+    enabled: false
+  creeper-explosion:
+    displayname: '&7creeper-explosion'
+    iconMat: none
+    enabled: false
+  notify-enter:
+    displayname: '&7notify-enter'
+    iconMat: none
+    enabled: false
+  ghast-fireball:
+    displayname: '&7ghast-fireball'
+    iconMat: none
+    enabled: false
+  entity-item-frame-destroy:
+    displayname: '&7entity-item-frame-destroy'
+    iconMat: none
+    enabled: false
+  natural-health-regen:
+    displayname: '&7natural-health-regen'
+    iconMat: none
+    enabled: false
+  vehicle-destroy:
+    displayname: '&7vehicle-destroy'
+    iconMat: none
+    enabled: false
+  interact:
+    displayname: '&7interact'
+    iconMat: none
+    enabled: false
+  ride:
+    displayname: '&7ride'
+    iconMat: none
+    enabled: false
+  sculk-growth:
+    displayname: '&7sculk-growth'
+    iconMat: none
+    enabled: false
+  vehicle-place:
+    displayname: '&7vehicle-place'
+    iconMat: none
+    enabled: false
+  snowman-trails:
+    displayname: '&7snowman-trails'
+    iconMat: none
+    enabled: true
+  rock-growth:
+    displayname: '&7rock-growth'
+    iconMat: none
+    enabled: false
+  heal-amount:
+    displayname: '&7heal-amount'
+    iconMat: none
+    enabled: false
+  deny-spawn:
+    displayname: '&7deny-spawn'
+    iconMat: none
+    enabled: false
+  item-drop:
+    displayname: '&7item-drop'
+    iconMat: none
+    enabled: false
+  build:
+    displayname: '&7build'
+    iconMat: none
+    enabled: false
+  item-pickup:
+    displayname: '&7item-pickup'
+    iconMat: none
+    enabled: false
+  frosted-ice-melt:
+    displayname: '&7frosted-ice-melt'
+    iconMat: none
+    enabled: false
+  entry-deny-message:
+    displayname: '&7entry-deny-message'
+    iconMat: none
+    enabled: false
+  feed-min-hunger:
+    displayname: '&7feed-min-hunger'
+    iconMat: none
+    enabled: false
+templates:
+  small:
+    allowedWorlds:
+      - world
+    displayname: '§7Регион §6Игрока 20x20'
+    iconMat: IRON_INGOT
+    description:
+      - '&7Небольшой регион для домика'
+    size: 20
+    height: 319
+    depth: 10
+    price: 50
+    refund: 40
+    borderMaterial: OAK_FENCE
+    permission: false
+  midle:
+    allowedWorlds:
+      - world
+    displayname: '§7Регион §6Игрока 30x30'
+    iconMat: GOLD_INGOT
+    description:
+      - '&7Средний регион для домика'
+    size: 30
+    height: 319
+    depth: 10
+    price: 400
+    refund: 300
+    borderMaterial: JUNGLE_FENCE
+    permission: false
+  big:
+    allowedWorlds:
+      - world
+    displayname: '§7Регион §6Легенды 50x50'
+    iconMat: DIAMOND
+    description:
+      - '§7Регион §6Игрока 60x60'
+    size: 60
+    height: 319
+    depth: 10
+    price: 1200
+    refund: 900
+    borderMaterial: ACACIA_FENCE
+    permission: false
+  warior:
+    allowedWorlds:
+      - world
+    displayname: '§7Рерион §6Воина 30x30'
+    iconMat: AMETHYST_SHARD
+    description:
+      - '§7Доступ с привилегии §eВоин'
+    size: 30
+    height: 319
+    depth: 10
+    price: 200
+    refund: 100
+    borderMaterial: CRIMSON_FENCE
+    permission: true
+  hero:
+    allowedWorlds:
+      - world
+    displayname: '&7Регион &6Героя 40x40'
+    iconMat: ENCHANTED_GOLDEN_APPLE
+    description:
+      - '&7Доступ с привилегии &eГерой'
+    size: 40
+    height: 319
+    depth: 40
+    price: 500
+    refund: 400
+    borderMaterial: NETHER_BRICK_WALL
+    permission: true
+  legend:
+    allowedWorlds:
+      - world
+    displayname: '§7Регион §6Легенды 50x50'
+    iconMat: NETHER_STAR
+    description:
+      - '§7Доступ с привилегии §5Легенда'
+    size: 50
+    height: 319
+    depth: 60
+    price: 600
+    refund: 500
+    borderMaterial: RED_NETHER_BRICK_WALL
+    permission: true
