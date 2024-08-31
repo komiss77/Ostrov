@@ -251,6 +251,7 @@ public class TemplateEditorMenu implements InventoryProvider {
                 .build(), e -> {
               if (!t.allowedWorlds.remove(w.getName())) {
                 t.allowedWorlds.add(w.getName());
+                RM.saveTemplate(t);
               }
               reopen(p, contents);
             }

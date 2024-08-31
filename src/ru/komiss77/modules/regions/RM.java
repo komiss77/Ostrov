@@ -17,10 +17,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
@@ -28,8 +24,8 @@ import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.regions.menu.TemplateManageMenu;
+import ru.komiss77.modules.regions.menu.FlagsSetupMenu;
+import ru.komiss77.modules.regions.menu.TemplateSetupMenu;
 import ru.komiss77.modules.regions.menu.RegionOwnerMenu;
 import ru.komiss77.modules.regions.menu.TemplateEditorMenu;
 import ru.komiss77.modules.world.WE;
@@ -130,14 +126,16 @@ public final class RM {
 
     if (cfg.getConfigurationSection("flags") != null) {
       String path;
-      for (String flagName : RM.cfg.getConfigurationSection("flags").getKeys(false)) {
+      for (String flagName : cfg.getConfigurationSection("flags").getKeys(false)) {
         path = "flags." + flagName + ".";
         final Flag f = WorldGuard.getInstance().getFlagRegistry().get(flagName);
         if (f == null) {
           Ostrov.log_warn("RegionGui : в WG нет флага " + flagName);
           continue;
         }
-        flags.put(f, new FlagSetting(f, RM.cfg.getString(path + "displayname"), RM.cfg.getBoolean(path + "enabled")));
+        flags.put(f, new FlagSetting(f, TCUtil.translateAlternateColorCodes('&', cfg.getString(path + "displayname")),
+            Material.matchMaterial(cfg.getString(path + "iconMat")), cfg.getBoolean(path + "enabled"))
+        );
       }
     } else {
       ok = false;
@@ -145,19 +143,28 @@ public final class RM {
     int newFlag = 0;
     for (final Flag<?> f : WorldGuard.getInstance().getFlagRegistry().getAll()) {
       if (flags.containsKey(f) || forbiddenFlags.contains(f.getName()) || (f instanceof LocationFlag)) continue;
-      final FlagSetting fs = new FlagSetting(f, "§7" + f.getName(), false);
+      final FlagSetting fs = new FlagSetting(f, "§7" + f.getName(), null, false);
       final String flagPath = "flags." + f.getName() + ".";
-      RM.cfg.set(flagPath + "displayname", fs.displayname);
-      RM.cfg.set(flagPath + "iconMat", fs.iconMat == null ? "none" : fs.iconMat.name());
-      RM.cfg.set(flagPath + "enabled", fs.enabled);
-      newFlag++;
+      cfg.set(flagPath + "displayname", TCUtil.translateAlternateColorCodes('§', fs.displayname));
+      cfg.set(flagPath + "iconMat", "none");
+      cfg.set(flagPath + "enabled", fs.enabled);
       flags.put(f, fs);
+      newFlag++;
     }
     if (ok && newFlag > 0) {
       log_ok("§eВ конфигурацию флагов добавлено записей: " + newFlag);
-      RM.cfg.saveConfig();
+      cfg.saveConfig();
     }
     return ok;
+  }
+
+  public static void saveFlag(final Flag f) {
+    final FlagSetting fs = flags.get(f);
+    final String flagPath = "flags." + f.getName() + ".";
+    cfg.set(flagPath + "displayname", TCUtil.translateAlternateColorCodes('§', fs.displayname));
+    cfg.set(flagPath + "iconMat", fs.iconMat == null ? "none" : fs.iconMat.name());
+    cfg.set(flagPath + "enabled", fs.enabled);
+    cfg.saveConfig();
   }
 
 
@@ -307,9 +314,17 @@ public final class RM {
 
   public static void openTemplateAdmin(final Player p) {
     SmartInventory.builder()
-        .provider(new TemplateManageMenu())
+        .provider(new TemplateSetupMenu())
         .size(6)
         .title("§8Редактор заготовок [" + p.getWorld().getName() + "]")
+        .build().open(p);
+  }
+
+  public static void openFlagAdmin(Player p) {
+    SmartInventory.builder()
+        .provider(new FlagsSetupMenu())
+        .size(6)
+        .title("§8Редактор флагов")
         .build().open(p);
   }
 

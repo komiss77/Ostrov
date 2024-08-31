@@ -16,6 +16,7 @@ import ru.komiss77.modules.world.WE;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ParticleUtil;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.*;
 
 
@@ -52,7 +53,12 @@ public class RegionOwnerMenu implements InventoryProvider {
 
     } else {
 
-      final String createTime = RM.createTime(region);
+      String timeStamp = RM.createTime(region);
+      final int stamp = ApiOstrov.getInteger(timeStamp);
+      if (stamp > 0) {
+        timeStamp = TimeUtil.dateFromStamp(stamp);
+      }
+
       content.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
           .name("§6>> §7Информация §6<<")
           .lore("§7Тип :§6 " + t.displayname)
@@ -61,7 +67,7 @@ public class RegionOwnerMenu implements InventoryProvider {
           .lore("§7Подземная часть :§6 " + t.depth)
           .lore("§7Стоимость :§6 " + t.price)
           .lore("§7Возврат после удаления :§6 " + t.refund)
-          .lore("§7Создан: §6" + createTime)
+          .lore("§7Создан: §6" + timeStamp)
           .build()));
     }
 
@@ -115,7 +121,7 @@ public class RegionOwnerMenu implements InventoryProvider {
 
     //кнопка юзеры
     content.set(1, 1, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-            .name("§6>> Управление пользователями §6<<")
+        .name("§6>> §fУправление пользователями §6<<")
             .lore("§7Пользователей" + (region.getMembers().getPlayerDomain().size() == 0 ? " нет" : ": " + region.getMembers().getPlayerDomain().size()))
             .lore("")
             .lore("§6ЛКМ §f- просмотр / удаление")
@@ -128,11 +134,21 @@ public class RegionOwnerMenu implements InventoryProvider {
             -> {
           if (inventoryClickEvent.getClick() == ClickType.LEFT) {
 
-            SmartInventory.builder().id("regiongui.editmembers").provider(new MembersEditMenu(this.region)).size(5).title("§2Пользователи").build().open(p);
+            SmartInventory.builder()
+                .id("regiongui.editmembers")
+                .provider(new MembersManageMenu(region))
+                .size(5)
+                .title("§2Пользователи")
+                .build().open(p);
 
           } else if (inventoryClickEvent.getClick() == ClickType.RIGHT) {
 
-            SmartInventory.builder().id("regiongui.addmembers").provider(new MembersAddMenu(this.region)).size(5).title("§2Найдены рядом").build().open(p);
+            SmartInventory.builder()
+                .id("regiongui.addmembers")
+                .provider(new MembersAddMenu(region))
+                .size(5)
+                .title("§2Найдены рядом")
+                .build().open(p);
 
           }
         }
@@ -140,7 +156,7 @@ public class RegionOwnerMenu implements InventoryProvider {
 
 
     content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.OAK_SIGN)
-        .name("§2Сообщения при входе/выходе")
+        .name("§6>> §fСообщения при входе/выходе §6<<")
         .build(), p2 -> {
       p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 2, 2);
       SmartInventory.builder()
@@ -173,10 +189,11 @@ public class RegionOwnerMenu implements InventoryProvider {
 
     //показ границ
     content.set(1, 7, ClickableItem.of(new ItemBuilder(Material.EXPERIENCE_BOTTLE)
-        .name("§fПоказать границы")
-        .lore("§77Для остановки показа")
+        .name("§6>> §fПоказать границы §6<<")
+        .lore("§7Для остановки показа")
         .lore("§7присядьте (клав. Shift)")
         .build(), e -> {
+      p.closeInventory();
       p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
       ParticleUtil.BorderDisplay(p,

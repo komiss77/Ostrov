@@ -14,7 +14,7 @@ import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 
-public class TemplateManageMenu implements InventoryProvider {
+public class TemplateSetupMenu implements InventoryProvider {
 
   @Override
   public void init(final Player p, final InventoryContent contents) {

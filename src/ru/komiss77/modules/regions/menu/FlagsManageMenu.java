@@ -1,11 +1,11 @@
 package ru.komiss77.modules.regions.menu;
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import java.util.LinkedList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ru.komiss77.modules.regions.FlagSetting;
 import ru.komiss77.modules.regions.RM;
 import ru.komiss77.utils.ItemBuilder;
@@ -29,52 +29,40 @@ public class FlagsManageMenu implements InventoryProvider {
 
 
   @Override
-  public void init(Player player, InventoryContent inventoryContents) {
+  public void init(Player p, InventoryContent content) {
 
-    //inventoryContents.fillRow(0, ClickableItem.empty(fill));
-    inventoryContents.fillRow(4, ClickableItem.empty(fill));
-    player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-
-
-    //ProtectedRegion protectedRegion = this.claim.getProtectedRegion().get();
+    content.fillRow(4, ClickableItem.empty(fill));
+    p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
     LinkedList<ClickableItem> menuEntryList = new LinkedList();
 
     RM.flags.entrySet().stream().filter(es -> es.getValue().enabled).forEach(es -> {
-      //if (player.hasPermission(flagSetting.getPermission()) || player.hasPermission("region.flagmenu.all")) {
-      menuEntryList.add(FlagSetting.button(player, es.getKey(), region, inventoryContents));
+      //if (p.hasPermission(flagSetting.getPermission()) || p.hasPermission("region.flagmenu.all")) {
+      menuEntryList.add(FlagSetting.button(p, es.getKey(), region, content));
       //}
-
     });
 
 
-    ClickableItem[] arrclickableItem = new ClickableItem[menuEntryList.size()];
-    arrclickableItem = menuEntryList.toArray(arrclickableItem);
-
-    SlotIterator slotIterator = inventoryContents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0));
-    slotIterator = slotIterator.allowOverride(false);
-
-    Pagination pagination = inventoryContents.pagination();
-    pagination.setItems(arrclickableItem);
-    pagination.setItemsPerPage(36);
-    pagination.addToIterator(slotIterator);
-    //pagination.addToIterator(slotIterator);
+    Pagination pg = content.pagination();
+    pg.setItems(menuEntryList.toArray(new ClickableItem[0]));
+    pg.setItemsPerPage(36);
+    pg.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, 0, 0).allowOverride(false));
 
 
-    inventoryContents.set(4, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("гл.меню").build(),
-        e -> RM.openRegionOwnerMenu(player, region)));
+    content.set(4, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("гл.меню").build(),
+        e -> RM.openRegionOwnerMenu(p, region)));
 
 
-    if (!pagination.isLast()) {
-      inventoryContents.set(4, 6, ClickableItem.of(ItemUtil.nextPage,
-          e -> inventoryContents.getHost().open(player, pagination.next().getPage()))
+    if (!pg.isLast()) {
+      content.set(4, 6, ClickableItem.of(ItemUtil.nextPage,
+          e -> content.getHost().open(p, pg.next().getPage()))
       );
     }
 
 
-    if (!pagination.isFirst()) {
-      inventoryContents.set(4, 2, ClickableItem.of(ItemUtil.previosPage,
-          e -> inventoryContents.getHost().open(player, pagination.previous().getPage()))
+    if (!pg.isFirst()) {
+      content.set(4, 2, ClickableItem.of(ItemUtil.previosPage,
+          e -> content.getHost().open(p, pg.previous().getPage()))
       );
     }
 
@@ -82,7 +70,4 @@ public class FlagsManageMenu implements InventoryProvider {
   }
 
 
-  // @Override
-  // public void update(final Player player, final InventoryContent contents) {
-  // }
 }

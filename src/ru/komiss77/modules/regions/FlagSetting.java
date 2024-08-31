@@ -36,10 +36,11 @@ public class FlagSetting {
   public Material iconMat;
   private final FlagInputType inputType;
 
-  public FlagSetting(final Flag f, final String displayname, final boolean enabled) {
+  public FlagSetting(final Flag f, final String displayname, final Material iconMat, final boolean enabled) {
     name = f.getName();
-    this.enabled = enabled;
     this.displayname = displayname;
+    this.iconMat = iconMat;
+    this.enabled = enabled;
 
     if (f instanceof StringFlag) {
       inputType = FlagInputType.STRING;
@@ -58,22 +59,20 @@ public class FlagSetting {
     }
   }
 
-  public static ClickableItem button(final Player player, final Flag f, final ProtectedRegion region, final InventoryContent contents) {
+  public static ClickableItem button(final Player p, final Flag f, final ProtectedRegion region, final InventoryContent contents) {
     final FlagSetting fs = RM.flags.get(f);
-    if (fs == null) {
+    //if (fs == null) {
 
-    }
+    //}
     //String menuEntryname = "";
-    Material mat = Material.GRAY_DYE;
+    Material mat = fs.iconMat;
     if (region.getFlags().containsKey(f)) {
-      //if (null == inputType) {
-      //      if (ApiOstrov.canChangeColor(menuEntry.getType())) menuEntry = ColorUtils.changeColor(menuEntry, DyeColor.MAGENTA);
-      //   } else //name.enchantment(Enchantment.ARROW_INFINITE);
+
       switch (fs.inputType) {
 
         case STATE -> {
           if (region.getFlag(f) == StateFlag.State.DENY) {
-            mat = Material.RED_DYE; //Piif (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.PINK);
+            mat = Material.PINK_DYE; //Piif (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.PINK);
           } else {
             mat = Material.LIME_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.LIME);
           }
@@ -81,14 +80,14 @@ public class FlagSetting {
 
         case BOOLEAN -> {
           if ((boolean) region.getFlag(f)) {
-            mat = Material.RED_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.PINK);
+            mat = Material.PINK_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.PINK);
           } else {
             mat = Material.LIME_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.LIME);
           }
         }
 
         default -> {
-          mat = Material.CYAN_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.BLUE);
+          mat = Material.LIGHT_BLUE_DYE; //if (TCUtil.canChangeColor(menuEntry.getType())) menuEntry = TCUtil.changeColor(menuEntry, DyeColor.BLUE);
         }
       }
 
@@ -100,11 +99,11 @@ public class FlagSetting {
 
     }
 
-    final boolean hasPerm = ApiOstrov.isLocalBuilder(player, false) //чекать билдера, или кидает отрицательные права тоже!
-        || (player.hasPermission("regiongui.flag." + fs.name) || player.hasPermission("regiongui.flag.all"))
-        && !player.hasPermission("-regiongui.flag." + fs.name);
+    final boolean hasPerm = ApiOstrov.isLocalBuilder(p, false) //чекать билдера, или кидает отрицательные права тоже!
+        || (p.hasPermission("regiongui.flag." + fs.name) || p.hasPermission("regiongui.flag.all"))
+        && !p.hasPermission("-regiongui.flag." + fs.name);
 
-    ItemStack is = new ItemBuilder(mat)
+    ItemStack is = new ItemBuilder(mat == null ? Material.GRAY_DYE : mat)
         .name("§7" + fs.displayname)
         .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
         .lore("")
@@ -121,30 +120,31 @@ public class FlagSetting {
         if (e.getClick() == ClickType.RIGHT && region.getFlags().containsKey(f)) {
 
           region.setFlag(f, null);
-          contents.getHost().getProvider().reopen(player, contents);
+          contents.getHost().getProvider().reopen(p, contents);
 
         } else {
+
           switch (fs.inputType) {
             case DOUBLE, INTEGER, STRING -> {
-              player.closeInventory();
+              p.closeInventory();
               new InputButton(InputType.ANVILL, new ItemStack(Material.STONE), "Flag", value -> {
-                setFlag(player, region, f, value);
-                Bukkit.getScheduler().runTaskLater(Ostrov.getInstance(), () -> contents.getHost().getProvider().reopen(player, contents), 1L);
-                //Ostrov.sync(() -> contents.getHost().getProvider().reopen(player, contents), 1);
-                //}).run(new InventoryClickEvent(player.getOpenInventory(), SlotType.CONTAINER, 0, ClickType.LEFT, InventoryAction.PICKUP_ALL)
+                setFlag(p, region, f, value);
+                Bukkit.getScheduler().runTaskLater(Ostrov.getInstance(), () -> contents.getHost().getProvider().reopen(p, contents), 1L);
+                //Ostrov.sync(() -> contents.getHost().getProvider().reopen(p, contents), 1);
+                //}).run(new InventoryClickEvent(p.getOpenInventory(), SlotType.CONTAINER, 0, ClickType.LEFT, InventoryAction.PICKUP_ALL)
               });
             }
 
             case SET -> {
-              player.sendMessage("§fНаберите в чате новое значение для флага и нажмите Enter");
-              PlayerInput.get(InputButton.InputType.CHAT, player, value -> {
-                setFlag(player, region, f, value);
-                Bukkit.getScheduler().runTaskLater(Ostrov.getInstance(), () -> contents.getHost().getProvider().reopen(player, contents), 1L);
+              p.sendMessage("§fНаберите в чате новое значение для флага и нажмите Enter");
+              PlayerInput.get(InputButton.InputType.CHAT, p, value -> {
+                setFlag(p, region, f, value);
+                Bukkit.getScheduler().runTaskLater(Ostrov.getInstance(), () -> contents.getHost().getProvider().reopen(p, contents), 1L);
               }, "");
             }
             case BOOLEAN, STATE -> {
               switchState(region, f);
-              contents.getHost().getProvider().reopen(player, contents);
+              contents.getHost().getProvider().reopen(p, contents);
             }
             default -> {
             }

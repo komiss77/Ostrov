@@ -421,9 +421,13 @@ public class ApiOstrov {
         }
     }
 
-    //@Deprecated мне удобнее получать без лишних аргументов, где по дефолту MIN_VALUE
-    public static int getInteger(final String s) {
-        return getInteger(s, Integer.MIN_VALUE);
+
+    public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить
+        try {
+            return Integer.parseInt(num);
+        } catch (NumberFormatException ex) {
+            return Integer.MIN_VALUE;
+        }
     }
 
     public static int getInteger(final String num, final int or) {

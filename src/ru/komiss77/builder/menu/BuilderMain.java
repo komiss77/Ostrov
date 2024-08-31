@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import ru.komiss77.Cfg;
@@ -241,9 +242,14 @@ public class BuilderMain implements InventoryProvider {
                 .name("§fРегионы")
                 .lore("")
                 .lore("§7ЛКМ - редактор заготовок")
+                .lore("§7ПКМ - редактор флагов")
                 .lore("")
                 .build(), e -> {
-                RM.openTemplateAdmin(p);
+                if (e.getClick() == ClickType.LEFT) {
+                    RM.openTemplateAdmin(p);
+                } else if (e.getClick() == ClickType.RIGHT) {
+                    RM.openFlagAdmin(p);
+                }
             }));
         } else {
             content.set(2, 7, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)

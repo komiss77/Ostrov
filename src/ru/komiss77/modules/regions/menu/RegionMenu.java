@@ -79,14 +79,14 @@ public class RegionMenu implements InventoryProvider {
               //.lore("§7Примерная локация региона:")
               //.lore("§6"+rg.getMaximumPoint().x()+", "+rg.getMaximumPoint().y()+", "+rg.getMaximumPoint().z())
               .lore("")
-              .lore("§fЛКМ §7- телепорт в регион")
-              .lore("§fПКМ §7- управлять регионом")
+              .lore("§fЛКМ §7- управлять регионом")
+              .lore("§fПКМ §7- телепорт в регион")
               .lore("")
               //.lore(regionButton)
               .build(), e -> {
-            if (e.getClick() == ClickType.LEFT) {
+            if (e.getClick() == ClickType.RIGHT) {
               regionTp(p, world, rg);
-            } else if (e.getClick() == ClickType.RIGHT) {
+            } else if (e.getClick() == ClickType.LEFT) {
               RM.openRegionOwnerMenu(p, rg);
             }
           }));
