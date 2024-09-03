@@ -208,15 +208,10 @@ public class ApiOstrov {
     }
 
     public static boolean isStaff(final CommandSender cs) {
-        return switch (cs) {
-            case null -> false;
-            case ConsoleCommandSender cns -> true;
-            case Player p -> {
-                final Oplayer op = PM.getOplayer(p);
-                yield op != null && op.isStaff;
-            }
-            default -> false;
-        };
+        if (cs == null) return false;
+        if ((cs instanceof ConsoleCommandSender) || cs.isOp()) return true;
+        final Oplayer op = PM.getOplayer(cs.getName());
+        return op != null && op.isStaff;
     }
 
     public static boolean isLocalBuilder(final CommandSender cs) {

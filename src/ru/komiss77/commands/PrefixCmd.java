@@ -1,9 +1,6 @@
 package ru.komiss77.commands;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
@@ -14,10 +11,8 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtil;
 
-import java.util.List;
 
-
-public class PrefixCmd implements OCommand {
+public class PrefixCmd {
 
     public PrefixCmd() { //новое
         final String prefix = "prefix";
@@ -50,7 +45,7 @@ public class PrefixCmd implements OCommand {
                 .aliases("префикс")
                 .register();
     }
-
+/*
     @Override //старое
     public LiteralCommandNode<CommandSourceStack> command() {
         final String prefix = "prefix";
@@ -91,5 +86,5 @@ public class PrefixCmd implements OCommand {
     @Override
     public String description() {
         return "Ставит префикс";
-    }
+    }*/
 }

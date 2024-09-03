@@ -4,8 +4,6 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 
 !!!!Could not set generator for default world 'world': Plugin 'Ostrov v3.4' is not enabled yet (is it load:STARTUP?)
 
-кменю настройки флага
-все флаги нульь
 оконфиг - сносит строки при ошибке
 
 миссии чекнуть

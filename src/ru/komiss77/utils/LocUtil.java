@@ -1,9 +1,7 @@
 package ru.komiss77.utils;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -603,5 +601,12 @@ public class LocUtil {
         return ((cLoc & 0x1FFF) - 4096); //8191 = 1FFF = 0b00000000_00000000_00011111_11111111
     }
 
+    public static Set<String> worldNames() {
+        final Set<String> list = new HashSet<>();
+        for (World w : Bukkit.getWorlds()) {
+            list.add(w.getName());
+        }
+        return list;
+    }
 
 }

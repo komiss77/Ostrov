@@ -13,17 +13,16 @@ public class REGISTER {
         Ostrov.log_ok("§5Регистрация команд:");
 
         new IOO5OOCmd();//100500 команд
-        Ostrov.regCommand(new FlyCmd());
-        Ostrov.regCommand(new OpermCmd());
-        Ostrov.regCommand(new TpposCMD());
-        Ostrov.regCommand(new TphereCmd());
+        new HatCmd(); //+
+        new PrefixCmd(); //+
+        new SuffixCmd(); //+
 
-        new HatCmd();//новый способ
-        new PrefixCmd();//сравнение
-        new CleanCmd();
-
-        Ostrov.regCommand(new SuffixCmd());
-        Ostrov.regCommand(new InvseeCmd());
+        Ostrov.regCommand(new FlyCmd()); //+
+        Ostrov.regCommand(new OpermCmd());//+
+        Ostrov.regCommand(new TpposCMD());//+
+        Ostrov.regCommand(new TphereCmd());//+
+        Ostrov.regCommand(new OcleanCmd());//+ просто /clean перехватывает прокси!!
+        Ostrov.regCommand(new InvseeCmd()); //+
         Ostrov.regCommand(new SeenCmd());
         Ostrov.regCommand(new WarpCmd());
         Ostrov.regCommand(new TpaCmd());
@@ -51,7 +50,6 @@ public class REGISTER {
         //Ostrov.regCommand(new HomeCmd()); переделка на ГУИ
         //Ostrov.regCommand(new AdminCmd()); мелкие команды без аргументов в CMD
         //Ostrov.regCommand(new ProfileCmd());
-
 //        plugin.getCommand("statreach").setExecutor(new StatReachCmd());
 //        plugin.getCommand("nbtfind").setExecutor(new NbtfindCmd(plugin));
 //        plugin.getCommand("nbtcheck").setExecutor(new NbtcheckCmd(plugin));

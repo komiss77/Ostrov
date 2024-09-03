@@ -1,19 +1,9 @@
 package ru.komiss77.commands;
 
-import java.util.List;
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import ru.komiss77.builder.menu.AdminInv;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.inventory.SmartInventory;
 
 @Deprecated
-public class AdminCmd implements OCommand {
+public class AdminCmd {
+}/* implements OCommand {
 
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
@@ -49,3 +39,4 @@ public class AdminCmd implements OCommand {
         return "Открывает меню Абьюзера";
     }
 }
+*/
