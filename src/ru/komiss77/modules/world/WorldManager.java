@@ -16,7 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
-import ru.komiss77.commands.WorldManagerCmd;
+import ru.komiss77.commands.WM;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.DynmapFeatures;
@@ -84,7 +84,7 @@ public class WorldManager implements Initiable {
             Cfg.getVariable().saveConfig();
 
             final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath() + "/world_the_end");
-            WorldManagerCmd.deleteFile(endWorldFolder);
+            WM.deleteFile(endWorldFolder);
             //seed ??
             Ostrov.log_warn("Край обнулён.");
         }
@@ -448,7 +448,7 @@ public class WorldManager implements Initiable {
             Bukkit.unloadWorld(world, false); //тут не надо сохранять - на удаление!
 
             final long currentTimeMillis4 = System.currentTimeMillis();
-            WorldManagerCmd.deleteFile(world.getWorldFolder());
+            WM.deleteFile(world.getWorldFolder());
             sender.sendMessage(Ostrov.PREFIX + "мир выгружен, его файлы удалёны за §5" + (System.currentTimeMillis() - currentTimeMillis4) + "ms!");
             return true;
 
@@ -461,7 +461,7 @@ public class WorldManager implements Initiable {
 
             if (worldFolder.exists() && worldFolder.isDirectory()) {
                 final long currentTimeMillis4 = System.currentTimeMillis();
-                WorldManagerCmd.deleteFile(worldFolder);
+                WM.deleteFile(worldFolder);
                 sender.sendMessage(Ostrov.PREFIX + "файлы мира удалёны за §5" + (System.currentTimeMillis() - currentTimeMillis4) + "ms!");
                 return true;
             } else {

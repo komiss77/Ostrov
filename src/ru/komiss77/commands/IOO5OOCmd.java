@@ -12,6 +12,7 @@ import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.commands.tools.OCmdBuilder;
+import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.figures.MenuMain;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
@@ -25,6 +26,23 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class IOO5OOCmd {
 
   public IOO5OOCmd() {
+
+    new OCmdBuilder("skin")
+        .run(cntx -> {
+          final CommandSender cs = cntx.getSource().getSender();
+          if (!(cs instanceof final Player p)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
+          if (!Ostrov.wg) {
+            p.sendMessage("§cПомошник привата недоступен (нет WG)!");
+            return 0;
+          }
+          SkinRestorerHook.openGui(p, 0);
+          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        })
+        .description("Установить скин")
+        .register();
 
     new OCmdBuilder("land")
         .run(cntx -> {

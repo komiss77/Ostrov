@@ -32,13 +32,9 @@ import ru.komiss77.modules.world.WorldManager.Generator;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 
-//public class WorldManagerCommand implements CommandExecutor{
-public class WorldManagerCmd implements OCommand {
-
-    // !!!!!!!!!!!!!!!!!!  Не перемещать! ссылаются плагины!!
-
-    //запрос банжи, если есть - разкодировать raw
-    //если пустой - выкачать из снапшота БД
+@Deprecated
+public class WorldManagerCmd {
+}/*implements OCommand {
 
     public static final List<String> commands = Arrays.asList("list", "tp", "create",
             "load", "import", "save", "unload", "setspawn", "delete", "backup", "restore");
@@ -63,45 +59,47 @@ public class WorldManagerCmd implements OCommand {
                             .build().open(pl);
                     return Command.SINGLE_SUCCESS;
                 })
-                .then(Resolver.string(op).suggests((cntx, sb) -> {
+
+                .then(Resolver.string(op).suggests( (cntx, sb) -> {
                     if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                         return sb.buildFuture();
                     }
-
                     commands.forEach(c -> sb.suggest(c));
                     return sb.buildFuture();
-                }).then(Resolver.string(world).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
+                })
+                    .then(Resolver.string(world).suggests((cntx, sb) -> {
+                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
+                            return sb.buildFuture();
+                        }
 
-                    Bukkit.getWorlds().forEach(w -> sb.suggest(w.getName()));
-                    return sb.buildFuture();
-                }).executes(tryWMCmd()).then(Resolver.string(env).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
+                        Bukkit.getWorlds().forEach(w -> sb.suggest(w.getName()));
                         return sb.buildFuture();
-                    }
+                    }).executes(tryWMCmd()).then(Resolver.string(env).suggests((cntx, sb) -> {
+                        if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
+                            return sb.buildFuture();
+                        }
 
-                    switch (Resolver.string(cntx, op)) {
-                        case "create", "load", "import":
-                            for (final World.Environment en : World.Environment.values()) {
-                                sb.suggest(en.name());
+                        switch (Resolver.string(cntx, op)) {
+                            case "create", "load", "import":
+                                for (final World.Environment en : World.Environment.values()) {
+                                    sb.suggest(en.name());
+                                }
+                        }
+                        return sb.buildFuture();
+                    })
+                        .then(Resolver.string(gen).suggests((cntx, sb) -> {
+                            if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
+                                return sb.buildFuture();
                             }
-                    }
-                    return sb.buildFuture();
-                }).then(Resolver.string(gen).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
-                        return sb.buildFuture();
-                    }
 
-                    switch (Resolver.string(cntx, op)) {
-                        case "create", "load", "import":
-                            for (final Generator gn : Generator.values()) {
-                                sb.suggest(gn.name());
+                            switch (Resolver.string(cntx, op)) {
+                                case "create", "load", "import":
+                                    for (final Generator gn : Generator.values()) {
+                                        sb.suggest(gn.name());
+                                    }
                             }
-                    }
-                    return sb.buildFuture();
-                }).executes(tryWMCmd())))))
+                            return sb.buildFuture();
+                        }).executes(tryWMCmd())))))
                 .build();
     }
 
@@ -462,3 +460,4 @@ class WorldSelectMenu implements InventoryProvider {
         };
     }
 }
+*/

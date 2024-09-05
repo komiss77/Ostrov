@@ -1,5 +1,10 @@
 package ru.komiss77.commands;
 
+@Deprecated
+public class S {
+
+}
+/*
 import java.util.List;
 import java.util.regex.Pattern;
 import com.mojang.brigadier.Command;
@@ -25,7 +30,7 @@ import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.utils.TimeUtil;
 
-public class ServerCmd implements OCommand {
+public class S implements OCommand {
 
     private static final CaseInsensitiveSet displayNames; //для команды /server
 
@@ -55,7 +60,7 @@ public class ServerCmd implements OCommand {
               .hoverEvent(HoverEvent.showText(Component.text("§7Клик - перейти")))
               .clickEvent(ClickEvent.runCommand("/server "+serverName)));
           }
-          p.sendMessage(servers.build());*/
+          p.sendMessage(servers.build());/
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Resolver.string(server).suggests((cntx, sb) -> {
@@ -115,7 +120,7 @@ public class ServerCmd implements OCommand {
             } else {
               serverName = gi.arenas().stream().findAny().get().server;//arenas.get(0).server;
             }
-          }*/
+          }/
                         }).then(Resolver.string(map).suggests((cntx, sb) -> {
                             final Game game = Game.fromServerName(Resolver.string(cntx, server));
                             final GameInfo gi = GM.getGameInfo(game);
@@ -210,3 +215,4 @@ public class ServerCmd implements OCommand {
     
     
  
+*/

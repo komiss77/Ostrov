@@ -26,8 +26,10 @@ public class BossBarCmd implements OCommand {
         final String player = "player";
         return Commands.literal("bossbar").executes(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof ConsoleCommandSender)) return 0;
-
+                if (!(cs instanceof ConsoleCommandSender)) {
+                    cs.sendMessage("§cТолько консоль!");
+                    return 0;
+                }
                 cs.sendMessage("§6Операторы:");
                 Bukkit.getOperators().forEach(op -> cs.sendMessage("§6" + op.getName()));
                 return Command.SINGLE_SUCCESS;
@@ -39,8 +41,10 @@ public class BossBarCmd implements OCommand {
                 return sb.buildFuture();
             }).executes(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof ConsoleCommandSender)) return 0;
-
+                if (!(cs instanceof ConsoleCommandSender)) {
+                    cs.sendMessage("§cТолько консоль!");
+                    return 0;
+                }
                 final OfflinePlayer tgt = Bukkit
                     .getOfflinePlayer(Resolver.string(cntx, player));
 

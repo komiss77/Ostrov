@@ -7,6 +7,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import ru.komiss77.*;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Module;
@@ -47,39 +48,54 @@ public class OreloadCmd implements OCommand {
                     return sb.buildFuture();
                 }).executes(cntx -> {
                     final CommandSender cs = cntx.getSource().getExecutor();
-                    if (!ApiOstrov.isLocalBuilder(cs, true)) {
+                    if (!ApiOstrov.isLocalBuilder(cs, false)) {
                         cs.sendMessage("§cДоступно только персоналу!");
                         return 0;
                     }
                     final String md = Resolver.string(cntx, mod);
+                    final Player p = (cs instanceof Player) ? (Player) cs : null;
                     return switch (md) {
                         case "all" -> {
                             Cfg.ReLoadAllConfig();
-                            Ostrov.getModules().forEach(m -> m.reload());
+                            Ostrov.modules.entrySet().forEach(es -> {
+                                es.getValue().reload();
+                                if (p != null) {
+                                    p.sendMessage("§freload modeule : §a" + es.getKey());
+                                }
+                            });
                             yield Command.SINGLE_SUCCESS;
                         }
                         case "connection_ostrov" -> {
                             RemoteDB.init(false, true);
+                            if (p != null) p.sendMessage("§freload modeule : §a" + md);
                             yield Command.SINGLE_SUCCESS;
                         }
                         case "connection_local" -> {
-                            Ostrov.async(() -> LocalDB.init(), 0);
+                            Ostrov.async(() -> {
+                                LocalDB.init();
+                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                            }, 0);
                             yield Command.SINGLE_SUCCESS;//!!!! релоад локал - делать асинх
                         }
                         case "group" -> {
                             Ostrov.async(() -> {
                                 //RemoteDB.getBungeeServerInfo(); //1!!!
                                 Perm.loadGroups(true); //2!!! сначала прогрузить allBungeeServersName, или не определяет пермы по серверам
+                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
                             }, 0);
                             yield Command.SINGLE_SUCCESS;
                         }
                         //Perm.loadGroups(true);
                         case "gamemanager" -> {
-                            Ostrov.async(() -> GM.load(GM.State.RELOAD), 0);
+                            Ostrov.async(() -> {
+                                GM.load(GM.State.RELOAD);
+                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                            }, 0);
                             yield Command.SINGLE_SUCCESS;//GM.reload = true;
                         }
                         case "signs" -> {
                             GM.onWorldsLoadDone();
+                            if (p != null) p.sendMessage("§freload modeule : §a" + md);
                             yield Command.SINGLE_SUCCESS;
                         }
                         default -> {
