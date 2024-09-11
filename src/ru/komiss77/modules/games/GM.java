@@ -28,7 +28,6 @@ import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.OConfig;
 import ru.komiss77.utils.TCUtil;
 
 //не переименовывать!!!! другие плагины берут напрямую!
@@ -423,6 +422,7 @@ public final class GM {
         return games.values();
     }
 
+//    public static FastGame fg;
 
     public static void randomPlay(final Player p, final Game game, @Nullable final String serverName) {
         if (Timer.has(p, "randomPlay")) return;
@@ -430,20 +430,17 @@ public final class GM {
         final GameInfo gi = getGameInfo(game);
         String serv = game.defaultServer;
         String arenaName = "";
-//Ostrov.log_warn("randomPlay "+game+"/"+serverName+" gi="+gi);
 
         if (gi == null) {
             p.sendMessage("§cНет данных для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             serv = game.defaultServer;
         } else {
-//Ostrov.log_warn("gi.count="+gi.count());
             if (gi.count() == 0) {
                 p.sendMessage("§cНе найдено арен для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             } else {
                 ArenaInfo arenaInfo = null;
                 int max = -1;
                 for (ArenaInfo ai : gi.arenas()) {
-//Ostrov.log_warn("ai="+ai.server+"/"+ai.arenaName+" state="+ai.state+" players="+ai.players);
                     if (serverName != null && !ai.server.equalsIgnoreCase(serverName))
                         continue; //указан желаемый сервер - пропускаем арены на других
                     if (ai.state == GameState.СТАРТ) {
@@ -457,17 +454,14 @@ public final class GM {
                         }
                     }
                 }
-//Ostrov.log_warn("arenaInfo1="+arenaInfo);
                 if (arenaInfo == null) {
                     //p.sendMessage("§cНе найдено арены, подходящей для быстрой игры, попробуйте найти на табличке!");
                     arenaInfo = gi.arenas().stream().findAny().get();
                 }
-//Ostrov.log_warn("arenaInfo2="+arenaInfo);
                 if (arenaInfo != null) {
                     arenaName = arenaInfo.arenaName;
                 }
             }
-//Ostrov.log_warn("arenaName="+arenaName);
         }
 
         if (serv.equalsIgnoreCase(Ostrov.MOT_D)) {
@@ -476,7 +470,6 @@ public final class GM {
             }
         } else {
             ApiOstrov.sendToServer(p, serv, arenaName);
-            //p.performCommand("server "+arenaInfo.server+" "+arenaInfo.arenaName);
         }
 
     }

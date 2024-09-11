@@ -38,7 +38,7 @@ public class Schematic {
     //TIntObjectHashMap ??
     private final String name;
     private String param = "";
-    //protected TIntObjectHashMap<Material> blocks = new TIntObjectHashMap<>(); //только блоки, воздух пропускается. Исключение - STRUCTURE_VOID запоминается как AIR принудительно
+    //protected TIntObjectHashMap<Material> posData = new TIntObjectHashMap<>(); //только блоки, воздух пропускается. Исключение - STRUCTURE_VOID запоминается как AIR принудительно
     protected final HashMap<Integer, Material> blocks = new HashMap<>(); //только блоки, воздух пропускается. Исключение - STRUCTURE_VOID запоминается как AIR принудительно
     //protected TIntObjectHashMap<BlockData> blockDatas = new TIntObjectHashMap<>();
     protected final HashMap<Integer, String> blockDatas = new HashMap<>();
@@ -371,7 +371,7 @@ public class Schematic {
         lines.add(String.valueOf(createdEnvironment)); //line10
         lines.add(String.valueOf(createdBiome)); //line11
 
-        //for (int xyz:blocks.keys()) {
+        //for (int xyz:posData.keys()) {
         for (int xyz : blocks.keySet()) {
             lines.add(String.valueOf(xyz));
             lines.add(String.valueOf(blocks.get(xyz)));
@@ -512,7 +512,7 @@ public class Schematic {
             xyzOffset = xyz.yaw; //НЕ брать offSet(), в Iterator<XYZ> координаты уже другие!!
             schematicMaterial = blocks.get(xyzOffset);
 
-            if (schematicMaterial == null) { //на этом месте долже быть воздух, но AIR не будет в blocks, т.е. чекаем на null!
+            if (schematicMaterial == null) { //на этом месте долже быть воздух, но AIR не будет в posData, т.е. чекаем на null!
                 if (!ignoreAir && worldMaterial != Material.AIR) {
                     final XYZ coord = new XYZ(worldName, xyz.x, xyz.y, xyz.z);
                     cr.mustBe.put(coord, Material.AIR);

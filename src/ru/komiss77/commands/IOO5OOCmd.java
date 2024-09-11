@@ -7,7 +7,10 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.komiss77.*;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
+import ru.komiss77.Timer;
 import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.builder.menu.WorldSetupMenu;
@@ -27,6 +30,16 @@ public class IOO5OOCmd {
 
   public IOO5OOCmd() {
 
+    //русская разкладка В КОНЦЕ
+    /*new OCmdBuilder("тест")
+        .then(Commands.argument("арг", StringArgumentType.greedyString()).executes(cntx -> {
+          final String arg = Resolver.string(cntx, "арг");
+          cntx.getSource().getSender().sendMessage("text- " + arg);
+          return Command.SINGLE_SUCCESS;
+        })).suggest(cntx -> Set.of("стандарт"), false)
+        .description("тест комм")
+        .register();*/
+
     new OCmdBuilder("skin")
         .run(cntx -> {
           final CommandSender cs = cntx.getSource().getSender();
@@ -39,7 +52,7 @@ public class IOO5OOCmd {
             return 0;
           }
           SkinRestorerHook.openGui(p, 0);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Установить скин")
         .register();
@@ -56,7 +69,7 @@ public class IOO5OOCmd {
             return 0;
           }
           PM.getOplayer(p).menu.openRegions(p);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Помошник привата")
         .register();
@@ -97,7 +110,7 @@ public class IOO5OOCmd {
           }
           final Oplayer op = PM.getOplayer(p);
           op.menu.openHomes(p);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .aliases("sethome", "delhome")
         .description("Управление точками дома")
@@ -112,7 +125,7 @@ public class IOO5OOCmd {
           }
           final Oplayer op = PM.getOplayer(p);
           op.menu.openLocalMenu(p);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .aliases("меню")
         .description("серверное меню")
@@ -131,7 +144,7 @@ public class IOO5OOCmd {
           }
           final Oplayer op = PM.getOplayer(p);
           op.menu.openLocalSettings(p, true);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Личные настройки")
         .register();
@@ -150,7 +163,7 @@ public class IOO5OOCmd {
           }
           op.menu.open(p, Section.ПРОФИЛЬ);
           p.playSound(p.getLocation(), Sound.BLOCK_COMPOSTER_EMPTY, 2, 2);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Открывает Профиль")
         .register();
@@ -173,7 +186,7 @@ public class IOO5OOCmd {
           } else {
             p.sendMessage("§cдоступно билдерам");
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Sound player")
         .register();
@@ -196,7 +209,7 @@ public class IOO5OOCmd {
           } else {
             p.sendMessage("§cдоступно билдерам");
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Личные настройки")
         .register();
@@ -213,7 +226,7 @@ public class IOO5OOCmd {
           } else {
             p.sendMessage("§cЧасики отключены на этом сервере!");
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Получить предмет-меню")
         .register();
@@ -226,7 +239,7 @@ public class IOO5OOCmd {
             return 0;
           }
           p.performCommand("server lobby");
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .aliases("hub")
         .description("Личные настройки")
@@ -266,7 +279,7 @@ public class IOO5OOCmd {
           op.tpRequestFrom = null;
           Timer.add(from.getPlayer(), "tpa_command", Cfg.tpa_command_delay); //задержка даётся вызывающему
           DelayTeleport.tp(from.getPlayer(), p.getLocation(), 3, "Вы переместились к " + p.getName(), true, true, DyeColor.YELLOW);
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Телепорт")
         .register();
@@ -287,7 +300,7 @@ public class IOO5OOCmd {
           } else {
             p.sendMessage("§ctop отключёна на этом сервере!");
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Телепорт")
         .register();
@@ -308,7 +321,7 @@ public class IOO5OOCmd {
           } else {
             p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Телепорт")
         .register();
@@ -339,7 +352,7 @@ public class IOO5OOCmd {
             p.sendMessage("§c" + Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
             return 0;
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Вернуться на точку гибели")
         .register();
@@ -353,7 +366,7 @@ public class IOO5OOCmd {
           }
           p.sendMessage("§fВы находитесь в биоме: "
               + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()));
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Узнать биом")
         .register();
@@ -390,7 +403,7 @@ public class IOO5OOCmd {
             p.sendMessage("§cСмена мира командой world отключён на этом сервере!");
             return 0;
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("Перемещение между марами")
         .register();
@@ -403,7 +416,7 @@ public class IOO5OOCmd {
             cs.sendMessage("§eНе консольная команда!");
             return 0;
           }
-          return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+          return Command.SINGLE_SUCCESS;
         })
         .description("")
         .register();

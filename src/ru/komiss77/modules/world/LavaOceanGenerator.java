@@ -1,7 +1,7 @@
 package ru.komiss77.modules.world;
 
-import java.util.Random;
 import javax.annotation.Nonnull;
+import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -65,7 +65,7 @@ public class LavaOceanGenerator extends ChunkGenerator {
     // public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid) {
     //     byte[][] result = new byte[world.getMaxHeight() / 16][];
         
-      /*  Iterator it = this.plugin.blocks.iterator();
+      /*  Iterator it = this.plugin.posData.iterator();
 
         while (it.hasNext()) {
             BedrockCoords block = (BedrockCoords) it.next();

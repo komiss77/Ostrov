@@ -22,7 +22,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
-import ru.komiss77.Ostrov;
+import ru.komiss77.OStrap;
 import ru.komiss77.utils.ItemUtil.Texture;
 
 public class ItemBuilder {
@@ -147,7 +147,7 @@ public class ItemBuilder {
 
     public <T extends Serializable, D> ItemBuilder data(final String key, final D data, final PersistentDataType<T, D> pdt) {
         if (checkMeta()) {
-            final NamespacedKey nsk = key == null ? ItemUtil.key : new NamespacedKey(Ostrov.instance, key);
+            final NamespacedKey nsk = key == null ? ItemUtil.key : OStrap.key(key);
             meta.getPersistentDataContainer().set(nsk, pdt, data);
         }
         return this;

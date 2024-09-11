@@ -48,10 +48,10 @@ public class TestLst implements Listener {
                 } else {
                     op.tag(false);
 
-                    final BlockData bd = BlockType.GOLD_BLOCK.createBlockData();
-                    LocUtil.traceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, b -> {
-                        p.sendBlockChange(b.getLocation(), bd);
-                        return b.getType() != Material.AIR;
+                    final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
+                    LocUtil.trace(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, (bp, bd) -> {
+                        p.sendBlockChange(bp.toLocation(p.getWorld()), gold);
+                        return !bd.getMaterial().asBlockType().isAir();
                     });
                     /*final BlockData bd = BlockType.YELLOW_CARPET.createBlockData();
                     for (final XYZ lc : AStarFinder.xyzPath(new WXYZ(p.getTargetBlockExact(100)), new WXYZ(p.getLocation()), 10000, true)) {

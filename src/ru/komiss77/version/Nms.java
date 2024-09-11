@@ -27,11 +27,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
@@ -296,6 +299,18 @@ public class Nms {
         }
       }
     }
+  }
+
+  public static String getBiomeKey(final World w, int x, int y, int z) {
+    final BiomeManager bm = Craft.toNMS(w).getBiomeManager();
+    final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(x, y, z)).unwrapKey();
+    return opk.map(bk -> bk.location().getPath()).orElse("void");
+  }
+
+  public static String getBiomeKey(final WXYZ loc) {
+    final BiomeManager bm = Craft.toNMS(loc.w).getBiomeManager();
+    final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(loc.x, loc.y, loc.z)).unwrapKey();
+    return opk.map(bk -> bk.location().getPath()).orElse("void");
   }
 
   //упрощенный вид
