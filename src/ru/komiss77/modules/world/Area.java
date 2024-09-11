@@ -1,15 +1,11 @@
 package ru.komiss77.modules.world;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.Map.Entry;
+import com.mojang.datafixers.util.Pair;
 import org.bukkit.Location;
 import org.bukkit.World;
-import com.mojang.datafixers.util.Pair;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.notes.Slow;
@@ -56,7 +52,7 @@ public class Area extends Cuboid {
              * what mojang considers "solid" is ``isBuildable``, which is what for example signs use to check if they can be attached to a block.
              * ``isPassable`` checks if the block has no collider.
              * In practice this will always be the same except for webs, they have no collider (passable=true),
-             * but blocks can be placed on them (isSolid=true)*/
+             * but posData can be placed on them (isSolid=true)*/
             if (Nms.getFastMat(w, lc.x, lc.y, lc.z).isCollidable() &&
                 !Nms.getFastMat(w, lc.x, lc.y + 1, lc.z).isCollidable() &&
                 !Nms.getFastMat(w, lc.x, lc.y + 2, lc.z).isCollidable()) {

@@ -3,11 +3,14 @@ package ru.komiss77.utils;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
+import io.papermc.paper.math.BlockPosition;
+import io.papermc.paper.math.Position;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockType;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -16,6 +19,7 @@ import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
+import ru.komiss77.objects.Duo;
 import ru.komiss77.version.Nms;
 
 
@@ -379,7 +383,7 @@ public class LocUtil {
         return fin;
     }
 
-    public static void traceBlocks(final Location org, final Vector dir, final double dst, final Predicate<Block> done) {
+    public static TraceResult trace(final Location org, final Vector dir, final double dst, final OnPosData done) {
         dir.normalize();
         final int finX = (int) (dir.getX() * dst + org.getX()), finY = (int) (dir.getY() * dst + org.getY()), finZ = (int) (dir.getZ() * dst + org.getZ());
         int mapX = (int) Math.floor(org.getX()), mapY = (int) Math.floor(org.getY()), mapZ = (int) Math.floor(org.getZ());
@@ -414,6 +418,8 @@ public class LocUtil {
         if (Double.isNaN(sideDistZ)) sideDistZ = Double.POSITIVE_INFINITY;
 
         final World w = org.getWorld();
+        final List<Duo<BlockPosition, BlockData>> info =
+            new ArrayList<>(finX - mapX + finY - mapY + finZ - mapZ);
         while (true) {
             if (sideDistZ < sideDistX && sideDistZ < sideDistY) {
                 sideDistZ += deltaDistZ;
@@ -427,8 +433,36 @@ public class LocUtil {
             }
 
 //            w.spawnParticle(Particle.FLAME, org.clone().add(sideDistX, sideDistY, sideDistZ), 2, 0d, 0d, 0d, 0d);
-            if (done.test(w.getBlockAt(mapX, mapY, mapZ)) ||
-                ((mapX - finX) * stepX > 0 || (mapY - finY) * stepY > 0 || (mapZ - finZ) * stepZ > 0)) return;
+            final BlockData bd = Nms.fastData(w, mapX, mapY, mapZ);
+            final BlockPosition bp = Position.block(mapX, mapY, mapZ);
+            if (done.test(bp, bd)) {
+                return new TraceResult(info, new WXYZ(w, mapX, mapY, mapZ), false);
+            }
+
+            info.add(new Duo<>(bp, bd));
+            if ((mapX - finX) * stepX > 0 || (mapY - finY) * stepY > 0 || (mapZ - finZ) * stepZ > 0) {
+                final BlockPosition lbp = info.getLast().key();
+                return new TraceResult(info, new WXYZ(w, lbp.blockX(), lbp.blockY(), lbp.blockZ()), true);
+            }
+        }
+    }
+
+    public interface OnPosData {
+        boolean test(final BlockPosition pos, final BlockData data);
+    }
+
+    public record TraceResult(List<Duo<BlockPosition, BlockData>> posData, WXYZ last, boolean endDst) {
+        @Slow(priority = 2)
+        public List<Block> blocks() {
+            final World w = last.w;
+            return posData.stream().map(bs -> w.getBlockAt(bs.key().toLocation(w))).toList();
+        }
+
+        @Slow(priority = 1)
+        public boolean has(final BlockPosition pos) {
+            for (final Duo<BlockPosition, BlockData> pd : posData)
+                if (pd.key().equals(pos)) return true;
+            return false;
         }
     }
 
@@ -441,18 +475,17 @@ public class LocUtil {
         final World w = org.getWorld();
         while (true) {
             to.add(vec);
-            final Material mt = Nms.getFastMat(w, to.getBlockX(), to.getBlockY(), to.getBlockZ());
-            switch (mt) {
-                default:
-                    if (mt.isCollidable() && mt.isOccluding()) {
-                        if (w.getBlockAt(to.getBlockX(), to.getBlockY(), to.getBlockZ()).getBoundingBox().contains(to)) {
-                            return false;
-                        }
-                    }
-                    break;
-                case POWDER_SNOW:
-                    return false;
+            final BlockType mt = Nms.fastType(w, to.getBlockX(), to.getBlockY(), to.getBlockZ());
+            if (BlockType.POWDER_SNOW.equals(mt)) {
+                return false;
             }
+
+            if (mt.hasCollision() && mt.isOccluding()) {
+                if (w.getBlockAt(to.getBlockX(), to.getBlockY(), to.getBlockZ()).getBoundingBox().contains(to)) {
+                    return false;
+                }
+            }
+
             if (Math.abs(to.getX() - org.getX()) < inc && Math.abs(to.getY() - org.getY()) < inc && Math.abs(to.getZ() - org.getZ()) < inc) {
                 return true;
             }

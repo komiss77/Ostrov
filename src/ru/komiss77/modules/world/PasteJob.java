@@ -6,16 +6,8 @@ import org.bukkit.Axis;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Container;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.MultipleFacing;
-import org.bukkit.block.data.Orientable;
-import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.*;
+import org.bukkit.block.data.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -104,10 +96,10 @@ class PasteJob implements Runnable {
             Block block = world.getBlockAt(xyz.x, xyz.y, xyz.z); //тут уже готовые координаты блока!
 
             int xyzOffset = xyz.yaw; //берём соответствующий адрес блока НЕ брать offSet(), в Iterator<XYZ> координаты уже другие!!
-//Ostrov.log("***paste xyz="+xyz.x+","+xyz.y+","+xyz.z+" xyzOffset="+xyzOffset+" mat="+schem.blocks.get(xyzOffset));
+//Ostrov.log("***paste xyz="+xyz.x+","+xyz.y+","+xyz.z+" xyzOffset="+xyzOffset+" mat="+schem.posData.get(xyzOffset));
 
             mat = schem.blocks.get(xyzOffset);
-            if (mat != null) {//(schem.blocks.containsKey(xyz.yaw)) {
+            if (mat != null) {//(schem.posData.containsKey(xyz.yaw)) {
 
                 blockDataAsString = schem.blockDatas.get(xyzOffset);
                 if (blockDataAsString != null) {//if (schem.blockDatas.containsKey(xyzOffset)) { //есть блокдата\
@@ -126,7 +118,7 @@ class PasteJob implements Runnable {
                     }
 
 
-                    if (mat == block.getType()) {//if (schem.blocks.get(xyzOffset) == block.getType()) { //тип такой же - обновить блокдату?
+                    if (mat == block.getType()) {//if (schem.posData.get(xyzOffset) == block.getType()) { //тип такой же - обновить блокдату?
 
                         if (!bd.equals(block.getBlockData())) {//if (schem.blockDatas.get(xyzOffset)!=block.getBlockData()) { //сравнить блокдату??
                             block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false); //block.setBlockData(schem.blockDatas.get(xyzOffset), false);
@@ -135,15 +127,15 @@ class PasteJob implements Runnable {
 
                     } else { //тип разный - поставить тип и дату
 
-                        block.setType(mat, false);// block.setType(schem.blocks.get(xyzOffset), false);
+                        block.setType(mat, false);// block.setType(schem.posData.get(xyzOffset), false);
                         block.setBlockData(bd, false);//setBlockData(block, blockData);//block.setBlockData(blockData, false);//block.setBlockData(schem.blockDatas.get(xyzOffset), false);
                         current++;
 
                     }
 
-                } else if (mat != block.getType()) {//} else if (schem.blocks.get(xyzOffset) != block.getType()) { //блокдатф не запомнено - заменить если не совпадает тип
+                } else if (mat != block.getType()) {//} else if (schem.posData.get(xyzOffset) != block.getType()) { //блокдатф не запомнено - заменить если не совпадает тип
 
-                    block.setType(mat, false);//block.setType(schem.blocks.get(xyzOffset), false);
+                    block.setType(mat, false);//block.setType(schem.posData.get(xyzOffset), false);
                     current++;
 
                 }

@@ -12,11 +12,11 @@ public class CoordXZ {
 
     // transform values between block, chunk, and region
     // bit-shifting is used because it's mucho rapido
-    public static int blockToChunk(int blockVal) {    // 1 chunk is 16x16 blocks
+    public static int blockToChunk(int blockVal) {    // 1 chunk is 16x16 posData
         return blockVal >> 4;   // ">>4" == "/16"
     }
 
-    public static int blockToRegion(int blockVal) {    // 1 region is 512x512 blocks
+    public static int blockToRegion(int blockVal) {    // 1 region is 512x512 posData
         return blockVal >> 9;   // ">>9" == "/512"
     }
 

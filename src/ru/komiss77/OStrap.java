@@ -3,6 +3,8 @@ package ru.komiss77;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
@@ -14,6 +16,8 @@ import io.papermc.paper.registry.event.RegistryEvents;
 import io.papermc.paper.registry.event.WritableRegistry;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
+import io.papermc.paper.registry.tag.Tag;
+import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -23,6 +27,7 @@ import org.bukkit.inventory.ItemType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import ru.komiss77.modules.enchants.CustomEnchant;
 import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.utils.TCUtil;
@@ -74,5 +79,23 @@ public class OStrap implements PluginBootstrap {
     public static <E extends Keyed> List<E> retrieveAll(final RegistryKey<E> reg) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.stream().toList();
+    }
+
+    public static <T extends Keyed> Tag<T> regTag(final TagKey<T> key, final Collection<T> def) {
+        final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(key.registryKey());
+        if (reg.hasTag(key)) return reg.getTag(key);
+        return new Tag<T>() {
+            private final Set<TypedKey<T>> keys = def.stream()
+                .map(i -> TypedKey.create(key.registryKey(), i.key()))
+                .collect(Collectors.toUnmodifiableSet());
+
+            public @NonNull TagKey<T> tagKey() {return key;}
+            public @NonNull RegistryKey<T> registryKey() {return key.registryKey();}
+            public boolean contains(final @NonNull TypedKey<T> tk) {return keys.contains(tk);}
+            public @NonNull @Unmodifiable Collection<TypedKey<T>> values() {return keys;}
+            public @NonNull @Unmodifiable Collection<T> resolve(final @NonNull Registry<T> reg) {
+                return keys.stream().map(t -> reg.get(t)).toList();
+            }
+        };
     }
 }

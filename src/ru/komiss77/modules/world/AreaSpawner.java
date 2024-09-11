@@ -17,7 +17,7 @@ public abstract class AreaSpawner {
 
     protected abstract int yDst();
 
-    protected abstract LocFinder.TypeCheck[] checks();
+    protected abstract LocFinder.Check[] checks();
 
     public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls) {
         final WXYZ loc = LocFinder.findInArea(from, radius(), offset(), NEAR, checks(), yDst());
@@ -26,8 +26,7 @@ public abstract class AreaSpawner {
         if (sc == null || sc.amt < 1) return List.of();
         final ArrayList<E> els = new ArrayList<>(sc.amt);
         for (int i = Ostrov.random.nextInt(sc.amt) + 1; i != 0; i--) {
-            els.add(loc.w.spawn(loc.getCenterLoc(), entCls, sc.reason, false, e -> {
-            }));
+            els.add(loc.w.spawn(loc.getCenterLoc(), entCls, sc.reason, false, e -> {}));
         }
         return els;
     }
