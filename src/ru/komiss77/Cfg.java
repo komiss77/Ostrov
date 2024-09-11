@@ -69,7 +69,7 @@ public class Cfg {
     public static boolean enchants;
     public static boolean crafts;
     public static boolean displays;
-    public static boolean quests;
+    //public static boolean quests; //как бы лишнее. какой-то плагин обратился - значит нужны. если нет адванскрези, будет работать заглушка
 
     static {
         manager = new OConfigManager(Ostrov.getInstance());
@@ -134,7 +134,7 @@ public class Cfg {
         enchants = cfg.getBoolean("modules.enchants");
         crafts = cfg.getBoolean("modules.crafts");
         displays = cfg.getBoolean("modules.displays");
-        quests = cfg.getBoolean("modules.quests");
+        //quests = cfg.getBoolean("modules.quests");
         BotManager.enable = cfg.getBoolean("modules.bots");
         EntityManager.enable = cfg.getBoolean("modules.entities");
         ItemManager.enable = cfg.getBoolean("modules.materials");

@@ -48,87 +48,8 @@ public class EntitySetup implements InventoryProvider {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
         content.fillBorders(c);
 
-        switch (en) {
-            case final Villager vg:
-
-                final Profession prof = vg.getProfession();
-                final int pi = VILL_PROFS.indexOf(prof);
-                final int psz = VILL_PROFS.size();
-                final Profession prof_prev = VILL_PROFS.get((pi - 1 + psz) % psz);
-                final Profession prof_next = VILL_PROFS.get((pi + 1) % psz);
-
-                content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                        .name("§fПрофессия")
-                        .lore("")
-                        .lore(TCUtil.form("§7ПКМ - сделать §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
-                        .lore(TCUtil.form("§fСейчас : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
-                        .lore(TCUtil.form("§7ЛКМ - сделать §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
-                        .lore("")
-                        .build(), e -> {
-                    if (e.isLeftClick()) {
-                        vg.setProfession(prof_next);
-                    } else if (e.isRightClick()) {
-                        vg.setProfession(prof_prev);
-                    }
-                    reopen(p, content);
-                }));
-
-                final Villager.Type type = vg.getVillagerType();
-                final int ti = VILL_TYPES.indexOf(prof);
-                final int tsz = VILL_TYPES.size();
-                final Villager.Type type_prev = VILL_TYPES.get((ti - 1 + tsz) % tsz);
-                final Villager.Type type_next = VILL_TYPES.get((ti + 1) % tsz);
-
-                content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                        .name("§fТип")
-                        .lore("")
-                        .lore("§7ПКМ - сделать §6" + type_prev)
-                        .lore("§fСейчас : §e§l" + type)
-                        .lore("§7ЛКМ - сделать §6" + type_next)
-                        .lore("")
-                        .build(), e -> {
-                    if (e.isLeftClick()) {
-                        vg.setVillagerType(type_next);
-                    } else if (e.isRightClick()) {
-                        vg.setVillagerType(type_prev);
-                    }
-                    reopen(p, content);
-                }));
-                break;
-            case final Ageable ag:
-                content.add(ClickableItem.of(new ItemBuilder(ag.isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
-                        .name(ag.isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
-                        .build(), e -> {
-                    if (e.isLeftClick()) {
-                        if (ag.isAdult()) {
-                            ag.setBaby();
-                        } else {
-                            ag.setAdult();
-                        }
-                        reopen(p, content);
-                    }
-                }));
-                break;
-            case final LivingEntity le:
-                content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
-                        .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
-                        .lore("")
-                        .lore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
-                        .lore("")
-                        .build(), e -> {
-                    if (e.isLeftClick()) {
-                        le.setAI(!le.hasAI());
-                    }
-                    reopen(p, content);
-                }));
-                break;
-            default:
-                break;
-        }
-
-        //TODO заканчиваем то что сверху
-
-        if (en.getType() == EntityType.ZOMBIE_VILLAGER) {
+        /*
+                if (en.getType() == EntityType.ZOMBIE_VILLAGER) {
             final Profession prof = ((ZombieVillager) en).getVillagerProfession();
             final Profession prof_prev = Profession.values()[(prof.ordinal() - 1 + Profession.values().length) % Profession.values().length];
             final Profession prof_next = Profession.values()[prof.ordinal() + 1 % Profession.values().length];
@@ -149,6 +70,106 @@ public class EntitySetup implements InventoryProvider {
                 reopen(p, content);
             }));
         }
+         */
+        if (en instanceof Villager || en instanceof ZombieVillager) {
+            final boolean zombie = (en instanceof ZombieVillager);
+            final Profession prof = zombie ? ((ZombieVillager) en).getVillagerProfession() : ((Villager) en).getProfession();
+            final int pi = VILL_PROFS.indexOf(prof);
+            final int psz = VILL_PROFS.size();
+            final Profession prof_prev = VILL_PROFS.get((pi - 1 + psz) % psz);
+            final Profession prof_next = VILL_PROFS.get((pi + 1) % psz);
+
+            content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
+                .name(TCUtil.form("§fПрофессия : §e§l").append(Lang.t(prof, p).style(Style.style(NamedTextColor.YELLOW)).decorate(TextDecoration.BOLD)))
+                .lore("")
+                .lore(TCUtil.form("§7Пкм -> §6").append(Lang.t(prof_prev, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore(TCUtil.form("§7Лкм -> §6").append(Lang.t(prof_next, p).style(Style.style(NamedTextColor.GOLD))))
+                .lore("")
+                .build(), e -> {
+                if (e.isLeftClick()) {
+                    if (zombie) {
+                        ((ZombieVillager) en).setVillagerProfession(prof_next);
+                    } else {
+                        ((Villager) en).setProfession(prof_next);
+                    }
+                    //vg.setProfession(prof_next);
+                } else if (e.isRightClick()) {
+                    if (zombie) {
+                        ((ZombieVillager) en).setVillagerProfession(prof_prev);
+                    } else {
+                        ((Villager) en).setProfession(prof_prev);
+                    }
+                    //vg.setProfession(prof_prev);
+                }
+                reopen(p, content);
+            }));
+
+            final Villager.Type type = zombie ? ((ZombieVillager) en).getVillagerType() : ((Villager) en).getVillagerType();//vg.getVillagerType();
+            final int ti = VILL_TYPES.indexOf(type);
+            final int tsz = VILL_TYPES.size();
+            final Villager.Type type_prev = VILL_TYPES.get((ti - 1 + tsz) % tsz);
+            final Villager.Type type_next = VILL_TYPES.get((ti + 1) % tsz);
+
+            content.add(ClickableItem.of(new ItemBuilder(Material.ANVIL)
+                .name("§fТип : §e§l" + type)
+                .lore("")
+                .lore("§7Пкм -> §6" + type_prev)
+                .lore("§7Лкм -> §6" + type_next)
+                .lore("")
+                .build(), e -> {
+                if (e.isLeftClick()) {
+                    if (zombie) {
+                        ((ZombieVillager) en).setVillagerType(type_next);
+                    } else {
+                        ((Villager) en).setVillagerType(type_next);
+                    }
+                    //vg.setVillagerType(type_next);
+                } else if (e.isRightClick()) {
+                    if (zombie) {
+                        ((ZombieVillager) en).setVillagerType(type_prev);
+                    } else {
+                        ((Villager) en).setVillagerType(type_prev);
+                    }
+                    //vg.setVillagerType(type_prev);
+                }
+                reopen(p, content);
+            }));
+        }
+
+        if (en instanceof Ageable ag) {
+            content.add(ClickableItem.of(new ItemBuilder(ag.isAdult() ? Material.LIME_DYE : Material.CLAY_BALL)
+                .name(ag.isAdult() ? "§6ВЗРОСЛЫЙ" : "§6ребёнок")
+                .build(), e -> {
+                if (e.isLeftClick()) {
+                    if (ag.isAdult()) {
+                        ag.setBaby();
+                    } else {
+                        ag.setAdult();
+                    }
+                    reopen(p, content);
+                }
+            }));
+        }
+
+
+        if (en instanceof LivingEntity le) {
+            content.add(ClickableItem.of(new ItemBuilder(le.hasAI() ? Material.LIME_DYE : Material.CLAY_BALL)
+                .name("§fAI " + (le.hasAI() ? "§aЕсть" : "§cНет"))
+                .lore("")
+                .lore("§7ЛКМ - §6" + (le.hasAI() ? "§aвыключить" : "§cвключить"))
+                .lore("")
+                .build(), e -> {
+                if (e.isLeftClick()) {
+                    le.setAI(!le.hasAI());
+                }
+                reopen(p, content);
+            }));
+        }
+
+
+        //TODO заканчиваем то что сверху
+
+
 
 
         if (en.getType() == EntityType.SLIME || en.getType() == EntityType.MAGMA_CUBE) {
@@ -326,7 +347,7 @@ public class EntitySetup implements InventoryProvider {
             Cat.Type dc = ((Cat) en).getCatType();
             content.add(ClickableItem.of(new ItemBuilder(Material.PUFFERFISH)
                     .name("§fТип")
-                    .lore("§fСейчас : " + dc.name())
+                .lore("§fСейчас : " + dc.key())
                     .build(), e -> {
                 if (e.isLeftClick()) {
                     final Cat.Type dc2 = nextCat(dc);//Cat.Type.values()[dc.ordinal() + 1 % Cat.Type.values().length];

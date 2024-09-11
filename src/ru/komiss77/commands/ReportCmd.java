@@ -55,53 +55,55 @@ public class ReportCmd implements OCommand {
                 return Command.SINGLE_SUCCESS;
             })
 
-                .then(Resolver.string(player).suggests((cntx, sb) -> {
-                Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
-                return sb.buildFuture();
-            }).executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
-                if (!(cs instanceof final Player p)) {
-                    cs.sendMessage("§eНе консольная команда!");
-                    return 0;
-                }
+            .then(Resolver.string(player).suggests((cntx, sb) -> {
+                      Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
+                      return sb.buildFuture();
+                    })
+                    .executes(cntx -> {
+                      final CommandSender cs = cntx.getSource().getExecutor();
+                      if (!(cs instanceof final Player p)) {
+                        cs.sendMessage("§eНе консольная команда!");
+                        return 0;
+                      }
 
-                openPlayerReports(cs, PM.getOplayer(p), Resolver.string(cntx, player), 0);
-                return Command.SINGLE_SUCCESS;
-                                })
-                                .then(Resolver.string(reason).suggests((cntx, sb) -> {
-                                            sb.suggest("читы");
-                                            sb.suggest("гриф");
-                                            sb.suggest("неадекват");
-                                            return sb.buildFuture();
-                                        }).executes(cntx -> {
-                                            final CommandSender cs = cntx.getSource().getExecutor();
-                                            final String tnm = Resolver.string(cntx, player);
-                                            if (tnm.equalsIgnoreCase(cs.getName())) {
-                                                cs.sendMessage("§cНа себя жалобы не принимаются!");
-                                                return 0;
-                                            }
+                      openPlayerReports(cs, PM.getOplayer(p), Resolver.string(cntx, player), 0);
+                      return Command.SINGLE_SUCCESS;
+                    })
+                    .then(Resolver.string(reason).suggests((cntx, sb) -> {
+                              sb.suggest("читы");
+                              sb.suggest("гриф");
+                              sb.suggest("неадекват");
+                              return sb.buildFuture();
+                            })
+                            .executes(cntx -> {
+                              final CommandSender cs = cntx.getSource().getExecutor();
+                              final String tnm = Resolver.string(cntx, player);
+                              if (tnm.equalsIgnoreCase(cs.getName())) {
+                                cs.sendMessage("§cНа себя жалобы не принимаются!");
+                                return 0;
+                              }
 
-                                            final String rsn = Resolver.string(cntx, reason);
-                                            final Player pl = cs instanceof Player ? (Player) cs : null;
-                                            final Player target = Bukkit.getPlayer(tnm);
+                              final String rsn = Resolver.string(cntx, reason);
+                              final Player pl = cs instanceof Player ? (Player) cs : null;
+                              final Player target = Bukkit.getPlayer(tnm);
 
-                                            //вычитывать из локальной копии!!
-                                            if (pl == null) { //консоль
+                              //вычитывать из локальной копии!!
+                              if (pl == null) { //консоль
                   /*if (consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
                     cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
                     return true;
                   }
                   consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());*/
-                                                SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
-                                                        Ostrov.MOT_D, 0, 0, 0, tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
-                                            } else {
-                                                SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
-                                                        LocUtil.toString(pl.getLocation()), tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn, "");
-                                            }
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                                )
-                )
+                                SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
+                                    Ostrov.MOT_D, 0, 0, 0, tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
+                              } else {
+                                SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
+                                    LocUtil.toString(pl.getLocation()), tnm, target == null ? "" : LocUtil.toString(target.getLocation()), rsn, "");
+                              }
+                              return Command.SINGLE_SUCCESS;
+                            })
+                    )
+            )
             .build();
     }
 
@@ -157,32 +159,32 @@ public class ReportCmd implements OCommand {
                         //System.out.println("+++ rs name="+rs.getString("toName"));
                         final String name = rs.getString("toName");
                         reports.add(ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
-                                        .name(name)
-                                        .lore("§7Последняя запись:")
-                                        .lore("§f" + TimeUtil.dateFromStamp(rs.getInt("lastTime")))
-                                        .lore("")
-                                        .lore("§7Записей от консоли : §c" + rs.getInt("fromConsole"))
-                                        .lore("§7Жалоб от игроков: §4" + rs.getInt("fromPlayers"))
-                                        .lore("")
-                                        .lore("§7Наказания:")
-                                        .lore(list)
-                                        .lore("")
-                                        .lore("§7ЛКМ - показать записи")
-                                        .lore("")
-                                        .lore("* §5Дела модераторов")
-                                        .lore("§5рассматривает")
-                                        .lore("§5Административная комисиия.")
-                                        .lore("")
-                                        //.addLore("§7ПКМ - разобраться на месте")
-                                        //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.name(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
-                                        .build(), e -> {
-                                    if (e.isLeftClick()) {
-                                        openPlayerReports(cs, op, name, 0);
-                                    } else if (e.isRightClick()) {
-                                        op.getPlayer().sendMessage("jump не доделан");
-                                        //ApiOstrov.sendToServer(p, , name);
-                                    }
-                                }
+                                .name(name)
+                                .lore("§7Последняя запись:")
+                                .lore("§f" + TimeUtil.dateFromStamp(rs.getInt("lastTime")))
+                                .lore("")
+                                .lore("§7Записей от консоли : §c" + rs.getInt("fromConsole"))
+                                .lore("§7Жалоб от игроков: §4" + rs.getInt("fromPlayers"))
+                                .lore("")
+                                .lore("§7Наказания:")
+                                .lore(list)
+                                .lore("")
+                                .lore("§7ЛКМ - показать записи")
+                                .lore("")
+                                .lore("* §5Дела модераторов")
+                                .lore("§5рассматривает")
+                                .lore("§5Административная комисиия.")
+                                .lore("")
+                                //.addLore("§7ПКМ - разобраться на месте")
+                                //.addLore(ApiOstrov.isLocalBuilder(p, false) || ApiOstrov.hasGroup(p.name(), "moder") ? "§7Клав. Q - выгнать с Острова" : "")
+                                .build(), e -> {
+                              if (e.isLeftClick()) {
+                                openPlayerReports(cs, op, name, 0);
+                              } else if (e.isRightClick()) {
+                                op.getPlayer().sendMessage("jump не доделан");
+                                //ApiOstrov.sendToServer(p, , name);
+                              }
+                            }
                         ));
                     }
                     count++;
@@ -195,13 +197,13 @@ public class ReportCmd implements OCommand {
 //System.out.println("rawData="+rawData);
                         op.menu.stopLoadAnimations();
                         op.menu.current = SmartInventory
-                                .builder()
-                                .id(op.nik + op.menu.section.name())
-                                .provider(new ShowReports(reports, page, next))
-                                .size(6, 9)
-                                .title("Профиль : Все репорты")
-                                .build()
-                                .open(op.getPlayer());
+                            .builder()
+                            .id(op.nik + op.menu.section.name())
+                            .provider(new ShowReports(reports, page, next))
+                            .size(6, 9)
+                            .title("Профиль : Все репорты")
+                            .build()
+                            .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -257,22 +259,22 @@ public class ReportCmd implements OCommand {
                         console = rs.getString("fromName").equals("консоль");
 
                         reports.add(ClickableItem.empty(new ItemBuilder(console ? ItemType.BOOK : ItemType.PAPER)
-                                .name(TimeUtil.dateFromStamp(rs.getInt("time")))
-                                .lore("")
-                                .lore("§7От: " + (console ? "§bконсоль" : "§6" + rs.getString("fromName")))
-                                .lore("")
-                                .lore("§7Сервер: " + rs.getString("server"))
-                                //палит где находятся игроки на Даарии / Седне при репорте
-                                .lore(console ? "" : "Локция источника:")
-                                .lore(console ? "" : rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
-                                .lore("")
-                                .lore("Локция нарушителя:")
-                                .lore(rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
-                                .lore("")
-                                .lore("§7Основание:")
-                                .lore(ItemUtil.genLore(null, rs.getString("text"), "§e"))
-                                .lore("")
-                                .build()
+                            .name(TimeUtil.dateFromStamp(rs.getInt("time")))
+                            .lore("")
+                            .lore("§7От: " + (console ? "§bконсоль" : "§6" + rs.getString("fromName")))
+                            .lore("")
+                            .lore("§7Сервер: " + rs.getString("server"))
+                            //палит где находятся игроки на Даарии / Седне при репорте
+                            .lore(console ? "" : "Локция источника:")
+                            .lore(console ? "" : rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
+                            .lore("")
+                            .lore("Локция нарушителя:")
+                            .lore(rs.getString("toLocation").isEmpty() || !ApiOstrov.isLocalBuilder(cs, false) ? "не определена" : rs.getString("toLocation"))
+                            .lore("")
+                            .lore("§7Основание:")
+                            .lore(ItemUtil.genLore(null, rs.getString("text"), "§e"))
+                            .lore("")
+                            .build()
                         ));
 
                     }
@@ -286,13 +288,13 @@ public class ReportCmd implements OCommand {
 //System.out.println("rawData="+rawData);
                         op.menu.stopLoadAnimations();
                         op.menu.current = SmartInventory
-                                .builder()
-                                .id(op.nik + op.menu.section.name())
-                                .provider(new ShowReports(reports, page, next))
-                                .size(6, 9)
-                                .title("Профиль : Репорты на " + (toName.equals(op.nik) ? "меня" : toName))
-                                .build()
-                                .open(op.getPlayer());
+                            .builder()
+                            .id(op.nik + op.menu.section.name())
+                            .provider(new ShowReports(reports, page, next))
+                            .size(6, 9)
+                            .title("Профиль : Репорты на " + (toName.equals(op.nik) ? "меня" : toName))
+                            .build()
+                            .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }
                 }, 0);
 
@@ -315,6 +317,6 @@ public class ReportCmd implements OCommand {
 
 
 }
-    
-    
- 
+
+
+

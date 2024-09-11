@@ -40,7 +40,7 @@ public class EXAMPLE implements OCommand {
             })
             .executes(executor())//выполнение c 1 аргументом
 
-            //2 аргумента
+            //2 аргумент
             .then(Resolver.string(arg1)
                 .suggests((cntx, sb) -> {
                   final CommandSender cs = cntx.getSource().getSender();
@@ -53,7 +53,7 @@ public class EXAMPLE implements OCommand {
                 })
                 .executes(executor())//выполнение c 2 аргументами
 
-                //3 аргумента
+                //3 аргумент
                 .then(Resolver.string(arg2)
                     .suggests((cntx, sb) -> {
                       //sb.suggest("третий");
@@ -61,7 +61,7 @@ public class EXAMPLE implements OCommand {
                     })
                     .executes(executor())//выполнение c 3 аргументами
 
-                    //4 аргумента
+                    //4 аргумент
                     .then(Resolver.string(arg3)
                         .suggests((cntx, sb) -> {
                           //sb.suggest("четвёртый");
@@ -69,7 +69,7 @@ public class EXAMPLE implements OCommand {
                         })
                         .executes(executor())//выполнение c 4 аргументами
 
-                        //5 аргументов
+                        //5 аргумент
                         .then(Resolver.string(arg4)
                             .suggests((cntx, sb) -> {
                               //sb.suggest("пятый");
@@ -89,10 +89,10 @@ public class EXAMPLE implements OCommand {
 
   private static Command<CommandSourceStack> executor() {
     return cntx -> {
-      final CommandSender sender = cntx.getSource().getSender();
-      final Player p = (sender instanceof Player) ? (Player) sender : null;
+      final CommandSender cs = cntx.getSource().getSender();
+      final Player p = (cs instanceof Player) ? (Player) cs : null;
       if (!CAN_CONSOLE && p == null) {
-        sender.sendMessage("§eНе консольная команда!");
+        cs.sendMessage("§eНе консольная команда!");
         return 0;
       }
       int idx = cntx.getInput().indexOf(" ");

@@ -28,31 +28,30 @@ public class REGISTER {
         Ostrov.regCommand(new EntityCmd()); //+
         Ostrov.regCommand(new PassportCmd()); //+
         Ostrov.regCommand(new ProtocolCmd()); //+
-        Ostrov.regCommand(new ReportCmd()); //не даёт русские аргументы
         Ostrov.regCommand(new DonateCmd()); //+
+        Ostrov.regCommand(new MissionCmd()); //+
+        Ostrov.regCommand(new ResourcePacksLst()); //+ возможно придётся вернуть ключик и замок - сейчас не учитываетсяку, что могли установить вручную
+        Ostrov.regCommand(new TprCmd()); //+
 
         //модерские
         Ostrov.regCommand(new InvseeCmd()); //+
         Ostrov.regCommand(new SpyCmd()); //+
         Ostrov.regCommand(new BuilderCmd()); //+
+        Ostrov.regCommand(new AnalyticsCmd()); //+
 
         //системные
         Ostrov.regCommand(new WM()); //+
         Ostrov.regCommand(new BossBarCmd()); //+
-        Ostrov.regCommand(new OreloadCmd()); //отчёт игроку
-        Ostrov.regCommand(new OcleanCmd());//+ просто /clean перехватывает прокси!!
+        Ostrov.regCommand(new OreloadCmd()); //+
+        Ostrov.regCommand(new OcleanCmd());//+ юзаем /oclean. Просто /clean перехватывает прокси!!
         Ostrov.regCommand(new RewardCmd()); //+
         Ostrov.regCommand(new StatCmd()); //+
 
-        //на проверку
-        Ostrov.regCommand(new AnalyticsCmd());
-        Ostrov.regCommand(new ResourcePacksLst());
-
-        //на переделку
+        //на проверку  "command.expected.separator": "Expected whitespace to end one argument, but found trailing data",
         Ostrov.regCommand(new Server()); //не даёт русские аргументы
-        Ostrov.regCommand(new TprCmd()); //не учитывает мир в аргументе
-        Ostrov.regCommand(new MissionCmd()); //не предлагает миссии
+        Ostrov.regCommand(new ReportCmd()); //не даёт русские аргументы
 
+//Ostrov.instance.getCommand("oscom").setExecutor(new cc());
 
     }
 

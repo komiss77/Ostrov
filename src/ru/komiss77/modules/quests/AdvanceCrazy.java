@@ -47,7 +47,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     private static final AdvancementManager mgr; //new AdvancementManager(new NameKey("ostrov", "pls"));
     private static final Map<Quest, Advancement> adm;// = new HashMap<>();
     private static Quest[] roots;// = new Quest[0]; //для отправки в порядке наслодования, или не отображаются некоторые
-    protected static Consumer<Player> onAdvCls;// = p -> {};
+  private static Consumer<Player> onAdvCls;// = p -> {};
 
     static {
         key = new NameKey("ostrov", "pls");
@@ -145,8 +145,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     }*/
 
     public void loadPlQs(final Player p, final Oplayer op) {
-        if (!Cfg.quests) return;
-
+      //if (!Cfg.quests) return;
         mgr.addPlayer(p);
         for (final Quest rt : roots) {
             final IProgress prg = op.quests.get(rt);
@@ -199,7 +198,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         final String qss = op.mysqlData.get("quests");
-        if (qss == null || qss.isEmpty() || !Cfg.quests) return;
+      //if (qss == null || qss.isEmpty() || !Cfg.quests) return;
+      if (qss == null || qss.isEmpty()) return;
         final String[] split = qss.split(LocalDB.LINE_SPLIT);
 //      p.sendMessage(Arrays.toString(split));
         int stamp;
@@ -275,6 +275,11 @@ public class AdvanceCrazy implements IAdvance, Listener {
             }
         }
     }
+
+  @Override
+  public void onAdvCls(final Consumer<Player> onAdvCls) {
+    this.onAdvCls = onAdvCls;
+  }
 
     @Override
     public void unregister() {

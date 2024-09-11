@@ -20,10 +20,12 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
+import ru.komiss77.enums.Module;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.RestartWarningEvent;
 import ru.komiss77.hook.*;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.quests.QuestManager;
 import ru.komiss77.modules.world.Land;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
@@ -72,9 +74,8 @@ public class ServerLst implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.MONITOR)
+  @EventHandler(priority = EventPriority.LOWEST)
     public void onPluginEnable(PluginEnableEvent e) {
-
         //if (e.getPlugin().getDescription().getCommands()!=null) {
         // e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
         //     CMD.all_server_commands.add(command);
@@ -94,7 +95,7 @@ public class ServerLst implements Listener {
 
             }
 
-            case "CrazyAdvancementsAPI" -> Ostrov.advance = true;
+          case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
 
             case "ProCosmetics" -> {
                 ProCosmeticsHook.hook(e.getPlugin());
@@ -107,6 +108,16 @@ public class ServerLst implements Listener {
 
     }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onPluginDisable(PluginDisableEvent e) {
+
+    switch (e.getPlugin().getName()) {
+
+      case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
+
+    }
+
+  }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onServerLoad(final ServerLoadEvent e) { //прилетает 1: после загрузки всех миров server.enablePlugins(PluginLoadOrder.POSTWORLD); либо после перезагрузки командой

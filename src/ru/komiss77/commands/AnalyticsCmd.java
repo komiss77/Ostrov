@@ -53,7 +53,7 @@ public class AnalyticsCmd implements OCommand {
                 return 0;
             }
 
-            if (GM.GAME.type != ServerType.LOBBY) {
+            if (GM.GAME.type != ServerType.LOBBY && !Ostrov.MOT_D.equals("home1")) {
                 cs.sendMessage("§cкоманда рабоает только в лобби");
                 return 0;
             }

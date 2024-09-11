@@ -27,7 +27,7 @@ import ru.komiss77.utils.LocUtil;
 public class OcleanCmd implements OCommand {
 
   private static final String COMMAND = "oclean"; //просто /clean перехватывает прокси!!
-  private static final List<String> ALIASES = List.of("");
+  private static final List<String> ALIASES = List.of();
   private static final String DESCRIPTION = "Очистка данных";
   private static final String arg0 = "arg0", arg1 = "arg1", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
 

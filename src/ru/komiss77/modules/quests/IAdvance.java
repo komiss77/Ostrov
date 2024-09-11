@@ -1,5 +1,6 @@
 package ru.komiss77.modules.quests;
 
+import java.util.function.Consumer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import ru.komiss77.modules.player.Oplayer;
@@ -20,6 +21,8 @@ public interface IAdvance {
     public void sendComplete(final Player p, final Quest q, final boolean silent);
 
     public void sendProgress(final Player p, final Quest q, final int progress, final boolean silent);
+
+  public void onAdvCls(final Consumer<Player> onAdvCls);
 
     void unregister();
 

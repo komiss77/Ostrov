@@ -16,7 +16,7 @@ import ru.komiss77.modules.player.PM;
 public class InvseeCmd implements OCommand {
 
   private static final String COMMAND = "invsee";
-  private static final List<String> ALIASES = List.of("");
+  private static final List<String> ALIASES = List.of();
   private static final String DESCRIPTION = "Просмотр инвентаря";
   private static final boolean CAN_CONSOLE = false;
   private static final String arg0 = "name", arg1 = "type", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";

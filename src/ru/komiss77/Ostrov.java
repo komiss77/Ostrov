@@ -42,7 +42,7 @@ public class Ostrov extends JavaPlugin {
     public static int server_id = -1;
 
     public static final Map<String, Initiable> modules;
-    public static boolean newDay, dynmap, wg, advance;
+    public static boolean newDay, dynmap, wg;
     public static boolean SHUT_DOWN; //по этому плагу другие плагины не будут сохранять данные асинх   org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled
     public static boolean STARTUP = true; //до окончания прогрузки всех миров
     public static final Calendar calendar;

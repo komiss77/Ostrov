@@ -246,7 +246,7 @@ public class PM {
             } else {
                 final World w = Bukkit.getWorld("WORLD_NETHER");
                 if (w != null) {
-                    TprCmd.rtp(p, w, 300, true, null);
+                    TprCmd.runCommand(p, w, 300, true, true, null);
                 }
                 p.sendMessage(op.eng ? "§cYou are banned and placed in purgatory." : "§cВы забанены и помещены в чистилище.");
                 p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.getTime()));

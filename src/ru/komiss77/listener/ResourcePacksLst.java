@@ -50,23 +50,25 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal(rpCMD).executes(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
-            if (!(cs instanceof final Player pl)) {
+          if (!(cs instanceof final Player p)) {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
 
             if (!use || request == null) {
-//                pl.sendMessage("§cДанный сервер не требует пакета ресурсов!");
-                pl.clearResourcePacks();
+              p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
+              if (p.hasResourcePack()) {
+                p.clearResourcePacks();
+              }
                 return Command.SINGLE_SUCCESS;
             }
 
-            if (pl.hasResourcePack()) {
-                pl.sendMessage("§aУ вас уже установлен пакет ресурсов!");
+          if (p.hasResourcePack()) {
+            p.sendMessage("§aУ вас уже установлен пакет ресурсов!");
                 return 0;
             }
 
-            pl.sendResourcePacks(request);
+          p.sendResourcePacks(request);
 //            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
 
             return Command.SINGLE_SUCCESS;
@@ -123,7 +125,9 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     }
 
     public static void preDisconnect(final Player p) {
-        if (use) p.removeResourcePacks(request);
+      if (use) {
+        p.removeResourcePacks(request);
+      }
     }
 
     @Override
