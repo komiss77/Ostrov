@@ -2,6 +2,7 @@ package ru.komiss77.commands;
 
 import java.util.List;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -32,7 +33,7 @@ import ru.komiss77.utils.TimeUtil;
 public class Server implements OCommand {
 
   private static final String COMMAND = "server";
-  private static final List<String> ALIASES = List.of("serv");
+  private static final List<String> ALIASES = List.of();
   private static final String DESCRIPTION = "Выбор игры";
   private static final boolean CAN_CONSOLE = false;
   private static final String arg0 = "game", arg1 = "arena", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
@@ -64,7 +65,7 @@ public class Server implements OCommand {
                 .executes(executor())//выполнение c 1 аргументом
 
                 //2 аргумента
-                .then(Resolver.string(arg1)
+                .then(Commands.argument(arg1, StringArgumentType.greedyString())//.then(Resolver.string(arg1)
                         .suggests((cntx, sb) -> {
 
                           final String serverName = Comm.arg(sb, 0);
@@ -148,11 +149,17 @@ public class Server implements OCommand {
       if (arg.length == 0) {
         //op.menu.open(p, Section.РЕЖИМЫ);
         final TextComponent.Builder servers = Component.text().content("§bКлик на сервер: §e");
-        for (final String serverName : displayNames) {
-          servers.append(Component.text(serverName + "§7, §e")
+        for (final Game game : Game.values()) {
+          if (game == Game.GLOBAL || game == Game.JL) continue;
+          servers.append(Component.text(game.displayName + "§7, ")
               .hoverEvent(HoverEvent.showText(Component.text("§7Клик - перейти")))
-              .clickEvent(ClickEvent.runCommand("/server " + serverName)));
+              .clickEvent(ClickEvent.runCommand("/server " + game.name())));
         }
+        //for (final String serverName : displayNames) {
+        //  servers.append(Component.text(serverName + "§7, §e")
+        //      .hoverEvent(HoverEvent.showText(Component.text("§7Клик - перейти")))
+        //      .clickEvent(ClickEvent.runCommand("/server " + serverName)));
+        //}
         p.sendMessage(servers.build());
         return 0;
       }

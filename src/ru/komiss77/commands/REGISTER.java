@@ -32,12 +32,14 @@ public class REGISTER {
         Ostrov.regCommand(new MissionCmd()); //+
         Ostrov.regCommand(new ResourcePacksLst()); //+ возможно придётся вернуть ключик и замок - сейчас не учитываетсяку, что могли установить вручную
         Ostrov.regCommand(new TprCmd()); //+
+        Ostrov.regCommand(new Server()); //не даёт русские аргументы - сервера пришлось сделать на англ
 
         //модерские
         Ostrov.regCommand(new InvseeCmd()); //+
         Ostrov.regCommand(new SpyCmd()); //+
         Ostrov.regCommand(new BuilderCmd()); //+
         Ostrov.regCommand(new AnalyticsCmd()); //+
+        Ostrov.regCommand(new ReportCmd()); //++
 
         //системные
         Ostrov.regCommand(new WM()); //+
@@ -46,12 +48,6 @@ public class REGISTER {
         Ostrov.regCommand(new OcleanCmd());//+ юзаем /oclean. Просто /clean перехватывает прокси!!
         Ostrov.regCommand(new RewardCmd()); //+
         Ostrov.regCommand(new StatCmd()); //+
-
-        //на проверку  "command.expected.separator": "Expected whitespace to end one argument, but found trailing data",
-        Ostrov.regCommand(new Server()); //не даёт русские аргументы
-        Ostrov.regCommand(new ReportCmd()); //не даёт русские аргументы
-
-//Ostrov.instance.getCommand("oscom").setExecutor(new cc());
 
     }
 

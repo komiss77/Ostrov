@@ -79,7 +79,10 @@ public class LangEditor implements InventoryProvider {
 
 
     public static void edit(final Player p, final int page) {
-
+        if (RemoteDB.getConnection() == null) {
+            p.sendMessage("§cБаза данных недоступна!");
+            return;
+        }
        /* final List<ClickableItem> buttons = new ArrayList<>();
         boolean hasNext = false;
         

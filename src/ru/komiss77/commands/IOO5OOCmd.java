@@ -40,6 +40,19 @@ public class IOO5OOCmd {
         .description("тест комм")
         .register();*/
 
+    new OCmdBuilder("serv")
+        .run(cntx -> {
+          final CommandSender cs = cntx.getSource().getSender();
+          if (!(cs instanceof final Player p)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
+          PM.getOplayer(p).menu.open(p, Section.РЕЖИМЫ);
+          return Command.SINGLE_SUCCESS;
+        })
+        .description("Меню серверов")
+        .register();
+
     new OCmdBuilder("skin")
         .run(cntx -> {
           final CommandSender cs = cntx.getSource().getSender();

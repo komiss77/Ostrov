@@ -47,7 +47,10 @@ public class AnalyticsCmd implements OCommand {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
-
+            if (RemoteDB.getConnection() == null) {
+                cs.sendMessage("§cБаза данных недоступна!");
+                return 0;
+            }
             if (!ApiOstrov.isStaff(pl)) {
                 pl.sendMessage("§cДоступно только персоналу!");
                 return 0;
