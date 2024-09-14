@@ -2,6 +2,7 @@ package ru.komiss77.modules.world;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
@@ -9,6 +10,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 public final class LocFinder {
@@ -66,6 +68,7 @@ public final class LocFinder {
             return bloc;
         final WXYZ lc = bloc;
         WXYZ fin = testLoc(dir);
+        Bukkit.broadcast(TCUtil.form(fin + "-f1"));
         if (fin != null) {
             fin.y += offsetY;
             return fin;
@@ -78,6 +81,7 @@ public final class LocFinder {
                         bloc = lc.clone().add(dx * FastMath.abs(dx),
                             0, dz * FastMath.abs(dz));
                         fin = testLoc(dir);
+                        Bukkit.broadcast(TCUtil.form(fin + "-f2"));
                         if (fin != null) {
                             fin.y += offsetY;
                             return fin;
@@ -103,12 +107,15 @@ public final class LocFinder {
                     boolean miss = false;
                     for (int i = 0; i != checks.length; i++) {
                         final int finY = y + i;
-                        final boolean check = switch (checks[i]) {
+                        if (finY > maxY) {
+                            miss = true;
+                            break;
+                        }
+                        if (switch (checks[i]) {
                             case final TypeCheck tc -> tc.check(getType(finY), finY);
                             case final DataCheck dc -> dc.check(getData(finY), finY);
                             default -> false;
-                        };
-                        if (check) continue;
+                        }) continue;
                         miss = true;
                         break;
                     }
@@ -121,12 +128,15 @@ public final class LocFinder {
                     boolean miss = false;
                     for (int i = 0; i != checks.length; i++) {
                         final int finY = y + i - checks.length;
-                        final boolean check = switch (checks[i]) {
+                        if (finY < minY) {
+                            miss = true;
+                            break;
+                        }
+                        if (switch (checks[i]) {
                             case final TypeCheck tc -> tc.check(getType(finY), finY);
                             case final DataCheck dc -> dc.check(getData(finY), finY);
                             default -> false;
-                        };
-                        if (check) continue;
+                        }) continue;
                         miss = true;
                         break;
                     }

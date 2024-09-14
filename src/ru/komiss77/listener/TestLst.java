@@ -1,5 +1,6 @@
 package ru.komiss77.listener;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
@@ -112,12 +113,25 @@ public class TestLst implements Listener {
                 if (p.isSneaking()) {
 
                     p.sendMessage("§3teleportSave DOWN");
-                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, -100, 0), true);
+                    final Location loc = p.getLocation().clone().add(0, -100, 0);
+//                    long t = System.currentTimeMillis();
+                    MoveUtil.safeTP(p, loc, true);
+                    /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
+                    t = System.currentTimeMillis();
+                    MoveUtil.teleportSave(p, loc, true);
+                    p.sendMessage("n-" + (System.currentTimeMillis() - t));*/
 
                 } else {
 
                     p.sendMessage("§3teleportSave UP");
-                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, 100, 0), true);
+                    final Location loc = p.getLocation();
+                    loc.setY(loc.getWorld().getMaxHeight());
+//                    long t = System.currentTimeMillis();
+                    MoveUtil.safeTP(p, loc, true);
+                    /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
+                    t = System.currentTimeMillis();
+                    MoveUtil.teleportSave(p, loc, true);
+                    p.sendMessage("n-" + (System.currentTimeMillis() - t));*/
 
                 }
                 //p.sendMessage("name="+Translate.getMaterialName(e.getClickedBlock().getType(), EnumLang.RU_RU));

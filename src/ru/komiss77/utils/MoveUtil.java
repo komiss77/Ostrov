@@ -28,26 +28,31 @@ public class MoveUtil {
     //учесть поиск дна океана и лавы
     //p может быть null
     //  findSaveLocation вернуть GameMode.CREATIVE
-    private static final int MAX_DST = 3;
+    private static final int MAX_DST = 1;
 
     public static boolean safeTP(final Player p, final Location feetLoc, final boolean force) {
         final LocFinder.Check[] mts = {
             (LocFinder.DataCheck) (dt, y) -> {
                 if (dt instanceof Snow) return ((Snow) dt).getLayers() > 4;//снег
                 final BlockType bt = dt.getMaterial().asBlockType();
-                return LocUtil.canStand(bt) && !BlockType.BEDROCK.equals(bt);//крыша мира (как в незере)
+                if (BlockType.BEDROCK.equals(bt)) return false;
+                if (BlockType.WATER.equals(bt)) return true;
+                return LocUtil.canStand(bt);//крыша мира (как в незере)
             },
             (LocFinder.DataCheck) (dt, y) -> {
                 if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
-                return LocUtil.isPassable(dt.getMaterial().asBlockType());
+                final BlockType bt = dt.getMaterial().asBlockType();
+                return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
             },
             (LocFinder.DataCheck) (dt, y) -> {
                 if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
-                return LocUtil.isPassable(dt.getMaterial().asBlockType());
+                final BlockType bt = dt.getMaterial().asBlockType();
+                return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
             }
         };
         final Location finLoc;
         final WXYZ loc = new LocFinder(new WXYZ(feetLoc), mts).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+        Bukkit.broadcast(TCUtil.form(loc + "-l1"));
         if (loc == null) {
             final LocFinder.Check[] ars = {
                 (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
@@ -55,6 +60,7 @@ public class MoveUtil {
                 (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
             };
             final WXYZ alc = new LocFinder(new WXYZ(feetLoc), ars).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+            Bukkit.broadcast(TCUtil.form(alc + "-l2"));
             if (alc == null) return false;
 
             alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.YELLOW_STAINED_GLASS, false);
@@ -65,14 +71,33 @@ public class MoveUtil {
                 public void run() {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
-                        || pl.getLocation().getBlockX() != alc.x || pl.getLocation().getBlockZ() != alc.z) {
+                        || alc.distAbs(pl.getLocation()) < 3) {
                         alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.AIR);
                         this.cancel();
                     }
                 }
             }.runTaskTimer(Ostrov.instance, 30, 10);
             finLoc = alc.getCenterLoc();
-        } else finLoc = loc.getCenterLoc();
+        } else {
+            finLoc = loc.getCenterLoc();
+            final Block b = finLoc.getBlock();
+            if (b.getType().isAir() && BlockType.WATER.equals(b.getRelative(BlockFace.DOWN).getType().asBlockType())) {
+                b.setType(Material.LILY_PAD, false);
+                new BukkitRunnable() {
+                    final WeakReference<Player> prf = new WeakReference<>(p);
+
+                    @Override
+                    public void run() {
+                        final Player pl = prf.get();
+                        if (pl == null || !pl.isOnline() || pl.isDead()
+                            || new WXYZ(b).distAbs(pl.getLocation()) < 3) {
+                            b.setType(Material.AIR, false);
+                            this.cancel();
+                        }
+                    }
+                }.runTaskTimer(Ostrov.instance, 30, 10);
+            }
+        }
 
         p.setVelocity(p.getVelocity().zero());
         p.setFallDistance(0);
@@ -82,7 +107,6 @@ public class MoveUtil {
         return true;
     }
 
-    @Deprecated // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
