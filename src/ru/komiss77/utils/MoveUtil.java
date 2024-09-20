@@ -24,7 +24,6 @@ import ru.komiss77.version.Nms;
 //не переименовывать! юзают все плагины!
 public class MoveUtil {
 
-
     //учесть поиск дна океана и лавы
     //p может быть null
     //  findSaveLocation вернуть GameMode.CREATIVE
@@ -107,6 +106,7 @@ public class MoveUtil {
         return true;
     }
 
+  //@Deprecated // ^^^^^^^^^^^^^^^^^^^^^^^^^^^  пока переключил сюда, до полной отладки локфиндер
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами

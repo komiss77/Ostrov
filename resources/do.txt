@@ -2,23 +2,16 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!!!! если в идее пропали мавен зависимости, в билд.градле.ктс закоментить paperweight.paperDevBundle, рестарт,раскоментить,рестарт и прогрузит
 
 
-!!!!Генератор Could not set generator for default world 'world': Plugin 'Ostrov v3.4' is not enabled yet (is it load:STARTUP?)
-оконфиг - сносит строки при ошибке
+!!!!Генератор при создании мира пишет No key layers in MapLike, в меню пишет генератор ноне
+WM : не загрузить незер (нет папки регион, там dim-1)
 
 миссии чекнуть
-при смене ГМ тэг остаётся
-убрать из suggest получение аргумента через Resolver.string
-рома переделал безоп.ТП ?
-конфиг острова на гуи
+при смене ГМ3 тэг остаётся
 
-база композиций стоек для брони https://minecraft-heads.com/armor-stands
-кастомные биомы тема https://www.spigotmc.org/threads/how-to-create-custom-biomes.512105/page-2
-генератор биомов https://github.com/VolmitSoftware/Iris https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/
-https://github.com/erikzimmermann/discord-verification-bot
+рома переделал безоп.ТП ? прочекать тп  во всех мирах, на снегу, над водой, лавой, пещерами, стоя на дверях,
+ на головах полублоки,ступени, табличик, баннеры,трава,деревья, в аду не должно закидывать не бедрок.
 
-не загрузить незер (нет папки регион, там dim-1)
-сохранение данных до перехода с сервера (по команде server??)
-в гм3 тэпешнулся - остался ник
+
 
 ******** REDIS ********
 - ошибки при старте без коннекта
@@ -37,7 +30,8 @@ saveLocalData error Danillisimo -> Duplicate entry 'Danillisimo' for key 'name'
 дописать PlayerPacketHandler - чистка хакнутых предметов
 нет эвента PlayerCommandPreprocessEvent при performCommand
 менюитем can_interact на работает
-
+конфиг острова на гуи
+оконфиг - сносит строки при ошибке
 
 
 

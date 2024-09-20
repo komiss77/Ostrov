@@ -20,19 +20,19 @@ public class OreloadCmd implements OCommand {
     //запрос банжи, если есть - разкодировать raw
     //если пустой - выкачать из снапшота БД
 
-    private static final List<String> subCommands;
+  private static final List<String> subCmd;
 
     static {
-        subCommands = new ArrayList<>();
-        subCommands.add("all");
-        subCommands.add("gamemanager");
-        subCommands.add("signs");
-        subCommands.add("group");
-        subCommands.add("connection_ostrov");
-        subCommands.add("connection_local");
+      subCmd = new ArrayList<>();
+      subCmd.add("all");
+      subCmd.add("gamemanager");
+      subCmd.add("signs");
+      subCmd.add("group");
+      subCmd.add("connection_ostrov");
+      subCmd.add("connection_local");
         //Arrays.asList("all", "group", "connection_ostrov");
         for (final Module m : Module.values()) {
-            subCommands.add(m.name());
+          subCmd.add(m.name());
         }
     }
 
@@ -41,39 +41,39 @@ public class OreloadCmd implements OCommand {
         final String mod = "module";
         return Commands.literal("oreload")
                 .then(Resolver.string(mod).suggests((cntx, sb) -> {
-                    if (!ApiOstrov.isLocalBuilder(cntx.getSource().getExecutor())) {
+                  if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender())) {
                         return sb.buildFuture();
                     }
-                    subCommands.forEach(sc -> sb.suggest(sc));
+                  subCmd.stream()
+                      .filter(c -> c.startsWith(sb.getRemaining()))
+                      .forEach(c -> sb.suggest(c));
                     return sb.buildFuture();
                 }).executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                  final CommandSender cs = cntx.getSource().getSender();
                     if (!ApiOstrov.isLocalBuilder(cs, false)) {
                         cs.sendMessage("§cДоступно только персоналу!");
                         return 0;
                     }
                     final String md = Resolver.string(cntx, mod);
-                    final Player p = (cs instanceof Player) ? (Player) cs : null;
+                  //final Player p = (cs instanceof Player) ? (Player) cs : null;
                     return switch (md) {
                         case "all" -> {
                             Cfg.ReLoadAllConfig();
                             Ostrov.modules.entrySet().forEach(es -> {
                                 es.getValue().reload();
-                                if (p != null) {
-                                    p.sendMessage("§freload modeule : §a" + es.getKey());
-                                }
+                              cs.sendMessage("§freload modeule : §a" + es.getKey());
                             });
                             yield Command.SINGLE_SUCCESS;
                         }
                         case "connection_ostrov" -> {
                             RemoteDB.init(false, true);
-                            if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                          cs.sendMessage("§freload modeule : §a" + md);
                             yield Command.SINGLE_SUCCESS;
                         }
                         case "connection_local" -> {
                             Ostrov.async(() -> {
                                 LocalDB.init();
-                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                              cs.sendMessage("§freload modeule : §a" + md);
                             }, 0);
                             yield Command.SINGLE_SUCCESS;//!!!! релоад локал - делать асинх
                         }
@@ -81,7 +81,7 @@ public class OreloadCmd implements OCommand {
                             Ostrov.async(() -> {
                                 //RemoteDB.getBungeeServerInfo(); //1!!!
                                 Perm.loadGroups(true); //2!!! сначала прогрузить allBungeeServersName, или не определяет пермы по серверам
-                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                              cs.sendMessage("§freload modeule : §a" + md);
                             }, 0);
                             yield Command.SINGLE_SUCCESS;
                         }
@@ -89,13 +89,13 @@ public class OreloadCmd implements OCommand {
                         case "gamemanager" -> {
                             Ostrov.async(() -> {
                                 GM.load(GM.State.RELOAD);
-                                if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                              cs.sendMessage("§freload modeule : §a" + md);
                             }, 0);
                             yield Command.SINGLE_SUCCESS;//GM.reload = true;
                         }
                         case "signs" -> {
                             GM.onWorldsLoadDone();
-                            if (p != null) p.sendMessage("§freload modeule : §a" + md);
+                          cs.sendMessage("§freload modeule : §a" + md);
                             yield Command.SINGLE_SUCCESS;
                         }
                         default -> {

@@ -23,12 +23,10 @@ import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,7 +37,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtil;
 
-//не переименовывать!
+
 public final class ResourcePacksLst implements Initiable, OCommand {
 
     public static final String rpCMD = "rpack";
@@ -209,20 +207,28 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                             digest.update(buffer, 0, n);
                         }
                     }
-
                     fis.close();
                     final String hash = byteArray2Hex(digest.digest());
                     pack = ResourcePackInfo.resourcePackInfo(randUUID(fileName), URI.create(rpLink), hash);
-                    request = ResourcePackRequest.resourcePackRequest().packs(pack)
-                        .required(true).replace(true).prompt(TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!"))
+
+                    request = ResourcePackRequest.resourcePackRequest()
+                        .packs(pack)
+                        .required(true)
+                        .replace(true)
+                        .prompt(TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!"))
                         .callback((id, status, aud) -> {
                             if (!(aud instanceof final Player p)) return;
-//                            final Oplayer op = PM.getOplayer(p);
+
                             switch (status) {
 
-//                                case ACCEPTED -> op.resourcepack_locked = false;
+//                              case ACCEPTED -> op.resourcepack_locked = false;
 
-                                case SUCCESSFULLY_LOADED -> pack_ok(p);
+                                case SUCCESSFULLY_LOADED -> {
+                                    final Oplayer op = PM.getOplayer(p.getName());
+                                    op.resourcepack_locked = false;
+                                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
+                                    p.sendMessage("§2Пакет ресурсов установлен!");
+                                }
 
                                 case DECLINED -> //op.resourcepack_locked = true;
                                     p.sendMessage(TCUtil.form("""
@@ -293,6 +299,18 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             lsb = (lsb << 8) | (rbs[i] & 0xff);
         return new UUID(msb, lsb);
     }
+
+
+    private static String byteArray2Hex(final byte[] hash) {
+        final Formatter formatter = new Formatter();
+        for (byte b : hash) {
+            formatter.format("%02x", b);
+        }
+        final String frm = formatter.toString();
+        formatter.close();
+        return frm;
+    }
+
 
 
     /*static class rpLst implements Listener {
@@ -413,8 +431,6 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             }
         }
 
-    }*/
-
 
     private static void pack_ok(final Player p) {
         final Oplayer op = PM.getOplayer(p.getName());
@@ -455,18 +471,9 @@ public final class ResourcePacksLst implements Initiable, OCommand {
         rp_check.setItem(44, lobby);
         p.openInventory(rp_check);
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-    }
+    }*/
 
 
-    private static String byteArray2Hex(final byte[] hash) {
-        final Formatter formatter = new Formatter();
-        for (byte b : hash) {
-            formatter.format("%02x", b);
-        }
-        final String frm = formatter.toString();
-        formatter.close();
-        return frm;
-    }
 
 
 }

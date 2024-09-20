@@ -321,7 +321,7 @@ public class WM implements OCommand {
 
         final World.Environment env = World.Environment.valueOf(envString);
         final WorldManager.Generator gen = WorldManager.Generator.fromString(genString);
-
+//Ostrov.log_warn("WM genString="+genString+" gen="+gen);
         final World nw = WorldManager.load(cs, arg[1], env, gen);
         if (nw == null) {
           cs.sendMessage(Ostrov.PREFIX + "Мир " + arg[1] + " не был загружен... ");

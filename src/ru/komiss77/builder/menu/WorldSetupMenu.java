@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
@@ -29,7 +28,7 @@ public class WorldSetupMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
-        final Oplayer op = PM.getOplayer(p);
+      //final Oplayer op = PM.getOplayer(p);
 
         final Pagination pagination = contents.pagination();
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();

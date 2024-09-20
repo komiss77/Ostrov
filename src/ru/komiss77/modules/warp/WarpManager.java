@@ -47,13 +47,14 @@ public final class WarpManager implements Initiable {
 
     @Override
     public void reload() {
-        if (LocalDB.useLocalData && LocalDB.getConnection() != null) { //тут должно быть &&. Зачем чекать соединение, если локальная БД выключена??
+      if (LocalDB.useLocalData) {
             if (LocalDB.getConnection() != null) {
                 warps.clear();
                 Ostrov.async(() -> load(), 0);
             } else {
                 Ostrov.log_err("§4Не удалось загрузить варпы : нет соединения с БД!");
             }
+      } else {
             Ostrov.log_warn("варпы не могут быть загружены : локальная БД отключена!");
         }
         //canSetPrivate = Cfg.GetCongig().getBoolean("modules.command.warp.canSetPrivate");

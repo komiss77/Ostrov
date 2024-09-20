@@ -51,9 +51,10 @@ public class ApiOstrov {
         }
     }
 
-    @Deprecated // юзаем напрямую
+  //@Deprecated // юзаем напрямую
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
-        return MoveUtil.safeTP(p, feetLoc, buildSafePlace);//тестить будем
+      //return MoveUtil.safeTP(p, feetLoc, buildSafePlace);//тестить будем
+      return MoveUtil.teleportSave(p, feetLoc, buildSafePlace);
     }
 
     /**

@@ -40,6 +40,7 @@ public class REGISTER {
         Ostrov.regCommand(new BuilderCmd()); //+
         Ostrov.regCommand(new AnalyticsCmd()); //+
         Ostrov.regCommand(new ReportCmd()); //++
+      Ostrov.regCommand(new GmCmd()); //++
 
         //системные
         Ostrov.regCommand(new WM()); //+

@@ -30,7 +30,6 @@ public class IOO5OOCmd {
 
   public IOO5OOCmd() {
 
-    //русская разкладка В КОНЦЕ
     /*new OCmdBuilder("тест")
         .then(Commands.argument("арг", StringArgumentType.greedyString()).executes(cntx -> {
           final String arg = Resolver.string(cntx, "арг");
@@ -38,7 +37,20 @@ public class IOO5OOCmd {
           return Command.SINGLE_SUCCESS;
         })).suggest(cntx -> Set.of("стандарт"), false)
         .description("тест комм")
+        .register();
+
+    new OCmdBuilder("xxx")
+        .run(cntx -> {
+          final CommandSender cs = cntx.getSource().getSender();
+          if (!(cs instanceof final Player p)) {
+            cs.sendMessage("§eНе консольная команда!");
+            return 0;
+          }
+          return Command.SINGLE_SUCCESS;
+        })
+        .description("")
         .register();*/
+
 
     new OCmdBuilder("serv")
         .run(cntx -> {
@@ -422,17 +434,6 @@ public class IOO5OOCmd {
         .register();
 
 
-    new OCmdBuilder("xxx")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("")
-        .register();
 
   }
 

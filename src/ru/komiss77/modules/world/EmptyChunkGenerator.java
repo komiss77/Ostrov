@@ -5,6 +5,7 @@ import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 
 //https://hub.spigotmc.org/javadocs/spigot/org/bukkit/generator/ChunkGenerator.ChunkData.html
@@ -36,6 +37,21 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
         }// else {
         //}
+      int i;
+      int y;
+      for (y = 0; y < 16; ++y) {
+        for (i = 0; i < 16; ++i) {
+          biomeGrid.setBiome(x + y, z + i, Biome.THE_VOID);
+        }
+      }
+
+      //for (y = 0; y < world.getMaxHeight(); ++y) {
+      //    for (i = 0; i < 16; ++i) {
+      //        for (int j = 0; j < 16; ++j) {
+      //            chunkData.setBlock(i, y, j, Material.AIR);
+      //        }
+      //    }
+      //}
         return cd;
     }
 

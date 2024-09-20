@@ -2,6 +2,7 @@ package ru.komiss77.listener;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.LivingEntity;
@@ -11,15 +12,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.AfkExt;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
 
@@ -27,7 +29,15 @@ public class TestLst implements Listener {
 
     Botter bt = null;
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+
+  // @EventHandler
+  //public void onWorldInit(WorldInitEvent event) {
+  //  World world = event.getWorld();
+  //   Ostrov.log_warn("WorldInitEvent for world: " + world.getName()+" gen="+world.getGenerator());
+  //}
+
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
@@ -49,12 +59,12 @@ public class TestLst implements Listener {
                 } else {
                     op.tag(false);
 
-                    final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
+                   /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
                     LocUtil.trace(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, (bp, bd) -> {
                         p.sendBlockChange(bp.toLocation(p.getWorld()), gold);
                         return !bd.getMaterial().asBlockType().isAir();
                     });
-                    /*final BlockData bd = BlockType.YELLOW_CARPET.createBlockData();
+                    final BlockData bd = BlockType.YELLOW_CARPET.createBlockData();
                     for (final XYZ lc : AStarFinder.xyzPath(new WXYZ(p.getTargetBlockExact(100)), new WXYZ(p.getLocation()), 10000, true)) {
                         p.sendBlockChange(lc.getCenterLoc(p.getWorld()), bd);
                     }*/
@@ -78,7 +88,7 @@ public class TestLst implements Listener {
 
                 } else {
 
-                    if (bt == null) {
+                    /*if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));
                         bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
                     } else {
@@ -86,12 +96,12 @@ public class TestLst implements Listener {
                         if (le != null && le.isValid()) {
                             le.teleport(p.getLocation());
                         }
-                    }
+                    }*/
 
                     /*Ostrov.sync(() -> {
                         bt.item(EquipmentSlot.HAND, new ItemStack(Material.BOW));
                     }, 200);*/
-
+                  ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                     p.sendMessage("tp");
                 }
 

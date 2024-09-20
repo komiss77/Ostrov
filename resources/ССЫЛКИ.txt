@@ -1,4 +1,9 @@
 
+база композиций стоек для брони https://minecraft-heads.com/armor-stands
+кастомные биомы тема https://www.spigotmc.org/threads/how-to-create-custom-biomes.512105/page-2
+генератор биомов https://github.com/VolmitSoftware/Iris https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/
+https://github.com/erikzimmermann/discord-verification-bot
+
 https://habr.com/ru/companies/yota/articles/546664/
 
 http://www.minecraft-heads.com/custom/heads

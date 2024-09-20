@@ -247,7 +247,8 @@ public class WorldManager implements Initiable {
         }
 
         final File configFile = new File(worldFoldersDirectory, "ostrov.cfg");
-        if (configFile.exists() && !configFile.isDirectory()) {
+      final boolean fromFile = configFile.exists() && !configFile.isDirectory();
+      if (fromFile) {
             //sender.sendMessage(Ostrov.prefix+"§aнайдена конфигурация для мира!");
             final YamlConfiguration yml = YamlConfiguration.loadConfiguration(configFile);
 
@@ -306,11 +307,13 @@ public class WorldManager implements Initiable {
         }
 
         //  Timer.lastWorldLoadCountDown = 10;
+      final String param = fromFile ? " (параметры из " + world_name + "/ostrov.cfg -> " + environment.name() + ", " + generator.name() + ")"
+          : " (провайдер: " + environment.name() + ", генератор: " + generator.name() + ")";
 
         if (sender instanceof ConsoleCommandSender) {
-            Ostrov.log_ok("§fЗагрузка мира " + world_name + " (провайдер: " + environment.toString() + ", генератор: " + generator.toString() + ")");
+          Ostrov.log_ok("§fЗагрузка мира " + world_name + param);
         } else {
-            sender.sendMessage(Ostrov.PREFIX + "§fЗагрузка мира " + world_name + " §7(провайдер: " + environment.toString() + ", генератор: " + generator.toString() + ")");
+          sender.sendMessage(Ostrov.PREFIX + "§fЗагрузка мира " + world_name + param);
         }
         final long currentTimeMillis5 = System.currentTimeMillis();
 

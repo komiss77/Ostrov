@@ -149,8 +149,12 @@ public class Cfg {
         variable = manager.getNewConfig("variable.yml");
 
         //Remove
-        // config.removeKey("modules.command.pvp");
-        //ostrovConfig.set("player.teleport_on_first_join", null);//config.addDefault("player.teleport_on_first_join", false, c0);
+      //cfg.removeKey("");
+      cfg.set("ostrov_database.mysql_host", null);
+      cfg.set("ostrov_database.mysql_user", null);
+      cfg.set("ostrov_database.mysql_passw", null);
+      cfg.set("ostrov_database.games_info_for_server_menu_load", null);
+      cfg.set("ostrov_database.games_info_for_server_menu_send", null);
 
 
 
@@ -255,12 +259,12 @@ public class Cfg {
         cfg.addDefault("ostrov_database.connect", false, c4);
         cfg.addDefault("ostrov_database.auto_reload_permissions", false);
         cfg.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
-        cfg.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
-        cfg.addDefault("ostrov_database.mysql_user", "user");
-        cfg.addDefault("ostrov_database.mysql_passw", "pass");
+      //cfg.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
+      //cfg.addDefault("ostrov_database.mysql_user", "user");
+      //cfg.addDefault("ostrov_database.mysql_passw", "pass");
         //config.addDefault("ostrov_database.write_server_state_to_bungee_table", false);
-        cfg.addDefault("ostrov_database.games_info_for_server_menu_load", false);
-        cfg.addDefault("ostrov_database.games_info_for_server_menu_send", false);
+      //cfg.addDefault("ostrov_database.games_info_for_server_menu_load", false);
+      //cfg.addDefault("ostrov_database.games_info_for_server_menu_send", false);
 
 
         String[] c5 = {"---------", "local database", "---------"};

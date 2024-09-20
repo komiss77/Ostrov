@@ -54,12 +54,12 @@ public class RemoteDB {
     //true при Cfg.ReLoadAllConfig
     //false при OreloadCmd
     public static void init(final boolean loadGrous, final boolean async) {
-        url = Cfg.getConfig().getString("ostrov_database.mysql_host")
-            + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user="
-                + Cfg.getConfig().getString("ostrov_database.mysql_user")
-            + "&password="
-                + Cfg.getConfig().getString("ostrov_database.mysql_passw");
-
+      //url = Cfg.getConfig().getString("ostrov_database.mysql_host")
+      //    + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user="
+      //        + Cfg.getConfig().getString("ostrov_database.mysql_user")
+      //    + "&password="
+      //        + Cfg.getConfig().getString("ostrov_database.mysql_passw");
+      url = "jdbc:mysql://ostrov77.ru/ostrov?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=mysql&password=mysql";
         useOstrovData = Cfg.getConfig().getBoolean("ostrov_database.connect");
 //Ostrov.log("OstrovDB init useOstrovData?"+useOstrovData+" loadGrous?"+loadGrous);
         if (useOstrovData) {

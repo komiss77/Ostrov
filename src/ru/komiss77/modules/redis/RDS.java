@@ -23,7 +23,7 @@ public class RDS implements Initiable {
     public static JedisPoolProvider poolProvider;
     //protected static PubSubListener pubSubListener;
     protected static Subscriber subscriber;
-    private static String ip = "37.59.46.87";
+  private static String ip = "ostrov77.ru";
 
     static {
         try {
