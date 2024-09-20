@@ -12,7 +12,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.math.BlockPosition;
-import io.papermc.paper.math.Position;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandSourceStack;
@@ -264,21 +263,6 @@ public class Nms {
     return iBlockData.createCraftBlockData();
   }
 
-  //для избавления твиста от НМС.
-  @Deprecated
-  public static void setFastMat(final WXYZ wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
-    final List<BlockPosition> poss = new ArrayList<>();
-    for (int x_ = 0; x_ != sizeX; x_++) {
-      for (int z_ = 0; z_ != sizeY; z_++) {
-        for (int y_ = 0; y_ != sizeZ; y_++) {
-          poss.add(Position.block(wxyz.x + x_,
-              wxyz.y + y_, wxyz.z + z_));
-        }
-      }
-    }
-    fastType(wxyz.w, poss, mat.asBlockType());
-  }
-
   public static void fastType(final World w, final List<BlockPosition> poss, final BlockType bt) {
     final ServerLevel sl = Craft.toNMS(w);
     final BlockState bs = Craft.toNMS(bt).defaultBlockState();
@@ -315,11 +299,11 @@ public class Nms {
 
   //упрощенный вид
   private static final int FST_FLAGS = 2 | 16 | 1024;
-  private static void setNmsData(final ServerLevel sl, final BlockPos.MutableBlockPos pos, final BlockState old, final BlockState curr) {
+
+  protected static void setNmsData(final ServerLevel sl, final BlockPos.MutableBlockPos pos, final BlockState old, final BlockState curr) {
     if (old.hasBlockEntity() && curr.getBlock() != old.getBlock()) {
       sl.removeBlockEntity(pos);
     }
-
     final boolean success = sl.setBlock(pos, curr, FST_FLAGS); // NOTIFY | NO_OBSERVER | NO_PLACE (custom)
     if (success) sl.sendBlockUpdated(pos, old, curr, 3);
   }
@@ -361,33 +345,6 @@ public class Nms {
       return (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
             (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
     }
-
-  private static void info(Player p, String prefix, BlockState state, ServerLevel sl, ServerPlayer sp, boolean result) {
-    VoxelShape faceShape = null;// = state.getShape(sl, mutableBlockPosition);
-    boolean hasCollision = state.getBlock().hasCollision;
-    boolean canStandOnCenter = false;
-    if (hasCollision) {
-      faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
-      canStandOnCenter = (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
-              (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
-      //final BlockHitResult hitResult = this.clipWithInteractionOverride(start, end, pos, voxelshape, state);
-    }
-    //double d = shape.collide(Direction.Axis.Y, sp.getBoundingBox(), 1);
-    Ostrov.log_warn(prefix
-            + state.getBukkitMaterial()
-            + (hasCollision ? " §a" : " §c") + "hasCollision"
-            + (canStandOnCenter ? " §a" : " §c") + "canStandOnCenter"
-            //+(hasCollision? (" §acollision UP X="+faceShape.min(Direction.Axis.X)+"/"+faceShape.max(Direction.Axis.X)
-            //+" Y="+faceShape.min(Direction.Axis.Y)+"/"+faceShape.max(Direction.Axis.Y)
-            //+" Z="+faceShape.min(Direction.Axis.Z)+"/"+faceShape.max(Direction.Axis.Z)):" §chasCollision")
-            //+(full?" §a":" §c")+"fullBlock"
-            //+(state.entityCanStandOn(sl, mutableBlockPosition, sp)?" §a":" §c")+"canStand"юзает isFaceFull - это громоздко
-            + (!state.getFluidState().isEmpty() ? " §a" : " §c") + "fluidState=" + state.getFluidState().getOwnHeight()
-            //+" §7collide=§3"+d
-            + (result ? " §a" : " §c") + "result"
-    );
-
-  }
 
 
   public static void pathServer() {
@@ -635,3 +592,36 @@ public class Nms {
   }
 
 }
+
+
+
+/*
+
+  private static void info(Player p, String prefix, BlockState state, ServerLevel sl, ServerPlayer sp, boolean result) {
+    VoxelShape faceShape = null;// = state.getShape(sl, mutableBlockPosition);
+    boolean hasCollision = state.getBlock().hasCollision;
+    boolean canStandOnCenter = false;
+    if (hasCollision) {
+      faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+      canStandOnCenter = (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
+              (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
+      //final BlockHitResult hitResult = this.clipWithInteractionOverride(start, end, pos, voxelshape, state);
+    }
+    //double d = shape.collide(Direction.Axis.Y, sp.getBoundingBox(), 1);
+    Ostrov.log_warn(prefix
+            + state.getBukkitMaterial()
+            + (hasCollision ? " §a" : " §c") + "hasCollision"
+            + (canStandOnCenter ? " §a" : " §c") + "canStandOnCenter"
+            //+(hasCollision? (" §acollision UP X="+faceShape.min(Direction.Axis.X)+"/"+faceShape.max(Direction.Axis.X)
+            //+" Y="+faceShape.min(Direction.Axis.Y)+"/"+faceShape.max(Direction.Axis.Y)
+            //+" Z="+faceShape.min(Direction.Axis.Z)+"/"+faceShape.max(Direction.Axis.Z)):" §chasCollision")
+            //+(full?" §a":" §c")+"fullBlock"
+            //+(state.entityCanStandOn(sl, mutableBlockPosition, sp)?" §a":" §c")+"canStand"юзает isFaceFull - это громоздко
+            + (!state.getFluidState().isEmpty() ? " §a" : " §c") + "fluidState=" + state.getFluidState().getOwnHeight()
+            //+" §7collide=§3"+d
+            + (result ? " §a" : " §c") + "result"
+    );
+
+  }
+
+ */

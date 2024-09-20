@@ -22,8 +22,11 @@ import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.version.GameApi;
+import ru.komiss77.version.Nms;
 
 public class TestLst implements Listener {
 
@@ -76,8 +79,9 @@ public class TestLst implements Listener {
                 //p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
-
-                    /*final MiniMessage mm = MiniMessage.builder().tags(
+                    GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.AIR);
+                    p.sendMessage("AIR");
+                   /*final MiniMessage mm = MiniMessage.builder().tags(
                         TagResolver.builder()
                             .resolver(StandardTags.defaults())
                             .resolver(TagResolver.resolver("amber", Tag.styling(TextColor.color(0xCC8822))))
@@ -87,7 +91,8 @@ public class TestLst implements Listener {
                     p.sendMessage(mm.deserialize("<red>I am the storm that is <gradient:red:amber>approaching"));*/
 
                 } else {
-
+                    GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.GOLD_BLOCK);
+                    p.sendMessage("GOLD_BLOCK");
                     /*if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));
                         bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
@@ -101,8 +106,8 @@ public class TestLst implements Listener {
                     /*Ostrov.sync(() -> {
                         bt.item(EquipmentSlot.HAND, new ItemStack(Material.BOW));
                     }, 200);*/
-                  ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
-                    p.sendMessage("tp");
+                    //ApiOstrov.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
+
                 }
 
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
