@@ -1,6 +1,8 @@
 package ru.komiss77.modules.menuItem;
 
+import java.util.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -17,8 +19,6 @@ import ru.komiss77.Timer;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-
-import java.util.*;
 
 
 public final class MenuItemsManager implements Initiable, Listener {
@@ -56,6 +56,8 @@ public final class MenuItemsManager implements Initiable, Listener {
         if (Cfg.getConfig().getBoolean("player.give_pipboy")) {
             Material mat = Material.matchMaterial(Cfg.getConfig().getString("system.pipboy_material"));
             if (mat == null) mat = Material.CLOCK;
+          final String left_cmd = Cfg.getConfig().getString("system.pipboy_left_click_command");
+          final String right_cmd = Cfg.getConfig().getString("system.pipboy_rigth_click_command");
 
             final ItemStack is = new ItemBuilder(mat)
                     .name(Cfg.getConfig().getString("system.pipboy_name"))
@@ -72,14 +74,14 @@ public final class MenuItemsManager implements Initiable, Listener {
             pipboy.anycase = true;
             pipboy.duplicate = false;
             pipboy.on_left_click = p -> {
-                final String cmd = Cfg.getConfig().getString("system.pipboy_left_click_command");
-                if (!new PlayerCommandPreprocessEvent(p, cmd).callEvent()) return;
-                p.performCommand(cmd);
+              if (p.getGameMode() == GameMode.SPECTATOR //перехватывало интеракт зрителя для аркаима
+                  || !new PlayerCommandPreprocessEvent(p, left_cmd).callEvent()) return;
+              p.performCommand(left_cmd);
             };
             pipboy.on_right_click = p -> {
-                final String cmd = Cfg.getConfig().getString("system.pipboy_rigth_click_command");
-                if (!new PlayerCommandPreprocessEvent(p, cmd).callEvent()) return;
-                p.performCommand(cmd);
+              if (p.getGameMode() == GameMode.SPECTATOR
+                  || !new PlayerCommandPreprocessEvent(p, right_cmd).callEvent()) return;
+              p.performCommand(right_cmd);
             };
             addItem(pipboy);
         }

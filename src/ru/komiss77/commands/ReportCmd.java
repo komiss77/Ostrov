@@ -47,7 +47,7 @@ final static String player = "игрок", reason = "причина";
 
         return Commands.literal("report")
             .executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getExecutor();
+              final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
@@ -62,7 +62,7 @@ final static String player = "игрок", reason = "причина";
                   return sb.buildFuture();
                 })
                 .executes(cntx -> {
-                  final CommandSender cs = cntx.getSource().getExecutor();
+                  final CommandSender cs = cntx.getSource().getSender();
                   if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
@@ -78,7 +78,7 @@ final static String player = "игрок", reason = "причина";
                               return sb.buildFuture();
                             })
                         .executes(cntx -> {
-                          final CommandSender cs = cntx.getSource().getExecutor();
+                          final CommandSender cs = cntx.getSource().getSender();
                           final String toName = Resolver.string(cntx, player);
                           if (toName.equalsIgnoreCase(cs.getName())) {
                             cs.sendMessage("§cНа себя жалобы не принимаются!");

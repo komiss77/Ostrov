@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -79,10 +80,9 @@ public class ServerLst implements Listener {
         //if (e.getPlugin().getDescription().getCommands()!=null) {
         // e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
         //     CMD.all_server_commands.add(command);
-//System.out.println("------------> Command add "+command); 
         //  });
         //}
-
+//Ostrov.log_warn("=== PluginEnableEvent "+e.getPlugin().getName());
         switch (e.getPlugin().getName()) {
 
             case "Matrix" -> {
@@ -92,7 +92,6 @@ public class ServerLst implements Listener {
 
             case "WorldGuard" -> {
                 WGhook.hook(e.getPlugin());
-
             }
 
           case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
@@ -101,7 +100,9 @@ public class ServerLst implements Listener {
                 ProCosmeticsHook.hook(e.getPlugin());
             }
 
-            case "dynmap" -> DynmapHook.hook(e.getPlugin());
+          case "dynmap" -> DynmapHook.hook(e.getPlugin());
+
+          case "EasyPayments" -> EasyPaymentsHook.hook(e.getPlugin());
 
             case "TradeSystem" -> TradeSystemHook.hook(e.getPlugin());
         }

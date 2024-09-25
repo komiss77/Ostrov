@@ -1508,7 +1508,10 @@ public class ItemUtil {
         }
     }
 
-
+  public static boolean isInteractable(final Material mat) {
+    final org.bukkit.block.BlockType bt = (org.bukkit.block.BlockType) Registry.BLOCK.get(mat.getKey());
+    return bt != null && bt.isInteractable();
+  }
 
 }
 

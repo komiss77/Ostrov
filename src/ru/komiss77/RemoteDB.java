@@ -233,11 +233,14 @@ public class RemoteDB {
 
         GameInfo gi = GM.getGameInfo(GM.GAME);
         if (gi != null) {
-            ArenaInfo ai = gi.arenas().stream().findAny().get();//gi.getArena(Ostrov.MOT_D);
-            if (ai != null) {
+            gi.arenas().stream().findAny().ifPresent(ai -> {
                 ai.players = Bukkit.getOnlinePlayers().size();
                 ai.sendData();
-            }
+            });//gi.getArena(Ostrov.MOT_D);
+            //if (ai != null) {
+            //    ai.players = Bukkit.getOnlinePlayers().size();
+            //    ai.sendData();
+            //}
         }
 
 

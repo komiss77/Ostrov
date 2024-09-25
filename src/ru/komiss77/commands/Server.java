@@ -55,9 +55,9 @@ public class Server implements OCommand {
         //1 аргумент
         .then(Resolver.string(arg0)
                 .suggests((cntx, sb) -> {
-
+                  final String input = sb.getRemaining().toLowerCase();
                   displayNames.stream()
-                      .filter(c -> c.startsWith(sb.getRemaining()))
+                      .filter(c -> c.toLowerCase().startsWith(input))
                       .forEach(c -> sb.suggest(c));
 
                   return sb.buildFuture();

@@ -26,7 +26,7 @@ public class ProtocolCmd implements OCommand {
         final String val = "value";
         return Commands.literal("protocol")
             .then(Resolver.integer(val).suggests((cntx, sb) -> {
-                    if (!(cntx.getSource().getExecutor() instanceof final Player pl)
+                  if (!(cntx.getSource().getSender() instanceof final Player pl)
                         || !PM.getOplayer(pl).hasGroup(grp)) {
                         return sb.buildFuture();
                     }

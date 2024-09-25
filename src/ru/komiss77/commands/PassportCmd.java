@@ -37,7 +37,7 @@ public class PassportCmd implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String act = "action";
         return Commands.literal("passport").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+              final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
@@ -58,7 +58,7 @@ public class PassportCmd implements OCommand {
                             return sb.buildFuture();
                         })
                         .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
+                          final CommandSender cs = cntx.getSource().getSender();
                             if (!(cs instanceof final Player pl)) {
                                 cs.sendMessage("§eНе консольная команда!");
                                 return 0;

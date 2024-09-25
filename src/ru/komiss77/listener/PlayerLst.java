@@ -142,15 +142,6 @@ public class PlayerLst implements Listener {
                 }
             }, 1); //- без задержки не выдавало предметы лобби!
         }
-
-        //for (final Oplayer otherOp : PM.getOplayers()) {
-        //otherOp.score.onJoin(op);
-        //if (otherOp.score.hideNameTags) {
-        //    otherOp.score.getTeam().addEntry(op.nik);
-        //}
-        //  VM.getNmsNameTag().updateTag( otherOp, p); //закинуть тэги других игроков вошедшему
-        // }
-
     }
 
 
@@ -158,12 +149,6 @@ public class PlayerLst implements Listener {
     public void PlayerQuit(PlayerQuitEvent e) {
         e.quitMessage(null);
         PM.onLeave(e.getPlayer(), true);
-        //final Player p = e.getPlayer();
-        //final Oplayer op = PM.remove(p.getName());
-//Ostrov.log("PlayerQuit "+p.getName()+" op="+op);
-        //if (op!=null) { //сохраняем, если было реально загружено!
-        //     op.onLeave(p, true);
-        // }
     }
 
     //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable

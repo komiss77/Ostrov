@@ -33,7 +33,7 @@ public class RewardCmd implements OCommand {
 
             .then(Resolver.string(player)
                 .suggests((cntx, sb) -> { //0
-                  if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                  if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
                     PM.suggester(sb);//Bukkit.getOnlinePlayers().forEach(p -> sb.suggest(p.getName()));
                   }
                   return sb.buildFuture();
@@ -41,8 +41,8 @@ public class RewardCmd implements OCommand {
 
                 .then(Resolver.string(item)
                     .suggests((cntx, sb) -> { //1
-                      Ostrov.log_warn("can?" + ApiOstrov.canBeBuilder(cntx.getSource().getExecutor()));
-                      if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+//Ostrov.log_warn("can?" + ApiOstrov.canBeBuilder(cntx.getSource().getSender()));
+                      if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
                         Arrays.stream(RewardType.values()).forEach(r -> sb.suggest(r.name().toLowerCase()));
                       }
                       return sb.buildFuture();
@@ -50,7 +50,7 @@ public class RewardCmd implements OCommand {
 
                     .then(Resolver.string(op)
                         .suggests((cntx, sb) -> { //2
-                          if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                          if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
                             switch (arg(sb, 1)) { //1=RewardType. Resolver.string(cntx, item)) { игнорит код ниже
                               case "permission", "perm" -> {
                                 sb.suggest("ostrov.perm");
@@ -72,7 +72,7 @@ public class RewardCmd implements OCommand {
 
                         .then(Resolver.string(val)
                             .suggests((cntx, sb) -> {//3
-                              if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                              if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
                                 switch (arg(sb, 2)) { //2=operation. Resolver.string(cntx, item)) { игнорит код нижеResolver.string(cntx, item)) {
                                   case "permission", "perm", "group" -> {
                                     sb.suggest("1h");
@@ -94,7 +94,7 @@ public class RewardCmd implements OCommand {
 
                             .then(Resolver.string(reason)
                                 .suggests((cntx, sb) -> {
-                                  if (ApiOstrov.canBeBuilder(cntx.getSource().getExecutor())) {
+                                  if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
                                     sb.suggest("Ostrov");
                                   }
                                   return sb.buildFuture();
@@ -205,9 +205,14 @@ public class RewardCmd implements OCommand {
             if (cs instanceof Player) {
                 SpigotChanellMsg.sendMessage(((Player) cs), Operation.REWARD, cs.getName(), type.tag, amt, tgt, oper);
             } else {
+              if (PM.getOnlineCount() > 0) {
                 SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
                     Operation.REWARD, "консоль", type.tag, amt, tgt, oper);
+              } else {
+                cs.sendMessage("§cНаграду не выдать - нет игрока онлайн для передачи сообщения!");
+              }
             }
+          //cs.sendMessage("§eОпыт нужно прибавлять!");
             return Command.SINGLE_SUCCESS;
         };
     }

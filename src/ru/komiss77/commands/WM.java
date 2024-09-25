@@ -33,7 +33,7 @@ import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
 
-
+//не переименовывать! Острова используют методы copyFile
 public class WM implements OCommand {
 
   private static final String COMMAND = "wm";
@@ -644,7 +644,7 @@ public class WorldManagerCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("wm").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl) || !ApiOstrov.isLocalBuilder(cs)) {
                         cs.sendMessage("§cНевыполнимая комманда!");
                         return 0;
@@ -704,7 +704,7 @@ public class WorldManagerCmd implements OCommand {
 
     private static Command<CommandSourceStack> tryWMCmd() {
         return cntx -> {
-            final CommandSender cs = cntx.getSource().getExecutor();
+            final CommandSender cs = cntx.getSource().getSender();
             if (!ApiOstrov.isLocalBuilder(cs)) {
                 cs.sendMessage("§cНедостаточно прав!");
                 return 0;
@@ -896,7 +896,7 @@ public class WorldManagerCmd implements OCommand {
                 }
             }
             if (en == null) {
-                cntx.getSource().getExecutor().sendMessage("§cПровайдеры: §e" + WorldManager.possibleEnvironment());
+                cntx.getSource().getSender().sendMessage("§cПровайдеры: §e" + WorldManager.possibleEnvironment());
                 return 0;
             }
         } catch (CommandSyntaxException e) {
@@ -912,7 +912,7 @@ public class WorldManagerCmd implements OCommand {
                 }
             }
             if (gn == null) {
-                cntx.getSource().getExecutor().sendMessage("§cГенераторы: §e" + WorldManager.possibleGenerator());
+                cntx.getSource().getSender().sendMessage("§cГенераторы: §e" + WorldManager.possibleGenerator());
                 return 0;
             }
         } catch (CommandSyntaxException e) {

@@ -86,11 +86,11 @@ public class Ostrov extends JavaPlugin {
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
 
-        if (MOT_D.equals("pay")) { // для режима обработки донатиков
-            log_warn("§bРежим PAY");
-            REGISTER.registerPay();
-            return;
-        }
+      //if (MOT_D.equals("pay")) { // для режима обработки донатиков
+      //    log_warn("§bРежим PAY");
+      //    REGISTER.registerPay();
+      //return;
+      //}
 
         registerChanels();
 

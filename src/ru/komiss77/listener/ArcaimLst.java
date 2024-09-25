@@ -195,9 +195,10 @@ public class ArcaimLst implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public static void onInteract(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-        if (p.getGameMode() == GameMode.SPECTATOR && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)) {
+      if (p.getGameMode() == GameMode.SPECTATOR && e.getAction() != Action.PHYSICAL) {
             if (p.getOpenInventory().getType() != InventoryType.CHEST) {
                 if (PM.getOplayer(p.getUniqueId()).setup == null) {
+//Ostrov.log_warn("==== menu");
                     p.performCommand("menu");
                 }
             }

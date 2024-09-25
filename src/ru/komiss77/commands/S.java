@@ -46,7 +46,7 @@ public class S implements OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         final String server = "server", map = "map";
         return Commands.literal("server").executes(cntx -> {
-                    final CommandSender cs = cntx.getSource().getExecutor();
+                    final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");
                         return 0;
@@ -68,7 +68,7 @@ public class S implements OCommand {
                             return sb.buildFuture();
                         })
                         .executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
+                            final CommandSender cs = cntx.getSource().getSender();
                             if (!(cs instanceof final Player pl)) {
                                 cs.sendMessage("§eНе консольная команда!");
                                 return 0;
@@ -127,7 +127,7 @@ public class S implements OCommand {
                             gi.arenas().forEach(a -> sb.suggest(a.arenaName));
                             return sb.buildFuture();
                         }).executes(cntx -> {
-                            final CommandSender cs = cntx.getSource().getExecutor();
+                            final CommandSender cs = cntx.getSource().getSender();
                             if (!(cs instanceof final Player pl)) {
                                 cs.sendMessage("§eНе консольная команда!");
                                 return 0;

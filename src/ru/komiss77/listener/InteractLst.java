@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.enums.ServerType;

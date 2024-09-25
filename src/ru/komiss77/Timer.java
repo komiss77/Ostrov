@@ -223,7 +223,12 @@ public class Timer {
                 Informator.tickAsync();
             }
 
-            RDS.heartbeats();
+            try {
+                RDS.heartbeats();
+            } catch (Exception ex) {
+                Ostrov.log_err("Timer asyncSecondJob RDS : " + ex.getMessage());
+                ex.printStackTrace();
+            }
 
             if (second % 43 == 0) {
                 GM.getGames().stream().forEach((gi -> {
@@ -287,6 +292,7 @@ public class Timer {
 
         } catch (Exception ex) { //обязательно все Exception - надо вернуть флаг lockSecond, или блокируется запись!
             Ostrov.log_err("Timer asyncSecondJob : " + ex.getMessage());
+            ex.printStackTrace();
         } finally {
             lockSecond.set(false);
         }

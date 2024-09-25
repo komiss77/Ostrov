@@ -9,11 +9,11 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
+
 
 public class MenuItem {
 

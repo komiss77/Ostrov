@@ -68,7 +68,7 @@ public final class LocFinder {
             return bloc;
         final WXYZ lc = bloc;
         WXYZ fin = testLoc(dir);
-        Bukkit.broadcast(TCUtil.form(fin + "-f1"));
+//Bukkit.broadcast(TCUtil.form(fin + "-f1"));
         if (fin != null) {
             fin.y += offsetY;
             return fin;

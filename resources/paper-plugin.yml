@@ -17,6 +17,10 @@ dependencies:
   #required: false
   #join-classpath: true # Defaults to true
   server:
+    EasyPayments: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true
     CrazyAdvancementsAPI: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
       load: AFTER
       required: false

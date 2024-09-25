@@ -130,7 +130,7 @@ public class Arcaim implements InventoryProvider {
       }
 
 
-        content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
+        /*content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
                 .name("§eВернуться в свой регион")
                 //.lore("§7Дом любимый дом.")
                 //.lore("§7Создание, удаление,")
@@ -141,7 +141,7 @@ public class Arcaim implements InventoryProvider {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land home");
-        }));
+        }));*/
 
 
         content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
@@ -190,7 +190,7 @@ public class Arcaim implements InventoryProvider {
         }));
 
 
-        content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.LAVA_BUCKET)
+      content.set(2, 7, ClickableItem.of(new ItemBuilder(Material.BUCKET)
                 .name("§8Зритель")
                 .lore("")
                 .lore("§f!! Чтобы открыть меню !!")

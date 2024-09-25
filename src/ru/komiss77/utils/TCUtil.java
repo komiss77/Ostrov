@@ -1140,12 +1140,12 @@ public class TCUtil {
         return toByte((TextColor) color);
     }
 
-    @Deprecated
+  //@Deprecated нужны на островах. Работает и вроде не мешает
     public static String toChat(final TextColor color) {
         return "§" + toChar(color).toString();
     }
 
-    @Deprecated
+  //@Deprecated нужны на островах. Работает и вроде не мешает
     public static String toChat(final NamedTextColor color) {
         return "§" + toChar(color).toString();
     }

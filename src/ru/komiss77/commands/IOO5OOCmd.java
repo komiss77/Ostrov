@@ -72,10 +72,6 @@ public class IOO5OOCmd {
             cs.sendMessage("§eНе консольная команда!");
             return 0;
           }
-          if (!Ostrov.wg) {
-            p.sendMessage("§cПомошник привата недоступен (нет WG)!");
-            return 0;
-          }
           SkinRestorerHook.openGui(p, 0);
           return Command.SINGLE_SUCCESS;
         })
@@ -118,7 +114,7 @@ public class IOO5OOCmd {
           cs.sendMessage("§cУ вас нету разрешения на это!");
           return 0;
         })
-        .aliases("админ")
+        //.aliases("админ")
         .description("Открывает меню Абьюзера")
         .register();
 
@@ -152,7 +148,7 @@ public class IOO5OOCmd {
           op.menu.openLocalMenu(p);
           return Command.SINGLE_SUCCESS;
         })
-        .aliases("меню")
+        //.aliases("меню")
         .description("серверное меню")
         .register();
 
@@ -489,7 +485,7 @@ public class HomeCmd implements OCommand {
             })
             .then(Resolver.player(name)
                 .suggests((cntx, sb) -> {
-                    if (!(cntx.getSource().getExecutor()
+                    if (!(cntx.getSource().getSender()
                         instanceof final Player pl)) {
                         return sb.buildFuture();
                     }
