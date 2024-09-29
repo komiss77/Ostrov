@@ -147,7 +147,11 @@ public class Nms {
   public static void addPlayerPacketSpy(final Player p, final Oplayer op) {
     final PlayerPacketHandler packetSpy = new PlayerPacketHandler(op);
     final ChannelPipeline pipeline = Craft.toNMS(p).connection.connection.channel.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeli
-    pipeline.addBefore("packet_handler", "ostrov_" + p.getName(), packetSpy);
+    try {
+      pipeline.addBefore("packet_handler", "ostrov_" + p.getName(), packetSpy);
+    } catch (NoSuchElementException e) {
+      p.kick(TCUtil.form("<gold>Остров <apple>все еще загружается!"));
+    }
   }
 
 

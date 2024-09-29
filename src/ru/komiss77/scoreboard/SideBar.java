@@ -80,25 +80,27 @@ public class SideBar {
       line=1;
       value = "§cline от 0 до 14";
     }*/
+        final String proc = TCUtil.toLegacy(value);
         final String old = data.get(line);
         if (old != null) {
-            if (old.equals(value)) {//нет изменения - ничего не делаем
+            if (old.equals(proc)) {//нет изменения - ничего не делаем
                 return this;
             }
             obj.getScore("§" + (char) ('a' + line) + ext + old).resetScore(); //строка изменилась - удалить старую
         }
-        obj.getScore("§" + (char) ('a' + line) + ext + value).setScore(line);
-        data.put(line, value);
+        obj.getScore("§" + (char) ('a' + line) + ext + proc).setScore(line);
+        data.put(line, proc);
         return this;
     }
 
     public SideBar update(final String key, final String value) {
+        final String proc = TCUtil.toLegacy(value);
         final Integer line = lines.get(key);
         if (line == null) {
             Ostrov.log_warn("Tried updating null score " + key);
             return this;
         }
-        return update(line, value);
+        return update(line, proc);
     }
 
     public SideBar add(final String key) {
@@ -117,7 +119,7 @@ public class SideBar {
     }
 
     public SideBar add(final String key, final @Nullable String value) {
-        toAdd.addFirst(new Duo<>(key, value));
+        toAdd.addFirst(new Duo<>(TCUtil.toLegacy(key), TCUtil.toLegacy(value)));
         return this;
     }
 

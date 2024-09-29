@@ -8,6 +8,7 @@ import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent
 import org.bukkit.*;
 import org.bukkit.block.Container;
 import org.bukkit.command.CommandException;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.*;
@@ -66,6 +67,20 @@ public class PvPManager implements Initiable {
 
     public static final int DHIT_CLD = 4;
     public static final int BLCK_CLD = 0;
+
+    /*public static final double TRIDENT_DMG = getDefDmg(ItemType.TRIDENT);
+    public static double getDefDmg(final ItemType it) {
+        double d = 1d;
+        for (final AttributeModifier mod : it.getDefaultAttributeModifiers()
+            .get(Attribute.GENERIC_ATTACK_DAMAGE)) {
+            d += switch (mod.getOperation()) {
+                case ADD_NUMBER -> mod.getAmount();
+                case ADD_SCALAR -> mod.getAmount() * d;
+                case MULTIPLY_SCALAR_1 -> (mod.getAmount() + 1d) * d;
+            };
+        }
+        return d;
+    }*/
 
     static {
         flags = new EnumMap<>(PvpFlag.class);
@@ -184,7 +199,7 @@ public class PvPManager implements Initiable {
                 }
 
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-                public void EntityDamageByEntityEvent(EntityDamageByEntityEvent e) {
+                public void EntityDamageByEntityEvent(final EntityDamageByEntityEvent e) {
                     if (!e.getEntityType().isAlive() || e.getEntityType() == EntityType.ARMOR_STAND) {
                         return;   //не обрабатывать урон рамкам, опыту и провее
                     }            //System.out.println("EDBE: cause="+e.getCause()+" entity="+e.getEntity()+" damager="+e.getDamager());
@@ -208,7 +223,7 @@ public class PvPManager implements Initiable {
                         return;
                     }
 
-                    final LivingEntity damager = EntityUtil.getDamager(e, true);
+                    final LivingEntity damager = EntityUtil.getDamager(e, false);
                     if (damager == null) return;
 
                     if (damager.getEntityId() == e.getEntity().getEntityId() && flags.get(PvpFlag.disable_self_hit)) {
@@ -222,9 +237,33 @@ public class PvPManager implements Initiable {
                     }
 
                     if (advanced) {
-                        if (e.getDamager() instanceof Projectile) {
-                            //Ostrov.sync(() -> tgt.setNoDamageTicks(-1), 1);
+                        switch (e.getDamager()) {
+                            case Projectile pr://Ostrov.sync(() -> tgt.setNoDamageTicks(-1), 1);
+                                if (e.getDamager() instanceof final Trident tr) {
+                                    double dmg = tr.getDamage();
+                                    final ItemStack tit = tr.getItemStack();
+                                    final int lvl = tit.getEnchantmentLevel(Enchantment.IMPALING);
+                                    if (lvl != 0 && (pr.getWorld().hasStorm()
+                                        || pr.getLocation().getBlock().isLiquid())) {
+                                        dmg += lvl * 2.5d;
+                                    }
+                                    e.setDamage(dmg);
+                                }
+                                break;
+                            case LivingEntity le://Ostrov.sync(() -> tgt.setNoDamageTicks(-1), 1);
+                                if (le.getEquipment() != null) {
+                                    final ItemStack mhd = le.getEquipment().getItemInMainHand();
+                                    final int lvl = mhd.getEnchantmentLevel(Enchantment.IMPALING);
+                                    if (lvl != 0 && (le.getWorld().hasStorm()
+                                        || le.getLocation().getBlock().isLiquid())) {
+                                        e.setDamage(lvl * 2.5d + e.getDamage());
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
                         }
+
                         final ItemStack targetHand;
                         final LivingEntity target = (LivingEntity) e.getEntity();
                         if (target.getType() == EntityType.PLAYER) {//# v P
