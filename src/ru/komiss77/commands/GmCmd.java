@@ -27,7 +27,7 @@ public class GmCmd implements OCommand {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-                if (!Cfg.gm_command && !ApiOstrov.isLocalBuilder(cs, true)) {
+                if (!Cfg.gm_command && !ApiOstrov.canBeBuilder(cs)) {
                     p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                     return 0;
                 }
