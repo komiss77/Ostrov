@@ -167,8 +167,9 @@ public class EntityGroupMenu implements InventoryProvider {
             }
 
             for (final Map.Entry<EntityType, Integer> entry : count.entrySet()) {
-                menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(entry.getKey())
-                    .name(Lang.t(entry.getKey(), p))
+              final EntityType type = entry.getKey();
+              menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(type)
+                  .name(Lang.t(type, p))
                     .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                     .lore("§7")
                     .lore("§7Найдено: §e" + entry.getValue())
@@ -180,13 +181,13 @@ public class EntityGroupMenu implements InventoryProvider {
                     if (e.isLeftClick()) {
                         SmartInventory.builder()
                             .id("EntityByType" + p.getName())
-                            .provider(new EntityTypeMenu(world, radius, entry.getKey()))
+                            .provider(new EntityTypeMenu(world, radius, type))
                             .size(6, 9)
-                            .title("§2" + world.getName() + ", §6" + entry.getKey() + ", §1r=" + radius).build()
+                            .title("§2" + world.getName() + ", §6" + type + ", §1r=" + radius).build()
                             .open(p);
                     } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
                         for (final Entity entity : world.getEntities()) {
-                            if (entity.getType() == entry.getKey()) {
+                          if (entity.getType() == type) {
                                 entity.remove();
                             }
                         }

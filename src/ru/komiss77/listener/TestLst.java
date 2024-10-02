@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,6 +26,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.GameApi;
 import ru.komiss77.version.Nms;
 
@@ -39,8 +41,7 @@ public class TestLst implements Listener {
   //   Ostrov.log_warn("WorldInitEvent for world: " + world.getName()+" gen="+world.getGenerator());
   //}
 
-
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
@@ -56,12 +57,12 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-                if (p.isSneaking()) {
-                    op.tag(true);
-                    op.tag("<blue>dddd", "<yellow>dddf");
+                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
+                //op.tag(true);
+                //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
-                    op.tag(false);
-
+                //op.tag(false);
+                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                    /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
                     LocUtil.trace(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, (bp, bd) -> {
                         p.sendBlockChange(bp.toLocation(p.getWorld()), gold);
@@ -79,8 +80,8 @@ public class TestLst implements Listener {
                 //p.sendMessage("§3" + pt);
 
                 if (p.isSneaking()) {
-                    GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.AIR);
-                    p.sendMessage("AIR");
+                    //GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.AIR);
+
                    /*final MiniMessage mm = MiniMessage.builder().tags(
                         TagResolver.builder()
                             .resolver(StandardTags.defaults())
@@ -91,7 +92,7 @@ public class TestLst implements Listener {
                     p.sendMessage(mm.deserialize("<red>I am the storm that is <gradient:red:amber>approaching"));*/
 
                 } else {
-                    GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.GOLD_BLOCK);
+                    //GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.GOLD_BLOCK);
                     p.sendMessage("GOLD_BLOCK");
                     /*if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));

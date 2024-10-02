@@ -1,19 +1,20 @@
 package ru.komiss77.utils;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import net.kyori.adventure.util.Index;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -30,17 +31,15 @@ public class TCUtil {
     //    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)§[0-9a-xа-я]");
     public static final TextComponent EMPTY;
 
-    private static final Index<DyeColor, TextColor> dyeIx;
-    private static final Index<Character, TextColor> chrIx;
-    private static final Index<Color, TextColor> clrIx;
-    private static final Set<Entry<Character, TextColor>> chrSet;
+    private static final BiMap<DyeColor, TextColor> dyeIx;
+    private static final BiMap<Character, TextColor> chrIx;
+    private static final BiMap<Color, TextColor> clrIx;
     private static final MiniMessage msg;
-    private static final int tcSize;
 
     public static final char STYLE = '§';
     //    public static final char form = '᨟';
-//    public static final char HEX = '#';
-//    public static final char GRAD = '|';
+    public static final char HEX = '#';
+    public static final char GRAD = '|';
 
     /**
      * 60% - Neutral color
@@ -57,84 +56,78 @@ public class TCUtil {
 
     static {
         EMPTY = Component.empty();
-        final Map<TextColor, DyeColor> dyeLs = new HashMap<>();
-        final Map<TextColor, Character> chrLs = new HashMap<>();
-        final Map<TextColor, Color> clrLs = new HashMap<>();
-        dyeLs.put(NamedTextColor.BLACK, DyeColor.BLACK);
-        chrLs.put(NamedTextColor.BLACK, '0');//void
-        clrLs.put(NamedTextColor.BLACK, Color.BLACK);
-        dyeLs.put(NamedTextColor.DARK_BLUE, DyeColor.BLUE);
-        chrLs.put(NamedTextColor.DARK_BLUE, '1');//adventure
-        clrLs.put(NamedTextColor.DARK_BLUE, Color.NAVY);
-        dyeLs.put(NamedTextColor.DARK_GREEN, DyeColor.GREEN);
-        chrLs.put(NamedTextColor.DARK_GREEN, '2');//nature
-        clrLs.put(NamedTextColor.DARK_GREEN, Color.GREEN);
-        dyeLs.put(NamedTextColor.DARK_AQUA, DyeColor.CYAN);
-        chrLs.put(NamedTextColor.DARK_AQUA, '3');//wisdom
-        clrLs.put(NamedTextColor.DARK_AQUA, Color.TEAL);
-        dyeLs.put(NamedTextColor.DARK_RED, DyeColor.BROWN);
-        chrLs.put(NamedTextColor.DARK_RED, '4');//war
-        clrLs.put(NamedTextColor.DARK_RED, Color.MAROON);
-        dyeLs.put(NamedTextColor.DARK_PURPLE, DyeColor.MAGENTA);
-        chrLs.put(NamedTextColor.DARK_PURPLE, '5');//royalty
-        clrLs.put(NamedTextColor.DARK_PURPLE, Color.PURPLE);
-        dyeLs.put(NamedTextColor.GOLD, DyeColor.ORANGE);
-        chrLs.put(NamedTextColor.GOLD, '6');//wealth
-        clrLs.put(NamedTextColor.GOLD, Color.ORANGE);
-        dyeLs.put(NamedTextColor.GRAY, DyeColor.LIGHT_GRAY);
-        chrLs.put(NamedTextColor.GRAY, '7');//plain
-        clrLs.put(NamedTextColor.GRAY, Color.SILVER);
-        dyeLs.put(NamedTextColor.DARK_GRAY, DyeColor.GRAY);
-        chrLs.put(NamedTextColor.DARK_GRAY, '8');//shadow
-        clrLs.put(NamedTextColor.DARK_GRAY, Color.GRAY);
-        dyeLs.put(NamedTextColor.BLUE, DyeColor.PURPLE);
-        chrLs.put(NamedTextColor.BLUE, '9');//trust
-        clrLs.put(NamedTextColor.BLUE, Color.BLUE);
-        dyeLs.put(NamedTextColor.GREEN, DyeColor.LIME);
-        chrLs.put(NamedTextColor.GREEN, 'a');//balance
-        clrLs.put(NamedTextColor.GREEN, Color.LIME);
-        dyeLs.put(NamedTextColor.AQUA, DyeColor.LIGHT_BLUE);
-        chrLs.put(NamedTextColor.AQUA, 'b');//spirit
-        clrLs.put(NamedTextColor.AQUA, Color.AQUA);
-        dyeLs.put(NamedTextColor.RED, DyeColor.RED);
-        chrLs.put(NamedTextColor.RED, 'c');//health
-        clrLs.put(NamedTextColor.RED, Color.RED);
-        dyeLs.put(NamedTextColor.LIGHT_PURPLE, DyeColor.PINK);
-        chrLs.put(NamedTextColor.LIGHT_PURPLE, 'd');//magic
-        clrLs.put(NamedTextColor.LIGHT_PURPLE, Color.FUCHSIA);
-        dyeLs.put(NamedTextColor.YELLOW, DyeColor.YELLOW);
-        chrLs.put(NamedTextColor.YELLOW, 'e');//hope
-        clrLs.put(NamedTextColor.YELLOW, Color.YELLOW);
-        dyeLs.put(NamedTextColor.WHITE, DyeColor.WHITE);
-        chrLs.put(NamedTextColor.WHITE, 'f');//confidence
-        clrLs.put(NamedTextColor.WHITE, Color.WHITE);
+        dyeIx = HashBiMap.create();
+        chrIx = HashBiMap.create();
+        clrIx = HashBiMap.create();
+        dyeIx.put(DyeColor.BLACK, NamedTextColor.BLACK);
+        chrIx.put('0', NamedTextColor.BLACK);//void
+        clrIx.put(Color.BLACK, NamedTextColor.BLACK);
+        dyeIx.put(DyeColor.BLUE, NamedTextColor.DARK_BLUE);
+        chrIx.put('1', NamedTextColor.DARK_BLUE);//adventure
+        clrIx.put(Color.NAVY, NamedTextColor.DARK_BLUE);
+        dyeIx.put(DyeColor.GREEN, NamedTextColor.DARK_GREEN);
+        chrIx.put('2', NamedTextColor.DARK_GREEN);//nature
+        clrIx.put(Color.GREEN, NamedTextColor.DARK_GREEN);
+        dyeIx.put(DyeColor.CYAN, NamedTextColor.DARK_AQUA);
+        chrIx.put('3', NamedTextColor.DARK_AQUA);//wisdom
+        clrIx.put(Color.TEAL, NamedTextColor.DARK_AQUA);
+        dyeIx.put(DyeColor.BROWN, NamedTextColor.DARK_RED);
+        chrIx.put('4', NamedTextColor.DARK_RED);//war
+        clrIx.put(Color.MAROON, NamedTextColor.DARK_RED);
+        dyeIx.put(DyeColor.MAGENTA, NamedTextColor.DARK_PURPLE);
+        chrIx.put('5', NamedTextColor.DARK_PURPLE);//royalty
+        clrIx.put(Color.PURPLE, NamedTextColor.DARK_PURPLE);
+        dyeIx.put(DyeColor.ORANGE, NamedTextColor.GOLD);
+        chrIx.put('6', NamedTextColor.GOLD);//wealth
+        clrIx.put(Color.ORANGE, NamedTextColor.GOLD);
+        dyeIx.put(DyeColor.LIGHT_GRAY, NamedTextColor.GRAY);
+        chrIx.put('7', NamedTextColor.GRAY);//plain
+        clrIx.put(Color.SILVER, NamedTextColor.GRAY);
+        dyeIx.put(DyeColor.GRAY, NamedTextColor.DARK_GRAY);
+        chrIx.put('8', NamedTextColor.DARK_GRAY);//shadow
+        clrIx.put(Color.GRAY, NamedTextColor.DARK_GRAY);
+        dyeIx.put(DyeColor.PURPLE, NamedTextColor.BLUE);
+        chrIx.put('9', NamedTextColor.BLUE);//trust
+        clrIx.put(Color.BLUE, NamedTextColor.BLUE);
+        dyeIx.put(DyeColor.LIME, NamedTextColor.GREEN);
+        chrIx.put('a', NamedTextColor.GREEN);//balance
+        clrIx.put(Color.LIME, NamedTextColor.GREEN);
+        dyeIx.put(DyeColor.LIGHT_BLUE, NamedTextColor.AQUA);
+        chrIx.put('b', NamedTextColor.AQUA);//spirit
+        clrIx.put(Color.AQUA, NamedTextColor.AQUA);
+        dyeIx.put(DyeColor.RED, NamedTextColor.RED);
+        chrIx.put('c', NamedTextColor.RED);//health
+        clrIx.put(Color.RED, NamedTextColor.RED);
+        dyeIx.put(DyeColor.PINK, NamedTextColor.LIGHT_PURPLE);
+        chrIx.put('d', NamedTextColor.LIGHT_PURPLE);//magic
+        clrIx.put(Color.FUCHSIA, NamedTextColor.LIGHT_PURPLE);
+        dyeIx.put(DyeColor.YELLOW, NamedTextColor.YELLOW);
+        chrIx.put('e', NamedTextColor.YELLOW);//hope
+        clrIx.put(Color.YELLOW, NamedTextColor.YELLOW);
+        dyeIx.put(DyeColor.WHITE, NamedTextColor.WHITE);
+        chrIx.put('f', NamedTextColor.WHITE);//confidence
+        clrIx.put(Color.WHITE, NamedTextColor.WHITE);
 
-        chrLs.put(CustomTextColor.OLIVE, 'о');//peace
-        clrLs.put(CustomTextColor.OLIVE, Color.OLIVE);
-        chrLs.put(CustomTextColor.AMBER, 'я');//strength
-        clrLs.put(CustomTextColor.AMBER, Color.fromRGB(CustomTextColor.AMBER.value()));
-        chrLs.put(CustomTextColor.APPLE, 'с');//growth
-        clrLs.put(CustomTextColor.APPLE, Color.fromRGB(CustomTextColor.APPLE.value()));
-        chrLs.put(CustomTextColor.BEIGE, 'б');//comfort
-        clrLs.put(CustomTextColor.BEIGE, Color.fromRGB(CustomTextColor.BEIGE.value()));
-        chrLs.put(CustomTextColor.CARDINAL, 'к');//passion
-        clrLs.put(CustomTextColor.CARDINAL, Color.fromRGB(CustomTextColor.CARDINAL.value()));
-        chrLs.put(CustomTextColor.INDIGO, 'ф');//energy
-        clrLs.put(CustomTextColor.INDIGO, Color.fromRGB(CustomTextColor.INDIGO.value()));
-        chrLs.put(CustomTextColor.PINK, 'р');//love
-        clrLs.put(CustomTextColor.PINK, Color.fromRGB(CustomTextColor.PINK.value()));
-        chrLs.put(CustomTextColor.SKY, 'н');//calm
-        clrLs.put(CustomTextColor.SKY, Color.fromRGB(CustomTextColor.SKY.value()));
-        chrLs.put(CustomTextColor.STALE, 'ч');//future
-        clrLs.put(CustomTextColor.STALE, Color.fromRGB(CustomTextColor.STALE.value()));
-        chrLs.put(CustomTextColor.MITHRIL, 'м');//durability
-        clrLs.put(CustomTextColor.MITHRIL, Color.fromRGB(CustomTextColor.MITHRIL.value()));
-
-        dyeIx = Index.create(tc -> dyeLs.get(tc), dyeLs.keySet().stream().toList());
-        chrIx = Index.create(tc -> chrLs.get(tc), chrLs.keySet().stream().toList());
-        chrSet = chrIx.keyToValue().entrySet();
-        clrIx = Index.create(tc -> clrLs.get(tc), clrLs.keySet().stream().toList());
-        tcSize = chrLs.size();
+        chrIx.put('я', CustomTextColor.AMBER);//strength
+        clrIx.put(Color.fromRGB(CustomTextColor.AMBER.value()), CustomTextColor.AMBER);
+        chrIx.put('с', CustomTextColor.APPLE);//growth
+        clrIx.put(Color.fromRGB(CustomTextColor.APPLE.value()), CustomTextColor.APPLE);
+        chrIx.put('б', CustomTextColor.BEIGE);//comfort
+        clrIx.put(Color.fromRGB(CustomTextColor.BEIGE.value()), CustomTextColor.BEIGE);
+        chrIx.put('к', CustomTextColor.CARDINAL);//passion
+        clrIx.put(Color.fromRGB(CustomTextColor.CARDINAL.value()), CustomTextColor.CARDINAL);
+        chrIx.put('ф', CustomTextColor.INDIGO);//energy
+        clrIx.put(Color.fromRGB(CustomTextColor.INDIGO.value()), CustomTextColor.INDIGO);
+        chrIx.put('о', CustomTextColor.OLIVE);//peace
+        clrIx.put(Color.OLIVE, CustomTextColor.OLIVE);
+        chrIx.put('р', CustomTextColor.PINK);//love
+        clrIx.put(Color.fromRGB(CustomTextColor.PINK.value()), CustomTextColor.PINK);
+        chrIx.put('н', CustomTextColor.SKY);//calm
+        clrIx.put(Color.fromRGB(CustomTextColor.SKY.value()), CustomTextColor.SKY);
+        chrIx.put('ч', CustomTextColor.STALE);//future
+        clrIx.put(Color.fromRGB(CustomTextColor.STALE.value()), CustomTextColor.STALE);
+        chrIx.put('м', CustomTextColor.MITHRIL);//durability
+        clrIx.put(Color.fromRGB(CustomTextColor.MITHRIL.value()), CustomTextColor.MITHRIL);
 
         TagResolver.Builder trb = TagResolver.builder();
         trb = trb.resolver(StandardTags.defaults());
@@ -325,7 +318,7 @@ public class TCUtil {
     }
 
     public static String randomColor(final boolean extra) {
-        return getColor(ApiOstrov.randInt(0, extra ? tcSize : 16));
+        return getColor(ApiOstrov.randInt(0, extra ? chrIx.size() : 16));
     }
 
     public static String getColor(final int col) {
@@ -560,7 +553,7 @@ public class TCUtil {
     @Slow(priority = 1)
     private static String deLegacify(final String str) {
         String fin = str;
-        for (final Entry<Character, TextColor> en : chrSet) {
+        for (final Entry<Character, TextColor> en : chrIx.entrySet()) {
             final TextColor tc = en.getValue();
             final String rpl;
             switch (tc) {
@@ -576,12 +569,12 @@ public class TCUtil {
 
             fin = fin.replace(STYLE + en.getKey().toString(), "<" + rpl + ">");
         }
-        fin = fin.replace(STYLE + "k", "<obf>");
-        fin = fin.replace(STYLE + "l", "<b>");
-        fin = fin.replace(STYLE + "m", "<st>");
-        fin = fin.replace(STYLE + "n", "<u>");
-        fin = fin.replace(STYLE + "o", "<i>");
-        fin = fin.replace(STYLE + "r", "<r>");
+        fin = fin.replace(STYLE + "k", "<obfuscated>");
+        fin = fin.replace(STYLE + "l", "<bold>");
+        fin = fin.replace(STYLE + "m", "<strikethrough>");
+        fin = fin.replace(STYLE + "n", "<underlined>");
+        fin = fin.replace(STYLE + "o", "<italic>");
+        fin = fin.replace(STYLE + "r", "<reset>");
         for (final Entry<String, CustomTextColor> en : CustomTextColor.VALUES.entrySet()) {
             fin = fin.replace(":" + en.getKey(), ":#" + Integer.toHexString(en.getValue().value()));
         }
@@ -923,8 +916,9 @@ public class TCUtil {
         return parent.contains(has);
     }
 
-    /*@Slow(priority = 1)
+    //@Slow(priority = 1)
     @Deprecated
+    //нужен чтобы получить текст с цветами по старинке с §. Кое-где цвета в виде <цвет> не прокатывают и неудобно
     public static String toString(final Component cmp) {
         lstClr = null;
         gradient = null;
@@ -996,8 +990,8 @@ public class TCUtil {
                         }
                     }
 
-                    for (final Entry<TextDecoration, State> en : stl.decorations().entrySet()) {
-                        if (en.getValue() == State.TRUE && decor.add(en.getKey())) {
+                    for (final Entry<TextDecoration, TextDecoration.State> en : stl.decorations().entrySet()) {
+                        if (en.getValue() == TextDecoration.State.TRUE && decor.add(en.getKey())) {
                             final char dc = switch (en.getKey()) {
                                 case BOLD -> 'l';
                                 case OBFUSCATED -> 'k';
@@ -1044,7 +1038,11 @@ public class TCUtil {
         return color.asHexString().toUpperCase();
     }
 
-    private record Gradient(TextColor init, int start, boolean ext) {}*/
+    private record Gradient(TextColor init, int start, boolean ext) {
+    }
+
+
+
 
     public static boolean compare(final Component of, final Component to) {
         return deform(of).equals(deform(to));
@@ -1056,31 +1054,31 @@ public class TCUtil {
     }
 
     public static TextColor getTextColor(final String s) {
-        return chrIx.valueOr(s.isEmpty() ? 'f' : (s.length() == 1 ? s.charAt(0) : s.charAt(1)), NamedTextColor.WHITE);
+        return chrIx.getOrDefault(s.isEmpty() ? 'f' : (s.length() == 1 ? s.charAt(0) : s.charAt(1)), NamedTextColor.WHITE);
     }
 
     public static TextColor getTextColor(final DyeColor clr) {
-        return dyeIx.valueOr(clr, NamedTextColor.WHITE);
+        return dyeIx.getOrDefault(clr, NamedTextColor.WHITE);
     }
 
     public static TextColor getTextColor(final Color clr) {
-        return clrIx.valueOr(clr, NamedTextColor.WHITE);
+        return clrIx.getOrDefault(clr, NamedTextColor.WHITE);
     }
 
     public static TextColor getTextColor(final char c) {
-        return chrIx.valueOr(c, NamedTextColor.WHITE);
+        return chrIx.getOrDefault(c, NamedTextColor.WHITE);
     }
 
     public static Character toChar(final TextColor clr) {
-        return chrIx.keyOr(clr, 'f');
+        return chrIx.inverse().getOrDefault(clr, 'f');
     }
 
     public static DyeColor getDyeColor(final TextColor clr) {
-        return dyeIx.keyOr(clr, DyeColor.WHITE);
+        return dyeIx.inverse().getOrDefault(clr, DyeColor.WHITE);
     }
 
     public static Color getBukkitColor(final TextColor clr) {
-        return clrIx.keyOr(clr, Color.WHITE);
+        return clrIx.inverse().getOrDefault(clr, Color.WHITE);
     }
 
     public static Color getBukkitColor(final String s) {
@@ -1131,26 +1129,6 @@ public class TCUtil {
         };
     }
 
-    @Slow(priority = 1)
-    public static String toLegacy(@Nullable String val) {
-        if (val == null || val.isEmpty()) return val;
-        for (final CustomTextColor ctc : CustomTextColor.values()) {
-            val = val.replace(String.valueOf(STYLE) + chrIx.keyOr(ctc, 'f'),
-                "<" + ctc.toString() + ">").replace(ctc.toString(), ctc.like());
-        }
-        for (final NamedTextColor ntc : NamedTextColor.NAMES.values()) {
-            val = val.replace("<" + ntc.toString() + ">",
-                String.valueOf(STYLE) + chrIx.keyOr(ntc, 'f'));
-        }
-        val = val.replace("<obf>", STYLE + "k");
-        val = val.replace("<b>", STYLE + "l");
-        val = val.replace("<st>", STYLE + "m");
-        val = val.replace("<u>", STYLE + "n");
-        val = val.replace("<i>", STYLE + "o");
-        val = val.replace("<r>", STYLE + "r");
-        return val;
-    }
-
     @Deprecated
     public static Character getColorChar(final TextColor clr) {
         return toChar(clr);
@@ -1163,7 +1141,7 @@ public class TCUtil {
 
     @Deprecated
     public static TextColor getCharColor(final char c) {
-        return chrIx.valueOr(c, NamedTextColor.WHITE);
+        return chrIx.getOrDefault(c, NamedTextColor.WHITE);
     }
 
     @Deprecated
@@ -1186,11 +1164,12 @@ public class TCUtil {
         return getDyeColor((TextColor) color);
     }
 
-    @Deprecated //вроде только в кланах иногда юзается в разных плагинах
-    // - Возвращать будет не всегда NamedTextColor, ибо CustomTextColor тоже может быть
+    //@Deprecated //вроде только в кланах иногда юзается в разных плагинах
     public static NamedTextColor chatColorFromString(final String s) {
         final TextColor tc = getTextColor(s);
         return tc instanceof NamedTextColor
+            //? (NamedTextColor) tc : NamedTextColor.WHITE;
             ? (NamedTextColor) tc : NamedTextColor.nearestTo(tc);
     }
+
 }

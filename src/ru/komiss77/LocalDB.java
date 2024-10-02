@@ -13,7 +13,6 @@ import org.bukkit.WeatherType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import ru.komiss77.enums.ServerType;
@@ -25,10 +24,9 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
-import ru.komiss77.modules.world.LocFinder;
-import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.MoveUtil;
 
 
 public class LocalDB {
@@ -535,9 +533,9 @@ public class LocalDB {
                 final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
                 Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
                 if (e.getLogoutLocation() != null) { //плагины могут изменять
-                    final WXYZ loc = new LocFinder(new WXYZ(e.getLogoutLocation()), LocFinder.DEFAULT_CHECKS).find(LocFinder.DYrect.BOTH, 5, 1);
-                    if (loc != null) p.teleport(loc.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
-//                    ApiOstrov.teleportSave(p, e.getLogoutLocation(), true);
+                  //final WXYZ loc = new LocFinder(new WXYZ(e.getLogoutLocation()), LocFinder.DEFAULT_CHECKS).find(LocFinder.DYrect.BOTH, 5, 1);
+                  //if (loc != null) p.teleport(loc.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                  MoveUtil.teleportSave(p, e.getLogoutLocation(), true);
                 }
 
             }, 1);

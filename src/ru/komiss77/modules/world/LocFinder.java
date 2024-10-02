@@ -81,7 +81,7 @@ public final class LocFinder {
                         bloc = lc.clone().add(dx * FastMath.abs(dx),
                             0, dz * FastMath.abs(dz));
                         fin = testLoc(dir);
-                        Bukkit.broadcast(TCUtil.form(fin + "-f2"));
+                      //Bukkit.broadcast(TCUtil.form(fin + "-f2"));
                         if (fin != null) {
                             fin.y += offsetY;
                             return fin;

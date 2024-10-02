@@ -1,6 +1,7 @@
 package ru.komiss77.utils;
 
 import java.lang.ref.WeakReference;
+import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,7 +52,7 @@ public class MoveUtil {
         };
         final Location finLoc;
         final WXYZ loc = new LocFinder(new WXYZ(feetLoc), mts).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
-        Bukkit.broadcast(TCUtil.form(loc + "-l1"));
+      //Bukkit.broadcast(TCUtil.form(loc + "-l1"));
         if (loc == null) {
             final LocFinder.Check[] ars = {
                 (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
@@ -59,7 +60,7 @@ public class MoveUtil {
                 (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
             };
             final WXYZ alc = new LocFinder(new WXYZ(feetLoc), ars).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
-            Bukkit.broadcast(TCUtil.form(alc + "-l2"));
+          //Bukkit.broadcast(TCUtil.form(alc + "-l2"));
             if (alc == null) return false;
 
             alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.YELLOW_STAINED_GLASS, false);
@@ -124,14 +125,19 @@ public class MoveUtil {
         //}
 
         //отфильтровка высоты за пределами по оси Y
-        final int y_max = feetLoc.getWorld().getEnvironment() == World.Environment.NETHER ? feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3 :
-            feetLoc.getWorld().getMaxHeight();
+      int y_max = feetLoc.getWorld().getMaxHeight();
+
+      if (feetLoc.getWorld().getEnvironment() == World.Environment.NETHER
+          && feetLoc.getWorld().getGenerator() == null) { //фикс по генератору для островов - тепешило под платформу
+        y_max = feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3;
+      }
+
+      final int y_min = feetLoc.getWorld().getMinHeight();
         if (feetLoc.getBlockY() > y_max) {
             feetLoc.setY(y_max);
-        } else if (feetLoc.getBlockY() < feetLoc.getWorld().getMinHeight()) {
-            feetLoc.setY(feetLoc.getWorld().getMinHeight());
+        } else if (feetLoc.getBlockY() < y_min) {
+          feetLoc.setY(y_min);
         }
-        final int y_min = feetLoc.getWorld().getMinHeight();
 
         final WXYZ feetXYZ = new WXYZ(feetLoc);
         final int y_ori = feetXYZ.y;
@@ -351,7 +357,7 @@ public class MoveUtil {
         return true;
     }*/
 
-    public static WXYZ findSafeLocation(final WXYZ feetLoc) {
+  public static @Nullable WXYZ findSafeLocation(final WXYZ feetLoc) {
         //if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
         //    return feetLoc;
         //}
