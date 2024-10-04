@@ -16,13 +16,13 @@ import ru.komiss77.version.Nms;
 //https://gist.github.com/ursinn/871525236408e33d4cbee607f7eff8ae
 public class Cuboid {
 
-    private int minX = 0;
-    private int minY = 0; //не меняем! чтобы стирало с самого низа
-    private int minZ = 0;
-    private int maxX = 0;
-    private int maxY = 0;
-    private int maxZ = 0;
-    protected int spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch; //смещения от угла min, типа точка спавна
+    public int minX = 0;
+    public int minY = 0; //не меняем! чтобы стирало с самого низа
+    public int minZ = 0;
+    public int maxX = 0;
+    public int maxY = 0;
+    public int maxZ = 0;
+    public int spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch; //смещения от угла min, типа точка спавна
 
     //для лобби и кланов
     public int id;

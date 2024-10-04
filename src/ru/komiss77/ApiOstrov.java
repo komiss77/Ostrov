@@ -283,8 +283,67 @@ public class ApiOstrov {
     }
     //****************************************************
 
-    //ScreenUtil
-    //*************** всякие титры,бары *********************
+
+  //*************** числа *********************
+  public static int randInt(final int num1, final int num2) {
+    if (num1 == num2) return num1;
+    return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
+  }
+
+  public static boolean randBoolean() {
+    return Ostrov.random.nextBoolean();
+  }
+
+  public static int rndSignNum(int init, final int rnd) {
+    if (rnd > 0) init += Ostrov.random.nextInt(rnd);
+    return Ostrov.random.nextBoolean() ? init : -init;
+  }
+
+  public static boolean isInteger(final String i) {
+    try {
+      Integer.parseInt(i);
+      return true;
+    } catch (NumberFormatException ex) {
+      return false;
+    }
+  }
+
+
+  public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить
+    try {
+      return Integer.parseInt(num);
+    } catch (NumberFormatException ex) {
+      return Integer.MIN_VALUE;
+    }
+  }
+
+  public static int getInteger(final String num, final int or) {
+    try {
+      return Integer.parseInt(num);
+    } catch (NumberFormatException ex) {
+      return or;
+    }
+  }
+
+  @Deprecated //use Oplayer.userID
+  public static int generateId() {
+    final String createStamp = String.valueOf(System.currentTimeMillis());
+    return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
+  }
+  // *****************************************************************************
+
+
+  public static int currentTimeSec() {
+    return Timer.getTime();
+  }
+
+  public static void makeWorldEndToWipe(final int afterSecond) {
+    WorldManager.makeWorldEndToWipe(afterSecond);
+  }
+
+
+  //ScreenUtil
+  //*************** всякие титры,бары *********************
     /*public static void sendTitle(final Player p, final String title, final String subtitle) {
         sendTitle(p, title, subtitle, 20, 40, 20);
     }
@@ -390,68 +449,7 @@ public class ApiOstrov {
     public static void sendTabList(final Player p, final String header, final String footer) {
         p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
     }*/
-    // *****************************************************************************
-
-
-    //*************** числа *********************
-    public static int randInt(final int num1, final int num2) {
-        if (num1 == num2) return num1;
-        return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
-    }
-
-    public static boolean randBoolean() {
-        return Ostrov.random.nextBoolean();
-    }
-
-    public static int rndSignNum(int init, final int rnd) {
-        if (rnd > 0) init += Ostrov.random.nextInt(rnd);
-        return Ostrov.random.nextBoolean() ? init : -init;
-    }
-
-    public static boolean isInteger(final String i) {
-        try {
-            Integer.parseInt(i);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }
-
-
-    public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить
-        try {
-            return Integer.parseInt(num);
-        } catch (NumberFormatException ex) {
-            return Integer.MIN_VALUE;
-        }
-    }
-
-    public static int getInteger(final String num, final int or) {
-        try {
-            return Integer.parseInt(num);
-        } catch (NumberFormatException ex) {
-            return or;
-        }
-    }
-
-    public static int generateId() {
-        final String createStamp = String.valueOf(System.currentTimeMillis());
-        return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
-    }
-    // *****************************************************************************
-
-
-    public static int currentTimeSec() {
-        return Timer.getTime();
-    }
-
-    public static void makeWorldEndToWipe(final int afterSecond) {
-        WorldManager.makeWorldEndToWipe(afterSecond);
-    }
-
-
-
-
+  // *****************************************************************************
 
 
 /* StringUtil

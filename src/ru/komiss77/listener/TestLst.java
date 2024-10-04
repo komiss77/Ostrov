@@ -57,6 +57,7 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
+              if (p.isSneaking()) {
                 //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
                 //op.tag(true);
                 //op.tag("<blue>dddd", "<yellow>dddf");
@@ -93,7 +94,6 @@ public class TestLst implements Listener {
 
                 } else {
                     //GameApi.setFastMat(new WXYZ(e.getClickedBlock().getLocation()), 4, 1, 4, Material.GOLD_BLOCK);
-                    p.sendMessage("GOLD_BLOCK");
                     /*if (bt == null) {
                         bt = BotManager.createBot("Ботус", p.getWorld(), new AfkExt(new WXYZ(p.getLocation())));
                         bt.item(EquipmentSlot.OFF_HAND, new ItemStack(Material.SHIELD));
