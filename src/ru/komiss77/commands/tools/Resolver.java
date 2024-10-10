@@ -1,5 +1,6 @@
 package ru.komiss77.commands.tools;
 
+import java.util.List;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -20,8 +21,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import ru.komiss77.modules.world.XYZ;
-
-import java.util.List;
 
 public class Resolver {
 
@@ -108,6 +107,10 @@ public class Resolver {
         } catch (final IllegalArgumentException e) {
             throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
         }
+    }
+
+    public static RequiredArgumentBuilder<CommandSourceStack, String> greedy(final String name) {
+        return Commands.argument(name, StringArgumentType.greedyString());
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, String> string(final String name) {

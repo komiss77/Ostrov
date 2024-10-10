@@ -57,7 +57,7 @@ public class GmCmd implements OCommand {
                         return 0;
                     }
                     if (!Cfg.gm_command) {
-                        p.sendMessage("§c" + Lang.t(p, "cGm отключёна на этом сервере!"));
+                        p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                         return 0;
                     }
                     if (!p.hasPermission("ostrov.gm")) {

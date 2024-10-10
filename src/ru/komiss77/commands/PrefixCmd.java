@@ -17,7 +17,7 @@ public class PrefixCmd {
     public PrefixCmd() { //новое
         final String prefix = "prefix";
         new OCmdBuilder("prefix", "/prefix [префикс]")
-                .then(Resolver.string(prefix)).run(cntx -> {
+                .then(Resolver.greedy(prefix)).run(cntx -> {
                     final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {
                         cs.sendMessage("§eНе консольная команда!");

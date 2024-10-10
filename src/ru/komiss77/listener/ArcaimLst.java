@@ -9,6 +9,7 @@ import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
 import com.google.common.collect.ArrayListMultimap;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -22,6 +23,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,13 +34,13 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -55,6 +57,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
@@ -68,6 +71,7 @@ import ru.komiss77.utils.TCUtil;
 public class ArcaimLst implements Listener {
 
     private static final String admin = "komiss77";
+    private static final int ENT_DST = 100;
 
     public ArcaimLst() {
         BotManager.regSkin(admin);
@@ -192,30 +196,24 @@ public class ArcaimLst implements Listener {
 // *************** RedstoneClockController END ***************
 
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
-    public static void onInteract(PlayerInteractEvent e) {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onInteract(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-      if (p.getGameMode() == GameMode.SPECTATOR && e.getAction() != Action.PHYSICAL) {
-            if (p.getOpenInventory().getType() != InventoryType.CHEST) {
-                if (PM.getOplayer(p.getUniqueId()).setup == null) {
-//Ostrov.log_warn("==== menu");
-                    p.performCommand("menu");
-                }
-            }
-        }
-    }
+        if (e.getAction() == Action.PHYSICAL) return;
 
-
-    // @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlace(final PlayerBucketEmptyEvent e) {
-        if (ApiOstrov.isLocalBuilder(e.getPlayer(), false) || !Ostrov.wg) {
-            return;
-        }
-        //if (nobuild.wg.getRegionManager(e.getPlayer().getWorld()).getApplicableRegions(e.getBlock().getLocation()).size()==0 ) {
-        if (WGhook.getRegionsOnLocation(e.getBlock().getLocation()).size() == 0) {
-            e.setCancelled(true);
-//            e.setCancelled(true);
-            e.getPlayer().sendMessage("§cСтроить можно только в приватах!");
+        switch (p.getGameMode()) {
+            case SPECTATOR:
+                if (p.getOpenInventory().getType() == InventoryType.CHEST) break;
+                if (PM.getOplayer(p.getUniqueId()).setup != null) break;
+                p.performCommand("menu");
+                break;
+            case CREATIVE, SURVIVAL:
+                if (!isOutsideWG(p.getLocation())) break;
+                if (ApiOstrov.isStaff(p)) break;
+                e.getPlayer().sendMessage("§cСтроить можно только в приватах!");
+                e.setUseInteractedBlock(Event.Result.DENY);
+                e.setUseItemInHand(Event.Result.DENY);
+                break;
         }
     }
 
@@ -237,43 +235,44 @@ public class ArcaimLst implements Listener {
     public void onlavaPlaceEntity(PlayerInteractAtEntityEvent e) {
         final ItemStack is = e.getPlayer().getInventory().getItem(e.getHand());//ItemInOffHand();
         switch (is.getType()) {
-            case WATER_BUCKET ->
+            case WATER_BUCKET:
                 e.setCancelled(EntityUtil.group(e.getRightClicked().getType()) != EntityGroup.WATER_AMBIENT);
-            case LAVA, LAVA_BUCKET, WATER, AXOLOTL_BUCKET, COD_BUCKET, PUFFERFISH_BUCKET, SALMON_BUCKET, TADPOLE_BUCKET,
-                 TROPICAL_FISH_BUCKET -> e.setCancelled(true);
-            default -> {
-            }
+                break;
+            case LAVA, LAVA_BUCKET, WATER, AXOLOTL_BUCKET, COD_BUCKET,
+                 PUFFERFISH_BUCKET, SALMON_BUCKET, TADPOLE_BUCKET, TROPICAL_FISH_BUCKET:
+                e.setCancelled(true);
+                break;
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSpawn(final CreatureSpawnEvent e) {
-
+        final LivingEntity ent = e.getEntity();
         switch (e.getEntityType()) {
-            case ENDER_DRAGON -> {
-                if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL) e.getEntity().remove();
-            }
-
-            default -> {
-                if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.DISPENSE_EGG || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.EGG) {
-                    if (Ostrov.wg) e.setCancelled(WGhook.getRegionsOnLocation(e.getEntity().getLocation()).size() == 0);
+            case ENDER_DRAGON:
+                if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL) ent.remove();
+                break;
+            case WITHER, WARDEN:
+                final LivingEntity le = LocUtil.getClsChEnt(new WXYZ(ent.getLocation()),
+                    ENT_DST, ent.getClass(), ne -> ne.getEntityId() != ent.getEntityId());
+                if (le == null) break;
+                ent.remove();
+                break;
+            default:
+                switch (e.getSpawnReason()) {
+                    case DISPENSE_EGG, EGG, SPAWNER_EGG, SPAWNER:
+                        if (isOutsideWG(ent.getLocation())) {
+                            e.setCancelled(true);
+                        }
+                        break;
                 }
-            }
-
+                break;
         }
     }
 
-   /* @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onSpawn(final EntitySpawnEvent e) {
-        switch (e.getEntityType()) {
-            case ENDER_DRAGON -> e.getEntity().remove();
-            default -> e.setCancelled(WGhook.getRegionsOnLocation(e.getEntity().getLocation()).size() == 0);
-        }
-    }*/
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onExplode(final EntityExplodeEvent e) {
-        if (Ostrov.wg) e.blockList().removeIf(block -> WGhook.getRegionsOnLocation(block.getLocation()).size() == 0);
+        if (Ostrov.wg) e.blockList().removeIf(block -> isOutsideWG(block.getLocation()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -286,68 +285,74 @@ public class ArcaimLst implements Listener {
 
         final ItemMeta meta = cursor.getItemMeta();
         boolean modify = false;
-
-        switch (cursor.getType()) {
-
-            case POTION, SPLASH_POTION, LINGERING_POTION, TIPPED_ARROW:
-                if (meta instanceof final PotionMeta pm) {
-                    final List<PotionEffect> bad = new ArrayList<>();
-                    int i = 0;
-                    for (PotionEffect effect : pm.getCustomEffects()) {
-//Ostrov.log_warn("effect="+effect+" : "+effect.getAmplifier()+" : "+effect.getDuration());
-                        if (effect.getAmplifier() > 10 || effect.getDuration() > 9600 || i >= 8) { // 8мин*60*20 + лимит 8 эффектов
-                            bad.add(effect.withAmplifier(10).withDuration(9600));
-                            i++;
-                            modify = true;
-                        }
-                    }
-                    i = 0;
-                    for (PotionEffect pe : bad) {
-//Ostrov.log_warn("bad="+bad);
-                        if (i < 8) { //
-                            pm.addCustomEffect(pe, true); //overwrite перекрывает плохой
-                        } else {
-                            pm.removeCustomEffect(pe.getType());
-                        }
+        switch (meta) {
+            case final PotionMeta pm:
+                final List<PotionEffect> bad = new ArrayList<>();
+                int i = 0;
+                for (PotionEffect effect : pm.getCustomEffects()) {
+                    if (effect.getAmplifier() > 10 || effect.getDuration() > 9600 || i >= 8) { // 8мин*60*20 + лимит 8 эффектов
+                        bad.add(effect.withAmplifier(10).withDuration(9600));
                         i++;
+                        modify = true;
                     }
-                    // for (PotionEffect potionEffect : pm.getCustomEffects()) {
-                    //     if (bad_effects.contains(potionEffect)) {
-                    //         pm.removeCustomEffect(potionEffect.getType());
-                    //        PotionEffect pf = new PotionEffect(potionEffect.getType(), potionEffect.getDuration(), 10, potionEffect.isAmbient(), potionEffect.hasParticles(), potionEffect.hasIcon());
-                    //        pm.addCustomEffect(pf, true);
-                    //     }
-                    //}
                 }
-                if (modify) {
-                    meta.setAttributeModifiers(ArrayListMultimap.create());
-                    cursor.setItemMeta(meta);
+                i = 0;
+                for (PotionEffect pe : bad) {
+                    if (i < 8) { //
+                        pm.addCustomEffect(pe, true); //overwrite перекрывает плохой
+                    } else {
+                        pm.removeCustomEffect(pe.getType());
+                    }
+                    i++;
                 }
                 break;
-
-            case ENCHANTED_BOOK:
-                if (meta instanceof EnchantmentStorageMeta) {
-                    for (Map.Entry<Enchantment, Integer> en :
-                        ((EnchantmentStorageMeta) meta).getStoredEnchants().entrySet()) {
-                        if (en.getValue() > en.getKey().getMaxLevel()) {
-                            en.setValue(10);
+            case final EnchantmentStorageMeta pm:
+                if (pm.hasStoredEnchants()) {
+                    for (final Map.Entry<Enchantment, Integer> en : pm.getStoredEnchants().entrySet()) {
+                        final Enchantment ench = en.getKey();
+                        if (en.getValue() > ench.getMaxLevel()) {
+                            pm.removeStoredEnchant(ench);
+                            pm.addStoredEnchant(ench, ench.getMaxLevel(), true);
                             modify = true;
                         }
                     }
                 }
-                if (modify) {
-                    cursor.setItemMeta(meta);
+                break;
+            case final SpawnEggMeta pm:
+                if (pm.getCustomSpawnedType() != null) {
+                    pm.setCustomSpawnedType(null);
+                    modify = true;
                 }
                 break;
-
             default:
-                //e.setCursor(new ItemStack(cursor.getType(), cursor.getAmount()));
-                e.setCursor(NbtLst.rebuild(cursor));
-                //e.getWhoClicked().sendMessage(Ostrov.PREFIX + "§cДанные предмета были очищены!");
                 break;
         }
+
+        if (meta.hasEnchants()) {
+            for (final Map.Entry<Enchantment, Integer> en : meta.getEnchants().entrySet()) {
+                final Enchantment ench = en.getKey();
+                if (en.getValue() > ench.getMaxLevel()) {
+                    meta.removeEnchant(ench);
+                    meta.addEnchant(ench, ench.getMaxLevel(), true);
+                    modify = true;
+                }
+            }
+        }
+
+        if (meta.hasAttributeModifiers()) {
+            modify = true;
+            meta.setAttributeModifiers(ArrayListMultimap.create());
+        }
+
+        if (modify) cursor.setItemMeta(meta);
+        e.setCursor(cursor);
     }
 
+    private static boolean isOutsideWG(final Location loc) {
+        if (!Ostrov.wg) return false;
+        final ApplicableRegionSet regs = WGhook.getRegionsOnLocation(loc);
+        return regs.size() == 0;
+    }
 
     @EventHandler
     public void onFirst(final LocalDataLoadEvent e) {
@@ -365,20 +370,21 @@ public class ArcaimLst implements Listener {
                     ab.telespawn(null, loc);
                     ab.tab("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
                     ab.tag("", ChatLst.NIK_COLOR, " §7(§eСисАдмин§7)");
-                    ab.getEntity().setGravity(false);
+                    final LivingEntity aent = ab.getEntity();
+                    if (aent != null) aent.setGravity(false);
                     p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_AMBIENT, 2f, 0.8f);
                     p.sendMessage(GM.getLogo().append(TCUtil.form(
-                        "§2komiss77 §7» О, привет, " + p.getName() + "! ты тут новичек?")));
+                        ChatLst.NIK_COLOR + admin + " §7<i>»</i> О, привет, " + p.getName() + "! ты тут новичек?")));
                     Ostrov.sync(() -> {
                         if (!p.isValid() || !p.isOnline()) return;
-                        p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_TRADE, 2f, 0.8f);
+                        p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_TRADE, 2f, 0.8f);
                         p.sendMessage(GM.getLogo().append(TCUtil.form(
-                            "§2komiss77 §7» Я тут заскучал строить уже, может ты мне сможешь помочь?")));
+                            ChatLst.NIK_COLOR + admin + " §7<i>»</i> Я тут заскучал строить уже, может ты мне сможешь помочь?")));
                         Ostrov.sync(() -> {
                             if (!p.isValid() || !p.isOnline()) return;
-                            p.playSound(ab.getEntity().getEyeLocation(), Sound.ENTITY_WANDERING_TRADER_YES, 2f, 0.8f);
+                            p.playSound(loc, Sound.ENTITY_WANDERING_TRADER_YES, 2f, 0.8f);
                             p.sendMessage(GM.getLogo().append(TCUtil.form(
-                                "§2komiss77 §7» Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
+                                ChatLst.NIK_COLOR + admin + " §7<i>»</i> Вот! Бери креатив, и иди построй что пожелаешь в этом мире!")));
                             p.sendMessage("Ваш игроаой режим был изменен на Творческий режим");
                             p.setGameMode(GameMode.CREATIVE);
                             Ostrov.sync(() -> {

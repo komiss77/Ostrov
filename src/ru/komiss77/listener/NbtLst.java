@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
-import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.enchantments.Enchantment;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
@@ -84,9 +84,8 @@ public class NbtLst {
             //  oldMeta.getAttributeModifiers().asMap().forEach((key, value) -> value.stream().filter(mod -> mod.getAmount() <= 10.0).forEach(atr -> newMeta.addAttributeModifier(key, atr)));
             //}
             if (oldMeta.hasAttributeModifiers()) {
-                oldMeta.getAttributeModifiers().asMap().entrySet()
-                    .forEach(entry -> entry.getValue().stream().filter(mod -> mod.getAmount() <= 10)
-                        .forEach(atr -> newMeta.addAttributeModifier(entry.getKey(), atr)));
+                oldMeta.getAttributeModifiers().asMap().forEach((key, value) -> value.stream().filter(mod -> mod.getAmount() <= 10)
+                    .forEach(atr -> newMeta.addAttributeModifier(key, atr)));
             }
 
             // copy modeldata

@@ -1,8 +1,8 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -923,7 +923,14 @@ public class TCUtil {
 
     //@Slow(priority = 1)
     @Deprecated
+
     //нужен чтобы получить текст с цветами по старинке с §. Кое-где цвета в виде <цвет> не прокатывают и неудобно
+
+    //мы вроде договорились что переходим на <> цвета, ибо с ними понятно, особенно с кастомными цветами и градиентами
+    //через них работает MiniMessage через который все это строится
+    //и еще, вот методы на Component -> String надо в идеале использовать ТОЛЬКО для сравнения друх
+    //компонентов, как например имена предметов. саму String форму мы в игре вообще видеть не должны
+
     public static String toString(final Component cmp) {
         lstClr = null;
         //gradient = null;
@@ -944,7 +951,6 @@ public class TCUtil {
         if (comp instanceof TextComponent) {
             final String cnt = ((TextComponent) comp).content();
             if (!cnt.isEmpty()) {
-
                 if (comp.hasStyling()) {
                     final Style stl = comp.style();
                     for (final TextDecoration td : decor) {
@@ -1044,9 +1050,6 @@ public class TCUtil {
     }
 
     // private record Gradient(TextColor init, int start, boolean ext) {}
-
-
-
 
     public static boolean compare(final Component of, final Component to) {
         return deform(of).equals(deform(to));
@@ -1194,8 +1197,8 @@ public class TCUtil {
         return getDyeColor((TextColor) color);
     }
 
-    //@Deprecated //вроде только в кланах иногда юзается в разных плагинах
-    // - Возвращать будет не всегда NamedTextColor, ибо CustomTextColor тоже может быть
+    @Deprecated //вроде только в кланах иногда юзается в разных плагинах
+    // - Возвращать будет не всегда NamedTextColor, ибо CustomTextColor тоже может быть, так что надо смотреть getTextColor()
     public static NamedTextColor chatColorFromString(final String s) {
         final TextColor tc = getTextColor(s);
         return tc instanceof NamedTextColor
