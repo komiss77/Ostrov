@@ -461,7 +461,7 @@ public class MissionCmd implements OCommand {
                       op.addStat(Stat.EXP, 10);
                       p.sendMessage(" ");
                       final String rc = TCUtil.randomColor();
-                      p.sendMessage(rc + "§m-----§4§k AA §eМиссия завершена §4§k AA" + rc + "§m-----");
+                      p.sendMessage(rc + "§m-----§4 <obf>AA<!obf> §eМиссия завершена §4<obf>AA<!obf> " + rc + "§m-----");
                       p.sendMessage(Component.text(" Миссия §7-> ", NamedTextColor.WHITE).append(mi.displayName()));
                       p.sendMessage(" §fНаграда §7-> §e" + mi.reward + " рил");
                       p.sendMessage(" ");
@@ -976,7 +976,7 @@ public class M implements OCommand {
                                                     op.addStat(Stat.EXP, 10);
                                                     pl.sendMessage(" ");
                                                     final String rc = TCUtil.randomColor();
-                                                    pl.sendMessage(rc + "§m-----§4§k AA §eМиссия завершена §4§k AA" + rc + "§m-----");
+                                                    pl.sendMessage(rc + "§m-----§4 <obf>AA<!obf> §eМиссия завершена §4 <obf>AA<!obf>" + rc + "§m-----");
                                                     pl.sendMessage(Component.text(" Миссия §7-> ", NamedTextColor.WHITE).append(mi.displayName()));
                                                     pl.sendMessage(" §fНаграда §7-> §e" + mi.reward + " рил");
                                                     pl.sendMessage(" ");

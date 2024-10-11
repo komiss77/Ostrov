@@ -1,10 +1,7 @@
 package ru.komiss77.modules.protocols;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import io.papermc.paper.math.Position;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,17 +16,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
-import io.papermc.paper.math.Position;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
@@ -53,11 +43,18 @@ public class Protocol77 implements Listener {
         {"§к§kAA",
             "§к§kAAAA",
             "§к§kAAAAAA",
-            "§к§kAAA§cок§к§kAAA",
-            "§к§kAAA§cтоко§к§kAAA",
-            "§к§kAA§cотокол§к§kAA",
-            "§к§kA§cротокол §к§kA",
-            "§cротокол 7",
+             "§к<obf>AAAA<!obf>§cок§к<obf>AAAA",
+            "§к<obf>AAAA<!obf>§cток§к<obf>AAAA",
+             "§к<obf>AAA<!obf>§cтоко§к<obf>AAA",
+            "§к<obf>AAA<!obf>§cотоко§к<obf>AAA",
+            "§к<obf>AA<!obf>§cротоко§к<obf>AA",
+            "§к<obf>AA<!obf>§cротокол§к<obf>AA",
+             "§к<obf>A<!obf>§cротокол §к<obf>A",
+             "§к<obf>A<!obf>§cротокол 7§к<obf>A",
+                          "§cПротокол 7§к<obf>A",
+            "§cПротокол 77",
+            "§cПротокол 77",
+            "§cПротокол 77",
             "§cПротокол 77",
             "§cПротокол 77",
             "§cПротокол 77",

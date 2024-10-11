@@ -14,11 +14,10 @@ import ru.komiss77.utils.TCUtil;
 
 public class SuffixCmd {
 
-
   public SuffixCmd() { //новое
     final String suffix = "suffix";
     new OCmdBuilder("suffix", "/suffix [суффикс]")
-        .then(Resolver.string(suffix)).run(cntx -> {
+        .then(Resolver.greedy(suffix)).run(cntx -> {
           final CommandSender cs = cntx.getSource().getSender();
           if (!(cs instanceof final Player pl)) {
             cs.sendMessage("§eНе консольная команда!");

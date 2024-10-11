@@ -79,13 +79,15 @@ public class OCmdBuilder {
 
     private void construct() {
         if (suggests != null && curr instanceof
-            final RequiredArgumentBuilder<?, ?> rarg)
+            final RequiredArgumentBuilder<?, ?> rarg) {
+            final Suggestor finSugg = suggests;
             rarg.suggests((cntx, sb) -> {
                 @SuppressWarnings("unchecked")
                 final CommandContext<CommandSourceStack> ccs = (CommandContext<CommandSourceStack>) cntx;
-                suggests.get(ccs).forEach(sb::suggest);
+                finSugg.get(ccs).forEach(sb::suggest);
                 return sb.buildFuture();
             });
+        }
 
         if (cmd == null) curr.executes(cntx->{
             final CommandSender cs = cntx.getSource().getSender();
@@ -94,13 +96,14 @@ public class OCmdBuilder {
         });
         else {
 //            Ostrov.log("del-" + delimit + ", sugg-" + suggests + ", arg-" + curr.getClass());
+            final Command<CommandSourceStack> finCMD = cmd;
             if (delimit && suggests != null && curr instanceof
                 final RequiredArgumentBuilder<?, ?> rarg) {
-                final Suggestor sugg = suggests;
+                final Suggestor finSugg = suggests;
                 curr.executes(cntx -> {
-                    final Set<String> sgs = sugg.get(cntx);
+                    final Set<String> sgs = finSugg.get(cntx);
                     if (!STRING.contains(rarg.getType())) {
-                        return cmd.run(cntx);
+                        return finCMD.run(cntx);
                     }
 
                     if (!sgs.contains(Resolver.string(cntx, rarg.getName()))) {
@@ -110,11 +113,11 @@ public class OCmdBuilder {
                         return 0;
                     }
 
-                    return cmd.run(cntx);
+                    return finCMD.run(cntx);
                 });
             }
             else {
-                curr.executes(cmd);
+                curr.executes(finCMD);
             }
         }
 

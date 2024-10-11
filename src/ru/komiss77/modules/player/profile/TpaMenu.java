@@ -1,28 +1,24 @@
 package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.IOO5OOCmd;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.inventory.*;
 
 
 public class TpaMenu implements InventoryProvider {
@@ -80,7 +76,7 @@ public class TpaMenu implements InventoryProvider {
         Timer.add(target, "tp_request_from_" + p.getName(), 15);
         targetOp.tpRequestFrom = targetName;
 
-        target.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
+        target.sendMessage(TCUtil.form("§f<obf>111<!obf>§f Запрос на телепорт от §a" + p.getName() + "§f<obf>111<!obf> §2>§aпринять§2<")
                 .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
                 .clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
                 .append(Component.text(" §4>§cв игнор§4<")
@@ -245,11 +241,11 @@ public class TpaMenu implements InventoryProvider {
                                         p.closeInventory();
                                         Timer.add(find, "tp_request_from_" + p.getName(), 15);
                                         PM.getOplayer(find).tpRequestFrom = p.getName();
-                                        find.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
+                                        find.sendMessage(TCUtil.form("§f<obf>11<!obf>§f Телепорт от §a" + p.getName() + "§f<obf>11<!obf> §2[>§aпринять§2<]")
                                                 .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
                                                 //.clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
                                                 .clickEvent(ClickEvent.runCommand("/tpaccept"))
-                                                .append(Component.text(" §4>§cв игнор§4<")
+                                                .append(Component.text(" §4[>§cв игнор§4<]")
                                                         .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
                                                         .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
 

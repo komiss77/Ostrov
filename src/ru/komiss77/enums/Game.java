@@ -2,7 +2,6 @@ package ru.komiss77.enums;
 
 import java.util.Arrays;
 import java.util.List;
-
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 // !!!!!!!  не ставить ничего от бакита, не грузит банжик!!!
@@ -11,7 +10,7 @@ public enum Game {
     //слот в меню статы  : страница в меню режимов : слот в меню режимов
     GLOBAL("", 4, 0, 0, "", "", ServerType.NONE, "NAUTILUS_SHELL", "§eОстров", Arrays.asList(""), 0, 0),
 
-    LOBBY("§6☣1 ", 0, 0, 49, "Hub", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6§k0 §e§lЛобби §6§k0", Arrays.asList(""), 0, -99),
+    LOBBY("§6☣1 ", 0, 0, 49, "Hub", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6<obf>0<!obf> §e§lЛобби §6<obf>0<!obf>", Arrays.asList(""), 0, -99),
 
     DA("§a❂ ", 1, 0, 3, "Daaria", "daaria", ServerType.ONE_GAME, "NETHERITE_SWORD", "§a§lДаария", Arrays.asList("§оКлассическое выживание", "§она последней версии игры.", "§оТорговля, работы, приваты, и др.", "§eЗаходи и развивайся с друзьями!"), 0, -99),
     SE("§4☠ ", 2, 0, 15, "Sedna", "sedna_wastes", ServerType.ONE_GAME, "CRIMSON_NYLIUM", "§4§lСедна", Arrays.asList("§cХардкорный режим с новыми", "§cскиллами, мирами, мобами,", "§cкрафтами, и постройками.", "§eУничтожай местную фауну!", " ", "§4§nНе для новичков. [Бета Тест]"), 0, -99),

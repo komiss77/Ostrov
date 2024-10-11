@@ -1,12 +1,12 @@
 package ru.komiss77.objects;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import net.kyori.adventure.text.Component;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
@@ -38,7 +38,7 @@ public class Figure {
 
 
     public Figure(final Entity entity) { //новая без типа! стойка точно в порядке, сохранение после выбора типа.
-        this.figureId = ApiOstrov.generateId();
+        this.figureId = generateId();
         entityType = entity.getType();
         worldName = entity.getWorld().getName();
         this.entity = entity;
@@ -69,9 +69,13 @@ public class Figure {
         z = ApiOstrov.getInteger(split[3]);
         yaw = ApiOstrov.getInteger(split[4]);
         pitch = ApiOstrov.getInteger(split[5]);
-        spawnLoc = LocUtil.stringToLoc(locString, false, false);
+        spawnLoc = LocUtil.stringToLoc(locString, false, false).toCenterLocation();
     }
 
+    public static int generateId() {
+        final String createStamp = String.valueOf(System.currentTimeMillis());
+        return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
+    }
 
     //@Override
     public void setName(final String name) {

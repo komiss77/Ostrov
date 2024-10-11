@@ -17,6 +17,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.TCUtil;
 
 
 public class TpaCmd implements OCommand {
@@ -95,10 +96,10 @@ public class TpaCmd implements OCommand {
                             Timer.add(targetPlayer, "tp_request_from_" + p.getName(), 15);
                             targetOp.tpRequestFrom = p.getName();
 
-                            targetPlayer.sendMessage(Component.text("§f§k111§f Запрос на телепорт от §a" + p.getName() + "§f§k111  §2>§aпринять§2<")
+                            targetPlayer.sendMessage(TCUtil.form("§f<obf>11<!obf>§f Телепорт от §a" + p.getName() + "§f<obf>11<!obf> §2[>§aпринять§2<]")
                                     .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
                                     .clickEvent(ClickEvent.runCommand("/tpaccept"))
-                                    .append(Component.text(" §4>§cв игнор§4<")
+                                    .append(Component.text(" §4[>§cв игнор§4<]")
                                             .hoverEvent(HoverEvent.showText(Component.text("§4Отправить " + p.getName() + " в игнор-лист.")))
                                             .clickEvent(ClickEvent.runCommand("/ignore add " + p.getName()))));
 

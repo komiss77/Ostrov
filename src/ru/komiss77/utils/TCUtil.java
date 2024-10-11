@@ -589,7 +589,8 @@ public class TCUtil {
     @Slow(priority = 2)
     public static Component form(final String str) {
         if (str == null || str.isEmpty()) return EMPTY;
-        return msg.deserialize(deLegacify(str));
+        return msg.deserialize(deLegacify(str)).decorationIfAbsent(
+            TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     public static String deform(final Component cmp) {

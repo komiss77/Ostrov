@@ -5,15 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import eu.endercentral.crazy_advancements.CrazyAdvancementsAPI;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import eu.endercentral.crazy_advancements.NameKey;
 import eu.endercentral.crazy_advancements.advancement.Advancement;
 import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
@@ -24,8 +15,15 @@ import eu.endercentral.crazy_advancements.advancement.criteria.Criteria;
 import eu.endercentral.crazy_advancements.event.AdvancementScreenCloseEvent;
 import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import net.kyori.adventure.bossbar.BossBar;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.events.LocalDataLoadEvent;
@@ -47,7 +45,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     private static final AdvancementManager mgr; //new AdvancementManager(new NameKey("ostrov", "pls"));
     private static final Map<Quest, Advancement> adm;// = new HashMap<>();
     private static Quest[] roots;// = new Quest[0]; //для отправки в порядке наслодования, или не отображаются некоторые
-  private static Consumer<Player> onAdvCls;// = p -> {};
+    private static Consumer<Player> onAdvCls;// = p -> {};
 
     static {
         key = new NameKey("ostrov", "pls");
@@ -145,7 +143,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     }*/
 
     public void loadPlQs(final Player p, final Oplayer op) {
-      //if (!Cfg.quests) return;
+        //if (!Cfg.quests) return;
         mgr.addPlayer(p);
         for (final Quest rt : roots) {
             final IProgress prg = op.quests.get(rt);
@@ -198,8 +196,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         final String qss = op.mysqlData.get("quests");
-      //if (qss == null || qss.isEmpty() || !Cfg.quests) return;
-      if (qss == null || qss.isEmpty()) return;
+        //if (qss == null || qss.isEmpty() || !Cfg.quests) return;
+        if (qss == null || qss.isEmpty()) return;
         final String[] split = qss.split(LocalDB.LINE_SPLIT);
 //      p.sendMessage(Arrays.toString(split));
         int stamp;
@@ -255,7 +253,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
                 ParticleUtil.spawnRandomFirework(p.getLocation());
                 final String chatColor = TCUtil.randomColor();
                 p.sendMessage(" ");
-                p.sendMessage(TCUtil.form(chatColor + "§m=-=-§к §kAA §eВыполнены условия достижения §к§kAA " + chatColor + "§m-=-="));
+                p.sendMessage(TCUtil.form(chatColor + "§m=-=- §к<obf>AA<!obf> §eВыполнены условия достижения §к<obf>AA<!obf> " + chatColor + "§m-=-="));
                 p.sendMessage(TCUtil.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
                 p.sendMessage(" ");
                 ad.displayToast(p);
@@ -276,10 +274,10 @@ public class AdvanceCrazy implements IAdvance, Listener {
         }
     }
 
-  @Override
-  public void onAdvCls(final Consumer<Player> onAdvCls) {
-    this.onAdvCls = onAdvCls;
-  }
+    @Override
+    public void onAdvCls(final Consumer<Player> onAdvCls) {
+        AdvanceCrazy.onAdvCls = onAdvCls;
+    }
 
     @Override
     public void unregister() {

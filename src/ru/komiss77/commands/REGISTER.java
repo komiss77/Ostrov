@@ -16,6 +16,7 @@ public class REGISTER {
         new HatCmd(); //+
         new PrefixCmd(); //+
         new SuffixCmd(); //+
+        new GmCmd(); //++
         Ostrov.regCommand(new FlyCmd()); //+
         Ostrov.regCommand(new OpermCmd());//+
         Ostrov.regCommand(new TpposCMD());//+
@@ -40,7 +41,6 @@ public class REGISTER {
         Ostrov.regCommand(new BuilderCmd()); //+
         Ostrov.regCommand(new AnalyticsCmd()); //+
         Ostrov.regCommand(new ReportCmd()); //++
-      Ostrov.regCommand(new GmCmd()); //++
 
         //системные
         Ostrov.regCommand(new WM()); //+

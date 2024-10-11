@@ -3,11 +3,11 @@ package ru.komiss77.modules;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import net.kyori.adventure.bossbar.BossBar.Color;
+import net.kyori.adventure.bossbar.BossBar.Overlay;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,17 +21,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import net.kyori.adventure.bossbar.BossBar.Color;
-import net.kyori.adventure.bossbar.BossBar.Overlay;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import ru.komiss77.*;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.Operation;
-import ru.komiss77.enums.RewardType;
-import ru.komiss77.enums.Stat;
-import ru.komiss77.enums.StatFlag;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.events.FigureClickEvent;
@@ -53,38 +44,39 @@ public final class Pandora implements Initiable, Listener {
     public static boolean use;
 
     public static final int DAY_PLAY_TIME_TO_OPEN = 7200;
-    private static OConfig config;
     private static Figure figure;
     private static ArmorStand as;
     private static BukkitTask tick;
     private static final String PANDORA_NAME = "Шкатулка Пандоры";
     ;
     private static BoundingBox box;
-    private static final TextComponent infoRu = Component.text("§e§kXXX§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e§kXXX")
+    private static final Component infoRu = TCUtil.form("§e<obf>XXX<!obf>§6 Шкатулка Пандоры предлагает Вам испытать удачу! §e<obf>XXX<!obf>")
             .hoverEvent(HoverEvent.showText(TCUtil.form(
-                    "§7По легенде, сундучки Пандоры были созданы Даарианцами,"
-                            + "\n§7а секреты их эффектов тщательно скрывались."
-                            + "\n§7Считалось, что сундучки Пандоры очень сложно добыть,"
-                            + "\n§7однако с вторжением армии тьмы на Седну, все изменилось."
-                            + "\n§7Монстры приносили с собой сундуки для поддержания сил."
-                            + "\n§7Колдун решил для себя, что некоторые эффекты могут помочь"
-                            + "\n§7жителям справиться со вторжением, и решил наделять ими "
-                            + "\n§7всех желающих. "
-                            + "\n§7За скромную, по его мнению, цену."
-                            + "\n§7Несколько таких сундучков затерялось на Острове.")));
+                """
+                    §7По легенде, сундучки Пандоры были созданы Даарианцами,\
+                    §7а секреты их эффектов тщательно скрывались.\
+                    §7Считалось, что сундучки Пандоры очень сложно добыть,\
+                    §7однако с вторжением армии тьмы на Седну, все изменилось.\
+                    §7Монстры приносили с собой сундуки для поддержания сил.\
+                    §7Колдун решил для себя, что некоторые эффекты могут помочь\
+                    §7жителям справиться со вторжением, и решил наделять ими \
+                    §7всех желающих. \
+                    §7За скромную, по его мнению, цену.\
+                    §7Несколько таких сундучков затерялось на Острове.""")));
 
-    private static final TextComponent infoEn = Component.text("§e§kXXX§6 Pandora Box invites you to try your luck! §e§kXXX")
+    private static final Component infoEn = TCUtil.form("§e<obf>XXX<!obf>§6 Pandora Box invites you to try your luck! §e<obf>XXX<!obf>")
             .hoverEvent(HoverEvent.showText(TCUtil.form(
-                    "§7Legend say, Pandora's chests were created by the Daarians,"
-                            + "\n§7and the secrets of their chars were carefully hidden."
-                            + "\n§7As know, Pandora's chests were very difficult to find,"
-                            + "\n§7but after invasion the dark army to Sedna, everything changed."
-                            + "\n§7Monsters brought chests with them to maintain strength."
-                            + "\n§7Mage decided - pandora chars can be helpful for residents"
-                            + "\n§7cope with invasion, and decided to grant them"
-                            + "\n§7everyone. "
-                            + "\n§7For a lowest, as he is mind, price."
-                            + "\n§7Some these chests were also lost in Ostrov..")));
+                """
+                    §7Legend say, Pandora's chests were created by the Daarians,\
+                    §7and the secrets of their chars were carefully hidden.\
+                    §7As know, Pandora's chests were very difficult to find,\
+                    §7but after the invasion on Sedna, everything changed.\
+                    §7Monsters brought chests with them, to maintain strength.\
+                    §7The head mage decided them to be helpful for residents\
+                    §7to cope with the invasion, and decided to grant them\
+                    §7to everyone.\
+                    §7For a low, as he thought, price.\
+                    §7Some these chests were also lost in Ostrov..""")));
 
     private static final List<Material> head = Arrays.asList(
             Material.WHITE_GLAZED_TERRACOTTA,
@@ -131,7 +123,7 @@ public final class Pandora implements Initiable, Listener {
 
     @Override
     public void reload() {
-        config = Cfg.manager.getNewConfig("pandora.yml", new String[]{"", "Ostrov77 pandora config file", ""});
+        final OConfig config = Cfg.manager.getNewConfig("pandora.yml", new String[]{"", "Ostrov77 pandora config file", ""});
         config.addDefault("use", false);
         config.saveConfig();
         use = config.getBoolean("use");
@@ -196,10 +188,8 @@ public final class Pandora implements Initiable, Listener {
                 }
 
                 if (tick % 30 == 0) {
-                    if (helmet == null) {
-                        helmet = new ItemStack(head.get(0));
-                    }
-                    helmet.setType(head.get(ApiOstrov.randInt(0, 15)));
+                    helmet = helmet == null ? new ItemStack(head.getFirst())
+                        : new ItemStack(head.get(ApiOstrov.randInt(0, 15)));
                     as.getEquipment().setHelmet(helmet);
 
                 }
@@ -282,8 +272,8 @@ public final class Pandora implements Initiable, Listener {
 
         if (sec_left > 0 && !ApiOstrov.isLocalBuilder(p, true)) {
 
-            p.sendMessage(op.eng ? "§e§kXXX§6 You can open Pandora box through §e" + TimeUtil.secondToTime(sec_left) + " online time! §e§kXXX" :
-                    "§e§kXXX§6 Вы сможете открыть шкатулку пандоры через §e" + TimeUtil.secondToTime(sec_left) + " онлайна! §e§kXXX");
+            p.sendMessage(TCUtil.form(op.eng ? "§e<obf>XXX<!obf>§6 You can open Pandora box through §e" + TimeUtil.secondToTime(sec_left) + " online time! §e<obf>XXX<!obf>" :
+                    "§e<obf>XXX<!obf>§6 Вы сможете открыть шкатулку пандоры через §e" + TimeUtil.secondToTime(sec_left) + " онлайна! §e<obf>XXX<!obf>"));
             kick(p);
 
         } else {
@@ -454,7 +444,7 @@ public final class Pandora implements Initiable, Listener {
             case 20:
             case 21:
             case 22:
-                ScreenUtil.sendTitle(p, op.eng ? "§4Ворьё!" : "§4Ворьё!", op.eng ? "§c-50 loni :(" : "§c-50 лони :(", 10, 40, 60);
+                ScreenUtil.sendTitle(p, op.eng ? "§4Robbed!" : "§4Ворьё!", op.eng ? "§c-50 loni :(" : "§c-50 лони :(", 10, 40, 60);
                 ApiOstrov.moneyChange(p, -50, "Pandora");
                 //StatManager.karmaBaseChange(op,-1);
                 SpigotChanellMsg.sendMessage(p, Operation.REWARD, Ostrov.MOT_D + ":пандора", RewardType.KARMA.tag, 1, p.getName(), "get");

@@ -1,18 +1,21 @@
 package ru.komiss77.builder.menu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import ca.spottedleaf.moonrise.common.util.ChunkSystem;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.bukkit.*;
+import org.bukkit.block.BlockType;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
@@ -26,6 +29,7 @@ import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
+import ru.komiss77.version.Craft;
 
 
 public class EntityGroupMenu implements InventoryProvider {
@@ -86,8 +90,7 @@ public class EntityGroupMenu implements InventoryProvider {
 
         if (group == EntityGroup.TILE) {
 
-            final ValueSortedMap<Material, Integer> count = new ValueSortedMap<>(true);
-            Material mat;
+            final Map<BlockType, Integer> count = new HashMap<>();
             for (ChunkHolder visibleChunk : ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
                 net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
                 if (lc == null) {
@@ -98,7 +101,7 @@ public class EntityGroupMenu implements InventoryProvider {
                     continue;
                 }
                 for (BlockEntity be : lc.blockEntities.values()) {
-                    mat = be.getBlockState().getBukkitMaterial();
+                    final BlockType mat = Craft.fromNMS(be.getBlockState().getBlock());
                     if (count.containsKey(mat)) {
                         count.replace(mat, count.get(mat) + 1);
                     } else {
@@ -108,9 +111,11 @@ public class EntityGroupMenu implements InventoryProvider {
 
             }
 
-            for (final Map.Entry<Material, Integer> entry : count.entrySet()) {
-                menuEntry.add(ClickableItem.of(new ItemBuilder(entry.getKey())
-                    .name(Lang.t(entry.getKey(), p))
+            for (final Map.Entry<BlockType, Integer> entry : count.entrySet()) {
+                final BlockType bt = entry.getKey();
+                final ItemType mat = bt.hasItemType() ? bt.getItemType() : ItemType.STONE;
+                menuEntry.add(ClickableItem.of(new ItemBuilder(mat)
+                    .name(Lang.t(bt, p))
                     .amount(entry.getValue() > 64 ? 1 : entry.getValue())
                     .lore("§7Найдено: §e" + entry.getValue())
                     .lore(chunks.size() == 1 ? "§7ЛКМ - ТП в чанк" : "")
@@ -195,8 +200,6 @@ public class EntityGroupMenu implements InventoryProvider {
                     }
                 }));
             }
-
-
         }
 
 
@@ -206,13 +209,13 @@ public class EntityGroupMenu implements InventoryProvider {
             .lore("§7ЛКМ - изменить радиус")
             .lore("§7(0 - весь мир)")
             .lore("§7")
-            .build(), "" + radius, imput -> {
+            .build(), "" + radius, input -> {
 
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!ApiOstrov.isInteger(input)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }
-            final int r = Integer.valueOf(imput);
+            final int r = Integer.parseInt(input);
             if (r < 0 || r > 100000) {
                 p.sendMessage("§cот 0 до 100000!");
                 return;
@@ -227,7 +230,7 @@ public class EntityGroupMenu implements InventoryProvider {
         ));
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(36);
 
         if (!pagination.isLast()) {

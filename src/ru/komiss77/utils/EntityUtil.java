@@ -22,7 +22,9 @@ import ru.komiss77.Ostrov;
 public class EntityUtil {
 
     public static @Nullable LivingEntity lastDamager(final LivingEntity ent, final boolean owner) {
-        return getDamager(ent.getLastDamageCause(), owner);
+        final EntityDamageEvent e = ent.getLastDamageCause();
+        if (e == null) return null;
+        return getDamager(e, owner);
     }
 
     public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
