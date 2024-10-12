@@ -17,9 +17,11 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 
 public class RewardCmd implements OCommand {
@@ -30,7 +32,15 @@ public class RewardCmd implements OCommand {
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("reward")
-
+            .executes(cntx -> {//выполнение без аргументов
+              final CommandSender cs = cntx.getSource().getSender();
+              if (!ApiOstrov.isLocalBuilder(cs)) {
+                cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
+                return 0;
+              }
+              help(cs);
+              return Command.SINGLE_SUCCESS;
+            })
             .then(Resolver.string(player)
                 .suggests((cntx, sb) -> { //0
                   if (ApiOstrov.canBeBuilder(cntx.getSource().getSender())) {
@@ -113,15 +123,14 @@ public class RewardCmd implements OCommand {
         return cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (!ApiOstrov.isLocalBuilder(cs)) {
-                cs.sendMessage("§cНедостаточно прав!");
+              cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
                 return 0;
             }
 
             final String tgt = Resolver.string(cntx, player);
             final RewardType type = RewardType.fromString(Resolver.string(cntx, item));
             if (type == null) {
-                cs.sendMessage(Ostrov.PREFIX + "§cТакой награды не существует");
-                help(cs);
+              cs.sendMessage(Ostrov.PREFIX + "§cТакой награды не существует : §6" + tgt);
                 return 0;
             }
 
@@ -224,16 +233,17 @@ public class RewardCmd implements OCommand {
                     Operation.REWARD, "консоль", type.tag, amt, tgt, oper);
               } else {
                 cs.sendMessage("§cНаграду не выдать - нет игрока онлайн для передачи сообщения!");
+                return 0;
               }
             }
-          //cs.sendMessage("§eОпыт нужно прибавлять!");
+          cs.sendMessage("§2reward done : " + tgt + " " + type + " " + oper + " " + value + " " + cs.getName());
             return Command.SINGLE_SUCCESS;
         };
     }
 
     @Override
     public List<String> aliases() {
-        return List.of("ревард");
+      return List.of();
     }
 
     @Override
@@ -247,7 +257,7 @@ public class RewardCmd implements OCommand {
         cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
         cs.sendMessage("§fПримеры:");
         cs.sendMessage("§a/reward komiss77 loni add 1000");
-        cs.sendMessage("§a/reward komiss77 loni get rnd:0:100");
+      cs.sendMessage("§a/reward komiss77 loni get rnd_0_100");
         cs.sendMessage("§a/reward komiss77 perm serwer.world.perm.aaa 1h");
         cs.sendMessage("§a/reward komiss77 perm perm.aaa forever");
         cs.sendMessage("§a/reward komiss77 group vip 10d");

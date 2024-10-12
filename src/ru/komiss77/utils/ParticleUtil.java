@@ -25,7 +25,7 @@ public class ParticleUtil {
         HEART("Сердечки", Material.REDSTONE_BLOCK, Particle.HEART),
         NOTE("Ноты", Material.NOTE_BLOCK, Particle.NOTE),
         HAPPY_VILLAGER("Изумруды", Material.EMERALD, Particle.HAPPY_VILLAGER),
-        FLAME("Огонь", Material.FIRE, Particle.FLAME),
+        FLAME("Огонь", Material.BLAZE_POWDER, Particle.FLAME),
         ENCHANTED_HIT("Удар магии", Material.DIAMOND_AXE, Particle.ENCHANTED_HIT),
         CRIT("Удар", Material.ENCHANTED_BOOK, Particle.CRIT),
         ANGRY_VILLAGER("Злой Житель", Material.ARROW, Particle.ANGRY_VILLAGER),

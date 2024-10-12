@@ -46,8 +46,8 @@ public enum RewardType {
 
 
     public static RewardType fromString(final String as_string) {
-        for (RewardType s_ : RewardType.values()) {
-            if (s_.toString().equalsIgnoreCase(as_string)) return s_;
+        for (RewardType type : RewardType.values()) {
+            if (type.name().equalsIgnoreCase(as_string)) return type;
         }
         return null;
     }

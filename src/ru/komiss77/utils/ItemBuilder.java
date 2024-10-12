@@ -23,6 +23,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
+import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtil.Texture;
 
 public class ItemBuilder {
@@ -38,22 +39,27 @@ public class ItemBuilder {
     private PotionType basePotionType;
     private List<PotionEffect> customPotionEffects = null;
     private Map<Enchantment, Integer> enchants = null;
-    private boolean wrong;
+    private String wrong;
 
     public ItemBuilder(final Material mat) {
         if (mat == null || mat.isAir()) { //защита от создание билдера с null или air
-            wrong = true;
-            lore = List.of(Component.text(mat == null ? "mat==null" : "mat==" + mat.name()));
+            //List.of = ImmutableCollections потом не может в него добавить ничего!
+            wrong = mat == null ? "mat==null" : "mat==" + mat.name();//true;
+            //lore = List.of(Component.text());
         } else {
             type = mat.asItemType();
+            if (type == null) {
+                wrong = mat.name() + " -> type=null !!";//true;
+                //lore = List.of(Component.text(mat.name()+" -> type=null !!"));
+            }
             maxStack = mat.getMaxStackSize();
         }
     }
 
     public ItemBuilder(final ItemType itemType) {
         if (itemType == null) {
-            wrong = true;
-            lore = List.of(Component.text("itemType==null"));
+            wrong = "itemType==null";//true;
+            //lore = List.of(Component.text("itemType==null"));
         } else {
             type = itemType;//meta = null;при создании поле итак null
             maxStack = itemType.getMaxStackSize();
@@ -62,8 +68,8 @@ public class ItemBuilder {
 
     public ItemBuilder(final ItemStack from) {
         if (from == null || from.getType().isAir()) { //каждое from == null ? ниже - отдельное if. Собираем три if в одно.
-            wrong = true;
-            lore = List.of(Component.text(from == null ? "from==null" : from.getType().isAir() ? "from.isAir" : "from.other"));
+            wrong = from == null ? "from==null" : from.getType().isAir() ? "from.isAir" : "from.other";//true;
+            //lore = List.of(Component.text(from == null ? "from==null" : from.getType().isAir() ? "from.isAir" : "from.other"));
         } else {
             type = from.getType().asItemType();
             amount = from.getAmount();
@@ -78,7 +84,7 @@ public class ItemBuilder {
     }
 
     private boolean checkMeta() {
-        if (wrong) return false;
+        if (wrong != null) return false;
         if (meta == null || !type.getItemMetaClass().isInstance(meta)) {
             meta = ((CraftItemType<?>) type).getItemMeta(meta);
         }
@@ -118,6 +124,10 @@ public class ItemBuilder {
     public ItemBuilder type(final Material mat) { //ну тип переделал билдер на материал @Deprecated //в будующем тип менять нельзя будет
         if (mat == null) return this;
         type = mat.asItemType();
+        if (type == null) {
+            wrong = mat.name() + " -> type=null !!";//true;
+            //lore = List.of(Component.text(mat.name()+" -> type=null !!"));
+        }
         if (meta == null) return this;
         checkMeta();
         return this;
@@ -502,10 +512,10 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
-        if (wrong) {
+        if (wrong != null) {
             return new ItemBuilder(Material.BEDROCK)
                 .name("§cКривой предмет!")
-                .lore(lore)
+                .lore(List.of(Component.text(wrong)))
                 .build();
         }
         if (amount < 1) {

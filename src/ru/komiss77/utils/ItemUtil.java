@@ -1295,83 +1295,82 @@ public class ItemUtil {
 
 
     public static ItemBuilder buildBiomeIcon(final Biome b) {
-        final ItemBuilder builder = new ItemBuilder(Material.TROPICAL_FISH_BUCKET);
+        final Material mat;
         if (b.toString().equalsIgnoreCase("NETHER") || b.toString().equalsIgnoreCase("NETHER_WASTES")) {
-            builder.type(Material.NETHERRACK);
+            mat = Material.NETHERRACK;
         } else {
-
             switch (b) {
-                case BADLANDS -> builder.type(Material.RED_SAND);
-                case BAMBOO_JUNGLE -> builder.type(Material.BAMBOO);
-                case BEACH -> builder.type(Material.HORN_CORAL_FAN);
-                case BIRCH_FOREST -> builder.type(Material.BIRCH_LOG);
-                case COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE_POWDER);
-                case DARK_FOREST -> builder.type(Material.DARK_OAK_LOG);
-                case MUSHROOM_FIELDS -> builder.type(Material.MYCELIUM);
-                case DEEP_COLD_OCEAN -> builder.type(Material.BLUE_CONCRETE);
-                case DEEP_FROZEN_OCEAN -> builder.type(Material.BLUE_ICE);
-                case DEEP_LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE);
-                case DEEP_OCEAN -> builder.type(Material.BLUE_WOOL);
-                case DESERT -> builder.type(Material.SAND);
-                case END_BARRENS -> builder.type(Material.END_STONE);
-                case END_HIGHLANDS -> builder.type(Material.END_STONE_BRICKS);
-                case END_MIDLANDS -> builder.type(Material.END_STONE_BRICKS);
-                case ERODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
-                case FLOWER_FOREST -> builder.type(Material.ROSE_BUSH);
-                case WINDSWEPT_HILLS -> builder.type(Material.GRANITE);
-                case FOREST -> builder.type(Material.DARK_OAK_LOG);
-                case FROZEN_OCEAN -> builder.type(Material.PACKED_ICE);
-                case FROZEN_RIVER -> builder.type(Material.LIGHT_BLUE_DYE);
-                case ICE_SPIKES -> builder.type(Material.ICE);
-                case JUNGLE -> builder.type(Material.JUNGLE_LOG);
-                case LUKEWARM_OCEAN -> builder.type(Material.LIGHT_BLUE_CONCRETE_POWDER);
-                case OCEAN -> builder.type(Material.WATER_BUCKET);
-                case PLAINS -> builder.type(Material.GRASS_BLOCK);
-                case MANGROVE_SWAMP -> builder.type(Material.MANGROVE_ROOTS);
-                case RIVER -> builder.type(Material.BLUE_DYE);
-                case SAVANNA -> builder.type(Material.ACACIA_LOG);
-                case SAVANNA_PLATEAU -> builder.type(Material.ACACIA_WOOD);
-                case SMALL_END_ISLANDS -> builder.type(Material.END_STONE);
-                case SNOWY_BEACH -> builder.type(Material.SNOW);
-                case SNOWY_TAIGA -> builder.type(Material.WHITE_WOOL);
-                case SUNFLOWER_PLAINS -> builder.type(Material.SUNFLOWER);
-                case SWAMP -> builder.type(Material.LILY_PAD);
-                case TAIGA -> builder.type(Material.SPRUCE_LOG);
-                case NETHER_WASTES -> builder.type(Material.NETHERRACK);
-                case THE_END -> builder.type(Material.END_STONE);
-                case THE_VOID -> builder.type(Material.BEDROCK);
-                case WARM_OCEAN -> builder.type(Material.CYAN_CONCRETE_POWDER);
-                case SNOWY_PLAINS -> builder.type(Material.SNOW);
-                case SPARSE_JUNGLE -> builder.type(Material.VINE);
-                case STONY_SHORE -> builder.type(Material.GRAVEL);
-                case OLD_GROWTH_PINE_TAIGA -> builder.type(Material.SPRUCE_WOOD);
-                case WINDSWEPT_FOREST -> builder.type(Material.STRIPPED_OAK_LOG);
-                case WOODED_BADLANDS -> builder.type(Material.DEAD_BUSH);
-                case WINDSWEPT_GRAVELLY_HILLS -> builder.type(Material.ANDESITE);
-                case OLD_GROWTH_BIRCH_FOREST -> builder.type(Material.BIRCH_WOOD);
-                case OLD_GROWTH_SPRUCE_TAIGA -> builder.type(Material.STRIPPED_SPRUCE_LOG);
-                case WINDSWEPT_SAVANNA -> builder.type(Material.STRIPPED_ACACIA_LOG);
-                case SOUL_SAND_VALLEY -> builder.type(Material.SOUL_SAND);
-                case CRIMSON_FOREST -> builder.type(Material.CRIMSON_NYLIUM);
-                case WARPED_FOREST -> builder.type(Material.WARPED_NYLIUM);
-                case BASALT_DELTAS -> builder.type(Material.BASALT);
-                case DRIPSTONE_CAVES -> builder.type(Material.DRIPSTONE_BLOCK);
-                case LUSH_CAVES -> builder.type(Material.BIG_DRIPLEAF);
-                case DEEP_DARK -> builder.type(Material.SCULK_CATALYST);
-                case MEADOW -> builder.type(Material.BEE_NEST);
-                case GROVE -> builder.type(Material.DIRT_PATH);
-                case SNOWY_SLOPES -> builder.type(Material.POWDER_SNOW);
-                case FROZEN_PEAKS -> builder.type(Material.PACKED_ICE);
-                case JAGGED_PEAKS -> builder.type(Material.DIORITE);
-                case STONY_PEAKS -> builder.type(Material.STONE);
-                case CHERRY_GROVE -> builder.type(Material.CHERRY_LOG);
-                case CUSTOM -> builder.type(Material.BEDROCK);
+                case BADLANDS -> mat = Material.RED_SAND;
+                case BAMBOO_JUNGLE -> mat = Material.BAMBOO;
+                case BEACH -> mat = Material.HORN_CORAL_FAN;
+                case BIRCH_FOREST -> mat = Material.BIRCH_LOG;
+                case COLD_OCEAN -> mat = Material.BLUE_CONCRETE_POWDER;
+                case DARK_FOREST -> mat = Material.DARK_OAK_LOG;
+                case MUSHROOM_FIELDS -> mat = Material.MYCELIUM;
+                case DEEP_COLD_OCEAN -> mat = Material.BLUE_CONCRETE;
+                case DEEP_FROZEN_OCEAN -> mat = Material.BLUE_ICE;
+                case DEEP_LUKEWARM_OCEAN -> mat = Material.LIGHT_BLUE_CONCRETE;
+                case DEEP_OCEAN -> mat = Material.BLUE_WOOL;
+                case DESERT -> mat = Material.SAND;
+                case END_BARRENS -> mat = Material.END_STONE;
+                case END_HIGHLANDS -> mat = Material.END_STONE_BRICKS;
+                case END_MIDLANDS -> mat = Material.END_STONE_BRICK_WALL;
+                case ERODED_BADLANDS -> mat = Material.DEAD_BUSH;
+                case FLOWER_FOREST -> mat = Material.ROSE_BUSH;
+                case WINDSWEPT_HILLS -> mat = Material.GRANITE;
+                case FOREST -> mat = Material.OAK_SAPLING;
+                case FROZEN_OCEAN -> mat = Material.PACKED_ICE;
+                case FROZEN_RIVER -> mat = Material.LIGHT_BLUE_DYE;
+                case ICE_SPIKES -> mat = Material.ICE;
+                case JUNGLE -> mat = Material.JUNGLE_LOG;
+                case LUKEWARM_OCEAN -> mat = Material.LIGHT_BLUE_CONCRETE_POWDER;
+                case OCEAN -> mat = Material.WATER_BUCKET;
+                case PLAINS -> mat = Material.GRASS_BLOCK;
+                case MANGROVE_SWAMP -> mat = Material.MANGROVE_ROOTS;
+                case RIVER -> mat = Material.BLUE_DYE;
+                case SAVANNA -> mat = Material.SPONGE;
+                case SAVANNA_PLATEAU -> mat = Material.ACACIA_WOOD;
+                case SMALL_END_ISLANDS -> mat = Material.END_STONE_BRICK_SLAB;
+                case SNOWY_BEACH -> mat = Material.SNOW;
+                case SNOWY_TAIGA -> mat = Material.WHITE_WOOL;
+                case SUNFLOWER_PLAINS -> mat = Material.SUNFLOWER;
+                case SWAMP -> mat = Material.LILY_PAD;
+                case TAIGA -> mat = Material.SPRUCE_LOG;
+                case NETHER_WASTES -> mat = Material.NETHERRACK;
+                case THE_END -> mat = Material.END_PORTAL_FRAME;
+                case THE_VOID -> mat = Material.RESPAWN_ANCHOR;
+                case WARM_OCEAN -> mat = Material.CYAN_CONCRETE_POWDER;
+                case SNOWY_PLAINS -> mat = Material.SNOW;
+                case SPARSE_JUNGLE -> mat = Material.VINE;
+                case STONY_SHORE -> mat = Material.GRAVEL;
+                case OLD_GROWTH_PINE_TAIGA -> mat = Material.SPRUCE_WOOD;
+                case WINDSWEPT_FOREST -> mat = Material.STRIPPED_OAK_LOG;
+                case WOODED_BADLANDS -> mat = Material.DEAD_BUSH;
+                case WINDSWEPT_GRAVELLY_HILLS -> mat = Material.ANDESITE;
+                case OLD_GROWTH_BIRCH_FOREST -> mat = Material.BIRCH_WOOD;
+                case OLD_GROWTH_SPRUCE_TAIGA -> mat = Material.STRIPPED_SPRUCE_LOG;
+                case WINDSWEPT_SAVANNA -> mat = Material.STRIPPED_ACACIA_LOG;
+                case SOUL_SAND_VALLEY -> mat = Material.SOUL_SAND;
+                case CRIMSON_FOREST -> mat = Material.CRIMSON_NYLIUM;
+                case WARPED_FOREST -> mat = Material.WARPED_NYLIUM;
+                case BASALT_DELTAS -> mat = Material.BASALT;
+                case DRIPSTONE_CAVES -> mat = Material.DRIPSTONE_BLOCK;
+                case LUSH_CAVES -> mat = Material.BIG_DRIPLEAF;
+                case DEEP_DARK -> mat = Material.SCULK_CATALYST;
+                case MEADOW -> mat = Material.BEE_NEST;
+                case GROVE -> mat = Material.DIRT_PATH;
+                case SNOWY_SLOPES -> mat = Material.ECHO_SHARD;
+                case FROZEN_PEAKS -> mat = Material.PACKED_ICE;
+                case JAGGED_PEAKS -> mat = Material.DIORITE;
+                case STONY_PEAKS -> mat = Material.STONE;
+                case CHERRY_GROVE -> mat = Material.CHERRY_LOG;
+                case CUSTOM -> mat = Material.CRIMSON_NYLIUM;
+                default -> mat = Material.WARPED_NYLIUM;
             }
         }
 
-        builder.name(Lang.t(b, Lang.RU));
-
-        return builder;
+        return new ItemBuilder(mat)
+            .name(Lang.t(b, Lang.RU));
     }
 
     public static ItemBuilder buildEntityIcon(final EntityType type) {
