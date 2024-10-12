@@ -85,6 +85,7 @@ public class RewardCmd implements OCommand {
                                     sb.suggest("10");
                                     sb.suggest("100");
                                     sb.suggest("1000");
+                                    sb.suggest("rnd_10_100");
                                   }
                                 }
                                 }
@@ -171,7 +172,20 @@ public class RewardCmd implements OCommand {
                 case REP:
                 case KARMA:
                 case RIL:
+                  if (value.startsWith("rnd_")) {
+                    String[] split = value.split("_");
+                    if (split.length != 3) {
+                      cs.sendMessage("§cПри указании случайного значения формат rnd_min_max");
+                      return 0;
+                    }
+                    if (!ApiOstrov.isInteger(split[1]) || !ApiOstrov.isInteger(split[2])) {
+                      cs.sendMessage("§cПри указании случайного значения min и max - челые числа");
+                      return 0;
+                    }
+                    amt = ApiOstrov.randInt(Integer.valueOf(split[1]), Integer.valueOf(split[2]));
+                  } else {
                     amt = Math.max(ApiOstrov.getInteger(value, 0), 0);
+                  }
                     if (amt < 1) {
                         cs.sendMessage("§eКолличество - целое положительное число!");
                         Ostrov.log_warn("reward error: " + type.name() + ", " + oper + ", " + value);
