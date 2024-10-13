@@ -207,13 +207,13 @@ public class ArcaimLst implements Listener {
                 if (PM.getOplayer(p.getUniqueId()).setup != null) break;
                 p.performCommand("menu");
                 break;
-            case CREATIVE, SURVIVAL:
+            /*case CREATIVE, SURVIVAL: давно убрал это ограничение - с ним на аркаиме просто никто не играет
                 if (!isOutsideWG(p.getLocation())) break;
                 if (ApiOstrov.isStaff(p)) break;
                 e.getPlayer().sendMessage("§cСтроить можно только в приватах!");
                 e.setUseInteractedBlock(Event.Result.DENY);
                 e.setUseItemInHand(Event.Result.DENY);
-                break;
+                break;*/
         }
     }
 

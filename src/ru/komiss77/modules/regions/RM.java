@@ -74,7 +74,7 @@ public final class RM {
       cfg.saveConfig();
     }
 
-    regenOnDelete = cfg.getBoolean("settings.regenOnDelete");
+    regenOnDelete = cfg.getBoolean("regenOnDelete");
 
     loadTemplates();
 
@@ -284,7 +284,7 @@ public final class RM {
     //p.sendMessage("§aРегион успешно создан!");
 
     if (RM.regenOnDelete) {
-      WE.save(p, BukkitAdapter.adapt(p.getWorld(), region.getMinimumPoint()), BukkitAdapter.adapt(p.getWorld(), region.getMaximumPoint()), regName.toLowerCase(), "");
+      WE.save(Bukkit.getConsoleSender(), BukkitAdapter.adapt(p.getWorld(), region.getMinimumPoint()), BukkitAdapter.adapt(p.getWorld(), region.getMaximumPoint()), regName.toLowerCase(), "");
     }
 
     if (t.borderMaterial != null) {
@@ -297,12 +297,16 @@ public final class RM {
       }.runTaskLater(Ostrov.getInstance(), 30);
     }
 
+    p.sendMessage("§aВы создали регион, ваши постройки в нём защищены. Вы можете настроить регион через меню.");
 
   }
 
 
-
-
+  public static void switchRegen(Player p) {
+    regenOnDelete = !regenOnDelete;
+    cfg.set("regenOnDelete", regenOnDelete);
+    cfg.saveConfig();
+  }
 
   public static void openRegionOwnerMenu(final Player player, final ProtectedRegion region) {
     SmartInventory.builder()

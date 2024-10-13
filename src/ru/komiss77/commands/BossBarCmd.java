@@ -51,23 +51,23 @@ public class BossBarCmd implements OCommand {
                 if (tgt.isOp()) {
                     tgt.setOp(false);
                     cs.sendMessage("§c" + tgt.getName() + " больше не оператор!");
-                    Ostrov.log_warn("§e" + tgt.getName() + " больше не оператор!");
+                  //Ostrov.log_warn("§e" + tgt.getName() + " больше не оператор!");
                     return Command.SINGLE_SUCCESS;
                 }
 
                 final Player tpl = tgt.getPlayer();
-                if (tpl != null) {
-                    final Oplayer top = PM.getOplayer(tpl);
-                    if (!top.isStaff) {
-                        cs.sendMessage("§c" + tgt.getName() + " даже не персонал!");
-                        Ostrov.log_warn("§c" + cs.getName() + " пытался дать ОП " + tgt.getName() + "!");
-                        return 0;
-                    }
+              if (tpl != null) { //мешает тестить. Назначает всё равно только консоль
+                //final Oplayer top = PM.getOplayer(tpl);
+                //if (!top.isStaff) {
+                //    cs.sendMessage("§c" + tgt.getName() + " даже не персонал!");
+                //    Ostrov.log_warn("§c" + cs.getName() + " пытался дать ОП " + tgt.getName() + "!");
+                //    return 0;
+                //}
                     tpl.sendMessage(Ostrov.PREFIX + "§6Ты теперь оператор!");
                 }
                 tgt.setOp(true);
                 cs.sendMessage("§c" + tgt.getName() + " назначен оператором!");
-                Ostrov.log_warn("§e" + tgt.getName() + " назначен оператором!");
+              //Ostrov.log_warn("§e" + tgt.getName() + " назначен оператором!");
                 return Command.SINGLE_SUCCESS;
             }))
             .build();

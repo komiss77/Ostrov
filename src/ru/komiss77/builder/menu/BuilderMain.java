@@ -243,12 +243,17 @@ public class BuilderMain implements InventoryProvider {
                 .lore("")
                 .lore("§7ЛКМ - редактор заготовок")
                 .lore("§7ПКМ - редактор флагов")
+                .lore(RM.regenOnDelete ? "§6Регенерация включена" : "§3Регенерация вылючена")
+                .lore(RM.regenOnDelete ? "§7Q - §2выключить" : "§7Q - §4включить")
                 .lore("")
                 .build(), e -> {
                 if (e.getClick() == ClickType.LEFT) {
                     RM.openTemplateAdmin(p);
                 } else if (e.getClick() == ClickType.RIGHT) {
                     RM.openFlagAdmin(p);
+                } else if (e.getClick() == ClickType.DROP) {
+                    RM.switchRegen(p);
+                    reopen(p, content);
                 }
             }));
         } else {

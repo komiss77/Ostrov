@@ -1,6 +1,7 @@
 package ru.komiss77.modules.regions.menu;
 
 import com.sk89q.worldguard.protection.managers.storage.StorageException;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -94,8 +95,8 @@ public class RegionOwnerMenu implements InventoryProvider {
               ConfirmationGUI.open(p, "§4Подтвердите удаление", true, confirm -> {
                 if (confirm) {
                   if (RM.regenOnDelete) {
-                    final Schematic sch = WE.getSchematic(p, region.getId(), true);
-                    WE.paste(p, sch, new XYZ(BukkitAdapter.adapt(p.getWorld(), region.getMinimumPoint())), Schematic.Rotate.r0, true);
+                    final Schematic sch = WE.getSchematic(Bukkit.getConsoleSender(), region.getId(), true);
+                    WE.paste(Bukkit.getConsoleSender(), sch, new XYZ(BukkitAdapter.adapt(p.getWorld(), region.getMinimumPoint())), Schematic.Rotate.r0, true);
                   }
                   WGhook.getRegionManager(p.getWorld()).removeRegion(region.getId());
                   try {
@@ -108,7 +109,7 @@ public class RegionOwnerMenu implements InventoryProvider {
                   if (template != null && template.refund > 0) {
                     ApiOstrov.moneyChange(p, template.refund, "Возврат денег за регион");
                   }
-                  p.sendMessage("§fcВаш регион удалён.");
+                  p.sendMessage("§cВаш регион удалён.");
                 } else {
                   reopen(p, content);
                 }
