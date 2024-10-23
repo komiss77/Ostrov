@@ -806,13 +806,19 @@ public class Cuboid {
 
     //@Override
     public Cuboid copy() {
-        final Cuboid copy = new Cuboid(sizeX(), sizeY(), sizeZ());
-        copy.spawnAddX = spawnAddX;
-        copy.spawnAddY = spawnAddY;
-        copy.spawnAddZ = spawnAddZ;
-        copy.spawnYaw = spawnYaw;
-        copy.spawnPitch = spawnPitch;
-        return copy;
+      final Cuboid c = new Cuboid(0, 0, 0);
+      c.minX = minX;
+      c.maxX = maxX;
+      c.minY = minY;
+      c.maxY = maxY;
+      c.minZ = minZ;
+      c.maxZ = maxZ;
+      c.spawnAddX = spawnAddX;
+      c.spawnAddY = spawnAddY;
+      c.spawnAddZ = spawnAddZ;
+      c.spawnYaw = spawnYaw;
+      c.spawnPitch = spawnPitch;
+      return c;
     }
 
     @Override

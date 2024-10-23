@@ -76,7 +76,7 @@ public class Oplayer {
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
-    public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>();
+  public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
     public final CaseInsensitiveMap<Integer> kits_use_timestamp = new CaseInsensitiveMap<>();
     public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
 

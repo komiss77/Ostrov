@@ -68,7 +68,7 @@ public class Sounds implements InventoryProvider {
             }
 
             for (Material m : Material.values()) {
-                if (!m.isItem()) continue;
+              if (!m.isItem() || m.isLegacy()) continue;
                 if (String.valueOf(m).contains(find)) {
                     mat = m;
                     break;

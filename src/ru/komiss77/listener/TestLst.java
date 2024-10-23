@@ -1,8 +1,6 @@
 package ru.komiss77.listener;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
@@ -12,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -35,11 +34,6 @@ public class TestLst implements Listener {
     Botter bt = null;
 
 
-  // @EventHandler
-  //public void onWorldInit(WorldInitEvent event) {
-  //  World world = event.getWorld();
-  //   Ostrov.log_warn("WorldInitEvent for world: " + world.getName()+" gen="+world.getGenerator());
-  //}
 
     //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
@@ -58,10 +52,27 @@ public class TestLst implements Listener {
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
               if (p.isSneaking()) {
+                  WorldBorder wb = p.getWorldBorder();
+                  if (wb == null) {
+                      wb = Bukkit.createWorldBorder();
+                  }
+                  wb.setCenter(p.getLocation());
+                  wb.setSize(10);
+                  p.setWorldBorder(wb);
+                  p.sendMessage("setSize(10) wb=" + wb);
+
                 //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
                 //op.tag(true);
                 //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
+                  //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
+                  WorldBorder wb = p.getWorldBorder();
+                  if (wb == null) {
+                      p.sendMessage("wb = null");
+                  } else {
+                      p.sendMessage("wb =" + wb + " world=" + (wb.getWorld() == null ? wb.getWorld() : wb.getWorld().getName())
+                          + " center=" + wb.getCenter() + " size=" + wb.getSize());
+                  }
                 //op.tag(false);
                 //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                    /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();

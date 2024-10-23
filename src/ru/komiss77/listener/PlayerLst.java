@@ -28,6 +28,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.LocalDataLoadEvent;
@@ -384,7 +385,9 @@ public class PlayerLst implements Listener {
             if (PvPManager.no_damage_on_tp > 0) {
                 op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
+          if (Game.storeWorldPosition()) {
             op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
+          }
             // сохраняем точку выхода
         }
     }

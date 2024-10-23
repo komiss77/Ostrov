@@ -2,6 +2,7 @@ package ru.komiss77.enums;
 
 import java.util.Arrays;
 import java.util.List;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 // !!!!!!!  не ставить ничего от бакита, не грузит банжик!!!
@@ -135,6 +136,16 @@ public enum Game {
         return GLOBAL; //rg0 ol0 ?
     }
 
+  public static boolean storeWorldPosition() {
+    switch (GM.GAME) {
+      case AR, DA, MI, SE, FA -> {
+        return true;
+      }
+      default -> {
+        return false;
+      }
+    }
+  }
 
 }
 
