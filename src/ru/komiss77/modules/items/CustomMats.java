@@ -16,25 +16,27 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.OConfig;
-
 
 public abstract class CustomMats implements Keyed {
+
+    public static final HashMap<Integer, CustomMats> VALUES = new HashMap<>();
+
+    public static boolean exist = false;
 
     private static final String CMD = "cmd";
     private static final String ITS = "its";
     private static final String SEP = "=";
     private static final String CON_NAME = "items.yml";
-    private static final HashMap<Integer, CustomMats> VALUES = new HashMap<>();
 
-    public final Integer cmd;
+    public final @Nullable Integer cmd;
+
     private final EnumMap<Material, ItemStack> mits = new EnumMap<>(Material.class);
+    private final NamespacedKey key;
 
-    protected final NamespacedKey key;
-
-    protected CustomMats(final Integer cmd, final ItemStack... its) {
+    protected CustomMats(final @Nullable Integer cmd, final ItemStack... its) {
         this.cmd = cmd;
         this.key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
         final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
@@ -54,6 +56,7 @@ public abstract class CustomMats implements Keyed {
         }
 
         VALUES.put(cmd, this);
+        exist = true;
     }
 
     public static CustomMats[] values() {
@@ -64,15 +67,15 @@ public abstract class CustomMats implements Keyed {
         return mits.get(mt);
     }
 
-    public static CustomMats getCstmItm(final ItemStack it) {
-        return it.hasItemMeta() ? getCstmItm(it.getItemMeta()) : null;
+    public static CustomMats get(final ItemStack it) {
+        return it.hasItemMeta() ? get(it.getItemMeta()) : null;
     }
 
-    public static CustomMats getCstmItm(final ItemMeta im) {
-        return im.hasCustomModelData() ? getCstmItm(im.getCustomModelData()) : null;
+    public static CustomMats get(final ItemMeta im) {
+        return im.hasCustomModelData() ? get(im.getCustomModelData()) : null;
     }
 
-    public static CustomMats getCstmItm(final Integer cmd) {
+    public static CustomMats get(final Integer cmd) {
         return VALUES.get(cmd);
     }
 
@@ -104,9 +107,5 @@ public abstract class CustomMats implements Keyed {
     @Override
     public int hashCode() {
         return cmd == null ? 0 : cmd;
-    }
-
-    protected static void load() {
-        VALUES.clear();
     }
 }

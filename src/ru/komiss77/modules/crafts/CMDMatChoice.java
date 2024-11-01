@@ -1,14 +1,12 @@
 package ru.komiss77.modules.crafts;
 
+import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice.MaterialChoice;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import ru.komiss77.modules.items.CustomMats;
 import ru.komiss77.utils.ItemUtil;
-
-import java.util.Objects;
 
 public class CMDMatChoice extends MaterialChoice {
 
@@ -41,7 +39,7 @@ public class CMDMatChoice extends MaterialChoice {
     @Override
     public ItemStack getItemStack() {
         final Material mt = getChoices().get(0);
-        final ItemStack ci = CustomMats.getCstmItm(cmd).getItem(mt);
+        final ItemStack ci = CustomMats.get(cmd).getItem(mt);
         if (ci != null) return ci.asOne();
         final ItemStack it = new ItemStack(mt);
         if (ItemUtil.isBlank(it, false)) return ItemUtil.air;

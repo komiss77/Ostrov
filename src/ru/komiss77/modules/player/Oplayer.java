@@ -18,6 +18,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.ApiOstrov;
@@ -30,6 +31,7 @@ import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.ProfileManager;
@@ -697,6 +699,15 @@ public class Oplayer {
      */
     @OverrideMe
     public void preDataSave(final Player p, final boolean async) {
+        final SpecialItem si = SpecialItem.get(p);
+        if (si != null) {
+            for (final ItemStack it : p.getInventory()) {
+                if (it != null && si.equals(SpecialItem.get(it))) {
+                    si.apply(p.getWorld().dropItem(p.getLocation(), it));
+                    it.setAmount(0);
+                }
+            }
+        }
     }
 
     /**
@@ -704,6 +715,7 @@ public class Oplayer {
      */
     @OverrideMe
     public void postDataSave(final Player p, final boolean async) {
+
     }
 }
  /*

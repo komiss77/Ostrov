@@ -1,0 +1,214 @@
+package ru.komiss77.modules.items;
+
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import org.bukkit.Keyed;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
+import ru.komiss77.OStrap;
+import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.ItemUtil;
+
+public abstract class SpecialItem implements Keyed {
+
+    public static final CaseInsensitiveMap<SpecialItem> VALUES = new CaseInsensitiveMap<>();
+
+    public static boolean exist = false;
+
+    private static final String CON_NAME = "specials.yml";
+    private static final String SPLT = "=";
+    private static final NamespacedKey DATA = OStrap.key("spec");
+
+    private final String name;
+    private final ItemStack item;
+    private final NamespacedKey key;
+
+    private WeakReference<Entity> own;
+    private boolean crafted;
+    private boolean dropped;
+    private @Nullable WXYZ lastLoc;
+
+    public SpecialItem() {
+        this.name = this.getClass().getSimpleName();
+        this.key = OStrap.key(name);
+
+        own = new WeakReference<>(null);
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+        crafted = irc.getBoolean(name + ".crafted", false);
+        dropped = irc.getBoolean(name + ".dropped", false);
+        final XYZ loc = WXYZ.fromString(irc.getString(name + ".loc"));
+        lastLoc = loc == null ? null : new WXYZ(loc);
+        this.item = ItemUtil.parseItem(irc.getString(name + ".item"), SPLT);
+
+        VALUES.put(name, this);
+        exist = true;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public boolean crafted() {
+        return crafted;
+    }
+
+    public boolean dropped() {
+        return dropped;
+    }
+
+    public ItemStack item() {
+        return item;
+    }
+
+    public @Nullable WXYZ loc() {
+        return switch (own.get()) {
+            case null -> lastLoc;
+            case final Entity le -> {
+                loc(le.getLocation());
+                yield lastLoc;
+            }
+        };
+    }
+
+    public void loc(final Location lc) {
+        lastLoc = new WXYZ(lc);
+    }
+
+    protected void destroy() {
+        if (crafted) {
+            dropped = false;
+            crafted = false;
+            switch (own.get()) {
+                case null: break;
+                case final Item le:
+                    le.remove();
+                    break;
+                case final Player le:
+                    for (final ItemStack it : le.getInventory()) {
+                        if (it != null && this.equals(get(it))) {
+                            it.setAmount(0);
+                        }
+                    }
+                    break;
+                case final LivingEntity le:
+                    final EntityEquipment eq = le.getEquipment();
+                    if (eq == null) break;
+                    for (final EquipmentSlot sl : EquipmentSlot.values()) {
+                        final ItemStack it = eq.getItem(sl);
+                        if (this.equals(get(it))) {
+                            eq.setItem(sl, ItemUtil.air.clone());
+                        }
+                    }
+                    break;
+                default:
+            }
+            lastLoc = null;
+            own = new WeakReference<>(null);
+            save();
+        }
+    }
+
+    public Item apply(final Item it) {
+        crafted = true;
+        dropped = true;
+        it.setGlowing(true);
+        it.setWillAge(false);
+        it.setGravity(false);
+        it.setPickupDelay(20);
+        own = new WeakReference<>(it);
+        loc(it.getLocation());
+        save();
+        return it;
+    }
+
+    public void obtain(final LivingEntity le) {
+        crafted = true;
+        dropped = false;
+        own = new WeakReference<>(le);
+        loc(le.getLocation());
+        save();
+    }
+
+    public void save() {
+        Ostrov.async(() -> {
+            final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".dropped", dropped);
+            irc.set(name + ".crafted", crafted);
+            irc.saveConfig();
+        });
+    }
+
+    public void saveAll() {
+        Ostrov.async(() -> {
+            final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".dropped", dropped);
+            irc.set(name + ".crafted", crafted);
+            irc.saveConfig();
+        });
+    }
+
+    protected abstract void onAttack(final EquipmentSlot es, final EntityDamageByEntityEvent e);
+
+    protected abstract void onDefense(final EquipmentSlot es, final EntityDamageEvent e);
+
+    protected abstract void onShoot(final EquipmentSlot es, final ProjectileLaunchEvent e);
+
+    protected abstract void onInteract(final EquipmentSlot es, final PlayerInteractEvent e);
+
+    protected abstract void onBreak(final EquipmentSlot es, final BlockBreakEvent e);
+
+    protected abstract void onPlace(final EquipmentSlot es, final BlockPlaceEvent e);
+
+    protected abstract void onExtra(final EquipmentSlot es, final PlayerEvent e);
+
+    @Override
+    public NamespacedKey getKey() {
+        return key;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return o instanceof SpecialItem && name.equals(((SpecialItem) o).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public static @Nullable SpecialItem get(final ItemStack it) {
+        final String nm = it.getPersistentDataContainer().get(DATA, PersistentDataType.STRING);
+        return nm == null ? null : VALUES.get(nm);
+    }
+
+    public static @Nullable SpecialItem get(final Entity own) {
+        for (final SpecialItem si : VALUES.values()) {
+            final Entity ent = si.own.get();
+            if (ent != null && ent.getEntityId() == own.getEntityId())
+                return si;
+        }
+        return null;
+    }
+}

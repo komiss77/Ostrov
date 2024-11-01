@@ -142,9 +142,9 @@ public class XYZ implements Cloneable {
     public int hashCode() {
         long l = asLong();
         if (worldName == null) {
-            return (int) (l ^ (l >>> 32));//return toString().hashCode();
+            return Long.hashCode(l);//return toString().hashCode();
         } else {
-            return (int) (l ^ (l >>> 32)) ^ worldName.hashCode();
+            return Long.hashCode(l) ^ worldName.hashCode();
         }
     }
 

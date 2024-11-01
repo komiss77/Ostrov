@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockType;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,10 +19,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -57,104 +58,229 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
-        process(e.getEntity(), (es, cm) -> cm.onDefense(es, e));
+        process(e.getEntity(), new Processor() {
+            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onDefense(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onDefense(es, e);}
+        });
         if (e instanceof final EntityDamageByEntityEvent ee) {
-            process(e.getDamageSource().getCausingEntity(), (es, cm) -> cm.onAttack(es, ee));
+            process(e.getDamageSource().getCausingEntity(), new Processor() {
+                public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onAttack(ess, ee);}
+                public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onAttack(es, ee);}
+            });
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onInteract(es, e));
+        process(e.getPlayer(), new Processor() {
+            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onInteract(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onInteract(es, e);}
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onBreak(es, e));
+        process(e.getPlayer(), new Processor() {
+            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onBreak(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onBreak(es, e);}
+        });
+        if (!SpecialItem.exist) return;
+        if (!BlockType.BARRIER.equals(e.getBlock().getType().asBlockType())) return;
+        final SpecialItem spi = SpecialItem.get(e.getPlayer().getInventory().getItemInMainHand());
+        if (spi != null) spi.saveAll();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlace(final BlockPlaceEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onPlace(es, e));
+        process(e.getPlayer(), new Processor() {
+            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onPlace(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onPlace(es, e);}
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
         if (e.getEntity().getShooter() instanceof final LivingEntity le) {
-            process(le, (es, cm) -> cm.onShoot(es, e));
+            process(le, new Processor() {
+                public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onShoot(ess, e);}
+                public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onShoot(es, e);}
+            });
         }
     }
 
-
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerJumpEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerToggleFlightEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerPickupExperienceEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerChangedMainHandEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerStopUsingItemEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerRiptideEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerItemConsumeEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerElytraBoostEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(final PlayerInteractEntityEvent e) {
-        process(e.getPlayer(), (es, cm) -> cm.onExtra(es, e));
+        process(e.getPlayer(), extraProc(e));
     }
 
-
-    private static void process(final Entity ent, final BiConsumer<EquipmentSlot[], CustomMats> ec) {
+    private static void process(final Entity ent, final Processor pc) {
         if (ent instanceof final LivingEntity le) {
             final HashMap<CustomMats, List<EquipmentSlot>> cmp = new HashMap<>();
             final EntityEquipment eq = le.getEquipment();
-            if (eq != null) {
-                for (final EquipmentSlot es : EquipmentSlot.values()) {
-                    final ItemStack is = eq.getItem(es);
-                    if (ItemUtil.isBlank(is, true)) continue;
-                    final CustomMats cm = CustomMats.getCstmItm(is.getItemMeta());
-                    if (cm == null) continue;
-                    final List<EquipmentSlot> ess = cmp.get(cm);
-                    if (ess == null) {
-                        final List<EquipmentSlot> nes = new ArrayList<>();
-                        nes.add(es);
-                        cmp.put(cm, nes);
-                    } else {
-                        ess.add(es);
+            if (eq == null) return;
+            for (final EquipmentSlot es : EquipmentSlot.values()) {
+                final ItemStack is = eq.getItem(es);
+                if (!SpecialItem.exist) {
+                    final SpecialItem spi = SpecialItem.get(is);
+                    if (spi != null) {
+                        pc.onSpec(es, spi);
+                        continue;
                     }
                 }
+                if (!CustomMats.exist || ItemUtil.isBlank(is, true)) continue;
+                final CustomMats cm = CustomMats.get(is.getItemMeta());
+                if (cm == null) continue;
+                final List<EquipmentSlot> ess = cmp.get(cm);
+                if (ess == null) {
+                    final List<EquipmentSlot> nes = new ArrayList<>();
+                    nes.add(es);
+                    cmp.put(cm, nes);
+                } else {
+                    ess.add(es);
+                }
             }
+            if (!CustomMats.exist) return;
             for (final Map.Entry<CustomMats, List<EquipmentSlot>> en : cmp.entrySet()) {
-                ec.accept(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
+                pc.onMats(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDrop(final EntityDropItemEvent e) {
+        final Item drop = e.getItemDrop();
+        final ItemStack it = drop.getItemStack();
+        final SpecialItem si = SpecialItem.get(it);
+        if (si == null) return;
+        if (!si.crafted()) {
+            drop.remove();
+            e.setCancelled(true);
+            Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+            return;
+        }
+        if (si.dropped()) {
+            drop.remove();
+            Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+            return;
+        }
+        si.apply(drop);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPick(final EntityPickupItemEvent e) {
+        final Item drop = e.getItem();
+        final ItemStack it = drop.getItemStack();
+        final SpecialItem si = SpecialItem.get(it);
+        if (si == null) return;
+        if (!si.crafted()) {
+            drop.remove();
+            e.setCancelled(true);
+            Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+            return;
+        }
+        if (!si.dropped()) {
+            drop.remove();
+            e.setCancelled(true);
+            Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+            return;
+        }
+
+        si.obtain(e.getEntity());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onLoad(final EntitiesLoadEvent e) {
+        for (final Entity en : e.getEntities()) {
+            if (en instanceof final Item it) {
+                final SpecialItem si = SpecialItem.get(it);
+                if (si == null) continue;
+                if (!si.crafted()) {
+                    it.remove();
+                    Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+                    continue;
+                }
+                if (!si.dropped()) {
+                    it.remove();
+                    Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+                    continue;
+                }
+
+                si.apply(it);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onUnLoad(final EntitiesUnloadEvent e) {
+        for (final Entity en : e.getEntities()) {
+            if (en instanceof final Item it) {
+                final SpecialItem si = SpecialItem.get(it);
+                if (si == null) continue;
+                if (!si.crafted()) {
+                    it.remove();
+                    Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+                    continue;
+                }
+                if (!si.dropped()) {
+                    it.remove();
+                    Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+                    continue;
+                }
+
+                si.loc(it.getLocation());
+            }
+        }
+    }
+
+    public interface Processor {
+        void onMats(final EquipmentSlot[] ess, final CustomMats cm);
+        void onSpec(final EquipmentSlot es, final SpecialItem si);
+    }
+
+    private static Processor extraProc(final PlayerEvent e) {
+        return new Processor() {
+            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onExtra(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onExtra(es, e);}
+        };
     }
 }
