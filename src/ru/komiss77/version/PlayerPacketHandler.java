@@ -183,7 +183,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             } else if (packet instanceof final ClientboundSetEntityDataPacket p) {
                 id = p.id();
             } else if (packet instanceof final ClientboundTeleportEntityPacket p) {
-                id = p.getId();
+                id = p.id();
             } else if (packet instanceof final ClientboundUpdateAttributesPacket p) {
                 id = p.getEntityId();
             } else if (packet instanceof ClientboundMoveEntityPacket) {
@@ -203,7 +203,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
                     } else if (pc instanceof final ClientboundSetEntityDataPacket p) {
                         id = p.id();
                     } else if (pc instanceof final ClientboundTeleportEntityPacket p) {
-                        id = p.getId();
+                        id = p.id();
                     } else if (pc instanceof final ClientboundUpdateAttributesPacket p) {
                         id = p.getEntityId();
                     } else if (pc instanceof ClientboundMoveEntityPacket) {

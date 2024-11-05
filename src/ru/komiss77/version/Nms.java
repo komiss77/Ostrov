@@ -449,7 +449,6 @@ public class Nms {
     fc.setCanAlwaysEat(fp.canAlwaysEat());
     fc.setNutrition(fp.nutrition());
     fc.setSaturation(fp.saturation());
-    fc.setEatSeconds(fp.eatSeconds());
     return fc;
 //    fc.setUsingConvertsTo(fp.usingConvertsTo().orElseGet(() ->
 //        new net.minecraft.world.item.ItemStack(Items.AIR)).asBukkitCopy());

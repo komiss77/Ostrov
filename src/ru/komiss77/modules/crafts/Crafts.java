@@ -143,7 +143,7 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack scd = ItemUtil.parseItem(cs.getString("recipe.b"), "=");
                 if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
                 recipe = new SmithingTransformRecipe(nsk, resultItem, CMDMatChoice.of(
-                        ItemUtil.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                    ItemUtil.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);
@@ -203,16 +203,16 @@ public final class Crafts implements Initiable, Listener {
                     return lrc;
                 case final FurnaceRecipe src:
                     return new FurnaceRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final SmokingRecipe src:
                     return new SmokingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final BlastingRecipe src:
                     return new BlastingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final CampfireRecipe src:
                     return new CampfireRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                            new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 default:
                     return null;
             }
@@ -373,7 +373,7 @@ public final class Crafts implements Initiable, Listener {
         final StonecutterInventory sci = e.getStonecutterInventory();
         if (src == null) {
             if (ItemUtil.isBlank(sci.getInputItem(), true) ||
-                    !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
+                !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
         } else {
             if (src.getInputChoice().test(sci.getInputItem())) return;
         }
@@ -409,7 +409,7 @@ public final class Crafts implements Initiable, Listener {
                         if (ch instanceof CMDMatChoice) {
                             final String gs = gridIts.get(ch);
                             gridIts.put((CMDMatChoice) ch, gs == null ?
-                                    String.valueOf(en.getKey()) : gs + en.getKey());
+                                String.valueOf(en.getKey()) : gs + en.getKey());
                         }
                     }
 
@@ -435,7 +435,7 @@ public final class Crafts implements Initiable, Listener {
                         final String slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                                kst.getType().getMaxStackSize() : 1, his / slots.length());
+                            kst.getType().getMaxStackSize() : 1, his / slots.length());
                         giveItemAmt(p, kst, his - (split * slots.length()));
                         if (split == 0) continue;
                         for (final char c : slots.toCharArray()) {
@@ -487,7 +487,7 @@ public final class Crafts implements Initiable, Listener {
                         final int slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
                         final int split = Math.min(e.isMakeAll() ?
-                                kst.getType().getMaxStackSize() : 1, his / slots);
+                            kst.getType().getMaxStackSize() : 1, his / slots);
                         giveItemAmt(p, kst, his - (split * slots));
                         if (split == 0) continue;
                         for (int i = slots; i > 0; i--) {
@@ -584,68 +584,82 @@ public final class Crafts implements Initiable, Listener {
                 final ItemMeta im = it.getItemMeta();
                 im.removeAttributeModifier(es);
                 double arm = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.GENERIC_ARMOR)) {
+                for (final AttributeModifier am : amt.get(Attribute.ARMOR)) {
                     switch (am.getOperation()) {
                         case ADD_NUMBER:
                             arm += am.getAmount();
                             break;
-                        case ADD_SCALAR, MULTIPLY_SCALAR_1:
+                        case ADD_SCALAR:
                             arm *= am.getAmount();
+                            break;
+                        case MULTIPLY_SCALAR_1:
+                            arm *= (1d + am.getAmount());
                             break;
                     }
                 }
                 double ath = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.GENERIC_ARMOR_TOUGHNESS)) {
+                for (final AttributeModifier am : amt.get(Attribute.ARMOR_TOUGHNESS)) {
                     switch (am.getOperation()) {
                         case ADD_NUMBER:
                             ath += am.getAmount();
                             break;
-                        case ADD_SCALAR, MULTIPLY_SCALAR_1:
+                        case ADD_SCALAR:
                             ath *= am.getAmount();
+                            break;
+                        case MULTIPLY_SCALAR_1:
+                            ath *= (1d + am.getAmount());
                             break;
                     }
                 }
                 double akb = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.GENERIC_KNOCKBACK_RESISTANCE)) {
+                for (final AttributeModifier am : amt.get(Attribute.KNOCKBACK_RESISTANCE)) {
                     switch (am.getOperation()) {
                         case ADD_NUMBER:
                             akb += am.getAmount();
                             break;
-                        case ADD_SCALAR, MULTIPLY_SCALAR_1:
+                        case ADD_SCALAR:
                             akb *= am.getAmount();
+                            break;
+                        case MULTIPLY_SCALAR_1:
+                            akb *= (1d + am.getAmount());
                             break;
                     }
                 }
 
                 final ItemStack add = ci.getInputMineral();
-                im.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(NamespacedKey.minecraft("generic.armor"),
-                        arm * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_ARMOR)), Operation.ADD_NUMBER, esg));
+                im.addAttributeModifier(Attribute.ARMOR, new AttributeModifier(NamespacedKey.minecraft("armor_defense"),
+                    arm * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("generic.armor_toughness"),
-                        ath * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
+                im.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("armor_toughness"),
+                    ath * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_anticnockback"),
-                        akb * (1d + ItemUtil.getTrimMod(add, Attribute.GENERIC_KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
+                im.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("armor_knockback_resist"),
+                    akb * (1d + ItemUtil.getTrimMod(add, Attribute.KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
 
-                im.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(NamespacedKey.minecraft("generic.armor_max_health"),
-                        ItemUtil.getTrimMod(add, Attribute.GENERIC_MAX_HEALTH), Operation.ADD_NUMBER, esg));
-
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_damage"),
-                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_DAMAGE), Operation.MULTIPLY_SCALAR_1, esg));
-
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_KNOCKBACK, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_knockback"),
-                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_KNOCKBACK), Operation.MULTIPLY_SCALAR_1, esg));
-
-                im.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_attack_speed"),
-                        ItemUtil.getTrimMod(add, Attribute.GENERIC_ATTACK_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
-
-                im.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(NamespacedKey.minecraft("generic.armor_move_speed"),
-                        ItemUtil.getTrimMod(add, Attribute.GENERIC_MOVEMENT_SPEED), Operation.MULTIPLY_SCALAR_1, esg));
+                addAttr(im, Attribute.MAX_HEALTH, add, "armor_max_health", esg);
+                addAttr(im, Attribute.SCALE, add, "armor_scale", esg);
+                addAttr(im, Attribute.GRAVITY, add, "armor_gravity", esg);
+                addAttr(im, Attribute.ATTACK_DAMAGE, add, "armor_attack_damage", esg);
+                addAttr(im, Attribute.ATTACK_KNOCKBACK, add, "armor_attack_knockback", esg);
+                addAttr(im, Attribute.ATTACK_SPEED, add, "armor_attack_speed", esg);
+                addAttr(im, Attribute.MOVEMENT_SPEED, add, "armor_move_speed", esg);
+                addAttr(im, Attribute.SNEAKING_SPEED, add, "armor_sneak_speed", esg);
+                addAttr(im, Attribute.WATER_MOVEMENT_EFFICIENCY, add, "armor_water_speed", esg);
+                addAttr(im, Attribute.JUMP_STRENGTH, add, "armor_jump_strength", esg);
+                addAttr(im, Attribute.BLOCK_INTERACTION_RANGE, add, "armor_range_block", esg);
+                addAttr(im, Attribute.ENTITY_INTERACTION_RANGE, add, "armor_range_entity", esg);
+                addAttr(im, Attribute.BLOCK_BREAK_SPEED, add, "armor_break_speed", esg);
 
                 it.setItemMeta(im);
                 e.setResult(it);
             }
         }
+    }
+
+    private static void addAttr(final ItemMeta im, final Attribute at, final ItemStack in, final String name, final EquipmentSlotGroup esg) {
+        final double mod = ItemUtil.getTrimMod(in, Attribute.BLOCK_BREAK_SPEED);
+        if (mod == 0d) return;
+        im.addAttributeModifier(at, new AttributeModifier(NamespacedKey.minecraft(name), mod, Operation.MULTIPLY_SCALAR_1, esg));
     }
 
     @EventHandler

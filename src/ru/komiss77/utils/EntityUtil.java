@@ -213,6 +213,8 @@ public class EntityUtil {
             case ELDER_GUARDIAN:
             case BREEZE:
             case BOGGED:
+            case CREAKING:
+            case CREAKING_TRANSIENT:
                 return EntityGroup.MONSTER;
 
 
@@ -276,7 +278,16 @@ public class EntityUtil {
             case AREA_EFFECT_CLOUD:
             case ARMOR_STAND:
             case ARROW:
-            case BOAT:
+            case ACACIA_BOAT:
+            case BAMBOO_RAFT:
+            case CHERRY_BOAT:
+            case BIRCH_BOAT:
+            case JUNGLE_BOAT:
+            case OAK_BOAT:
+            case DARK_OAK_BOAT:
+            case SPRUCE_BOAT:
+            case MANGROVE_BOAT:
+            case PALE_OAK_BOAT:
             case DRAGON_FIREBALL:
             case ITEM:
             case EGG:
@@ -316,7 +327,16 @@ public class EntityUtil {
             case WITHER_SKULL:
             case PLAYER:
             case GLOW_ITEM_FRAME:
-            case CHEST_BOAT:
+            case ACACIA_CHEST_BOAT:
+            case BAMBOO_CHEST_RAFT:
+            case CHERRY_CHEST_BOAT:
+            case BIRCH_CHEST_BOAT:
+            case JUNGLE_CHEST_BOAT:
+            case OAK_CHEST_BOAT:
+            case DARK_OAK_CHEST_BOAT:
+            case SPRUCE_CHEST_BOAT:
+            case MANGROVE_CHEST_BOAT:
+            case PALE_OAK_CHEST_BOAT:
             case OMINOUS_ITEM_SPAWNER:
 
             case MARKER:

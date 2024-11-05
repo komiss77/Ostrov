@@ -12,8 +12,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.*;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -203,7 +204,7 @@ public class ItemMenu implements InventoryProvider {
             .lore("§7Клик - редактировать §ксвойства").build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 SmartInventory.builder().id(p.getName() + " Flags").title("    §кНастройки Аттрибутов")
-                    .provider(new AttrMenu(it)).size(2, 9).build().open(p);
+                    .provider(new AttrMenu(it)).size(3, 9).build().open(p);
             }
         }));
 

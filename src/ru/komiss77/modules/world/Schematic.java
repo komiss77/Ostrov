@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.version.Craft;
 
 
@@ -191,32 +192,27 @@ public class Schematic {
     }
 
     private static String getStringFromBlockState(final BlockState bs) {
-//Ostrov.log("bs="+bs);
-        if (bs == null) return "";
+        return switch (bs) {
+            case InventoryHolder inventoryHolder -> {
+                StringBuilder sb = new StringBuilder("Inventory=");
 
-        if (bs instanceof InventoryHolder inventoryHolder) {
-            StringBuilder sb = new StringBuilder("Inventory=");
-
-            final Inventory inv = inventoryHolder.getInventory();
-            for (final ItemStack is : inv.getContents()) {
-                sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtil.toString(is, ";")).append(",");
-            }
-
-            if (bs instanceof Nameable nameable) {
-                final Component nm = nameable.customName();
-                if (nm != null && nm instanceof TextComponent && ((TextComponent) nm).content().equals("RANDOM")) {
-                    sb.append("RANDOM");
+                final Inventory inv = inventoryHolder.getInventory();
+                for (final ItemStack is : inv.getContents()) {
+                    sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtil.toString(is, ";")).append(",");
                 }
-            }
-//Ostrov.log("bs=InventoryHolder");
-            return sb.toString();
 
-        } else if (bs instanceof CreatureSpawner creatureSpawner) {
-            return "CreatureSpawner=" + creatureSpawner.getSpawnedType().toString();
-//Ostrov.log("bs=CreatureSpawner");
-        }
-        //bds = bds.substring(bds.indexOf("[")+1).replaceFirst("]", "");
-        return "";
+                if (bs instanceof Nameable nameable) {
+                    final Component nm = nameable.customName();
+                    if (nm instanceof TextComponent && ((TextComponent) nm).content().equals("RANDOM")) {
+                        sb.append("RANDOM");
+                    }
+                }
+                yield sb.toString();
+            }
+            case CreatureSpawner creatureSpawner ->
+                "CreatureSpawner=" + creatureSpawner.getSpawnedType().toString();
+            case null, default -> "";
+        };
     }
 
 
@@ -269,8 +265,8 @@ public class Schematic {
                         createdEnvironment = Environment.valueOf(lines.get(line)); //line10
 
                         line++;
-                        for (Biome b : Biome.values()) {
-                            if (String.valueOf(b).equalsIgnoreCase(lines.get(line))) {
+                        for (Biome b : LocUtil.BIOME_REG) {
+                            if (b.key().value().equalsIgnoreCase(lines.get(line))) {
                                 createdBiome = b; //line11
                             }
                         }

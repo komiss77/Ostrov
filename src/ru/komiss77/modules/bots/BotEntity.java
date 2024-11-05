@@ -21,6 +21,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
@@ -251,7 +253,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         Nms.sendWorldPackets(world,
             new ClientboundAddEntityPacket(this, 0,
                 new BlockPos(to.getBlockX(), to.getBlockY(), to.getBlockZ())),
-            new ClientboundTeleportEntityPacket(this),
+            new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         tag(true);
         ext.teleport(this, mb);
@@ -292,7 +294,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
             modListPlayerPacket(), //UPDATE_GAME_MODE
             new ClientboundAddEntityPacket(this, 0, blockPosition()),
-            new ClientboundTeleportEntityPacket(this),
+            new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         swapToSlot(0);
         ext.spawn(this, getEntity());
@@ -307,7 +309,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             es = le.createSnapshot();
             BotManager.botById.remove(rid);
             le.remove();
-            maxHp = le.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+            maxHp = le.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
             hp = le.getHealth();
         } else {
             es = null;
@@ -329,7 +331,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             mb.customName(TCUtil.form(name));
             mb.setCustomNameVisible(true);
         }) : (Vindicator) es.createEntity(to);
-        if (maxHp != 0d) vc.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHp);
+        if (maxHp != 0d) vc.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHp);
         if (hp != 0d) vc.setHealth(hp);
         this.rplc = new WeakReference<>(vc);
         this.rid = vc.getEntityId();
@@ -364,8 +366,8 @@ public class BotEntity extends ServerPlayer implements Botter {
 
     private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
         //private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
-        return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(),
-            true, 1, currMode, getTabListDisplayName(), Optionull.map(getChatSession(), RemoteChatSession::asData)));
+        return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(), true, 1,
+            currMode, getTabListDisplayName(), 0, Optionull.map(getChatSession(), RemoteChatSession::asData)));
         //return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
         //true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
     }
@@ -552,7 +554,8 @@ public class BotEntity extends ServerPlayer implements Botter {
     public void updateAll(final Player pl) {
 //      pl.sendMessage("bot-" + name);
         Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this, 0, blockPosition()),
-            new ClientboundTeleportEntityPacket(this), new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
+            new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
+            new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         team.send(pl);
         tag.showTo(pl);
     }

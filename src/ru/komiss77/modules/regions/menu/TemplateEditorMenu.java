@@ -1,14 +1,18 @@
 package ru.komiss77.modules.regions.menu;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.regions.RM;
 import ru.komiss77.modules.regions.Template;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -71,7 +75,7 @@ public class TemplateEditorMenu implements InventoryProvider {
             .build(), e -> {
           if (e.getClick() == ClickType.RIGHT) {
             if (!t.description.isEmpty()) {
-              t.description.remove(t.description.size() - 1);
+              t.description.removeLast();
               RM.saveTemplate(t);
               reopen(p, contents);
             }
@@ -228,7 +232,7 @@ public class TemplateEditorMenu implements InventoryProvider {
   }
 
 
-  class WorldSelectMenu implements InventoryProvider {
+  static class WorldSelectMenu implements InventoryProvider {
 
     private final Template t;
 

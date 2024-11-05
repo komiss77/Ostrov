@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -20,6 +21,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -44,6 +46,8 @@ import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
+
+import static org.bukkit.attribute.Attribute.*;
 
 /*
 	SPEED  СКОРОСТЬ
@@ -139,9 +143,11 @@ public class ItemUtil {
     public static final ItemStack air, book, add, nextPage, previosPage;
     private static final Set<ItemType> POTION;
     private static final Pattern regex;
+    private static final Registry<Attribute> ATTR_REG;
 //    private static final Gson GSON;
 
     static {
+        ATTR_REG = RegistryAccess.registryAccess().getRegistry(RegistryKey.ATTRIBUTE);
         key = new NamespacedKey(Ostrov.instance, "ostrov");
         playerProfilesCache = new CaseInsensitiveMap<>();
         regex = Pattern.compile("(.{1,24}(?:\\s|$))|(.{0,24})", Pattern.DOTALL);
@@ -376,10 +382,10 @@ public class ItemUtil {
         char[] blockArray = block.toCharArray();
 
         for (int position = 0; position < blockArray.length; position++) {
-//System.out.println("111 index="+index+"  position="+position+" char="+блок_array[position] );        
+//System.out.println("111 index="+index+"  position="+position+" char="+блок_array[position] );
 
             if (blockArray[position] == '§') {
-//System.out.println("skip § 111 position="+position );        
+//System.out.println("skip § 111 position="+position );
                 sb.append(blockArray[position]);
                 //position++;
                 currentLineLenght++;
@@ -388,9 +394,9 @@ public class ItemUtil {
                 currentLineLenght++;
                 //System.out.println("skip § 222 position="+position );
             } else {
-//System.out.println("222 index="+index+"  position="+position );        
+//System.out.println("222 index="+index+"  position="+position );
                 if (position != 0 && position % currentLineLenght == 0) {
-//System.out.println("nextLine 111 position="+position+"  current_line_lenght="+current_line_lenght );        
+//System.out.println("nextLine 111 position="+position+"  current_line_lenght="+current_line_lenght );
                     nextLine = true;
                 }
                 if (nextLine && (blockArray[position] == ' ' || blockArray[position] == '|' || blockArray[position] == ',' || blockArray[position] == '.')) {
@@ -399,7 +405,7 @@ public class ItemUtil {
                     //index++;
                     sb = new StringBuilder();
                     currentLineLenght = lineLenght;
-//System.out.println("nextLine 222 index="+index+" position="+position+"  current_line_lenght="+current_line_lenght );        
+//System.out.println("nextLine 222 index="+index+" position="+position+"  current_line_lenght="+current_line_lenght );
                 } else {
                     sb.append(blockArray[position]);
                 }
@@ -937,10 +943,8 @@ public class ItemUtil {
                                 break;
                             }
                             final EquipmentSlotGroup esg = EquipmentSlotGroup.getByName(param[4]);
-                            builder.attribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
-                                esg == null ? EquipmentSlotGroup.ANY : esg);
-                            //builder.attribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
-                            //param[4].equals("ANY") ? null : EquipmentSlot.valueOf(param[4]));
+                            builder.attribute(ATTR_REG.get(Key.key(param[1])), mod,
+                                Operation.values()[op], esg == null ? EquipmentSlotGroup.ANY : esg);
                         }
                         break;
 
@@ -1151,146 +1155,72 @@ public class ItemUtil {
         sign.update();
     }
 
-
     public static double getTrimMod(final ItemStack ti, final Attribute atr) {
-        if (ti == null) {
-            return 0d;
-        }
+        if (ti == null) return 0d;
+
         switch (ti.getType()) {
-            case IRON_INGOT -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> 0.2d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.1d;
-                    case GENERIC_MAX_HEALTH -> 0d;
-                    case GENERIC_ATTACK_DAMAGE -> 0d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0d;
-                    case GENERIC_ATTACK_SPEED -> -0.1d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0.1d;
-                    case GENERIC_MOVEMENT_SPEED -> -0.1d;
-                    default -> 0d;
-                };
+            case IRON_INGOT -> {//more defense, less mobility
+                if (atr.equals(ARMOR)) return 0.2d;
+                else if (atr.equals(ARMOR_TOUGHNESS)) return 0.1d;
+                else if (atr.equals(MOVEMENT_SPEED)) return -0.1d;
+                else if (atr.equals(WATER_MOVEMENT_EFFICIENCY)) return -0.2d;
             }
-            case COPPER_INGOT -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> -0.1d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.2d;
-                    case GENERIC_MAX_HEALTH -> 2d;
-                    case GENERIC_ATTACK_DAMAGE -> 0d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0.1d;
-                    case GENERIC_ATTACK_SPEED -> -0.1d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0.2d;
-                    case GENERIC_MOVEMENT_SPEED -> 0d;
-                    default -> 0d;
-                };
+            case COPPER_INGOT -> {//more kick, less mining
+                if (atr.equals(ATTACK_KNOCKBACK)) return 0.2d;
+                else if (atr.equals(JUMP_STRENGTH)) return 0.1d;
+                else if (atr.equals(BLOCK_BREAK_SPEED)) return -0.1d;
+                else if (atr.equals(GRAVITY)) return -0.1d;
             }
-            case GOLD_INGOT -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> -0.1d;
-                    case GENERIC_ARMOR_TOUGHNESS -> -0.2d;
-                    case GENERIC_MAX_HEALTH -> 4d;
-                    case GENERIC_ATTACK_DAMAGE -> 0d;
-                    case GENERIC_ATTACK_KNOCKBACK -> -0.2d;
-                    case GENERIC_ATTACK_SPEED -> 0.1d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0d;
-                    case GENERIC_MOVEMENT_SPEED -> 0d;
-                    default -> 0d;
-                };
+            case GOLD_INGOT -> {//more health, less light
+                if (atr.equals(MAX_HEALTH)) return 0.1d;
+                else if (atr.equals(GRAVITY)) return 0.1d;
+                else if (atr.equals(SNEAKING_SPEED)) return -0.1d;
+                else if (atr.equals(BLOCK_BREAK_SPEED)) return 0.1d;
             }
-            case AMETHYST_SHARD -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> -0.2d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0d;
-                    case GENERIC_MAX_HEALTH -> 0d;
-                    case GENERIC_ATTACK_DAMAGE -> 0.1d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0.2d;
-                    case GENERIC_ATTACK_SPEED -> 0d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> -0.4d;
-                    case GENERIC_MOVEMENT_SPEED -> 0d;
-                    default -> 0d;
-                };
+            case AMETHYST_SHARD -> {//more attack, less defense
+                if (atr.equals(ATTACK_DAMAGE)) return 0.1d;
+                else if (atr.equals(ARMOR)) return -0.2d;
+                else if (atr.equals(BLOCK_INTERACTION_RANGE)) return 0.1d;
+                else if (atr.equals(ENTITY_INTERACTION_RANGE)) return 0.1d;
             }
-            case DIAMOND -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> 0.2d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.2d;
-                    case GENERIC_MAX_HEALTH -> -1d;
-                    case GENERIC_ATTACK_DAMAGE -> 0.1d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0d;
-                    case GENERIC_ATTACK_SPEED -> 0d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> -0.1d;
-                    case GENERIC_MOVEMENT_SPEED -> 0d;
-                    default -> 0d;
-                };
+            case DIAMOND -> {//buffs armor and damage
+                if (atr.equals(ARMOR)) return 0.05d;
+                else if (atr.equals(ARMOR_TOUGHNESS)) return 0.1d;
+                else if (atr.equals(ATTACK_DAMAGE)) return 0.05d;
+                else if (atr.equals(KNOCKBACK_RESISTANCE)) return -0.1d;
             }
-            case EMERALD -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> 0d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.4d;
-                    case GENERIC_MAX_HEALTH -> 0d;
-                    case GENERIC_ATTACK_DAMAGE -> 0d;
-                    case GENERIC_ATTACK_KNOCKBACK -> -0.1d;
-                    case GENERIC_ATTACK_SPEED -> 0d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> -0.2d;
-                    case GENERIC_MOVEMENT_SPEED -> 0d;
-                    default -> 0d;
-                };
+            case EMERALD -> {//more mobility, less damage
+                if (atr.equals(MOVEMENT_SPEED)) return 0.1d;
+                else if (atr.equals(ARMOR_TOUGHNESS)) return 0.1d;
+                else if (atr.equals(ATTACK_DAMAGE)) return -0.1d;
+                else if (atr.equals(JUMP_STRENGTH)) return 0.1d;
             }
-            case REDSTONE -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> -0.4d;
-                    case GENERIC_ARMOR_TOUGHNESS -> -0.6d;
-                    case GENERIC_MAX_HEALTH -> 1d;
-                    case GENERIC_ATTACK_DAMAGE -> -0.1d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0d;
-                    case GENERIC_ATTACK_SPEED -> 0.2d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0d;
-                    case GENERIC_MOVEMENT_SPEED -> 0.2d;
-                    default -> 0d;
-                };
+            case REDSTONE -> {//more bulk, less kick
+                if (atr.equals(MAX_HEALTH)) return 0.1d;
+                else if (atr.equals(SCALE)) return 0.1d;
+                else if (atr.equals(WATER_MOVEMENT_EFFICIENCY)) return -0.1d;
+                else if (atr.equals(JUMP_STRENGTH)) return -0.1d;
             }
-            case LAPIS_LAZULI -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> -0.4d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.2d;
-                    case GENERIC_MAX_HEALTH -> 0d;
-                    case GENERIC_ATTACK_DAMAGE -> -0.1d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0.2d;
-                    case GENERIC_ATTACK_SPEED -> 0d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0d;
-                    case GENERIC_MOVEMENT_SPEED -> 0.2d;
-                    default -> 0d;
-                };
+            case LAPIS_LAZULI -> {//more mobility, less swing
+                if (atr.equals(SNEAKING_SPEED)) return 0.1d;
+                else if (atr.equals(WATER_MOVEMENT_EFFICIENCY)) return 0.2d;
+                else if (atr.equals(ATTACK_SPEED)) return -0.1d;
+                else if (atr.equals(GRAVITY)) return -0.1d;
             }
-            case NETHERITE_INGOT -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> 0.6d;
-                    case GENERIC_ARMOR_TOUGHNESS -> 0.4d;
-                    case GENERIC_MAX_HEALTH -> 0d;
-                    case GENERIC_ATTACK_DAMAGE -> 0d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0d;
-                    case GENERIC_ATTACK_SPEED -> -0.2d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> 0.2d;
-                    case GENERIC_MOVEMENT_SPEED -> -0.2d;
-                    default -> 0d;
-                };
+            case NETHERITE_INGOT -> {//more toughness, less hp
+                if (atr.equals(ARMOR)) return 0.1d;
+                else if (atr.equals(ARMOR_TOUGHNESS)) return 0.4d;
+                else if (atr.equals(MAX_HEALTH)) return -0.1d;
+                else if (atr.equals(WATER_MOVEMENT_EFFICIENCY)) return -0.1d;
             }
-            case QUARTZ -> {
-                return switch (atr) {
-                    case GENERIC_ARMOR -> 0d;
-                    case GENERIC_ARMOR_TOUGHNESS -> -0.4d;
-                    case GENERIC_MAX_HEALTH -> -2d;
-                    case GENERIC_ATTACK_DAMAGE -> 0.2d;
-                    case GENERIC_ATTACK_KNOCKBACK -> 0.1d;
-                    case GENERIC_ATTACK_SPEED -> 0d;
-                    case GENERIC_KNOCKBACK_RESISTANCE -> -0.2d;
-                    case GENERIC_MOVEMENT_SPEED -> 0.1d;
-                    default -> 0d;
-                };
-            }
-            default -> {
-                return 0d;
+            case QUARTZ -> {//more damage, less haste
+                if (atr.equals(ATTACK_DAMAGE)) return 0.2d;
+                else if (atr.equals(ARMOR_TOUGHNESS)) return -0.1d;
+                else if (atr.equals(ATTACK_SPEED)) return -0.1d;
+                else if (atr.equals(SNEAKING_SPEED)) return -0.1d;
             }
         }
+        return 0d;
     }
 
 
@@ -1299,7 +1229,9 @@ public class ItemUtil {
         if (b.toString().equalsIgnoreCase("NETHER") || b.toString().equalsIgnoreCase("NETHER_WASTES")) {
             mat = Material.NETHERRACK;
         } else {
-            switch (b) {
+            mat = Material.GRASS_BLOCK;
+            //TODO потом перепишу
+            /*switch (b) {
                 case BADLANDS -> mat = Material.RED_SAND;
                 case BAMBOO_JUNGLE -> mat = Material.BAMBOO;
                 case BEACH -> mat = Material.HORN_CORAL_FAN;
@@ -1366,7 +1298,7 @@ public class ItemUtil {
                 case CHERRY_GROVE -> mat = Material.CHERRY_LOG;
                 case CUSTOM -> mat = Material.CRIMSON_NYLIUM;
                 default -> mat = Material.WARPED_NYLIUM;
-            }
+            }*/
         }
 
         return new ItemBuilder(mat)
@@ -1390,6 +1322,7 @@ public class ItemUtil {
         return builder;
     }
 
+    @Deprecated
     public static boolean isItemA(final ItemStack is, final ItemClass cls) {
         return cls.has(is == null ? Material.AIR : is.getType());
     }
@@ -1418,6 +1351,7 @@ public class ItemUtil {
 
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            //почему не ItemStack.serializeItemsAsBytes()?
             BukkitObjectOutputStream bukkitOutStream = new BukkitObjectOutputStream(outputStream);
             // Write the size of the inventory
             bukkitOutStream.writeInt(items.length);
@@ -1442,12 +1376,12 @@ public class ItemUtil {
     }
 
 
-    public static ItemStack @org.jetbrains.annotations.Nullable [] itemStackArrayFromBase64(final String data) {
+    public static @Nullable ItemStack[] itemStackArrayFromBase64(final String data) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            //почему не ItemStack.deserializeItemsFromBytes()?
             ItemStack[] items = new ItemStack[dataInput.readInt()];
-
             // Read the serialized inventory
             for (int i = 0; i < items.length; i++) {
                 final ItemStack is = (ItemStack) dataInput.readObject();
@@ -1473,10 +1407,11 @@ public class ItemUtil {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             BukkitObjectOutputStream boos = new BukkitObjectOutputStream(baos);
 
-            boos.writeInt(collection.toArray().length);
+            final Object[] arr = collection.toArray();
+            boos.writeInt(arr.length);
 
-            for (int i = 0; i < collection.toArray().length; ++i) {
-                boos.writeObject(collection.toArray()[i]);
+            for (int i = 0; i < arr.length; ++i) {
+                boos.writeObject(arr[i]);
             }
 
             boos.close();
@@ -1487,7 +1422,7 @@ public class ItemUtil {
         }
     }
 
-    public static @org.jetbrains.annotations.Nullable Collection<PotionEffect> potionEffectsFromBase64(String s) {
+    public static @Nullable Collection<PotionEffect> potionEffectsFromBase64(String s) {
 
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(s));
@@ -1507,10 +1442,11 @@ public class ItemUtil {
         }
     }
 
-  public static boolean isInteractable(final Material mat) {
-    final org.bukkit.block.BlockType bt = (org.bukkit.block.BlockType) Registry.BLOCK.get(mat.getKey());
-    return bt != null && bt.isInteractable();
-  }
+    @Deprecated
+    public static boolean isInteractable(final Material mat) {
+        final BlockType bt = Registry.BLOCK.get(mat.getKey());
+        return bt != null && bt.isInteractable();
+    }
 
 }
 

@@ -229,12 +229,12 @@ public class LocalSettings implements InventoryProvider {
                         .lore("")
                         .build(), e -> {
                     if (p.getHealth() == 0) return;
-                    final double amount = p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() - p.getHealth();
+                    final double amount = p.getAttribute(Attribute.MAX_HEALTH).getValue() - p.getHealth();
                     final EntityRegainHealthEvent erhe = new EntityRegainHealthEvent(p, amount, EntityRegainHealthEvent.RegainReason.CUSTOM);
                     Ostrov.getInstance().getServer().getPluginManager().callEvent(erhe);
                     double newAmount = p.getHealth() + erhe.getAmount();
-                    if (newAmount > p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue())
-                        newAmount = p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                    if (newAmount > p.getAttribute(Attribute.MAX_HEALTH).getValue())
+                        newAmount = p.getAttribute(Attribute.MAX_HEALTH).getValue();
                     p.setHealth(newAmount);
                     p.setFoodLevel(20);
                     p.setFireTicks(0);

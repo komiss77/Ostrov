@@ -1,6 +1,9 @@
 package ru.komiss77.builder.menu;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.ItemBuilder;
@@ -12,6 +15,7 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class Sounds implements InventoryProvider {
 
+    public static final Registry<Sound> SOUND_REG = RegistryAccess.registryAccess().getRegistry(RegistryKey.SOUND_EVENT);
 
     private Sound previos;
     private int current;
@@ -32,7 +36,7 @@ public class Sounds implements InventoryProvider {
         int from = page * 44;
         int to = page * 44 + 45;
         if (to >= Sound.values().length) to = Sound.values().length;
-
+        //TODO переделать под Sound registry
         for (int i = from; i < to; i++) {
 
             final Sound sound = Sound.values()[i];
@@ -52,23 +56,17 @@ public class Sounds implements InventoryProvider {
                 find = split[1] + "_" + split[2] + "_" + split[3];
                 // }
             } else if (split.length >= 4) { //BLOCK_ LILY_PAD _PLACE
-                switch (split[3]) {
-                    case "ON":
-                    case "OFF":
-                    case "BREACK":
-                    case "USE":
-                    case "SUCCES":
-                        find = split[1].length() <= 3 ? split[1] + "_" : split[1];
-                        break;
-                    default:
-                        find = split[1] + "_" + split[2];
-                }
+                find = switch (split[3]) {
+                    case "ON", "OFF", "BREACK", "USE", "SUCCES" ->
+                        split[1].length() <= 3 ? split[1] + "_" : split[1];
+                    default -> split[1] + "_" + split[2];
+                };
             } else {//if (split.length>=3) { //BLOCK_ LEVER _CLICK
                 find = split[1].length() <= 3 ? split[1] + "_" : split[1];
             }
 
             for (Material m : Material.values()) {
-              if (!m.isItem() || m.isLegacy()) continue;
+                if (!m.isItem() || m.isLegacy()) continue;
                 if (String.valueOf(m).contains(find)) {
                     mat = m;
                     break;

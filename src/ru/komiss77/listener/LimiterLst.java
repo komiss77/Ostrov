@@ -2,12 +2,15 @@ package ru.komiss77.listener;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.*;
-import org.bukkit.entity.Boat.Type;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -21,7 +24,6 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.*;
-import ru.komiss77.Timer;
 import ru.komiss77.enums.Module;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -234,9 +236,9 @@ public final class LimiterLst implements Initiable, Listener {
                     }
                     Timer.add(p, "vehicle", 2);
 
-                    EntityType boatType = Tag.ITEMS_CHEST_BOATS.isTagged(mat) ? EntityType.CHEST_BOAT : EntityType.BOAT;
+                    EntityType boatType = Tag.ITEMS_CHEST_BOATS.isTagged(mat) ? EntityType.OAK_CHEST_BOAT : EntityType.OAK_BOAT;
                     entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), boatType, SpawnReason.CUSTOM);
-                    switch (mat) {
+                    /*switch (mat) {
                         case OAK_BOAT -> ((Boat) entity).setBoatType(Type.OAK);
                         case DARK_OAK_BOAT -> ((Boat) entity).setBoatType(Type.DARK_OAK);
                         case ACACIA_BOAT -> ((Boat) entity).setBoatType(Type.ACACIA);
@@ -245,7 +247,7 @@ public final class LimiterLst implements Initiable, Listener {
                         case JUNGLE_BOAT -> ((Boat) entity).setBoatType(Type.JUNGLE);
                         case CHERRY_BOAT -> ((Boat) entity).setBoatType(Type.CHERRY);
                         case MANGROVE_BOAT -> ((Boat) entity).setBoatType(Type.MANGROVE);
-                    }
+                    }*/
                     if (op.boat != null && op.boat.get() != null) {
                         op.boat.get().remove();
                     }
@@ -319,8 +321,8 @@ public final class LimiterLst implements Initiable, Listener {
     }
 
     public static int checkChunk(@Nullable final Player p, @NotNull final Chunk chunk) {
-        final EnumMap<EntityGroup, Integer> groups = new EnumMap(EntityGroup.class);
-        final EnumMap<EntityType, Integer> types = new EnumMap(EntityType.class);
+        final EnumMap<EntityGroup, Integer> groups = new EnumMap<>(EntityGroup.class);
+        final EnumMap<EntityType, Integer> types = new EnumMap<>(EntityType.class);
 
         EntityType type;
         EntityGroup group;
@@ -631,16 +633,11 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
         }
 
         public static BlockStateType getType(final EntityType entityType) {
-            switch (entityType) {
-
-                case ITEM_FRAME:
-                    return FRAMES;
-
-                case ARMOR_STAND:
-                    return ARMOR_STANDS;
-
-            }
-            return null;
+            return switch (entityType) {
+                case ITEM_FRAME -> FRAMES;
+                case ARMOR_STAND -> ARMOR_STANDS;
+                default -> null;
+            };
         }
     }
 
@@ -868,7 +865,7 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
             }
 
 
-            pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+            pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
             pagination.setItemsPerPage(45);
 
             content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> {

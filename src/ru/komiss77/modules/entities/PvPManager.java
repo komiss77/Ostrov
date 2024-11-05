@@ -72,7 +72,7 @@ public class PvPManager implements Initiable {
     public static double getDefDmg(final ItemType it) {
         double d = 1d;
         for (final AttributeModifier mod : it.getDefaultAttributeModifiers()
-            .get(Attribute.GENERIC_ATTACK_DAMAGE)) {
+            .get(Attribute.ATTACK_DAMAGE)) {
             d += switch (mod.getOperation()) {
                 case ADD_NUMBER -> mod.getAmount();
                 case ADD_SCALAR -> mod.getAmount() * d;

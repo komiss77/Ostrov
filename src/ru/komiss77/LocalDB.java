@@ -614,7 +614,7 @@ public class LocalDB {
         sb.append(p.isPlayerTimeRelative() ? "1" : "0").append(","); //10
         sb.append((int) (p.getPlayerTimeOffset() / 1000)).append(","); //11
         sb.append(op.pvp_allow ? "1" : "0").append(","); //12
-        sb.append((int) (p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() * 100)).append(","); //13
+        sb.append((int) (p.getAttribute(Attribute.MAX_HEALTH).getBaseValue() * 100)).append(","); //13
         sb.append((int) (p.getHealthScale() * 1000)).append(","); //14
         sb.append(p.getTotalExperience()).append(","); //15
         sb.append((int) (p.getSaturation() * 1000)).append(","); //16
@@ -628,7 +628,7 @@ public class LocalDB {
     public static void applyLocalSettings(final Player p, final String[] s) {
 
         double health = p.getHealth();
-        double maxhealth = p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+        double maxhealth = p.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
         double healthScale = p.getHealthScale();
         boolean fly = false;
         int flyspeed = 1;
@@ -759,7 +759,7 @@ public class LocalDB {
         }
 
         if (maxhealth != 0) {
-            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxhealth);
+            p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxhealth);
         }
         if (health > maxhealth) {
             health = maxhealth;
