@@ -9,8 +9,11 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.BlockType;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -20,14 +23,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.hook.WGhook;
 import ru.komiss77.utils.ItemUtil;
 
 
@@ -68,6 +74,13 @@ public class ItemManager implements Initiable, Listener {
                 public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onAttack(es, ee);}
             });
         }
+
+        if (e.getEntity() instanceof final Item ie &&
+            DamageType.OUT_OF_WORLD.equals(e.getDamageSource().getDamageType())) {
+            final SpecialItem si = SpecialItem.get(ie.getItemStack());
+            if (si == null) return;
+            si.destroy();
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -86,8 +99,9 @@ public class ItemManager implements Initiable, Listener {
         });
         if (!SpecialItem.exist) return;
         if (!BlockType.BARRIER.equals(e.getBlock().getType().asBlockType())) return;
-        final SpecialItem spi = SpecialItem.get(e.getPlayer().getInventory().getItemInMainHand());
-        if (spi != null) spi.saveAll();
+        final ItemStack hnd = e.getPlayer().getInventory().getItemInMainHand();
+        final SpecialItem spi = SpecialItem.get(hnd);
+        if (spi != null) spi.saveAll(hnd);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -225,7 +239,13 @@ public class ItemManager implements Initiable, Listener {
             return;
         }
 
-        si.obtain(e.getEntity());
+        if (e.getEntityType() != EntityType.PLAYER) {
+            drop.setPickupDelay(20);
+            e.setCancelled(true);
+            return;
+        }
+
+        si.obtain(e.getEntity(), it);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -245,9 +265,18 @@ public class ItemManager implements Initiable, Listener {
                     continue;
                 }
 
-                si.apply(it);
+                if (si.loc() == null) continue;
+                final Location loc = si.loc().getCenterLoc();
+                if (isInPrivateWG(loc)) {
+                    si.spawn(SpecialItem.SPAWN.getCenterLoc(), it.getItemStack());
+                    it.remove();
+                } else si.apply(it);
             }
         }
+    }
+
+    private static boolean isInPrivateWG(final Location loc) {
+        return Ostrov.wg && WGhook.getRegionsOnLocation(loc).size() != 0;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -267,9 +296,25 @@ public class ItemManager implements Initiable, Listener {
                     continue;
                 }
 
+                it.setVelocity(new Vector());
                 si.loc(it.getLocation());
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onHopper(final InventoryPickupItemEvent e) {
+        final SpecialItem si = SpecialItem.get(e.getItem().getItemStack());
+        if (si == null) return;
+        e.getItem().setPickupDelay(20);
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onItemBreak(final PlayerItemBreakEvent e) {
+        final SpecialItem si = SpecialItem.get(e.getBrokenItem());
+        if (si == null) return;
+        si.destroy();
     }
 
     public interface Processor {

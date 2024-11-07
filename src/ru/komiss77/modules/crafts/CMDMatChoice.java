@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice.MaterialChoice;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import ru.komiss77.modules.items.CustomMats;
 import ru.komiss77.utils.ItemUtil;
 
@@ -32,14 +33,15 @@ public class CMDMatChoice extends MaterialChoice {
     private static final Material[] emt = {null};
 
     @Override
-    public CMDMatChoice clone() {
+    public @NotNull CMDMatChoice clone() {
         return new CMDMatChoice(cmd, getChoices().toArray(emt));
     }
 
     @Override
     public ItemStack getItemStack() {
-        final Material mt = getChoices().get(0);
-        final ItemStack ci = CustomMats.get(cmd).getItem(mt);
+        final Material mt = getChoices().getFirst();
+        final CustomMats cmts = CustomMats.get(cmd);
+        final ItemStack ci = cmts == null ? null : cmts.getItem(mt);
         if (ci != null) return ci.asOne();
         final ItemStack it = new ItemStack(mt);
         if (ItemUtil.isBlank(it, false)) return ItemUtil.air;

@@ -3,7 +3,6 @@ package ru.komiss77.modules.crafts;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
-import java.util.stream.Collectors;
 import com.mojang.brigadier.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -22,18 +21,7 @@ public class CraftCmd {
     public CraftCmd() {
         final String act = "action", name = "name";
         new OCmdBuilder("craft", "/craft edit|remove [имя]")
-            .then(Resolver.string(act)).suggest(cntx -> {
-                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
-                    return Set.of();
-                }
-                return Set.of("edit", "remove");
-            }, false).then(Resolver.string(name)).suggest(cntx -> {
-                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
-                    return Set.of();
-                }
-                return Crafts.crafts.keySet().stream()
-                    .map(NamespacedKey::getKey).collect(Collectors.toSet());
-            }, false).run(cntx -> {
+            .then(Resolver.string(act).then(Resolver.string(name).executes(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
                     cs.sendMessage("§eНе консольная команда!");
@@ -102,7 +90,18 @@ public class CraftCmd {
                         yield 0;
                     }
                 };
-            })
+            }))).suggest(cntx -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
+                    return Set.of();
+                }
+                return Set.of("edit", "remove");
+            }, false)/*.then().suggest(cntx -> {
+                if (!ApiOstrov.isLocalBuilder(cntx.getSource().getSender(), true)) {
+                    return Set.of();
+                }
+                return Crafts.crafts.keySet().stream()
+                    .map(NamespacedKey::getKey).collect(Collectors.toSet());
+            }, false)*/
             .description("Редактор крафтов")
             .aliases("крафт")
             .register();

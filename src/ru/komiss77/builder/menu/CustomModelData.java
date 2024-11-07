@@ -29,7 +29,6 @@ public class CustomModelData implements InventoryProvider {
 
         int from = page * 44;
         int to = page * 44 + 45;
-        if (to >= Integer.MAX_VALUE) to = Integer.MAX_VALUE;
 
         for (int i = from; i < to; i++) {
 
@@ -54,8 +53,8 @@ public class CustomModelData implements InventoryProvider {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }
-            final int r = Integer.valueOf(input);
-            if (r < 0 || r > Integer.MAX_VALUE) {
+            final int r = Integer.parseInt(input);
+            if (r < 0) {
                 p.sendMessage("§cот 0 до " + Integer.MAX_VALUE);
                 return;
             }

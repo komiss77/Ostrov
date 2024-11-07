@@ -55,7 +55,7 @@ public class Sounds implements InventoryProvider {
                 // default:
                 find = split[1] + "_" + split[2] + "_" + split[3];
                 // }
-            } else if (split.length >= 4) { //BLOCK_ LILY_PAD _PLACE
+            } else if (split.length == 4) { //BLOCK_ LILY_PAD _PLACE
                 find = switch (split[3]) {
                     case "ON", "OFF", "BREACK", "USE", "SUCCES" ->
                         split[1].length() <= 3 ? split[1] + "_" : split[1];

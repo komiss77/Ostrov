@@ -164,7 +164,7 @@ public class WM implements OCommand {
       //тут юзаем по старинке со всеми аргументами   /команда arg[0] ... arg[4]
 
 
-      if (cs == null || !ApiOstrov.isLocalBuilder(cs, true)) {
+      if (!ApiOstrov.isLocalBuilder(cs, true)) {
         return 0;
       }
       if (arg.length == 0) {
@@ -355,7 +355,7 @@ public class WM implements OCommand {
 
       } else if (sub_command.equals("backup") || sub_command.equals("restore")) {
         if (arg.length != 2) {
-          sendCommandUsage(cs, "WorldManager " + sub_command.substring(0, 1).toUpperCase() + sub_command.substring(1, sub_command.length()), "<Name>", new String[0]);
+          sendCommandUsage(cs, "WorldManager " + sub_command.substring(0, 1).toUpperCase() + sub_command.substring(1), "<Name>", new String[0]);
           return 0;
         }
         //final String nm = wnames.get(arg[1]);

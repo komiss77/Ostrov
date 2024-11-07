@@ -18,14 +18,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.inventory.PrepareSmithingEvent;
+import org.bukkit.event.*;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.RecipeChoice.ExactChoice;
@@ -34,8 +28,9 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.utils.ItemUtil;
-
+import ru.komiss77.utils.TCUtil;
 
 
 public final class Crafts implements Initiable, Listener {
@@ -228,11 +223,32 @@ public final class Crafts implements Initiable, Listener {
         p.discoverRecipes(rls);
     }
 
-    public record Craft(Recipe rec, Predicate<Player> canSee) {
+    public record Craft(Recipe rec, Predicate<Player> canSee) {}
+
+    @EventHandler
+    public void onCraft(final InventoryClickEvent e) {
+        if (e.getClickedInventory() instanceof CraftingInventory) {
+            if (e.getSlotType() == InventoryType.SlotType.RESULT) {
+                final ItemStack fin = e.getCurrentItem();
+                final SpecialItem si = SpecialItem.get(fin);
+                if (si != null) {
+                    if (si.crafted()) {
+                        e.setResult(Event.Result.DENY);
+                        e.setCurrentItem(ItemUtil.air);
+                        for (final HumanEntity he : e.getViewers()) {
+                            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
+                        }
+                        return;
+                    }
+
+
+                }
+            }
+        }
     }
 
     @EventHandler
-    public void onCraft(final PrepareItemCraftEvent e) {
+    public void onRecipe(final PrepareItemCraftEvent e) {
         final Recipe rc = e.getRecipe();
         if (rc == null) return;
         if (!e.isRepair() && rc instanceof Keyed) {
@@ -279,7 +295,7 @@ public final class Crafts implements Initiable, Listener {
                         e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
-                } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-8 2x3-4 3x2-4 3x3-2 магия крч
+                } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-4 2x3-4 3x2-4 3x3-2 магия крч
                     final List<RecipeChoice> rcs = src.getChoiceList();
                     for (final ItemStack ti : mtx) {
                         final Iterator<RecipeChoice> ri = rcs.iterator();
@@ -303,6 +319,15 @@ public final class Crafts implements Initiable, Listener {
                     }
                 }
             }
+
+            final ItemStack fin = rc.getResult();
+            final SpecialItem si = SpecialItem.get(fin);
+            if (si != null && si.crafted()) {
+                e.getInventory().setResult(ItemUtil.air);
+                for (final HumanEntity he : e.getViewers()) {
+                    he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
+                }
+            }
         }
     }
 
@@ -311,7 +336,7 @@ public final class Crafts implements Initiable, Listener {
     public void onCook(final FurnaceSmeltEvent e) {
         final Recipe rc = e.getRecipe();
         if (rc == null) return;
-        if (rc instanceof CookingRecipe && e.getBlock().getState() instanceof Furnace) {
+        if (e.getBlock().getState() instanceof Furnace) {
             final CookingRecipe<?> src = Crafts.getRecipe(((Keyed) rc).getKey(), CookingRecipe.class);
             final ItemStack ti = e.getSource();
             if (src != null) {
@@ -335,8 +360,7 @@ public final class Crafts implements Initiable, Listener {
     @EventHandler
     public void onStCook(final FurnaceStartSmeltEvent e) {
         final Recipe rc = e.getRecipe();
-        if (rc == null) return;
-        if (rc instanceof CookingRecipe && e.getBlock().getState() instanceof Furnace) {
+        if (e.getBlock().getState() instanceof Furnace) {
             final CookingRecipe<?> src = Crafts.getRecipe(((Keyed) rc).getKey(), CookingRecipe.class);
             final ItemStack ti = e.getSource();
             if (src == null) {

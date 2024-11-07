@@ -95,7 +95,7 @@ public class OCmdBuilder {
             return 0;
         });
         else {
-//            Ostrov.log("del-" + delimit + ", sugg-" + suggests + ", arg-" + curr.getClass());
+            Ostrov.log("del-" + delimit + ", sugg-" + suggests + ", arg-" + curr.getClass());
             final Command<CommandSourceStack> finCMD = cmd;
             if (delimit && suggests != null && curr instanceof
                 final RequiredArgumentBuilder<?, ?> rarg) {

@@ -204,7 +204,7 @@ public class EntityGroupMenu implements InventoryProvider {
 
 
         contents.set(5, 2, new InputButton(InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-            .name("§7Группа" + group.toString() + " в мире §a" + world.getName() + (radius > 0 ? " §7r=§a" + radius : ""))
+            .name("§7Группа " + group.toString() + " в мире §a" + world.getName() + (radius > 0 ? " §7r=§a" + radius : ""))
             .lore("§7")
             .lore("§7ЛКМ - изменить радиус")
             .lore("§7(0 - весь мир)")

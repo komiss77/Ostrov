@@ -515,8 +515,8 @@ public class MissionManager {
 
 
     public static void openMissionsEditMenu(final Player p) {
-        if (!PM.getOplayer(p.getName()).hasGroup("supermoder") && !PM.getOplayer(p.getName()).hasGroup("ownner")) {
-            p.sendMessage("§cУправлять миссиями могут супермодеры!");
+        if (!ApiOstrov.isStaff(p) || !ApiOstrov.isLocalBuilder(p, true)) {
+            p.sendMessage("§cУправлять миссиями может только персонал!");
             return;
         }
 

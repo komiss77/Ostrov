@@ -28,12 +28,6 @@ public class XYZ implements Cloneable {
     public static XYZ fromString(final String asString) {
         try {
             final String[] split = asString.split(",");
-            //ошибка в лобби XYZ fromString  =world,55,112,-30,parkur Unexpected length: 5 - надо делать методы по возможности всеядными!!
-            //return switch (split.length) {
-            //  case 3 -> new XYZ ("", Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
-            //  case 4 -> new XYZ (split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
-            //  default -> throw new ArrayIndexOutOfBoundsException("Unexpected length: " + split.length);
-            //};
             if (split.length == 3) {
                 return new XYZ("", Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
             } else if (split.length > 3) {

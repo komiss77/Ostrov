@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
@@ -33,7 +34,7 @@ public abstract class CustomMats implements Keyed {
 
     public final @Nullable Integer cmd;
 
-    private final EnumMap<Material, ItemStack> mits = new EnumMap<>(Material.class);
+    private final Map<ItemType, ItemStack> mits = new HashMap<>();
     private final NamespacedKey key;
 
     protected CustomMats(final @Nullable Integer cmd, final ItemStack... its) {
@@ -44,14 +45,14 @@ public abstract class CustomMats implements Keyed {
         if (itls.isEmpty()) {
             for (final ItemStack it : its) {
                 if (ItemUtil.isBlank(it, false)) continue;
-                mits.put(it.getType(), it);
+                mits.put(it.getType().asItemType(), it);
             }
             irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.toString(it, SEP)).toList());
             irc.saveConfig();
         } else {
             for (final String is : itls) {
                 final ItemStack it = ItemUtil.parseItem(is, SEP);
-                mits.put(it.getType(), it);
+                mits.put(it.getType().asItemType(), it);
             }
         }
 

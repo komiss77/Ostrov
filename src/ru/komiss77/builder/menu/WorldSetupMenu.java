@@ -28,15 +28,13 @@ public class WorldSetupMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
-      //final Oplayer op = PM.getOplayer(p);
-
         final Pagination pagination = contents.pagination();
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
 
         int maxSize;
 
-        final TreeSet<String> worldNames = new TreeSet<String>();
+        final TreeSet<String> worldNames = new TreeSet<>();
 
         for (final World world : Bukkit.getWorlds()) {
             worldNames.add(world.getName());

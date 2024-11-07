@@ -368,7 +368,7 @@ public class BuilderMain implements InventoryProvider {
             .lore("§7или ЛКМ - показать для")
             .lore("§7кожаной конской брони.")
             .build(), e -> {
-            if (e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
+            if (e.getCursor().getType() != Material.AIR) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 SmartInventory.builder()
                     .id("CustomModelData" + p.getName())

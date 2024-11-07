@@ -1,6 +1,7 @@
 package ru.komiss77.commands;
 
 import java.util.*;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -17,7 +18,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.builder.SetupMode;
 import ru.komiss77.builder.menu.EntitySetup;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.ValueSortedMap;
 import ru.komiss77.utils.EntityUtil;
@@ -31,59 +35,66 @@ public class EntityCmd implements Listener, OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal("entity").executes(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
+            if (!(cs instanceof final Player p)) {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
 
-          //if (!ApiOstrov.isStaff(pl)) { просмотр доступен всем
-          //    pl.sendMessage("§cДоступно только персоналу!");
-          //    return 0;
-          //}
+            if (!ApiOstrov.isLocalBuilder(p)) {//просмотр доступен всем - зачем? это нигде не используется вроде
+                p.sendMessage("§cДоступно только персоналу!");
+                return 0;
+            }
 
-            SmartInventory
+            final Oplayer op = PM.getOplayer(p);
+            if (op.setup == null) {
+                op.setup = new SetupMode(p);
+            }
+
+            PM.getOplayer(p).setup.openEntityWorldMenu(p, p.getWorld(), -1);
+            /*SmartInventory
                 .builder()
                 .id("EntityMain" + p.getName())
                 .provider(new EntityWorldView(List.of(p.getWorld()), -1))
                 .size(3, 9)
                 .title("§2Сущности " + p.getWorld().getName())
                 .build()
-                .open(p);
+                .open(p);*/
 
-            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+            return Command.SINGLE_SUCCESS;
         }).build();
     }
 
-  //для скайблока
-  public static void openByWorldList(final Player p, final List<World> worlds) {
-    SmartInventory
-        .builder()
-        .id("EntityMain" + p.getName())
-        .provider(new EntityWorldView(worlds, -1))
-        .size(3, 9)
-        .title("§2Сущности миров")
-        .build()
-        .open(p);
-  }
+    //для скайблока - перенос в скайблок пж, не мусорим Остров
+    @Deprecated
+    public static void openByWorldList(final Player p, final List<World> worlds) {
+        SmartInventory
+            .builder()
+            .id("EntityMain" + p.getName())
+            .provider(new EntityWorldView(worlds, -1))
+            .size(3, 9)
+            .title("§2Сущности миров")
+            .build()
+            .open(p);
+    }
 
     @Override
     public List<String> aliases() {
-      return List.of("");
+        return List.of("");
     }
 
     @Override
     public String description() {
-      return "Прoсмотр сущностей";
+        return "Прoсмотр сущностей";
     }
 }
 
-
+@Deprecated
 class EntityServerView implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
     private final List<World> worlds;
 
-  //не менять, скайблок открывает со списком миров!!!
+    //не менять, скайблок открывает со списком миров!!!
     public EntityServerView(final List<World> worlds) {
         this.worlds = worlds;
     }
@@ -128,14 +139,14 @@ class EntityServerView implements InventoryProvider {
                 .lore("§7")
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                  SmartInventory
-                      .builder()
-                      .id("EntityMain" + p.getName())
-                      .provider(new EntityWorldView(List.of(world), -1))
-                      .size(3, 9)
-                      .title("§2Сущности " + world.getName())
-                      .build()
-                      .open(p);
+                    SmartInventory
+                        .builder()
+                        .id("EntityMain" + p.getName())
+                        .provider(new EntityWorldView(List.of(world), -1))
+                        .size(3, 9)
+                        .title("§2Сущности " + world.getName())
+                        .build()
+                        .open(p);
                 }
             }));
 
@@ -171,15 +182,15 @@ class EntityServerView implements InventoryProvider {
 
 }
 
-
+@Deprecated
 class EntityWorldView implements InventoryProvider {
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
     private int radius;
-  private final List<World> worlds;
+    private final List<World> worlds;
 
-  public EntityWorldView(final List<World> worlds, final int radius) {
+    public EntityWorldView(final List<World> worlds, final int radius) {
         this.radius = radius;
-    this.worlds = worlds;
+        this.worlds = worlds;
     }
 
     @Override
@@ -205,15 +216,15 @@ class EntityWorldView implements InventoryProvider {
 
         } else {
 
-          for (World w : worlds) {
-            for (final Entity e : w.getEntities()) {
-              if (e.getType() == EntityType.PLAYER) continue;
-              group = EntityUtil.group(e);//group=VM.getNmsEntitygroup().getEntityType(e);
-              if (count.containsKey(group)) {
-                count.put(group, count.get(group) + 1);
-              } else {
-                count.put(group, 1);
-              }
+            for (World w : worlds) {
+                for (final Entity e : w.getEntities()) {
+                    if (e.getType() == EntityType.PLAYER) continue;
+                    group = EntityUtil.group(e);//group=VM.getNmsEntitygroup().getEntityType(e);
+                    if (count.containsKey(group)) {
+                        count.put(group, count.get(group) + 1);
+                    } else {
+                        count.put(group, 1);
+                    }
                 }
             }
 
@@ -227,104 +238,104 @@ class EntityWorldView implements InventoryProvider {
             .lore("")
             .build(), e -> {
             if (e.isLeftClick()) {
-              if (ApiOstrov.isLocalBuilder(p, true)) {
-                SmartInventory
-                    .builder()
-                    .id("EntityWorlds" + p.getName())
-                    .provider(new EntityServerView(Bukkit.getWorlds()))
-                    .size(6, 9)
-                    .title("§2Сущности миров")
-                    .build()
-                    .open(p);
-              }
+                if (ApiOstrov.isLocalBuilder(p, true)) {
+                    SmartInventory
+                        .builder()
+                        .id("EntityWorlds" + p.getName())
+                        .provider(new EntityServerView(Bukkit.getWorlds()))
+                        .size(6, 9)
+                        .title("§2Сущности миров")
+                        .build()
+                        .open(p);
+                }
             }
         }));
 
 
-      if (worlds.size() == 1) { //просмотр для одного мира
-        final World world = worlds.get(0);
-        contents.set(0, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-            .name("§7Сущности в мире §a" + world.getName() + (radius > 0 ? " §7в радиусе §a" + radius : ""))
-            .lore("§7")
-            .lore("§fЛКМ - §bуказать радиус")
-            .lore("§7(0 - весь мир)")
-            .lore("§7")
-            .build(), "" + radius, imput -> {
+        if (worlds.size() == 1) { //просмотр для одного мира
+            final World world = worlds.getFirst();
+            contents.set(0, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
+                .name("§7Сущности в мире §a" + world.getName() + (radius > 0 ? " §7в радиусе §a" + radius : ""))
+                .lore("§7")
+                .lore("§fЛКМ - §bуказать радиус")
+                .lore("§7(0 - весь мир)")
+                .lore("§7")
+                .build(), "" + radius, imput -> {
 
-          if (!ApiOstrov.isInteger(imput)) {
-            p.sendMessage("§cДолжно быть число!");
-            return;
-          }
-          final int r = Integer.parseInt(imput);
-          if (r < 0 || r > 100000) {
-            p.sendMessage("§cот 0 до 100000!");
-            return;
-          }
-          radius = r;
-          reopen(p, contents);
-        }));
+                if (!ApiOstrov.isInteger(imput)) {
+                    p.sendMessage("§cДолжно быть число!");
+                    return;
+                }
+                final int r = Integer.parseInt(imput);
+                if (r < 0 || r > 100000) {
+                    p.sendMessage("§cот 0 до 100000!");
+                    return;
+                }
+                radius = r;
+                reopen(p, contents);
+            }));
 
-        int worldLimit;
-        for (EntityUtil.EntityGroup g : EntityUtil.EntityGroup.values()) {
-          worldLimit = EntityUtil.EntityGroup.getWorldSpawnLimit(world, g);
-          contents.add(ClickableItem.of(new ItemBuilder(g.displayMat)
-              .name(g.displayName)
-              .lore("§7")
-              .lore("§f" + (count.containsKey(g) ? "§e" + count.get(g) : "не найдено"))
-              .lore("§7")
-              .lore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
-              .lore("§7")
-              .lore("§7ЛКМ - группу подробно")
-              .lore("§7")
-              .build(), e -> {
-            if (e.isLeftClick()) {
-              SmartInventory.builder()
-                  .id("EntityByGroup" + p.getName())
-                  .provider(new EntityGroupView(world, radius, g))
-                  .size(6, 9)
-                  .title("§2" + world.getName() + " " + g.displayName + " §1r=" + radius)
-                  .build()
-                  .open(p);
+            int worldLimit;
+            for (EntityUtil.EntityGroup g : EntityUtil.EntityGroup.values()) {
+                worldLimit = EntityUtil.EntityGroup.getWorldSpawnLimit(world, g);
+                contents.add(ClickableItem.of(new ItemBuilder(g.displayMat)
+                    .name(g.displayName)
+                    .lore("§7")
+                    .lore("§f" + (count.containsKey(g) ? "§e" + count.get(g) : "не найдено"))
+                    .lore("§7")
+                    .lore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
+                    .lore("§7")
+                    .lore("§7ЛКМ - группу подробно")
+                    .lore("§7")
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        SmartInventory.builder()
+                            .id("EntityByGroup" + p.getName())
+                            .provider(new EntityGroupView(world, radius, g))
+                            .size(6, 9)
+                            .title("§2" + world.getName() + " " + g.displayName + " §1r=" + radius)
+                            .build()
+                            .open(p);
+                    }
+                }));
             }
-          }));
-        }
 
 
-      } else { //общая инфа для нескольких миров (скайблок!)
+        } else { //общая инфа для нескольких миров (скайблок!)
 
-        List<Component> lore = new ArrayList<>();
-        for (World w : worlds) {
-          lore.add(Component.text("§7- " + w.getName()));
-        }
-        contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
-            .name("§7Сущности в мирах :")
-            .lore(lore)
-            .build()
-        ));
-        for (EntityUtil.EntityGroup g : EntityUtil.EntityGroup.values()) {
-          contents.add(ClickableItem.of(new ItemBuilder(g.displayMat)
-              .name(g.displayName)
-              .lore("§7")
-              .lore("§f" + (count.containsKey(g) ? "§e" + count.get(g) : "не найдено"))
-              .lore("§7")
-              //.lore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
-              .lore("§7")
-              .lore("§7ЛКМ - группу подробно")
-              .lore("§7в текущем мире!")
-              .build(), e -> {
-            if (e.isLeftClick()) {
-              SmartInventory.builder()
-                  .id("EntityByGroup" + p.getName())
-                  .provider(new EntityGroupView(p.getWorld(), radius, g))
-                  .size(6, 9)
-                  .title("§2" + p.getWorld().getName() + " " + g.displayName + " §1r=" + radius)
-                  .build()
-                  .open(p);
+            List<Component> lore = new ArrayList<>();
+            for (World w : worlds) {
+                lore.add(Component.text("§7- " + w.getName()));
             }
-          }));
-        }
+            contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.FLOWER_BANNER_PATTERN)
+                .name("§7Сущности в мирах :")
+                .lore(lore)
+                .build()
+            ));
+            for (EntityUtil.EntityGroup g : EntityUtil.EntityGroup.values()) {
+                contents.add(ClickableItem.of(new ItemBuilder(g.displayMat)
+                    .name(g.displayName)
+                    .lore("§7")
+                    .lore("§f" + (count.containsKey(g) ? "§e" + count.get(g) : "не найдено"))
+                    .lore("§7")
+                    //.lore("§7Лимит в настройках мира: §b" + (worldLimit > 0 ? worldLimit : "--"))
+                    .lore("§7")
+                    .lore("§7ЛКМ - группу подробно")
+                    .lore("§7в текущем мире!")
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        SmartInventory.builder()
+                            .id("EntityByGroup" + p.getName())
+                            .provider(new EntityGroupView(p.getWorld(), radius, g))
+                            .size(6, 9)
+                            .title("§2" + p.getWorld().getName() + " " + g.displayName + " §1r=" + radius)
+                            .build()
+                            .open(p);
+                    }
+                }));
+            }
 
-      }
+        }
 
 
 
@@ -332,7 +343,7 @@ class EntityWorldView implements InventoryProvider {
 
 }
 
-
+@Deprecated
 class EntityGroupView implements InventoryProvider {
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
     private final World world;
@@ -460,7 +471,7 @@ class EntityGroupView implements InventoryProvider {
 
 }
 
-
+@Deprecated
 class EntityTypeView implements InventoryProvider {
 
 

@@ -17,8 +17,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.Perm;
 import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.builder.menu.HeadSetup;
@@ -28,6 +26,7 @@ import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.utils.ItemBuilder;
 
 
@@ -97,8 +96,7 @@ public class BuilderCmd implements OCommand {
             }
             if (op.setup == null) {
                 op.setup = new SetupMode(pl);
-//                Bukkit.getPluginManager().registerEvents(sm, Ostrov.getInstance());
-                bmi.giveForce(pl);//ItemUtils.giveItemTo(p, openBuildMenu.clone(), p.getInventory().getHeldItemSlot(), false);
+                bmi.giveForce(pl);
             }
             op.setup.openSetupMenu(pl);
 

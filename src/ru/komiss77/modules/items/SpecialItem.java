@@ -2,6 +2,7 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -16,7 +17,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -37,7 +37,20 @@ public abstract class SpecialItem implements Keyed {
 
     private static final String CON_NAME = "specials.yml";
     private static final String SPLT = "=";
-    private static final NamespacedKey DATA = OStrap.key("spec");
+    private static final NamespacedKey DATA = OStrap.key("special");
+    private static final XYZ DEF_SPAWN = new WXYZ(Bukkit.getWorlds().getFirst(), 0, 100, 0);
+
+    public static final XYZ SPAWN = getSpawnLoc();
+
+    private static XYZ getSpawnLoc() {
+        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+        if (irc.contains("spawn")) {
+            final XYZ spawn = XYZ.fromString(irc.getString("spawn"));
+            if (spawn != null) return spawn;
+        }
+        irc.set("spawn", DEF_SPAWN.toString());
+        return DEF_SPAWN;
+    }
 
     private final String name;
     private final ItemStack item;
@@ -56,9 +69,11 @@ public abstract class SpecialItem implements Keyed {
         final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
-        final XYZ loc = WXYZ.fromString(irc.getString(name + ".loc"));
+        final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
+        this.item = ItemUtil.parseItem(irc.getString(name + ".org"), SPLT);
+        final ItemStack curr = ItemUtil.parseItem(irc.getString(name + ".curr"), SPLT);
         lastLoc = loc == null ? null : new WXYZ(loc);
-        this.item = ItemUtil.parseItem(irc.getString(name + ".item"), SPLT);
+        if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
 
         VALUES.put(name, this);
         exist = true;
@@ -110,21 +125,25 @@ public abstract class SpecialItem implements Keyed {
                         }
                     }
                     break;
-                case final LivingEntity le:
-                    final EntityEquipment eq = le.getEquipment();
-                    if (eq == null) break;
-                    for (final EquipmentSlot sl : EquipmentSlot.values()) {
-                        final ItemStack it = eq.getItem(sl);
-                        if (this.equals(get(it))) {
-                            eq.setItem(sl, ItemUtil.air.clone());
-                        }
-                    }
-                    break;
                 default:
             }
             lastLoc = null;
             own = new WeakReference<>(null);
-            save();
+            save(item);
+        }
+    }
+
+    public void spawn(final Location loc, final ItemStack it) {
+        if (!loc.isChunkLoaded()) {
+            loc.getWorld().getChunkAtAsync(loc).thenAccept(ch -> {
+                for (final Entity e : ch.getEntities()) {
+                    if (e instanceof final Item ie && this.equals(get(ie.getItemStack()))) {
+                        e.remove();
+                    }
+                }
+
+                loc.getWorld().dropItem(loc, it, this::apply);
+            });
         }
     }
 
@@ -137,32 +156,37 @@ public abstract class SpecialItem implements Keyed {
         it.setPickupDelay(20);
         own = new WeakReference<>(it);
         loc(it.getLocation());
-        save();
+        save(it.getItemStack());
         return it;
     }
 
-    public void obtain(final LivingEntity le) {
+    public void obtain(final LivingEntity le, final ItemStack it) {
         crafted = true;
         dropped = false;
         own = new WeakReference<>(le);
         loc(le.getLocation());
-        save();
+        save(it);
     }
 
-    public void save() {
+    public void save(final ItemStack curr) {
         Ostrov.async(() -> {
             final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".curr", curr);
+
             irc.set(name + ".dropped", dropped);
             irc.set(name + ".crafted", crafted);
             irc.saveConfig();
         });
     }
 
-    public void saveAll() {
+    public void saveAll(final ItemStack curr) {
         Ostrov.async(() -> {
             final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".org", ItemUtil.toString(item, SPLT));
+            irc.set(name + ".curr", curr);
+
             irc.set(name + ".dropped", dropped);
             irc.set(name + ".crafted", crafted);
             irc.saveConfig();
