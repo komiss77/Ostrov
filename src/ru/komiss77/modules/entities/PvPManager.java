@@ -711,12 +711,11 @@ public class PvPManager implements Initiable {
                 public void onIntr(final PlayerInteractEvent e) {
                     final InventoryView iv = e.getPlayer().getOpenInventory();
                     switch (iv.getType()) {
+                        case CRAFTING, CREATIVE: return;
                         default:
                             e.setCancelled(true);
                             e.setUseInteractedBlock(Event.Result.DENY);
                             e.setUseItemInHand(Event.Result.DENY);
-                            return;
-                        case CRAFTING, CREATIVE:
                     }
 
                     switch (e.getAction()) {

@@ -2,12 +2,12 @@ package ru.komiss77.commands.tools;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -21,11 +21,8 @@ import ru.komiss77.utils.TCUtil;
 
 public class OCmdBuilder {
 
-    private final LiteralArgumentBuilder<CommandSourceStack> origin;
     private final String synthax;
-
-    private ArgumentBuilder<CommandSourceStack, ?> curr;
-    private ArgumentBuilder<CommandSourceStack, ?> last;
+    private final LinkedList<ArgumentBuilder<CommandSourceStack, ?>> args;
     private List<String> aliases;
     private boolean delimit;
     private String desc;
@@ -34,9 +31,8 @@ public class OCmdBuilder {
     private @Nullable Suggestor suggests;
 
     public OCmdBuilder(final String cmd) {
-        origin = Commands.literal(cmd);
-        curr = origin;
-        last = null;
+        args = new LinkedList<>();
+        args.add(Commands.literal(cmd));
         synthax = "/" + cmd;
         desc = "Комманда";
         aliases = List.of();
@@ -45,9 +41,8 @@ public class OCmdBuilder {
     }
 
     public OCmdBuilder(final String cmd, final String stx) {
-        origin = Commands.literal(cmd);
-        curr = origin;
-        last = null;
+        args = new LinkedList<>();
+        args.add(Commands.literal(cmd));
         synthax = stx;
         desc = "Комманда";
         aliases = List.of();
@@ -66,19 +61,21 @@ public class OCmdBuilder {
         return this;
     }
 
-    public OCmdBuilder then(final RequiredArgumentBuilder<CommandSourceStack, ?> arg) {
-        construct();
-        last = curr;
-//        this.current.then(arg);
-        curr = arg;
-        return this;
-    }
-
     private static final Set<StringArgumentType> STRING = Set.of(StringArgumentType.string(),
         StringArgumentType.greedyString(), StringArgumentType.word());
 
+    public OCmdBuilder then(final RequiredArgumentBuilder<CommandSourceStack, ?> arg) {
+        construct();
+        args.add(arg);
+        delimit = false;
+        suggests = null;
+        cmd = null;
+        return this;
+    }
+
     private void construct() {
-        if (suggests != null && curr instanceof
+        final ArgumentBuilder<CommandSourceStack, ?> last = args.getLast();
+        if (suggests != null && last instanceof
             final RequiredArgumentBuilder<?, ?> rarg) {
             final Suggestor finSugg = suggests;
             rarg.suggests((cntx, sb) -> {
@@ -89,18 +86,18 @@ public class OCmdBuilder {
             });
         }
 
-        if (cmd == null) curr.executes(cntx->{
+        if (cmd == null) last.executes(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             cs.sendMessage(TCUtil.form("§cВведено неправ. кол-во аргументов!\n§cСинтакс комманды:\n§e" + synthax));
             return 0;
         });
         else {
-            Ostrov.log("del-" + delimit + ", sugg-" + suggests + ", arg-" + curr.getClass());
+//            Ostrov.log("del-" + delimit + ", sugg-" + suggests + ", arg-" + last.getClass());
             final Command<CommandSourceStack> finCMD = cmd;
-            if (delimit && suggests != null && curr instanceof
+            if (delimit && suggests != null && last instanceof
                 final RequiredArgumentBuilder<?, ?> rarg) {
                 final Suggestor finSugg = suggests;
-                curr.executes(cntx -> {
+                last.executes(cntx -> {
                     final Set<String> sgs = finSugg.get(cntx);
                     if (!STRING.contains(rarg.getType())) {
                         return finCMD.run(cntx);
@@ -117,14 +114,9 @@ public class OCmdBuilder {
                 });
             }
             else {
-                curr.executes(finCMD);
+                last.executes(finCMD);
             }
         }
-
-        if (last != null) last.then(curr);
-        delimit = false;
-        suggests = null;
-        cmd = null;
     }
 
     public OCmdBuilder description(final String desc) {
@@ -139,10 +131,28 @@ public class OCmdBuilder {
 
     public void register() {
         construct();
+        ArgumentBuilder<CommandSourceStack, ?> arg = args.pollLast();
+        while (arg != null) {
+            final ArgumentBuilder<CommandSourceStack, ?> prev = args.pollLast();
+            if (prev == null) break;
+            prev.then(arg);
+            arg = prev;
+        }
+
+        if (arg == null) {
+            Ostrov.log_warn("Could not build cmd " + synthax);
+            return;
+        }
+
+        if (!(arg.build() instanceof final LiteralCommandNode<CommandSourceStack> origin)) {
+            Ostrov.log_warn("Could not build cmd " + synthax);
+            return;
+        }
+
         Ostrov.regCommand(new OCommand() {
             @Override
             public LiteralCommandNode<CommandSourceStack> command() {
-                return origin.build();
+                return origin;
             }
 
             @Override
