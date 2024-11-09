@@ -533,9 +533,7 @@ public class LocalDB {
                 final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
                 Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
                 if (e.getLogoutLocation() != null) { //плагины могут изменять
-                  //final WXYZ loc = new LocFinder(new WXYZ(e.getLogoutLocation()), LocFinder.DEFAULT_CHECKS).find(LocFinder.DYrect.BOTH, 5, 1);
-                  //if (loc != null) p.teleport(loc.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                  MoveUtil.teleportSave(p, e.getLogoutLocation(), true);
+                  MoveUtil.safeTP(p, e.getLogoutLocation());
                 }
 
             }, 1);

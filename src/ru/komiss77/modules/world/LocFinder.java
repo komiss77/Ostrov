@@ -2,7 +2,6 @@ package ru.komiss77.modules.world;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
@@ -10,7 +9,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 public final class LocFinder {
@@ -101,50 +99,50 @@ public final class LocFinder {
 
         mats = new BlockType[maxY - minY];
         datas = new BlockData[maxY - minY];
-        return switch (dir) {
-            case DOWN:
-                for (int y = bloc.y; y > minY; y--) {
-                    boolean miss = false;
-                    for (int i = 0; i != checks.length; i++) {
-                        final int finY = y + i;
-                        if (finY > maxY) {
-                            miss = true;
-                            break;
-                        }
-                        if (switch (checks[i]) {
-                            case final TypeCheck tc -> tc.check(getType(finY), finY);
-                            case final DataCheck dc -> dc.check(getData(finY), finY);
-                            default -> false;
-                        }) continue;
+        int topY = bloc.y + checks.length - 1, botY = bloc.y - checks.length + 1;
+        boolean topCnt = topY < maxY && dir.top, botCnt = botY > minY && dir.bot;
+        while (topCnt || botCnt) {
+            if (topCnt) {
+                boolean miss = false;
+                for (int i = 0; i != checks.length; i++) {
+                    final int finY = topY + i - checks.length;
+                    if (finY < minY) {
                         miss = true;
                         break;
                     }
-                    if (miss) continue;
-                    yield new WXYZ(bloc.w, bloc.x, y, bloc.z);
+                    if (switch (checks[i]) {
+                        case final TypeCheck tc -> tc.check(getType(finY), finY);
+                        case final DataCheck dc -> dc.check(getData(finY), finY);
+                        default -> false;
+                    }) continue;
+                    miss = true;
+                    break;
                 }
-                yield null;
-            case UP, BOTH:
-                for (int y = bloc.y; y < maxY; y++) {
-                    boolean miss = false;
-                    for (int i = 0; i != checks.length; i++) {
-                        final int finY = y + i - checks.length;
-                        if (finY < minY) {
-                            miss = true;
-                            break;
-                        }
-                        if (switch (checks[i]) {
-                            case final TypeCheck tc -> tc.check(getType(finY), finY);
-                            case final DataCheck dc -> dc.check(getData(finY), finY);
-                            default -> false;
-                        }) continue;
+                if (!miss) return new WXYZ(bloc.w, bloc.x, topY - checks.length, bloc.z);
+                topY++; topCnt = topY < maxY;
+            }
+
+            if (botCnt) {
+                boolean miss = false;
+                for (int i = 0; i != checks.length; i++) {
+                    final int finY = botY + i;
+                    if (finY > maxY) {
                         miss = true;
                         break;
                     }
-                    if (miss) continue;
-                    yield new WXYZ(bloc.w, bloc.x, y - checks.length, bloc.z);
+                    if (switch (checks[i]) {
+                        case final TypeCheck tc -> tc.check(getType(finY), finY);
+                        case final DataCheck dc -> dc.check(getData(finY), finY);
+                        default -> false;
+                    }) continue;
+                    miss = true;
+                    break;
                 }
-                yield dir == DYrect.BOTH ? testLoc(DYrect.DOWN) : null;
-        };
+                if (!miss) return new WXYZ(bloc.w, bloc.x, botY, bloc.z);
+                botY--; botCnt = botY > minY;
+            }
+        }
+        return null;
     }
 
     private BlockType getType(final int y) {
@@ -191,6 +189,14 @@ public final class LocFinder {
     }
 
     public enum DYrect {
-        UP, DOWN, BOTH
+
+        UP(true, false), DOWN(false, true), BOTH(true, true);
+
+        public final boolean top, bot;
+
+        DYrect(final boolean top, final boolean bot) {
+            this.top = top;
+            this.bot = bot;
+        }
     }
 }

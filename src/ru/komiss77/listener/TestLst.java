@@ -1,33 +1,21 @@
 package ru.komiss77.listener;
 
-import org.bukkit.*;
-import org.bukkit.block.BlockType;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.bots.AfkExt;
-import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.version.GameApi;
-import ru.komiss77.version.Nms;
 
 public class TestLst implements Listener {
 
@@ -35,7 +23,7 @@ public class TestLst implements Listener {
 
 
 
-    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
@@ -142,7 +130,7 @@ public class TestLst implements Listener {
                     p.sendMessage("§3teleportSave DOWN");
                     final Location loc = p.getLocation().clone().add(0, -100, 0);
 //                    long t = System.currentTimeMillis();
-                    MoveUtil.safeTP(p, loc, true);
+                    MoveUtil.safeTP(p, loc);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);
@@ -154,7 +142,7 @@ public class TestLst implements Listener {
                     final Location loc = p.getLocation();
                     loc.setY(loc.getWorld().getMaxHeight());
 //                    long t = System.currentTimeMillis();
-                    MoveUtil.safeTP(p, loc, true);
+                    MoveUtil.safeTP(p, loc);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);

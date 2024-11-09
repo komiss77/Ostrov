@@ -1,7 +1,7 @@
 package ru.komiss77.utils;
 
-import java.lang.ref.WeakReference;
 import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,7 +30,7 @@ public class MoveUtil {
     //  findSaveLocation вернуть GameMode.CREATIVE
     private static final int MAX_DST = 1;
 
-    public static boolean safeTP(final Player p, final Location feetLoc, final boolean force) {
+    public static boolean safeTP(final Player p, final Location feetLoc) {
         final LocFinder.Check[] mts = {
             (LocFinder.DataCheck) (dt, y) -> {
                 if (dt instanceof Snow) return ((Snow) dt).getLayers() > 4;//снег
@@ -107,7 +107,7 @@ public class MoveUtil {
         return true;
     }
 
-  //@Deprecated // ^^^^^^^^^^^^^^^^^^^^^^^^^^^  пока переключил сюда, до полной отладки локфиндер
+  @Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
