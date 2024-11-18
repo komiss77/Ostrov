@@ -66,4 +66,15 @@ public abstract class CustomEntity implements Keyed {
     public NamespacedKey getKey() {
         return key;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        return o instanceof final CustomEntity ce && ce.key.equals(key);
+    }
+
+    @Override
+    public int hashCode() {
+        return key.hashCode();
+    }
 }

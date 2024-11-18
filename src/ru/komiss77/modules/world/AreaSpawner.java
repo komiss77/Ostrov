@@ -1,7 +1,9 @@
 package ru.komiss77.modules.world;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import ru.komiss77.Ostrov;
@@ -19,7 +21,7 @@ public abstract class AreaSpawner {
 
     protected abstract LocFinder.Check[] checks();
 
-    public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls) {
+    public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls, final @Nullable Consumer<E> pre) {
         final WXYZ loc = LocFinder.findInArea(from, radius(), offset(), NEAR, checks(), yDst());
         if (loc == null) return List.of();
         final SpawnCondition sc = condition(loc, entCls);
@@ -28,7 +30,7 @@ public abstract class AreaSpawner {
         for (int i = Ostrov.random.nextInt(sc.amt) + 1; i != 0; i--) {
 //            Ostrov.log("spawn-" + entCls.getSimpleName() + ", rsn-" + sc.reason.name());
             els.add(loc.w.spawn(loc.getCenterLoc().add(shift(), 0d, shift()),
-                entCls, sc.reason, false, null));
+                entCls, sc.reason, false, pre));
         }
         return els;
     }

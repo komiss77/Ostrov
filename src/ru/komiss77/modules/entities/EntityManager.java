@@ -3,6 +3,7 @@ package ru.komiss77.modules.entities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import com.destroystokyo.paper.event.entity.WitchReadyPotionEvent;
 import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
@@ -29,7 +30,7 @@ public class EntityManager implements Initiable, Listener {
     public static boolean enable;
     public static BukkitTask spawnTask = null;
     protected static final HashMap<String, CustomEntity> custom = new HashMap<>();
-    protected static final ArrayList<CustomEntity> spawns = new ArrayList<>();
+    protected static final HashSet<CustomEntity> spawns = new HashSet<>();
     protected static final NamespacedKey KEY = NamespacedKey.minecraft("o.ent");
     protected static final PersistentDataType<String, CustomEntity> DATA = new PersistentDataType<>() {
         @Override
@@ -59,7 +60,10 @@ public class EntityManager implements Initiable, Listener {
 
     public static void register(final CustomEntity ce) {
         custom.put(ce.key.value(), ce);
-        if (ce.spawner() != null) spawns.add(ce);
+        if (ce.spawner() != null) {
+            spawns.remove(ce);
+            spawns.add(ce);
+        }
     }
 
     @Override
@@ -87,7 +91,7 @@ public class EntityManager implements Initiable, Listener {
                     if (ce.cd == 0) {
                         ce.cd = ce.spawnCd();
                         for (final WXYZ lc : locs) {
-                            ce.spawner().trySpawn(lc, ce.getEntClass());
+                            ce.spawner().trySpawn(lc, ce.getEntClass(), ce::apply);
                         }
                         continue;
                     }
@@ -110,7 +114,10 @@ public class EntityManager implements Initiable, Listener {
         if (he == null) {
             for (final CustomEntity ce : custom.values()) {
                 if (ce.getEntClass().isAssignableFrom(ent.getClass())
-                    && ce.canBe(ent, e.getSpawnReason())) ce.apply(ent);
+                    && ce.canBe(ent, e.getSpawnReason())) {
+                    ce.apply(ent);
+                    break;
+                }
             }
         }
     }
