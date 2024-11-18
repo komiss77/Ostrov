@@ -1,6 +1,5 @@
 package ru.komiss77.modules.entities;
 
-import javax.annotation.Nullable;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -14,17 +13,17 @@ import ru.komiss77.modules.world.WXYZ;
 
 public abstract class CustomEntity implements Keyed {
 
-    protected int cd = spawnCd();
+    protected int cd;
 
     protected final NamespacedKey key;
 
     protected CustomEntity() {
         key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
-        if (EntityManager.enable)
-            EntityManager.register(this);
+        if (EntityManager.enable) EntityManager.register(this);
+        cd = spawnCd();
     }
 
-    protected abstract @Nullable AreaSpawner spawner();
+    protected abstract AreaSpawner spawner();
 
     protected abstract Class<? extends LivingEntity> getEntClass();
 
@@ -34,12 +33,12 @@ public abstract class CustomEntity implements Keyed {
 //  protected abstract void goal(final E e);
 
     public LivingEntity spawn(final Location loc) {
-        final AreaSpawner.SpawnCondition cnd = spawner().getCondition(new WXYZ(loc), getEntClass());
+        final AreaSpawner.SpawnCondition cnd = spawner().condition(new WXYZ(loc), getEntClass());
         return loc.getWorld().spawn(loc, getEntClass(), cnd.reason(), false, this::apply);
     }
 
     public void apply(final Entity ent) {
-        ent.getPersistentDataContainer().set(EntityManager.key, EntityManager.data, this);
+        ent.getPersistentDataContainer().set(EntityManager.KEY, EntityManager.DATA, this);
         modify(ent);
 //    goal(e);
     }

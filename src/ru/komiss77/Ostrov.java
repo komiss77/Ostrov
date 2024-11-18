@@ -4,9 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -29,11 +29,13 @@ import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
+import ru.komiss77.version.Registries;
 
 
 public class Ostrov extends JavaPlugin {
 
     public static Ostrov instance;
+    public static Registries registries;
     public static LifecycleEventManager<Plugin> mgr;
     public static final Random random;
     public static final String L = "Ł";
@@ -45,7 +47,7 @@ public class Ostrov extends JavaPlugin {
     public static boolean newDay, dynmap, wg;
     public static boolean SHUT_DOWN; //по этому плагу другие плагины не будут сохранять данные асинх   org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled
     public static boolean STARTUP = true; //до окончания прогрузки всех миров
-  public static final Calendar calendar; //не двигать,не переименовывать! direct USE!
+    public static final Calendar calendar; //не двигать,не переименовывать! direct USE!
     private static final Date date;
     private static final SimpleDateFormat full_sdf;
 
@@ -82,15 +84,16 @@ public class Ostrov extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        registries = new Registries();
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
 
-      //if (MOT_D.equals("pay")) { // для режима обработки донатиков
-      //    log_warn("§bРежим PAY");
-      //    REGISTER.registerPay();
-      //return;
-      //}
+        //if (MOT_D.equals("pay")) { // для режима обработки донатиков
+        //    log_warn("§bРежим PAY");
+        //    REGISTER.registerPay();
+        //return;
+        //}
 
         registerChanels();
 

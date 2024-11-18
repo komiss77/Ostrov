@@ -868,7 +868,7 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
             pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
             pagination.setItemsPerPage(45);
 
-            content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e -> {
+            content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("Назад").build(), e -> {
                     mode = MenuMode.main;
                     openMenu(p);//reopen(p, content);
                 }

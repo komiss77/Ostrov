@@ -22,20 +22,27 @@ public abstract class AreaSpawner {
     public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls) {
         final WXYZ loc = LocFinder.findInArea(from, radius(), offset(), NEAR, checks(), yDst());
         if (loc == null) return List.of();
-        final SpawnCondition sc = getCondition(loc, entCls);
+        final SpawnCondition sc = condition(loc, entCls);
         if (sc == null || sc.amt < 1) return List.of();
         final ArrayList<E> els = new ArrayList<>(sc.amt);
         for (int i = Ostrov.random.nextInt(sc.amt) + 1; i != 0; i--) {
-            els.add(loc.w.spawn(loc.getCenterLoc(), entCls, sc.reason, false, e -> {}));
+//            Ostrov.log("spawn-" + entCls.getSimpleName() + ", rsn-" + sc.reason.name());
+            els.add(loc.w.spawn(loc.getCenterLoc().add(shift(), 0d, shift()),
+                entCls, sc.reason, false, null));
         }
         return els;
     }
 
-    public abstract <E extends LivingEntity> SpawnCondition getCondition(final WXYZ loc, final Class<E> entCls);
+    private static final double MAX_SHF = 0.4d;
+    private static final double MAX_SHF_D2 = MAX_SHF * 0.5d;
+    private double shift() {
+        return Ostrov.random.nextFloat() * MAX_SHF - MAX_SHF_D2;
+    }
+
+    public abstract <E extends LivingEntity> SpawnCondition condition(final WXYZ loc, final Class<E> entCls);
 
     public static final SpawnCondition NONE = new SpawnCondition(0, CreatureSpawnEvent.SpawnReason.DEFAULT);
     public static final SpawnCondition DEFAULT = new SpawnCondition(1, CreatureSpawnEvent.SpawnReason.NATURAL);
 
-    public record SpawnCondition(int amt, CreatureSpawnEvent.SpawnReason reason) {
-    }
+    public record SpawnCondition(int amt, CreatureSpawnEvent.SpawnReason reason) {}
 }

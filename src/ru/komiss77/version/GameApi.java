@@ -2,7 +2,6 @@ package ru.komiss77.version;
 
 import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import ru.komiss77.modules.world.WXYZ;
 
@@ -10,7 +9,7 @@ import ru.komiss77.modules.world.WXYZ;
 public class GameApi {
 
 
-  //для избавления твиста от НМС.
+  //для избавления твиста от НМС. - ок, но когда Material задепрекатят, я это уберу)
   public static void setFastMat(final WXYZ wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
     final ServerLevel sl = Craft.toNMS(wxyz.w);
     final net.minecraft.world.level.block.state.BlockState bs = ((CraftBlockData) mat.createBlockData()).getState();

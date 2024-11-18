@@ -29,7 +29,6 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
 import ru.komiss77.version.Craft;
 
 
@@ -265,7 +264,7 @@ public class Schematic {
                         createdEnvironment = Environment.valueOf(lines.get(line)); //line10
 
                         line++;
-                        for (Biome b : LocUtil.BIOME_REG) {
+                        for (Biome b : Ostrov.registries.BIOMES) {
                             if (b.key().value().equalsIgnoreCase(lines.get(line))) {
                                 createdBiome = b; //line11
                             }

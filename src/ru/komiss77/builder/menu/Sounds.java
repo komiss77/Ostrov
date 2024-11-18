@@ -1,11 +1,12 @@
 package ru.komiss77.builder.menu;
 
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
+import java.util.List;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -15,10 +16,7 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class Sounds implements InventoryProvider {
 
-    public static final Registry<Sound> SOUND_REG = RegistryAccess.registryAccess().getRegistry(RegistryKey.SOUND_EVENT);
-
     private Sound previos;
-    private int current;
     private int page;
 
     public Sounds(final int page) {
@@ -28,53 +26,55 @@ public class Sounds implements InventoryProvider {
 
     @Override
     public void init(final Player p, final InventoryContent content) {
-
-        Material mat;
-        String[] split;
-        String find;
-
         int from = page * 44;
         int to = page * 44 + 45;
-        if (to >= Sound.values().length) to = Sound.values().length;
-        //TODO переделать под Sound registry
-        for (int i = from; i < to; i++) {
 
-            final Sound sound = Sound.values()[i];
+        content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
+            .name("<gold>Закрыть").build(), e -> p.closeInventory()));
 
+        if (page > 0) {
+            content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
+                    -> {
+                    page--;
+                    reopen(p, content);
+                })
+            );
+        }
 
-            mat = Material.FLOWER_BANNER_PATTERN;
+        final List<String> sounds = Ostrov.registries.SOUNDS
+            .stream().map(s -> s.key().value()).sorted().toList();
+        if (to > sounds.size()) {
+            to = sounds.size();
+        } else {
+            content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e -> {
+                page++; reopen(p, content);
+            }));
+        }
 
-            split = sound.toString().split("_");
-
-            //if (split[0].equals("BLOCK_")) {
-            if (split.length >= 5) { //BLOCK_ LILY_PAD _PLACE
-                //switch (split[4]) {
-                // case "CLICK":
-                //   find = split[1].length()<=3 ? split[1]+"_" : split[1];
-                //    break;
-                // default:
-                find = split[1] + "_" + split[2] + "_" + split[3];
-                // }
-            } else if (split.length == 4) { //BLOCK_ LILY_PAD _PLACE
-                find = switch (split[3]) {
-                    case "ON", "OFF", "BREACK", "USE", "SUCCES" ->
-                        split[1].length() <= 3 ? split[1] + "_" : split[1];
-                    default -> split[1] + "_" + split[2];
-                };
-            } else {//if (split.length>=3) { //BLOCK_ LEVER _CLICK
-                find = split[1].length() <= 3 ? split[1] + "_" : split[1];
+        for (int i = from; i != to; i++) {
+            final String snm = sounds.get(i);
+            final Sound sound = Ostrov.registries.SOUNDS.get(Key.key(snm));
+            if (sound == null) continue;
+            final String tpn;
+            final int sp1 = snm.indexOf('.');
+            if (sp1 < 0) tpn = snm;
+            else {
+                final String snm1 = snm.substring(sp1 + 1);
+                final int sp2 = snm1.lastIndexOf('.');
+                if (sp2 < 0) tpn = snm1;
+                else tpn = snm1.substring(0, sp2);
             }
 
-            for (Material m : Material.values()) {
-                if (!m.isItem() || m.isLegacy()) continue;
-                if (String.valueOf(m).contains(find)) {
-                    mat = m;
-                    break;
-                }
+            ItemType tp = null;
+            for (final String spl : tpn.split("\\.")) {
+                tp = Ostrov.registries.ITEMS.get(Key.key(spl.toLowerCase()));
+                if (tp == null) tp = Ostrov.registries.ITEMS.get(Key
+                    .key(spl.toLowerCase() + "_spawn_egg"));
+                if (tp != null) break;
             }
-            //}
+            if (tp == null) tp = ItemType.FLOW_BANNER_PATTERN;
 
-            content.add(ClickableItem.of(new ItemBuilder(mat)
+            content.add(ClickableItem.of(new ItemBuilder(tp)
                 .name("§f" + sound)
                 .lore("§7")
                 .lore("§7ЛКМ - играть")
@@ -87,52 +87,30 @@ public class Sounds implements InventoryProvider {
                     p.stopSound(previos);
                 }
                 previos = sound;
-                current = sound.ordinal();
 
                 switch (e.getClick()) {
                     case LEFT:
-                        p.playSound(p.getLocation(), sound, 1, 1);
+                        p.playSound(p.getLocation(), sound, 1f, 1f);
                         break;
                     case SHIFT_LEFT:
-                        p.playSound(p.getLocation(), sound, 1, 2);
+                        p.playSound(p.getLocation(), sound, 1f, 2f);
                         break;
                     case SHIFT_RIGHT:
-                        p.playSound(p.getLocation(), sound, 1, 0.5f);
+                        p.playSound(p.getLocation(), sound, 1f, 0.5f);
                         break;
                     case MIDDLE:
-                        p.performCommand(String.valueOf(sound));
-                        break;
-                    case CONTROL_DROP:
-                        break;
-                    case CREATIVE:
-                        break;
-                    case DOUBLE_CLICK:
-                        break;
-                    case DROP:
-                        break;
-                    case NUMBER_KEY:
-                        break;
-                    case RIGHT:
-                        break;
-                    case SWAP_OFFHAND:
-                        break;
-                    case UNKNOWN:
-                        break;
-                    case WINDOW_BORDER_LEFT:
-                        break;
-                    case WINDOW_BORDER_RIGHT:
+                        p.sendMessage(sound.key().value() + ", tp-" + tpn);
                         break;
                 }
             }));
-
         }
 
 
         //pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
         //pagination.setItemsPerPage(45);    
 
-
-        content.set(5, 2, ClickableItem.of(new ItemBuilder(Material.NETHERITE_SCRAP)
+        //отказано
+        /*content.set(5, 2, ClickableItem.of(new ItemBuilder(Material.NETHERITE_SCRAP)
             .name("§fСлушать по очереди")
             .lore("§7")
             .lore("§7Сейчас №" + current)
@@ -185,13 +163,7 @@ public class Sounds implements InventoryProvider {
 
             p.playSound(p.getLocation(), Sound.values()[current], 1, 1);
             reopen(p, content);
-        }));
-
-
-        content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("закрыть").build(), e ->
-                p.closeInventory()
-            //SmartInventory.builder().id("EntityByGroup"+p.getName()). provider(new EntityByGroup(world, radius, VM.getNmsEntitygroup().getEntytyGroup(type))). size(6, 9). title("§2"+world.getName()+" "+VM.getNmsEntitygroup().getEntytyGroup(type).displayName+" §1r="+radius).build() .open(p)
-        ));
+        }));*/
         
 
         /*
@@ -214,24 +186,6 @@ public class Sounds implements InventoryProvider {
         }*/
 
         //pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
-
-        if (to < Sound.values().length) {
-            content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
-                    -> {
-                    page++;
-                    reopen(p, content);
-                })
-            );
-        }
-
-        if (page > 0) {
-            content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
-                    -> {
-                    page--;
-                    reopen(p, content);
-                })
-            );
-        }
 
 
         //onClose(p, content);

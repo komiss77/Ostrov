@@ -44,10 +44,8 @@ import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.entity.CraftEntityTypes;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.components.FoodComponent;
@@ -461,6 +459,10 @@ public class Nms {
 
   public static int getitemDespawnRate(final World w) { //skyworld
     return Craft.toNMS(w).spigotConfig.itemDespawnRate;
+  }
+
+  public static EntityType typeByClass(final Class<? extends LivingEntity> cls) {
+    return CraftEntityTypes.getEntityTypeData(cls).entityType();
   }
 
   public static void sendBlockCrack(final Player p, final WXYZ bl, final float state) {

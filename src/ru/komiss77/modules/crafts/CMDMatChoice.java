@@ -41,7 +41,7 @@ public class CMDMatChoice extends MaterialChoice {
     public ItemStack getItemStack() {
         final Material mt = getChoices().getFirst();
         final CustomMats cmts = CustomMats.get(cmd);
-        final ItemStack ci = cmts == null ? null : cmts.getItem(mt);
+        final ItemStack ci = cmts == null ? null : cmts.item(mt.asItemType());
         if (ci != null) return ci.asOne();
         final ItemStack it = new ItemStack(mt);
         if (ItemUtil.isBlank(it, false)) return ItemUtil.air;

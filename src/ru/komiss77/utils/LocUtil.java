@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import io.papermc.paper.math.BlockPosition;
 import io.papermc.paper.math.Position;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -30,8 +28,6 @@ public class LocUtil {
 
     private static final BlockFace[] axis = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
     private static final BlockFace[] radial = {BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH, BlockFace.SOUTH_WEST, BlockFace.WEST, BlockFace.NORTH_WEST};
-
-    public static final Registry<Biome> BIOME_REG = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);
 
     public static BlockFace yawToFace(float yaw, boolean useSubCardinalDirections) {
         if (useSubCardinalDirections) {
@@ -192,7 +188,7 @@ public class LocUtil {
     }
 
     public static Biome biomeFromString(final String biomename) {
-        for (Biome b : BIOME_REG) {
+        for (Biome b : Ostrov.registries.BIOMES) {
             if (b.key().value().equalsIgnoreCase(biomename)) {
                 return b;
             }
@@ -496,6 +492,7 @@ public class LocUtil {
         }
     }
 
+    @Deprecated
     public static boolean rayThruSoft(final Location org, final Vector to, final double inc) {
         //final Vector tt = to.clone();
         final Vector ch = org.toVector().subtract(to);

@@ -3,7 +3,6 @@ package ru.komiss77.modules.items;
 import javax.annotation.Nullable;
 import java.util.*;
 import org.bukkit.Keyed;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -64,8 +63,12 @@ public abstract class CustomMats implements Keyed {
         return VALUES.values().toArray(new CustomMats[0]);
     }
 
-    public @Nullable ItemStack getItem(final Material mt) {
+    public @Nullable ItemStack item(final ItemType mt) {
         return mits.get(mt);
+    }
+
+    public Collection<ItemStack> allIts() {
+        return mits.values();
     }
 
     public static CustomMats get(final ItemStack it) {

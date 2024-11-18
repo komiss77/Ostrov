@@ -23,7 +23,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
-import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ItemUtil.Texture;
 
 public class ItemBuilder {
