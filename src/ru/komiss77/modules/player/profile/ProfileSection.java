@@ -1,7 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-import ru.komiss77.hook.SkinRestorerHook;
-import ru.komiss77.modules.player.mission.ProfileWithdrawMenu;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -11,11 +9,13 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.ReportCmd;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Settings;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.enums.Stat;
+import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.modules.Pandora;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
+import ru.komiss77.modules.player.mission.ProfileWithdrawMenu;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.StringUtil;
@@ -101,7 +101,7 @@ public class ProfileSection implements InventoryProvider {
                                 .lore(op.eng ? "§7the more opportunities for you." : "§7тем больше для Вас возможностей.")
                                 .lore("")
                                 .lore(Lang.t(p, Stat.LEVEL.desc) + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true))
-                                .lore((op.eng ? "§fLevel increase today : " : "§fПрирост уровня за сегодня : ") + (op.getDaylyStat(Stat.LEVEL) > 0 ? "§e+" + op.getDaylyStat(Stat.LEVEL) : "§7нет"))
+                                .lore((op.eng ? "§fLevel increase today : " : "§fПрирост уровня за сегодня : ") + (op.getDailyStat(Stat.LEVEL) > 0 ? "§e+" + op.getDailyStat(Stat.LEVEL) : "§7нет"))
                                 .lore((op.eng ? "§fExp to the next level : §a§l" : "§fОпыта до следующего уровня : §a§l") + (op.getStat(Stat.LEVEL) * 25 - op.getStat(Stat.EXP) + 1))
                                 //.addLore( ApiOstrov.getPercentBar(op.getStat(Stat.LEVEL)*25, op.getStat(Stat.EXP), true) )
                                 .lore("")

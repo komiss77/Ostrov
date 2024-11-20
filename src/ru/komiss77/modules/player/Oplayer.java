@@ -110,6 +110,7 @@ public class Oplayer {
     public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked = true, pvp_allow = true;
 
     //служебные
+    public int lookSum = 0, lookStamp = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
     public Location spyOrigin;//public BukkitTask spyTask;
@@ -148,6 +149,18 @@ public class Oplayer {
         if (p == null) {
             Ostrov.log_warn("Oplayer " + nik + " secondTick : Player==null!");
             return;
+        }
+
+        if (Cfg.afk_sec > 0 && GM.GAME.type == ServerType.ONE_GAME) {
+            final Location loc = p.getEyeLocation();
+            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch();
+            if (look != lookSum) {
+                lookSum = look;
+                if (lookStamp != Integer.MAX_VALUE) lookStamp = Integer.MAX_VALUE;
+            } else if (Timer.getTime() - lookStamp > Cfg.afk_sec) {
+                p.sendMessage(Ostrov.PREFIX + "Ты простоял(а) афк более " + (Cfg.afk_sec / 60) + " мин!");
+                ApiOstrov.sendToServer(p, "lobby0", "");
+            }
         }
 
         if (pvp_time > 0) {
@@ -193,12 +206,12 @@ public class Oplayer {
             }
         }
 
-        if (dataString.isEmpty() && getOnlineSec() > 1) {
-            if (getOnlineSec() < 15) {
+        if (dataString.isEmpty() && onlineSecond > 1) {
+            if (onlineSecond < 15) {
                 SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
                 ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с прокси..");
                 return;
-            } else if (getOnlineSec() == 15) {
+            } else if (onlineSecond == 15) {
                 p.sendMessage("§cДанные с прокси не получены, попробуйте перезайти!");
             }
         }
@@ -365,10 +378,6 @@ public class Oplayer {
         };
     }
 
-    public int getDaylyStat(final Stat st) {
-        return getDailyStat(st);
-    }
-
     public int getDailyStat(final Stat st) {
         int record = dailyStat.getOrDefault(st, 0);
         return switch (st) {
@@ -391,7 +400,7 @@ public class Oplayer {
             }
         }
         stat.put(st, getStat(st) + value);
-        dailyStat.put(st, getDaylyStat(st) + value);
+        dailyStat.put(st, getDailyStat(st) + value);
         SpigotChanellMsg.sendMessage(getPlayer(), Operation.ADD_BUNGEE_STAT, nik, st.tag, value, "", "");
         MissionManager.onStatAdd(this, st, value);
         //ApiOstrov.sendMessage(getPlayer(), Action.SET_DATA_TO_BUNGEE, st.tag+E_Stat.diff, getDaylyStat(st), "", ""); //надо отдельно, или вычислять старое значение ?
@@ -414,14 +423,14 @@ public class Oplayer {
             addStat(Stat.LEVEL, lvlAdd); //добавляем уровень
             stat.put(Stat.EXP, xpCache); //запомнить оставшийся опыт
             SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag, xpCache, "", ""); //обновить на банжи
-            dailyStat.put(Stat.EXP, getDaylyStat(Stat.EXP) + value); //увеличение дневного счётчика опыта
-            SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag + Stat.diff, getDaylyStat(Stat.EXP), "", "");
+            dailyStat.put(Stat.EXP, getDailyStat(Stat.EXP) + value); //увеличение дневного счётчика опыта
+            SpigotChanellMsg.sendMessage(p, Operation.SET_BUNGEE_DATA, nik, Stat.EXP.tag + Stat.diff, getDailyStat(Stat.EXP), "", "");
             ScreenUtil.sendTitle(p, "§7.", Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 20, 60, 40);
             ScreenUtil.sendBossbar(p, Ostrov.PREFIX + (eng ? "New level : §b" : "Новый уровень : §b") + getStat(Stat.LEVEL), 8, Color.GREEN, Overlay.NOTCHED_20);
         } else { //уровень не меняется - просто добавляем опыт
             //addStat(Stat.EXP, value); addStat нельзя - деадлок!
             stat.put(Stat.EXP, xpCache);
-            dailyStat.put(Stat.EXP, getDaylyStat(Stat.EXP) + value);
+            dailyStat.put(Stat.EXP, getDailyStat(Stat.EXP) + value);
             SpigotChanellMsg.sendMessage(getPlayer(), Operation.ADD_BUNGEE_STAT, nik, Stat.EXP.tag, value, "", ""); //на банжике уровень не пересчитываем!
             if (value > 10)
                 ScreenUtil.sendActionBar(getPlayer(), (curr_level * 25 - getStat(Stat.EXP) + 1) + (eng ? "§7 experience to next level" : "§7 опыта до следующего уровня")); //+1 - фикс, или писало 0 до след уровня
@@ -439,7 +448,7 @@ public class Oplayer {
     }
 
     public boolean hasDaylyFlag(final StatFlag flag) {
-        return StatFlag.hasFlag(getDaylyStat(Stat.FLAGS), flag);
+        return StatFlag.hasFlag(getDailyStat(Stat.FLAGS), flag);
     }
 
     //сетит флаг локально и в банжи, ТОЛЬКО В ГЛОБАЛЬНОЙ СТАТЕ! dayly не меняет!
@@ -452,7 +461,7 @@ public class Oplayer {
 
     //сетит флаг локально и в банжи, ТОЛЬКО В dayly СТАТЕ! стату не меняет!
     public void setDaylyFlag(final StatFlag flag, final boolean state) {
-        int value = getDaylyStat(Stat.FLAGS);
+        int value = getDailyStat(Stat.FLAGS);
         value = state ? (value | (1 << flag.tag)) : value & ~(1 << flag.tag);
         dailyStat.put(Stat.FLAGS, value);
         SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, Stat.FLAGS.tag + Stat.diff, value, "", "");

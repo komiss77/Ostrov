@@ -6,6 +6,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.*;
+import org.bukkit.persistence.PersistentDataAdapterContext;
+import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
 import ru.komiss77.modules.world.WXYZ;
@@ -13,13 +15,41 @@ import ru.komiss77.modules.world.WXYZ;
 
 public abstract class CustomEntity implements Keyed {
 
+    protected static final NamespacedKey KEY = NamespacedKey.minecraft("o.ent");
+    protected static final PersistentDataType<String, CustomEntity> DATA = new PersistentDataType<>() {
+        @Override
+        public Class<String> getPrimitiveType() {
+            return String.class;
+        }
+
+        @Override
+        public Class<CustomEntity> getComplexType() {
+            return CustomEntity.class;
+        }
+
+        @Override
+        public String toPrimitive(final CustomEntity ce, final PersistentDataAdapterContext cont) {
+            return ce.key.value();
+        }
+
+        @Override
+        public CustomEntity fromPrimitive(final String nm, final PersistentDataAdapterContext cont) {
+            return EntityManager.custom.get(nm);
+        }
+    };
+
+    private static int IDs = 0;
+    private final int id;
+
     protected int cd;
 
     protected final NamespacedKey key;
 
-    protected CustomEntity() {
+    protected CustomEntity(final boolean regSpawn) {
+        id = IDs++;
         key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
-        if (EntityManager.enable) EntityManager.register(this);
+        if (regSpawn && EntityManager.enable) EntityManager.register(this);
+
         cd = spawnCd();
     }
 
@@ -38,7 +68,7 @@ public abstract class CustomEntity implements Keyed {
     }
 
     public void apply(final Entity ent) {
-        ent.getPersistentDataContainer().set(EntityManager.KEY, EntityManager.DATA, this);
+        ent.getPersistentDataContainer().set(KEY, DATA, this);
         modify(ent);
 //    goal(e);
     }
@@ -69,12 +99,15 @@ public abstract class CustomEntity implements Keyed {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        return o instanceof final CustomEntity ce && ce.key.equals(key);
+        return o instanceof final CustomEntity ce && ce.id == id;
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return id;
+    }
+
+    public static CustomEntity get(final Entity ent) {
+        return ent.getPersistentDataContainer().get(KEY, DATA);
     }
 }

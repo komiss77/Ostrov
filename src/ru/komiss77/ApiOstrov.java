@@ -39,9 +39,9 @@ public class ApiOstrov {
     /**
      * @param target игрок
      * @param server название сервера, как в настройках bungeecord
-     * @param arena  название арены на сервере для вызова ArenaJoinEvent в плагине bsign
+     * @param arena название арены на сервере для вызова ArenaJoinEvent в плагине bsign
      */
-    public static void sendToServer(final Player target, final String server, String arena) {
+    public static void sendToServer(final Player target, final String server, final String arena) {
 //Ostrov.log("sendToServer server="+server+" arena="+arena);
         if (server.equalsIgnoreCase(Ostrov.MOT_D)) {
             Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(target, arena));

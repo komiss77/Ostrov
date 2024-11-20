@@ -25,6 +25,7 @@ public class Cfg {
     public static boolean tablist_header_footer = false;
     public static boolean tablist_name = false;
     public static boolean scale_health = false;
+    public static int afk_sec = -1;
 
     //для ServerListener
     public static boolean clear_old_ents;
@@ -96,6 +97,7 @@ public class Cfg {
         disable_ice_melt = cfg.getBoolean("world.disable_ice_melt");
         clear_old_ents = cfg.getBoolean("world.clear_old_ents");
 
+        afk_sec = cfg.getInt("player.afk_min") * 60;
         set_gm = cfg.getBoolean("player.change_gamemode_on_join");
         gm_on_join = GameMode.valueOf(cfg.getString("player.gamemode_set_to"));
         walkspeed_on_join = Float.parseFloat(cfg.getString("player.walkspeed_on_join"));
@@ -163,6 +165,7 @@ public class Cfg {
         cfg.addDefault("player.change_gamemode_on_join", false, c0);
         cfg.addDefault("player.gamemode_set_to", "ADVENTURE");
         cfg.addDefault("player.walkspeed_on_join", "0.1F");
+        cfg.addDefault("player.afk_min", -1);
         cfg.addDefault("player.clear_stats", false);
         cfg.addDefault("player.disable_void", false);
         cfg.addDefault("player.disable_damage", false);

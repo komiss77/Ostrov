@@ -101,9 +101,9 @@ public final class Pandora implements Initiable, Listener {
     public static String getInfo(final Oplayer op) {
         if (op.hasDaylyFlag(StatFlag.Pandora))
             return op.eng ? "§8Pandora is already open today" : "§8Пандора сегодня уже открыта";
-        if (op.getDaylyStat(Stat.PLAY_TIME) >= DAY_PLAY_TIME_TO_OPEN)
+        if (op.getDailyStat(Stat.PLAY_TIME) >= DAY_PLAY_TIME_TO_OPEN)
             return op.eng ? "§eYou can open Pandora Box!" : "§eВы можете открыть Ящик Пандоры!";
-        return (op.eng ? "§6You can open Pandora box through " : "§6До возможности открыть Ящик Пандоры ") + TimeUtil.secondToTime(DAY_PLAY_TIME_TO_OPEN - op.getDaylyStat(Stat.PLAY_TIME));
+        return (op.eng ? "§6You can open Pandora box through " : "§6До возможности открыть Ящик Пандоры ") + TimeUtil.secondToTime(DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME));
         //:  ( Pandora.DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME))<0 ? "§eПандора ждёт открытия" : "§6До"
     }
 
@@ -241,7 +241,7 @@ public final class Pandora implements Initiable, Listener {
     public void onBungeeDataRecieved(final BungeeDataRecieved e) {
         final Oplayer op = e.getOplayer();
         if (!op.isGuest && !op.hasDaylyFlag(StatFlag.Pandora) &&
-                (DAY_PLAY_TIME_TO_OPEN - op.getDaylyStat(Stat.PLAY_TIME)) < 0) {
+                (DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME)) < 0) {
             e.getPlayer().sendMessage(op.eng ? infoEn : infoRu);
         }
     }
@@ -268,7 +268,7 @@ public final class Pandora implements Initiable, Listener {
             }
         }
 
-        final int sec_left = DAY_PLAY_TIME_TO_OPEN - op.getDaylyStat(Stat.PLAY_TIME);
+        final int sec_left = DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME);
 
         if (sec_left > 0 && !ApiOstrov.isLocalBuilder(p, true)) {
 

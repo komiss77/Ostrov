@@ -872,7 +872,7 @@ public class ProfileManager {
             setLine(p, Section.ПРОФИЛЬ.slot, 1, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
         }
         //подставить наиграно за сегодня
-        setLine(p, Section.ПРОФИЛЬ.slot, 2, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
+        setLine(p, Section.ПРОФИЛЬ.slot, 2, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
         //поставить время до сброса дневной статы на иконке статы
         setLine(p, Section.СТАТИСТИКА.slot, 3, "§3" + TimeUtil.secondToTime(Timer.leftBeforeResetDayly()));
 
@@ -916,7 +916,7 @@ public class ProfileManager {
                     if (op.getStat(Stat.PLAY_TIME) < 604800) {
                         setLine(p, 10, 4, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
                     }
-                    setLine(p, 10, 5, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)));
+                    setLine(p, 10, 5, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
                 }
             }
 

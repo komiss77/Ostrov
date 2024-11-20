@@ -58,7 +58,7 @@ public class StatSection implements InventoryProvider {
             for (Stat stat : Stat.values()) {
                 if (stat.game == game) {
 //System.out.println("- stat="+stat.toString()+" len="+op.getStat(stat).length()+" value="+op.getStat(stat));                   
-                    lore.add(Lang.t(p, stat.desc) + op.getStat(stat) + (op.getDaylyStat(stat) > 0 ? " §5(+" + op.getDaylyStat(stat) + ")" : ""));
+                    lore.add(Lang.t(p, stat.desc) + op.getStat(stat) + (op.getDailyStat(stat) > 0 ? " §5(+" + op.getDailyStat(stat) + ")" : ""));
                 }
             }
 

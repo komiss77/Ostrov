@@ -243,7 +243,7 @@ public enum Section {
                             //1 игровое время обновление каждую секунду в ProfileManager
                             Component.text("§fPlayTime total : §a" + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
                             //2 наиграно за сегодня обновление каждую секунду в ProfileManager
-                            Component.text(Lang.t(Stat.PLAY_TIME.desc, Lang.EN) + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME))),
+                            Component.text(Lang.t(Stat.PLAY_TIME.desc, Lang.EN) + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
                             Component.text(Lang.t(Stat.LEVEL.desc, Lang.EN) + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
                             Component.empty(),
                             Component.text(op.getDataInt(Data.REPORT_C) > 0 ? "§cConsole reports §7: " + op.getDataInt(Data.REPORT_C) : "§8No comments"),
@@ -260,7 +260,7 @@ public enum Section {
                             //1 игровое время обновление каждую секунду в ProfileManager
                             Component.text(Stat.PLAY_TIME.desc + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
                             //2 наиграно за сегодня обновление каждую секунду в ProfileManager
-                            Component.text("§fНаиграно за сегодня : §e" + TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME))),
+                            Component.text("§fНаиграно за сегодня : §e" + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
                             Component.text(Stat.LEVEL.desc + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
                             Component.empty(),
                             Component.text(op.getDataInt(Data.REPORT_C) > 0 ? "§cРепорты консоли §7: " + op.getDataInt(Data.REPORT_C) : "§8Замечаний нет"),
