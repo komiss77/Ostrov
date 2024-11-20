@@ -419,7 +419,7 @@ public class LocUtil {
 
         final World w = org.getWorld();
         final List<Duo<BlockPosition, BlockData>> info =
-            new ArrayList<>(finX - mapX + finY - mapY + finZ - mapZ);
+            new ArrayList<>(FastMath.abs(finX - mapX) + FastMath.abs(finY - mapY) + FastMath.abs(finZ - mapZ));
         while (true) {
             if (sideDistZ < sideDistX && sideDistZ < sideDistY) {
                 sideDistZ += deltaDistZ;
