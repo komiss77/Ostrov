@@ -14,19 +14,15 @@ public class RollTree extends Roll<String[]> {
     private static final char DLM = ':';
 
     public RollTree(final String id, final String[] roll) {
-        super(id, roll, 1, roll.length, 0);
+        super(id, roll, roll.length, 0);
     }
 
-    public RollTree(final String id, final String[] roll, final int chance) {
-        super(id, roll, chance, roll.length, 0);
+    public RollTree(final String id, final String[] roll, final int number) {
+        super(id, roll, Math.min(number, roll.length), 0);
     }
 
-    public RollTree(final String id, final String[] roll, final int chance, final int number) {
-        super(id, roll, chance, Math.min(number, roll.length), 0);
-    }
-
-    public RollTree(final String id, final String[] roll, final int chance, final int number, final int extra) {
-        super(id, roll, chance, Math.min(number, roll.length), extra);
+    public RollTree(final String id, final String[] roll, final int number, final int extra) {
+        super(id, roll, Math.min(number, roll.length), extra);
     }
 
     @Override
@@ -36,7 +32,7 @@ public class RollTree extends Roll<String[]> {
     }
 
     public <R> List<R> genRolls(final Class<R> cls) {
-        if (it.length == 0 || Ostrov.random.nextInt(chance) == 0) return List.of();
+        if (it.length == 0) return List.of();
         final int amt = number + Ostrov.random.nextInt(extra);
         final ArrayList<R> lst = new ArrayList<>(amt);
         if (amt < it.length >> 1) {
@@ -56,22 +52,23 @@ public class RollTree extends Roll<String[]> {
     }
 
     private <R> void addGen(final String roll, final ArrayList<R> lst, final Class<R> cls) {
+//        Ostrov.log("tr-" + id);
         final Roll<?> rl = Roll.getRoll(roll);
-        if (rl instanceof final RollTree rr) {
-            for (final String nr : rr.generate()) {
-                addGen(nr, lst, cls);
-            }
-            return;
-        }
-
-        if (rl == null) {
-            Ostrov.log_warn("No roll " + roll + " in table " + id + "!");
-            return;
-        }
-
-        final Object gen = rl.generate();
-        if (gen.getClass().isAssignableFrom(cls)) {
-            lst.add(cls.cast(gen));
+        switch (rl) {
+            case null:
+                Ostrov.log_warn("No roll " + roll + " in table " + id + "!");
+                return;
+            case final NARoll ignored: return;
+            case final RollTree rr:
+                for (final String nr : rr.generate()) {
+                    addGen(nr, lst, cls);
+                }
+                return;
+            default:
+                final Object gen = rl.generate();
+                if (cls.isAssignableFrom(gen.getClass())) {
+                    lst.add(cls.cast(gen));
+                }
         }
     }
 
@@ -97,7 +94,7 @@ public class RollTree extends Roll<String[]> {
                     rolls.add(rl.substring(split + 1));
             }
             return new RollTree(cs.getName(), rolls.toArray(EMT),
-                cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0));
+                cs.getInt(NUM, 0), cs.getInt(EX, 0));
         });
     }
 
@@ -136,19 +133,15 @@ public class RollTree extends Roll<String[]> {
         }
 
         public RollTree build() {
-            return build(1, rolls.size(), 0);
+            return build(rolls.size(), 0);
         }
 
-        public RollTree build(final int chance) {
-            return build(chance, rolls.size(), 0);
+        public RollTree build(final int number) {
+            return build(number, 0);
         }
 
-        public RollTree build(final int chance, final int number) {
-            return build(chance, number, 0);
-        }
-
-        public RollTree build(final int chance, final int number, final int extra) {
-            return new RollTree(id, rolls.toArray(EMT), chance, number, extra);
+        public RollTree build(final int number, final int extra) {
+            return new RollTree(id, rolls.toArray(EMT), number, extra);
         }
     }
 }

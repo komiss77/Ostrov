@@ -174,8 +174,7 @@ public class EntityGroupMenu implements InventoryProvider {
             for (final Map.Entry<EntityType, Integer> entry : count.entrySet()) {
               final EntityType type = entry.getKey();
               menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(type)
-                  .name(Lang.t(type, p))
-                    .amount(entry.getValue() > 64 ? 1 : entry.getValue())
+                  .name(Lang.t(type, p)).maxStack(99).amount(entry.getValue())
                     .lore("§7")
                     .lore("§7Найдено: §e" + entry.getValue())
                     .lore("§7")

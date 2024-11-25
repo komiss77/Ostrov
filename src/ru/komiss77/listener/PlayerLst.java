@@ -112,17 +112,14 @@ public class PlayerLst implements Listener {
         final Player p = e.getPlayer();
         //LOCALE тут не получить!!! ловить PlayerLocaleChangeEvent
         final Oplayer op = PM.createOplayer(p);
-        p.setShieldBlockingDelay(2);
-        p.setNoDamageTicks(20);
 
-        if (Ostrov.MOT_D.equals("jail")) {
+        if (GM.GAME == Game.JL) {
             ScreenUtil.sendTabList(p, "§4ЧИСТИЛИЩЕ", "");
         } else {
             ScreenUtil.sendTabList(p, "", "");//!! перед loadLocalData, или сбрасывает то, что поставила игра
         }
 
         if (LocalDB.useLocalData) {
-
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
             Ostrov.async(() -> {
                 LocalDB.loadLocalData(p.getName());//локальные данные на загрузку независимо от данных с банжи!
@@ -143,6 +140,10 @@ public class PlayerLst implements Listener {
                 }
             }, 1); //- без задержки не выдавало предметы лобби!
         }
+
+        //player modifications
+        p.setShieldBlockingDelay(2);
+        p.setNoDamageTicks(20);
     }
 
 

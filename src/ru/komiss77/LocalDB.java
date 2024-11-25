@@ -356,7 +356,6 @@ public class LocalDB {
 
         final long l = System.currentTimeMillis();
 
-
         ResultSet rs = null;
 
         try (final Statement stmt = LocalDB.getConnection().createStatement()) {
@@ -371,6 +370,7 @@ public class LocalDB {
                 Ostrov.sync(() -> {
                     Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
                 }, 1);
+                Ostrov.log_ok("Игрок " + op.nik + " не записан в БД.");
                 return;
             }
 

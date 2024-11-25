@@ -24,7 +24,7 @@ public abstract class AreaSpawner {
     public <E extends LivingEntity> List<E> trySpawn(final WXYZ from, final Class<E> entCls, final @Nullable Consumer<E> pre) {
         final WXYZ loc = LocFinder.findInArea(from, radius(), offset(), NEAR, checks(), yDst());
         if (loc == null) return List.of();
-        final SpawnCondition sc = condition(loc, entCls);
+        final SpawnCondition sc = condition(loc);
         if (sc == null || sc.amt < 1) return List.of();
         final ArrayList<E> els = new ArrayList<>(sc.amt);
         for (int i = Ostrov.random.nextInt(sc.amt) + 1; i != 0; i--) {
@@ -41,7 +41,7 @@ public abstract class AreaSpawner {
         return Ostrov.random.nextFloat() * MAX_SHF - MAX_SHF_D2;
     }
 
-    public abstract <E extends LivingEntity> SpawnCondition condition(final WXYZ loc, final Class<E> entCls);
+    public abstract <E extends LivingEntity> SpawnCondition condition(final WXYZ loc);
 
     public static final SpawnCondition NONE = new SpawnCondition(0, CreatureSpawnEvent.SpawnReason.DEFAULT);
     public static final SpawnCondition DEFAULT = new SpawnCondition(1, CreatureSpawnEvent.SpawnReason.NATURAL);

@@ -3,11 +3,9 @@ package ru.komiss77.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -26,7 +24,6 @@ import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.RestartWarningEvent;
 import ru.komiss77.hook.*;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.quests.QuestManager;
 import ru.komiss77.modules.world.Land;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
@@ -60,12 +57,12 @@ public class ServerLst implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDragonDeath(final EntityDeathEvent e) {
-      if (GM.GAME == Game.AR || GM.GAME == Game.DA || GM.GAME == Game.MI) {
-        if (e.getEntityType() == EntityType.ENDER_DRAGON && e.getEntity().getWorld().getEnvironment() == World.Environment.THE_END) {
-          ApiOstrov.makeWorldEndToWipe(3 * 24 * 60 * 60);
-          Bukkit.broadcast(TCUtil.form("§bДракон побеждён, и край будет воссоздан через 3 дня!"));
+        if (GM.GAME == Game.AR || GM.GAME == Game.DA || GM.GAME == Game.MI) {
+            if (e.getEntityType() == EntityType.ENDER_DRAGON && e.getEntity().getWorld().getEnvironment() == World.Environment.THE_END) {
+                ApiOstrov.makeWorldEndToWipe(3 * 24 * 60 * 60);
+                Bukkit.broadcast(TCUtil.form("§bДракон побеждён, и край будет воссоздан через 3 дня!"));
+            }
         }
-      }
     }
 
 
@@ -77,7 +74,7 @@ public class ServerLst implements Listener {
     }
 
 
-  @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPluginEnable(PluginEnableEvent e) {
         //if (e.getPlugin().getDescription().getCommands()!=null) {
         // e.getPlugin().getDescription().getCommands().keySet().stream().forEach((command) -> {
@@ -96,31 +93,31 @@ public class ServerLst implements Listener {
                 WGhook.hook(e.getPlugin());
             }
 
-          case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
+            case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
 
             case "ProCosmetics" -> {
                 ProCosmeticsHook.hook(e.getPlugin());
             }
 
-          case "dynmap" -> DynmapHook.hook(e.getPlugin());
+            case "dynmap" -> DynmapHook.hook(e.getPlugin());
 
-          case "EasyPayments" -> EasyPaymentsHook.hook(e.getPlugin());
+            case "EasyPayments" -> EasyPaymentsHook.hook(e.getPlugin());
 
             case "TradeSystem" -> TradeSystemHook.hook(e.getPlugin());
         }
 
     }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onPluginDisable(PluginDisableEvent e) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPluginDisable(PluginDisableEvent e) {
 
-    switch (e.getPlugin().getName()) {
+        switch (e.getPlugin().getName()) {
 
-      case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
+            case "CrazyAdvancementsAPI" -> Ostrov.getModule(Module.quests).reload();
+
+        }
 
     }
-
-  }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onServerLoad(final ServerLoadEvent e) { //прилетает 1: после загрузки всех миров server.enablePlugins(PluginLoadOrder.POSTWORLD); либо после перезагрузки командой
@@ -141,7 +138,7 @@ public class ServerLst implements Listener {
         w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
 
         if (Ostrov.MOT_D.length() <= 4) {
-            w.setKeepSpawnInMemory(true);
+            w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 8);
             w.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, true);
             w.setGameRule(GameRule.DISABLE_RAIDS, true);
             w.setGameRule(GameRule.KEEP_INVENTORY, false);
@@ -175,7 +172,7 @@ public class ServerLst implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitySpawn(final EntitySpawnEvent e) {
         if (Cfg.clear_old_ents) {
-            e.getEntity().setPersistent(false);
+            setClearable(e.getEntity(), true);
         }
     }
 
@@ -183,7 +180,7 @@ public class ServerLst implements Listener {
     public void onEntitiesLoad(final EntitiesLoadEvent e) {
         if (Cfg.clear_old_ents) {
             for (final Entity ent : e.getEntities()) {
-                if (!ent.isPersistent()) ent.remove();
+                if (isClearable(ent)) ent.remove();
             }
         }
     }
@@ -192,9 +189,29 @@ public class ServerLst implements Listener {
     public void onEntitiesUnload(final EntitiesUnloadEvent e) {
         if (Cfg.clear_old_ents) {
             for (final Entity ent : e.getEntities()) {
-                if (!ent.isPersistent()) ent.remove();
+                if (isClearable(ent)) ent.remove();
             }
         }
+    }
+
+    public boolean isClearable(final Entity ent) {
+        return switch (ent) {
+            case null -> true;
+            case final Item ignored -> false;
+            case final Projectile ignored -> true;
+            case final LivingEntity le -> le.getRemoveWhenFarAway();
+            default -> ent.isPersistent();
+        };
+    }
+
+    public void setClearable(final Entity ent, final boolean clear) {
+        switch (ent) {
+            case null: break;
+            case final Item ignored: break;
+            case final Projectile ignored: break;
+            case final LivingEntity le: le.setRemoveWhenFarAway(clear); break;
+            default: ent.setPersistent(clear); break;
+        };
     }
 
         

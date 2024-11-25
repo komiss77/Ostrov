@@ -2,11 +2,10 @@ package ru.komiss77.modules.rolls;
 
 import java.util.HashMap;
 import java.util.function.Function;
-
 import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
-import ru.komiss77.Ostrov;
 import ru.komiss77.OConfig;
+import ru.komiss77.Ostrov;
 
 public abstract class Roll<R> {
 
@@ -17,12 +16,10 @@ public abstract class Roll<R> {
     protected final String id;
     protected final byte number;
     protected final byte extra;
-    protected final byte chance;
 
-    protected Roll(final String id, final R it, final int chance, final int number, final int extra) {
+    protected Roll(final String id, final R it, final int number, final int extra) {
         this.id = id;
         this.it = it;
-        this.chance = (byte) Math.max(1, chance);
         this.number = (byte) Math.max(0, number);
         this.extra = (byte) Math.max(1, extra + 1);
         if (rolls.putIfAbsent(id, this) == null) save();
@@ -31,7 +28,7 @@ public abstract class Roll<R> {
     protected abstract R asAmount(final int amt);
 
     public R generate() {
-        return asAmount(Ostrov.random.nextInt(chance) == 0 ? number + Ostrov.random.nextInt(extra) : 0);
+        return asAmount(number + Ostrov.random.nextInt(extra));
     }
 
     @Override
@@ -48,7 +45,6 @@ public abstract class Roll<R> {
 
     protected static final String VAL = "val";
     protected static final String NUM = "num";
-    protected static final String CH = "ch";
     protected static final String EX = "ex";
 
     public Roll<R> save() {
@@ -56,7 +52,6 @@ public abstract class Roll<R> {
         final String dir = getClass().getSimpleName() + "." + id + ".";
         irc.set(dir + VAL, encode());
         irc.set(dir + NUM, number);
-        irc.set(dir + CH, chance);
         irc.set(dir + EX, extra);
         irc.saveConfig();
         return this;
@@ -67,18 +62,6 @@ public abstract class Roll<R> {
         irc.removeKey(getClass().getSimpleName() + "." + id);
         irc.saveConfig();
         return this;
-    }
-
-    public static boolean roll(final int chance) {
-        return Ostrov.random.nextInt(Math.max(chance, 1)) == 0;
-    }
-
-    public static boolean rollIn(final float chance) {
-        return Ostrov.random.nextFloat() < Math.clamp(chance, 0f, 1f);
-    }
-
-    public static boolean rollOut(final float chance) {
-        return Ostrov.random.nextFloat() > Math.clamp(chance, 0f, 1f);
     }
 
     public static Roll<?> getRoll(final String id) {
@@ -98,5 +81,18 @@ public abstract class Roll<R> {
         for (final String id : cs.getKeys(false)) {
             fun.apply(cs.getConfigurationSection(id));
         }
+    }
+
+    //unrelated
+    public static boolean roll(final int chance) {
+        return Ostrov.random.nextInt(Math.max(chance, 1)) == 0;
+    }
+
+    public static boolean rollIn(final float chance) {
+        return Ostrov.random.nextFloat() < Math.clamp(chance, 0f, 1f);
+    }
+
+    public static boolean rollOut(final float chance) {
+        return Ostrov.random.nextFloat() > Math.clamp(chance, 0f, 1f);
     }
 }

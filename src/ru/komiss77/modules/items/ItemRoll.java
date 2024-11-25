@@ -9,19 +9,15 @@ public class ItemRoll extends Roll<ItemStack> {
     private static final String SEP = "=";
 
     public ItemRoll(final String id, final ItemStack it) {
-        super(id, it, 1, it.getAmount(), 0);
+        super(id, it, it.getAmount(), 0);
     }
 
-    public ItemRoll(final String id, final ItemStack it, final int chance) {
-        super(id, it, chance, it.getAmount(), 0);
+    public ItemRoll(final String id, final ItemStack it, final int number) {
+        super(id, it, number, 0);
     }
 
-    public ItemRoll(final String id, final ItemStack it, final int chance, final int number) {
-        super(id, it, chance, number, 0);
-    }
-
-    public ItemRoll(final String id, final ItemStack it, final int chance, final int number, final int extra) {
-        super(id, it, chance, number, extra);
+    public ItemRoll(final String id, final ItemStack it, final int number, final int extra) {
+        super(id, it, number, extra);
     }
 
     @Override
@@ -36,7 +32,8 @@ public class ItemRoll extends Roll<ItemStack> {
     }
 
     public static void loadAll() {
-        load(ItemRoll.class, cs -> new ItemRoll(cs.getName(), ItemUtil.parseItem(cs.getString(VAL), SEP),
-            cs.getInt(CH, 1), cs.getInt(NUM, 0), cs.getInt(EX, 0)));
+        load(ItemRoll.class, cs -> new ItemRoll(cs.getName(),
+            ItemUtil.parseItem(cs.getString(VAL), SEP),
+            cs.getInt(NUM, 0), cs.getInt(EX, 0)));
     }
 }

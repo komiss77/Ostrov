@@ -38,17 +38,13 @@ public abstract class CustomEntity implements Keyed {
         }
     };
 
-    private static int IDs = 0;
-    private final int id;
-
     protected int cd;
 
     protected final NamespacedKey key;
 
-    protected CustomEntity(final boolean regSpawn) {
-        id = IDs++;
+    protected CustomEntity() {
         key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
-        if (regSpawn && EntityManager.enable) EntityManager.register(this);
+        if (EntityManager.enable) EntityManager.register(this);
 
         cd = spawnCd();
     }
@@ -63,7 +59,7 @@ public abstract class CustomEntity implements Keyed {
 //  protected abstract void goal(final E e);
 
     public LivingEntity spawn(final Location loc) {
-        final AreaSpawner.SpawnCondition cnd = spawner().condition(new WXYZ(loc), getEntClass());
+        final AreaSpawner.SpawnCondition cnd = spawner().condition(new WXYZ(loc));
         return loc.getWorld().spawn(loc, getEntClass(), cnd.reason(), false, this::apply);
     }
 
@@ -99,12 +95,18 @@ public abstract class CustomEntity implements Keyed {
 
     @Override
     public boolean equals(final Object o) {
-        return o instanceof final CustomEntity ce && ce.id == id;
+        if (this == o) return true;
+        return o instanceof final CustomEntity ce && key.equals(ce.key);
     }
 
     @Override
     public int hashCode() {
-        return id;
+        return key.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return key.toString() + " of " + getEntClass().getSimpleName().toLowerCase();
     }
 
     public static CustomEntity get(final Entity ent) {

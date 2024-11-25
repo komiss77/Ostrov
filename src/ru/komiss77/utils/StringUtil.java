@@ -73,7 +73,7 @@ public class StringUtil {
     public static String nrmlzStr(final String s) {
         final char[] ss = s.toLowerCase().toCharArray();
         ss[0] = Character.toUpperCase(ss[0]);
-        for (byte i = (byte) (ss.length - 1); i > 0; i--) {
+        for (int i = ss.length - 1; i != 0; i--) {
             switch (ss[i]) {
                 case '_':
                     ss[i] = ' ';
@@ -102,4 +102,44 @@ public class StringUtil {
             return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
         }
     }
+
+
+    /*public static String multiReplace(final String str, final Map<String, String> places) {
+        final int len = str.length(), ksl = len >> 8;
+        final IntHashMap<List<String>> keys = new IntHashMap<>();
+        for (final String k : places.keySet()) {
+            if (k.isEmpty()) continue;
+            final char kc = k.charAt(0);
+            final List<String> kls = keys.get(kc);
+            if (kls == null) {
+                final ArrayList<String> nks = new ArrayList<>(ksl);
+                keys.put(kc, nks);
+            } else kls.add(k);
+        }
+
+        final StringBuilder sb = new StringBuilder(len);
+        final char[] strArr = str.toCharArray();
+        for (int i = 0; i != len; i++) {
+            final List<String> kls = keys.get(strArr[i]);
+            if (kls == null) {
+                sb.append(strArr[i]);
+                continue;
+            }
+
+            eq : for (final String k : kls) {
+                final int kl = k.length() - 1;
+                if (i + kl >= len) continue;
+                for (int j = 1; j != kl; j++) {
+                    if (k.charAt(j) != strArr[i + j]) continue eq;
+                }
+
+                final String sub = places.get(k);
+                if (sub == null) continue;
+                sb.append(sub);
+                i += kl + 1;
+                break;
+            }
+        }
+        return sb.toString();
+    }*/
 }

@@ -398,8 +398,7 @@ class EntityGroupView implements InventoryProvider {
         for (final EntityType type : count.keySet()) {
             find = count.get(type);
             menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(type)
-                .name(Lang.t(type, p))
-                .amount(find > 64 ? 1 : find)
+                .name(Lang.t(type, p)).maxStack(99).amount(find)
                 .lore("§7")
                 .lore("§7Найдено: §e" + find)
                 .lore("§7")
