@@ -223,6 +223,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public static @Nullable SpecialItem get(final ItemStack it) {
+        if (it == null) return null;
         final String nm = it.getPersistentDataContainer().get(DATA, PersistentDataType.STRING);
         return nm == null ? null : VALUES.get(nm);
     }

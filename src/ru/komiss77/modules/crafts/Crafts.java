@@ -228,21 +228,14 @@ public final class Crafts implements Initiable, Listener {
     @EventHandler
     public void onCraft(final InventoryClickEvent e) {
         if (e.getClickedInventory() instanceof CraftingInventory) {
-            if (e.getSlotType() == InventoryType.SlotType.RESULT) {
-                final ItemStack fin = e.getCurrentItem();
-                final SpecialItem si = SpecialItem.get(fin);
-                if (si != null) {
-                    if (si.crafted()) {
-                        e.setResult(Event.Result.DENY);
-                        e.setCurrentItem(ItemUtil.air);
-                        for (final HumanEntity he : e.getViewers()) {
-                            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
-                        }
-                        return;
-                    }
-
-
-                }
+            if (e.getSlotType() != InventoryType.SlotType.RESULT) return;
+            final ItemStack fin = e.getCurrentItem();
+            final SpecialItem si = SpecialItem.get(fin);
+            if (si == null || !si.crafted()) return;
+            e.setResult(Event.Result.DENY);
+            e.setCurrentItem(ItemUtil.air);
+            for (final HumanEntity he : e.getViewers()) {
+                he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
             }
         }
     }
