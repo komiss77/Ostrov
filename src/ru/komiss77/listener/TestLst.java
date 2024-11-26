@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WorldBorder;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,12 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.bots.Botter;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.TCUtil;
 
 public class TestLst implements Listener {
 
@@ -114,7 +116,9 @@ public class TestLst implements Listener {
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
                 if (p.isSneaking()) {
-                    p.sendMessage(TCUtil.form("<indigo>Труп игрока <cardinal>Romindous"));
+                    final ItemStack ii = new ItemBuilder(ItemType.STONE).enchant(Enchantment.MENDING).enchant(Enchantment.EFFICIENCY, 4).build();
+                    p.getInventory().setItemInMainHand(new ItemBuilder(ii).name("<blue>lol").disEnchant().build());
+
                 } else {
 
                     //   bot.tag(false);

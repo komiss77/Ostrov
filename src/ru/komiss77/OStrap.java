@@ -40,6 +40,10 @@ public class OStrap implements PluginBootstrap {
         noIts = RegistrySet.keySet(RegistryKey.ITEM);
 
     public static NamespacedKey key(final String key) {
+        final int ix = key.indexOf(':');
+        if (ix != -1) {
+            return new NamespacedKey(key.substring(0, ix), key.substring(ix + 1));
+        }
         return new NamespacedKey(space, key.toLowerCase(Locale.ROOT));
     }
 

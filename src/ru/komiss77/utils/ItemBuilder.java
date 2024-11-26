@@ -25,6 +25,8 @@ import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
 import ru.komiss77.utils.ItemUtil.Texture;
 
+@Deprecated
+//use modules/items/ItemBuilder
 public class ItemBuilder {
 
     private ItemType type;//private Material mat;

@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
@@ -139,7 +140,7 @@ import static org.bukkit.attribute.Attribute.*;
 public class ItemUtil {
 
     public static final NamespacedKey key;
-    private static final CaseInsensitiveMap<com.destroystokyo.paper.profile.PlayerProfile> playerProfilesCache;
+    private static final CaseInsensitiveMap<PlayerProfile> playerProfilesCache;
     public static final ItemStack air, book, add, nextPage, previosPage;
     private static final Set<ItemType> POTION;
     private static final Pattern regex;
@@ -148,7 +149,7 @@ public class ItemUtil {
 
     static {
         ATTR_REG = RegistryAccess.registryAccess().getRegistry(RegistryKey.ATTRIBUTE);
-        key = new NamespacedKey(Ostrov.instance, "ostrov");
+        key = new NamespacedKey(Ostrov.instance, "item");
         playerProfilesCache = new CaseInsensitiveMap<>();
         regex = Pattern.compile("(.{1,24}(?:\\s|$))|(.{0,24})", Pattern.DOTALL);
         air = new ItemStack(Material.AIR);
@@ -273,21 +274,33 @@ public class ItemUtil {
                     skinData = skinData.substring(0, idx);
                 }
             }
-//Ostrov.log("skinData="+skinData);
-            //skullTexture = decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length());
-            //value = getSkinTextureUrlStripped(value);
         }
-        com.destroystokyo.paper.profile.PlayerProfile profile = getProfile(skinData);
+        PlayerProfile profile = getProfile(skinData);
         skullMeta.setPlayerProfile(profile);
         return skullMeta;
     }
 
-    public static com.destroystokyo.paper.profile.PlayerProfile getProfile(String SHA_or_URL) {
+    public static PlayerProfile profileTexture(String skinData) {
+        if (skinData.length() > 72) { //определяяем зашифрованную ссылку
+            skinData = new String(Base64.getDecoder().decode(skinData));
+            int idx = skinData.indexOf("SKIN");
+            if (idx > 0) {
+                skinData = skinData.substring(idx + 25);
+                idx = skinData.indexOf("\"");
+                if (idx > 0) {
+                    skinData = skinData.substring(0, idx);
+                }
+            }
+        }
+        return getProfile(skinData);
+    }
+
+    public static PlayerProfile getProfile(String SHA_or_URL) {
         if (playerProfilesCache.containsKey(SHA_or_URL)) {
             return playerProfilesCache.get(SHA_or_URL);
         }
         final UUID uuid = UUID.randomUUID();
-        final com.destroystokyo.paper.profile.PlayerProfile profile = Bukkit.createProfile(uuid);
+        final PlayerProfile profile = Bukkit.createProfile(uuid);
         final PlayerTextures textures = profile.getTextures();
         if (!SHA_or_URL.startsWith("http://")) {
             SHA_or_URL = "https://textures.minecraft.net/texture/" + SHA_or_URL;
