@@ -31,6 +31,17 @@ public class RollTree extends Roll<String[]> {
         return Arrays.copyOf(it, amt);
     }
 
+    /*public <R> @Nullable R genRoll(final Class<R> cls) {
+        if (it.length == 0) return null;
+        final int amt = number + Ostrov.random.nextInt(extra);
+        for ()
+        return genFrom(ClassUtil.rndElmt(it));
+    }
+
+    private @Nullable <R> R genFrom(String s) {
+
+    }*/
+
     public <R> List<R> genRolls(final Class<R> cls) {
         if (it.length == 0) return List.of();
         final int amt = number + Ostrov.random.nextInt(extra);

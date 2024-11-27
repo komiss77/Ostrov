@@ -164,7 +164,7 @@ public class ItemBuilder {
 
     private List<Component> lores() {
         final ItemLore own = get(DataComponentTypes.LORE, ItemLore.class);
-        return own == null ? new ArrayList<>() : own.lines();
+        return own == null ? new ArrayList<>() : new ArrayList<>(own.lines());
     }
 
     public ItemBuilder lore(final String s) {
