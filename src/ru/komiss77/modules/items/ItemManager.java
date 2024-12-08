@@ -182,7 +182,7 @@ public class ItemManager implements Initiable, Listener {
                     }
                 }
                 if (!CustomMats.exist || ItemUtil.isBlank(is, true)) continue;
-                final CustomMats cm = CustomMats.get(is.getItemMeta());
+                final CustomMats cm = CustomMats.get(is);
                 if (cm == null) continue;
                 final List<EquipmentSlot> ess = cmp.get(cm);
                 if (ess == null) {

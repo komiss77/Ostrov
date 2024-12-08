@@ -367,7 +367,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
         //private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
         return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(), true, 1,
-            currMode, getTabListDisplayName(), 0, Optionull.map(getChatSession(), RemoteChatSession::asData)));
+            currMode, getTabListDisplayName(), true, 0, Optionull.map(getChatSession(), RemoteChatSession::asData)));
         //return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
         //true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
     }

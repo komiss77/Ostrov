@@ -1051,6 +1051,7 @@ public class TCUtil {
     // private record Gradient(TextColor init, int start, boolean ext) {}
 
     public static boolean compare(final Component of, final Component to) {
+        if (of == null || to == null) return of == to;
         return deform(of).equals(deform(to));
     }
 

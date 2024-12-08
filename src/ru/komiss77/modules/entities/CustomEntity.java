@@ -84,8 +84,6 @@ public abstract class CustomEntity implements Keyed {
 
     protected abstract void onShoot(final ProjectileLaunchEvent e);
 
-    protected abstract void onPot(final EntityPotionEffectEvent e);
-
     protected abstract void onExtra(final EntityEvent e);
 
     @Override

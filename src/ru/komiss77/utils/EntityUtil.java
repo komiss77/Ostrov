@@ -214,7 +214,6 @@ public class EntityUtil {
             case BREEZE:
             case BOGGED:
             case CREAKING:
-            case CREAKING_TRANSIENT:
                 return EntityGroup.MONSTER;
 
 

@@ -2,12 +2,11 @@ package ru.komiss77.builder.menu;
 
 import java.util.List;
 import net.kyori.adventure.key.Key;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -29,7 +28,7 @@ public class Sounds implements InventoryProvider {
         int from = page * 44;
         int to = page * 44 + 45;
 
-        content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR)
+        content.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR)
             .name("<gold>Закрыть").build(), e -> p.closeInventory()));
 
         if (page > 0) {
@@ -41,8 +40,8 @@ public class Sounds implements InventoryProvider {
             );
         }
 
-        final List<String> sounds = Ostrov.registries.SOUNDS
-            .stream().map(s -> s.key().value()).sorted().toList();
+        final List<Sound> ses = Ostrov.registries.SOUNDS.stream().toList();
+        final List<String> sounds = ses.stream().map(s -> Ostrov.registries.SOUNDS.getKey(s).value()).toList();
         if (to > sounds.size()) {
             to = sounds.size();
         } else {
@@ -99,7 +98,7 @@ public class Sounds implements InventoryProvider {
                         p.playSound(p.getLocation(), sound, 1f, 0.5f);
                         break;
                     case MIDDLE:
-                        p.sendMessage(sound.key().value() + ", tp-" + tpn);
+                        p.sendMessage(Ostrov.registries.SOUNDS.getKey(sound).value() + ", tp-" + tpn);
                         break;
                 }
             }));

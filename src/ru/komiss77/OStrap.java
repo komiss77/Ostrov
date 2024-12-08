@@ -42,7 +42,8 @@ public class OStrap implements PluginBootstrap {
     public static NamespacedKey key(final String key) {
         final int ix = key.indexOf(':');
         if (ix != -1) {
-            return new NamespacedKey(key.substring(0, ix), key.substring(ix + 1));
+            return new NamespacedKey(key.substring(0, ix).toLowerCase(Locale.ROOT),
+                key.substring(ix + 1).toLowerCase(Locale.ROOT));
         }
         return new NamespacedKey(space, key.toLowerCase(Locale.ROOT));
     }

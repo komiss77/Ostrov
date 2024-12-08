@@ -22,6 +22,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.*;
 import ru.komiss77.enums.Module;
@@ -815,7 +816,7 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
                     final Integer limit = entityTypeLimit.get(t);
                     menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(t)
-                            .type(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : null)
+                            .type(limit == null ? ItemType.CLAY_BALL : limit == 0 ? ItemType.RED_DYE : null)
                         .lore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
                         .lore(limit == null ? "" : "§7ЛКМ §b+1")
                         .lore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")

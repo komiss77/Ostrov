@@ -6,9 +6,11 @@ import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.*;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -36,36 +38,9 @@ public class ItemBuilder {
 
     private ItemType type;//private Material mat;
     private int amount = 1; //по умолчанию 1, или build() выдаёт AIR!
-    private Map<DataComponentType, Data> data = null;
+    private ItemData data = null;
     private CaseInsensitiveMap<Serializable> pdcs = null;
     private EnumSet<ItemFlag> flags = null;
-
-    private interface Data {
-        @Nullable <D> D get(final Class<D> cls);
-        void apply(final ItemStack it);
-        @SuppressWarnings("unchecked")
-        static <D> Data of(final ItemStack it, final DataComponentType type) {
-            return switch (type) {
-                case final DataComponentType.NonValued cd -> new CheapData(cd);
-                case final DataComponentType.Valued<?> ignored -> {
-                    final DataComponentType.Valued<D> vd = (DataComponentType.Valued<D>) type;
-                    final D data = it.getData(vd);
-                    yield new ValuedData<>(vd, data);
-                }
-                default -> throw new IllegalArgumentException("'type' cannot be null!");
-            };
-        }
-    }
-
-    private record ValuedData<T>(DataComponentType.Valued<T> type, T val) implements Data {
-        public void apply(final ItemStack it) {it.setData(type, val);}
-        public @Nullable <D> D get(final Class<D> cls) {return cls.isAssignableFrom(val.getClass()) ? cls.cast(val) : null;}
-    }
-
-    private record CheapData(DataComponentType.NonValued type) implements Data {
-        public void apply(final ItemStack it) {it.setData(type);}
-        public @Nullable <D> D get(final Class<D> cls) {return null;}
-    }
 
     public ItemBuilder(final ItemType type) {
         if (type == null || ItemType.AIR.equals(type)) {
@@ -80,23 +55,18 @@ public class ItemBuilder {
         }
         type = from.getType().asItemType();
         amount = from.getAmount();
-        final Set<DataComponentType> datas = from.getDataTypes();
-        if (datas.isEmpty()) return;
+        final ItemData datas = ItemData.of(from);
+        if (datas == null || datas.isEmpty()) return;
         checkData();
-        for (final DataComponentType dtc : datas) {
-            data.put(dtc, Data.of(from, dtc));
-        }
     }
 
     private void checkData() {
-        if (data == null) data = new HashMap<>();
+        if (data == null) data = new ItemData();
     }
 
-    private @Nullable <D> D get(final DataComponentType type, final Class<D> cls) {
+    private @Nullable <D> D get(final DataComponentType.Valued<D> type) {
         if (data == null) return null;
-        final Data lrd = data.get(type);
-        if (lrd == null) return null;
-        return lrd.get(cls);
+        return data.get(type);
     }
 
     /*private boolean has(final DataComponentType type) {
@@ -104,12 +74,12 @@ public class ItemBuilder {
     }*/
 
     public <D> ItemBuilder set(final DataComponentType.Valued<D> type, final D val) {
-        checkData(); data.put(type, new ValuedData<>(type, val));
+        checkData(); data.put(type, val);
         return this;
     }
 
     public ItemBuilder set(final DataComponentType.NonValued type) {
-        checkData(); data.put(type, new CheapData(type));
+        checkData(); data.put(type);
         return this;
     }
 
@@ -163,7 +133,7 @@ public class ItemBuilder {
     }
 
     private List<Component> lores() {
-        final ItemLore own = get(DataComponentTypes.LORE, ItemLore.class);
+        final ItemLore own = get(DataComponentTypes.LORE);
         return own == null ? new ArrayList<>() : new ArrayList<>(own.lines());
     }
 
@@ -241,14 +211,14 @@ public class ItemBuilder {
             if (on) if (!flags.add(f)) continue;
             else if (!flags.remove(f)) continue;
             final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS, ItemEnchantments.class);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.class);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE, Unbreakable.class);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK, ItemAdventurePredicate.class);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON, ItemAdventurePredicate.class);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR, DyedItemColor.class);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM, ItemArmorTrim.class);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantments.class);
+                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
+                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
+                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
+                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
+                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
+                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
+                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
                 case HIDE_ADDITIONAL_TOOLTIP -> {
                     if (on) set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
                     else reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
@@ -276,7 +246,7 @@ public class ItemBuilder {
     public ItemBuilder enchant(final Enchantment enchant, final int level, final boolean stored) {
         final DataComponentType.Valued<ItemEnchantments> type = stored
             ? DataComponentTypes.STORED_ENCHANTMENTS : DataComponentTypes.ENCHANTMENTS;
-        final ItemEnchantments ies = get(type, ItemEnchantments.class);
+        final ItemEnchantments ies = get(type);
         final Map<Enchantment, Integer> enchs = ies == null
             ? new HashMap<>() : new HashMap<>(ies.enchantments());
         if (level < 1) {
@@ -293,8 +263,8 @@ public class ItemBuilder {
         return reset(DataComponentTypes.ENCHANTMENTS);
     }
 
-    public ItemBuilder unbreak(final boolean unbreakable) {
-        return unbreakable ? set(DataComponentTypes.UNBREAKABLE, Unbreakable
+    public ItemBuilder unbreak(final boolean set) {
+        return set ? set(DataComponentTypes.UNBREAKABLE, Unbreakable
             .unbreakable(!isOn(ItemFlag.HIDE_UNBREAKABLE)))
             : reset(DataComponentTypes.UNBREAKABLE);
     }
@@ -306,7 +276,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder attribute(final Attribute att, final double amount, final Operation op, final EquipmentSlotGroup slotGroup) {
-        final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.class);
+        final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
         final ItemAttributeModifiers.Builder iamb = ItemAttributeModifiers.itemAttributes();
         if (iams != null) {
             for (final ItemAttributeModifiers.Entry en : iams.modifiers()) {
@@ -319,7 +289,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder removeAttribute(final Attribute att) {
-        final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.class);
+        final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
         if (iams == null) return this;
         final ItemAttributeModifiers.Builder iamb = ItemAttributeModifiers.itemAttributes();
         for (final ItemAttributeModifiers.Entry en : iams.modifiers()) {
@@ -329,14 +299,10 @@ public class ItemBuilder {
         return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.build());
     }
 
-    public ItemBuilder modelData(final int data) {
-        return set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData(data));
-    }
-
     //вроде очень редко нужно, думаю не страшно будет ставить всегда одним методом через float
     //хз мне нужно довольно часто
     public ItemBuilder durability(final int dur) {
-        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE, Integer.class);
+        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE);
         final int maxDmg = mxd == null ? type.getMaxDurability() : mxd;
         if (maxDmg - dur < 1) return reset(DataComponentTypes.DAMAGE);
         return set(DataComponentTypes.DAMAGE, Math.max(maxDmg - dur, 0));
@@ -344,22 +310,21 @@ public class ItemBuilder {
 
     public ItemBuilder durability(final float dur) {
         if (dur == 1f) return reset(DataComponentTypes.DAMAGE);
-        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE, Integer.class);
+        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE);
         final int maxDmg = mxd == null ? type.getMaxDurability() : mxd;
         return set(DataComponentTypes.DAMAGE, (int) (maxDmg * (1f - Math.clamp(dur, 0f, 1f))));
     }
 
     public ItemBuilder maxDamage(final int dur) {
-        final Integer dmg = get(DataComponentTypes.DAMAGE, Integer.class);
+        final Integer dmg = get(DataComponentTypes.DAMAGE);
         final int damage = dmg == null ? 0 : dmg;
-        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE, Integer.class);
+        final Integer mxd = get(DataComponentTypes.MAX_DAMAGE);
         final int maxDmg = mxd == null ? type.getMaxDurability() : mxd;
         set(DataComponentTypes.MAX_DAMAGE, dur);
         final float rel = (float) damage / (float) maxDmg;
         return set(DataComponentTypes.DAMAGE, (int) (rel * dur));
     }
 
-    //взял глинт закомментил (((  наверное, случайно. сорян
     public ItemBuilder glint(final @Nullable Boolean glint) {
         return glint == null ? reset(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE)
             : set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
@@ -378,6 +343,10 @@ public class ItemBuilder {
             ResolvableProfile.resolvableProfile(pl.getPlayerProfile()));
     }
 
+    public ItemBuilder model(final Key path) {
+        return set(DataComponentTypes.ITEM_MODEL, path);
+    }
+
     public ItemBuilder headTexture(final Texture texture) {
         return headTexture(texture.value);
     }
@@ -388,7 +357,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder color(final @Nullable Color color) {
-        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS, PotionContents.class);
+        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS);
         if (pots != null) {
             final PotionContents.Builder pcb = PotionContents.potionContents();
             pcb.customColor(color);
@@ -403,12 +372,12 @@ public class ItemBuilder {
     }
 
     public ItemBuilder basePotion(final @Nullable PotionType pot) {
-        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS, PotionContents.class);
+        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS);
         final PotionContents.Builder pcb = PotionContents.potionContents();
         pcb.potion(pot);
         if (pots == null) {
             if (pot == null) return this;
-            final DyedItemColor clr = get(DataComponentTypes.DYED_COLOR, DyedItemColor.class);
+            final DyedItemColor clr = get(DataComponentTypes.DYED_COLOR);
             if (clr != null) pcb.customColor(clr.color());
         } else {
             pcb.customName(pots.customName());
@@ -419,10 +388,10 @@ public class ItemBuilder {
     }
 
     public ItemBuilder addEffect(final PotionEffect effect) {
-        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS, PotionContents.class);
+        final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS);
         final PotionContents.Builder pcb = PotionContents.potionContents();
         if (pots == null) {
-            final DyedItemColor clr = get(DataComponentTypes.DYED_COLOR, DyedItemColor.class);
+            final DyedItemColor clr = get(DataComponentTypes.DYED_COLOR);
             if (clr != null) pcb.customColor(clr.color());
         } else {
             pcb.potion(pots.potion());
@@ -434,15 +403,29 @@ public class ItemBuilder {
         return set(DataComponentTypes.POTION_CONTENTS, pcb.build());
     }
 
+    public ItemBuilder fireFlight(final int dst) {
+        final Fireworks fws = get(DataComponentTypes.FIREWORKS);
+        final Fireworks.Builder fbd = Fireworks.fireworks();
+        if (fws != null) fbd.addEffects(fws.effects());
+        fbd.flightDuration(dst);
+        return set(DataComponentTypes.FIREWORKS, fbd.build());
+    }
+
+    public ItemBuilder fireEffect(final FireworkEffect fef) {
+        final Fireworks fws = get(DataComponentTypes.FIREWORKS);
+        final Fireworks.Builder fbd = Fireworks.fireworks();
+        if (fws != null) fbd.addEffects(fws.effects())
+            .flightDuration(fws.flightDuration());
+        return set(DataComponentTypes.FIREWORKS, fbd.addEffect(fef).build());
+    }
+
     public ItemStack build() {
         if (amount < 1) {
             return ItemUtil.air.clone();
         }
 
         final ItemStack item = type.createItemStack(amount);
-        if (data != null) {
-            for (final Data dt : data.values()) dt.apply(item);
-        }
+        if (data != null) data.addTo(item);
 
         if (pdcs != null) {
             final ItemMeta im = item.getItemMeta();
@@ -464,6 +447,4 @@ public class ItemBuilder {
         }
         return item;
     }
-
-
 }

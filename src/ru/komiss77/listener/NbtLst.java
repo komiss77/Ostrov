@@ -2,6 +2,7 @@ package ru.komiss77.listener;
 
 import java.util.HashMap;
 import java.util.stream.Collectors;
+import io.papermc.paper.potion.SuspiciousEffectEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.bukkit.Bukkit;
@@ -153,7 +154,7 @@ public class NbtLst {
         return false;
     }
 
-    public static boolean Invalid_anvill(final Player player, final ItemStack item) {
+    public static boolean Invalid_anvill(final Player ignoredPlayer, final ItemStack item) {
         if (!ItemUtil.isBlank(item, false) && item.getType() == Material.ANVIL && item.getItemMeta() instanceof final Damageable dg) {
             if (dg.hasDamage()) {
                 return switch (dg.getDamage()) {
@@ -182,38 +183,26 @@ public class NbtLst {
             if (cached != null) {
                 return cached;
             }
-            if (oldMeta instanceof BannerMeta) {
-                return this.cache(metaClass, BannerMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof EnchantmentStorageMeta) {
-                return this.cache(metaClass, EnchantmentStorageMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof BookMeta) {
-                return this.cache(metaClass, BookMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof PotionMeta) {
-                return this.cache(metaClass, PotionMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof LeatherArmorMeta) {
-                return this.cache(metaClass, LeatherArmorMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof TropicalFishBucketMeta) {
-                return this.cache(metaClass, TropicalFishBucketMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof FireworkMeta) {
-                return this.cache(metaClass, FireworkMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof FireworkEffectMeta) {
-                return this.cache(metaClass, FireworkEffectMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof MapMeta) {
-                return this.cache(metaClass, MapMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof BlockStateMeta) {
-                return this.cache(metaClass, new BlockStateMetaCopier());
-            } else if (oldMeta instanceof CompassMeta) {
-                return this.cache(metaClass, CompassMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof CrossbowMeta) {
-                return this.cache(metaClass, CrossbowMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof KnowledgeBookMeta) {
-                return this.cache(metaClass, KnowledgeBookMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof SuspiciousStewMeta) {
-                return this.cache(metaClass, SuspiciousStewMetaCopier.INSTANCE);
-            } else if (oldMeta instanceof SkullMeta) {
-                return this.cache(metaClass, SkullMetaCopier.INSTANCE);
-            }
-            return NoOpMetaCopier.INSTANCE;
+            return switch (oldMeta) {
+                case BannerMeta ignored -> this.cache(metaClass, BannerMetaCopier.INSTANCE);
+                case EnchantmentStorageMeta ignored ->
+                    this.cache(metaClass, EnchantmentStorageMetaCopier.INSTANCE);
+                case BookMeta ignored -> this.cache(metaClass, BookMetaCopier.INSTANCE);
+                case PotionMeta ignored -> this.cache(metaClass, PotionMetaCopier.INSTANCE);
+                case LeatherArmorMeta ignored -> this.cache(metaClass, LeatherArmorMetaCopier.INSTANCE);
+                case TropicalFishBucketMeta ignored ->
+                    this.cache(metaClass, TropicalFishBucketMetaCopier.INSTANCE);
+                case FireworkMeta ignored -> this.cache(metaClass, FireworkMetaCopier.INSTANCE);
+                case FireworkEffectMeta ignored -> this.cache(metaClass, FireworkEffectMetaCopier.INSTANCE);
+                case MapMeta ignored -> this.cache(metaClass, MapMetaCopier.INSTANCE);
+                case BlockStateMeta ignored -> this.cache(metaClass, new BlockStateMetaCopier());
+                case CompassMeta ignored -> this.cache(metaClass, CompassMetaCopier.INSTANCE);
+                case CrossbowMeta ignored -> this.cache(metaClass, CrossbowMetaCopier.INSTANCE);
+                case KnowledgeBookMeta ignored -> this.cache(metaClass, KnowledgeBookMetaCopier.INSTANCE);
+                case SuspiciousStewMeta ignored -> this.cache(metaClass, SuspiciousStewMetaCopier.INSTANCE);
+                case SkullMeta ignored -> this.cache(metaClass, SkullMetaCopier.INSTANCE);
+                default -> NoOpMetaCopier.INSTANCE;
+            };
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
@@ -481,8 +470,8 @@ public class NbtLst {
         public ItemMeta copyValidMeta(SuspiciousStewMeta oldMeta, Material material) {
             SuspiciousStewMeta newMeta = (SuspiciousStewMeta) Bukkit.getItemFactory().getItemMeta(material);
             if (oldMeta.hasCustomEffects()) {
-                for (PotionEffect effects : oldMeta.getCustomEffects()) {
-                    newMeta.addCustomEffect(effects, false);
+                for (PotionEffect effect : oldMeta.getCustomEffects()) {
+                    newMeta.addCustomEffect(SuspiciousEffectEntry.create(effect.getType(), effect.getDuration()), false);
                 }
             }
             return newMeta;

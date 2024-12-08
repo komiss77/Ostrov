@@ -8,7 +8,10 @@ import java.util.function.Predicate;
 import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 import com.google.common.collect.Multimap;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Keyed;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -593,83 +596,83 @@ public final class Crafts implements Initiable, Listener {
         final ItemStack it = e.getResult();
         if (!ItemUtil.isBlank(it, false)) {
             final ItemStack tr = ci.getInputTemplate();
-            if (tr != null && Tag.ITEMS_TRIM_TEMPLATES.isTagged(tr.getType())) {
-                final Material mt = it.getType();
-                final EquipmentSlot es = mt.getEquipmentSlot();
-                final EquipmentSlotGroup esg = es.getGroup();
-                final Multimap<Attribute, AttributeModifier> amt = mt.getDefaultAttributeModifiers(es);
-                final ItemMeta im = it.getItemMeta();
-                im.removeAttributeModifier(es);
-                double arm = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.ARMOR)) {
-                    switch (am.getOperation()) {
-                        case ADD_NUMBER:
-                            arm += am.getAmount();
-                            break;
-                        case ADD_SCALAR:
-                            arm *= am.getAmount();
-                            break;
-                        case MULTIPLY_SCALAR_1:
-                            arm *= (1d + am.getAmount());
-                            break;
-                    }
+            if (tr == null || ItemType.NETHERITE_UPGRADE_SMITHING_TEMPLATE
+                .equals(tr.getType().asItemType())) return;
+            final Material mt = it.getType();
+            final EquipmentSlot es = mt.getEquipmentSlot();
+            final EquipmentSlotGroup esg = es.getGroup();
+            final Multimap<Attribute, AttributeModifier> amt = mt.getDefaultAttributeModifiers(es);
+            final ItemMeta im = it.getItemMeta();
+            im.removeAttributeModifier(es);
+            double arm = 0d;
+            for (final AttributeModifier am : amt.get(Attribute.ARMOR)) {
+                switch (am.getOperation()) {
+                    case ADD_NUMBER:
+                        arm += am.getAmount();
+                        break;
+                    case ADD_SCALAR:
+                        arm *= am.getAmount();
+                        break;
+                    case MULTIPLY_SCALAR_1:
+                        arm *= (1d + am.getAmount());
+                        break;
                 }
-                double ath = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.ARMOR_TOUGHNESS)) {
-                    switch (am.getOperation()) {
-                        case ADD_NUMBER:
-                            ath += am.getAmount();
-                            break;
-                        case ADD_SCALAR:
-                            ath *= am.getAmount();
-                            break;
-                        case MULTIPLY_SCALAR_1:
-                            ath *= (1d + am.getAmount());
-                            break;
-                    }
-                }
-                double akb = 0d;
-                for (final AttributeModifier am : amt.get(Attribute.KNOCKBACK_RESISTANCE)) {
-                    switch (am.getOperation()) {
-                        case ADD_NUMBER:
-                            akb += am.getAmount();
-                            break;
-                        case ADD_SCALAR:
-                            akb *= am.getAmount();
-                            break;
-                        case MULTIPLY_SCALAR_1:
-                            akb *= (1d + am.getAmount());
-                            break;
-                    }
-                }
-
-                final ItemStack add = ci.getInputMineral();
-                im.addAttributeModifier(Attribute.ARMOR, new AttributeModifier(NamespacedKey.minecraft("armor_defense"),
-                    arm * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR)), Operation.ADD_NUMBER, esg));
-
-                im.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("armor_toughness"),
-                    ath * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
-
-                im.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("armor_knockback_resist"),
-                    akb * (1d + ItemUtil.getTrimMod(add, Attribute.KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
-
-                addAttr(im, Attribute.MAX_HEALTH, add, "armor_max_health", esg);
-                addAttr(im, Attribute.SCALE, add, "armor_scale", esg);
-                addAttr(im, Attribute.GRAVITY, add, "armor_gravity", esg);
-                addAttr(im, Attribute.ATTACK_DAMAGE, add, "armor_attack_damage", esg);
-                addAttr(im, Attribute.ATTACK_KNOCKBACK, add, "armor_attack_knockback", esg);
-                addAttr(im, Attribute.ATTACK_SPEED, add, "armor_attack_speed", esg);
-                addAttr(im, Attribute.MOVEMENT_SPEED, add, "armor_move_speed", esg);
-                addAttr(im, Attribute.SNEAKING_SPEED, add, "armor_sneak_speed", esg);
-                addAttr(im, Attribute.WATER_MOVEMENT_EFFICIENCY, add, "armor_water_speed", esg);
-                addAttr(im, Attribute.JUMP_STRENGTH, add, "armor_jump_strength", esg);
-                addAttr(im, Attribute.BLOCK_INTERACTION_RANGE, add, "armor_range_block", esg);
-                addAttr(im, Attribute.ENTITY_INTERACTION_RANGE, add, "armor_range_entity", esg);
-                addAttr(im, Attribute.BLOCK_BREAK_SPEED, add, "armor_break_speed", esg);
-
-                it.setItemMeta(im);
-                e.setResult(it);
             }
+            double ath = 0d;
+            for (final AttributeModifier am : amt.get(Attribute.ARMOR_TOUGHNESS)) {
+                switch (am.getOperation()) {
+                    case ADD_NUMBER:
+                        ath += am.getAmount();
+                        break;
+                    case ADD_SCALAR:
+                        ath *= am.getAmount();
+                        break;
+                    case MULTIPLY_SCALAR_1:
+                        ath *= (1d + am.getAmount());
+                        break;
+                }
+            }
+            double akb = 0d;
+            for (final AttributeModifier am : amt.get(Attribute.KNOCKBACK_RESISTANCE)) {
+                switch (am.getOperation()) {
+                    case ADD_NUMBER:
+                        akb += am.getAmount();
+                        break;
+                    case ADD_SCALAR:
+                        akb *= am.getAmount();
+                        break;
+                    case MULTIPLY_SCALAR_1:
+                        akb *= (1d + am.getAmount());
+                        break;
+                }
+            }
+
+            final ItemStack add = ci.getInputMineral();
+            im.addAttributeModifier(Attribute.ARMOR, new AttributeModifier(NamespacedKey.minecraft("armor_defense"),
+                arm * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR)), Operation.ADD_NUMBER, esg));
+
+            im.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, new AttributeModifier(NamespacedKey.minecraft("armor_toughness"),
+                ath * (1d + ItemUtil.getTrimMod(add, Attribute.ARMOR_TOUGHNESS)), Operation.ADD_NUMBER, esg));
+
+            im.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, new AttributeModifier(NamespacedKey.minecraft("armor_knockback_resist"),
+                akb * (1d + ItemUtil.getTrimMod(add, Attribute.KNOCKBACK_RESISTANCE)), Operation.ADD_NUMBER, esg));
+
+            addAttr(im, Attribute.MAX_HEALTH, add, "armor_max_health", esg);
+            addAttr(im, Attribute.SCALE, add, "armor_scale", esg);
+            addAttr(im, Attribute.GRAVITY, add, "armor_gravity", esg);
+            addAttr(im, Attribute.ATTACK_DAMAGE, add, "armor_attack_damage", esg);
+            addAttr(im, Attribute.ATTACK_KNOCKBACK, add, "armor_attack_knockback", esg);
+            addAttr(im, Attribute.ATTACK_SPEED, add, "armor_attack_speed", esg);
+            addAttr(im, Attribute.MOVEMENT_SPEED, add, "armor_move_speed", esg);
+            addAttr(im, Attribute.SNEAKING_SPEED, add, "armor_sneak_speed", esg);
+            addAttr(im, Attribute.WATER_MOVEMENT_EFFICIENCY, add, "armor_water_speed", esg);
+            addAttr(im, Attribute.JUMP_STRENGTH, add, "armor_jump_strength", esg);
+            addAttr(im, Attribute.BLOCK_INTERACTION_RANGE, add, "armor_range_block", esg);
+            addAttr(im, Attribute.ENTITY_INTERACTION_RANGE, add, "armor_range_entity", esg);
+            addAttr(im, Attribute.BLOCK_BREAK_SPEED, add, "armor_break_speed", esg);
+
+            it.setItemMeta(im);
+            e.setResult(it);
         }
     }
 

@@ -19,22 +19,25 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import ru.komiss77.*;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.Cfg;
+import ru.komiss77.Initiable;
+import ru.komiss77.OConfig;
+import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -92,23 +95,12 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
 
     static {
-        key = new ItemStack(Material.GOLDEN_SWORD);
-        ItemMeta im = key.getItemMeta();
-        im.displayName(TCUtil.form("§bНажмите на ключик"));
-        im.setUnbreakable(true);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-        im.setCustomModelData(1);
-        key.setItemMeta(im);
+        key = new ItemBuilder(ItemType.GOLDEN_SWORD).name("§bНажмите на ключик").unbreak(true)
+            .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE).model(Key.key("item/key")).build();
 
-        lock = new ItemStack(Material.GOLDEN_SWORD);
-        im = lock.getItemMeta();
-        im.displayName(TCUtil.form("§bНажмите на ключик"));
-        im.setUnbreakable(true);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-        im.setCustomModelData(2);
-        lock.setItemMeta(im);
+        lock = new ItemBuilder(key).model(Key.key("item/lock")).build();
 
-        lobby = new ItemBuilder(Material.CRIMSON_DOOR)
+        lobby = new ItemBuilder(ItemType.CRIMSON_DOOR)
             .lore("§eВернуться в лобби")
             .build();
 //        rpLst = new rpLst();

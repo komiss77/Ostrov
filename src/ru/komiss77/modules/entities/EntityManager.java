@@ -124,17 +124,16 @@ public class EntityManager implements Initiable, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPot(final EntityPotionEffectEvent e) {
-        final CustomEntity he = CustomEntity.get(e.getEntity());
-        if (he != null) he.onPot(e);
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final ProjectileHitEvent e) {
         if (e.getEntity().getShooter() instanceof final Mob mb) {
             final CustomEntity he = CustomEntity.get(mb);
             if (he != null) he.onExtra(e);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPot(final EntityPotionEffectEvent e) {
+        extraEvent(e);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

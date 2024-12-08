@@ -14,15 +14,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
-import ru.komiss77.Ostrov;
+import ru.komiss77.OStrap;
+import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 
 public abstract class CustomMats implements Keyed {
 
-    public static final HashMap<Integer, CustomMats> VALUES = new HashMap<>();
+    public static final CaseInsensitiveMap<CustomMats> VALUES = new CaseInsensitiveMap<>();
 
     public static boolean exist = false;
 
@@ -31,14 +32,14 @@ public abstract class CustomMats implements Keyed {
     private static final String SEP = "=";
     private static final String CON_NAME = "items.yml";
 
-    public final @Nullable Integer cmd;
-
-    private final Map<ItemType, ItemStack> mits = new HashMap<>();
+    private final Map<ItemType, ItemStack> mits;
+    private final @Nullable ItemData shared;
     private final NamespacedKey key;
 
-    protected CustomMats(final @Nullable Integer cmd, final ItemStack... its) {
-        this.cmd = cmd;
-        this.key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
+    protected CustomMats(final @Nullable ItemData data, final ItemStack... its) {
+        this.shared = data;
+        this.mits = new HashMap<>();
+        this.key = OStrap.key(this.getClass().getSimpleName());
         final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
         final Collection<String> itls = irc.getStringList(key().value());
         if (itls.isEmpty()) {
@@ -55,7 +56,7 @@ public abstract class CustomMats implements Keyed {
             }
         }
 
-        VALUES.put(cmd, this);
+        VALUES.put(key.value(), this);
         exist = true;
     }
 
@@ -64,19 +65,19 @@ public abstract class CustomMats implements Keyed {
     }
 
     public @Nullable ItemStack item(final ItemType mt) {
-        return mits.get(mt);
+        final ItemStack it = mits.get(mt);
+        if (it == null) return null;
+        return shared == null ? it : shared.addTo(it);
     }
 
     public Collection<ItemStack> allIts() {
         return mits.values();
     }
 
+    private static final NamespacedKey KEY = OStrap.key("mat");
     public static CustomMats get(final ItemStack it) {
-        return it.hasItemMeta() ? get(it.getItemMeta()) : null;
-    }
-
-    public static CustomMats get(final ItemMeta im) {
-        return im.hasCustomModelData() ? get(im.getCustomModelData()) : null;
+        final Integer cmd = it.getPersistentDataContainer().get(KEY, PersistentDataType.INTEGER);
+        return cmd == null ? null : get(cmd);
     }
 
     public static CustomMats get(final Integer cmd) {
@@ -104,12 +105,13 @@ public abstract class CustomMats implements Keyed {
 
     @Override
     public boolean equals(final Object o) {
+        if (this == o) return true;
         return o instanceof CustomMats
-            && Objects.equals(((CustomMats) o).cmd, cmd);
+            && Objects.equals(((CustomMats) o).key, key);
     }
 
     @Override
     public int hashCode() {
-        return cmd == null ? 0 : cmd;
+        return key.hashCode();
     }
 }
