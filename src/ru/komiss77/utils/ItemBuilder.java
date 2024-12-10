@@ -35,7 +35,7 @@ public class ItemBuilder {
     private @Nullable ItemMeta meta;
     private Color color;
     private List<Component> lore;
-    private UUID skullOwnerUuid;
+    //private UUID skullOwnerUuid;
     private String skullTexture;
     private PotionType basePotionType;
     private List<PotionEffect> customPotionEffects = null;
@@ -338,9 +338,11 @@ public class ItemBuilder {
     }
 
     public ItemBuilder enchant(final Enchantment enchant, final int level) {
-        if (enchants == null) enchants = new HashMap<>();
-        if (level < 1) enchants.remove(enchant);
-        else enchants.put(enchant, level);
+        if (checkMeta()) {
+            if (enchants == null) enchants = new HashMap<>();
+            if (level < 1) enchants.remove(enchant);
+            else enchants.put(enchant, level);
+        }
         return this;
     }
 
@@ -366,7 +368,9 @@ public class ItemBuilder {
 
     @Deprecated
     public ItemBuilder attribute(final Attribute attribute, final double amount, final Operation op) {
-        attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
+        if (checkMeta()) {
+            attribute(attribute, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
+        }
         return this;
     }
 
@@ -455,17 +459,17 @@ public class ItemBuilder {
     }*/
 
     public ItemBuilder skullOf(final OfflinePlayer pl) {
-        skullOwnerUuid = pl.getUniqueId();
+        //skullOwnerUuid = pl.getUniqueId();
         return this;
     }
 
     public ItemBuilder skullOf(final UUID id) {
-        skullOwnerUuid = id;
+        //skullOwnerUuid = id;
         return this;
     }
 
     public ItemBuilder skullOf(final String name) { //хз что вернет)
-        skullOwnerUuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+        //skullOwnerUuid = Bukkit.getOfflinePlayer(name).getUniqueId();
         return this;
     }
 
@@ -486,7 +490,7 @@ public class ItemBuilder {
     }*/
 
     public ItemBuilder headTexture(final String texture) {
-        this.skullTexture = texture;
+        if (checkMeta()) this.skullTexture = texture;
         return this;
     }
 
@@ -495,41 +499,48 @@ public class ItemBuilder {
     }
 
     public ItemBuilder color(final Color color) {
-        this.color = color;
+        if (checkMeta()) this.color = color;
         return this;
     }
 
     public ItemBuilder basePotion(final PotionType type) {
-        this.basePotionType = type;
+        if (checkMeta()) this.basePotionType = type;
         return this;
     }
 
     public ItemBuilder customPotion(final PotionEffect customPotionEffect) {
-        if (customPotionEffect != null && (customPotionEffects == null)) {
-            customPotionEffects = new ArrayList<>();
+        if (checkMeta()) {
+            if (customPotionEffect != null && (customPotionEffects == null)) {
+                customPotionEffects = new ArrayList<>();
+            }
+            customPotionEffects.add(customPotionEffect);
         }
-        customPotionEffects.add(customPotionEffect);
         return this;
     }
 
     public ItemStack build() {
         if (wrong != null) {
-            return new ItemBuilder(Material.BEDROCK)
-                .name("§cКривой предмет!")
-                .lore(List.of(Component.text(wrong)))
-                .build();
+            final ItemStack is = new ItemStack(Material.BEDROCK);
+            final ItemMeta im = is.getItemMeta();
+            im.displayName(Component.text("§cКривой предмет!"));
+            im.lore(List.of(Component.text(wrong)));
+            is.setItemMeta(im);
+            return is;
         }
         if (amount < 1) {
             return ItemUtil.air.clone();
         }
 
         final ItemStack item = type.createItemStack(amount);
-        if (meta == null) meta = item.getItemMeta();
-        if (meta == null) return item;
+        //if (meta == null) meta = item.getItemMeta();
+        //if (meta == null) return item;
 
-        if (maxStack != type.getMaxStackSize()) {
+        if (meta == null && maxStack <= type.getMaxStackSize()) return item;
+
+        if (meta == null) meta = item.getItemMeta();
+        //if (maxStack != type.getMaxStackSize()) {
             meta.setMaxStackSize(maxStack);
-        }
+        //}
         //if (lore != null && !lore.isEmpty()) {
         meta.lore(lore); //вроде не надо проверять, ставим что есть
         //}
@@ -550,12 +561,13 @@ public class ItemBuilder {
                 break;
 
             case final SkullMeta sm:
-                if (skullOwnerUuid != null) {
-                    final OfflinePlayer ofp = Bukkit.getOfflinePlayer(skullOwnerUuid);
-                    sm.setOwningPlayer(ofp);
-                }
+                //if (skullOwnerUuid != null) {
+                //    final OfflinePlayer ofp = Bukkit.getOfflinePlayer(skullOwnerUuid);
+                //    sm.setOwningPlayer(ofp);
+                //}
 
-                if (skullTexture != null && !skullTexture.isEmpty()) {
+                if (skullTexture != null && !skullTexture.isBlank()) {
+//Ostrov.log_warn(" set skullTexture "+skullTexture);
                     ItemUtil.setHeadTexture(sm, skullTexture);
                 }
                 break;

@@ -340,9 +340,7 @@ public class LocalDB {
             return;
         }
 
-      if (ResourcePacksLst.use) {
-        Ostrov.sync(() -> p.performCommand(ResourcePacksLst.rpCMD));
-      }
+        ResourcePacksLst.onLoadData(p);
 
         if (op.isGuest) {
             op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось

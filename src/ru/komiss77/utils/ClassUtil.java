@@ -2,12 +2,19 @@ package ru.komiss77.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-
+import java.util.regex.Matcher;
 import ru.komiss77.Ostrov;
 
 
@@ -84,5 +91,88 @@ public class ClassUtil {
         }
         return classes.toArray(Class[]::new); //classes.toArray(new Class[classes.size()]);
     }
+
+    /*
+    в ванблоке например фазы копировались так:
+     private static void copyPhasesFromAddonJar(File file) {
+        try (JarFile jar = new JarFile(Core.file())) {
+            //Obtain any locale files, save them and update
+            listJarFiles(jar, PHASES, ".yml").forEach(lf -> saveResourceFromJar(jar, lf, file, false, true));
+        } catch (Exception e) {
+            Core.log_err("copyPhasesFromAddonJar : "+e.getMessage());
+        }
+    }
+    в главном классе:
+    public static File file() {
+        return plugin.getFile();
+    }
+     */
+
+  public static List<String> listJarFiles(JarFile pluginJar, String folderPath, String fileSuffix) {
+    List<String> result = new ArrayList();
+    Enumeration<JarEntry> entries = pluginJar.entries();
+    while (entries.hasMoreElements()) {
+      JarEntry entry = (JarEntry) entries.nextElement();
+      String path = entry.getName();
+      if (path.startsWith(folderPath) && entry.getName().endsWith(fileSuffix)) {
+        result.add(entry.getName());
+      }
+    }
+    return result;
+  }
+
+  public static File saveResourceFromJar(JarFile jar, String jarResource, File destinationFolder, boolean replace, boolean ignoreJarPath) {
+    if (jarResource != null && !jarResource.equals("")) {
+      jarResource = jarResource.replace('\\', '/');
+
+      try {
+        File writedFile;
+        try {
+          JarEntry jarConfig = jar.getJarEntry(jarResource);
+          if (jarConfig == null) {
+            throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
+          }
+
+          //InputStream in = jar.getInputStream(jarConfig);
+          try (InputStream in = jar.getInputStream(jarConfig)) {
+            if (in == null) {
+              throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
+            }
+
+            File outFile = new File(destinationFolder, jarResource.replaceAll("/", Matcher.quoteReplacement(File.separator)));
+            if (ignoreJarPath) {
+              outFile = new File(destinationFolder, outFile.getName());
+            }
+
+            outFile.getParentFile().mkdirs();
+            if (!outFile.exists() || replace) {
+              Files.copy(in, outFile.toPath(), new CopyOption[]{StandardCopyOption.REPLACE_EXISTING});
+            }
+
+            writedFile = outFile;
+          } catch (Throwable t) {
+            throw t;
+          }
+        } catch (Throwable t) {
+          try {
+            jar.close();
+          } catch (Throwable var10) {
+            t.addSuppressed(var10);
+          }
+
+          throw t;
+        }
+
+        jar.close();
+        return writedFile;
+      } catch (IOException var14) {
+        Ostrov.log_err("Could not save from jar file. From " + jarResource + " to " + destinationFolder.getAbsolutePath());
+        return null;
+      }
+    } else {
+      throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+    }
+  }
+
 
 }

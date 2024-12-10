@@ -17,11 +17,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Operation;
+import ru.komiss77.enums.Table;
 import ru.komiss77.events.RestartWarningEvent;
 import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.games.ArenaInfo;
+import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.RDS;
@@ -29,11 +31,12 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.version.Nms;
 
 
 public class Timer {
 
-    private static BukkitTask timer, playerTimer;
+    private static BukkitTask timer, playerTimer, redisTimer;
     private static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
 
     public static boolean auto_restart, to_restart;
@@ -161,6 +164,34 @@ public class Timer {
             }
         }.runTaskTimer(Ostrov.instance, 20, 20);
 
+        redisTimer = new BukkitRunnable() { //вынес отдельно - редис вечно багается
+            int sec;
+
+            @Override
+            public void run() {
+                try {
+                    RDS.heartbeats();
+                    if (sec % 43 == 0) {
+                        GM.getGames().stream().forEach((gi -> {
+                            gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
+                        }));
+                    }
+                    if (Ostrov.server_id > 0 && sec % 10 == 0) {
+                        GameInfo gi = GM.getGameInfo(GM.GAME);
+                        if (gi != null) {
+                            gi.arenas().stream().findAny().ifPresent(ai -> {
+                                ai.players = Bukkit.getOnlinePlayers().size();
+                                ai.sendData();
+                            });
+                        }
+                    }
+                } catch (Exception ex) {
+                    Ostrov.log_warn("redisTimer : " + ex.getMessage());
+                    //ex.printStackTrace();
+                }
+                sec++;
+            }
+        }.runTaskTimerAsynchronously(Ostrov.instance, 33, 21);
 
         //обход игроков каждую секунду с разбросом по тикам для распределения нагрузки
         playerTimer = new BukkitRunnable() {
@@ -223,18 +254,18 @@ public class Timer {
                 Informator.tickAsync();
             }
 
-            try {
-                RDS.heartbeats();
-            } catch (Exception ex) {
-                Ostrov.log_err("Timer asyncSecondJob RDS : " + ex.getMessage());
-                ex.printStackTrace();
-            }
+            //try {
+            //    RDS.heartbeats();
+            //} catch (Exception ex) {
+            //     Ostrov.log_warn("RDS Timer asyncSecondJob : " + ex.getMessage());
+            //ex.printStackTrace();
+            // }
 
-            if (second % 43 == 0) {
-                GM.getGames().stream().forEach((gi -> {
-                    gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
-                }));
-            }
+            //if (second % 43 == 0) {
+            //    GM.getGames().stream().forEach( (gi -> {
+            //        gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
+            //    }));
+            //}
 
             if (RemoteDB.useOstrovData) {
 
@@ -252,7 +283,15 @@ public class Timer {
 
                 if (RemoteDB.ready) {
                     if (Ostrov.server_id > 0 && second % 10 == 0) { //нашел себя в таблице - писать состояние каждые 10 сек
-                        RemoteDB.writeThisServerStateToRemoteDB();
+                        //RemoteDB.writeThisServerStateToRemoteDB();
+                        final String querry = "UPDATE " + Table.BUNGEE_SERVERS.table_name +
+                            " SET `online`='" + Bukkit.getOnlinePlayers().size() + "', `onlineLimit`='"
+                            + Bukkit.getMaxPlayers() + "', `tps`='" + Nms.getTps() + "', `memory`='"
+                            + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
+                            + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
+                            + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
+                            + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
+                        RemoteDB.executePstAsync(Bukkit.getConsoleSender(), querry);
                     }
 
                     if (!authMode) {

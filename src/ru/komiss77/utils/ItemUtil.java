@@ -813,299 +813,410 @@ public class ItemUtil {
     }
 
 
-    public static ItemStack parseItem(final String item, final String splitter) {
+    public static ItemStack parseItem(final String asString, final String splitter) {
 
         //grass:1<>name:nnn<>lore:sdsds:sdsd<>enchant:ARROW_DAMAGE:1<>dye:RED<>end
+
+        //final ItemBuilder builder = new ItemBuilder(Material.BEDROCK);
+
+        if (asString == null || asString.isBlank()) {
+            Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7< ошибочная!");
+            return setName(new ItemStack(Material.BEDROCK), "§cСтрока для декодирования ошибочная!");
+        }
+
         final String spl = splitter.equals(":") ? " : " : splitter;
 
-        final ItemBuilder builder = new ItemBuilder(ItemType.BEDROCK);
-
-        if (item == null || item.isEmpty()) {
-            Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7< ошибочная!");
-            return builder.name("§cСтрока для декодирования ошибочная!").build();
-        }
-
         if (splitter.isBlank()) {
-            Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, Разделитель не может быть пробелом!");
-            return builder.name("§cРазделитель для декодирования ошибочный!").build();
+            Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, Разделитель не может быть пробелом!");
+            return setName(new ItemStack(Material.BEDROCK), "§cРазделитель для декодирования ошибочный!");
         }
 
-        final List<String> splittedParametrs = new ArrayList<>();
+        //if (!asString.contains(splitter)) { //простой декодер для 50% случаев где просто материал и кол-во вроде cactus:1
+        //    return
+        //}
 
-        for (String param : item.split(spl)) {
-            if (!param.trim().isEmpty()) {
-                splittedParametrs.add(param.trim());
+        final List<String> paramAndArg = new ArrayList<>();
+
+        for (String param : asString.split(spl)) {
+            if (!param.isBlank()) {
+                paramAndArg.add(param.trim());
             }
         }
 
-        if (splittedParametrs.isEmpty()) {
-            Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, Не найдено никаких параметров!");
-            return builder.name("§cНе найдено никаких параметров!").build();
+        if (paramAndArg.isEmpty()) {
+            Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, Не найдено никаких параметров!");
+            return setName(new ItemStack(Material.BEDROCK), "§cНе найдено никаких параметров!");
         }
 
-//System.out.println("--- splittedParametrs.size="+splittedParametrs.size()+" 0="+splittedParametrs.get(0));
+//System.out.println("--- paramAndArg.size="+paramAndArg.size()+" 0="+paramAndArg.get(0));
         final @Nullable ItemType mat;
-        final String first = splittedParametrs.getFirst().toLowerCase(Locale.ROOT);
-        if (first.contains(":")) { //если с колличеством
-            final String[] s0 = first.trim().split(":");
-            mat = Ostrov.registries.ITEMS.get(Key.key(s0[0].trim()));
+        int amount = 1;
+
+        final String first = paramAndArg.getFirst().trim();
+        int idx = first.indexOf(":");
+
+        if (idx > 0) { //с колличеством
+            mat = Ostrov.registries.ITEMS.get(Key.key(first.substring(0, idx)));//mat = Material.matchMaterial(first.substring(0, idx));
+            try {
+                amount = Integer.parseInt(first.substring(idx + 1, first.length()));
+                if (amount < 1) {
+                    amount = 1;
+                    Ostrov.log_warn("Декодер предмета :  колличество меньше 1 : §f" + first);
+                } else if (amount > mat.getMaxStackSize()) {
+                    amount = mat.getMaxStackSize();
+                    Ostrov.log_warn("Декодер предмета : неправильное колличество §f" + first + " §7(max=" + mat.getMaxStackSize() + ")");
+                }
+            } catch (NumberFormatException | StringIndexOutOfBoundsException ex) {
+                Ostrov.log_warn("Декодер предмета - неправильное колличество §f" + first);
+            }
+        } else {
+            mat = Ostrov.registries.ITEMS.get(Key.key(first));//mat = Material.matchMaterial(first);
+        }
+
+        if (mat == null) {
+            Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, нет материала §f" + first);
+            return setName(new ItemStack(Material.BEDROCK), "Декодер предмета : §7строка >§f" + asString + "§7<, нет материала §f" + first);
+        }
+
+        //final ItemBuilder builder;
+       /* if (paramAndArg.getFirst().contains(":")) { //если с колличеством
+            String[] s0 = paramAndArg.getFirst().trim().split(":");
+            mat = Material.matchMaterial(s0[0].trim());
             if (mat != null) {
-                builder.type(mat);
+                builder = new ItemBuilder(mat);//builder.type(mat);
                 if (ApiOstrov.isInteger(s0[1].trim())) {
                     builder.amount(Integer.parseInt(s0[1].trim()));
                 } else {
-                    Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, неправильное колличество §f" + s0[1]);
+                    Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, неправильное колличество §f" + s0[1]);
                 }
             } else {
-                Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + s0[0]);
+                Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, нет материала §f" + s0[0]);
+                return  setName(new ItemStack(Material.BEDROCK),"Декодер предмета : §7строка >§f" + asString + "§7<, нет материала §f" + s0[0]);
             }
         } else {
-            mat = Ostrov.registries.ITEMS.get(Key.key(first.trim()));
+            mat = Material.matchMaterial(paramAndArg.getFirst().trim());
             if (mat != null) {
-                builder.type(mat);
+                builder = new ItemBuilder(mat);//builder.type(mat);
             } else {
-                Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, нет материала §f" + first);
+                Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, нет материала §f" + paramAndArg.getFirst());
             }
-        }
-
-        if (splittedParametrs.size() == 1) {
-            return builder.build();
+        }*/
+        if (paramAndArg.size() == 1) { //нет ничего кроме материала и колл-ва
+            return mat.createItemStack(amount);//new ItemStack(mat., amount);//builder.build();
         }
 
 //System.out.println("2 itemstack="+itemstack);
-        for (int i = 1; i < splittedParametrs.size(); ++i) {
+        Component name = null;
+        List<Component> lore = null;
+        ItemBuilder builder = null;
 
-            @Subst("") final String[] param = splittedParametrs.get(i).trim().split(":");
-            if (param.length == 1) {
-                switch (param[0].trim().toLowerCase()) {
-                    case "end", "unbreakable":
-                        break;
-                    default:
-                        Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, пустой параметр §f" + splittedParametrs.get(i));
+        // строка разбитая на характеристики -> name:nnn lore:sdsds:sdsd enchant:ARROW_DAMAGE:1 dye:RED<>end
+        String raw, param, arg = null;
+        String[] subArg;
+
+        for (int i = 1; i < paramAndArg.size(); ++i) { //первый-материаал, пропускаем
+            raw = paramAndArg.get(i);
+            idx = raw.indexOf(":");
+            param = raw.substring(0, idx).trim().toLowerCase();
+
+            //@Subst("") final String[] param = paramAndArg.get(i).trim().split(":");
+            if (idx < 0) {// только один параметрр, без :  if (param.length == 1) {
+                switch (param) { //param[0].trim().toLowerCase()) {
+                    case "end", "unbreakable" -> { //работают без аргументов
+                    }
+                    default -> {
+                        Ostrov.log_warn("Декодер предмета : §7строка >§f" + asString + "§7<, пустой параметр §f" + paramAndArg.get(i));
                         continue;
+                    }
                 }
+            } else {
+                arg = raw.substring(idx + 1, raw.length());
             }
 
-            //System.out.println("--"+temp[j]);
             try {
+                //сюда придёт только то, где есть аргументы
+                switch (param) { //(param[0].trim().toLowerCase()) {
 
-                switch (param[0].trim().toLowerCase()) {
+                    case "name" ->
+                        //if (param.length == 2) {
+                        //builder.name(param[1].replace('&', '§'));
+                        name = TCUtil.form(arg.replace('&', '§')); //param[1].replace('&', '§');
+                    //} else {
+                    //    Ostrov.log_warn("Декодер name : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                    //}
 
-                    case "name":
-                        if (param.length == 2) {
-                            builder.name(param[1].replace('&', '§'));
-                        } else {
-                            Ostrov.log_warn("Декодер name : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                    case "lore" -> {
+                        if (lore == null) lore = new ArrayList<>();
+                        subArg = arg.split(":");
+                        ;//final List<Component> lrs = new ArrayList<>();
+                        for (String s : subArg) {
+                            ;//int j = 1; j < param.length; j++) {
+                            lore.add(TCUtil.form(s.replace('&', '§')));//lrs.add(TCUtil.form(param[j].replace('&', '§')));
                         }
-                        break;
+                        //builder.lore(lrs);
+                        //builder.addLore(paramAndArg.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
+                    }
 
-                    case "lore":
-                        final List<Component> lrs = new ArrayList<>();
-                        for (int j = 1; j < param.length; j++) {
-                            lrs.add(TCUtil.form(param[j].replace('&', '§')));
+                    case "color" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        //if (subArg.length == 3) {
+                        try {
+                            builder.color(Color.fromRGB(Integer.parseInt(subArg[0]), Integer.parseInt(subArg[1]), Integer.parseInt(subArg[2])));
+                        } catch (NullPointerException | NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+                            Ostrov.log_warn("Декодер " + param + " : §7строка >§f" + asString + "§7<, должны быть числа §f" + arg);
                         }
-                        builder.lore(lrs);
-                        //builder.addLore(splittedParametrs.get(i).trim().replaceFirst("lore:", "").replaceAll("&", "§"));
-                        break;
+                        //} else {
+                        //  Ostrov.log_warn("Декодер " + param + " : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
+                        //}
+                    }
 
-                    case "color":
-                        if (param.length == 4) {
-                            if (ApiOstrov.isInteger(param[1]) && ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
-                                builder.color(Color.fromRGB(Integer.parseInt(param[1]), Integer.parseInt(param[2]), Integer.parseInt(param[3])));
-                            } else {
-                                Ostrov.log_warn("Декодер color : §7строка >§f" + item
-                                    + "§7<, должны быть числа §f" + param[1] + " " + param[2] + " " + param[3]);
-                            }
-                        } else {
-                            Ostrov.log_warn("Декодер color : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                    case "model" -> {//, "custommodeldata" -> {
+                        //if (param.length == 2) {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        try {
+                            //builder.modelData(Integer.parseInt(arg));
+                            builder.model(Key.key(arg));
+                        } catch (NullPointerException | NumberFormatException ex) {
+                            Ostrov.log_warn("Декодер custommodeldata : §7строка >§f" + asString + "§7<, должны быть числа §f" + arg);
                         }
-                        break;
+                        //if (ApiOstrov.isInteger(arg)) {//param[1])) {
+                        //    int modelData = Integer.parseInt(param[1]);
+                        //    if (modelData < 0) {
+                        //        modelData = 0;
+                        //    }
+                        //    builder.modelData(modelData);
+                        //} else {
+                        //     Ostrov.log_warn("Декодер model : §7строка >§f" + asString + "§7<, должны быть числа §f" + param[1]);
+                        //}
+                        //} else {
+                        //     Ostrov.log_warn("Декодер model : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                        //}
+                    }
 
-                    /*case "model", "custommodeldata":
-                        if (param.length == 2) {
-                            if (ApiOstrov.isInteger(param[1])) {
-                                int modelData = Integer.parseInt(param[1]);
-                                if (modelData < 0) {
-                                    modelData = 0;
-                                }
-                                builder.model(modelData);
-                            } else {
-                                Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, должны быть числа §f" + param[1]);
-                            }
-                        } else {
-                            Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
-                        }
-                        break;*/
-
-                    case "model":
-                        if (param.length == 2) {
-                            builder.model(Key.key(param[1]));
-                        } else {
-                            Ostrov.log_warn("Декодер model : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
-                        }
-                        break;
-
-                    case "itemflag":
-                        if (param.length > 1) {
-                            for (int j = 1; j < param.length; j++) {
-                                try {
-                                    final ItemFlag itemFlag = ItemFlag.valueOf(param[j]);
-                                    builder.flags(true, itemFlag);
-                                } catch (IllegalArgumentException e) {
-                                    Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, нет такого флага §f" + param[j]);
-                                }
-                            }
-                        } else {
-                            Ostrov.log_warn("Декодер itemflag : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
-                        }
-                        break;
-
-                    case "unbreakable":
-                        builder.unbreak(true);
-                        break;
-
-                    case "attribute":
-                        if (param.length == 5) {
-                            final double mod;
-                            final int op;
+                    case "itemflag" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        //if (param.length > 1) {
+                        for (String s : subArg) {//for (int j = 1; j < param.length; j++) {
                             try {
-                                mod = Double.parseDouble(param[2]);
-                                op = Integer.parseInt(param[3]);
-                            } catch (NumberFormatException e) {
-                                Ostrov.log_warn("Декодер attribute : §7строка >§f" + item + "§7<, неверные числа §f");
-                                break;
+                                final ItemFlag itemFlag = ItemFlag.valueOf(s);
+                                builder.flags(true, itemFlag);
+                            } catch (NullPointerException | IllegalArgumentException ex) {
+                                Ostrov.log_warn("Декодер itemflag : §7строка >§f" + asString + "§7<, нет такого флага §f" + s);
                             }
-                            final EquipmentSlotGroup esg = EquipmentSlotGroup.getByName(param[4]);
-                            builder.attribute(ATTR_REG.get(Key.key(param[1])), mod,
-                                Operation.values()[op], esg == null ? EquipmentSlotGroup.ANY : esg);
+                            //final ItemFlag itemFlag = ItemFlag.valueOf(param[j]);
+                            //if (itemFlag == null) {
+                            //     Ostrov.log_warn("Декодер itemflag : §7строка >§f" + asString + "§7<, нет такого флага §f" + param[j]);
+                            //     continue;
+                            //}
+                            //builder.flags(itemFlag);
                         }
-                        break;
+                        //} else {
+                        //    Ostrov.log_warn("Декодер itemflag : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                        //}
+                    }
 
-                    case "skulltexture":
-                        if (param.length == 2) {
-                            builder.headTexture(param[1]);
-                        } else {
-                            Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                    case "unbreakable" -> builder.unbreak(true);
+
+                    case "attribute" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        //if (subArg.length == 4) {//if (param.length == 5) {
+                        try {
+                            final Attribute at = ATTR_REG.get(Key.key(subArg[0]));//Attribute.valueOf(subArg[0]);
+                            final double mod = Double.parseDouble(subArg[1]);
+                            final int op = Integer.parseInt(subArg[2]);
+                            final EquipmentSlotGroup esg = EquipmentSlotGroup.getByName(subArg[3]);
+                            builder.attribute(at, mod, Operation.values()[op], esg == null ? EquipmentSlotGroup.ANY : esg);
+                        } catch (NullPointerException | IllegalArgumentException | ArrayIndexOutOfBoundsException ex) {
+                            Ostrov.log_warn("Декодер attribute : §7строка >§f" + asString + "§7<, неверные числа §f");
+                            break;
                         }
-                        break;
-                    case "skull",
-                         "skullowneruuid": //в итоге высерает java.lang.NullPointerException: Profile name must not be null
-                        if (param.length == 2) {
-                            //builder.setSkullOwnerUuid(param[1]);
-                            Ostrov.log_warn("Декодер skullowneruuid : с uuid больше не работает, нужно переделать на skulltexture!");
-                        } else {
-                            Ostrov.log_warn("Декодер skullowneruuid : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
-                        }
-                        break;
+                        //builder.attribute(Attribute.valueOf(param[1]), mod, Operation.values()[op],
+                        //param[4].equals("ANY") ? null : EquipmentSlot.valueOf(param[4]));
+                        //}
+                    }
+
+                    case "skulltexture" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        //if (param.length == 2) {
+                        builder.headTexture(arg);
+                        //} else {
+                        //  Ostrov.log_warn("Декодер skulltexture : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                        //}
+                    }
+                    case "skull", "skullowneruuid" -> {
+                        //if (builder == null) builder = new ItemBuilder(mat);
+                        //if (param.length == 2) {
+                        //builder.setSkullOwnerUuid(param[1]);
+                        Ostrov.log_warn("Декодер skullowneruuid : с uuid больше не работает, нужно переделать на skulltexture!" + asString);
+                        //} else {
+                        //  Ostrov.log_warn("Декодер skullowneruuid : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                        //} //в итоге высерает java.lang.NullPointerException: Profile name must not be null
+                    }
 
                     //enchant:silk_touch:1
-                    case "enchant", "bookenchant":
-                        if (param.length == 3) {
-                            final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(param[1]));
+                    case "enchant", "bookenchant" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        if (subArg.length == 2) {
+                            final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(subArg[0]));
                             if (enchant != null) {
-                                builder.enchant(enchant, ApiOstrov.getInteger(param[2], 1));
+                                builder.enchant(enchant, ApiOstrov.getInteger(subArg[1], 1));
                             } else {
-                                Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, нет таких чар §f" + param[1]);
+                                Ostrov.log_warn("Декодер enchant : §7строка >§f" + asString + "§7<, нет таких чар §f" + arg);
                             }
                         } else {
-                            Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toUpperCase());
+                            Ostrov.log_warn("Декодер enchant : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
                         }
-                        break;
-
-                    case "basepot", "basepotiondata":
-                        if (param.length == 4 || param.length == 2) {
+                    }
+                    case "basepot", "basepotiondata" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        if (subArg.length == 1 || subArg.length == 3) {
                             if (POTION.contains(mat)) {
-                                PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(param[1].toLowerCase()));
+                                PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(subArg[0]));
                                 if (potionType == null) {
-                                    @SuppressWarnings("deprecation")
-                                    final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(param[1]));
+                                    @SuppressWarnings("deprecation") final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(subArg[0]));
                                     potionType = npt;
                                 }
-
                                 if (potionType != null) {
                                     builder.basePotion(potionType);
                                 } else {
-                                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1].toLowerCase());
+                                    Ostrov.log_warn("Декодер basepot : §7строка >§f" + asString + "§7<, нет PotionType §f" + arg);
                                 }
                             } else {
-                                Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неприменима к §f" + mat);
+                                Ostrov.log_warn("Декодер basepot : §7строка >§f" + asString + "§7<, неприменима к §f" + mat);
                             }
                         } else {
-                            Ostrov.log_warn("Декодер basepot : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1].toLowerCase());
+                            Ostrov.log_warn("Декодер basepot : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
                         }
-                        break;
+                    }
 
-                    case "effect", "custompotioneffect":
-                        if (param.length == 4) {
+                    case "effect", "custompotioneffect" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        if (subArg.length == 3) {
                             if (POTION.contains(mat)) {
-                                PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(param[1].toLowerCase()));
+                                PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(subArg[0]));
                                 if (potionEffectType == null) {
-                                    @SuppressWarnings("deprecation") final PotionEffectType npe = PotionEffectType.getByName(param[1]);
+                                    @SuppressWarnings("deprecation") final PotionEffectType npe = PotionEffectType.getByName(subArg[0]);
                                     potionEffectType = npe;
                                 }
                                 if (potionEffectType != null) {
-                                    if (ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
+                                    if (ApiOstrov.isInteger(subArg[1]) && ApiOstrov.isInteger(subArg[2])) {
                                         builder.addEffect(new PotionEffect(potionEffectType,
-                                            Integer.parseInt(param[2].toLowerCase()), Integer.parseInt(param[3].toLowerCase())));
+                                            Integer.parseInt(subArg[1]), Integer.parseInt(subArg[2])));
                                     } else {
-                                        Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + param[2] + " " + param[3]);
+                                        Ostrov.log_warn("Декодер effect : §7строка >§f" + asString + "§7<, должны быть числа §f" + arg);
                                     }
                                 } else {
-                                    Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, нет PotionType §f" + param[1]);
+                                    Ostrov.log_warn("Декодер effect : §7строка >§f" + asString + "§7<, нет PotionType §f" + arg);
                                 }
                             } else {
-                                Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неприменима к §f" + mat);
+                                Ostrov.log_warn("Декодер effect : §7строка >§f" + asString + "§7<, неприменима к §f" + mat);
                             }
                         } else {
-                            Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
+                            Ostrov.log_warn("Декодер effect : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
                         }
-                        break;
-                    case "trim":
-                        if (param.length == 3) {
-                            builder.trim(OStrap.retrieve(RegistryKey.TRIM_MATERIAL, NamespacedKey.minecraft(param[1])),
-                                OStrap.retrieve(RegistryKey.TRIM_PATTERN, NamespacedKey.minecraft(param[2])));
+                    }
+
+                    case "trim" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        subArg = arg.split(":");
+                        if (subArg.length == 2) {
+                            builder.trim(OStrap.retrieve(RegistryKey.TRIM_MATERIAL, NamespacedKey.minecraft(subArg[0])),
+                                OStrap.retrieve(RegistryKey.TRIM_PATTERN, NamespacedKey.minecraft(subArg[1])));
                         } else {
-                            Ostrov.log_warn("Декодер trim : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
+                            Ostrov.log_warn("Декодер trim : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
                         }
-                        break;
-                    case "firework":
-                        if (param.length == 2) {
-                            if (ItemType.FIREWORK_ROCKET.equals(mat)) {
-                                builder.fireFlight(ApiOstrov.getInteger(param[1], 1));
-                            } else {
-                                Ostrov.log_warn("Декодер firework : §7строка >§f" + item
+                    }
+
+                    case "firework" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        //if (param.length == 2) {
+                        if (ItemType.FIREWORK_ROCKET.equals(mat)) {//if (builder.type().equals(ItemType.FIREWORK_ROCKET)) {
+                            try {
+                                builder.fireFlight(ApiOstrov.getInteger(arg, 1));
+                                //final String s = arg;
+                                //builder.customMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(s)));
+                            } catch (NumberFormatException ex) {
+                                Ostrov.log_warn("Декодер firework : §7строка >§f" + asString
                                     + "§7<, неприменима к §f" + mat);
                             }
                         } else {
-                            Ostrov.log_warn("Декодер firework : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
+                            Ostrov.log_warn("Декодер firework : §7строка >§f" + asString + "§7<, может быть только FIREWORK_ROCKET");
                         }
-                        break;
-                    case "burst":
-                        if (param.length == 6) {
+                        //} else {
+                        //  Ostrov.log_warn("Декодер firework : §7строка >§f" + asString + "§7<, неверные параметры §f" + param[1]);
+                        //}
+                    }
+
+                    case "burst" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        final String[] s = arg.split(":");
+                        if (s.length == 5) {
                             if (ItemType.FIREWORK_ROCKET.equals(mat) || ItemType.FIREWORK_STAR.equals(mat)) {
                                 builder.fireEffect(FireworkEffect.builder()
-                                    .with(FireworkEffect.Type.valueOf(param[1])).withColor(Color.fromRGB(Integer.parseInt(param[2])))
-                                    .withFade(Color.fromRGB(Integer.parseInt(param[3]))).flicker(Boolean.parseBoolean(param[4]))
-                                    .trail(Boolean.parseBoolean(param[5])).build());
+                                    .with(FireworkEffect.Type.valueOf(s[0]))
+                                    .withColor(Color.fromRGB(Integer.parseInt(s[1])))
+                                    .withFade(Color.fromRGB(Integer.parseInt(s[2])))
+                                    .flicker(Boolean.parseBoolean(s[3]))
+                                    .trail(Boolean.parseBoolean(s[4])).build());
                             } else {
-                                Ostrov.log_warn("Декодер burst : §7строка >§f" + item
+                                Ostrov.log_warn("Декодер burst : §7строка >§f" + asString
                                     + "§7<, неприменима к §f" + mat);
                             }
+                            /*if (builder.type().equals(ItemType.FIREWORK_ROCKET)) {
+                                builder.customMeta(FireworkMeta.class, fm -> fm.addEffect(FireworkEffect.builder()
+                                    .with(FireworkEffect.Type.valueOf(s[0])).withColor(Color.fromRGB(Integer.parseInt(s[1])))
+                                    .withFade(Color.fromRGB(Integer.parseInt(s[2]))).flicker(Boolean.parseBoolean(s[3]))
+                                    .trail(Boolean.parseBoolean(s[4])).build()));
+                            } else if (builder.type().equals(ItemType.FIREWORK_STAR)) {
+                                builder.customMeta(FireworkEffectMeta.class, fm -> fm.setEffect(FireworkEffect.builder()
+                                    .with(FireworkEffect.Type.valueOf(s[0])).withColor(Color.fromRGB(Integer.parseInt(s[1])))
+                                    .withFade(Color.fromRGB(Integer.parseInt(s[2]))).flicker(Boolean.parseBoolean(s[3]))
+                                    .trail(Boolean.parseBoolean(s[4])).build()));
+                            } else {
+                                Ostrov.log_warn("Декодер burst : §7строка >§f" + asString
+                                    + "§7<, неприменима к §f" + builder.type().key().value());
+                            }*/
                         } else {
-                            Ostrov.log_warn("Декодер burst : §7строка >§f" + item + "§7<, неверные параметры §f" + param[1]);
+                            Ostrov.log_warn("Декодер burst : §7строка >§f" + asString + "§7<, неверные параметры §f" + arg);
                         }
-                        break;
-                    default:
-                        Ostrov.log_warn("Декодер ОБЩИЙ : §7строка >§f" + item + "§7<, параметр не распознан §f" + param[0]);
-                        break;
+                    }
+
+                    default ->
+                        Ostrov.log_warn("Декодер ОБЩИЙ : §7строка >§f" + asString + "§7<, параметр не распознан §f" + arg);
                 }
+
             } catch (IllegalArgumentException | SecurityException | NullPointerException ex) {
-                Ostrov.log_err("parseItem : " + item + " - " + ex.getMessage());
+                Ostrov.log_err("parseItem : " + asString + " - " + ex.getMessage());
             }
 
         }
-
-        return builder.build();
+        if (builder == null) { //не было ничего, кроме имени и лор - наверное, 90%случаев
+            final ItemStack is = mat.createItemStack(amount);//new ItemStack(mat, amount);
+            final ItemMeta im = is.getItemMeta();
+            if (name != null) {
+                im.displayName(name);
+            }
+            if (lore != null) {
+                im.lore(lore);
+            }
+            is.setItemMeta(im);
+            return is;
+        } else {
+            builder.amount(amount);
+            if (name != null) {
+                builder.name(name);
+            }
+            if (lore != null) {
+                builder.lore(lore);
+            }
+            return builder.build();
+        }
     }
 
     public static boolean compare(@Nullable final ItemStack is1, @Nullable final ItemStack is2, final Stat... depth) {
@@ -1255,76 +1366,75 @@ public class ItemUtil {
         if (b.toString().equalsIgnoreCase("NETHER") || b.toString().equalsIgnoreCase("NETHER_WASTES")) {
             mat = ItemType.NETHERRACK;
         } else {
-            mat = ItemType.GRASS_BLOCK;
             //TODO потом перепишу
-            /*switch (b) {
-                case BADLANDS -> mat = ItemType.RED_SAND;
-                case BAMBOO_JUNGLE -> mat = ItemType.BAMBOO;
-                case BEACH -> mat = ItemType.HORN_CORAL_FAN;
-                case BIRCH_FOREST -> mat = ItemType.BIRCH_LOG;
-                case COLD_OCEAN -> mat = ItemType.BLUE_CONCRETE_POWDER;
-                case DARK_FOREST -> mat = ItemType.DARK_OAK_LOG;
-                case MUSHROOM_FIELDS -> mat = ItemType.MYCELIUM;
-                case DEEP_COLD_OCEAN -> mat = ItemType.BLUE_CONCRETE;
-                case DEEP_FROZEN_OCEAN -> mat = ItemType.BLUE_ICE;
-                case DEEP_LUKEWARM_OCEAN -> mat = ItemType.LIGHT_BLUE_CONCRETE;
-                case DEEP_OCEAN -> mat = ItemType.BLUE_WOOL;
-                case DESERT -> mat = ItemType.SAND;
-                case END_BARRENS -> mat = ItemType.END_STONE;
-                case END_HIGHLANDS -> mat = ItemType.END_STONE_BRICKS;
-                case END_MIDLANDS -> mat = ItemType.END_STONE_BRICK_WALL;
-                case ERODED_BADLANDS -> mat = ItemType.DEAD_BUSH;
-                case FLOWER_FOREST -> mat = ItemType.ROSE_BUSH;
-                case WINDSWEPT_HILLS -> mat = ItemType.GRANITE;
-                case FOREST -> mat = ItemType.OAK_SAPLING;
-                case FROZEN_OCEAN -> mat = ItemType.PACKED_ICE;
-                case FROZEN_RIVER -> mat = ItemType.LIGHT_BLUE_DYE;
-                case ICE_SPIKES -> mat = ItemType.ICE;
-                case JUNGLE -> mat = ItemType.JUNGLE_LOG;
-                case LUKEWARM_OCEAN -> mat = ItemType.LIGHT_BLUE_CONCRETE_POWDER;
-                case OCEAN -> mat = ItemType.WATER_BUCKET;
-                case PLAINS -> mat = ItemType.GRASS_BLOCK;
-                case MANGROVE_SWAMP -> mat = ItemType.MANGROVE_ROOTS;
-                case RIVER -> mat = ItemType.BLUE_DYE;
-                case SAVANNA -> mat = ItemType.SPONGE;
-                case SAVANNA_PLATEAU -> mat = ItemType.ACACIA_WOOD;
-                case SMALL_END_ISLANDS -> mat = ItemType.END_STONE_BRICK_SLAB;
-                case SNOWY_BEACH -> mat = ItemType.SNOW;
-                case SNOWY_TAIGA -> mat = ItemType.WHITE_WOOL;
-                case SUNFLOWER_PLAINS -> mat = ItemType.SUNFLOWER;
-                case SWAMP -> mat = ItemType.LILY_PAD;
-                case TAIGA -> mat = ItemType.SPRUCE_LOG;
-                case NETHER_WASTES -> mat = ItemType.NETHERRACK;
-                case THE_END -> mat = ItemType.END_PORTAL_FRAME;
-                case THE_VOID -> mat = ItemType.RESPAWN_ANCHOR;
-                case WARM_OCEAN -> mat = ItemType.CYAN_CONCRETE_POWDER;
-                case SNOWY_PLAINS -> mat = ItemType.SNOW;
-                case SPARSE_JUNGLE -> mat = ItemType.VINE;
-                case STONY_SHORE -> mat = ItemType.GRAVEL;
-                case OLD_GROWTH_PINE_TAIGA -> mat = ItemType.SPRUCE_WOOD;
-                case WINDSWEPT_FOREST -> mat = ItemType.STRIPPED_OAK_LOG;
-                case WOODED_BADLANDS -> mat = ItemType.DEAD_BUSH;
-                case WINDSWEPT_GRAVELLY_HILLS -> mat = ItemType.ANDESITE;
-                case OLD_GROWTH_BIRCH_FOREST -> mat = ItemType.BIRCH_WOOD;
-                case OLD_GROWTH_SPRUCE_TAIGA -> mat = ItemType.STRIPPED_SPRUCE_LOG;
-                case WINDSWEPT_SAVANNA -> mat = ItemType.STRIPPED_ACACIA_LOG;
-                case SOUL_SAND_VALLEY -> mat = ItemType.SOUL_SAND;
-                case CRIMSON_FOREST -> mat = ItemType.CRIMSON_NYLIUM;
-                case WARPED_FOREST -> mat = ItemType.WARPED_NYLIUM;
-                case BASALT_DELTAS -> mat = ItemType.BASALT;
-                case DRIPSTONE_CAVES -> mat = ItemType.DRIPSTONE_BLOCK;
-                case LUSH_CAVES -> mat = ItemType.BIG_DRIPLEAF;
-                case DEEP_DARK -> mat = ItemType.SCULK_CATALYST;
-                case MEADOW -> mat = ItemType.BEE_NEST;
-                case GROVE -> mat = ItemType.DIRT_PATH;
-                case SNOWY_SLOPES -> mat = ItemType.ECHO_SHARD;
-                case FROZEN_PEAKS -> mat = ItemType.PACKED_ICE;
-                case JAGGED_PEAKS -> mat = ItemType.DIORITE;
-                case STONY_PEAKS -> mat = ItemType.STONE;
-                case CHERRY_GROVE -> mat = ItemType.CHERRY_LOG;
-                case CUSTOM -> mat = ItemType.CRIMSON_NYLIUM;
+            switch (b.key().value().toUpperCase()) {
+                case "BADLANDS" -> mat = ItemType.RED_SAND;
+                case "BAMBOO_JUNGLE" -> mat = ItemType.BAMBOO;
+                case "BEACH" -> mat = ItemType.HORN_CORAL_FAN;
+                case "BIRCH_FOREST" -> mat = ItemType.BIRCH_LOG;
+                case "COLD_OCEAN" -> mat = ItemType.BLUE_CONCRETE_POWDER;
+                case "DARK_FOREST" -> mat = ItemType.DARK_OAK_LOG;
+                case "MUSHROOM_FIELDS" -> mat = ItemType.MYCELIUM;
+                case "DEEP_COLD_OCEAN" -> mat = ItemType.BLUE_CONCRETE;
+                case "DEEP_FROZEN_OCEAN" -> mat = ItemType.BLUE_ICE;
+                case "DEEP_LUKEWARM_OCEAN" -> mat = ItemType.LIGHT_BLUE_CONCRETE;
+                case "DEEP_OCEAN" -> mat = ItemType.BLUE_WOOL;
+                case "DESERT" -> mat = ItemType.SAND;
+                case "END_BARRENS" -> mat = ItemType.END_STONE;
+                case "END_HIGHLANDS" -> mat = ItemType.END_STONE_BRICKS;
+                case "END_MIDLANDS" -> mat = ItemType.END_STONE_BRICK_WALL;
+                case "ERODED_BADLANDS" -> mat = ItemType.DEAD_BUSH;
+                case "FLOWER_FOREST" -> mat = ItemType.ROSE_BUSH;
+                case "WINDSWEPT_HILLS" -> mat = ItemType.GRANITE;
+                case "FOREST" -> mat = ItemType.OAK_SAPLING;
+                case "FROZEN_OCEAN" -> mat = ItemType.PACKED_ICE;
+                case "FROZEN_RIVER" -> mat = ItemType.LIGHT_BLUE_DYE;
+                case "ICE_SPIKES" -> mat = ItemType.ICE;
+                case "JUNGLE" -> mat = ItemType.JUNGLE_LOG;
+                case "LUKEWARM_OCEAN" -> mat = ItemType.LIGHT_BLUE_CONCRETE_POWDER;
+                case "OCEAN" -> mat = ItemType.WATER_BUCKET;
+                case "PLAINS" -> mat = ItemType.GRASS_BLOCK;
+                case "MANGROVE_SWAMP" -> mat = ItemType.MANGROVE_ROOTS;
+                case "RIVER" -> mat = ItemType.BLUE_DYE;
+                case "SAVANNA" -> mat = ItemType.SPONGE;
+                case "SAVANNA_PLATEAU" -> mat = ItemType.ACACIA_WOOD;
+                case "SMALL_END_ISLANDS" -> mat = ItemType.END_STONE_BRICK_SLAB;
+                case "SNOWY_BEACH" -> mat = ItemType.SNOW;
+                case "SNOWY_TAIGA" -> mat = ItemType.WHITE_WOOL;
+                case "SUNFLOWER_PLAINS" -> mat = ItemType.SUNFLOWER;
+                case "SWAMP" -> mat = ItemType.LILY_PAD;
+                case "TAIGA" -> mat = ItemType.SPRUCE_LOG;
+                case "NETHER_WASTES" -> mat = ItemType.NETHERRACK;
+                case "THE_END" -> mat = ItemType.END_PORTAL_FRAME;
+                case "THE_VOID" -> mat = ItemType.RESPAWN_ANCHOR;
+                case "WARM_OCEAN" -> mat = ItemType.CYAN_CONCRETE_POWDER;
+                case "SNOWY_PLAINS" -> mat = ItemType.SNOW;
+                case "SPARSE_JUNGLE" -> mat = ItemType.VINE;
+                case "STONY_SHORE" -> mat = ItemType.GRAVEL;
+                case "OLD_GROWTH_PINE_TAIGA" -> mat = ItemType.SPRUCE_WOOD;
+                case "WINDSWEPT_FOREST" -> mat = ItemType.STRIPPED_OAK_LOG;
+                case "WOODED_BADLANDS" -> mat = ItemType.DEAD_BUSH;
+                case "WINDSWEPT_GRAVELLY_HILLS" -> mat = ItemType.ANDESITE;
+                case "OLD_GROWTH_BIRCH_FOREST" -> mat = ItemType.BIRCH_WOOD;
+                case "OLD_GROWTH_SPRUCE_TAIGA" -> mat = ItemType.STRIPPED_SPRUCE_LOG;
+                case "WINDSWEPT_SAVANNA" -> mat = ItemType.STRIPPED_ACACIA_LOG;
+                case "SOUL_SAND_VALLEY" -> mat = ItemType.SOUL_SAND;
+                case "CRIMSON_FOREST" -> mat = ItemType.CRIMSON_NYLIUM;
+                case "WARPED_FOREST" -> mat = ItemType.WARPED_NYLIUM;
+                case "BASALT_DELTAS" -> mat = ItemType.BASALT;
+                case "DRIPSTONE_CAVES" -> mat = ItemType.DRIPSTONE_BLOCK;
+                case "LUSH_CAVES" -> mat = ItemType.BIG_DRIPLEAF;
+                case "DEEP_DARK" -> mat = ItemType.SCULK_CATALYST;
+                case "MEADOW" -> mat = ItemType.BEE_NEST;
+                case "GROVE" -> mat = ItemType.DIRT_PATH;
+                case "SNOWY_SLOPES" -> mat = ItemType.ECHO_SHARD;
+                case "FROZEN_PEAKS" -> mat = ItemType.PACKED_ICE;
+                case "JAGGED_PEAKS" -> mat = ItemType.DIORITE;
+                case "STONY_PEAKS" -> mat = ItemType.STONE;
+                case "CHERRY_GROVE" -> mat = ItemType.CHERRY_LOG;
+                case "CUSTOM" -> mat = ItemType.CRIMSON_NYLIUM;
                 default -> mat = ItemType.WARPED_NYLIUM;
-            }*/
+            }
         }
 
         return new ItemBuilder(mat)
@@ -1573,16 +1683,16 @@ class MojangProfileResponse {
         MENDING (Enchantment.MENDING, "mending"),
         VANISHING_CURSE (Enchantment.VANISHING_CURSE, "vanishing_curse"),
         ;
-        
+
         public final Enchantment enchantment;
         public final String key;
-        
+
         private EnchantDecode (Enchantment enchantment, String key) {
             this.enchantment = enchantment;
             this.key = key;
         }
-        
-        
+
+
         public static Enchantment fromEnchantmentName (final String name) {
             if (name==null || name.isEmpty()) return null;
             for (EnchantDecode ed : EnchantDecode.values()) {
@@ -1592,6 +1702,6 @@ class MojangProfileResponse {
             }
             return null;
         }
-        
-   }    
+
+   }
 */

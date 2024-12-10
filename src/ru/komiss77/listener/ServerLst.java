@@ -44,7 +44,7 @@ public class ServerLst implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRestartWarning(final RestartWarningEvent e) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "clean");
+      Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "oclean");
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

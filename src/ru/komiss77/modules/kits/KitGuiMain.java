@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -22,24 +23,24 @@ public class KitGuiMain implements InventoryProvider {
 
 
     @Override
-    public void init(final Player player, final InventoryContent contents) {
-        player.playSound(player.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-        //contents.fillRect(SlotPos.of(0), SlotPos.of(53), ClickableItem.empty(fill));
-        //contents.fillRow(3, ClickableItem.empty(fill));
-        //contents.fillRow(4, ClickableItem.empty(fill));
-        contents.fillColumn(0, ClickableItem.empty(side));
-        contents.fillColumn(8, ClickableItem.empty(side));
-        contents.fillRow(0, ClickableItem.empty(up));
-        contents.fillRow(5, ClickableItem.empty(down));
-        final Pagination pagination = contents.pagination();
+    public void init(final Player p, final InventoryContent content) {
+      p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
+      //content.fillRect(SlotPos.of(0), SlotPos.of(53), ClickableItem.empty(fill));
+      //content.fillRow(3, ClickableItem.empty(fill));
+      //content.fillRow(4, ClickableItem.empty(fill));
+      content.fillColumn(0, ClickableItem.empty(side));
+      content.fillColumn(8, ClickableItem.empty(side));
+      content.fillRow(0, ClickableItem.empty(up));
+      content.fillRow(5, ClickableItem.empty(down));
+      final Pagination pagination = content.pagination();
 
 
-        // contents.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.STONECUTTER)
+      // content.set(0, 4, ClickableItem.empty(new ItemBuilder(Material.STONECUTTER)
         //   .name("§7Наборов на сервере: §f"+KitManager.kits.size())
         //  //.lore("§7Состояние: §e"+arena.state.toString())
         //  .build()));
 
-        final Oplayer op = PM.getOplayer(player);
+      final Oplayer op = PM.getOplayer(p);
 
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
@@ -52,16 +53,16 @@ public class KitGuiMain implements InventoryProvider {
 
             if (!kit.enabled) continue; //добавляем только включенные
 
-            if (kit.needPermission && !player.hasPermission("ostrov.kit." + kit.name) && !player.hasPermission("ostrov.kit.*")) {
+          if (kit.needPermission && !p.hasPermission("ostrov.kit." + kit.name) && !p.hasPermission("ostrov.kit.*")) {
 
                 giveInfo1 = "§cтребуется право §5ostrov.kit." + kit.name;
                 giveInfo2 = "§cдля доступа к набору!";
 
             } else if (kit.accesBuyPrice == 0) {
 
-                //if (PM.Kit_has_acces(player.name(), kit.name)) {
+            //if (PM.Kit_has_acces(p.name(), kit.name)) {
 
-                final int secondLeft = KitManager.getSecondLetf(player, kit);
+            final int secondLeft = KitManager.getSecondLetf(p, kit);
                 if (secondLeft > 0) {
                     giveInfo1 = "§cПолучить можно через " + TimeUtil.secondToTime(secondLeft);
                 } else {
@@ -80,7 +81,7 @@ public class KitGuiMain implements InventoryProvider {
 
                 if (op.hasKitAcces(kit.name)) {
 
-                    final int secondLeft = KitManager.getSecondLetf(player, kit);
+                  final int secondLeft = KitManager.getSecondLetf(p, kit);
                     if (secondLeft > 0) {
                         giveInfo1 = "§cПолучить можно через " + TimeUtil.secondToTime(secondLeft);
                     } else {
@@ -116,29 +117,32 @@ public class KitGuiMain implements InventoryProvider {
 
 
             menuEntry.add(ClickableItem.of(item, e -> {
-                final Kit clickedKit = KitManager.kits.get(TCUtil.strip(e.getCurrentItem().getItemMeta().displayName()));
+              //final Kit clickedKit = KitManager.kits.get(TCUtil.strip(e.getCurrentItem().getItemMeta().displayName()));
 //System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.strip(e.getCurrentItem().getItemMeta().getDisplayName()) );
 
-                if (clickedKit == null) return;
-                if (e.isLeftClick()) { //проверка на выключен везде!!
+              //if (clickedKit == null) return;
+              if (e.getClick() == ClickType.LEFT) { //проверка на выключен везде!!
 //System.out.println("-- ClickableItem clickedKit="+clickedKit+" name="+ ChatColor.strip(e.getCurrentItem().getItemMeta().getDisplayName()) );
-                    if (kit.accesBuyPrice > 0 && !op.hasKitAcces(clickedKit.name)) {
-                        player.closeInventory();
-                        player.performCommand("kit buyacces " + clickedKit.name);
+                if (kit.accesBuyPrice > 0 && !op.hasKitAcces(kit.name)) {
+                  p.closeInventory();
+                  //p.performCommand("kit buyacces " + clickedKit.name);
+                  KitManager.buyKitAcces(p, kit.name);
                     } else {
-                        player.closeInventory();
-                        player.performCommand("kit give " + clickedKit.name);
+                  p.closeInventory();
+                  KitManager.tryGiveKit(p, kit.name);
+                  //p.performCommand("kit give " + clickedKit.name);
                     }
-                    //reopen(player, contents);
-                } else if (e.isShiftClick()) {
-                    if (op.hasKitAcces(clickedKit.name)) {
-                        player.closeInventory();
-                        player.performCommand("kit sellacces " + clickedKit.name);
+                //reopen(p, content);
+              } else if (e.getClick() == ClickType.SHIFT_RIGHT) {
+                if (op.hasKitAcces(kit.name)) {
+                  p.closeInventory();
+                  KitManager.trySellAcces(p, kit.name);
+                  //p.performCommand("kit sellacces " + clickedKit.name);
                     }
-                    //reopen(player, contents);
-                } else if (e.isRightClick()) {
-                    KitManager.openKitPrewiev(player, kit);
-                    //reopen(player, contents);
+                //reopen(p, content);
+              } else if (e.getClick() == ClickType.RIGHT) {
+                KitManager.openKitPrewiev(p, kit);
+                //reopen(p, content);
                 }
             }));  
             
@@ -150,24 +154,24 @@ public class KitGuiMain implements InventoryProvider {
 
         //прятать если нет
         if (!pagination.isFirst()) {
-            contents.set(2, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
-                    -> contents.getHost().open(player, pagination.previous().getPage()))
+          content.set(2, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
+              -> content.getHost().open(p, pagination.previous().getPage()))
             );
-            contents.set(3, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
-                    -> contents.getHost().open(player, pagination.previous().getPage()))
+          content.set(3, 0, ClickableItem.of(new ItemBuilder(Material.PINK_STAINED_GLASS_PANE).name("назад").build(), p4
+              -> content.getHost().open(p, pagination.previous().getPage()))
             );
         }
 
         if (!pagination.isLast()) {
-            contents.set(2, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
-                    -> contents.getHost().open(player, pagination.next().getPage()))
+          content.set(2, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
+              -> content.getHost().open(p, pagination.next().getPage()))
             );
-            contents.set(3, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
-                    -> contents.getHost().open(player, pagination.next().getPage()))
+          content.set(3, 8, ClickableItem.of(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("далее").build(), p4
+              -> content.getHost().open(p, pagination.next().getPage()))
             );
         }
 
-        pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
+      pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
 
 
     }

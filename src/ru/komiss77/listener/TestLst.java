@@ -1,32 +1,40 @@
 package ru.komiss77.listener;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.WorldBorder;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.*;
+import org.bukkit.block.BlockType;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
+import ru.komiss77.modules.bots.AfkExt;
+import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
-import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.TCUtil;
+import ru.komiss77.version.GameApi;
+import ru.komiss77.version.Nms;
 
 public class TestLst implements Listener {
 
     Botter bt = null;
 
 
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
@@ -42,30 +50,30 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-                if (p.isSneaking()) {
-                    WorldBorder wb = p.getWorldBorder();
-                    if (wb == null) {
-                        wb = Bukkit.createWorldBorder();
-                    }
-                    wb.setCenter(p.getLocation());
-                    wb.setSize(10);
-                    p.setWorldBorder(wb);
-                    p.sendMessage("setSize(10) wb=" + wb);
+              if (p.isSneaking()) {
+                WorldBorder wb = p.getWorldBorder();
+                if (wb == null) {
+                  wb = Bukkit.createWorldBorder();
+                }
+                wb.setCenter(p.getLocation());
+                wb.setSize(10);
+                p.setWorldBorder(wb);
+                p.sendMessage("setSize(10) wb=" + wb);
 
-                    //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
-                    //op.tag(true);
-                    //op.tag("<blue>dddd", "<yellow>dddf");
+                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
+                //op.tag(true);
+                //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
-                    //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
-                    WorldBorder wb = p.getWorldBorder();
-                    if (wb == null) {
-                        p.sendMessage("wb = null");
-                    } else {
-                        p.sendMessage("wb =" + wb + " world=" + (wb.getWorld() == null ? wb.getWorld() : wb.getWorld().getName())
-                            + " center=" + wb.getCenter() + " size=" + wb.getSize());
-                    }
-                    //op.tag(false);
-                    //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
+                //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
+                WorldBorder wb = p.getWorldBorder();
+                if (wb == null) {
+                  p.sendMessage("wb = null");
+                } else {
+                  p.sendMessage("wb =" + wb + " world=" + (wb.getWorld() == null ? wb.getWorld() : wb.getWorld().getName())
+                      + " center=" + wb.getCenter() + " size=" + wb.getSize());
+                }
+                //op.tag(false);
+                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                    /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
                     LocUtil.trace(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, (bp, bd) -> {
                         p.sendBlockChange(bp.toLocation(p.getWorld()), gold);
@@ -116,8 +124,6 @@ public class TestLst implements Listener {
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
                 if (p.isSneaking()) {
-                    final ItemStack ii = new ItemBuilder(ItemType.STONE).enchant(Enchantment.MENDING).enchant(Enchantment.EFFICIENCY, 4).build();
-                    p.getInventory().setItemInMainHand(new ItemBuilder(ii).name("<blue>lol").disEnchant().build());
 
                 } else {
 
@@ -135,7 +141,7 @@ public class TestLst implements Listener {
                     p.sendMessage("§3teleportSave DOWN");
                     final Location loc = p.getLocation().clone().add(0, -100, 0);
 //                    long t = System.currentTimeMillis();
-                    MoveUtil.safeTP(p, loc);
+                  //MoveUtil.safeTP(p, loc, true);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);
@@ -147,7 +153,7 @@ public class TestLst implements Listener {
                     final Location loc = p.getLocation();
                     loc.setY(loc.getWorld().getMaxHeight());
 //                    long t = System.currentTimeMillis();
-                    MoveUtil.safeTP(p, loc);
+                  //MoveUtil.safeTP(p, loc, true);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);

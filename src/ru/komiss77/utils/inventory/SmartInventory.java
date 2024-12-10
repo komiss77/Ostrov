@@ -2,11 +2,13 @@ package ru.komiss77.utils.inventory;
 
 import java.util.*;
 import com.google.common.base.Preconditions;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import ru.komiss77.utils.TCUtil;
 
 
 //слоты сундука https://wiki.vg/Inventory
@@ -24,7 +26,7 @@ public class SmartInventory {
 
 
     private String id;
-    private String title;
+  private Component title;
     private InventoryType type;
     private int rows, columns;
     private boolean closeable;
@@ -127,6 +129,10 @@ public class SmartInventory {
     }
 
     public String getTitle() {
+      return TCUtil.deform(title);
+    }
+
+  public Component title() {
         return title;
     }
 
@@ -176,7 +182,7 @@ public class SmartInventory {
     public static final class Builder {
 
         private String id = "unknown";
-        private String title = "";
+      private Component title = Component.empty();
         private InventoryType type = InventoryType.CHEST;
         private Optional<Integer> rows = Optional.empty();
         private Optional<Integer> columns = Optional.empty();
@@ -197,6 +203,11 @@ public class SmartInventory {
         }
 
         public Builder title(String title) {
+          this.title = TCUtil.form(title);
+          return this;
+        }
+
+      public Builder title(Component title) {
             this.title = title;
             return this;
         }
@@ -262,6 +273,10 @@ public class SmartInventory {
         }
 
         public String getTitle() {
+          return TCUtil.deform(title);
+        }
+
+      public Component title() {
             return title;
         }
 
