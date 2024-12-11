@@ -56,7 +56,7 @@ public class RegionOwnerMenu implements InventoryProvider {
     } else {
 
       String timeStamp = RM.createTime(region);
-      final int stamp = NumUtils.intOf(timeStamp);
+      final int stamp = NumUtils.intOf(timeStamp, 0);
       if (stamp > 0) {
         timeStamp = TimeUtil.dateFromStamp(stamp);
       }

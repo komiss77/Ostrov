@@ -208,7 +208,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
             if (qs == null) continue;
             final int splitterIndex = quest.indexOf(LocalDB.W_SPLIT);
             if (splitterIndex == 1) {
-                stamp = NumUtils.intOf(quest.substring(splitterIndex + 1));
+                stamp = NumUtils.intOf(quest.substring(splitterIndex + 1), 0);
                 if (stamp > 0) op.quests.put(qs, qs.createPrg(stamp));
             } else op.quests.put(qs, qs.createPrg(0).markDone());
         }

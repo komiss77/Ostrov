@@ -64,11 +64,11 @@ public class Figure {
 
         String[] split = locString.split(locString.contains(":") ? ":" : "<>");
         worldName = split[0];
-        x = NumUtils.intOf(split[1]);
-        y = NumUtils.intOf(split[2]);
-        z = NumUtils.intOf(split[3]);
-        yaw = NumUtils.intOf(split[4]);
-        pitch = NumUtils.intOf(split[5]);
+        x = NumUtils.intOf(split[1], 0);
+        y = NumUtils.intOf(split[2], 0);
+        z = NumUtils.intOf(split[3], 0);
+        yaw = NumUtils.intOf(split[4], 0);
+        pitch = NumUtils.intOf(split[5], 0);
         spawnLoc = LocUtil.stringToLoc(locString, false, false).toCenterLocation();
     }
 

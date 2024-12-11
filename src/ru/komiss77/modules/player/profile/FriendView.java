@@ -64,7 +64,7 @@ public class FriendView implements InventoryProvider {
                 splitterIndex = info.indexOf(":");
                 if (splitterIndex > 0) {
                     server.put(name, info.substring(0, splitterIndex));
-                    settings.put(name, NumUtils.intOf(info.substring(0, splitterIndex)));
+                    settings.put(name, NumUtils.intOf(info.substring(0, splitterIndex), Integer.MIN_VALUE));
                     info = info.substring(splitterIndex + 1);
                 }
             }

@@ -72,7 +72,7 @@ public class EasyPaymentsHook {
                         + name + "', '" + s[4] + "', 'ED');");
                   } else if (s[2].equals("group")) {
                     //0:reward 1:komiss77 2:group 3:hero 4:1m 5:ED
-                    int month = NumUtils.intOf(s[4].replaceFirst("m", ""));
+                    int month = NumUtils.intOf(s[4].replaceFirst("m", ""), 0);
                     if (month > 0) {
                       write.executeUpdate("INSERT INTO `ostrov`.`payments` (`name`, `gr`, `days`, `note`) VALUES ('"
                           + name + "', '" + s[3] + "', '" + month * 30 + "', 'ED');");

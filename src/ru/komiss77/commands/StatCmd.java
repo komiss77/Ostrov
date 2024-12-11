@@ -123,8 +123,8 @@ public class StatCmd implements OCommand {
         return 0;
       }
 
-      final int value = NumUtils.intOf(arg[2]);
-      if (value < 0 || value > 100) {
+      final int value = NumUtils.intOf(arg[2], 0);
+      if (value < 1 || value > 100) {
         cs.sendMessage("§eЗначение допустимо от 1 до 100!");
         return 0;
       }

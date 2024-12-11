@@ -6,10 +6,11 @@ import java.util.function.Consumer;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.objects.InputData;
@@ -27,7 +28,7 @@ public class PlayerInput implements Listener {
 
     static {
         inputData = new WeakHashMap<>();
-        left = new ItemBuilder(Material.RED_DYE)
+        left = new ItemBuilder(ItemType.RED_DYE)
                 //.name("§7Сейчас:")
                 //.addLore("§7"+sugg)
                 //.addLore("Режим ввода текста")
@@ -38,7 +39,7 @@ public class PlayerInput implements Listener {
                 .lore("§6Клик сюда - ")
                 .lore("§eоставить как есть")
                 .build();
-        out = new ItemBuilder(Material.LIME_DYE)
+        out = new ItemBuilder(ItemType.LIME_DYE)
                 //.name("§7Сейчас:")
                 //.addLore("§7"+sugg)
                 .lore("Режим ввода текста")
@@ -68,7 +69,7 @@ public class PlayerInput implements Listener {
                         case AnvilGUI.Slot.INPUT_RIGHT -> {
                         }
                         case AnvilGUI.Slot.OUTPUT -> {
-                            final int res = NumUtils.intOf(stateSnapshot.getText());
+                            final int res = NumUtils.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
                             if (res == Integer.MIN_VALUE) {
                                 p.sendMessage("§cДолжно быть число!");
                                 PM.soundDeny(p);

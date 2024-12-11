@@ -17,12 +17,12 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.BookMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -34,6 +34,7 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.MissionEvent;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.CaseInsensitiveMap;
@@ -175,7 +176,7 @@ public class MissionCmd implements OCommand {
           Ostrov.async(() -> {
             try (Statement stmt = RemoteDB.getConnection().createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM `missions` ORDER BY `activeFrom` DESC")) {
 
-              final ItemStack book = new ItemBuilder(Material.WRITTEN_BOOK)
+              final ItemStack book = new ItemBuilder(ItemType.WRITTEN_BOOK)
                   .name("Журнал \"Миссия сегодня\"")
                   .build();
               BookMeta bookMeta = (BookMeta) book.getItemMeta();
@@ -219,7 +220,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "accept")) return 0;
 
           if (arg.length == 2) { //принятие с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1]);
+            final int missionId = NumUtils.intOf(arg[1], -1);
             if (missionId < 0 || !MissionManager.missions.containsKey(missionId)) {
               p.sendMessage("§cНет активной миссии с ИД " + arg[1] + "!");
               return 0;
@@ -346,7 +347,7 @@ public class MissionCmd implements OCommand {
             if (conn == null) return;
 
             try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT `missionId`,`completed` FROM `missionsProgress` WHERE `name`='" + op.nik + "' AND `completed`>0");) {
+                 ResultSet rs = stmt.executeQuery("SELECT `missionId`,`completed` FROM `missionsProgress` WHERE `name`='" + op.nik + "' AND `completed`>0")) {
 
 
               final HashMap<Integer, Integer> completed = new HashMap<>();
@@ -379,7 +380,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "complete")) return 0;
           //обновить missionIds и Data.MISSION
           if (arg.length == 2) { //выполнить с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1]);
+            final int missionId = NumUtils.intOf(arg[1], -1);
             if (missionId < 0) {  //missionIds подгружаются при входе и меняются при принятии!
               p.sendMessage("§cНе может быть миссии с ИД " + arg[1] + "!");
               return 0;
@@ -529,7 +530,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "deny")) return 0;
           //отказ должен быть возможен для устаревших тоже!
           if (arg.length == 2) { //отказ с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1]);
+            final int missionId = NumUtils.intOf(arg[1], -1);
             //if (missionId<0 || !op.missionIds.contains(missionId)) {  //missionIds подгружаются при входе и меняются при принятии!
             //    p.sendMessage("§cВы не выполняете миссию с ИД "+arg[1]+"!");
             //    return true;

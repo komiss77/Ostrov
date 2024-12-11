@@ -173,7 +173,7 @@ public class DisplayMenu implements InventoryProvider {
                     .lore("§7сейчас длинна: §a" + tds.getLineWidth())
                     .build(),
                     String.valueOf(tds.getLineWidth()), msg -> {
-                tds.setLineWidth(Math.max(NumUtils.intOf(msg), 10));
+                tds.setLineWidth(Math.max(NumUtils.intOf(msg, 0), 10));
                 reopen(p, its);
             }));
 

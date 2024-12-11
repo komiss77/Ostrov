@@ -137,7 +137,7 @@ public class TprCmd implements OCommand {
       switch (arg.length) {
 
         case 3:
-          radiusLimit = NumUtils.intOf(arg[2]);
+          radiusLimit = NumUtils.intOf(arg[2], 0);
           if (radiusLimit < 1) {
             cs.sendMessage("§c" + Lang.t(p, "Лимит радиуса поиска - число больше 1!"));
             return 0;
@@ -263,7 +263,7 @@ public class TprCmd implements OCommand {
           int find_try = 100; //если делать меньше, то изменить ниже Поиск места: §3"+(100-find_try)+"%
           int tryPereTick = TRY_PER_TICK;
           //int find_x, find_z, feet_y;
-          WXYZ feetLoc = new WXYZ(world, 0, 0, 0);//Location(world, 0, 0, 0);
+          final WXYZ feetLoc = new WXYZ(world, 0, 0, 0);//Location(world, 0, 0, 0);
           //Location temp;
 
           //Material headMat = Material.AIR;
