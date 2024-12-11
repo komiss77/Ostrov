@@ -1108,6 +1108,7 @@ public class ItemUtil {
         return key == null ? null : key.asMinimalString();
     }
 
+    @Deprecated
     public static String toString(final ItemStack is, final String splitter) {
         if (is == null || ItemType.AIR.equals(is.getType().asItemType())) return "air:1";
         final StringBuilder res = new StringBuilder(is.getType().asItemType().key().value() + ":" + is.getAmount());//apple<>1
@@ -1235,7 +1236,7 @@ public class ItemUtil {
         return res.toString();
     }
 
-
+    @Deprecated
     public static ItemStack parseItem(final String asString, final String splitter) {
 
         //grass:1<>name:nnn<>lore:sdsds:sdsd<>enchant:ARROW_DAMAGE:1<>dye:RED<>end
@@ -1503,8 +1504,7 @@ public class ItemUtil {
                             if (POTION.contains(mat)) {
                                 PotionType potionType = Registry.POTION.get(NamespacedKey.minecraft(subArg[0]));
                                 if (potionType == null) {
-                                    @SuppressWarnings("deprecation") final PotionType npt = PotionType.getByEffect(PotionEffectType.getByName(subArg[0]));
-                                    potionType = npt;
+                                    potionType = PotionType.getByEffect(PotionEffectType.getByName(subArg[0]));
                                 }
                                 if (potionType != null) {
                                     builder.basePotion(potionType);
@@ -1526,8 +1526,7 @@ public class ItemUtil {
                             if (POTION.contains(mat)) {
                                 PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(subArg[0]));
                                 if (potionEffectType == null) {
-                                    @SuppressWarnings("deprecation") final PotionEffectType npe = PotionEffectType.getByName(subArg[0]);
-                                    potionEffectType = npe;
+                                    potionEffectType = PotionEffectType.getByName(subArg[0]);
                                 }
                                 if (potionEffectType != null) {
                                     if (NumUtils.isInt(subArg[1]) && NumUtils.isInt(subArg[2])) {
