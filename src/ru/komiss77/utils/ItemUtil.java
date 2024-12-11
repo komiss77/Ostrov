@@ -49,7 +49,6 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.intellij.lang.annotations.Subst;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
@@ -1282,7 +1281,7 @@ public class ItemUtil {
         if (idx > 0) { //с колличеством
             mat = Ostrov.registries.ITEMS.get(Key.key(first.substring(0, idx)));//mat = Material.matchMaterial(first.substring(0, idx));
             try {
-                amount = Integer.parseInt(first.substring(idx + 1, first.length()));
+                amount = Integer.parseInt(first.substring(idx + 1));
                 if (amount < 1) {
                     amount = 1;
                     Ostrov.log_warn("Декодер предмета :  колличество меньше 1 : §f" + first);
@@ -1356,7 +1355,7 @@ public class ItemUtil {
                     }
                 }
             } else {
-                arg = raw.substring(idx + 1, raw.length());
+                arg = raw.substring(idx + 1);
             }
 
             try {
@@ -1489,8 +1488,7 @@ public class ItemUtil {
                         if (subArg.length == 2) {
                             final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(subArg[0]));
                             if (enchant != null) {
-                                builder.enchant(enchant, NumUtils.intOf(param[2], 1));
-                                builder.enchant(enchant, ApiOstrov.getInteger(subArg[1], 1));
+                                builder.enchant(enchant, NumUtils.intOf(subArg[1], 1));
                             } else {
                                 Ostrov.log_warn("Декодер enchant : §7строка >§f" + asString + "§7<, нет таких чар §f" + arg);
                             }
@@ -1532,8 +1530,8 @@ public class ItemUtil {
                                     potionEffectType = npe;
                                 }
                                 if (potionEffectType != null) {
-                                    if (ApiOstrov.isInteger(subArg[1]) && ApiOstrov.isInteger(subArg[2])) {
-                                        builder.addEffect(new PotionEffect(potionEffectType,
+                                    if (NumUtils.isInt(subArg[1]) && NumUtils.isInt(subArg[2])) {
+                                        builder.potEffect(new PotionEffect(potionEffectType,
                                             Integer.parseInt(subArg[1]), Integer.parseInt(subArg[2])));
                                     } else {
                                         Ostrov.log_warn("Декодер effect : §7строка >§f" + asString + "§7<, должны быть числа §f" + arg);
@@ -1565,7 +1563,7 @@ public class ItemUtil {
                         //if (param.length == 2) {
                         if (ItemType.FIREWORK_ROCKET.equals(mat)) {//if (builder.type().equals(ItemType.FIREWORK_ROCKET)) {
                             try {
-                                builder.fireFlight(ApiOstrov.getInteger(arg, 1));
+                                builder.fireFlight(NumUtils.intOf(arg, 1));
                                 //final String s = arg;
                                 //builder.customMeta(FireworkMeta.class, fm -> fm.setPower(Integer.parseInt(s)));
                             } catch (NumberFormatException ex) {
