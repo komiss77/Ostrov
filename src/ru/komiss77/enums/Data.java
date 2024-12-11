@@ -72,6 +72,7 @@ public enum Data {
     USER_GROUPS(203, "", "", false, Table.NONE, true, false),//удаляется перед сохранением
     WANT_ARENA_JOIN(204, "", "", false, Table.NONE, true, false),//удаляется перед сохранением
     PARTY_MEBRERS(205, "", "", false, Table.NONE, true, false),//удаляется перед сохранением
+    BLACK_LIST(206, "", "", false, Table.NONE, true, false),//удаляется перед сохранением
 
 
     ;

@@ -42,7 +42,7 @@ public class Subscriber implements Runnable {
 
         } catch (Exception ex) {
 
-            Ostrov.log_err("RDS  Subscriber : " + ex.getMessage());
+          Ostrov.log_warn("RDS  Subscriber : " + ex.getMessage());
             RDS.unsubscribe();
             //Bukkit.getScheduler().runTaskLaterAsynchronously(Ostrov.getInstance(), ()-> {
             //  Ostrov.log_warn("RDS  Subscriber : restore connection");

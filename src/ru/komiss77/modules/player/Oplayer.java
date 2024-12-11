@@ -94,7 +94,7 @@ public class Oplayer {
     public String party_leader = ""; //ник лидера команды
     public CaseInsensitiveMap<String> party_members = new CaseInsensitiveMap<>(); //ник, сервер всех членов команды
     public final CaseInsensitiveSet partyInvite = new CaseInsensitiveSet(); //предложения в комманду, до выхода
-    private final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
+  protected final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
     public final Map<Quest, IProgress> quests = new HashMap<>();
 
     public PermissionAttachment permissionAttachmen = null;

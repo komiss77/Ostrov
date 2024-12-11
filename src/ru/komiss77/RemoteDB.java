@@ -13,17 +13,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.enums.Table;
-import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Perm;
-import ru.komiss77.version.Nms;
 
 
 public class RemoteDB {
@@ -59,8 +55,15 @@ public class RemoteDB {
       //        + Cfg.getConfig().getString("ostrov_database.mysql_user")
       //    + "&password="
       //        + Cfg.getConfig().getString("ostrov_database.mysql_passw");
-      url = "jdbc:mysql://ostrov77.ru/ostrov?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=mysql&password=mysql";
+      if (Ostrov.MOT_D.length() == 3) {//if (GM.GAME.type == ServerType.REG_NEW || GM.GAME.type == ServerType.REG_OLD) {
+        url = "jdbc:mysql://ostrov77.ru/ostrov?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=auth&password=auth";
+        useOstrovData = true;
+      } else {
+        url = "jdbc:mysql://ostrov77.ru/ostrov?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=mysql&password=mysql";
         useOstrovData = Cfg.getConfig().getBoolean("ostrov_database.connect");
+      }
+      //url = "jdbc:mysql://ostrov77.ru/ostrov?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=mysql&password=mysql";
+      //useOstrovData = Cfg.getConfig().getBoolean("ostrov_database.connect");
 //Ostrov.log("OstrovDB init useOstrovData?"+useOstrovData+" loadGrous?"+loadGrous);
         if (useOstrovData) {
 
@@ -213,7 +216,7 @@ public class RemoteDB {
     }
 
     //вызывается из Timer async!! useOstrovData и соединение чекать до вызова! 
-    public static void writeThisServerStateToRemoteDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
+  // public static void writeThisServerStateToRemoteDB() {  //вызывается из Timer каждые 5 сек. если write_server_state_to_bungee_table=true
         //if (!OstrovDB.useOstrovData) return;
 //Ostrov.log("--writeThisServerStateToOstrovDB--");
         // if (connection==null) {
@@ -221,27 +224,15 @@ public class RemoteDB {
         //     return;
         // }
 
-        final String querry = "UPDATE " + Table.BUNGEE_SERVERS.table_name +
+       /* final String querry = "UPDATE " + Table.BUNGEE_SERVERS.table_name +
             " SET `online`='" + Bukkit.getOnlinePlayers().size() + "', `onlineLimit`='"
             + Bukkit.getMaxPlayers() + "', `tps`='" + Nms.getTps() + "', `memory`='"
             + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
             + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
             + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
             + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
-        executePstAsync(Bukkit.getConsoleSender(), querry);
+        executePstAsync(Bukkit.getConsoleSender(), querry);*/
 
-
-        GameInfo gi = GM.getGameInfo(GM.GAME);
-        if (gi != null) {
-            gi.arenas().stream().findAny().ifPresent(ai -> {
-                ai.players = Bukkit.getOnlinePlayers().size();
-                ai.sendData();
-            });//gi.getArena(Ostrov.MOT_D);
-            //if (ai != null) {
-            //    ai.players = Bukkit.getOnlinePlayers().size();
-            //    ai.sendData();
-            //}
-        }
 
 
       /*  PreparedStatement pst = null;
@@ -270,7 +261,7 @@ public class RemoteDB {
             }
         }*/
 
-    }
+  // }
 
 
     //вызывать ASYNC!!!

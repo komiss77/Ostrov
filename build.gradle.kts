@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.ostrov77"
-version = "3.21.1"
+version = "3.1.21.4"
 description = "ostrov77"
 
 dependencies {

@@ -328,6 +328,11 @@ public class Cuboid {
         return maxZ - minZ + 1;
     }
 
+  public double size() {
+    return sizeX() * sizeY() * sizeZ();
+  }
+
+  @Deprecated
     public int volume() {
         return sizeX() * sizeY() * sizeZ();
     }

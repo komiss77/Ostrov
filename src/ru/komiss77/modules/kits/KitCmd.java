@@ -2,6 +2,7 @@ package ru.komiss77.modules.kits;
 
 import java.util.List;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -16,7 +17,7 @@ public class KitCmd implements OCommand {
 
     @Override
     public LiteralCommandNode<CommandSourceStack> command() {
-        final String act = "action", kit = "kit";
+      final String act = "action", kitName = "kitName";
         return Commands.literal("kit").executes(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
@@ -66,7 +67,9 @@ public class KitCmd implements OCommand {
                         default -> 0;
                     };
                 })
-                .then(Resolver.string(kit).suggests((cntx, sb) -> {
+                .then(Commands.argument(kitName, StringArgumentType.greedyString())//.then(Resolver.string(reason)
+                    //не распознаёт названия в кирилице! Выдаются в ГУИ
+                    .suggests((cntx, sb) -> {
                     return switch (Resolver.string(cntx, act)) {
                         case "buyaccess", "sellaccess", "give" -> {
                             KitManager.getKitsNames().forEach(s -> sb.suggest(s));
@@ -81,7 +84,7 @@ public class KitCmd implements OCommand {
                         return 0;
                     }
 
-                    final String k = Resolver.string(cntx, kit);
+                      final String k = Resolver.string(cntx, kitName);
 
                     return switch (Resolver.string(cntx, act)) {
                         case "buyaccess" -> {
@@ -118,12 +121,12 @@ public class KitCmd implements OCommand {
 
     @Override
     public List<String> aliases() {
-        return List.of("кит");
+      return List.of("kits");
     }
 
     @Override
     public String description() {
-        return "Кит комманда";
+      return "Наборы";
     }
 }
    

@@ -12,6 +12,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.Timer;
 
 
 //Redis Database, база данных Redis) для организации постоянного хранения снепшотов (снимков) данных
@@ -119,12 +120,14 @@ public class RDS implements Initiable {
 
                     if (unifiedJedis.hexists("heartbeats", Ostrov.MOT_D)) {
                         try {
-                            final long value = Long.parseLong(unifiedJedis.hget("heartbeats", Ostrov.MOT_D));
-                            final long redisTime = getRedisTime(unifiedJedis);
-                            if (redisTime > 0 && redisTime < value + PROXY_TIMEOUT) {
-                                Ostrov.log_err("You have launched a possible impostor Velocity / Bungeecord instance. Another instance is already running.");
-                                Ostrov.log_err("For data consistency reasons, RedisBungee will now disable itself.");
-                                Ostrov.log_err("If this instance is coming up from a crash, create a file in your RedisBungee plugins directory with the name 'restarted_from_crash.txt' and RedisBungee will not perform this check.");
+                          //final long stamp = Long.parseLong(unifiedJedis.hget("heartbeats", Ostrov.MOT_D));
+                          //final long redisTime = getRedisTime(unifiedJedis);
+                          final int stamp = Integer.parseInt(unifiedJedis.hget("heartbeats", Ostrov.MOT_D));
+                          final int redisTime = Timer.getTime();
+                          if (redisTime > 0 && redisTime < stamp + PROXY_TIMEOUT) {
+                            Ostrov.log_warn("You have launched a possible impostor Velocity / Bungeecord instance. Another instance is already running.");
+                            Ostrov.log_warn("For data consistency reasons, RedisBungee will now disable itself.");
+                            Ostrov.log_warn("If this instance is coming up from a crash, create a file in your RedisBungee plugins directory with the name 'restarted_from_crash.txt' and RedisBungee will not perform this check.");
                             }
                         } catch (NumberFormatException ignored) {
                         }
@@ -154,25 +157,38 @@ public class RDS implements Initiable {
     //   ex.printStackTrace();
     //  }
 
-
+  /*
+  ClassCastException: class java.util.ArrayList cannot be cast to class java.lang.Long (java.util.ArrayList and java.lang.Long are in module java.base of loader 'bootstrap')
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.BuilderFactory$6.build(BuilderFactory.java:91)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.BuilderFactory$6.build(BuilderFactory.java:88)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.Connection.executeCommand(Connection.java:123)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.executors.DefaultCommandExecutor.executeCommand(DefaultCommandExecutor.java:24)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.UnifiedJedis.executeCommand(UnifiedJedis.java:167)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//redis.clients.jedis.UnifiedJedis.hset(UnifiedJedis.java:1253)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RDS$3.unifiedJedisTask(RDS.java:166)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RDS$3.unifiedJedisTask(RDS.java:160)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RedisTask.execute(RedisTask.java:31)
+  [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RDS.heartbeats(RDS.java:189)
+   */
     public static void heartbeats() {
         //if (redisLst == null) return;
         new RedisTask<Void>() {
             @Override
             public Void unifiedJedisTask(UnifiedJedis unifiedJedis) {
                 try {
-                    long redisTime = getRedisTime(unifiedJedis);
-                    if (redisTime > 0) {
-                        unifiedJedis.hset("heartbeats", Ostrov.MOT_D, String.valueOf(redisTime));
-                    }
+                  //long redisTime = getRedisTime(unifiedJedis);
+                  //if (redisTime > 0) {
+                  //unifiedJedis.hset("heartbeats", Ostrov.MOT_D, String.valueOf(redisTime));
+                  unifiedJedis.hset("heartbeats", Ostrov.MOT_D, String.valueOf(Timer.getTime()));
+                  //}
 //poolProvider.testConnection();
                     if (subscriber == null) {
                         subscribe();
                     }
 //Ostrov.log_ok("redis heartbeats : "+redisTime);
-                } catch (JedisConnectionException | JedisDataException ex) {
+                } catch (Exception ex) {//(JedisConnectionException | JedisDataException ex) {
                     // Redis server has disappeared!
-                    Ostrov.log_err("RDS heartbeats : " + ex.getMessage());
+                  Ostrov.log_warn("RDS heartbeats : " + ex.getMessage());
                     unsubscribe();
                     //e.printStackTrace();
                     return null;
@@ -188,6 +204,46 @@ public class RDS implements Initiable {
             }
         }.execute();
     }
+
+
+    public static void sendMessage(final String channel, final String message) {
+        new RedisTask<Void>() {
+            @Override
+            public Void unifiedJedisTask(UnifiedJedis unifiedJedis) {
+                try {
+                    unifiedJedis.publish(channel, message);
+//Ostrov.log_warn("PDS sendChannelMessage channel="+channel+" message="+message);
+                } catch (JedisConnectionException ex) {
+                    // Redis server has disappeared!
+                  Ostrov.log_warn("RDS sendMessage : " + ex.getMessage());
+                    //throw new RuntimeException("Unable to publish channel message", e);
+                }
+                return null;
+            }
+        }.execute();
+    }
+
+
+   /* private static Long getRedisTime(UnifiedJedis unifiedJedis) {
+        try {
+            final List<Object> data = (List<Object>) unifiedJedis.sendCommand(Protocol.Command.TIME);
+            if (!data.isEmpty()) {
+                final String s = new String((byte[]) data.getFirst());
+                return Long.parseLong(s);//getRedisTime(times);
+            }
+            //final List<String> times = new ArrayList<>();
+            //data.forEach( o -> times.add(new String((byte[]) o)));
+            //return Long.parseLong(times.get(0));//getRedisTime(times);
+        } catch (Exception ex) {
+            Ostrov.log_warn("RDS getRedisTime : " + ex.getMessage());
+            return 0L;
+        }
+        return 0L;
+    }*/
+
+
+}
+
 
 
    /* private static List<String> getCurrentProxiesIds(boolean lagged) {
@@ -219,46 +275,6 @@ public class RDS implements Initiable {
             }
         }.execute();
     }*/
-
-
-    public static void sendMessage(final String channel, final String message) {
-        new RedisTask<Void>() {
-            @Override
-            public Void unifiedJedisTask(UnifiedJedis unifiedJedis) {
-                try {
-                    unifiedJedis.publish(channel, message);
-//Ostrov.log_warn("PDS sendChannelMessage channel="+channel+" message="+message);
-                } catch (JedisConnectionException ex) {
-                    // Redis server has disappeared!
-                    Ostrov.log_err("RDS sendMessage : " + ex.getMessage());
-                    //throw new RuntimeException("Unable to publish channel message", e);
-                }
-                return null;
-            }
-        }.execute();
-    }
-
-
-    private static Long getRedisTime(UnifiedJedis unifiedJedis) {
-        try {
-            final List<Object> data = (List<Object>) unifiedJedis.sendCommand(Protocol.Command.TIME);
-            if (!data.isEmpty()) {
-                final String s = new String((byte[]) data.getFirst());
-                return Long.parseLong(s);//getRedisTime(times);
-            }
-            //final List<String> times = new ArrayList<>();
-            //data.forEach( o -> times.add(new String((byte[]) o)));
-            //return Long.parseLong(times.get(0));//getRedisTime(times);
-        } catch (Exception ex) {
-            Ostrov.log_err("RDS getRedisTime : " + ex.getMessage());
-            return 0L;
-        }
-        return 0L;
-    }
-
-
-}
-
 
 
 

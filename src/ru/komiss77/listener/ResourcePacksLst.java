@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -19,23 +18,16 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
-import ru.komiss77.Cfg;
-import ru.komiss77.Initiable;
-import ru.komiss77.OConfig;
-import ru.komiss77.Ostrov;
+import ru.komiss77.*;
 import ru.komiss77.commands.OCommand;
-import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtil;
@@ -43,6 +35,7 @@ import ru.komiss77.utils.TCUtil;
 
 public final class ResourcePacksLst implements Initiable, OCommand {
 
+  public static boolean use, onlySuggest;
     public static final String rpCMD = "rpack";
     private static ResourcePackInfo pack = null;
     private static ResourcePackRequest request = null;
@@ -55,30 +48,30 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
-
-            if (!use || request == null) {
-              p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
-              if (p.hasResourcePack()) {
-                p.clearResourcePacks();
-              }
-                return Command.SINGLE_SUCCESS;
-            }
-
-          if (p.hasResourcePack()) {
-            p.sendMessage("§aУ вас уже установлен пакет ресурсов!");
-                return 0;
-            }
-
-          p.sendResourcePacks(request);
-//            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
-
-            return Command.SINGLE_SUCCESS;
+          execute(p);
+          return Command.SINGLE_SUCCESS;
         }).build();
+    }
+
+  public static void execute(final Player p) {
+    if (!use || request == null) {
+      p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
+      if (p.hasResourcePack()) {
+                p.clearResourcePacks();
+      }
+      return;
+    }
+    if (p.hasResourcePack()) {
+            p.sendMessage("§aУ вас уже установлен пакет ресурсов!");
+      return;
+    }
+    p.sendResourcePacks(request);
+//            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
     }
 
     @Override
     public List<String> aliases() {
-        return List.of("репак");
+      return List.of("rp");
     }
 
     @Override
@@ -86,33 +79,18 @@ public final class ResourcePacksLst implements Initiable, OCommand {
         return "Загрузка ресурс-пака";
     }
 
-//    private static final Listener rpLst, inventoryLst, interactLst;
-    public static boolean use = false;
-    public static final ItemStack lock, key, lobby;
-//    private static String link;
-//    private static byte[] hash;
-//    private static UUID packUuid;
-
-
-    static {
-        key = new ItemBuilder(ItemType.GOLDEN_SWORD).name("§bНажмите на ключик").unbreak(true)
-            .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE).model(Key.key("item/key")).build();
-
-        lock = new ItemBuilder(key).model(Key.key("item/lock")).build();
-
-        lobby = new ItemBuilder(ItemType.CRIMSON_DOOR)
-            .lore("§eВернуться в лобби")
-            .build();
-//        rpLst = new rpLst();
-//        interactLst = new interactLst();
-//        inventoryLst = new inventoryLst();
-    }
-
 
     public ResourcePacksLst() { //или пытается грузить дважды, в RegisterCommands и как модуль
         reload();
         //Ostrov.getInstance().getCommand("rp").setExecutor(this);
     }
+
+
+  public static void onLoadData(Player p) {
+    if (use) {
+      Ostrov.sync(() -> execute(p));
+    }
+  }
 
     public static void preDisconnect(final Player p) {
       if (use) {
@@ -131,33 +109,17 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
     @Override
     public void reload() {
-//        HandlerList.unregisterAll(rpLst);
-//        HandlerList.unregisterAll(interactLst);
-//        HandlerList.unregisterAll(inventoryLst);
-
-//        Bukkit.getPluginManager().registerEvents(rpLst, Ostrov.getInstance());
-
         final OConfig packsConfig = Cfg.manager.getNewConfig("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
 
         packsConfig.addDefault("use", false);
-        packsConfig.addDefault("block_interact", false);
-        packsConfig.addDefault("block_menu", false);
+      packsConfig.addDefault("link", "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
+      packsConfig.addDefault("only_suggest", false);
 
-        String link;
-        if (packsConfig.getString("default") != null) {
-            link = packsConfig.getString("default");
-            packsConfig.addDefault("link", link);//"http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
-        } else {
-            packsConfig.addDefault("link", "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
-        }
+      packsConfig.removeKey("block_interact");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
+      packsConfig.removeKey("block_menu");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
 
-        packsConfig.removeKey("default");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
-        packsConfig.removeKey("per_world");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
-        packsConfig.removeKey("separate_world");
         packsConfig.saveConfig();
 
-        //packs = new HashMap<>();
-        link = packsConfig.getString("link");
 
         if (!packsConfig.getBoolean("use")) { //если офф в конфиге
             if (use) { //и перед этим был включен
@@ -167,14 +129,13 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             return;
         }
 
-        if (link == null || link.isEmpty()) {
+      final String rpLink = packsConfig.getString("link");
+      if (rpLink == null || rpLink.isEmpty()) {
             Ostrov.log_err("Менеджер пакетов текстур выгружен - URL не указан");
             return;
         }
 
-//        final boolean block_interact = packsConfig.getBoolean("block_interact");
-//        final boolean block_menu = packsConfig.getBoolean("block_menu");
-        final String rpLink = link;
+      onlySuggest = packsConfig.getBoolean("only_suggest");
 
         Ostrov.async(() -> {
 
@@ -203,17 +164,31 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                     final String hash = byteArray2Hex(digest.digest());
                     pack = ResourcePackInfo.resourcePackInfo(randUUID(fileName), URI.create(rpLink), hash);
 
+                  final Component prompt;
+                  if (onlySuggest) {
+                    prompt = TCUtil.form("<yellow>Для полноценной игры рекомендуем установить пакет ресурсов!");
+                  } else {
+                    prompt = TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!");
+                  }
+
                     request = ResourcePackRequest.resourcePackRequest()
                         .packs(pack)
-                        .required(true)
-                        .replace(true)
-                        .prompt(TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!"))
+                        .required(!onlySuggest)
+                        .replace(!onlySuggest)
+                        .prompt(prompt)
                         .callback((id, status, aud) -> {
                             if (!(aud instanceof final Player p)) return;
 
                             switch (status) {
 
-//                              case ACCEPTED -> op.resourcepack_locked = false;
+                              case ACCEPTED -> {
+                              }
+                              case DOWNLOADED -> {
+                              }
+                              case FAILED_RELOAD -> {
+                              }
+
+                              case INVALID_URL -> Ostrov.log_err("ResourcePackRequest INVALID_URL : " + rpLink);
 
                                 case SUCCESSFULLY_LOADED -> {
                                     final Oplayer op = PM.getOplayer(p.getName());
@@ -222,46 +197,32 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                                     p.sendMessage("§2Пакет ресурсов установлен!");
                                 }
 
-                                case DECLINED -> //op.resourcepack_locked = true;
+                              case DISCARDED, DECLINED -> //op.resourcepack_locked = true;
                                     p.sendMessage(TCUtil.form("""
                                     §e*******************************************************************
                                     §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
                                     §2>>> §aКлик для решения. §2<<<
                                     §e*******************************************************************
                                     """)
-                                    .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для перехода")))
-                                    .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
+                                        .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для перехода")))
+                                        .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
 
                                 case FAILED_DOWNLOAD -> {
 //                                    op.resourcepack_locked = true;
-                                    try {
-                                        p.sendMessage(TCUtil.form("""
-                                        §e*******************************************************************
-                                        §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
-                                        §2>>> §aКлик сюда для ручной загрузки. §2<<<
-                                        §e*******************************************************************
-                                        """)
+                                  p.sendMessage(TCUtil.form("""
+                                          §e*******************************************************************
+                                          §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
+                                          §2>>> §aКлик сюда для ручной загрузки. §2<<<
+                                          §e*******************************************************************
+                                          """)
                                         .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для загрузки")))
-                                        .clickEvent(ClickEvent.openUrl(pack.uri().toURL())));
-                                    } catch (MalformedURLException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
+                                      .clickEvent(ClickEvent.openUrl(rpLink)));
                                 }
                             }
                         }).build();
                     use = true;
 
-                    /*Ostrov.sync(() -> {
-                        if (block_interact) {
-                            Bukkit.getPluginManager().registerEvents(interactLst, Ostrov.getInstance());
-                        }
-                        if (block_menu) {
-                            Bukkit.getPluginManager().registerEvents(inventoryLst, Ostrov.getInstance());
-                        }
-                    }, 0);*/
-
                     Ostrov.log_ok("§2Пакет ресурсов " + fileName + ", hash=" + hash);
-
 
                 } catch (NoSuchAlgorithmException ex) {
                     Ostrov.log_err("Не удалось вычислить SHA1 для файла " + fileName + ": " + ex.getMessage());
@@ -303,6 +264,50 @@ public final class ResourcePacksLst implements Initiable, OCommand {
         return frm;
     }
 
+
+//        final boolean block_interact = packsConfig.getBoolean("block_interact");
+//        final boolean block_menu = packsConfig.getBoolean("block_menu");
+                    /*Ostrov.sync(() -> {
+                        if (block_interact) {
+                            Bukkit.getPluginManager().registerEvents(interactLst, Ostrov.getInstance());
+                        }
+                        if (block_menu) {
+                            Bukkit.getPluginManager().registerEvents(inventoryLst, Ostrov.getInstance());
+                        }
+                    }, 0);*/
+
+
+//    private static final Listener rpLst, inventoryLst, interactLst;
+  //  public static final ItemStack lock, key, lobby;
+//    private static String link;
+//    private static byte[] hash;
+//    private static UUID packUuid;
+
+
+  /*  static {
+        key = new ItemStack(Material.GOLDEN_SWORD);
+        ItemMeta im = key.getItemMeta();
+        im.displayName(TCUtil.form("§bНажмите на ключик"));
+        im.setUnbreakable(true);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        im.setCustomModelData(1);
+        key.setItemMeta(im);
+
+        lock = new ItemStack(Material.GOLDEN_SWORD);
+        im = lock.getItemMeta();
+        im.displayName(TCUtil.form("§bНажмите на ключик"));
+        im.setUnbreakable(true);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        im.setCustomModelData(2);
+        lock.setItemMeta(im);
+
+        lobby = new ItemBuilder(Material.CRIMSON_DOOR)
+            .lore("§eВернуться в лобби")
+            .build();
+//        rpLst = new rpLst();
+//        interactLst = new interactLst();
+//        inventoryLst = new inventoryLst();
+    }*/
 
 
     /*static class rpLst implements Listener {

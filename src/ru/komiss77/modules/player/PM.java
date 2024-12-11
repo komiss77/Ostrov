@@ -223,6 +223,9 @@ public class PM {
                 }
             }
         }
+        if (op.dataString.containsKey(Data.BLACK_LIST) && !op.dataString.get(Data.BLACK_LIST).isEmpty()) {
+            op.blackList.addAll(Arrays.asList(op.dataString.get(Data.BLACK_LIST).split(",")));
+        }
 
         StatManager.recalc(op); //пересчёт статы
 

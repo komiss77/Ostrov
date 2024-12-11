@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.codehaus.plexus.util.Os;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -62,6 +63,8 @@ public class ChatLst implements Listener {
     private static final Component PREFIX_TOOLTIP_EN;
     private static final Component SUFFIX_TOOLTIP_EN;
     private static final ClickEvent DONATE_CLICK_URL;
+    private static final Component URL_TOOLTIP_RU;
+    private static final Component URL_TOOLTIP_EN;
 
     static {
         NIK_COLOR = switch (Ostrov.calendar.get(Calendar.MONTH)) {
@@ -75,6 +78,8 @@ public class ChatLst implements Listener {
         //SUGGEST_BLACKLIST_TOOLTIP_RU = TCUtils.format("§кКлик - кинуть в ЧС");
         PREFIX_TOOLTIP_RU = TCUtil.form("§7-=[§я✦§7]=-  §оХочешь префикс? Жми!!!  §7-=[§я✦§7]=-");
         SUFFIX_TOOLTIP_RU = TCUtil.form("§7-=[§я✦§7]=-  §сХочешь суффикс? Жми!!!  §7-=[§я✦§7]=-");
+        URL_TOOLTIP_RU = TCUtil.form("§5Клик-перейти по ссылке");
+        URL_TOOLTIP_EN = TCUtil.form("§5Click - open URL");
         SUGGEST_MUTE_TOOLTIP_EN = TCUtil.form("§кClick - mute player");
         //SUGGEST_BLACKLIST_TOOLTIP_EN = TCUtils.format("§кClick- add to blackList");
         PREFIX_TOOLTIP_EN = TCUtil.form("§7-=[§я✦§7]=-  §оDo you want prefix? Click here!!!  §7-=[§я✦§7]=-");
@@ -330,14 +335,27 @@ public class ChatLst implements Listener {
         );
 
         //сообщение
-        bRU.append(msgRU.color(MSG_COLOR)
-            .hoverEvent(HoverEvent.showText(TCUtil.form("§7to english: \n§f" + ce.stripMsgEn + "\n§7click - §cignore")))
-            .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
-        );
-        bEN.append(msgEN.color(MSG_COLOR)
-            .hoverEvent(HoverEvent.showText(TCUtil.form("§7по русски: \n§f" + ce.stripMsgRu + "\n§7Клик - §cв игнор")))
-            .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
-        );
+        if (ce.stripMsgRu.startsWith("http") && (ce.getOplayer().isStaff || ApiOstrov.canBeBuilder(ce.getPlayer()))) {
+//Ostrov.log_warn("http!");
+            bRU.append(msgRU.color(MSG_COLOR)
+                .hoverEvent(HoverEvent.showText(URL_TOOLTIP_RU))
+                .clickEvent(ClickEvent.openUrl(ce.stripMsgRu))
+            );
+            bEN.append(msgEN.color(MSG_COLOR)
+                .hoverEvent(HoverEvent.showText(URL_TOOLTIP_EN))
+                .clickEvent(ClickEvent.openUrl(ce.stripMsgRu))
+            );
+
+        } else {
+            bRU.append(msgRU.color(MSG_COLOR)
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§7to english: \n§f" + ce.stripMsgEn + "\n§7click - §cignore")))
+                .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
+            );
+            bEN.append(msgEN.color(MSG_COLOR)
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§7по русски: \n§f" + ce.stripMsgRu + "\n§7Клик - §cв игнор")))
+                .clickEvent(ClickEvent.suggestCommand("/ignore add " + ce.senderName))
+            );
+        }
 
 
 
