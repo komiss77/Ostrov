@@ -3,6 +3,7 @@ package ru.komiss77.commands;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -10,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import com.mojang.brigadier.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -27,6 +27,7 @@ import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.ScreenUtil;
 
 
@@ -136,7 +137,7 @@ public class TprCmd implements OCommand {
       switch (arg.length) {
 
         case 3:
-          radiusLimit = ApiOstrov.getInteger(arg[2]);
+          radiusLimit = NumUtils.intOf(arg[2]);
           if (radiusLimit < 1) {
             cs.sendMessage("§c" + Lang.t(p, "Лимит радиуса поиска - число больше 1!"));
             return 0;
@@ -310,8 +311,8 @@ public class TprCmd implements OCommand {
 
               //find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
               //find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
-              feetLoc.x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
-              feetLoc.z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
+              feetLoc.x = Ostrov.random.nextBoolean() ? NumUtils.randInt(center_x + minFindRadius, xMax) : NumUtils.randInt(xMin, center_x - minFindRadius);
+              feetLoc.z = Ostrov.random.nextBoolean() ? NumUtils.randInt(center_z + minFindRadius, zMax) : NumUtils.randInt(zMin, center_z - minFindRadius);
 
               feetLoc.y = maxY;
 

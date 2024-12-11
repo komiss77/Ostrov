@@ -32,10 +32,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Figure;
-import ru.komiss77.utils.ParticleUtil;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.ConfirmationGUI;
 
 
@@ -189,14 +186,14 @@ public final class Pandora implements Initiable, Listener {
 
                 if (tick % 30 == 0) {
                     helmet = helmet == null ? new ItemStack(head.getFirst())
-                        : new ItemStack(head.get(ApiOstrov.randInt(0, 15)));
+                        : new ItemStack(head.get(NumUtils.randInt(0, 15)));
                     as.getEquipment().setHelmet(helmet);
 
                 }
 
 
                 if (tick % 200 == 0) {
-                    Sound sound = Sound.values()[ApiOstrov.randInt(0, Sound.values().length - 1)];
+                    Sound sound = Sound.values()[NumUtils.randInt(0, Sound.values().length - 1)];
                     if (!sound.toString().startsWith("MUSIC_")) {
                         as.getWorld().playSound(as.getLocation(), sound, 0.3F, 2);
                     }
@@ -309,7 +306,7 @@ public final class Pandora implements Initiable, Listener {
 
         op.setDaylyFlag(StatFlag.Pandora, true);
         boolean luck = true;
-        final int chance = ApiOstrov.randInt(0, 30);
+        final int chance = NumUtils.randInt(0, 30);
 //p.sendMessage("§8log: pandora chance="+chance);
         switch (chance) {
 

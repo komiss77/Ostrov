@@ -23,10 +23,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -653,7 +650,7 @@ public class MissionManager {
         int splitterIndex;
         for (final String progressRaw : raw.split("∫")) {
             splitterIndex = progressRaw.indexOf(":");
-            if (splitterIndex > 0 && ApiOstrov.isInteger(progressRaw.substring(splitterIndex + 1))) {
+            if (splitterIndex > 0 && NumUtils.isInt(progressRaw.substring(splitterIndex + 1))) {
                 map.put(progressRaw.substring(0, splitterIndex), Integer.valueOf(progressRaw.substring(splitterIndex + 1)));
             }
         }

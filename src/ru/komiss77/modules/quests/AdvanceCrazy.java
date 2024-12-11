@@ -31,6 +31,7 @@ import ru.komiss77.events.QuestCompleteEvent;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.quests.Quest.QuestFrame;
 import ru.komiss77.modules.quests.progs.IProgress;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.ParticleUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TCUtil;
@@ -207,7 +208,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
             if (qs == null) continue;
             final int splitterIndex = quest.indexOf(LocalDB.W_SPLIT);
             if (splitterIndex == 1) {
-                stamp = ApiOstrov.getInteger(quest.substring(splitterIndex + 1));
+                stamp = NumUtils.intOf(quest.substring(splitterIndex + 1));
                 if (stamp > 0) op.quests.put(qs, qs.createPrg(stamp));
             } else op.quests.put(qs, qs.createPrg(0).markDone());
         }

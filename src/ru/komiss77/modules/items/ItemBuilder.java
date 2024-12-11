@@ -6,20 +6,19 @@ import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.*;
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlotGroup;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -29,6 +28,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
+import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemUtil.Texture;
@@ -343,6 +343,89 @@ public class ItemBuilder {
             ResolvableProfile.resolvableProfile(pl.getPlayerProfile()));
     }
 
+    public ItemBuilder cooldown(final int ticks, final Key group) {
+        return set(DataComponentTypes.USE_COOLDOWN, UseCooldown
+            .useCooldown(ticks * 0.05f).cooldownGroup(group).build());
+    }
+
+    public ItemBuilder remainder(final ItemStack rem) {
+        return set(DataComponentTypes.USE_REMAINDER, UseRemainder.useRemainder(rem));
+    }
+
+    public ItemBuilder edible(final int ticks, final ItemUseAnimation iua, final Sound snd, final FoodProperties fps) {
+        set(DataComponentTypes.FOOD, fps);
+        final Consumable cns = get(DataComponentTypes.CONSUMABLE);
+        final Consumable.Builder cnb = Consumable.consumable();
+        if (cns != null) cnb.addEffects(cns.consumeEffects());
+        cnb.consumeSeconds(ticks * 0.05f);
+        cnb.hasConsumeParticles(true);
+        cnb.animation(iua);
+        cnb.sound(Ostrov.registries.SOUNDS.getKey(snd));
+        return set(DataComponentTypes.CONSUMABLE, cnb.build());
+    }
+
+    public ItemBuilder edible(final int ticks, final ItemUseAnimation iua, final Sound snd) {
+        final Consumable cns = get(DataComponentTypes.CONSUMABLE);
+        final Consumable.Builder cnb = Consumable.consumable();
+        if (cns != null) cnb.addEffects(cns.consumeEffects());
+        cnb.consumeSeconds(ticks * 0.05f);
+        cnb.hasConsumeParticles(false);
+        cnb.animation(iua);
+        cnb.sound(Ostrov.registries.SOUNDS.getKey(snd));
+        return set(DataComponentTypes.CONSUMABLE, cnb.build());
+    }
+
+    public ItemBuilder eatEffect(final ConsumeEffect effect) {
+        final Consumable cns = get(DataComponentTypes.CONSUMABLE);
+        final Consumable.Builder cnb = Consumable.consumable();
+        if (cns != null) {
+            cnb.addEffects(cns.consumeEffects());
+            cnb.consumeSeconds(cns.consumeSeconds());
+            cnb.hasConsumeParticles(cns.hasConsumeParticles());
+            cnb.animation(cns.animation());
+            cnb.sound(cns.sound());
+        }
+        cnb.addEffect(effect);
+        return set(DataComponentTypes.CONSUMABLE, cnb.build());
+    }
+
+    public ItemBuilder resist(final TagKey<DamageType> types) {
+        return set(DataComponentTypes.DAMAGE_RESISTANT, DamageResistant.damageResistant(types));
+    }
+
+    public ItemBuilder enchantable(final int lvl) {
+        return set(DataComponentTypes.ENCHANTABLE, Enchantable.enchantable(lvl));
+    }
+
+    public ItemBuilder equippable(final Equippable eq) {
+        return set(DataComponentTypes.EQUIPPABLE, eq);
+    }
+
+    public ItemBuilder repairable(final List<ItemType> reps) {
+        return set(DataComponentTypes.REPAIRABLE, Repairable.repairable(OStrap.regSetOf(RegistryKey.ITEM, reps)));
+    }
+
+    public ItemBuilder tool(final int dmg, final float speed) {
+        return set(DataComponentTypes.TOOL, Tool.tool()
+            .damagePerBlock(dmg).defaultMiningSpeed(speed).build());
+    }
+
+    public ItemBuilder toolRule(final Tool.Rule rl) {
+        final Tool tl = get(DataComponentTypes.TOOL);
+        final Tool.Builder tb = Tool.tool();
+        if (tl != null) {
+            tb.addRules(tl.rules());
+            tb.damagePerBlock(tl.damagePerBlock());
+            tb.defaultMiningSpeed(tl.defaultMiningSpeed());
+        }
+        tb.addRule(rl);
+        return set(DataComponentTypes.TOOL, tb.build());
+    }
+
+    public ItemBuilder rarity(final ItemRarity ir) {
+        return set(DataComponentTypes.RARITY, ir);
+    }
+
     public ItemBuilder model(final Key path) {
         return set(DataComponentTypes.ITEM_MODEL, path);
     }
@@ -374,7 +457,6 @@ public class ItemBuilder {
     public ItemBuilder basePotion(final @Nullable PotionType pot) {
         final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS);
         final PotionContents.Builder pcb = PotionContents.potionContents();
-        pcb.potion(pot);
         if (pots == null) {
             if (pot == null) return this;
             final DyedItemColor clr = get(DataComponentTypes.DYED_COLOR);
@@ -384,10 +466,11 @@ public class ItemBuilder {
             pcb.customColor(pots.customColor());
             pcb.addCustomEffects(pots.customEffects());
         }
+        pcb.potion(pot);
         return set(DataComponentTypes.POTION_CONTENTS, pcb.build());
     }
 
-    public ItemBuilder addEffect(final PotionEffect effect) {
+    public ItemBuilder potEffect(final PotionEffect effect) {
         final PotionContents pots = get(DataComponentTypes.POTION_CONTENTS);
         final PotionContents.Builder pcb = PotionContents.potionContents();
         if (pots == null) {

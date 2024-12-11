@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-
 import ru.komiss77.Ostrov;
 
 
@@ -55,6 +55,17 @@ public class ClassUtil {
         return ar;
     }
 
+    public static <T> boolean check(final T[] split, final int length, final boolean extra) {
+        if (split.length < length) {
+            Ostrov.log_err("Tried parsing " + Arrays.toString(split) + ", len-" + split.length + " < " + length);
+            return false;
+        }
+        if (!extra && split.length > length) {
+            Ostrov.log_err("Tried parsing " + Arrays.toString(split) + ", len-" + split.length + " > " + length + " (no extras)");
+            return false;
+        }
+        return true;
+    }
 
     public static Class<?>[] getClasses(final File pluginFile, String packageName) {
         final List<Class<?>> classes = new ArrayList<>();

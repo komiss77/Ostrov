@@ -12,6 +12,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -66,7 +67,7 @@ public class Donate implements InventoryProvider {
                 //.addLore("")
                 .build(), "15-180 дней", ammount -> {
                 p.closeInventory();
-                if (!ApiOstrov.isInteger(ammount)) {
+                if (!NumUtils.isInt(ammount)) {
                     p.sendMessage("§cДолжно быть число!");
                     return;
                 }

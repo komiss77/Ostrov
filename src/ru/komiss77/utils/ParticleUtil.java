@@ -1,6 +1,5 @@
 package ru.komiss77.utils;
 
-import java.util.List;
 import java.util.Set;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
@@ -9,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -248,11 +246,11 @@ public class ParticleUtil {
         final FireworkMeta fireworkMeta = firework.getFireworkMeta();
         fireworkMeta.addEffect(
                 FireworkEffect.builder()
-                        .flicker(ApiOstrov.randBoolean())
-                        .withColor(Color.fromBGR(ApiOstrov.randInt(0, 255), ApiOstrov.randInt(0, 255), ApiOstrov.randInt(0, 255)))
-                        .withFade(Color.fromBGR(ApiOstrov.randInt(0, 255), ApiOstrov.randInt(0, 255), ApiOstrov.randInt(0, 255)))
-                        .with(FireworkEffect.Type.values()[ApiOstrov.randInt(0, FireworkEffect.Type.values().length - 1)])//.with(FireworkEffect.Type.BALL)
-                        .trail(ApiOstrov.randBoolean())
+                        .flicker(NumUtils.rndBool())
+                        .withColor(Color.fromBGR(NumUtils.randInt(0, 255), NumUtils.randInt(0, 255), NumUtils.randInt(0, 255)))
+                        .withFade(Color.fromBGR(NumUtils.randInt(0, 255), NumUtils.randInt(0, 255), NumUtils.randInt(0, 255)))
+                        .with(FireworkEffect.Type.values()[NumUtils.randInt(0, FireworkEffect.Type.values().length - 1)])//.with(FireworkEffect.Type.BALL)
+                        .trail(NumUtils.rndBool())
                         .build()
         );
         fireworkMeta.setPower(0);
@@ -386,7 +384,7 @@ public class ParticleUtil {
             player.getWorld().playSound(player.getLocation(), "quake.random.meat", 1, 1);
             final Firework firework = (Firework) loc.getWorld().spawn(loc, (Class) Firework.class);
             final FireworkMeta fireworkMeta = firework.getFireworkMeta();
-            fireworkMeta.addEffect(FireworkEffect.builder().flicker(ApiOstrov.randBoolean()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(ApiOstrov.randBoolean()).build());
+            fireworkMeta.addEffect(FireworkEffect.builder().flicker(NumUtils.rndBool()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(NumUtils.rndBool()).build());
             fireworkMeta.setPower(0);
             firework.setFireworkMeta(fireworkMeta);
         }

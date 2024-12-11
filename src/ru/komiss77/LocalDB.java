@@ -27,6 +27,7 @@ import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.NumUtils;
 
 
 public class LocalDB {
@@ -431,7 +432,7 @@ public class LocalDB {
                 for (String info : split) {
                     splitterIndex = info.indexOf(W_SPLIT);
                     if (splitterIndex > 0) {
-                        stamp = ApiOstrov.getInteger(info.substring(splitterIndex + 1), 0);
+                        stamp = NumUtils.intOf(info.substring(splitterIndex + 1), 0);
                         if (stamp > 0) {
                             op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
                         }

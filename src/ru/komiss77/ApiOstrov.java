@@ -24,8 +24,8 @@ import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -282,50 +282,32 @@ public class ApiOstrov {
         //else return 0;
     }
     //****************************************************
-
-
-  //*************** числа *********************
-  public static int randInt(final int num1, final int num2) {
-    if (num1 == num2) return num1;
-    return Math.min(num1, num2) + Ostrov.random.nextInt(FastMath.abs(num2 - num1));
-  }
-
-  public static boolean randBoolean() {
-    return Ostrov.random.nextBoolean();
-  }
-
-  public static int rndSignNum(int init, final int rnd) {
-    if (rnd > 0) init += Ostrov.random.nextInt(rnd);
-    return Ostrov.random.nextBoolean() ? init : -init;
-  }
-
-  public static boolean isInteger(final String i) {
-    try {
-      Integer.parseInt(i);
-      return true;
-    } catch (NumberFormatException ex) {
-      return false;
+    @Deprecated
+    public static int randInt(final int num1, final int num2) {
+        return NumUtils.randInt(num1, num2);
     }
-  }
-
-
-  public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить
-    try {
-      return Integer.parseInt(num);
-    } catch (NumberFormatException ex) {
-      return Integer.MIN_VALUE;
+    @Deprecated
+    public static boolean randBoolean() {
+        return NumUtils.rndBool();
     }
-  }
-
-  public static int getInteger(final String num, final int or) {
-    try {
-      return Integer.parseInt(num);
-    } catch (NumberFormatException ex) {
-      return or;
+    @Deprecated
+    public static int rndSignNum(int init, final int rnd) {
+        return NumUtils.rndSignNum(init, rnd);
     }
-  }
+    @Deprecated
+    public static boolean isInteger(final String i) {
+        return NumUtils.isInt(i);
+    }
+    @Deprecated
+    public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить - ", 0" момент
+        return NumUtils.intOf(num, Integer.MIN_VALUE);
+    }
+    @Deprecated
+    public static int getInteger(final String num, final int or) {
+        return NumUtils.intOf(num, or);
+    }
 
-  @Deprecated //use Oplayer.userID
+    @Deprecated //use Oplayer.userID
   public static int generateId() {
     final String createStamp = String.valueOf(System.currentTimeMillis());
     return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329

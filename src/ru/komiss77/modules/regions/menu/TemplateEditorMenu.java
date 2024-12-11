@@ -7,10 +7,10 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.regions.RM;
 import ru.komiss77.modules.regions.Template;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
@@ -113,7 +113,7 @@ public class TemplateEditorMenu implements InventoryProvider {
         .name("§7Цена")
         .lore("§7Сейчас: §6" + t.price + " §7лони")
         .build(), String.valueOf(t.price), s4 -> {
-      if (!ApiOstrov.isInteger(s4)) {
+      if (!NumUtils.isInt(s4)) {
         p.sendMessage("§cВведите целое число!");
         this.reopen(p, contents);
       } else {
@@ -133,7 +133,7 @@ public class TemplateEditorMenu implements InventoryProvider {
         .lore("§7игроком после удаления региона.")
         .lore("§7Сейчас: §6" + t.refund)
         .build(), String.valueOf(t.refund), s5 -> {
-      if (!ApiOstrov.isInteger(s5)) {
+      if (!NumUtils.isInt(s5)) {
         p.sendMessage("§cВведите целое число!");
         reopen(p, contents);
       } else {
@@ -153,7 +153,7 @@ public class TemplateEditorMenu implements InventoryProvider {
         .lore("§7Длинна каждой стороны")
         .lore("§7квадратного основания.")
         .build(), String.valueOf(t.size), s6 -> {
-      if (!ApiOstrov.isInteger(s6)) {
+      if (!NumUtils.isInt(s6)) {
         p.sendMessage("§cВведите целое число!");
       } else {
         p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);

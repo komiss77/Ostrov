@@ -16,17 +16,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.Cuboid;
 import ru.komiss77.objects.IntHashMap;
 import ru.komiss77.objects.ValueSortedMap;
-import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 import ru.komiss77.version.Craft;
@@ -210,7 +206,7 @@ public class EntityGroupMenu implements InventoryProvider {
             .lore("§7")
             .build(), "" + radius, input -> {
 
-            if (!ApiOstrov.isInteger(input)) {
+            if (!NumUtils.isInt(input)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

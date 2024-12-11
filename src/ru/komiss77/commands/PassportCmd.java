@@ -29,6 +29,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TimeUtil;
 
 public class PassportCmd implements OCommand {
@@ -150,7 +151,7 @@ public class PassportCmd implements OCommand {
 
         for (final E_Pass pass : pass_data.keySet()) {
             value = pass_data.get(pass);//pass.default_value;
-            int_value = ApiOstrov.getInteger(value, 0);
+            int_value = NumUtils.intOf(value, 0);
 
             switch (pass) {
 
@@ -164,7 +165,7 @@ public class PassportCmd implements OCommand {
                 case KARMA -> value = (int_value < 0 ? "§4" : (int_value > 0 ? "§2" : "§1")) + int_value;
 
                 case BIRTH -> {
-                    if (value.length() == 10 && ApiOstrov.isInteger(value.substring(6, 10))) {
+                    if (value.length() == 10 && NumUtils.isInt(value.substring(6, 10))) {
                         value = value + " (" + (Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(value.substring(6, 10))) + ")";
                     }
                 }

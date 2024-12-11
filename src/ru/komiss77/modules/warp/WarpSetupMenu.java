@@ -4,10 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.WarpCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
@@ -91,7 +91,7 @@ public class WarpSetupMenu implements InventoryProvider {
             .lore("§7ЛКМ - изменить")
             .lore("")
             .build(), "" + w.use_cost, msg -> {
-            if (!ApiOstrov.isInteger(msg)) {
+            if (!NumUtils.isInt(msg)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
                 return;

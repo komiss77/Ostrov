@@ -2,15 +2,15 @@ package ru.komiss77.modules.world;
 
 import java.util.*;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.BlockUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.version.Nms;
 
 //https://gist.github.com/ursinn/871525236408e33d4cbee607f7eff8ae
@@ -35,19 +35,19 @@ public class Cuboid {
     public Cuboid(final String fromString) { // x1 + ", " + y1 + ", " + z1 + ", " + x2 + ", " + y2 + ", " + z2;
         String[] data = fromString.split(", ");
         if (data.length >= 6) {
-            minX = ApiOstrov.getInteger(data[0]);
-            minY = ApiOstrov.getInteger(data[1]);
-            minZ = ApiOstrov.getInteger(data[2]);
-            maxX = ApiOstrov.getInteger(data[3]);
-            maxY = ApiOstrov.getInteger(data[4]);
-            maxZ = ApiOstrov.getInteger(data[5]);
+            minX = NumUtils.intOf(data[0]);
+            minY = NumUtils.intOf(data[1]);
+            minZ = NumUtils.intOf(data[2]);
+            maxX = NumUtils.intOf(data[3]);
+            maxY = NumUtils.intOf(data[4]);
+            maxZ = NumUtils.intOf(data[5]);
         }
         if (data.length >= 11) {
-            spawnAddX = ApiOstrov.getInteger(data[6]);
-            spawnAddY = ApiOstrov.getInteger(data[7]);
-            spawnAddZ = ApiOstrov.getInteger(data[8]);
-            spawnYaw = ApiOstrov.getInteger(data[9]);
-            spawnPitch = ApiOstrov.getInteger(data[10]);
+            spawnAddX = NumUtils.intOf(data[6]);
+            spawnAddY = NumUtils.intOf(data[7]);
+            spawnAddZ = NumUtils.intOf(data[8]);
+            spawnYaw = NumUtils.intOf(data[9]);
+            spawnPitch = NumUtils.intOf(data[10]);
         }
     }
 

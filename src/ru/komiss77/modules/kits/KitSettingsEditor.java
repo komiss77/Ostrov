@@ -7,11 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -183,7 +179,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.accesBuyPrice)
                 .build(), "" + kit.accesBuyPrice, newValue -> {
 
-            if (!ApiOstrov.isInteger(newValue)) {
+            if (!NumUtils.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -207,7 +203,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.accesSellPrice)
                 .build(), "" + kit.accesSellPrice, newValue -> {
 
-            if (!ApiOstrov.isInteger(newValue)) {
+            if (!NumUtils.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -234,7 +230,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.getPrice)
                 .build(), "" + kit.getPrice, newValue -> {
 
-            if (!ApiOstrov.isInteger(newValue)) {
+            if (!NumUtils.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -259,7 +255,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7(§6" + TimeUtil.secondToTime(kit.delaySec) + "§7)")
                 .build(), "" + kit.delaySec / 60, newValue -> {
 
-            if (!ApiOstrov.isInteger(newValue)) {
+            if (!NumUtils.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;

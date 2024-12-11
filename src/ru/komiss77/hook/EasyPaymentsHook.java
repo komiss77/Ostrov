@@ -9,8 +9,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.*;
+import ru.komiss77.Ostrov;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.enums.GlobalLogType;
+import ru.komiss77.utils.NumUtils;
 
 
 public class EasyPaymentsHook {
@@ -70,7 +72,7 @@ public class EasyPaymentsHook {
                         + name + "', '" + s[4] + "', 'ED');");
                   } else if (s[2].equals("group")) {
                     //0:reward 1:komiss77 2:group 3:hero 4:1m 5:ED
-                    int month = ApiOstrov.getInteger(s[4].replaceFirst("m", ""));
+                    int month = NumUtils.intOf(s[4].replaceFirst("m", ""));
                     if (month > 0) {
                       write.executeUpdate("INSERT INTO `ostrov`.`payments` (`name`, `gr`, `days`, `note`) VALUES ('"
                           + name + "', '" + s[3] + "', '" + month * 30 + "', 'ED');");

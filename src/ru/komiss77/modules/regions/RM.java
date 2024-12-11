@@ -25,11 +25,12 @@ import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.regions.menu.FlagsSetupMenu;
-import ru.komiss77.modules.regions.menu.TemplateSetupMenu;
 import ru.komiss77.modules.regions.menu.RegionOwnerMenu;
 import ru.komiss77.modules.regions.menu.TemplateEditorMenu;
+import ru.komiss77.modules.regions.menu.TemplateSetupMenu;
 import ru.komiss77.modules.world.WE;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -341,7 +342,7 @@ public final class RM {
 
   public static String templateName(final ProtectedRegion region) {
     final String[] split = region.getId().split("-");
-    if (split.length == 4 && split[1].equals("rgui") && ApiOstrov.isInteger(split[3])) {
+    if (split.length == 4 && split[1].equals("rgui") && NumUtils.isInt(split[3])) {
       return split[2];
     }
     return "";
@@ -349,7 +350,7 @@ public final class RM {
 
   public static String createTime(final ProtectedRegion region) {
     final String[] split = region.getId().split("-");
-    if (split.length == 4 && split[1].equals("rgui") && ApiOstrov.isInteger(split[3])) {
+    if (split.length == 4 && split[1].equals("rgui") && NumUtils.isInt(split[3])) {
       return split[3];
     }
     return "§8нет данных";

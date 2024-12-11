@@ -13,13 +13,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.Repairable;
+import io.papermc.paper.datacomponent.item.*;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.tag.TagKey;
+import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.util.TriState;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -45,13 +51,14 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.intellij.lang.annotations.Subst;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.items.DataParser;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.notes.Slow;
 import ru.komiss77.objects.CaseInsensitiveMap;
 
 import static org.bukkit.attribute.Attribute.*;
@@ -679,12 +686,429 @@ public class ItemUtil {
         }
     }
 
-
     public static String toString(final ItemStack is) {
         return toString(is, ":");
     }
 
-    //TODO переделка через DataComponentTypes
+    private static final char CHAR_0 = '↕',
+        CHAR_1 = '‡', CHAR_2 = '¦', CHAR_NA = '○';
+    private static final String SPLIT_0 = "<" + CHAR_0 + ">",
+        SPLIT_1 = "<" + CHAR_1 + ">", SPLIT_2 = "<" + CHAR_2 + ">",
+        NA = String.valueOf(CHAR_NA);
+    private static final String[] seps = {SPLIT_1, SPLIT_2};
+
+    private static final DataParser parsers = createParser();
+    private static DataParser createParser() {
+        final DataParser dp = new DataParser();
+        dp.put(DataComponentTypes.ITEM_MODEL, new DataParser.Parser<Key>() {
+            public String write(final Key val, final String... seps) {
+                return val.asMinimalString();
+            }
+            public Key parse(final String str, final String... seps) {
+                return Key.key(str);
+            }
+        });
+        dp.put(DataComponentTypes.ATTRIBUTE_MODIFIERS, new DataParser.Parser<ItemAttributeModifiers>() {
+            public String write(final ItemAttributeModifiers val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(val.showInTooltip());
+                for (final ItemAttributeModifiers.Entry ie : val.modifiers()) {
+                    final AttributeModifier mod = ie.modifier();
+                    sb.append(seps[0]).append(String.join(seps[1], ofRegKey(Ostrov.registries.ATTRIES, ie.attribute()), ofKey(mod),
+                        StringUtil.toSigFigs(mod.getAmount(), (byte) 4), mod.getOperation().name(), mod.getSlotGroup().toString()));
+                }
+                return sb.toString();
+            }
+            public ItemAttributeModifiers parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final ItemAttributeModifiers.Builder bld = ItemAttributeModifiers.itemAttributes();
+                if (!ClassUtil.check(parts, 1, true)) return bld.build();
+                bld.showInTooltip(Boolean.parseBoolean(parts[0]));
+                for (int i = 1; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 5, false)) continue;
+                    bld.addModifier(Ostrov.registries.ATTRIES.get(Key.key(mod[0])),
+                        new AttributeModifier(NamespacedKey.fromString(mod[1]), NumUtils.doubleOf(mod[2], 0d),
+                            Operation.valueOf(mod[3]), EquipmentSlotGroup.getByName(mod[4])));
+                }
+                return bld.build();
+            }
+        });
+        dp.put(DataComponentTypes.DAMAGE, new DataParser.Parser<Integer>() {
+            public String write(final Integer val, final String... seps) {
+                return val.toString();
+            }
+            public Integer parse(final String str, final String... seps) {
+                return NumUtils.intOf(str, 0);
+            }
+        });
+        dp.put(DataComponentTypes.ITEM_NAME, new DataParser.Parser<Component>() {
+            public String write(final Component val, final String... seps) {
+                return TCUtil.deform(val);
+            }
+            public Component parse(final String str, final String... seps) {
+                return TCUtil.form(str);
+            }
+        });
+        dp.put(DataComponentTypes.LORE, new DataParser.Parser<ItemLore>() {
+            public String write(final ItemLore val, final String... seps) {
+                return String.join(seps[0], val.lines().stream().map(TCUtil::deform).toArray(i -> new String[i]));
+            }
+            public ItemLore parse(final String str, final String... seps) {
+                return ItemLore.lore(Arrays.stream(str.split(seps[0])).map(TCUtil::form).toList());
+            }
+        });
+        dp.put(DataComponentTypes.DYED_COLOR, new DataParser.Parser<DyedItemColor>() {
+            public String write(final DyedItemColor val, final String... seps) {
+                return val.showInTooltip() + seps[0] + val.color().asARGB();
+            }
+            public DyedItemColor parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final DyedItemColor.Builder bld = DyedItemColor.dyedItemColor();
+                if (!ClassUtil.check(parts, 2, false)) return bld.build();
+                return bld.showInTooltip(Boolean.parseBoolean(parts[0]))
+                    .color(Color.fromARGB(NumUtils.intOf(parts[1], 0))).build();
+            }
+        });
+        dp.put(DataComponentTypes.CONSUMABLE, new DataParser.Parser<Consumable>() {
+            public String write(final Consumable val, final String... seps) {
+                return String.join(seps[0], val.animation().name(),
+                    StringUtil.toSigFigs(val.consumeSeconds(), (byte) 2),
+                    String.valueOf(val.hasConsumeParticles()));
+            }
+            public Consumable parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final Consumable.Builder bld = Consumable.consumable();
+                if (!ClassUtil.check(parts, 3, false)) return bld.build();
+                return bld.animation(ItemUseAnimation.valueOf(parts[0]))
+                    .consumeSeconds(NumUtils.floatOf(parts[1], 0f))
+                    .hasConsumeParticles(Boolean.parseBoolean(parts[2])).build();
+            }
+        });
+        dp.put(DataComponentTypes.DAMAGE_RESISTANT, new DataParser.Parser<DamageResistant>() {
+            public String write(final DamageResistant val, final String... seps) {
+                return ofKey(val.types());
+            }
+            public DamageResistant parse(final String str, final String... seps) {
+                return DamageResistant.damageResistant(TagKey.create(RegistryKey.DAMAGE_TYPE, Key.key(str)));
+            }
+        });
+        dp.put(DataComponentTypes.ENCHANTABLE, new DataParser.Parser<Enchantable>() {
+            public String write(final Enchantable val, final String... seps) {
+                return String.valueOf(val.value());
+            }
+            public Enchantable parse(final String str, final String... seps) {
+                return Enchantable.enchantable(NumUtils.intOf(str, 0));
+            }
+        });
+        dp.put(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, new DataParser.Parser<Boolean>() {
+            public String write(final Boolean val, final String... seps) {
+                return val.toString();
+            }
+            public Boolean parse(final String str, final String... seps) {
+                return Boolean.parseBoolean(str);
+            }
+        });
+        dp.put(DataComponentTypes.ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
+            public String write(final ItemEnchantments val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(val.showInTooltip());
+                for (final Entry<Enchantment, Integer> ie : val.enchantments().entrySet()) {
+                    sb.append(seps[0]).append(ofKey(ie.getKey())).append(seps[1]).append(ie.getValue().intValue());
+                }
+                return sb.toString();
+            }
+            public ItemEnchantments parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final ItemEnchantments.Builder bld = ItemEnchantments.itemEnchantments();
+                if (!ClassUtil.check(parts, 1, true)) return bld.build();
+                bld.showInTooltip(Boolean.parseBoolean(parts[0]));
+                for (int i = 1; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 2, false)) continue;
+                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtils.intOf(mod[2], 0));
+                }
+                return bld.build();
+            }
+        });
+        dp.put(DataComponentTypes.STORED_ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
+            public String write(final ItemEnchantments val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(val.showInTooltip());
+                for (final Entry<Enchantment, Integer> ie : val.enchantments().entrySet()) {
+                    sb.append(seps[0]).append(ofKey(ie.getKey())).append(seps[1]).append(ie.getValue().intValue());
+                }
+                return sb.toString();
+            }
+            public ItemEnchantments parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final ItemEnchantments.Builder bld = ItemEnchantments.itemEnchantments();
+                if (!ClassUtil.check(parts, 1, true)) return bld.build();
+                bld.showInTooltip(Boolean.parseBoolean(parts[0]));
+                for (int i = 1; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 2, false)) continue;
+                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtils.intOf(mod[2], 0));
+                }
+                return bld.build();
+            }
+        });
+        dp.put(DataComponentTypes.EQUIPPABLE, new DataParser.Parser<Equippable>() {
+            public String write(final Equippable val, final String... seps) {
+                final Key model = val.assetId();
+                return String.join(seps[0], val.slot().name(), model == null ? NA : model.asMinimalString(), String.valueOf(val.damageOnHurt()),
+                    String.valueOf(val.dispensable()), String.valueOf(val.swappable()), val.equipSound().asMinimalString());
+            }
+            public Equippable parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final Equippable.Builder bld = Equippable.equippable(EquipmentSlot.valueOf(parts[0]));
+                if (!ClassUtil.check(parts, 6, false)) return bld.build();
+                return bld.assetId(NA.equals(parts[1]) ? null : Key.key(parts[1])).damageOnHurt(Boolean.parseBoolean(parts[2]))
+                    .dispensable(Boolean.parseBoolean(parts[3])).swappable(Boolean.parseBoolean(parts[4])).equipSound(Key.key(parts[5])).build();
+            }
+        });
+        dp.put(DataComponentTypes.FIREWORKS, new DataParser.Parser<Fireworks>() {
+            public String write(final Fireworks val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(val.flightDuration());
+                for (final FireworkEffect fe : val.effects()) {
+                    final List<Color> clrs = fe.getColors();
+                    final Color clr = clrs.isEmpty() ? Color.WHITE : clrs.getFirst();
+                    final List<Color> fds = fe.getFadeColors();
+                    final Color fd = fds.isEmpty() ? clr : fds.getFirst();
+                    sb.append(seps[0]).append(String.join(seps[1], fe.getType().name(), String.valueOf(clr.asARGB()),
+                        String.valueOf(fd.asARGB()), String.valueOf(fe.hasFlicker()), String.valueOf(fe.hasTrail())));
+                }
+                return sb.toString();
+            }
+            public Fireworks parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final Fireworks.Builder bld = Fireworks.fireworks();
+                if (!ClassUtil.check(parts, 1, true)) return bld.build();
+                bld.flightDuration(NumUtils.intOf(parts[0], 1));
+                for (int i = 1; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 5, false)) continue;
+                    bld.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.valueOf(mod[0]))
+                        .withColor(Color.fromARGB(NumUtils.intOf(mod[1], 0))).withFade(Color.fromARGB(NumUtils.intOf(mod[2], 0)))
+                        .flicker(Boolean.parseBoolean(mod[3])).trail(Boolean.parseBoolean(mod[4])).build());
+                }
+                return bld.build();
+            }
+        });
+        dp.put(DataComponentTypes.FOOD, new DataParser.Parser<FoodProperties>() {
+            public String write(final FoodProperties val, final String... seps) {
+                return String.join(seps[0], String.valueOf(val.nutrition()),
+                    StringUtil.toSigFigs(val.saturation(), (byte) 2), String.valueOf(val.canAlwaysEat()));
+            }
+            public FoodProperties parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final FoodProperties.Builder bld = FoodProperties.food();
+                if (!ClassUtil.check(parts, 3, false)) return bld.build();
+                return bld.nutrition(NumUtils.intOf(parts[0], 0)).saturation(NumUtils.floatOf(parts[1], 0f))
+                    .canAlwaysEat(Boolean.parseBoolean(parts[2])).build();
+            }
+        });
+        dp.put(DataComponentTypes.UNBREAKABLE, new DataParser.Parser<Unbreakable>() {
+            public String write(final Unbreakable val, final String... seps) {
+                return String.valueOf(val.showInTooltip());
+            }
+            public Unbreakable parse(final String str, final String... seps) {
+                return Unbreakable.unbreakable(Boolean.parseBoolean(str));
+            }
+        });
+        dp.put(DataComponentTypes.USE_COOLDOWN, new DataParser.Parser<UseCooldown>() {
+            public String write(final UseCooldown val, final String... seps) {
+                final Key key = val.cooldownGroup();
+                return val.seconds() + seps[0] + (key == null ? NA : key.asMinimalString());
+            }
+            public UseCooldown parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final UseCooldown.Builder bld = UseCooldown.useCooldown(NumUtils.floatOf(parts[0], 0f));
+                if (!ClassUtil.check(parts, 2, false)) return bld.build();
+                return bld.cooldownGroup(Key.key(parts[1])).build();
+            }
+        });
+        dp.put(DataComponentTypes.TRIM, new DataParser.Parser<ItemArmorTrim>() {
+            public String write(final ItemArmorTrim val, final String... seps) {
+                return String.join(seps[0], String.valueOf(val.showInTooltip()),
+                    ofKey(val.armorTrim().getMaterial()), ofKey(val.armorTrim().getPattern()));
+            }
+            public ItemArmorTrim parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                if (!ClassUtil.check(parts, 3, false)) return null;
+                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(Ostrov.registries.TRIM_TYPES.get(Key.key(parts[1])),
+                    Ostrov.registries.TRIM_PATTS.get(Key.key(parts[2]))), Boolean.parseBoolean(parts[0]));
+            }
+        });
+        dp.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
+            public String write(final Integer val, final String... seps) {
+                return val.toString();
+            }
+            public Integer parse(final String str, final String... seps) {
+                return NumUtils.intOf(str, 1);
+            }
+        });
+        dp.put(DataComponentTypes.POTION_CONTENTS, new DataParser.Parser<PotionContents>() {
+            public String write(final PotionContents val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                final Color clr = val.customColor();
+                sb.append(ofKey(val.potion())).append(seps[0]).append(clr == null ? NA : clr.asARGB());
+                for (final PotionEffect pe : val.customEffects()) {
+                    sb.append(seps[0]).append(String.join(seps[1], ofKey(pe.getType()), String.valueOf(pe.getDuration()),
+                        String.valueOf(pe.getAmplifier()), String.valueOf(pe.hasParticles() && pe.hasIcon())));
+                }
+                return sb.toString();
+            }
+            public PotionContents parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final PotionContents.Builder bld = PotionContents.potionContents();
+                if (!ClassUtil.check(parts, 2, true)) return bld.build();
+                bld.potion(Registry.POTION.get(Key.key(parts[0])))
+                    .customColor(Color.fromARGB(NumUtils.intOf(parts[1], 0)));
+                for (int i = 2; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 4, false)) continue;
+                    final boolean vis = Boolean.parseBoolean(mod[3]);
+                    bld.addCustomEffect(new PotionEffect(Registry.POTION_EFFECT_TYPE.get(Key.key(mod[0])),
+                        NumUtils.intOf(mod[1], 0), NumUtils.intOf(mod[2], 0), !vis, vis, vis));
+                }
+                return bld.build();
+            }
+        });
+        dp.put(DataComponentTypes.MAX_STACK_SIZE, new DataParser.Parser<Integer>() {
+            public String write(final Integer val, final String... seps) {
+                return val.toString();
+            }
+            public Integer parse(final String str, final String... seps) {
+                return NumUtils.intOf(str, 1);
+            }
+        });
+        dp.put(DataComponentTypes.REPAIRABLE, new DataParser.Parser<Repairable>() {
+            public String write(final Repairable val, final String... seps) {
+                return String.join(seps[0], val.types().values().stream()
+                    .map(tk -> ofKey(tk)).toArray(i -> new String[i]));
+            }
+            public Repairable parse(final String str, final String... seps) {
+                return Repairable.repairable(OStrap.regSetOf(Arrays.stream(str.split(seps[0]))
+                    .map(Key::key).toList(), RegistryKey.ITEM));
+            }
+        });
+        dp.put(DataComponentTypes.RARITY, new DataParser.Parser<ItemRarity>() {
+            public String write(final ItemRarity val, final String... seps) {
+                return val.name();
+            }
+            public ItemRarity parse(final String str, final String... seps) {
+                return ItemRarity.valueOf(str);
+            }
+        });
+        dp.put(DataComponentTypes.TOOL, new DataParser.Parser<Tool>() {
+            public String write(final Tool val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(StringUtil.toSigFigs(val.defaultMiningSpeed(), (byte) 2)).append(seps[0]).append(val.damagePerBlock());
+                for (final Tool.Rule rl : val.rules()) {
+                    if (rl.speed() == null) continue;
+                    final List<String> rls = new ArrayList<>();
+                    rls.add(StringUtil.toSigFigs(rl.speed(), (byte) 2));
+                    rls.add(rl.correctForDrops().name());
+                    rls.addAll(rl.blocks().values().stream().map(tk -> ofKey(tk)).toList());
+                    sb.append(seps[0]).append(String.join(seps[1], rls.toArray(new String[0])));
+                }
+                return sb.toString();
+            }
+            public Tool parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final Tool.Builder bld = Tool.tool();
+                if (!ClassUtil.check(parts, 2, true)) return bld.build();
+                bld.defaultMiningSpeed(NumUtils.floatOf(parts[0], 1)).damagePerBlock(NumUtils.intOf(parts[1], 0));
+                for (int i = 2; i != parts.length; i++) {
+                    final String[] mod = parts[i].split(seps[1]);
+                    if (!ClassUtil.check(mod, 2, true)) continue;
+                    final List<Key> bks = new ArrayList<>(mod.length - 2);
+                    for (int j = 2; j != mod.length; j++) {
+                        bks.add(Key.key(mod[j]));
+                    }
+                    bld.addRule(Tool.rule(OStrap.regSetOf(bks, RegistryKey.BLOCK),
+                        NumUtils.floatOf(mod[0], 0f), TriState.valueOf(mod[1])));
+                }
+                return bld.build();
+            }
+        });
+        return dp;
+    }
+
+    @Slow(priority = 2)
+    public static String write(final @Nullable ItemStack is) {
+        if (is == null || ItemType.AIR.equals(is.getType().asItemType())) return "air";
+        final StringBuilder res = new StringBuilder(ofKey(is.getType().asItemType()) + SPLIT_1 + is.getAmount());
+        for (final DataComponentType dtc : is.getDataTypes()) {
+            switch (dtc) {
+                case final DataComponentType.NonValued nvd -> res.append(SPLIT_0).append(ofKey(nvd));
+                case final DataComponentType.Valued<?> vld -> append(is, res, vld);
+                default -> {}
+            }
+        }
+        return res.toString();
+    }
+
+    @Slow(priority = 2)
+    public static ItemStack parse(final @Nullable String str) {
+        if (str == null || str.startsWith("air")) return ItemType.AIR.createItemStack();
+        final String[] split = str.split(SPLIT_0);
+        final String[] idt = split[0].split(SPLIT_1);
+        final ItemType tp = Ostrov.registries.ITEMS.get(Key.key(idt[0]));
+        if (tp == null) {
+            Ostrov.log_err("Failed parsing item type for " + str);
+            return ItemType.AIR.createItemStack();
+        }
+        final ItemStack it = tp.createItemStack(idt.length == 2 ? NumUtils.intOf(idt[1], 1) : 1);
+        String data = null;
+        try {
+            for (int i = 1; i != split.length; i++) {
+                data = split[i];
+                final int ix = data.indexOf(SPLIT_1);
+                if (ix == -1) {
+                    if (Registry.DATA_COMPONENT_TYPE.get(Key.key(data))
+                        instanceof final DataComponentType.NonValued nvd) {
+                        it.setData(nvd);
+                    }
+                    continue;
+                }
+                final String dts = data.substring(0, ix);
+                if (Registry.DATA_COMPONENT_TYPE.get(Key.key(dts))
+                    instanceof final DataComponentType.Valued<?> vld) {
+                    append(it, data.substring(ix + SPLIT_1.length()), vld);
+                }
+            }
+        } catch (NullPointerException | IllegalArgumentException | InvalidKeyException e) {
+            Ostrov.log_err("Couldn't parse data " + data);
+            return it;
+        }
+        return it;
+    }
+
+    private static <D> void append(final ItemStack it, final StringBuilder sb, final DataComponentType.Valued<D> dtc) {
+        final D val = it.getData(dtc); if (val == null) return;
+        final DataParser.Parser<D> prs = parsers.get(dtc); if (prs == null) return;
+        sb.append(SPLIT_0).append(ofKey(dtc)).append(SPLIT_1).append(prs.write(val, seps));
+    }
+
+    private static <D> void append(final ItemStack it, final String data, final DataComponentType.Valued<D> dtc) {
+        final DataParser.Parser<D> prs = parsers.get(dtc); if (prs == null) return;
+        it.setData(dtc, prs.parse(data, seps));
+    }
+
+    private static <K extends net.kyori.adventure.key.Keyed> @Nullable String ofKey(final @Nullable K k) {
+        if (k == null) return null;
+        return k.key().asMinimalString();
+    }
+
+    private static <K extends Keyed> @Nullable String ofRegKey(final Registry<K> reg, final @Nullable K k) {
+        if (k == null) return null;
+        final NamespacedKey key = reg.getKey(k);
+        return key == null ? null : key.asMinimalString();
+    }
+
     public static String toString(final ItemStack is, final String splitter) {
         if (is == null || ItemType.AIR.equals(is.getType().asItemType())) return "air:1";
         final StringBuilder res = new StringBuilder(is.getType().asItemType().key().value() + ":" + is.getAmount());//apple<>1
@@ -851,7 +1275,7 @@ public class ItemUtil {
             mat = Ostrov.registries.ITEMS.get(Key.key(s0[0].trim()));
             if (mat != null) {
                 builder.type(mat);
-                if (ApiOstrov.isInteger(s0[1].trim())) {
+                if (NumUtils.isInt(s0[1].trim())) {
                     builder.amount(Integer.parseInt(s0[1].trim()));
                 } else {
                     Ostrov.log_warn("Декодер предмета : §7строка >§f" + item + "§7<, неправильное колличество §f" + s0[1]);
@@ -910,7 +1334,7 @@ public class ItemUtil {
 
                     case "color":
                         if (param.length == 4) {
-                            if (ApiOstrov.isInteger(param[1]) && ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
+                            if (NumUtils.isInt(param[1]) && NumUtils.isInt(param[2]) && NumUtils.isInt(param[3])) {
                                 builder.color(Color.fromRGB(Integer.parseInt(param[1]), Integer.parseInt(param[2]), Integer.parseInt(param[3])));
                             } else {
                                 Ostrov.log_warn("Декодер color : §7строка >§f" + item
@@ -1003,7 +1427,7 @@ public class ItemUtil {
                         if (param.length == 3) {
                             final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(param[1]));
                             if (enchant != null) {
-                                builder.enchant(enchant, ApiOstrov.getInteger(param[2], 1));
+                                builder.enchant(enchant, NumUtils.intOf(param[2], 1));
                             } else {
                                 Ostrov.log_warn("Декодер enchant : §7строка >§f" + item + "§7<, нет таких чар §f" + param[1]);
                             }
@@ -1044,8 +1468,8 @@ public class ItemUtil {
                                     potionEffectType = npe;
                                 }
                                 if (potionEffectType != null) {
-                                    if (ApiOstrov.isInteger(param[2]) && ApiOstrov.isInteger(param[3])) {
-                                        builder.addEffect(new PotionEffect(potionEffectType,
+                                    if (NumUtils.isInt(param[2]) && NumUtils.isInt(param[3])) {
+                                        builder.potEffect(new PotionEffect(potionEffectType,
                                             Integer.parseInt(param[2].toLowerCase()), Integer.parseInt(param[3].toLowerCase())));
                                     } else {
                                         Ostrov.log_warn("Декодер effect : §7строка >§f" + item + "§7<, должны быть числа §f" + param[2] + " " + param[3]);
@@ -1071,7 +1495,7 @@ public class ItemUtil {
                     case "firework":
                         if (param.length == 2) {
                             if (ItemType.FIREWORK_ROCKET.equals(mat)) {
-                                builder.fireFlight(ApiOstrov.getInteger(param[1], 1));
+                                builder.fireFlight(NumUtils.intOf(param[1], 1));
                             } else {
                                 Ostrov.log_warn("Декодер firework : §7строка >§f" + item
                                     + "§7<, неприменима к §f" + mat);
@@ -1595,3 +2019,5 @@ class MojangProfileResponse {
         
    }    
 */
+
+

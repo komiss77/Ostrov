@@ -10,7 +10,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.Cuboid;
 import ru.komiss77.objects.IntHashMap;
@@ -19,6 +18,7 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -303,7 +303,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .lore("§7(0 - весь мир)")
             .lore("§7")
             .build(), "" + radius, imput -> {
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!NumUtils.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

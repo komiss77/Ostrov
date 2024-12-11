@@ -8,18 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Settings;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
 
 public class FriendView implements InventoryProvider {
 
@@ -68,7 +64,7 @@ public class FriendView implements InventoryProvider {
                 splitterIndex = info.indexOf(":");
                 if (splitterIndex > 0) {
                     server.put(name, info.substring(0, splitterIndex));
-                    settings.put(name, ApiOstrov.getInteger(info.substring(0, splitterIndex)));
+                    settings.put(name, NumUtils.intOf(info.substring(0, splitterIndex)));
                     info = info.substring(splitterIndex + 1);
                 }
             }

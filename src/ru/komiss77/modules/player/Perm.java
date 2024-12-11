@@ -3,18 +3,14 @@ package ru.komiss77.modules.player;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import java.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Table;
@@ -22,7 +18,7 @@ import ru.komiss77.events.GroupChangeEvent;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.Group;
-import ru.komiss77.OConfig;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.version.Nms;
 
 
@@ -238,7 +234,7 @@ public class Perm {
                 if (perm.startsWith("limit.")) {
                     int idx = perm.lastIndexOf(".");
                     if (idx <= 0) continue;
-                    int limit = ApiOstrov.getInteger(perm.substring(idx + 1), 0);
+                    int limit = NumUtils.intOf(perm.substring(idx + 1), 0);
                     if (limit < 0) continue;
                     perm = perm.replaceFirst("limit.", "").replaceFirst("." + limit, "");   // limit.home.5 -> home.5
                     //perm = perm.substring(0, idx-1);    // home.5 -> home

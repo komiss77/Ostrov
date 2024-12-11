@@ -71,8 +71,12 @@ public class OStrap implements PluginBootstrap {
             }));
     }
 
-    public static <T extends Keyed> RegistryKeySet<T> regSetOf(final RegistryKey<T> reg, final Collection<Key> keys) {
+    public static <T extends Keyed> RegistryKeySet<T> regSetOf(final Collection<Key> keys, final RegistryKey<T> reg) {
         return RegistrySet.keySet(reg, keys.stream().map(k -> TypedKey.create(reg, k)).toList());
+    }
+
+    public static <T extends Keyed> RegistryKeySet<T> regSetOf(final RegistryKey<T> reg, final Collection<T> keys) {
+        return RegistrySet.keySetFromValues(reg, keys);
     }
 
     @Nullable

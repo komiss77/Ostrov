@@ -17,11 +17,10 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
 import ru.komiss77.listener.SpigotChanellMsg;
-import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.NumUtils;
 
 
 public class RewardCmd implements OCommand {
@@ -148,7 +147,7 @@ public class RewardCmd implements OCommand {
                     }
 
                     if (value.length() > 1) {
-                        final int v = ApiOstrov.getInteger(value.substring(0, value.length() - 1), 0);
+                        final int v = NumUtils.intOf(value.substring(0, value.length() - 1), 0);
                         amt = switch (value.charAt(value.length() - 1)) {
                             case 'h' -> v * 60 * 60;
                             case 'd' -> v * 24 * 60 * 60;
@@ -156,7 +155,7 @@ public class RewardCmd implements OCommand {
                             default -> 0;
                         };
                     } else {
-                        amt = ApiOstrov.getInteger(value, 0);
+                        amt = NumUtils.intOf(value, 0);
                     }
 
                     if (amt == 0) {
@@ -187,13 +186,13 @@ public class RewardCmd implements OCommand {
                       cs.sendMessage("§cПри указании случайного значения формат rnd_min_max");
                       return 0;
                     }
-                    if (!ApiOstrov.isInteger(split[1]) || !ApiOstrov.isInteger(split[2])) {
+                    if (!NumUtils.isInt(split[1]) || !NumUtils.isInt(split[2])) {
                       cs.sendMessage("§cПри указании случайного значения min и max - челые числа");
                       return 0;
                     }
-                    amt = ApiOstrov.randInt(Integer.valueOf(split[1]), Integer.valueOf(split[2]));
+                    amt = NumUtils.randInt(Integer.valueOf(split[1]), Integer.valueOf(split[2]));
                   } else {
-                    amt = Math.max(ApiOstrov.getInteger(value, 0), 0);
+                    amt = Math.max(NumUtils.intOf(value, 0), 0);
                   }
                     if (amt < 1) {
                         cs.sendMessage("§eКолличество - целое положительное число!");

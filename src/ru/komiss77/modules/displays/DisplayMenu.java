@@ -1,34 +1,22 @@
 package ru.komiss77.modules.displays;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Display.Billboard;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Math;
 import org.joml.Vector3f;
-import net.kyori.adventure.text.Component;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.ConfirmationGUI;
-import ru.komiss77.utils.inventory.InputButton;
+import ru.komiss77.utils.*;
+import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class DisplayMenu implements InventoryProvider {
 
@@ -185,7 +173,7 @@ public class DisplayMenu implements InventoryProvider {
                     .lore("§7сейчас длинна: §a" + tds.getLineWidth())
                     .build(),
                     String.valueOf(tds.getLineWidth()), msg -> {
-                tds.setLineWidth(Math.max(ApiOstrov.getInteger(msg), 10));
+                tds.setLineWidth(Math.max(NumUtils.intOf(msg), 10));
                 reopen(p, its);
             }));
 

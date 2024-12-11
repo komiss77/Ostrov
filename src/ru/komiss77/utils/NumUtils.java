@@ -5,8 +5,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
 
-@Deprecated
-public class FastMath {
+
+public class NumUtils {
 
     private static final float R_TO_D = 57.3f;
     private static final double PIx2 = Math.PI * 2;
@@ -179,5 +179,42 @@ public class FastMath {
         return dst.normalize().multiply(spd);
     }
 
+    //*************** числа *********************
+    public static int randInt(final int num1, final int num2) {
+      if (num1 == num2) return num1;
+      return Math.min(num1, num2) + Ostrov.random.nextInt(abs(num2 - num1));
+    }
 
+    public static boolean rndBool() {
+      return Ostrov.random.nextBoolean();
+    }
+
+    public static int rndSignNum(int init, final int rnd) {
+      if (rnd > 0) init += Ostrov.random.nextInt(rnd);
+      return Ostrov.random.nextBoolean() ? init : -init;
+    }
+
+    public static boolean isInt(final String i) {
+      try {
+        Integer.parseInt(i);
+        return true;
+      } catch (NumberFormatException ex) {
+        return false;
+      }
+    }
+
+    public static int intOf(final String num, final int or) {
+      try {return Integer.parseInt(num);}
+      catch (NumberFormatException ex) {return or;}
+    }
+
+    public static float floatOf(final String num, final float or) {
+        try {return Float.parseFloat(num);}
+        catch (NumberFormatException ex) {return or;}
+    }
+
+    public static double doubleOf(final String num, final double or) {
+        try {return Double.parseDouble(num);}
+        catch (NumberFormatException ex) {return or;}
+    }
 }

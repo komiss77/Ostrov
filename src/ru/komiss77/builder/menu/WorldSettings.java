@@ -5,10 +5,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -88,7 +88,7 @@ public class WorldSettings implements InventoryProvider {
                         .lore("")
                         .build(), String.valueOf(value), msg -> {
 
-                    if (!ApiOstrov.isInteger(msg)) {
+                    if (!NumUtils.isInt(msg)) {
                         p.sendMessage("§cДолжно быть число!");
                         PM.soundDeny(p);
                         return;
@@ -157,7 +157,7 @@ public class WorldSettings implements InventoryProvider {
                 .lore("§7")
                 .build(), "" + world.getWorldBorder().getSize(), imput -> {
 
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!NumUtils.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

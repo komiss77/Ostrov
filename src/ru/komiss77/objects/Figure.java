@@ -7,10 +7,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -64,11 +64,11 @@ public class Figure {
 
         String[] split = locString.split(locString.contains(":") ? ":" : "<>");
         worldName = split[0];
-        x = ApiOstrov.getInteger(split[1]);
-        y = ApiOstrov.getInteger(split[2]);
-        z = ApiOstrov.getInteger(split[3]);
-        yaw = ApiOstrov.getInteger(split[4]);
-        pitch = ApiOstrov.getInteger(split[5]);
+        x = NumUtils.intOf(split[1]);
+        y = NumUtils.intOf(split[2]);
+        z = NumUtils.intOf(split[3]);
+        yaw = NumUtils.intOf(split[4]);
+        pitch = NumUtils.intOf(split[5]);
         spawnLoc = LocUtil.stringToLoc(locString, false, false).toCenterLocation();
     }
 

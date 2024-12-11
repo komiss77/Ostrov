@@ -1,5 +1,6 @@
 package ru.komiss77.builder.menu;
 
+import java.util.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -12,10 +13,9 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-
-import java.util.*;
 
 
 public class EntityTypeMenu implements InventoryProvider {
@@ -122,7 +122,7 @@ public class EntityTypeMenu implements InventoryProvider {
             .lore("§7")
             .build(), "" + radius, imput -> {
 
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!NumUtils.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

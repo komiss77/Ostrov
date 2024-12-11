@@ -4,7 +4,9 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -18,6 +20,8 @@ public class Registries {
     public final Registry<TrimMaterial> TRIM_TYPES;
     public final Registry<TrimPattern> TRIM_PATTS;
     public final Registry<EntityType> ENTITIES;
+    public final Registry<Attribute> ATTRIES;
+    public final Registry<Enchantment> ENCHANTS;
 
     public Registries() {
         final RegistryAccess rac = RegistryAccess.registryAccess();
@@ -27,6 +31,8 @@ public class Registries {
         TRIM_TYPES = rac.getRegistry(RegistryKey.TRIM_MATERIAL);
         TRIM_PATTS = rac.getRegistry(RegistryKey.TRIM_PATTERN);
         ENTITIES = rac.getRegistry(RegistryKey.ENTITY_TYPE);
+        ATTRIES = rac.getRegistry(RegistryKey.ATTRIBUTE);
+        ENCHANTS = rac.getRegistry(RegistryKey.ENCHANTMENT);
     }
 
 }

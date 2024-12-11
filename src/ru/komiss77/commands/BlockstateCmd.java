@@ -4,16 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
-
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.utils.NumUtils;
 
 //не нужна команда, блокстэйт можно найти через команду /entity
 
@@ -28,7 +27,7 @@ public class BlockstateCmd {
 
 
             case 1:
-                if (ApiOstrov.isInteger(arg[0])) {
+                if (NumUtils.isInt(arg[0])) {
                     int r = Integer.valueOf(arg[0]);
                     final Map<String, Integer> count = new HashMap<>();
 
@@ -54,7 +53,7 @@ public class BlockstateCmd {
 
 
             case 2:
-                if (ApiOstrov.isInteger(arg[0])) {
+                if (NumUtils.isInt(arg[0])) {
 
                     Material mat = Material.matchMaterial(arg[1]);
                     if (mat == null) {

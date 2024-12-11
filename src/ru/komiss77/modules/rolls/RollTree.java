@@ -1,9 +1,9 @@
 package ru.komiss77.modules.rolls;
 
 import java.util.*;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.ClassUtil;
+import ru.komiss77.utils.NumUtils;
 
 
 public class RollTree extends Roll<String[]> {
@@ -101,7 +101,7 @@ public class RollTree extends Roll<String[]> {
             for (final String rl : rls) {
                 final int split = rl.indexOf(DLM);
                 if (split < 1) continue;
-                for (int i = ApiOstrov.getInteger(rl.substring(0, split), 0); i != 0; i--)
+                for (int i = NumUtils.intOf(rl.substring(0, split), 0); i != 0; i--)
                     rolls.add(rl.substring(split + 1));
             }
             return new RollTree(cs.getName(), rolls.toArray(EMT),

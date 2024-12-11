@@ -273,7 +273,7 @@ public abstract class CustomEnchant implements Keyed {
 
         @Override
         public RegistryKeySet<Enchantment> conflicts() {
-            return OStrap.regSetOf(RegistryKey.ENCHANTMENT, List.of());
+            return OStrap.regSetOf(List.of(), RegistryKey.ENCHANTMENT);
         }
 
         @Override

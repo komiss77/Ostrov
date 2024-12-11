@@ -4,7 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
@@ -193,7 +192,7 @@ public class MissionEditor implements InventoryProvider {
                 .lore("§7ЛКМ - изменить")
                 .lore("§7")
                 .build(), "" + mi.level, imput -> {
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!NumUtils.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
                 return;
@@ -222,7 +221,7 @@ public class MissionEditor implements InventoryProvider {
                 .lore("§7ЛКМ - изменить")
                 .lore("§7")
                 .build(), "" + mi.reputation, imput -> {
-            if (!ApiOstrov.isInteger(imput)) {
+            if (!NumUtils.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
                 return;
@@ -342,7 +341,7 @@ public class MissionEditor implements InventoryProvider {
                         }
                         case SHIFT_LEFT -> {
                             PlayerInput.get(InputButton.InputType.ANVILL, p, (msg) -> {
-                                if (!ApiOstrov.isInteger(msg)) {
+                                if (!NumUtils.isInt(msg)) {
                                     p.sendMessage("§cДолжно быть число!");
                                 }
                                 final int value = Integer.parseInt(msg);

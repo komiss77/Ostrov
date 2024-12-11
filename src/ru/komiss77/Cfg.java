@@ -10,6 +10,7 @@ import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.entities.EntityManager;
 import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
+import ru.komiss77.utils.NumUtils;
 
 
 public class Cfg {
@@ -245,7 +246,7 @@ public class Cfg {
         String[] c3 = {"---------", "system settings", "---------"};
         cfg.addDefault("system.autorestart.use", true, c3);
         cfg.addDefault("system.autorestart.hour", 3, "час рестарта. ");
-        cfg.addDefault("system.autorestart.min", ApiOstrov.randInt(1, 59), "минута рестарта (при создании конфига-рандомная)");
+        cfg.addDefault("system.autorestart.min", NumUtils.randInt(1, 59), "минута рестарта (при создании конфига-рандомная)");
         cfg.addDefault("system.pipboy_material", "CLOCK");
         cfg.addDefault("system.pipboy_name", "§a§lМеню сервера - нажми ПКМ!");
         cfg.addDefault("system.pipboy_rigth_click_command", "menu");

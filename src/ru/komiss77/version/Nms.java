@@ -54,7 +54,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
 import org.spigotmc.SpigotConfig;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.games.GM;
@@ -66,6 +65,7 @@ import ru.komiss77.notes.Slow;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -510,8 +510,8 @@ public class Nms {
     double vx = direction.getX();
     double vy = direction.getY();
     double vz = direction.getZ();
-    final byte yawByte = FastMath.toPackedByte(180f - FastMath.toDegree((float) Math.atan2(vx, vz)) + ApiOstrov.randInt(-10, 10));
-    final byte pitchByte = FastMath.toPackedByte(90 - FastMath.toDegree((float) Math.acos(vy)) + (ApiOstrov.randBoolean() ? 10 : -5));
+    final byte yawByte = FastMath.pack(180f - FastMath.toDegree((float) Math.atan2(vx, vz)) + NumUtils.randInt(-10, 10));
+    final byte pitchByte = FastMath.pack(90 - FastMath.toDegree((float) Math.acos(vy)) + (NumUtils.rndBool() ? 10 : -5));
     final ServerPlayer entityPlayer = Craft.toNMS(p);
     final net.minecraft.world.entity.Entity el = Craft.toNMS(e);
     ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(el, yawByte);
@@ -524,8 +524,8 @@ public class Nms {
     if (p == null || !p.isOnline() || e == null) {
       return;
     }
-    final byte yawByte = FastMath.toPackedByte(e.getLocation().getYaw());//toPackedByte(f.yaw);
-    final byte pitchByte = FastMath.toPackedByte(e.getLocation().getPitch());//toPackedByte(f.pitch);
+    final byte yawByte = FastMath.pack(e.getLocation().getYaw());//toPackedByte(f.yaw);
+    final byte pitchByte = FastMath.pack(e.getLocation().getPitch());//toPackedByte(f.pitch);
     final ServerPlayer entityPlayer = Craft.toNMS(p);
     final net.minecraft.world.entity.Entity el = Craft.toNMS(e);
     ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(el, yawByte);

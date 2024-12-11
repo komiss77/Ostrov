@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
 import org.intellij.lang.annotations.Subst;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.notes.Slow;
 
 
@@ -276,7 +275,7 @@ public class TCUtil {
     }
 
     public static DyeColor randomDyeColor() {
-        return switch (ApiOstrov.randInt(0, 16)) {
+        return switch (NumUtils.randInt(0, 16)) {
             case 0 -> DyeColor.BLACK;
             case 1 -> DyeColor.BLUE;
             case 2 -> DyeColor.BROWN;
@@ -297,7 +296,7 @@ public class TCUtil {
     }
 
     public static Color randomCol() {
-        return switch (ApiOstrov.randInt(0, 16)) {
+        return switch (NumUtils.randInt(0, 16)) {
             case 0 -> Color.AQUA;
             case 1 -> Color.BLACK;
             case 2 -> Color.BLUE;
@@ -323,7 +322,7 @@ public class TCUtil {
     }
 
     public static String randomColor(final boolean extra) {
-        return getColor(ApiOstrov.randInt(0, extra ? tcSize : 16));
+        return getColor(NumUtils.randInt(0, extra ? tcSize : 16));
     }
 
     public static String getColor(final int col) {

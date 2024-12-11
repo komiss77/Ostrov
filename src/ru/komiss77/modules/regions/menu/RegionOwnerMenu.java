@@ -1,13 +1,13 @@
 package ru.komiss77.modules.regions.menu;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.protection.managers.storage.StorageException;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.regions.RM;
@@ -16,6 +16,7 @@ import ru.komiss77.modules.world.Schematic;
 import ru.komiss77.modules.world.WE;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.NumUtils;
 import ru.komiss77.utils.ParticleUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.*;
@@ -55,7 +56,7 @@ public class RegionOwnerMenu implements InventoryProvider {
     } else {
 
       String timeStamp = RM.createTime(region);
-      final int stamp = ApiOstrov.getInteger(timeStamp);
+      final int stamp = NumUtils.intOf(timeStamp);
       if (stamp > 0) {
         timeStamp = TimeUtil.dateFromStamp(stamp);
       }

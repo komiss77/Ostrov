@@ -9,13 +9,13 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.NumUtils;
 
 public class TpposCMD implements OCommand {
 
@@ -100,7 +100,7 @@ public class TpposCMD implements OCommand {
       if (Cfg.tppos_command || op.hasGroup("youtuber")) {
         if (p.hasPermission("ostrov.tppos") || op.hasGroup("youtuber")) {
           if (arg.length == 3) {
-            if (ApiOstrov.isInteger(arg[0]) && ApiOstrov.isInteger(arg[1]) && ApiOstrov.isInteger(arg[2])) {
+            if (NumUtils.isInt(arg[0]) && NumUtils.isInt(arg[1]) && NumUtils.isInt(arg[2])) {
               DelayTeleport.tp(p, new Location(p.getWorld(), Double.parseDouble(arg[0]), Double.parseDouble(arg[1]), Double.parseDouble(arg[2])), 3, "Вы вернулись на указанную локацию", true, true, DyeColor.BROWN);
               //Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp "+p.name()+" "+arg[0]+" "+arg[1]+" "+arg[2] );
             } else {

@@ -1,8 +1,8 @@
 package ru.komiss77.utils;
 
+import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
-import java.util.Arrays;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Location;
@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.objects.InputData;
@@ -69,7 +68,7 @@ public class PlayerInput implements Listener {
                         case AnvilGUI.Slot.INPUT_RIGHT -> {
                         }
                         case AnvilGUI.Slot.OUTPUT -> {
-                            final int res = ApiOstrov.getInteger(stateSnapshot.getText());
+                            final int res = NumUtils.intOf(stateSnapshot.getText());
                             if (res == Integer.MIN_VALUE) {
                                 p.sendMessage("§cДолжно быть число!");
                                 PM.soundDeny(p);

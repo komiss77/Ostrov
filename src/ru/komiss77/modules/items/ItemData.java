@@ -2,6 +2,7 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
@@ -39,6 +40,11 @@ public class ItemData extends HashMap<DataComponentType, Object> {
             }
         }
     }
+
+
+    /**Does absolutely nothing*/
+    @Deprecated(forRemoval = true)
+    public void putAll(Map<? extends DataComponentType, ?> m) {}
 
     /**Does absolutely nothing,
      * @return always null*/
