@@ -2,6 +2,7 @@ package ru.komiss77.modules.menuItem;
 
 import java.util.function.Consumer;
 import com.destroystokyo.paper.ClientOption;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -9,6 +10,8 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
@@ -36,19 +39,21 @@ public class MenuItem {
         this.name = name;
         id = name.hashCode();//ApiOstrov.generateId();
 
-        itemRu = new ItemBuilder(is).modelData(id).build();//ItemUtil.setCusomModelData(is, id);
+        itemRu = is;//itemRu = new ItemBuilder(is).modelData(id).build();
+        ItemMeta im = itemRu.getItemMeta();
+        im.getPersistentDataContainer().set(MenuItemsManager.key, PersistentDataType.INTEGER, id);
+        itemRu.setItemMeta(im);
 
         String displayName = is.hasItemMeta() && is.getItemMeta().hasDisplayName() ? TCUtil.deform(is.getItemMeta().displayName()) : "";
         displayName = Lang.t(displayName, Lang.EN);
         //im.displayName(TCUtils.form(displayName));
 
-        itemEn = new ItemBuilder(is).name(displayName).modelData(id).build();//is.clone();
-        //final ItemMeta im = itemEn.getItemMeta();
-        //im.setCustomModelData(id);
-        //String displayName = im.hasDisplayName() ? TCUtils.deform(im.displayName()) : "";
-        //displayName = Lang.t(displayName, Lang.EN);
-        //im.displayName(TCUtils.form(displayName));
-        //itemEn.setItemMeta(im);
+        itemEn = itemRu.clone();//new ItemBuilder(is).name(displayName).modelData(id).build();
+        im = itemEn.getItemMeta();
+        im.displayName(Component.text(displayName));
+        im.getPersistentDataContainer().set(MenuItemsManager.key, PersistentDataType.INTEGER, id);
+        itemEn.setItemMeta(im);
+
     }
 
     public ItemStack getItem() {

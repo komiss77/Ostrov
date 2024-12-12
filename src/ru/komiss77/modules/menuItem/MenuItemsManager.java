@@ -4,6 +4,7 @@ import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -12,6 +13,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
@@ -27,8 +29,9 @@ public final class MenuItemsManager implements Initiable, Listener {
     private static final Map<Integer, MenuItem> itemById;
     private static final EnumSet<Material> possibleMat; //для быстрой первичной фильтрации
     public static boolean item_lobby_mode;
-
+    public static final NamespacedKey key;
     static {
+        key = new NamespacedKey(Ostrov.instance, "menu_item");
         itemByNames = new HashMap<>();
         itemById = new HashMap<>();
         possibleMat = EnumSet.noneOf(Material.class);
@@ -385,8 +388,15 @@ public final class MenuItemsManager implements Initiable, Listener {
 
 
     public static boolean isSpecItem(final ItemStack is) {
-//System.out.println("--isSpecItem id="+idFromItemStack(is));
-        return is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData() && itemById.containsKey(is.getItemMeta().getCustomModelData());
+//if (is!=null) Ostrov.log_warn("--isSpecItem id="+" possibleMat?"+possibleMat.contains(is.getType())+" is="+is);
+        //return is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData() && itemById.containsKey(is.getItemMeta().getCustomModelData());
+        if (is != null && possibleMat.contains(is.getType()) && !is.getPersistentDataContainer().isEmpty()) {
+            Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+            if (id != null && itemById.containsKey(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean hasItem(final String name) {
@@ -398,6 +408,7 @@ public final class MenuItemsManager implements Initiable, Listener {
         if (si == null || si.name == null || si.name.isEmpty()) return;
         itemByNames.put(si.name, si);
         itemById.put(si.id, si);
+//Ostrov.log_warn("+++++++++++++ addItem "+si.name+" mat="+si.getItem().getType()+" id="+si.id);
         possibleMat.add(si.getMaterial());
     }
 
@@ -406,19 +417,32 @@ public final class MenuItemsManager implements Initiable, Listener {
     }
 
     public static MenuItem fromItemStack(final ItemStack is) {
-        if (is == null || !possibleMat.contains(is.getType()) || !is.hasItemMeta() || !is.getItemMeta().hasCustomModelData())
+//if (is!=null) Ostrov.log_warn("--isSpecItem id="+" possibleMat?"+possibleMat.contains(is.getType())+" is="+is);
+        //if (is == null || !possibleMat.contains(is.getType()) || !is.hasItemMeta() || !is.getItemMeta().hasCustomModelData())
+        if (is == null || !possibleMat.contains(is.getType()) || is.getPersistentDataContainer().isEmpty()) {
             return null;
-        //if (isSpecItem(is)) {
-        return itemById.get(is.getItemMeta().getCustomModelData());
+        }
+        Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+//Ostrov.log_warn("================ ID="+id);
+        if (id != null) {
+            return itemById.get(id);
+        }
+        //int i = is.getItemMeta().getCustomModelData();
+        //return itemById.get(is.getItemMeta().getCustomModelData());
         //}
 //System.out.println("--fromItemStack si="+si+" is dcec?"+si.isSpecItem(is));
-        //return null;
+        return null;
     }
 
     public static int idFromItemStack(final ItemStack is) {
-        if (is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData()) {
-            int id = is.getItemMeta().getCustomModelData();
-            return (itemById.containsKey(id)) ? id : 0;
+        //if (is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData()) {
+        if (is != null && possibleMat.contains(is.getType()) && !is.getPersistentDataContainer().isEmpty()) {
+            Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+            if (id != null) {
+                return id;
+            }
+            //int id = is.getItemMeta().getCustomModelData();
+            //return (itemById.containsKey(id)) ? id : 0;
         }
         return 0;
     }
