@@ -119,16 +119,16 @@ public class ItemBuilder {
     }
 
     public ItemBuilder name(final @Nullable String name) {
-        return name == null ? reset(DataComponentTypes.ITEM_NAME)
-            : set(DataComponentTypes.ITEM_NAME, TCUtil.form(name));
+        return name == null ? reset(DataComponentTypes.CUSTOM_NAME)
+            : set(DataComponentTypes.CUSTOM_NAME, TCUtil.form(name));
     }
 
     public ItemBuilder name(final @Nullable Component name) {
         if (name == null) {
-            reset(DataComponentTypes.ITEM_NAME);
+            reset(DataComponentTypes.CUSTOM_NAME);
             return this;
         }
-        set(DataComponentTypes.ITEM_NAME, name);
+        set(DataComponentTypes.CUSTOM_NAME, name);
         return this;
     }
 

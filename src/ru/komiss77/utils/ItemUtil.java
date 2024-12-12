@@ -663,7 +663,7 @@ public class ItemUtil {
     }
 
     public static boolean isBlank(final ItemStack item, final boolean checkMeta) {
-        return item == null || item.getType().isAir() || (checkMeta && !item.hasItemMeta());
+        return item == null || item.getType().isAir() || (checkMeta && item.getDataTypes().isEmpty());
     }
 
     public static boolean hasName(final ItemStack is) {
@@ -742,6 +742,14 @@ public class ItemUtil {
             }
         });
         dp.put(DataComponentTypes.ITEM_NAME, new DataParser.Parser<Component>() {
+            public String write(final Component val, final String... seps) {
+                return TCUtil.deform(val);
+            }
+            public Component parse(final String str, final String... seps) {
+                return TCUtil.form(str);
+            }
+        });
+        dp.put(DataComponentTypes.CUSTOM_NAME, new DataParser.Parser<Component>() {
             public String write(final Component val, final String... seps) {
                 return TCUtil.deform(val);
             }
@@ -1055,7 +1063,14 @@ public class ItemUtil {
         if (str == null || str.startsWith("air")) return ItemType.AIR.createItemStack();
         final String[] split = str.split(SPLIT_0);
         final String[] idt = split[0].split(SPLIT_1);
-        final ItemType tp = Ostrov.registries.ITEMS.get(Key.key(idt[0]));
+        final ItemType tp;
+        try {
+            tp = Ostrov.registries.ITEMS.get(Key.key(idt[0]));
+        } catch (InvalidKeyException e) {
+            Ostrov.log_err("Couldn't parse type for " + str);
+            e.printStackTrace();
+            return ItemType.AIR.createItemStack();
+        }
         if (tp == null) {
             Ostrov.log_err("Failed parsing item type for " + str);
             return ItemType.AIR.createItemStack();
@@ -1081,6 +1096,7 @@ public class ItemUtil {
             }
         } catch (NullPointerException | IllegalArgumentException | InvalidKeyException e) {
             Ostrov.log_err("Couldn't parse data " + data);
+            e.printStackTrace();
             return it;
         }
         return it;

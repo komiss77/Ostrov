@@ -41,7 +41,7 @@ public class Sounds implements InventoryProvider {
         }
 
         final List<Sound> ses = Ostrov.registries.SOUNDS.stream().toList();
-        final List<String> sounds = ses.stream().map(s -> Ostrov.registries.SOUNDS.getKey(s).value()).toList();
+        final List<String> sounds = ses.stream().map(s -> Ostrov.registries.SOUNDS.getKey(s).value()).sorted().toList();
         if (to > sounds.size()) {
             to = sounds.size();
         } else {

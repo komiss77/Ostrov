@@ -110,45 +110,45 @@ public final class Crafts implements Initiable, Listener {
 
     public static void readCraft(final ConfigurationSection cs) {
         //ConfigurationSection cs = craftConfig.getConfigurationSection("crafts");
-        final ItemStack resultItem = ItemUtil.parseItem(cs.getString("result"), "=");
+        final ItemStack resultItem = ItemUtil.parse(cs.getString("result"));
         final NamespacedKey nsk = new NamespacedKey(OStrap.space, cs.getName());
         //cs = craftConfig.getConfigurationSection("crafts." + c + ".recipe");
         final Recipe recipe;
         final ItemStack it;
         switch (cs.getString("type")) {//(craftConfig.getString("crafts." + c + ".type")) {
             case "smoker":
-                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
                 recipe = new SmokingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
                 break;
             case "blaster":
-                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
                 recipe = new BlastingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
                 break;
             case "campfire":
-                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
                 recipe = new CampfireRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 500);
                 break;
             case "furnace":
-                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
                 recipe = new FurnaceRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 200);
                 break;
             case "cutter":
-                if (ItemUtil.isBlank((it = ItemUtil.parseItem(cs.getString("recipe.a"), "=")), false)) return;
+                if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
                 recipe = new StonecuttingRecipe(nsk, resultItem, CMDMatChoice.of(it));
                 break;
             case "smith":
-                it = ItemUtil.parseItem(cs.getString("recipe.a"), "=");
-                final ItemStack scd = ItemUtil.parseItem(cs.getString("recipe.b"), "=");
+                it = ItemUtil.parse(cs.getString("recipe.a"));
+                final ItemStack scd = ItemUtil.parse(cs.getString("recipe.b"));
                 if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
                 recipe = new SmithingTransformRecipe(nsk, resultItem, CMDMatChoice.of(
-                    ItemUtil.parseItem(cs.getString("recipe.c"), "=")), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                    ItemUtil.parse(cs.getString("recipe.c"))), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    final ItemStack ii = ItemUtil.parseItem(cs.getString("recipe." + s), "=");
+                    final ItemStack ii = ItemUtil.parse(cs.getString("recipe." + s));
                     if (!ii.getType().isAir()) {
-                        ((ShapelessRecipe) recipe).addIngredient(CMDMatChoice.of(ItemUtil.parseItem(cs.getString("recipe." + s), "=")));
+                        ((ShapelessRecipe) recipe).addIngredient(CMDMatChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
                     }
                 }
                 break;
@@ -158,7 +158,7 @@ public final class Crafts implements Initiable, Listener {
                 final String shp = cs.getString("shape");
                 ((ShapedRecipe) recipe).shape(shp == null ? new String[]{"abc", "def", "ghi"} : shp.split(":"));
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), CMDMatChoice.of(ItemUtil.parseItem(cs.getString("recipe." + s), "=")));
+                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), CMDMatChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
                 }
                 break;
         }

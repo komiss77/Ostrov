@@ -56,7 +56,7 @@ public final class PvpCmd implements OCommand, Listener {
                 pl.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
                 return com.mojang.brigadier.Command.SINGLE_SUCCESS;
             })
-            .then(Resolver.player(act)
+            .then(Resolver.string(act)
                 .suggests((cntx, sb) -> {
                     final CommandSender cs = cntx.getSource().getSender();
                     if (!(cs instanceof final Player pl)) {

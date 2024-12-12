@@ -23,11 +23,15 @@ import ru.komiss77.*;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.EntityUtil;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -528,7 +532,7 @@ public class PvPManager implements Initiable {
                                         }
                                     }
                                 }
-                            } else if (target instanceof Mob) {// # v M
+                            } else if (target instanceof Mob || target instanceof ArmorStand) {// # v M
                                 final ItemStack shd = target.getEquipment().getItemInOffHand();
                                 if (ItemUtil.is(shd, ItemType.SHIELD) && Ostrov.random.nextBoolean()) {
                                     target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
@@ -601,7 +605,6 @@ public class PvPManager implements Initiable {
                                 }
                             }
                         }
-
                     }
                 }
 

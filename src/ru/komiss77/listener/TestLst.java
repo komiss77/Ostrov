@@ -1,41 +1,32 @@
 package ru.komiss77.listener;
 
-import org.bukkit.*;
-import org.bukkit.block.BlockType;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.modules.bots.AfkExt;
-import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.version.GameApi;
-import ru.komiss77.version.Nms;
+import ru.komiss77.utils.ItemUtil;
 
 public class TestLst implements Listener {
 
     Botter bt = null;
 
 
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void test(PlayerInteractEvent e) {
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
         if (!ApiOstrov.isLocalBuilder(p)) return;
@@ -51,27 +42,30 @@ public class TestLst implements Listener {
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
               if (p.isSneaking()) {
-                WorldBorder wb = p.getWorldBorder();
+                  p.getInventory().addItem(new ItemBuilder(ItemType.STRING).name("<red>try to blend in").rarity(ItemRarity.EPIC).edible(40, ItemUseAnimation.EAT, Sound.ENTITY_HORSE_EAT).build());
+                  p.getInventory().addItem(ItemUtil.previosPage);
+                  p.getInventory().addItem(ItemUtil.nextPage);
+                /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   wb = Bukkit.createWorldBorder();
                 }
                 wb.setCenter(p.getLocation());
                 wb.setSize(10);
                 p.setWorldBorder(wb);
-                p.sendMessage("setSize(10) wb=" + wb);
+                p.sendMessage("setSize(10) wb=" + wb);*/
 
                 //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
                 //op.tag(true);
                 //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
                 //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
-                WorldBorder wb = p.getWorldBorder();
+                /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   p.sendMessage("wb = null");
                 } else {
                   p.sendMessage("wb =" + wb + " world=" + (wb.getWorld() == null ? wb.getWorld() : wb.getWorld().getName())
                       + " center=" + wb.getCenter() + " size=" + wb.getSize());
-                }
+                }*/
                 //op.tag(false);
                 //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                    /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();

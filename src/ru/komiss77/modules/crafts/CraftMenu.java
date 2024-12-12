@@ -4,40 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.BlastingRecipe;
-import org.bukkit.inventory.CampfireRecipe;
-import org.bukkit.inventory.CookingRecipe;
-import org.bukkit.inventory.FurnaceRecipe;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.SmithingRecipe;
-import org.bukkit.inventory.SmithingTransformRecipe;
-import org.bukkit.inventory.SmokingRecipe;
-import org.bukkit.inventory.StonecuttingRecipe;
+import org.bukkit.inventory.*;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.crafts.Crafts.Craft;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.ItemClickData;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 
@@ -49,20 +31,20 @@ public class CraftMenu implements InventoryProvider {
     private final String key;
     private final boolean view;
 
-    private Material tp;
+    private ItemType tp;
 
     static {
         invIts = new ItemStack[27];
         for (int i = 0; i < 27; i++) {
             switch (i) {
                 case 13:
-                    invIts[13] = new ItemBuilder(Material.IRON_NUGGET).name("§7->").build();
+                    invIts[13] = new ItemBuilder(ItemType.IRON_NUGGET).name("§7->").build();
                     break;
                 case 9:
-                    invIts[9] = new ItemBuilder(Material.CHEST).name("§dФормированый").build();
+                    invIts[9] = new ItemBuilder(ItemType.CHEST).name("§dФормированый").build();
                     break;
                 default:
-                    invIts[i] = new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE).name("§0.").build();
+                    invIts[i] = new ItemBuilder(ItemType.LIGHT_GRAY_STAINED_GLASS_PANE).name("§0.").build();
                     break;
             }
         }
@@ -73,23 +55,16 @@ public class CraftMenu implements InventoryProvider {
         this.key = key;
         this.view = view;
         final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
-        if (rc instanceof ShapelessRecipe) {
-            tp = Material.ENDER_CHEST;
-        } else if (rc instanceof FurnaceRecipe) {
-            tp = Material.FURNACE;
-        } else if (rc instanceof SmokingRecipe) {
-            tp = Material.SMOKER;
-        } else if (rc instanceof BlastingRecipe) {
-            tp = Material.BLAST_FURNACE;
-        } else if (rc instanceof CampfireRecipe) {
-            tp = Material.CAMPFIRE;
-        } else if (rc instanceof SmithingRecipe) {
-            tp = Material.SMITHING_TABLE;
-        } else if (rc instanceof StonecuttingRecipe) {
-            tp = Material.STONECUTTER;
-        } else {
-            tp = Material.CHEST;
-        }
+        tp = switch (rc) {
+            case ShapelessRecipe ignored -> ItemType.ENDER_CHEST;
+            case FurnaceRecipe ignored -> ItemType.FURNACE;
+            case SmokingRecipe ignored -> ItemType.SMOKER;
+            case BlastingRecipe ignored -> ItemType.BLAST_FURNACE;
+            case CampfireRecipe ignored -> ItemType.CAMPFIRE;
+            case SmithingRecipe ignored -> ItemType.SMITHING_TABLE;
+            case StonecuttingRecipe ignored -> ItemType.STONECUTTER;
+            case null, default -> ItemType.CHEST;
+        };
     }
 
     @Override
@@ -97,39 +72,29 @@ public class CraftMenu implements InventoryProvider {
         final Inventory inv = its.getInventory();
         if (inv != null) inv.setContents(invIts);
         final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
-//        p.sendMessage("k=" + new NamespacedKey(Crafts.space, key) + ", f=" + rc + ", " + Crafts.crafts.toString());
+//        p.sendMessage("k=" + new NamespacedKey(Crafts.space, key) + ", f=" + rc + ", " + Crafts.crafts.write());
         its.set(9, rc == null ? ClickableItem.of(makeIcon(tp), e -> {
-            switch (tp) {
-                case CHEST:
-                default:
-                    tp = Material.ENDER_CHEST;
-                    break;
-                case ENDER_CHEST:
-                    tp = Material.FURNACE;
-                    break;
-                case FURNACE:
-                    tp = Material.SMOKER;
-                    break;
-                case SMOKER:
-                    tp = Material.BLAST_FURNACE;
-                    break;
-                case BLAST_FURNACE:
-                    tp = Material.CAMPFIRE;
-                    break;
-                case CAMPFIRE:
-                    tp = Material.SMITHING_TABLE;
-                    break;
-                case SMITHING_TABLE:
-                    tp = Material.STONECUTTER;
-                    break;
-                case STONECUTTER:
-                    tp = Material.CHEST;
-                    break;
+            if (ItemType.ENDER_CHEST.equals(tp)) {
+                tp = ItemType.FURNACE;
+            } else if (ItemType.FURNACE.equals(tp)) {
+                tp = ItemType.SMOKER;
+            } else if (ItemType.SMOKER.equals(tp)) {
+                tp = ItemType.BLAST_FURNACE;
+            } else if (ItemType.BLAST_FURNACE.equals(tp)) {
+                tp = ItemType.CAMPFIRE;
+            } else if (ItemType.CAMPFIRE.equals(tp)) {
+                tp = ItemType.SMITHING_TABLE;
+            } else if (ItemType.SMITHING_TABLE.equals(tp)) {
+                tp = ItemType.STONECUTTER;
+            } else if (ItemType.STONECUTTER.equals(tp)) {
+                tp = ItemType.CHEST;
+            } else {//if ItemType.CHEST.equals(tp)
+                tp = ItemType.ENDER_CHEST;
             }
             reopen(p, its);
         }) : ClickableItem.empty(makeIcon(tp)));
-        its.set(16, view ? ClickableItem.empty(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE)) :
-                ClickableItem.from(new ItemBuilder(Material.GREEN_CONCRETE_POWDER).name("§aГотово!").build(), e -> {
+        its.set(16, view ? ClickableItem.empty(ItemType.LIGHT_GRAY_STAINED_GLASS_PANE.createItemStack()) :
+                ClickableItem.from(new ItemBuilder(ItemType.GREEN_CONCRETE_POWDER).name("§aГотово!").build(), e -> {
                     if (e.getEvent() instanceof InventoryClickEvent) {
                         ((InventoryClickEvent) e.getEvent()).setCancelled(true);
                     }
@@ -142,8 +107,8 @@ public class CraftMenu implements InventoryProvider {
                     //запоминание крафта
                     final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
                     craftConfig.set(key, null);
-                    craftConfig.set(key + ".result", ItemUtil.toString(rst, "="));
-                    //craftConfig.set(key + ".world", Ostrov.subServer.toString());
+                    craftConfig.set(key + ".result", ItemUtil.write(rst));
+                    //craftConfig.set(key + ".world", Ostrov.subServer.write());
                     craftConfig.set(key + ".type", getRecType(tp));
                     final ConfigurationSection cs = craftConfig.getConfigurationSection(key);
                     final NamespacedKey nKey = new NamespacedKey(OStrap.space, key);
@@ -154,44 +119,44 @@ public class CraftMenu implements InventoryProvider {
                     switch (inv.getItem(9).getType()) {
                         case SMOKER:
                             it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
+                            if (ItemUtil.isBlank(it, false)) {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
                             nrc = new SmokingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
                         case BLAST_FURNACE:
                             it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
+                            if (ItemUtil.isBlank(it, false)) {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
                             nrc = new BlastingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
                         case CAMPFIRE:
                             it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
+                            if (ItemUtil.isBlank(it, false)) {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
                             nrc = new CampfireRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 500);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
                         case FURNACE:
                             it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
+                            if (ItemUtil.isBlank(it, false)) {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
                             nrc = new FurnaceRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 200);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
@@ -204,20 +169,20 @@ public class CraftMenu implements InventoryProvider {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
-                            cs.set("recipe.b", ItemUtil.toString(scd, "="));
-                            cs.set("recipe.c", ItemUtil.toString(tpl, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
+                            cs.set("recipe.b", ItemUtil.write(scd));
+                            cs.set("recipe.c", ItemUtil.write(tpl));
                             nrc = new SmithingTransformRecipe(nKey, rst, CMDMatChoice.of(tpl), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
                         case STONECUTTER:
                             it = inv.getItem(11);
-                            if (it == null || it.getType() == Material.AIR) {
+                            if (ItemUtil.isBlank(it, false)) {
                                 p.sendMessage("§cСначала закончите крафт!");
                                 return;
                             }
-                            cs.set("recipe.a", ItemUtil.toString(it, "="));
+                            cs.set("recipe.a", ItemUtil.write(it));
                             nrc = new StonecuttingRecipe(nKey, rst, CMDMatChoice.of(it));
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
@@ -230,7 +195,7 @@ public class CraftMenu implements InventoryProvider {
                                     final ItemStack ti = inv.getItem(cy * 9 + cx);
                                     if (!ItemUtil.isBlank(ti, false)) {
                                         lrs.addIngredient(CMDMatChoice.of(ti));
-                                        cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtil.toString(ti, "="));
+                                        cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtil.write(ti));
                                     }
                                 }
                             }
@@ -276,7 +241,7 @@ public class CraftMenu implements InventoryProvider {
                                     final ItemStack ti = rcs[cy * rad + cx];
                                     if (!ItemUtil.isBlank(ti, false)) {
                                         srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), CMDMatChoice.of(ti));
-                                        cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtil.toString(ti, "="));
+                                        cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtil.write(ti));
                                     }
                                 }
                             }
@@ -303,103 +268,95 @@ public class CraftMenu implements InventoryProvider {
             if (e.getEvent() instanceof InventoryClickEvent)
                 ((InventoryClickEvent) e.getEvent()).setCancelled(view);
         };
-        switch (tp) {
-            case SMOKER:
-            case BLAST_FURNACE:
-            case CAMPFIRE:
-            case FURNACE:
-                if (rc == null) {
-                    setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
-                } else {
-                    setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((CookingRecipe<?>) rc).getInputChoice()).getItemStack(), its, canEdit);
+        final Set<ItemType> COOKING = Set.of(ItemType.FURNACE, ItemType.SMOKER, ItemType.BLAST_FURNACE, ItemType.CAMPFIRE);
+        if (COOKING.contains(tp)) {
+            if (rc == null) {
+                setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
-                }
-                break;
-            case SMITHING_TABLE:
-                if (rc == null) {
-                    setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
+            } else {
+                setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((CookingRecipe<?>) rc).getInputChoice()).getItemStack(), its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
-                } else {
-                    setEditSlot(SlotPos.of(0, 2), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getTemplate()).getItemStack(), its, canEdit);
-                    setEditSlot(SlotPos.of(1, 1), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getBase()).getItemStack(), its, canEdit);
-                    setEditSlot(SlotPos.of(1, 3), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getAddition()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
+            }
+        } else if (ItemType.SMITHING_TABLE.equals(tp)) {
+            if (rc == null) {
+                setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
-                }
-                break;
-            case STONECUTTER:
-                if (rc == null) {
-                    setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
+            } else {
+                setEditSlot(SlotPos.of(0, 2), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getTemplate()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getBase()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getAddition()).getItemStack(), its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
-                } else {
-                    setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((StonecuttingRecipe) rc).getInputChoice()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
+            }
+        } else if (ItemType.STONECUTTER.equals(tp)) {
+            if (rc == null) {
+                setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
-                }
-                break;
-            case ENDER_CHEST:
-                if (rc == null) {
-                    setEditSlot(SlotPos.of(0, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 3), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
+            } else {
+                setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((StonecuttingRecipe) rc).getInputChoice()).getItemStack(), its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
-                } else {
-                    final Iterator<RecipeChoice> rci = ((ShapelessRecipe) rc).getChoiceList().iterator();
-                    setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
+            }
+        } else if (ItemType.ENDER_CHEST.equals(tp)) {
+            if (rc == null) {
+                setEditSlot(SlotPos.of(0, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 3), null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
-                }
-                break;
-            case CHEST:
-            default:
-                if (rc == null) {
-                    setEditSlot(SlotPos.of(0, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(0, 3), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 1), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 2), null, its, canEdit);
-                    setEditSlot(SlotPos.of(2, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
+            } else {
+                final Iterator<RecipeChoice> rci = ((ShapelessRecipe) rc).getChoiceList().iterator();
+                setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
 
-                    setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
-                } else {
-                    final String[] shp = ((ShapedRecipe) rc).getShape();
-                    final Map<Character, RecipeChoice> rcm = ((ShapedRecipe) rc).getChoiceMap();
-                    for (int r = 0; r < rad; r++) {
-                        final String sr = shp.length > r ? shp[r] : "";
-                        for (int c = 0; c < rad; c++) {
-                            final RecipeChoice chs = rcm.get(sr.length() > c ? sr.charAt(c) : 'w');
-                            setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((CMDMatChoice) chs).getItemStack(), its, canEdit);
-                        }
+                setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
+            }
+        } else {//if ItemType.CHEST.equals(tp)
+            if (rc == null) {
+                setEditSlot(SlotPos.of(0, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 1), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 2), null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 3), null, its, canEdit);
+
+                setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
+            } else {
+                final String[] shp = ((ShapedRecipe) rc).getShape();
+                final Map<Character, RecipeChoice> rcm = ((ShapedRecipe) rc).getChoiceMap();
+                for (int r = 0; r < rad; r++) {
+                    final String sr = shp.length > r ? shp[r] : "";
+                    for (int c = 0; c < rad; c++) {
+                        final RecipeChoice chs = rcm.get(sr.length() > c ? sr.charAt(c) : 'w');
+                        setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((CMDMatChoice) chs).getItemStack(), its, canEdit);
                     }
-
-                    setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
                 }
-                break;
+
+                setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
+            }
         }
     }
 
@@ -418,30 +375,26 @@ public class CraftMenu implements InventoryProvider {
         its.setEditable(slot, !view);
     }
 
-    private ItemStack makeIcon(final Material mt) {
-        return switch (mt) {
-            default -> new ItemBuilder(Material.CHEST).name("§dФормированый").build();
-            case ENDER_CHEST -> new ItemBuilder(Material.ENDER_CHEST).name("§5Безформенный").build();
-            case FURNACE -> new ItemBuilder(Material.FURNACE).name("§6Печевой").build();
-            case SMOKER -> new ItemBuilder(Material.SMOKER).name("§cЗапекающий").build();
-            case BLAST_FURNACE -> new ItemBuilder(Material.BLAST_FURNACE).name("§7Плавильный").build();
-            case CAMPFIRE -> new ItemBuilder(Material.CAMPFIRE).name("§eКостерный").build();
-            case SMITHING_TABLE -> new ItemBuilder(Material.SMITHING_TABLE).name("§fКующий").build();
-            case STONECUTTER -> new ItemBuilder(Material.STONECUTTER).name("§7Режущий").build();
-        };
+    private ItemStack makeIcon(final ItemType mt) {
+        if (ItemType.ENDER_CHEST.equals(tp)) return new ItemBuilder(ItemType.ENDER_CHEST).name("§5Безформенный").build();
+        if (ItemType.FURNACE.equals(tp)) return new ItemBuilder(ItemType.FURNACE).name("§6Печевой").build();
+        if (ItemType.SMOKER.equals(tp)) return new ItemBuilder(ItemType.SMOKER).name("§cЗапекающий").build();
+        if (ItemType.BLAST_FURNACE.equals(tp)) return new ItemBuilder(ItemType.BLAST_FURNACE).name("§7Плавильный").build();
+        if (ItemType.CAMPFIRE.equals(tp)) return new ItemBuilder(ItemType.CAMPFIRE).name("§eКостерный").build();
+        if (ItemType.SMITHING_TABLE.equals(tp)) return new ItemBuilder(ItemType.SMITHING_TABLE).name("§fКующий").build();
+        if (ItemType.STONECUTTER.equals(tp)) return new ItemBuilder(ItemType.STONECUTTER).name("§7Режущий").build();
+        /*if ItemType.CHEST.equals(tp)*/ return new ItemBuilder(ItemType.CHEST).name("§dФормированый").build();
     }
 
-    private String getRecType(final Material m) {
-        return switch (m) {
-            case SMOKER -> "smoker";
-            case BLAST_FURNACE -> "blaster";
-            case CAMPFIRE -> "campfire";
-            case FURNACE -> "furnace";
-            case SMITHING_TABLE -> "smith";
-            case STONECUTTER -> "cutter";
-            case ENDER_CHEST -> "noshape";
-            default -> "shaped";
-        };
+    private String getRecType(final ItemType m) {
+        if (ItemType.ENDER_CHEST.equals(tp)) return "noshape";
+        if (ItemType.FURNACE.equals(tp)) return "furnace";
+        if (ItemType.SMOKER.equals(tp)) return "smoker";
+        if (ItemType.BLAST_FURNACE.equals(tp)) return "blaster";
+        if (ItemType.CAMPFIRE.equals(tp)) return "campfire";
+        if (ItemType.SMITHING_TABLE.equals(tp)) return "smith";
+        if (ItemType.STONECUTTER.equals(tp)) return "cutter";
+            /*if ItemType.CHEST.equals(tp)*/ return "shaped";
     }
 
 
