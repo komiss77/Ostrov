@@ -1,12 +1,11 @@
 package ru.komiss77.builder.menu;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.BannerPatternLayers;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import org.bukkit.DyeColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Banner;
@@ -16,10 +15,10 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.OStrap;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -30,13 +29,13 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 public class BannerEditor implements InventoryProvider {
 
-    private static final ClickableItem empty = ClickableItem.empty(new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE).name("§8пустой слой").build());
-    private static final ClickableItem c = ClickableItem.empty(new ItemBuilder(Material.GLOW_LICHEN).name("§8Линия-разделитель").build());
-    private static final ClickableItem select = ClickableItem.empty(new ItemBuilder(Material.POINTED_DRIPSTONE).name("§8Ниже-варианты на выбор").build());
-    private static final ClickableItem resut = ClickableItem.empty(new ItemBuilder(Material.IRON_NUGGET).name("§8Справа-результат").build());
+    private static final ClickableItem empty = ClickableItem.empty(new ItemBuilder(ItemType.LIGHT_GRAY_STAINED_GLASS_PANE).name("§8пустой слой").build());
+    private static final ClickableItem c = ClickableItem.empty(new ItemBuilder(ItemType.GLOW_LICHEN).name("§8Линия-разделитель").build());
+    private static final ClickableItem select = ClickableItem.empty(new ItemBuilder(ItemType.POINTED_DRIPSTONE).name("§8Ниже-варианты на выбор").build());
+    private static final ClickableItem resut = ClickableItem.empty(new ItemBuilder(ItemType.IRON_NUGGET).name("§8Справа-результат").build());
 
     private final Block b;
-    private Material mat;
+    private ItemType mat;
     private List<Pattern> patterns;
     private int editIdx; //индекс редактируемого слоя
     private EditMode mode = EditMode.NO;
@@ -64,9 +63,8 @@ public class BannerEditor implements InventoryProvider {
         patternExample = new HashMap<>();
         for (PatternType patternType : PARRENTS) {
             final Pattern pattern = new Pattern(DyeColor.BLACK, patternType);
-            patternExample.put(patternType, genBanner(Material.WHITE_BANNER, null,
-                List.of(Component.text("§7ЛКМ - §aвыбрать")),
-                pattern));
+            patternExample.put(patternType, new ItemBuilder(ItemType.WHITE_BANNER).lore("§7ЛКМ - §aвыбрать")
+                .set(DataComponentTypes.BANNER_PATTERNS, BannerPatternLayers.bannerPatternLayers(List.of(pattern))).build());
         }
     }
 
@@ -97,7 +95,7 @@ public class BannerEditor implements InventoryProvider {
             }
             final Banner ban = (Banner) b.getState();
             patterns = ban.getPatterns();
-            mat = b.getType();
+            mat = b.getType().asItemType();
         }
 
         if (mode != EditMode.NO) {
@@ -136,11 +134,12 @@ public class BannerEditor implements InventoryProvider {
         for (final Pattern pt : patterns) {
             final int idx = slot - 1;
             content.set(0, slot, ClickableItem.of(
-                genBanner(Material.WHITE_BANNER, "Слой " + slot,
-                    List.of(Component.text("§fЛКМ §7- §6настроить Маску"),
+                new ItemBuilder(ItemType.WHITE_BANNER).name("Слой " + slot)
+                    .lore(List.of(Component.text("§fЛКМ §7- §6настроить Маску"),
                         Component.text("§fПКМ §7- §6настроить Цвет"),
                         Component.text(idx == 0 ? "§3Верхний слой" : "§fШифт+ПКМ §7- §3переместить выше"),
-                        Component.text("§cКлав.Q - удалить")), pt), e -> {
+                        Component.text("§cКлав.Q - удалить"))).set(DataComponentTypes.BANNER_PATTERNS,
+                    BannerPatternLayers.bannerPatternLayers(List.of(pt))).build(), e -> {
                     switch (e.getClick()) {
                         case LEFT -> {
                             editIdx = idx;
@@ -190,12 +189,8 @@ public class BannerEditor implements InventoryProvider {
 
         content.set(0, 7, resut);
 
-        final ItemStack is = new ItemStack(mat);
-        ItemMeta im = is.getItemMeta();
-        im.displayName(Component.text("Вот что получается"));
-        im.lore(List.of(Component.text("§fЛКМ §7- §bприменить к баннеру")));
-        ((BannerMeta) im).setPatterns(patterns);
-        is.setItemMeta(im);
+        final ItemStack is = new ItemBuilder(mat).name("Вот что получается").lore("§fЛКМ §7- §bприменить к баннеру")
+            .set(DataComponentTypes.BANNER_PATTERNS, BannerPatternLayers.bannerPatternLayers(patterns)).build();
 
         content.set(0, 8, ClickableItem.of(is, e -> {
             p.closeInventory();
@@ -203,8 +198,8 @@ public class BannerEditor implements InventoryProvider {
                 p.sendMessage("§cБлок уже не баннер!");
                 return;
             }
-            if (b.getType() != mat) {
-                b.setType(mat);
+            if (!Objects.equals(b.getType().asItemType(), mat)) {
+                b.setBlockData(mat.getBlockType().createBlockData());
             }
             final Banner ban = (Banner) b.getState();
             ban.setPatterns(patterns);
@@ -217,8 +212,8 @@ public class BannerEditor implements InventoryProvider {
             case BASE:
 
                 for (DyeColor dc : DyeColor.values()) {
-                    final Material m = TCUtil.changeColor(mat, dc);
-                    content.add(ClickableItem.of(new ItemStack(m), e -> {
+                    final ItemType m = TCUtil.changeColor(mat, dc);
+                    content.add(ClickableItem.of(m.createItemStack(), e -> {
                         mat = m;
                         reopen(p, content);
                     }));
@@ -228,10 +223,9 @@ public class BannerEditor implements InventoryProvider {
             case CHAR:
 
                 for (char c : symbols.toCharArray()) {
-                    content.add(ClickableItem.of(genBanner(inverted(bordered, c) ? Material.BLACK_BANNER : Material.WHITE_BANNER,
-                            "§f" + c,
-                        List.of(Component.text("§fЛКМ §7- §1наложить слои")),
-                        bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)), e -> {
+                    content.add(ClickableItem.of(new ItemBuilder(inverted(bordered, c) ? ItemType.BLACK_BANNER : ItemType.WHITE_BANNER)
+                        .name("§f" + c).lore("§fЛКМ §7- §1наложить слои").set(DataComponentTypes.BANNER_PATTERNS, BannerPatternLayers
+                            .bannerPatternLayers(Arrays.asList(bordered ? alphabetBordered.get(c) : alphabetNotBordered.get(c)))).build(), e -> {
                         patterns = alphabet(DyeColor.WHITE, DyeColor.BLACK, c, bordered);
                         mode = EditMode.NO;
                         reopen(p, content);
@@ -253,9 +247,8 @@ public class BannerEditor implements InventoryProvider {
                 final PatternType patternType = patterns.get(editIdx).getPattern();
                 for (DyeColor dc : DyeColor.values()) {
                     final Pattern pattern = new Pattern(dc, patternType);
-                    content.add(ClickableItem.of(genBanner(Material.WHITE_BANNER, null,
-                        List.of(Component.text("ЛКМ - выбрать")),
-                        pattern), e -> {
+                    content.add(ClickableItem.of(new ItemBuilder(ItemType.WHITE_BANNER).lore("ЛКМ - выбрать")
+                        .set(DataComponentTypes.BANNER_PATTERNS, BannerPatternLayers.bannerPatternLayers(List.of(pattern))).build(), e -> {
                         patterns.set(editIdx, pattern);
                         reopen(p, content);
                     }));
@@ -264,29 +257,6 @@ public class BannerEditor implements InventoryProvider {
 
         }
 
-    }
-
-
-    private static ItemStack genBanner(final Material base, final String name, List<Component> lore, Pattern... patterns) {
-        final ItemStack is = new ItemStack(base);
-        ItemMeta im = is.getItemMeta();
-        if (name != null) {
-            im.displayName(Component.text(name));
-        }
-        if (lore != null) {
-            im.lore(lore);
-        }
-        if (patterns != null) {
-            for (Pattern pt : patterns) {
-                ((BannerMeta) im).addPattern(pt);
-            }
-        }
-        //if (enchant) {
-        //im.addEnchant(Enchantment.LUCK, 1, true);
-        //im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        // }
-        is.setItemMeta(im);
-        return is;
     }
 
     public static boolean inverted(final boolean bordered, final char c) {

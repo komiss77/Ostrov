@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;

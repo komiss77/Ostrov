@@ -90,6 +90,7 @@ public final class Crafts implements Initiable, Listener {
         }
 
         for (final File cfg : dir.listFiles()) {
+            if (!cfg.getName().endsWith(".yml")) continue;
             final ConsoleCommandSender css = Bukkit.getConsoleSender();
             final YamlConfiguration otherCrafts = YamlConfiguration.loadConfiguration(cfg);
             css.sendMessage("Found file " + cfg.getName());
@@ -118,37 +119,37 @@ public final class Crafts implements Initiable, Listener {
         switch (cs.getString("type")) {//(craftConfig.getString("crafts." + c + ".type")) {
             case "smoker":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new SmokingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
+                recipe = new SmokingRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 100);
                 break;
             case "blaster":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new BlastingRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 100);
+                recipe = new BlastingRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 100);
                 break;
             case "campfire":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new CampfireRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 500);
+                recipe = new CampfireRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 500);
                 break;
             case "furnace":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new FurnaceRecipe(nsk, resultItem, CMDMatChoice.of(it), 0.5f, 200);
+                recipe = new FurnaceRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 200);
                 break;
             case "cutter":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new StonecuttingRecipe(nsk, resultItem, CMDMatChoice.of(it));
+                recipe = new StonecuttingRecipe(nsk, resultItem, IdChoice.of(it));
                 break;
             case "smith":
                 it = ItemUtil.parse(cs.getString("recipe.a"));
                 final ItemStack scd = ItemUtil.parse(cs.getString("recipe.b"));
                 if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
-                recipe = new SmithingTransformRecipe(nsk, resultItem, CMDMatChoice.of(
-                    ItemUtil.parse(cs.getString("recipe.c"))), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                recipe = new SmithingTransformRecipe(nsk, resultItem, IdChoice.of(
+                    ItemUtil.parse(cs.getString("recipe.c"))), IdChoice.of(it), IdChoice.of(scd), false);
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
                     final ItemStack ii = ItemUtil.parse(cs.getString("recipe." + s));
                     if (!ii.getType().isAir()) {
-                        ((ShapelessRecipe) recipe).addIngredient(CMDMatChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
+                        ((ShapelessRecipe) recipe).addIngredient(IdChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
                     }
                 }
                 break;
@@ -158,7 +159,7 @@ public final class Crafts implements Initiable, Listener {
                 final String shp = cs.getString("shape");
                 ((ShapedRecipe) recipe).shape(shp == null ? new String[]{"abc", "def", "ghi"} : shp.split(":"));
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), CMDMatChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
+                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), IdChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
                 }
                 break;
         }
@@ -189,28 +190,28 @@ public final class Crafts implements Initiable, Listener {
                     drc.shape(src.getShape());
                     for (final Entry<Character, RecipeChoice> en : src.getChoiceMap().entrySet()) {
                         if (en.getValue() == null) continue;
-                        drc.setIngredient(en.getKey(), new ExactChoice(((CMDMatChoice) en.getValue()).getItemStack()));
+                        drc.setIngredient(en.getKey(), new ExactChoice(((IdChoice) en.getValue()).getItemStack()));
                     }
                     return drc;
                 case ShapelessRecipe src:
                     final ShapelessRecipe lrc = new ShapelessRecipe(new NamespacedKey(OStrap.space, ks), rc.getResult());
                     for (final RecipeChoice ch : src.getChoiceList()) {
                         if (ch == null) continue;
-                        lrc.addIngredient(new ExactChoice(((CMDMatChoice) ch).getItemStack()));
+                        lrc.addIngredient(new ExactChoice(((IdChoice) ch).getItemStack()));
                     }
                     return lrc;
                 case final FurnaceRecipe src:
                     return new FurnaceRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((IdChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final SmokingRecipe src:
                     return new SmokingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((IdChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final BlastingRecipe src:
                     return new BlastingRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((IdChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 case final CampfireRecipe src:
                     return new CampfireRecipe(new NamespacedKey(OStrap.space, ks), src.getResult(),
-                        new ExactChoice(((CMDMatChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
+                        new ExactChoice(((IdChoice) src.getInputChoice()).getItemStack()), src.getExperience(), src.getCookingTime());
                 default:
                     return null;
             }
@@ -423,22 +424,22 @@ public final class Crafts implements Initiable, Listener {
 
                 if (rc instanceof ShapedRecipe) {//магия бля
 
-                    final HashMap<CMDMatChoice, String> gridIts = new HashMap<>();
+                    final HashMap<IdChoice, String> gridIts = new HashMap<>();
                     for (final Entry<Character, RecipeChoice> en : ((ShapedRecipe) rc).getChoiceMap().entrySet()) {
                         final RecipeChoice ch = en.getValue();
-                        if (ch instanceof CMDMatChoice) {
+                        if (ch instanceof IdChoice) {
                             final String gs = gridIts.get(ch);
-                            gridIts.put((CMDMatChoice) ch, gs == null ?
+                            gridIts.put((IdChoice) ch, gs == null ?
                                 String.valueOf(en.getKey()) : gs + en.getKey());
                         }
                     }
 
-                    final HashMap<CMDMatChoice, Integer> has = new HashMap<>();
-                    for (final CMDMatChoice chs : gridIts.keySet()) has.put(chs, 0);
+                    final HashMap<IdChoice, Integer> has = new HashMap<>();
+                    for (final IdChoice chs : gridIts.keySet()) has.put(chs, 0);
                     for (final ItemStack it : p.getInventory()) {
-                        final Iterator<Entry<CMDMatChoice, Integer>> eni = has.entrySet().iterator();
+                        final Iterator<Entry<IdChoice, Integer>> eni = has.entrySet().iterator();
                         while (eni.hasNext()) {
-                            final Entry<CMDMatChoice, Integer> en = eni.next();
+                            final Entry<IdChoice, Integer> en = eni.next();
                             if (en.getKey().test(it)) {
                                 en.setValue(en.getValue() + it.getAmount());
                                 it.setAmount(0);
@@ -448,9 +449,9 @@ public final class Crafts implements Initiable, Listener {
 
                     final String shp = String.join(":", ((ShapedRecipe) rc).getShape());
                     final int rl = shp.indexOf(':') + 1;
-                    final Iterator<Entry<CMDMatChoice, String>> eni = gridIts.entrySet().iterator();
+                    final Iterator<Entry<IdChoice, String>> eni = gridIts.entrySet().iterator();
                     while (eni.hasNext()) {
-                        final Entry<CMDMatChoice, String> en = eni.next();
+                        final Entry<IdChoice, String> en = eni.next();
                         final Integer his = has.get(en.getKey());
                         final String slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
@@ -478,21 +479,21 @@ public final class Crafts implements Initiable, Listener {
                     }
 
                 } else if (rc instanceof ShapelessRecipe) {//магия бля
-                    final HashMap<CMDMatChoice, Integer> gridIts = new HashMap<>();
+                    final HashMap<IdChoice, Integer> gridIts = new HashMap<>();
                     for (final RecipeChoice ch : ((ShapelessRecipe) rc).getChoiceList()) {
-                        if (ch instanceof CMDMatChoice) {
+                        if (ch instanceof IdChoice) {
                             final Integer gs = gridIts.get(ch);
-                            gridIts.put((CMDMatChoice) ch, gs == null ? 1 : gs + 1);
+                            gridIts.put((IdChoice) ch, gs == null ? 1 : gs + 1);
                         }
                     }
 
                     int mix = start;
-                    final HashMap<CMDMatChoice, Integer> has = new HashMap<>();
-                    for (final CMDMatChoice chs : gridIts.keySet()) has.put(chs, 0);
+                    final HashMap<IdChoice, Integer> has = new HashMap<>();
+                    for (final IdChoice chs : gridIts.keySet()) has.put(chs, 0);
                     for (final ItemStack it : p.getInventory()) {
-                        final Iterator<Entry<CMDMatChoice, Integer>> eni = has.entrySet().iterator();
+                        final Iterator<Entry<IdChoice, Integer>> eni = has.entrySet().iterator();
                         while (eni.hasNext()) {
-                            final Entry<CMDMatChoice, Integer> en = eni.next();
+                            final Entry<IdChoice, Integer> en = eni.next();
                             if (en.getKey().test(it)) {
                                 en.setValue(en.getValue() + it.getAmount());
                                 it.setAmount(0);
@@ -500,9 +501,9 @@ public final class Crafts implements Initiable, Listener {
                         }
                     }
 
-                    final Iterator<Entry<CMDMatChoice, Integer>> eni = gridIts.entrySet().iterator();
+                    final Iterator<Entry<IdChoice, Integer>> eni = gridIts.entrySet().iterator();
                     while (eni.hasNext()) {
-                        final Entry<CMDMatChoice, Integer> en = eni.next();
+                        final Entry<IdChoice, Integer> en = eni.next();
                         final Integer his = has.get(en.getKey());
                         final int slots = en.getValue();
                         final ItemStack kst = en.getKey().getItemStack();
@@ -536,7 +537,7 @@ public final class Crafts implements Initiable, Listener {
             case FURNACE, BLAST_FURNACE, SMOKER:
                 final FurnaceInventory fni = (FurnaceInventory) iv.getTopInventory();
                 if (rc instanceof CookingRecipe) {
-                    final CMDMatChoice chs = (CMDMatChoice) ((CookingRecipe<?>) rc).getInputChoice();
+                    final IdChoice chs = (IdChoice) ((CookingRecipe<?>) rc).getInputChoice();
                     final ItemStack in = fni.getSmelting();
                     if (!ItemUtil.isBlank(in, false)) {
                         giveItemAmt(p, in, in.getAmount());

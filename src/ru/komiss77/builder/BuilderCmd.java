@@ -16,32 +16,33 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.builder.menu.BannerEditor;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.builder.menu.HeadSetup;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
-import ru.komiss77.utils.ItemBuilder;
 
 
 public class BuilderCmd implements OCommand {
 
     public static List<String> subCommands = Arrays.asList("end");
     public static MenuItem bmi;
-    public static final ItemStack fill = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).build();
+    public static final ItemStack fill = new ItemBuilder(ItemType.GREEN_STAINED_GLASS_PANE).build();
 
     static {
-        final ItemStack buildMenu = new ItemBuilder(Material.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
+        final ItemStack buildMenu = new ItemBuilder(ItemType.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
             .name("§aМеню билдера")
             .lore("§6ПКМ на баннер, голову, энтити -")
             .lore("§e настроить")
-            .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
+            .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
             .build();
 
         bmi = new MenuItemBuilder("bmi", buildMenu)
@@ -54,7 +55,8 @@ public class BuilderCmd implements OCommand {
             .interact(e -> {
                 e.setCancelled(true);
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    if (e.getClickedBlock().getType() == Material.PLAYER_HEAD || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD) {
+                    if (e.getClickedBlock().getType() == Material.PLAYER_HEAD
+                        || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD) {
                         HeadSetup.openSetupMenu(e.getPlayer(), e.getClickedBlock());
                         return;
                     } else if (Tag.BANNERS.isTagged(e.getClickedBlock().getType())) {

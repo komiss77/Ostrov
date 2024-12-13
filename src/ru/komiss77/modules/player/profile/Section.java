@@ -8,13 +8,14 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.StringUtil;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 
 //http://textures.minecraft.net/texture/be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8
@@ -141,7 +142,7 @@ public enum Section {
 
 
     public static ItemStack getItem(final Section section, final Oplayer op) {
-        return new ItemBuilder(Material.PLAYER_HEAD)
+        return new ItemBuilder(ItemType.PLAYER_HEAD)
                 .name(op.eng ? section.item_nameEn : section.item_nameRu)
                 .headTexture(section.texture)
                 .build();
@@ -715,12 +716,8 @@ public enum Section {
 
         }
 
-        final ItemStack is = new ItemStack(Material.PLAYER_HEAD);
-        final ItemMeta im = is.getItemMeta();
-        im.displayName(TCUtil.form(op.eng ? section.item_nameEn : section.item_nameRu));
-        im.lore(lore);
-        ItemUtil.setHeadTexture((SkullMeta) im, section.texture);
-        is.setItemMeta(im);
+        final ItemStack is = new ItemBuilder(ItemType.PLAYER_HEAD).name(op.eng ? section.item_nameEn : section.item_nameRu)
+            .lore(lore).headTexture(section.texture).build();
         return consumer == null ? ClickableItem.empty(is) : ClickableItem.of(is, consumer);
     }
 

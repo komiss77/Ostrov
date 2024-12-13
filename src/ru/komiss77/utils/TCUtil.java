@@ -3,6 +3,7 @@ package ru.komiss77.utils;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,9 +19,11 @@ import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
 import org.intellij.lang.annotations.Subst;
+import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.version.GameApi;
 
@@ -205,6 +208,7 @@ public class TCUtil {
         return it;
     }
 
+    @Deprecated
     public static Material changeColor(final Material source, final DyeColor color) {
         if (source == null) {
             return Material.BEDROCK; //заглушки от NullPoint  в плагинах
@@ -217,6 +221,15 @@ public class TCUtil {
         return newMat == null ? source : newMat;
     }
 
+    public static ItemType changeColor(final ItemType source, final DyeColor color) {
+        if (source == null) return ItemType.BEDROCK; //заглушки от NullPoint  в плагинах
+        if (color == null) return source; //заглушки от NullPoint  в плагинах
+        final String stripName = stripMaterialName(source.key().value());
+        final ItemType newMat = Ostrov.registries.ITEMS.get(Key
+            .key(color.name().toLowerCase() + "_" + stripName));
+        return newMat == null ? source : newMat;
+    }
+
     public static boolean canChangeColor(final Material mat) {
         if (mat == null) {
             return false; //заглушки от NullPoint  в плагинах
@@ -224,17 +237,15 @@ public class TCUtil {
         return stripMaterialName(mat.name()).length() != mat.name().length();
     }
 
-    public static String stripMaterialName(String materialName) {
+    public static String stripMaterialName(final String materialName) {
         if (materialName == null) {
             return Material.BEDROCK.name(); //заглушки от NullPoint  в плагинах
         }
-        return switch (materialName.split("_")[0]) {
-            case "RED" -> materialName.substring(4);
-            case "BLUE", "CYAN", "GRAY", "LIME", "PINK" -> materialName.substring(5);
-            case "BLACK", "BROWN", "WHITE", "GREEN" -> materialName.substring(6);
-            case "ORANGE", "PURPLE", "YELLOW" -> materialName.substring(7);
-            case "MAGENTA" -> materialName.substring(8);
-            case "LIGHT" -> materialName.substring(11);  // "LIGHT_BLUE", "LIGHT_GRAY"
+        final String clr = materialName.split("_")[0].toLowerCase();
+        return switch (clr) {
+            case "red", "magenta", "orange", "purple", "yellow", "black", "brown", "white", "green",
+                 "blue", "cyan", "gray", "lime", "pink" -> materialName.substring(clr.length() + 1);
+            case "light" -> materialName.substring(11);  // "light_blue", "light_gray"
             default -> materialName;
         };
     }

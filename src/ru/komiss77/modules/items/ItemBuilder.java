@@ -56,7 +56,7 @@ public class ItemBuilder {
         type = from.getType().asItemType();
         amount = from.getAmount();
         final ItemData datas = ItemData.of(from);
-        if (datas == null || datas.isEmpty()) return;
+        if (datas.isEmpty()) return;
         checkData();
     }
 
@@ -436,7 +436,7 @@ public class ItemBuilder {
 
     public ItemBuilder headTexture(final @Nullable String texture) {
         return texture == null ? reset(DataComponentTypes.PROFILE) : set(DataComponentTypes.PROFILE,
-            ResolvableProfile.resolvableProfile(ItemUtil.getProfile(texture)));
+            ResolvableProfile.resolvableProfile(ItemUtil.profileTexture(texture)));
     }
 
     public ItemBuilder color(final @Nullable Color color) {

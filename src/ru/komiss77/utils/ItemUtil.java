@@ -42,6 +42,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -52,13 +53,13 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.items.DataParser;
 import ru.komiss77.modules.items.ItemBuilder;
-import ru.komiss77.modules.items.ItemClass;
+import ru.komiss77.modules.items.*;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.objects.Duo;
 
 import static org.bukkit.attribute.Attribute.*;
 
@@ -689,16 +690,36 @@ public class ItemUtil {
         return toString(is, ":");
     }
 
-    private static final char CHAR_0 = '↕',
-        CHAR_1 = '‡', CHAR_2 = '¦', CHAR_NA = '○';
-    private static final String SPLIT_0 = "<" + CHAR_0 + ">",
-        SPLIT_1 = "<" + CHAR_1 + ">", SPLIT_2 = "<" + CHAR_2 + ">",
+    private static final char CHAR_0 = '¦',
+        CHAR_1 = '↕', CHAR_2 = '÷', CHAR_NA = '○';
+    private static final String SPLIT_0 = "»" + CHAR_0 + "«",
+        SPLIT_1 = "" + CHAR_1, SPLIT_2 = "" + CHAR_2,
         NA = String.valueOf(CHAR_NA);
     private static final String[] seps = {SPLIT_1, SPLIT_2};
 
     private static final DataParser parsers = createParser();
     private static DataParser createParser() {
         final DataParser dp = new DataParser();
+        dp.put(DataParser.PDC_TYPE, new DataParser.Parser<PDC.Data>() {
+            public String write(final PDC.Data val, final String... seps) {
+                final StringBuilder sb = new StringBuilder();
+                for (final Duo<NamespacedKey, String> en : val) {
+                    sb.append(seps[0]).append(en.key().asMinimalString())
+                        .append(seps[1]).append(en.val());
+                }
+                return sb.toString();
+            }
+            public PDC.Data parse(final String str, final String... seps) {
+                final String[] parts = str.split(seps[0]);
+                final PDC.Data bld = new PDC.Data();
+                for (final String p : parts) {
+                    final String[] mod = p.split(seps[1]);
+                    if (!ClassUtil.check(mod, 2, false)) continue;
+                    bld.add(NamespacedKey.fromString(mod[0]), mod[1]);
+                }
+                return bld;
+            }
+        });
         dp.put(DataComponentTypes.ITEM_MODEL, new DataParser.Parser<Key>() {
             public String write(final Key val, final String... seps) {
                 return val.asMinimalString();
@@ -1044,17 +1065,30 @@ public class ItemUtil {
         return dp;
     }
 
-    @Slow(priority = 2)
+    @Slow(priority = 3)
     public static String write(final @Nullable ItemStack is) {
         if (is == null || ItemType.AIR.equals(is.getType().asItemType())) return "air";
         final StringBuilder res = new StringBuilder(ofKey(is.getType().asItemType()) + SPLIT_1 + is.getAmount());
+        final ItemData def = ItemData.of(is.getType().asItemType());
         for (final DataComponentType dtc : is.getDataTypes()) {
+            if (!is.isDataOverridden(dtc)) continue;
             switch (dtc) {
                 case final DataComponentType.NonValued nvd -> res.append(SPLIT_0).append(ofKey(nvd));
                 case final DataComponentType.Valued<?> vld -> append(is, res, vld);
                 default -> {}
             }
         }
+        final PersistentDataContainerView pdc = is.getPersistentDataContainer();
+        if (pdc.isEmpty()) return res.toString();
+        final PDC.Data data = new PDC.Data();
+        for (final NamespacedKey k : pdc.getKeys()) {
+            final String s = pdc.get(k, PersistentDataType.STRING);
+            if (s == null) continue;
+            data.add(k, s);
+        }
+        final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
+        if (prs == null) return res.toString();
+        res.append(SPLIT_0).append(PDC.ID).append(SPLIT_1).append(prs.write(data, seps));
         return res.toString();
     }
 
@@ -1089,6 +1123,18 @@ public class ItemUtil {
                     continue;
                 }
                 final String dts = data.substring(0, ix);
+                if (PDC.ID.equals(dts)) {
+                    final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
+                    if (prs == null) continue;
+                    final PDC.Data pdt = prs.parse(data.substring(ix + SPLIT_1.length()), seps);
+                    it.editMeta(im -> {
+                        final PersistentDataContainer pdc = im.getPersistentDataContainer();
+                        for (final Duo<NamespacedKey, String> en : pdt) {
+                            pdc.set(en.key(), PersistentDataType.STRING, en.val());
+                        }
+                    });
+                    continue;
+                }
                 if (Registry.DATA_COMPONENT_TYPE.get(Key.key(dts))
                     instanceof final DataComponentType.Valued<?> vld) {
                     append(it, data.substring(ix + SPLIT_1.length()), vld);

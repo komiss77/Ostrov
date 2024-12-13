@@ -2,7 +2,6 @@ package ru.komiss77.modules.menuItem;
 
 import java.util.function.Consumer;
 import com.destroystokyo.paper.ClientOption;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -50,7 +48,7 @@ public class MenuItem {
 
         itemEn = itemRu.clone();//new ItemBuilder(is).name(displayName).modelData(id).build();
         im = itemEn.getItemMeta();
-        im.displayName(Component.text(displayName));
+        im.displayName(TCUtil.form(displayName));
         im.getPersistentDataContainer().set(MenuItemsManager.key, PersistentDataType.INTEGER, id);
         itemEn.setItemMeta(im);
 

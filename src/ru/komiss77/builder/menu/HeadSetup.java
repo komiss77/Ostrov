@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerTextures;
@@ -21,7 +22,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -101,10 +102,10 @@ public class HeadSetup implements InventoryProvider {
 
     public static void openSetupMenu(final Player p, final Block b) {
         SmartInventory.builder()
-                .provider(new HeadSetup(b))
-                .size(6, 9)
-                .title("§2Характеристики сущности").build()
-                .open(p);
+            .provider(new HeadSetup(b))
+            .size(6, 9)
+            .title("§2Характеристики сущности").build()
+            .open(p);
     }
 
 
@@ -124,11 +125,12 @@ public class HeadSetup implements InventoryProvider {
         final List<String> idx = headIdx.get(selected);
         final int from = page * 44;
         int to = page * 44 + 36;
-        if (to >= idx.size()) to = idx.size();
+        if (idx == null) to = from;
+        else if (to >= idx.size()) to = idx.size();
 
         final List<Component> lore = builder ? List.of(Component.text("§cQ - удалить")) : null;
         //String name;
-        for (int i = from; i < to; i++) {
+        for (int i = from; i != to; i++) {
             final String name = idx.get(i);
             final ItemStack is = skull("§e" + name, lore, map.get(name));
             content.add(ClickableItem.of(is, e -> {
@@ -172,11 +174,12 @@ public class HeadSetup implements InventoryProvider {
         for (HeadCategory hc : HeadCategory.values()) {//(Map.Entry<HeadCategory, TreeMap<String,String>> en : headBase.entrySet()) {
             ItemStack is;
             if (selected == hc) {
-                is = new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
-                        .name(hc.name())
-                        .lore("§7В базе : §3" + headIdx.get(hc).size())
-                        .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ITEM_SPECIFICS)
-                        .build();
+                final List<String> txs = headIdx.get(hc);
+                is = new ItemBuilder(ItemType.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+                    .name(hc.name())
+                    .lore("§7В базе : §3" + (txs == null ? 0 : txs.size()))
+                    .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
+                    .build();
                 //is.addUnsafeEnchantment(Enchantment.LUCK, 1);
             } else {
                 is = icons.get(hc);
@@ -192,19 +195,19 @@ public class HeadSetup implements InventoryProvider {
         }
 
 
-        if (to < idx.size()) {
+        if (idx != null && to < idx.size()) {
             content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e -> {
-                        page++;
-                        reopen(p, content);
-                    })
+                    page++;
+                    reopen(p, content);
+                })
             );
         }
 
         if (page > 0) {
             content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e -> {
-                        page--;
-                        reopen(p, content);
-                    })
+                    page--;
+                    reopen(p, content);
+                })
             );
         }
 
@@ -256,7 +259,7 @@ enum HeadCategory {
 
     public final String name;
 
-    private HeadCategory(final String name) {
+    HeadCategory(final String name) {
         this.name = name;
     }
 

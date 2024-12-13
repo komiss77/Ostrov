@@ -7,6 +7,8 @@ import io.papermc.paper.datacomponent.DataComponentType;
 
 public class DataParser extends HashMap<DataComponentType.Valued<?>, DataParser.Parser<?>> {
 
+    public static final PDC PDC_TYPE = new PDC();
+
     public @Nullable <D> DataParser.Parser<D> get(final DataComponentType.Valued<D> type) {
         final Object val = super.get(type);
         return val == null ? null : (DataParser.Parser<D>) val;//trust

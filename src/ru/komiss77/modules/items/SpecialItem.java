@@ -36,7 +36,6 @@ public abstract class SpecialItem implements Keyed {
     public static boolean exist = false;
 
     private static final String CON_NAME = "specials.yml";
-    private static final String SPLT = "=";
     private static final NamespacedKey DATA = OStrap.key("special");
     private static final XYZ DEF_SPAWN = new WXYZ(Bukkit.getWorlds().getFirst(), 0, 100, 0);
 
@@ -70,8 +69,8 @@ public abstract class SpecialItem implements Keyed {
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
         final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
-        this.item = ItemUtil.parseItem(irc.getString(name + ".org"), SPLT);
-        final ItemStack curr = ItemUtil.parseItem(irc.getString(name + ".curr"), SPLT);
+        this.item = ItemUtil.parse(irc.getString(name + ".org"));
+        final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
         lastLoc = loc == null ? null : new WXYZ(loc);
         if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
 
@@ -184,7 +183,7 @@ public abstract class SpecialItem implements Keyed {
         Ostrov.async(() -> {
             final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            irc.set(name + ".org", ItemUtil.toString(item, SPLT));
+            irc.set(name + ".org", ItemUtil.write(item));
             irc.set(name + ".curr", curr);
 
             irc.set(name + ".dropped", dropped);

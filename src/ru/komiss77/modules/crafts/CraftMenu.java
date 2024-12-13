@@ -124,7 +124,7 @@ public class CraftMenu implements InventoryProvider {
                                 return;
                             }
                             cs.set("recipe.a", ItemUtil.write(it));
-                            nrc = new SmokingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
+                            nrc = new SmokingRecipe(nKey, rst, IdChoice.of(it), 0.5f, 100);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -135,7 +135,7 @@ public class CraftMenu implements InventoryProvider {
                                 return;
                             }
                             cs.set("recipe.a", ItemUtil.write(it));
-                            nrc = new BlastingRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 100);
+                            nrc = new BlastingRecipe(nKey, rst, IdChoice.of(it), 0.5f, 100);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -146,7 +146,7 @@ public class CraftMenu implements InventoryProvider {
                                 return;
                             }
                             cs.set("recipe.a", ItemUtil.write(it));
-                            nrc = new CampfireRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 500);
+                            nrc = new CampfireRecipe(nKey, rst, IdChoice.of(it), 0.5f, 500);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -157,7 +157,7 @@ public class CraftMenu implements InventoryProvider {
                                 return;
                             }
                             cs.set("recipe.a", ItemUtil.write(it));
-                            nrc = new FurnaceRecipe(nKey, rst, CMDMatChoice.of(it), 0.5f, 200);
+                            nrc = new FurnaceRecipe(nKey, rst, IdChoice.of(it), 0.5f, 200);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -172,7 +172,7 @@ public class CraftMenu implements InventoryProvider {
                             cs.set("recipe.a", ItemUtil.write(it));
                             cs.set("recipe.b", ItemUtil.write(scd));
                             cs.set("recipe.c", ItemUtil.write(tpl));
-                            nrc = new SmithingTransformRecipe(nKey, rst, CMDMatChoice.of(tpl), CMDMatChoice.of(it), CMDMatChoice.of(scd), false);
+                            nrc = new SmithingTransformRecipe(nKey, rst, IdChoice.of(tpl), IdChoice.of(it), IdChoice.of(scd), false);
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -183,7 +183,7 @@ public class CraftMenu implements InventoryProvider {
                                 return;
                             }
                             cs.set("recipe.a", ItemUtil.write(it));
-                            nrc = new StonecuttingRecipe(nKey, rst, CMDMatChoice.of(it));
+                            nrc = new StonecuttingRecipe(nKey, rst, IdChoice.of(it));
                             Bukkit.removeRecipe(nKey);
                             Bukkit.addRecipe(nrc);
                             break;
@@ -194,7 +194,7 @@ public class CraftMenu implements InventoryProvider {
                                 for (byte cx = 1; cx < 4; cx++) {
                                     final ItemStack ti = inv.getItem(cy * 9 + cx);
                                     if (!ItemUtil.isBlank(ti, false)) {
-                                        lrs.addIngredient(CMDMatChoice.of(ti));
+                                        lrs.addIngredient(IdChoice.of(ti));
                                         cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtil.write(ti));
                                     }
                                 }
@@ -240,7 +240,7 @@ public class CraftMenu implements InventoryProvider {
                                 for (int cy = yMax; cy >= yMin; cy--) {
                                     final ItemStack ti = rcs[cy * rad + cx];
                                     if (!ItemUtil.isBlank(ti, false)) {
-                                        srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), CMDMatChoice.of(ti));
+                                        srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), IdChoice.of(ti));
                                         cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtil.write(ti));
                                     }
                                 }
@@ -276,7 +276,7 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((CookingRecipe<?>) rc).getInputChoice()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), ((IdChoice) ((CookingRecipe<?>) rc).getInputChoice()).getItemStack(), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -288,9 +288,9 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(0, 2), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getTemplate()).getItemStack(), its, canEdit);
-                setEditSlot(SlotPos.of(1, 1), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getBase()).getItemStack(), its, canEdit);
-                setEditSlot(SlotPos.of(1, 3), ((CMDMatChoice) ((SmithingTransformRecipe) rc).getAddition()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), ((IdChoice) ((SmithingTransformRecipe) rc).getTemplate()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), ((IdChoice) ((SmithingTransformRecipe) rc).getBase()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), ((IdChoice) ((SmithingTransformRecipe) rc).getAddition()).getItemStack(), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -300,7 +300,7 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(1, 2), ((CMDMatChoice) ((StonecuttingRecipe) rc).getInputChoice()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), ((IdChoice) ((StonecuttingRecipe) rc).getInputChoice()).getItemStack(), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -319,15 +319,15 @@ public class CraftMenu implements InventoryProvider {
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
                 final Iterator<RecipeChoice> rci = ((ShapelessRecipe) rc).getChoiceList().iterator();
-                setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? ((CMDMatChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -351,7 +351,7 @@ public class CraftMenu implements InventoryProvider {
                     final String sr = shp.length > r ? shp[r] : "";
                     for (int c = 0; c < rad; c++) {
                         final RecipeChoice chs = rcm.get(sr.length() > c ? sr.charAt(c) : 'w');
-                        setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((CMDMatChoice) chs).getItemStack(), its, canEdit);
+                        setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((IdChoice) chs).getItemStack(), its, canEdit);
                     }
                 }
 

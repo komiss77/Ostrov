@@ -18,18 +18,15 @@ import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.OStrap;
-import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 
 public abstract class CustomMats implements Keyed {
 
-    public static final CaseInsensitiveMap<CustomMats> VALUES = new CaseInsensitiveMap<>();
+    public static final NamespacedKey KEY = OStrap.key("mat");
+    public static final Map<String, CustomMats> VALUES = new HashMap<>();
 
     public static boolean exist = false;
 
-    private static final String CMD = "cmd";
-    private static final String ITS = "its";
-    private static final String SEP = "=";
     private static final String CON_NAME = "items.yml";
 
     private final Map<ItemType, ItemStack> mits;
@@ -47,11 +44,11 @@ public abstract class CustomMats implements Keyed {
                 if (ItemUtil.isBlank(it, false)) continue;
                 mits.put(it.getType().asItemType(), it);
             }
-            irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.toString(it, SEP)).toList());
+            irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.write(it)).toList());
             irc.saveConfig();
         } else {
             for (final String is : itls) {
-                final ItemStack it = ItemUtil.parseItem(is, SEP);
+                final ItemStack it = ItemUtil.parse(is);
                 mits.put(it.getType().asItemType(), it);
             }
         }
@@ -67,6 +64,8 @@ public abstract class CustomMats implements Keyed {
     public @Nullable ItemStack item(final ItemType mt) {
         final ItemStack it = mits.get(mt);
         if (it == null) return null;
+        it.editMeta(im -> im.getPersistentDataContainer()
+            .set(KEY, PersistentDataType.STRING, KEY.value()));
         return shared == null ? it : shared.addTo(it);
     }
 
@@ -74,14 +73,13 @@ public abstract class CustomMats implements Keyed {
         return mits.values();
     }
 
-    private static final NamespacedKey KEY = OStrap.key("mat");
     public static CustomMats get(final ItemStack it) {
-        final Integer cmd = it.getPersistentDataContainer().get(KEY, PersistentDataType.INTEGER);
-        return cmd == null ? null : get(cmd);
+        final String id = it.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
+        return id == null ? null : get(id);
     }
 
-    public static CustomMats get(final Integer cmd) {
-        return VALUES.get(cmd);
+    public static CustomMats get(final String id) {
+        return VALUES.get(id);
     }
 
     protected abstract void onAttack(final EquipmentSlot[] es, final EntityDamageByEntityEvent e);

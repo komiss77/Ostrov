@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 
 @SuppressWarnings("unchecked")
 public class ItemData extends HashMap<DataComponentType, Object> {
@@ -83,14 +84,32 @@ public class ItemData extends HashMap<DataComponentType, Object> {
         put(type, it.getData(type));
     }
 
-    public static @Nullable ItemData of(final ItemStack it) {
+    private <D> void addVal(final DataComponentType.Valued<D> type, final ItemType it) {
+        put(type, it.getDefaultData(type));
+    }
+
+    public static ItemData of(final ItemStack it) {
         final Set<DataComponentType> datas = it.getDataTypes();
-        if (datas.isEmpty()) return null;
+        if (datas.isEmpty()) return new ItemData();
         final ItemData data = new ItemData();
         for (final DataComponentType dtc : datas) {
             switch (dtc) {
                 case final DataComponentType.NonValued nvd -> data.put(nvd);
                 case final DataComponentType.Valued<?> vld -> data.addVal(vld, it);
+                default -> {}
+            }
+        }
+        return data;
+    }
+
+    public static ItemData of(final ItemType tp) {
+        final Set<DataComponentType> datas = tp.getDefaultDataTypes();
+        if (datas.isEmpty()) return new ItemData();
+        final ItemData data = new ItemData();
+        for (final DataComponentType dtc : datas) {
+            switch (dtc) {
+                case final DataComponentType.NonValued nvd -> data.put(nvd);
+                case final DataComponentType.Valued<?> vld -> data.addVal(vld, tp);
                 default -> {}
             }
         }
