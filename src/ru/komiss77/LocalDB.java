@@ -216,11 +216,11 @@ public class LocalDB {
                 op.mysqlData.put("inventory", "");
                 op.mysqlData.put("armor", "");
             } else {
-                op.mysqlData.put("inventory", ItemUtil.itemStackArrayToBase64(p.getInventory().getContents()));
-                op.mysqlData.put("armor", ItemUtil.itemStackArrayToBase64(p.getInventory().getArmorContents()));
+                op.mysqlData.put("inventory", ItemUtil.serialize(p.getInventory().getContents()));
+                op.mysqlData.put("armor", ItemUtil.serialize(p.getInventory().getArmorContents()));
             }
-            op.mysqlData.put("ender", ItemUtil.itemStackArrayToBase64(p.getEnderChest().getContents()));
-            op.mysqlData.put("potion", ItemUtil.potionEffectsToBase64(p.getActivePotionEffects()));
+            op.mysqlData.put("ender", ItemUtil.serialize(p.getEnderChest().getContents()));
+            op.mysqlData.put("potion", ItemUtil.seripotlize(p.getActivePotionEffects()));
 
             op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
         }
@@ -450,7 +450,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения инвентаря в предыдущей сессии для " + op.nik);
                     inventory = null;
                 } else {
-                    inventory = ItemUtil.itemStackArrayFromBase64(rs.getString("inventory"));
+                    inventory = ItemUtil.deserialize(rs.getString("inventory"));
                 }
             }
 
@@ -461,7 +461,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения экипировки в предыдущей сессии для " + op.nik);
                     armor = null;
                 } else {
-                    armor = ItemUtil.itemStackArrayFromBase64(rs.getString("armor"));
+                    armor = ItemUtil.deserialize(rs.getString("armor"));
                 }
             }
 
@@ -472,7 +472,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения enderChest в предыдущей сессии для " + op.nik);
                     ender = null;
                 } else {
-                    ender = ItemUtil.itemStackArrayFromBase64(rs.getString("ender"));
+                    ender = ItemUtil.deserialize(rs.getString("ender"));
                 }
             }
 
@@ -483,7 +483,7 @@ public class LocalDB {
                     Ostrov.log_err("Ошибка сохранения potionEffects в предыдущей сессии для " + op.nik);
                     potion = null;
                 } else {
-                    potion = ItemUtil.potionEffectsFromBase64(rs.getString("potion"));
+                    potion = ItemUtil.deseripotlize(rs.getString("potion"));
                 }
             }
 

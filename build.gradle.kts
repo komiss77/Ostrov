@@ -1,3 +1,5 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+
 plugins {
   `java-library`
     id("io.papermc.paperweight.userdev") version "1.7.5"
@@ -35,9 +37,9 @@ sourceSets {
 }
 
 tasks {
-  // Configure reobfJar to run when invoking the build task
+  // Configure ArtifactConfiguration to be MOJANG_PRODUCTION
   assemble {
-    dependsOn(reobfJar)
+    paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
   }
 
   java {

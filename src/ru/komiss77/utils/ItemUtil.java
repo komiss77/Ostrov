@@ -1,9 +1,7 @@
 package ru.komiss77.utils;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -31,7 +29,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
-import org.bukkit.block.BlockType;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -49,7 +46,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
@@ -1969,36 +1965,26 @@ public class ItemUtil {
 //MySQL Player Data Bridge
 //https://www.spigotmc.org/resources/mysql-inventory-bridge.7849/
 
-    public static String itemStackArrayToBase64(final ItemStack[] items) {
-
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            //почему не ItemStack.serializeItemsAsBytes()?
-            BukkitObjectOutputStream bukkitOutStream = new BukkitObjectOutputStream(outputStream);
-            // Write the size of the inventory
-            bukkitOutStream.writeInt(items.length);
-
-            // Save every element in the list
-            for (int i = 0; i < items.length; i++) {
-                if (MenuItemsManager.isSpecItem(items[i])) {
-                    bukkitOutStream.writeObject(ItemUtil.air);
-                } else {
-                    bukkitOutStream.writeObject(items[i]);
-                }
-            }
-
-            // Serialize that array
-            bukkitOutStream.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-
-        } catch (IOException e) {
-            Ostrov.log_err("itemStackArrayToBase64 - " + e.getMessage());
-            return "error";
+    public static String serialize(final ItemStack[] items) {
+        for (int i = 0; i != items.length; i++) {
+            if (MenuItemsManager.isSpecItem(items[i]))
+                items[i] = ItemUtil.air;
         }
+        return Base64Coder.encodeLines(ItemStack.serializeItemsAsBytes(items));
     }
 
 
-    public static @Nullable ItemStack[] itemStackArrayFromBase64(final String data) {
+    public static @Nullable ItemStack[] deserialize(final String data) {
+        try {
+            return ItemStack.deserializeItemsFromBytes(Base64Coder.decodeLines(data));
+        } catch (RuntimeException e) {
+            Ostrov.log_warn("Failed deserializing items, trying older method");
+            return itemsFromBase64(data);
+        }
+    }
+
+    @Deprecated
+    public static @Nullable ItemStack[] itemsFromBase64(final String data) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
@@ -2018,17 +2004,17 @@ public class ItemUtil {
             return items;
 
         } catch (IllegalArgumentException | ClassNotFoundException | IOException e) {
-            Ostrov.log_err("itemStackArrayFromBase64 - " + e.getMessage());
+            Ostrov.log_err("Could not deserialize items - " + data);
+            e.printStackTrace();
             return null;
         }
     }
 
 
-    public static String potionEffectsToBase64(Collection<PotionEffect> collection) {
+    public static String seripotlize(Collection<PotionEffect> collection) {
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            BukkitObjectOutputStream boos = new BukkitObjectOutputStream(baos);
-
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ObjectOutputStream boos = new ObjectOutputStream(baos);
             final Object[] arr = collection.toArray();
             boos.writeInt(arr.length);
 
@@ -2044,12 +2030,12 @@ public class ItemUtil {
         }
     }
 
-    public static @Nullable Collection<PotionEffect> potionEffectsFromBase64(String s) {
+    public static @Nullable Collection<PotionEffect> deseripotlize(String s) {
 
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(s));
-            BukkitObjectInputStream bois = new BukkitObjectInputStream(bais);
-            PotionEffect[] apotioneffect = new PotionEffect[bois.readInt()];
+            final ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(s));
+            final ObjectInputStream bois = new ObjectInputStream(bais);
+            final PotionEffect[] apotioneffect = new PotionEffect[bois.readInt()];
 
             final ArrayList<PotionEffect> arraylist = new ArrayList<>();
             for (int i = 0; i < apotioneffect.length; ++i) {
@@ -2062,12 +2048,6 @@ public class ItemUtil {
             Ostrov.log_err("potionEffectsFromBase64 - " + e.getMessage());
             return null;
         }
-    }
-
-    @Deprecated
-    public static boolean isInteractable(final Material mat) {
-        final BlockType bt = Registry.BLOCK.get(mat.getKey());
-        return bt != null && bt.isInteractable();
     }
 
 }

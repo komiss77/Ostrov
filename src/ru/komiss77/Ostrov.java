@@ -252,21 +252,21 @@ public class Ostrov extends JavaPlugin {
 
 
 
-    public static String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";
-    public static String prefixWARN = "§e[§6Остров§e] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[33m";
-    public static String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
+    public static final String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";
+    public static final String prefixWARN = "§e[§6Остров§e] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[33m";
+    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-        Bukkit.getConsoleSender().sendMessage("§7" + s);//Bukkit.getLogger().log(Level.INFO, "\u001b[37m{0}", s);
+        Bukkit.getConsoleSender().sendMessage(PREFIX + s);//Bukkit.getLogger().log(Level.INFO, "\u001b[37m{0}", s);
     }
 
     public static void log_ok(String s) {
-        Bukkit.getConsoleSender().sendMessage(prefixOK + s);
+        Bukkit.getConsoleSender().sendMessage(TCUtil.form(prefixOK + s));
 
     }
 
     public static void log_warn(String s) {
-        Bukkit.getConsoleSender().sendMessage(prefixWARN + s); //Bukkit.getLogger().log(Level.WARNING, prefixWARN+s);
+        Bukkit.getConsoleSender().sendMessage(TCUtil.form(prefixWARN + s)); //Bukkit.getLogger().log(Level.WARNING, prefixWARN+s);
     }
 
     public static void log_err(String s) {
