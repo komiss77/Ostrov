@@ -7,6 +7,8 @@ import java.util.*;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -50,7 +52,7 @@ public class Ostrov extends JavaPlugin {
     public static final Calendar calendar; //не двигать,не переименовывать! direct USE!
     private static final Date date;
     private static final SimpleDateFormat full_sdf;
-
+    private final static boolean windows;
 
     static {
         random = new Random();
@@ -60,6 +62,8 @@ public class Ostrov extends JavaPlugin {
         date = new java.util.Date(System.currentTimeMillis());
         full_sdf = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
         MOT_D = TCUtil.deform(Bukkit.motd());
+        final String os = System.getProperty("os.name");
+        windows = os.startsWith("Windows");
     }
 
 
@@ -89,13 +93,12 @@ public class Ostrov extends JavaPlugin {
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
 
-        //if (MOT_D.equals("pay")) { // для режима обработки донатиков
-        //    log_warn("§bРежим PAY");
-        //    REGISTER.registerPay();
-        //return;
-        //}
 
-        registerChanels();
+        log_ok("§5===== Регистрация каналов Proxy =====");
+        for (final Chanell ch : Chanell.values()) {
+            instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
+            instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
+        }
 
         if (MOT_D.length() == 3) { // для серверов авторизации
             log_warn("§bРежим Auth");
@@ -107,14 +110,32 @@ public class Ostrov extends JavaPlugin {
             return;
         }
 
-        regListeners();
+        log_ok("§5===== Регистрация слушателей : onEnable =====");
+        Bukkit.getPluginManager().registerEvents(new ChatLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), instance); //в режиме AUTH инициализация дубль выше
+        Bukkit.getPluginManager().registerEvents(new ServerLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
+        Bukkit.getPluginManager().registerEvents(new GlobalBugFix(), instance);
+
+        if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
+            Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);
+        }
 
         Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
 
         LocalDB.init();// выполнится синхронно, если нет коннекта-подвиснет! выше есть для auth
 
-        initModules();
-
+        log_ok("§5===== Инициализация модулей =====");
+        for (final Module module : Module.values()) {
+            try {
+                modules.put(module.name(), module.clazz.getDeclaredConstructor().newInstance());
+            } catch (Exception ex) {
+                log_err("**** инициализацяя " + module + " : " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
         REGISTER.register(); //после модулей!!
 
         log_ok("§2Остров готов к работе!");
@@ -150,14 +171,6 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-    public static void registerChanels() {
-        log_ok("§5===== Регистрация каналов Proxy =====");
-        for (final Chanell ch : Chanell.values()) {
-            instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
-            instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
-        }
-    }
-
 
     public static void regCommand(final OCommand cmd) {
         mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
@@ -174,29 +187,11 @@ public class Ostrov extends JavaPlugin {
         });
     }
 
-    public static void regListeners() {
-        log_ok("");
-        log_ok("§5===== Регистрация слушателей : onEnable =====");
-        Bukkit.getPluginManager().registerEvents(new ChatLst(), instance);
-        Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), instance); //в режиме AUTH инициализация дубль выше
-        Bukkit.getPluginManager().registerEvents(new ServerLst(), instance);
-        Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
-        Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
-      Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
-      Bukkit.getPluginManager().registerEvents(new GlobalBugFix(), instance);
-
-        if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
-            Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);
-        }
-    }
-
-
     public static void postWorld() { //вызывается один раз при старте сервера после загрузки миров
         log_ok("");
         log_ok("§5===== Регистрация слушателей : postWorld =====");
         WorldManager.autoLoadWorlds(); // 1 !! найти и догрузить миры, помеченные на автозагрузку
         GM.onWorldsLoadDone(); //прописать состояние серверов на таблички
-        //Bukkit.getPluginManager().registerEvents(GM.gmListener, Ostrov.instance);
 
         modules.values().forEach(
             (module) -> {
@@ -223,20 +218,6 @@ public class Ostrov extends JavaPlugin {
 
     }
 
-
-    public static void initModules() {
-        log_ok("§5===== Инициализация модулей =====");
-        for (final Module module : Module.values()) {
-            try {
-                modules.put(module.name(), module.clazz.getDeclaredConstructor().newInstance());
-            } catch (Exception ex) {
-                log_err("**** инициализацяя " + module + " : " + ex.getMessage());
-                ex.printStackTrace();
-            }
-        }
-    }
-
-
     public static Collection<Initiable> getModules() {
         return modules.values();
     }
@@ -244,7 +225,6 @@ public class Ostrov extends JavaPlugin {
     public static Initiable getModule(final Module mod) {
         return modules.get(mod.name());
     }
-
 
     public static Ostrov getInstance() {
         return Ostrov.instance;
@@ -257,11 +237,40 @@ public class Ostrov extends JavaPlugin {
     public static String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
+        //instance.getComponentLogger().info(Component.text(s, NamedTextColor.GRAY));
         Bukkit.getConsoleSender().sendMessage("§7" + s);//Bukkit.getLogger().log(Level.INFO, "\u001b[37m{0}", s);
     }
 
     public static void log_ok(String s) {
-        Bukkit.getConsoleSender().sendMessage(prefixOK + s);
+        //Bukkit.getConsoleSender().sendMessage(prefixOK + s);
+        if (s.startsWith("§") && s.length() >= 2) {
+            final String strip = s.substring(2);
+            switch (s.charAt(1)) {
+                case '0' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;232m" + strip;
+                case '1' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[34;1m" + strip;
+                case '2' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;29m" + strip;
+                case '3' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;6m" + strip;
+                case '4' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;1m" + strip;
+                case '5' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;128m" + strip;
+                case '6' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;214m" + strip;
+                case '7' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;241m" + strip;
+                case '8' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;238m" + strip;
+                case '9' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;63m" + strip;
+                case 'a' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[32;1m" + strip;
+                case 'b' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[36;1m" + strip;
+                case 'c' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;9m" + strip;
+                case 'd' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;207m" + strip;
+                case 'e' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[33m" + strip;
+                case 'f' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[37m" + strip;
+                default -> {
+                    Bukkit.getLogger().info(prefixOK + strip);
+                    return;
+                }
+            }
+            Bukkit.getLogger().info(s + "\u001B[0m");
+        } else {
+            Bukkit.getLogger().info(prefixOK + s);
+        }
 
     }
 
@@ -286,7 +295,6 @@ public class Ostrov extends JavaPlugin {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
     }
-
 
 
     public static String dateFromStamp(int stamp_in_second) {
@@ -357,69 +365,6 @@ public class Ostrov extends JavaPlugin {
         return MOT_D.equals("home1");
     }
 }
-
-
-
-
-
-    /*public static boolean isInteger(final String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }*/
-
-//Bukkit.getPluginManager().registerEvents(new InvLst(), instance);
-//if (Bukkit.getPluginManager().getPlugin("TradeSystem")!=null) {
-//     Bukkit.getPluginManager().registerEvents(new TradeLst(), instance);
-//}
-//Bukkit.getPluginManager().registerEvents(new SignLst(), instance);
-//if ( Config.getConfig().getBoolean("modules.enable_jump_plate")) {
-//    Bukkit.getPluginManager().registerEvents(new JumpPlateLst__(), instance);
-//}
-
-//public static Calendar getCalendar() {
-//    return calendar;
-//}
-
-//@Override
-//public boolean onCommand(CommandSender cs, org.bukkit.command.Command comm, String s, String[] arg) {
-//    return CMD.CommandHamdler(cs, comm, s, arg);
-//}
-
-
-
-
-        /*final String player = "player", xp = "xp";
-        event.registrar().register(
-          Commands.literal("tellxp")
-            .then(Resolver.player(player).suggests((cntx, sb) -> {
-              return CompletableFuture.completedFuture(sb.suggest(cntx.getSource().getSender().getName()).build());
-              })
-              .executes(cntx-> {
-                if (cntx.getSource().getExecutor() instanceof final Player pl) {
-                  final Player opl = Resolver.player(cntx, player);
-
-                  pl.sendMessage("Player " + opl + " has " + opl.getTotalExperience() + " exp points!");
-                }
-                return Command.SINGLE_SUCCESS;
-              })
-              .then(Resolver.integer(xp, 0)
-                .executes(cntx -> {
-                  if (cntx.getSource().getExecutor() instanceof final Player pl) {
-                    final Player opl = Resolver.player(cntx, player);
-                    final int value = Resolver.integer(cntx, xp);
-
-                    pl.sendMessage("Player " + opl + " needs " + value + " exp points!");
-                  }
-                  return Command.SINGLE_SUCCESS;
-              }))).build(),
-          "Experience tell command",
-          List.of("texp")
-        );*/
-
 
 
 

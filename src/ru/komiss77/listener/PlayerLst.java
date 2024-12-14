@@ -64,6 +64,12 @@ public class PlayerLst implements Listener {
         }
     }
 
+  @EventHandler
+  public void onLocalDataLoad(LocalDataLoadEvent e) {
+    if (ResourcePacksLst.use) {
+      ResourcePacksLst.execute(e.getPlayer());
+    }
+  }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void Command(final PlayerCommandPreprocessEvent e) throws CommandException {
