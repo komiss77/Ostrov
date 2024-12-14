@@ -86,11 +86,11 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     }
 
 
-  public static void onLoadData(Player p) {
-    if (use) {
-      Ostrov.sync(() -> execute(p));
-    }
-  }
+  //public static void onLoadData(Player p) {
+  //  if (use) {
+  //    Ostrov.sync(() -> execute(p));
+  //  }
+  //}
 
     public static void preDisconnect(final Player p) {
       if (use) {

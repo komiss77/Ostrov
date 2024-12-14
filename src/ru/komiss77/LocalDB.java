@@ -341,7 +341,7 @@ public class LocalDB {
             return;
         }
 
-        ResourcePacksLst.onLoadData(p);
+      //ResourcePacksLst.onLoadData(p);
 
         if (op.isGuest) {
             op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
