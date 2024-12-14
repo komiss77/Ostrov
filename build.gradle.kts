@@ -5,7 +5,8 @@ import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
 
 plugins {
   `java-library`
-    id("io.papermc.paperweight.userdev") version "1.7.5"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.1"
+//    id("io.papermc.paperweight.userdev") version "2.0.0-beta.1"
     //id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -61,11 +62,11 @@ tasks {
     options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
   }
 
-  reobfJar {
+  /*reobfJar {
     // This is an example of how you might change the output location for reobfJar. It's recommended not to do this
     // for a variety of reasons, however it's asked frequently enough that an example of how to do it is included here.
     outputJar.set(layout.buildDirectory.file("Ostrov.jar"))
-  }
+  }*/
 
   jar {
     from(zipTree("libs/jedis-4.3.1.zip"))

@@ -123,15 +123,12 @@ public class ArcaimLst implements Listener {
     public void blockBreak(BlockBreakEvent e) {
         if (e.getBlock().getType() == Material.WARPED_SIGN) {
             Sign s = (Sign) e.getBlock().getState();
-//Ostrov.log_warn("breack "+e.getBlock().getType()+" has key?"+s.getPersistentDataContainer().has(key));
             if (s.getPersistentDataContainer().has(key)) {
-                final Material mat = Material.matchMaterial(s.getPersistentDataContainer().get(key, PersistentDataType.STRING));
-//Ostrov.log_warn("mat="+mat);
+                final Material mat = Material.matchMaterial(s
+                    .getPersistentDataContainer().get(key, PersistentDataType.STRING));
                 if (mat != null) {
                     e.getBlock().setType(mat);
                     e.setCancelled(true);
-                    //e.setDropItems(false);
-                    // e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(mat));
                 }
             }
         }
@@ -207,13 +204,13 @@ public class ArcaimLst implements Listener {
                 if (PM.getOplayer(p.getUniqueId()).setup != null) break;
                 p.performCommand("menu");
                 break;
-            /*case CREATIVE, SURVIVAL: давно убрал это ограничение - с ним на аркаиме просто никто не играет
+            case CREATIVE, SURVIVAL: //давно убрал это ограничение - с ним на аркаиме просто никто не играет
                 if (!isOutsideWG(p.getLocation())) break;
                 if (ApiOstrov.isStaff(p)) break;
                 e.getPlayer().sendMessage("§cСтроить можно только в приватах!");
                 e.setUseInteractedBlock(Event.Result.DENY);
                 e.setUseItemInHand(Event.Result.DENY);
-                break;*/
+                break;
         }
     }
 
@@ -253,6 +250,7 @@ public class ArcaimLst implements Listener {
                 if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL) ent.remove();
                 break;
             case WITHER, WARDEN:
+                if (!isOutsideWG(ent.getLocation())) break;
                 final LivingEntity le = LocUtil.getClsChEnt(new WXYZ(ent.getLocation()),
                     ENT_DST, ent.getClass(), ne -> ne.getEntityId() != ent.getEntityId());
                 if (le == null) break;
@@ -289,7 +287,7 @@ public class ArcaimLst implements Listener {
             case final PotionMeta pm:
                 final List<PotionEffect> bad = new ArrayList<>();
                 int i = 0;
-                for (PotionEffect effect : pm.getCustomEffects()) {
+                for (final PotionEffect effect : pm.getCustomEffects()) {
                     if (effect.getAmplifier() > 10 || effect.getDuration() > 9600 || i >= 8) { // 8мин*60*20 + лимит 8 эффектов
                         bad.add(effect.withAmplifier(10).withDuration(9600));
                         i++;
@@ -297,7 +295,7 @@ public class ArcaimLst implements Listener {
                     }
                 }
                 i = 0;
-                for (PotionEffect pe : bad) {
+                for (final PotionEffect pe : bad) {
                     if (i < 8) { //
                         pm.addCustomEffect(pe, true); //overwrite перекрывает плохой
                     } else {

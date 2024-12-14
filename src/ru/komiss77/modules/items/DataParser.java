@@ -9,16 +9,19 @@ public class DataParser extends HashMap<DataComponentType.Valued<?>, DataParser.
 
     public static final PDC PDC_TYPE = new PDC();
 
+    @SuppressWarnings("unchecked")
     public @Nullable <D> DataParser.Parser<D> get(final DataComponentType.Valued<D> type) {
         final Object val = super.get(type);
         return val == null ? null : (DataParser.Parser<D>) val;//trust
     }
 
+    @SuppressWarnings("unchecked")
     public <D> DataParser.Parser<D> getOr(final DataComponentType.Valued<D> type, final DataParser.Parser<D> val) {
         final Object v = super.get(type);
         return v == null ? val : (DataParser.Parser<D>) v;//trust
     }
 
+    @SuppressWarnings("unchecked")
     public <D> DataParser.Parser<D> put(final DataComponentType.Valued<D> key, final DataParser.Parser<D> val) {
         final Object last = super.put(key, val);
         return last == null ? null : (DataParser.Parser<D>) last;//trust
