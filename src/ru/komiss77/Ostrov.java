@@ -7,8 +7,7 @@ import java.util.*;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -39,13 +38,14 @@ public class Ostrov extends JavaPlugin {
     public static Ostrov instance;
     public static Registries registries;
     public static LifecycleEventManager<Plugin> mgr;
+    public static final Map<String, Initiable> modules;
     public static final Random random;
     public static final String L = "Ł";
     public static final String PREFIX = "§2[§aОстров§2] §f";
     public static final String MOT_D;
     public static int server_id = -1;
 
-    public static final Map<String, Initiable> modules;
+    public static ComponentLogger logger;
     public static boolean newDay, dynmap, wg;
     public static boolean SHUT_DOWN; //по этому плагу другие плагины не будут сохранять данные асинх   org.bukkit.plugin.IllegalPluginAccessException: Plugin attempted to register task while disabled
     public static boolean STARTUP = true; //до окончания прогрузки всех миров
@@ -80,6 +80,7 @@ public class Ostrov extends JavaPlugin {
     public void onLoad() {
         instance = this;
         mgr = instance.getLifecycleManager();
+        logger = getComponentLogger();
         //Cfg.init(); // 1 !  загрузится само при первом обращении
         Nms.pathServer();
         Nms.chatFix();
@@ -232,16 +233,16 @@ public class Ostrov extends JavaPlugin {
 
 
 
-    public static final String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";
-    public static final String prefixWARN = "§e[§6Остров§e] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[33m";
-    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
+//    public static final String prefixOK = "§a[§2Остров§a] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] ";
+//    public static final String prefixWARN = "§e[§6Остров§e] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[33m";
+//    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-        Bukkit.getConsoleSender().sendMessage(PREFIX + s);//Bukkit.getLogger().log(Level.INFO, "\u001b[37m{0}", s);
+        logger.debug(TCUtil.form(s));
     }
 
     public static void log_ok(String s) {
-        Bukkit.getConsoleSender().sendMessage(TCUtil.form(prefixOK + s));
+        logger.info(TCUtil.form(s));
         //кринж
         /*if (s.startsWith("§") && s.length() >= 2) {
             final String strip = s.substring(2);
@@ -274,11 +275,11 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void log_warn(String s) {
-        Bukkit.getConsoleSender().sendMessage(TCUtil.form(prefixWARN + s)); //Bukkit.getLogger().log(Level.WARNING, prefixWARN+s);
+        logger.warn(TCUtil.form(s));
     }
 
     public static void log_err(String s) {
-        Bukkit.getConsoleSender().sendMessage(prefixERR + s);//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
+        logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
         if (LocalDB.useLocalData && LocalDB.connection != null) {
             try (PreparedStatement pst1 = LocalDB.connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);")) {
                 pst1.setString(1, s);

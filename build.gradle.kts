@@ -1,3 +1,6 @@
+
+
+// for Ant filter
 import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
 
 plugins {
@@ -38,7 +41,7 @@ sourceSets {
 
 tasks {
   // Configure ArtifactConfiguration to be MOJANG_PRODUCTION
-  assemble {
+  build {
     paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
   }
 
@@ -66,5 +69,7 @@ tasks {
 
   jar {
     from(zipTree("libs/jedis-4.3.1.zip"))
+    destinationDirectory.set(layout.buildDirectory)
+    archiveFileName.set("Ostrov.jar")
   }
 }

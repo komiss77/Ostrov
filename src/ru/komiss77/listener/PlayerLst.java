@@ -384,7 +384,7 @@ public class PlayerLst implements Listener {
 
         if (!world_from.equals(world_to)) {
             if (!ApiOstrov.isLocalBuilder(p, false) && world_to.endsWith(WorldManager.buildWorldSuffix)) {
-                p.sendMessage(Ostrov.prefixWARN + "§cТебе не разрешено заходить на этот мир!");
+                p.sendMessage(Ostrov.PREFIX + "§cТебе не разрешено заходить на этот мир!");
                 e.setCancelled(true);
                 return;
             }
