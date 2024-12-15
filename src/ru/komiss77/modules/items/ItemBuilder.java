@@ -30,6 +30,7 @@ import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemUtil.Texture;
 import ru.komiss77.utils.TCUtil;
@@ -230,9 +231,17 @@ public class ItemBuilder {
         return this;
     }
 
-    public void trim(final TrimMaterial mat, final TrimPattern pat) {
-        set(DataComponentTypes.TRIM, ItemArmorTrim.itemArmorTrim(
+    public ItemBuilder trim(final TrimMaterial mat, final TrimPattern pat) {
+        return set(DataComponentTypes.TRIM, ItemArmorTrim.itemArmorTrim(
             new ArmorTrim(mat, pat), !isOn(ItemFlag.HIDE_ARMOR_TRIM)));
+    }
+
+    public <D> ItemBuilder merge(final DataComponentType.Valued<D> vld, final Onection<D> fun) {
+        final D val = get(vld);
+        if (val != null) return set(vld, fun.apply(val));
+        final D def = type.getDefaultData(vld);
+        if (def == null) return this;
+        return set(vld, fun.apply(def));
     }
 
     public ItemBuilder enchant(final Enchantment enchant) {

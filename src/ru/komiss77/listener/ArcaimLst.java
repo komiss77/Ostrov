@@ -114,10 +114,6 @@ public class ArcaimLst implements Listener {
     public void pistonExtend(BlockPistonExtendEvent e) {
         check(e.getBlock());
     }
-    // @EventHandler
-    // public void ObserverCuller(BlockPhysicsEvent e) {
-    //  check(e.getBlock());
-//  }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void blockBreak(BlockBreakEvent e) {
@@ -142,21 +138,13 @@ public class ArcaimLst implements Listener {
             redstoneChunkClocks.put(cLoc, new RC());
         } else {
             chunkRc.count++;
-            //int sec = Timer.getTime() - chunkRc.stamp;
             if (chunkRc.second == 5) { //один раз в 5 секунд подсчитываем среднюю импульсность
-//Ostrov.log_warn("CHUNK ARC cLoc="+cLoc+" count="+chunkRc.count+" avg="+(chunkRc.count/sec));
                 if (chunkRc.count / 5 > MAX_CHUNK_PULSES_PER_SEC) { //в секунду в среднем импульсов больше лимита
                     chunkRc.count = 0;//Timer.redstoneChunkClocks.remove(cLoc); не удалять rc, только перезапуск счётчика!
                     Ostrov.log_warn("CHUNK RC REMOVE " + b.getType().name() + " at " + LocUtil.toString(b.getLocation()));
                     remove(b); //на 5-й секунде проредит механизмы
-                }// else { //сброс для пересчёта в след. 5 сек.
-                //  chunkRc.stamp = Timer.getTime();
-                //  chunkRc.count = 0;
-                //}
-            } //else if (sec>5) {
-            // chunkRc.second = 0;//stamp = Timer.getTime();
-            //  chunkRc.count = 0;
-            //}
+                }
+            }
         }
     }
 
@@ -296,11 +284,8 @@ public class ArcaimLst implements Listener {
                 }
                 i = 0;
                 for (final PotionEffect pe : bad) {
-                    if (i < 8) { //
-                        pm.addCustomEffect(pe, true); //overwrite перекрывает плохой
-                    } else {
-                        pm.removeCustomEffect(pe.getType());
-                    }
+                    if (i < 8) pm.addCustomEffect(pe, true); //overwrite перекрывает плохой
+                    else pm.removeCustomEffect(pe.getType());
                     i++;
                 }
                 break;

@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice.MaterialChoice;
 import org.bukkit.persistence.PersistentDataType;
-import ru.komiss77.modules.items.CustomMats;
+import ru.komiss77.modules.items.ItemGroup;
 import ru.komiss77.utils.ItemUtil;
 
 public class IdChoice extends MaterialChoice {
@@ -15,7 +15,7 @@ public class IdChoice extends MaterialChoice {
 
     public static IdChoice of(final @Nullable ItemStack it) {
         if (it == null) return new IdChoice(null, Material.AIR);
-        final String id = it.getPersistentDataContainer().get(CustomMats.KEY, PersistentDataType.STRING);
+        final String id = it.getPersistentDataContainer().get(ItemGroup.KEY, PersistentDataType.STRING);
         return new IdChoice(id, it.getType());
     }
 
@@ -40,7 +40,7 @@ public class IdChoice extends MaterialChoice {
     @Override
     public ItemStack getItemStack() {
         final Material mt = getChoices().getFirst();
-        final CustomMats cmts = CustomMats.get(id);
+        final ItemGroup cmts = ItemGroup.get(id);
         final ItemStack ci = cmts == null ? null : cmts.item(mt.asItemType());
         if (ci != null) return ci.asOne();
         final ItemStack it = new ItemStack(mt);
@@ -52,7 +52,7 @@ public class IdChoice extends MaterialChoice {
         if (it == null) return getChoices().contains(Material.AIR);
         if (!getChoices().contains(it.getType())) return false;
         return Objects.equals(id, it.getPersistentDataContainer()
-            .get(CustomMats.KEY, PersistentDataType.STRING));
+            .get(ItemGroup.KEY, PersistentDataType.STRING));
     }
 
     @Override

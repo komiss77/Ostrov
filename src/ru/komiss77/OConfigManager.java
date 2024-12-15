@@ -1,8 +1,7 @@
 package ru.komiss77;
 
 import java.io.*;
-import java.nio.charset.Charset;
-
+import java.nio.charset.StandardCharsets;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -10,19 +9,19 @@ public class OConfigManager {
 
     private final JavaPlugin plugin;
 
-    /*
+    /**
      * Manage custom configurations and files
      */
     public OConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
-    /*
+    /**
      * Get new configuration with header
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
-    public OConfig getNewConfig(String filePath, String[] header) {
+    public OConfig getNewConfig(final String filePath, final String[] header) {
 
         File file = this.getConfigFile(filePath);
 
@@ -35,26 +34,58 @@ public class OConfigManager {
 
         }
 
-        OConfig config = new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
-        return config;
+//        return new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
+        return new OConfig(file, this.getCommentsNum(file));
 
     }
 
-    /*
+    /**
      * Get new configuration
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
-    public OConfig getNewConfig(String filePath) {
+    public OConfig getNewConfig(final String filePath) {
         return this.getNewConfig(filePath, null);
     }
 
-    /*
+    /**
+     * Get new configuration with header
+     * @param filePath - Path to file
+     * @return - New SimpleConfig
+     */
+    public OVerConfig getNewConfig(final String filePath, final String[] header, final int version) {
+
+        File file = this.getConfigFile(filePath);
+
+        if (!file.exists()) {
+            this.prepareFile(filePath);
+
+            if (header != null && header.length != 0) {
+                this.setHeader(file, header);
+            }
+
+        }
+
+//        return new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
+        return new OVerConfig(file, this.getCommentsNum(file), version);
+
+    }
+
+    /**
+     * Get new configuration
+     * @param filePath - Path to file
+     * @return - New SimpleConfig
+     */
+    public OVerConfig getNewConfig(final String filePath, final int version) {
+        return this.getNewConfig(filePath, null, version);
+    }
+
+    /**
      * Get configuration file from string
      * @param file - File path
      * @return - New file object
      */
-    private File getConfigFile(String file) {
+    private File getConfigFile(final String file) {
 
         if (file == null || file.isEmpty()) {
             return null;
@@ -78,9 +109,9 @@ public class OConfigManager {
 
     }
 
-    /*
+    /**
      * Create new file for config and copy resource into it
-     * @param file - Path to file
+     * @param filePath - Path to file
      * @param resource - Resource to copy
      */
     public void prepareFile(String filePath, String resource) {
@@ -105,15 +136,15 @@ public class OConfigManager {
 
     }
 
-    /*
+    /**
      * Create new file for config without resource
-     * @param file - File to create
+     * @param filePath - File to create
      */
     public void prepareFile(String filePath) {
         this.prepareFile(filePath, null);
     }
 
-    /*
+    /**
      * Adds header block to config
      * @param file - Config file
      * @param header - Header lines
@@ -126,7 +157,7 @@ public class OConfigManager {
 
         try {
             String currentLine;
-            StringBuilder config = new StringBuilder("");
+            StringBuilder config = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 while ((currentLine = reader.readLine()) != null) {
                     config.append(currentLine).append("\n");
@@ -171,9 +202,9 @@ public class OConfigManager {
 
     }
 
-    /*
+    /**
      * Read file and make comments SnakeYAML friendly
-     * @param filePath - Path to file
+     * @param file - Path to file
      * @return - File as Input Stream
      */
     public InputStream getConfigContent(File file) {
@@ -189,7 +220,7 @@ public class OConfigManager {
             String currentLine;
             String pluginName = this.getPluginName();
 
-            StringBuilder whole = new StringBuilder("");
+            StringBuilder whole = new StringBuilder();
             InputStream configStream;
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 while ((currentLine = reader.readLine()) != null) {
@@ -205,7 +236,7 @@ public class OConfigManager {
 
                 }
                 String config = whole.toString();
-                configStream = new ByteArrayInputStream(config.getBytes(Charset.forName("UTF-8")));
+                configStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8));
             }
             return configStream;
 
@@ -216,7 +247,7 @@ public class OConfigManager {
 
     }
 
-    /*
+    /**
      * Get comments from file
      * @param file - File
      * @return - Comments number
@@ -249,7 +280,7 @@ public class OConfigManager {
 
     }
 
-    /*
+    /**
      * Get config content from file
      * @param filePath - Path to file
      * @return - readied file
@@ -265,7 +296,7 @@ public class OConfigManager {
         int headerLine = 0;
 
         String[] lines = configString.split("\n");
-        StringBuilder config = new StringBuilder("");
+        StringBuilder config = new StringBuilder();
 
         for (String line : lines) {
 
@@ -286,7 +317,7 @@ public class OConfigManager {
                         lastLine = 0;
                         headerLine = 1;
 
-                    } else if (headerLine == 1) {
+                    } else {
                         config.append(comment).append("\n\n");
 
                         lastLine = 0;
@@ -311,7 +342,7 @@ public class OConfigManager {
 
                     if (lastLine == 0) {
                         config.append(normalComment).append("\n");
-                    } else if (lastLine == 1) {
+                    } else {
                         config.append("\n").append(normalComment).append("\n");
                     }
 
@@ -331,7 +362,7 @@ public class OConfigManager {
     }
 
 
-    /*
+    /**
      * Saves configuration to file
      * @param configString - Config string
      * @param file - Config file
@@ -355,7 +386,7 @@ public class OConfigManager {
         return plugin.getDescription().getName();
     }
 
-    /*
+    /**
      * Copy resource from Input Stream to file
      * @param resource - Resource from .jar
      * @param file - File to write

@@ -16,7 +16,7 @@ public class OConfig {
     //private final OstrovConfigManager manager;
 
     private final File file;
-    private FileConfiguration config;
+    protected FileConfiguration config;
 
     public OConfig(final File configFile, final int comments) {
         this.comments = comments;
@@ -54,7 +54,8 @@ public class OConfig {
     }
 
     public String getString(String path) {
-        return this.config.getString(path);
+        final String str = this.config.getString(path);
+        return str == null ? "" : str;
     }
 
     public String getString(String path, String def) {

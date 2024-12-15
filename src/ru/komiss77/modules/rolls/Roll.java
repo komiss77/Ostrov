@@ -5,12 +5,14 @@ import java.util.function.Function;
 import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
+import ru.komiss77.OVerConfig;
 import ru.komiss77.Ostrov;
 
 public abstract class Roll<R> {
 
     private static final HashMap<String, Roll<?>> rolls = new HashMap<>();
     private static final String CON_NAME = "rolls.yml";
+    private static final int VERSION = 1;
 
     protected final R it;
     protected final String id;
@@ -75,9 +77,9 @@ public abstract class Roll<R> {
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
         rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
-        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+        final OVerConfig irc = Cfg.manager.getNewConfig(CON_NAME, VERSION);
         final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
-        if (cs == null) return;
+        if (cs == null || irc.isOld) return;
         for (final String id : cs.getKeys(false)) {
             fun.apply(cs.getConfigurationSection(id));
         }

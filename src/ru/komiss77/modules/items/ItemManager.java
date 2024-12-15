@@ -65,12 +65,12 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         process(e.getEntity(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onDefense(ess, e);}
+            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onDefense(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onDefense(es, e);}
         });
         if (e instanceof final EntityDamageByEntityEvent ee) {
             process(e.getDamageSource().getCausingEntity(), new Processor() {
-                public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onAttack(ess, ee);}
+                public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onAttack(ess, ee);}
                 public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onAttack(es, ee);}
             });
         }
@@ -86,7 +86,7 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent e) {
         process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onInteract(ess, e);}
+            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onInteract(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onInteract(es, e);}
         });
     }
@@ -94,7 +94,7 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent e) {
         process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onBreak(ess, e);}
+            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onBreak(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onBreak(es, e);}
         });
         if (!SpecialItem.exist) return;
@@ -107,7 +107,7 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlace(final BlockPlaceEvent e) {
         process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onPlace(ess, e);}
+            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onPlace(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onPlace(es, e);}
         });
     }
@@ -116,7 +116,7 @@ public class ItemManager implements Initiable, Listener {
     public void onShoot(final ProjectileLaunchEvent e) {
         if (e.getEntity().getShooter() instanceof final LivingEntity le) {
             process(le, new Processor() {
-                public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onShoot(ess, e);}
+                public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onShoot(ess, e);}
                 public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onShoot(es, e);}
             });
         }
@@ -169,7 +169,7 @@ public class ItemManager implements Initiable, Listener {
 
     private static void process(final Entity ent, final Processor pc) {
         if (ent instanceof final LivingEntity le) {
-            final HashMap<CustomMats, List<EquipmentSlot>> cmp = new HashMap<>();
+            final HashMap<ItemGroup, List<EquipmentSlot>> cmp = new HashMap<>();
             final EntityEquipment eq = le.getEquipment();
             if (eq == null) return;
             for (final EquipmentSlot es : EquipmentSlot.values()) {
@@ -181,8 +181,8 @@ public class ItemManager implements Initiable, Listener {
                         continue;
                     }
                 }
-                if (!CustomMats.exist || ItemUtil.isBlank(is, true)) continue;
-                final CustomMats cm = CustomMats.get(is);
+                if (!ItemGroup.exist || ItemUtil.isBlank(is, true)) continue;
+                final ItemGroup cm = ItemGroup.get(is);
                 if (cm == null) continue;
                 final List<EquipmentSlot> ess = cmp.get(cm);
                 if (ess == null) {
@@ -193,8 +193,8 @@ public class ItemManager implements Initiable, Listener {
                     ess.add(es);
                 }
             }
-            if (!CustomMats.exist) return;
-            for (final Map.Entry<CustomMats, List<EquipmentSlot>> en : cmp.entrySet()) {
+            if (!ItemGroup.exist) return;
+            for (final Map.Entry<ItemGroup, List<EquipmentSlot>> en : cmp.entrySet()) {
                 pc.onMats(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
             }
         }
@@ -318,13 +318,13 @@ public class ItemManager implements Initiable, Listener {
     }
 
     public interface Processor {
-        void onMats(final EquipmentSlot[] ess, final CustomMats cm);
+        void onMats(final EquipmentSlot[] ess, final ItemGroup cm);
         void onSpec(final EquipmentSlot es, final SpecialItem si);
     }
 
     private static Processor extraProc(final PlayerEvent e) {
         return new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final CustomMats cm) {cm.onExtra(ess, e);}
+            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onExtra(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onExtra(es, e);}
         };
     }

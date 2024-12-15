@@ -1,24 +1,21 @@
 package ru.komiss77.listener;
 
-import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Tool;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.bots.Botter;
-import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemUtil;
 
 public class TestLst implements Listener {
 
@@ -42,9 +39,8 @@ public class TestLst implements Listener {
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
               if (p.isSneaking()) {
-                  p.getInventory().addItem(new ItemBuilder(ItemType.STRING).name("<red>try to blend in").rarity(ItemRarity.EPIC).edible(40, ItemUseAnimation.EAT, Sound.ENTITY_HORSE_EAT).build());
-                  p.getInventory().addItem(ItemUtil.previosPage);
-                  p.getInventory().addItem(ItemUtil.nextPage);
+                  final Tool tl = ItemType.IRON_PICKAXE.getDefaultData(DataComponentTypes.TOOL);
+                  p.sendMessage(tl.damagePerBlock() + ", " + tl.defaultMiningSpeed() + ", " + tl.rules().stream().map(r -> r.speed() + "' " + r.correctForDrops().name() + "' " + r.blocks().iterator().next().key().value()).toList().toString());
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   wb = Bukkit.createWorldBorder();
