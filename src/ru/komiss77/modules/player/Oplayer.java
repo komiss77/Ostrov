@@ -43,7 +43,7 @@ import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.scoreboard.CustomScore;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
@@ -335,7 +335,7 @@ public class Oplayer {
     }
 
     public int getDataInt(final Data data) {
-        return dataInt.getOrDefault(data, NumUtils.intOf(data.def_value, 0));
+        return dataInt.getOrDefault(data, NumUtil.intOf(data.def_value, 0));
     }
 
     public boolean setData(final Data e_data, final int value) {  //отправляем на банжи, и обнов.локально

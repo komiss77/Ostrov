@@ -11,6 +11,14 @@ public class StringUtil {
     private static final String PATTERN_ENG_NUM = "\\w"; //[A-Za-z0-9_]";
     private static final String PATTERN_ENG_RUS = "[A-Za-zА-Яа-я_]";
     private static final String PATTERN_ENG_NUM_RUS = "[A-Za-z0-9А-Яа-я_]";
+    public static final char CHAR_0 = '¦';
+    public static final String SPLIT_0 = "»" + CHAR_0 + "«";
+    public static final char CHAR_1 = '↕';
+    public static final String SPLIT_1 = "" + CHAR_1;
+    public static final char CHAR_2 = '÷';
+    public static final String SPLIT_2 = "" + CHAR_2;
+    public static final char CHAR_NA = '○';
+    public static final String NA = String.valueOf(CHAR_NA);
 
 
     public static String[] wrap(final String msg, final int length, final String newLine) {

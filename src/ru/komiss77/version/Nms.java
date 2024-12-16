@@ -2,6 +2,7 @@ package ru.komiss77.version;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
@@ -18,6 +19,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -32,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -45,27 +48,32 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntityTypes;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
 import org.spigotmc.SpigotConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.PDC;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
+import ru.komiss77.objects.Duo;
 import ru.komiss77.scoreboard.SubTeam;
-import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -127,7 +135,7 @@ public class Nms {
     final ServerOutPacketHandler handler = new ServerOutPacketHandler();
     //подслушать исходящие от сервера пакеты
     io.papermc.paper.network.ChannelInitializeListenerHolder.addListener(chatKey,
-            channel -> channel.pipeline().addAfter("packet_handler", "ostrov_chat_handler", handler)
+        channel -> channel.pipeline().addAfter("packet_handler", "ostrov_chat_handler", handler)
     );
     Ostrov.log_ok("§bchatFix - блокировка уведомлений подписи чата");
     //код ниже не удалять, может пригодиться
@@ -207,6 +215,36 @@ public class Nms {
     sendPacket(p, outOpenSignEditor);
   }
 
+  public static final CraftPersistentDataTypeRegistry PDT_REG = new CraftPersistentDataTypeRegistry();
+  public static final String P_B_V = "PublicBukkitValues";
+  public static void setCustomData(final ItemStack it, final PDC.Data data) {
+    if (it == null || data.isEmpty()) return; 
+    final DataComponentPatch.Builder builder = DataComponentPatch.builder();
+    final CraftPersistentDataContainer pdc = new CraftPersistentDataContainer(PDT_REG);
+    for (final Duo<NamespacedKey, Serializable> en : data) {
+      switch (en.val()) {
+        case final Byte d -> pdc.set(en.key(), PersistentDataType.BYTE, d);
+        case final Long d -> pdc.set(en.key(), PersistentDataType.LONG, d);
+        case final Integer d -> pdc.set(en.key(), PersistentDataType.INTEGER, d);
+        case final Float d -> pdc.set(en.key(), PersistentDataType.FLOAT, d);
+        case final Double d -> pdc.set(en.key(), PersistentDataType.DOUBLE, d);
+        case final byte[] d -> pdc.set(en.key(), PersistentDataType.BYTE_ARRAY, d);
+        case final int[] d -> pdc.set(en.key(), PersistentDataType.INTEGER_ARRAY, d);
+        case final String d -> pdc.set(en.key(), PersistentDataType.STRING, d);
+        default -> pdc.set(en.key(), PersistentDataType.STRING, en.val().toString());
+      }
+    }
+    final CompoundTag pdcTag = new CompoundTag();
+    for (final Map.Entry<String, Tag> en : pdc.getRaw().entrySet()) {
+      pdcTag.put(en.getKey(), en.getValue());
+    }
+    final CompoundTag ct = new CompoundTag();
+    ct.put(P_B_V, pdcTag);
+    builder.set(DataComponents.CUSTOM_DATA, CustomData.of(ct));
+    if (it instanceof final CraftItemStack cit) {
+      cit.handle.applyComponents(builder.build());
+    }
+  }
 
   @Deprecated
   public static Material getFastMat(final World w, int x, int y, int z) {
@@ -341,12 +379,12 @@ public class Nms {
     return PlaceType.SAFELY;
   }
 
-    private static boolean canStandOnCenter(final ServerLevel sl, final BlockState state) {
-      if (state.isAir() || !state.getBlock().hasCollision) return false;
-      final VoxelShape faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
-      return (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
-            (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
-    }
+  private static boolean canStandOnCenter(final ServerLevel sl, final BlockState state) {
+    if (state.isAir() || !state.getBlock().hasCollision) return false;
+    final VoxelShape faceShape = state.getCollisionShape(sl, mutableBlockPosition).getFaceShape(Direction.UP);
+    return (faceShape.min(Direction.Axis.X) <= 0.5d && faceShape.max(Direction.Axis.X) >= 0.5d) &&
+        (faceShape.min(Direction.Axis.Z) <= 0.5d && faceShape.max(Direction.Axis.Z) >= 0.5d);
+  }
 
 
   public static void pathServer() {
@@ -370,10 +408,10 @@ public class Nms {
 
       //Полученного экземпляра Field уже достаточно для доступа к изменяемым приватным полям.
       vanilaCommandToDisable.forEach((name) -> {
-                children.remove(name);
-                literals.remove(name);
-                arguments.remove(name);
-              }
+            children.remove(name);
+            literals.remove(name);
+            arguments.remove(name);
+          }
       );
 
     } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException |
@@ -487,7 +525,7 @@ public class Nms {
     final LevelChunk nmsChunk = ws.getChunkIfLoaded(chunk.getX(), chunk.getZ());
     if (nmsChunk == null) return;
     final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(
-            nmsChunk, ws.getLightEngine(), null, null, true);
+        nmsChunk, ws.getLightEngine(), null, null, true);
     sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
   }
 
@@ -510,8 +548,8 @@ public class Nms {
     double vx = direction.getX();
     double vy = direction.getY();
     double vz = direction.getZ();
-    final byte yawByte = FastMath.pack(180f - FastMath.toDegree((float) Math.atan2(vx, vz)) + NumUtils.randInt(-10, 10));
-    final byte pitchByte = FastMath.pack(90 - FastMath.toDegree((float) Math.acos(vy)) + (NumUtils.rndBool() ? 10 : -5));
+    final byte yawByte = NumUtil.pack(180f - NumUtil.toDegree((float) Math.atan2(vx, vz)) + NumUtil.randInt(-10, 10));
+    final byte pitchByte = NumUtil.pack(90 - NumUtil.toDegree((float) Math.acos(vy)) + (NumUtil.rndBool() ? 10 : -5));
     final ServerPlayer entityPlayer = Craft.toNMS(p);
     final net.minecraft.world.entity.Entity el = Craft.toNMS(e);
     ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(el, yawByte);
@@ -524,8 +562,8 @@ public class Nms {
     if (p == null || !p.isOnline() || e == null) {
       return;
     }
-    final byte yawByte = FastMath.pack(e.getLocation().getYaw());//toPackedByte(f.yaw);
-    final byte pitchByte = FastMath.pack(e.getLocation().getPitch());//toPackedByte(f.pitch);
+    final byte yawByte = NumUtil.pack(e.getLocation().getYaw());//toPackedByte(f.yaw);
+    final byte pitchByte = NumUtil.pack(e.getLocation().getPitch());//toPackedByte(f.pitch);
     final ServerPlayer entityPlayer = Craft.toNMS(p);
     final net.minecraft.world.entity.Entity el = Craft.toNMS(e);
     ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(el, yawByte);

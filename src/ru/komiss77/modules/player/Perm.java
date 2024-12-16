@@ -18,7 +18,7 @@ import ru.komiss77.events.GroupChangeEvent;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -234,7 +234,7 @@ public class Perm {
                 if (perm.startsWith("limit.")) {
                     int idx = perm.lastIndexOf(".");
                     if (idx <= 0) continue;
-                    int limit = NumUtils.intOf(perm.substring(idx + 1), 0);
+                    int limit = NumUtil.intOf(perm.substring(idx + 1), 0);
                     if (limit < 0) continue;
                     perm = perm.replaceFirst("limit.", "").replaceFirst("." + limit, "");   // limit.home.5 -> home.5
                     //perm = perm.substring(0, idx-1);    // home.5 -> home

@@ -16,7 +16,7 @@ import ru.komiss77.modules.world.Schematic;
 import ru.komiss77.modules.world.WE;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ParticleUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.*;
@@ -56,7 +56,7 @@ public class RegionOwnerMenu implements InventoryProvider {
     } else {
 
       String timeStamp = RM.createTime(region);
-      final int stamp = NumUtils.intOf(timeStamp, 0);
+      final int stamp = NumUtil.intOf(timeStamp, 0);
       if (stamp > 0) {
         timeStamp = TimeUtil.dateFromStamp(stamp);
       }

@@ -16,7 +16,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -188,7 +188,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
             content.set(2, 7, new InputButton(InputButton.InputType.ANVILL, is, ammountInfo, msg -> {
                 p.closeInventory();
-                if (!NumUtils.isInt(msg)) {
+                if (!NumUtil.isInt(msg)) {
                     p.sendMessage("§cДолжно быть число!");
                     PM.soundDeny(p);
                     return;

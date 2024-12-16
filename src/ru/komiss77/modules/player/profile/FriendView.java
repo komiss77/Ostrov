@@ -12,7 +12,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
@@ -64,7 +64,7 @@ public class FriendView implements InventoryProvider {
                 splitterIndex = info.indexOf(":");
                 if (splitterIndex > 0) {
                     server.put(name, info.substring(0, splitterIndex));
-                    settings.put(name, NumUtils.intOf(info.substring(0, splitterIndex), Integer.MIN_VALUE));
+                    settings.put(name, NumUtil.intOf(info.substring(0, splitterIndex), Integer.MIN_VALUE));
                     info = info.substring(splitterIndex + 1);
                 }
             }

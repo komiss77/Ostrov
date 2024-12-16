@@ -206,7 +206,7 @@ public class EntityGroupMenu implements InventoryProvider {
             .lore("§7")
             .build(), "" + radius, input -> {
 
-            if (!NumUtils.isInt(input)) {
+            if (!NumUtil.isInt(input)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

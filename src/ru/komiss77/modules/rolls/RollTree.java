@@ -1,150 +1,169 @@
 package ru.komiss77.modules.rolls;
 
 import java.util.*;
+import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ClassUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.notes.Slow;
+import ru.komiss77.objects.Duo;
+import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.StringUtil;
 
 
-public class RollTree extends Roll<String[]> {
+public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
-    private static final String[] EMT = new String[0];
+    protected static final Map<String, Wait> waits = new HashMap<>();
+    protected record Wait(Roll<?>[] rls, Integer pos) {}
 
-    private static final String SEP = "=";
-    private static final char DLM = ':';
-
-    public RollTree(final String id, final String[] roll) {
-        super(id, roll, roll.length, 0);
+    public static void tryFill(final Roll<?> roll) {
+        final Wait wait = waits.remove(roll.id);
+        if (wait == null) return; wait.rls[wait.pos] = roll;
     }
 
-    public RollTree(final String id, final String[] roll, final int number) {
-        super(id, roll, Math.min(number, roll.length), 0);
-    }
+    private final int[] wgts;
+    private final int total;
 
-    public RollTree(final String id, final String[] roll, final int number, final int extra) {
-        super(id, roll, Math.min(number, roll.length), extra);
+    private RollTree(final String id, final Roll<?>[] roll,
+        final int[] wgts, final int number, final int extra) {
+        super(id, roll, number, extra); this.wgts = wgts;
+        int total = 0;
+        for (int i = 0; i != wgts.length; i++)
+            total += wgts[i];
+        this.total = total;
     }
 
     @Override
-    protected String[] asAmount(final int amt) {
-        ClassUtil.shuffle(it);
-        return Arrays.copyOf(it, amt);
+    @Slow(priority = 1)
+    protected Roll<?>[] asAmount(final int amt) {
+        final int[] sar = new int[amt];
+        for (int i = 0; i != amt; i++)
+            sar[i] = Ostrov.random.nextInt(total);
+        Arrays.sort(sar);
+        final Roll<?>[] rls = new Roll<?>[amt];
+        int ix = 0, curr = sar[ix], cnt = 0;
+        for (int i = 0; i != wgts.length; i++) {
+            cnt += wgts[i];
+            while (curr < cnt) {
+                ix++; curr = sar[ix];
+                rls[ix] = it[i];
+            }
+        }
+        return rls;
     }
 
-    /*public <R> @Nullable R genRoll(final Class<R> cls) {
+    public <R> @Nullable R genRoll(final Class<R> cls) {
         if (it.length == 0) return null;
-        final int amt = number + Ostrov.random.nextInt(extra);
-        for ()
-        return genFrom(ClassUtil.rndElmt(it));
+        int ttl = 0;
+        for (int i = 0; i != wgts.length; i++) {
+            final Roll<?> rl = it[i];
+            ttl += rl == null ? 0 : wgts[i]
+                * (rl.number + rl.extra >> 1);
+        }
+        final int pos = Ostrov.random.nextInt(ttl);
+        int cnt = 0;
+        for (int i = 0; i != wgts.length; i++) {
+            final Roll<?> rl = it[i];
+            cnt += rl == null ? 0 : wgts[i]
+                * (rl.number + rl.extra >> 1);
+            if (pos < cnt) return genFrom(rl, cls);
+        }
+        return null;
     }
 
-    private @Nullable <R> R genFrom(String s) {
-
-    }*/
+    private @Nullable <R> R genFrom(final @Nullable Roll<?> roll, final Class<R> cls) {
+//        Ostrov.log("tr-" + id);
+        return switch (roll) {
+            case null -> {
+                Ostrov.log_warn("No roll in table " + id + " yet!");
+                yield null;
+            }
+            case final NARoll ignored -> null;
+            case final RollTree rr -> rr.genRoll(cls);
+            default -> {
+                final Object gen = roll.generate();
+                yield cls.isInstance(gen) ? cls.cast(gen) : null;
+            }
+        };
+    }
 
     public <R> List<R> genRolls(final Class<R> cls) {
         if (it.length == 0) return List.of();
-        final int amt = number + Ostrov.random.nextInt(extra);
-        final ArrayList<R> lst = new ArrayList<>(amt);
-        if (amt < it.length >> 1) {
-            for (int i = 0; i < amt; i++) {
-                addGen(ClassUtil.rndElmt(it), lst, cls);
-            }
-        } else {
-            ClassUtil.shuffle(it);
-            for (int n = amt / it.length; n > 0; n--) {
-                for (final String rl : it) addGen(rl, lst, cls);
-            }
-            for (int i = amt % it.length; i > 0; i--) {
-                addGen(it[i - 1], lst, cls);
-            }
+        final ArrayList<R> lst = new ArrayList<>();
+        for (final Roll<?> rl : asAmount(number + Ostrov.random.nextInt(extra))) {
+            addGen(rl, lst, cls);
         }
         return lst;
     }
 
-    private <R> void addGen(final String roll, final ArrayList<R> lst, final Class<R> cls) {
+    private <R> void addGen(final Roll<?> roll, final ArrayList<R> lst, final Class<R> cls) {
 //        Ostrov.log("tr-" + id);
-        final Roll<?> rl = Roll.getRoll(roll);
-        switch (rl) {
+        switch (roll) {
             case null:
-                Ostrov.log_warn("No roll " + roll + " in table " + id + "!");
+                Ostrov.log_warn("No roll in table " + id + " yet!");
                 return;
             case final NARoll ignored: return;
             case final RollTree rr:
-                for (final String nr : rr.generate()) {
+                for (final Roll<?> nr : rr.generate()) {
                     addGen(nr, lst, cls);
                 }
                 return;
             default:
-                final Object gen = rl.generate();
-                if (cls.isAssignableFrom(gen.getClass())) {
+                final Object gen = roll.generate();
+                if (cls.isInstance(gen))
                     lst.add(cls.cast(gen));
-                }
         }
     }
 
     @Override
     protected String encode() {
         final HashMap<String, Integer> rls = new HashMap<>();
-        for (final String rl : it) rls.put(rl, rls.getOrDefault(rl, 0) + 1);
+        for (final Roll<?> rl : it) rls.put(rl.id, rls.getOrDefault(rl, 0) + 1);
         final StringBuilder sb = new StringBuilder();
         for (final Map.Entry<String, Integer> en : rls.entrySet())
-            sb.append(SEP).append(en.getValue()).append(DLM).append(en.getKey());
+            sb.append(StringUtil.SPLIT_0).append(en.getValue()).append(StringUtil.SPLIT_1).append(en.getKey());
         if (sb.isEmpty()) return "";
-        return sb.substring(SEP.length());
+        return sb.substring(StringUtil.SPLIT_0.length());
     }
 
     public static void loadAll() {
         load(RollTree.class, cs -> {
-            final String[] rls = cs.getString(VAL).split(SEP);
-            final List<String> rolls = new ArrayList<>();
+            final Builder bld = of(cs.getName());
+            final String[] rls = cs.getString(VAL).split(StringUtil.SPLIT_0);
             for (final String rl : rls) {
-                final int split = rl.indexOf(DLM);
-                if (split < 1) continue;
-                for (int i = NumUtils.intOf(rl.substring(0, split), 0); i != 0; i--)
-                    rolls.add(rl.substring(split + 1));
+                final int split = rl.indexOf(StringUtil.SPLIT_1);
+                if (split < 0) continue;
+                bld.add(rl.substring(0, split),
+                    NumUtil.intOf(rl.substring(split + 1), 1));
             }
-            return new RollTree(cs.getName(), rolls.toArray(EMT),
-                cs.getInt(NUM, 0), cs.getInt(EX, 0));
+            return bld.build(cs.getInt(NUM, 0), cs.getInt(EX, 0));
         });
     }
 
     public static Builder of(final String id) {
-        return new Builder(id, new ArrayList<>());
-    }
-
-    public static Builder of(final String id, final Map<String, Integer> weights) {
-        final List<String> rolls = new ArrayList<>();
-        for (final Map.Entry<String, Integer> en : weights.entrySet()) {
-            for (int i = en.getValue(); i > 0; i--) rolls.add(en.getKey());
-        }
-        return new Builder(id, rolls);
+        return new Builder(id);
     }
 
     public static class Builder {
 
         private final String id;
-        private final List<String> rolls;
+        private final List<Duo<String, Integer>> weighed;
 
-        private Builder(final String id, final List<String> rolls) {
+        private Builder(final String id) {
             this.id = id;
-            this.rolls = rolls;
+            this.weighed = new ArrayList<>();
         }
 
         public Builder add(final Roll<?> rl, final int weight) {
-            final String[] nar = new String[weight];
-            Arrays.fill(nar, rl.id);
-            rolls.addAll(Arrays.asList(nar));
+            weighed.add(new Duo<>(rl.id, weight));
             return this;
         }
 
-        public Builder remove(final Roll<?> rl) {
-            rolls.removeIf(r -> r.equals(rl.id));
+        public Builder add(final String rl, final int weight) {
+            weighed.add(new Duo<>(rl, weight));
             return this;
         }
 
         public RollTree build() {
-            return build(rolls.size(), 0);
+            return build(weighed.size(), 0);
         }
 
         public RollTree build(final int number) {
@@ -152,7 +171,16 @@ public class RollTree extends Roll<String[]> {
         }
 
         public RollTree build(final int number, final int extra) {
-            return new RollTree(id, rolls.toArray(EMT), number, extra);
+            final int sz = weighed.size();
+            final Roll<?>[] rls = new Roll<?>[sz];
+            final int[] weigh = new int[sz];
+            for (int i = 0; i != sz; i++) {
+                final Duo<String, Integer> wrl = weighed.get(i);
+                final Roll<?> rl = get(wrl.key());
+                if (rl == null) waits.put(wrl.key(), new Wait(rls, i));
+                rls[i] = rl; weigh[i] = wrl.val();
+            }
+            return new RollTree(id, rls, weigh, number, extra);
         }
     }
 }

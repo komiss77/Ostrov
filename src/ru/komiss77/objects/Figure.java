@@ -10,7 +10,7 @@ import org.bukkit.entity.EntityType;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureActivateEntityEvent;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -64,11 +64,11 @@ public class Figure {
 
         String[] split = locString.split(locString.contains(":") ? ":" : "<>");
         worldName = split[0];
-        x = NumUtils.intOf(split[1], 0);
-        y = NumUtils.intOf(split[2], 0);
-        z = NumUtils.intOf(split[3], 0);
-        yaw = NumUtils.intOf(split[4], 0);
-        pitch = NumUtils.intOf(split[5], 0);
+        x = NumUtil.intOf(split[1], 0);
+        y = NumUtil.intOf(split[2], 0);
+        z = NumUtil.intOf(split[3], 0);
+        yaw = NumUtil.intOf(split[4], 0);
+        pitch = NumUtil.intOf(split[5], 0);
         spawnLoc = LocUtil.stringToLoc(locString, false, false).toCenterLocation();
     }
 

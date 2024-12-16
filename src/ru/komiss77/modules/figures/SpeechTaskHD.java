@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.displays.DisplayManager;
 import ru.komiss77.objects.FigureAnswer;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 
 class SpeechTaskHD extends SpeechTask {
@@ -103,7 +103,7 @@ class SpeechTaskHD extends SpeechTask {
         }
 
         if (tick % 7 == 0 && sound != null && f.entity != null) {// 3*7
-            p.playSound(f.entity.getLocation(), sound, .5f, NumUtils.randInt(7, 15) / 10f);
+            p.playSound(f.entity.getLocation(), sound, .5f, NumUtil.randInt(7, 15) / 10f);
         }
 
         tick--;

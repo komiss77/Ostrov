@@ -246,11 +246,11 @@ public class ParticleUtil {
         final FireworkMeta fireworkMeta = firework.getFireworkMeta();
         fireworkMeta.addEffect(
                 FireworkEffect.builder()
-                        .flicker(NumUtils.rndBool())
-                        .withColor(Color.fromBGR(NumUtils.randInt(0, 255), NumUtils.randInt(0, 255), NumUtils.randInt(0, 255)))
-                        .withFade(Color.fromBGR(NumUtils.randInt(0, 255), NumUtils.randInt(0, 255), NumUtils.randInt(0, 255)))
-                        .with(FireworkEffect.Type.values()[NumUtils.randInt(0, FireworkEffect.Type.values().length - 1)])//.with(FireworkEffect.Type.BALL)
-                        .trail(NumUtils.rndBool())
+                        .flicker(NumUtil.rndBool())
+                        .withColor(Color.fromBGR(NumUtil.randInt(0, 255), NumUtil.randInt(0, 255), NumUtil.randInt(0, 255)))
+                        .withFade(Color.fromBGR(NumUtil.randInt(0, 255), NumUtil.randInt(0, 255), NumUtil.randInt(0, 255)))
+                        .with(FireworkEffect.Type.values()[NumUtil.randInt(0, FireworkEffect.Type.values().length - 1)])//.with(FireworkEffect.Type.BALL)
+                        .trail(NumUtil.rndBool())
                         .build()
         );
         fireworkMeta.setPower(0);
@@ -384,7 +384,7 @@ public class ParticleUtil {
             player.getWorld().playSound(player.getLocation(), "quake.random.meat", 1, 1);
             final Firework firework = (Firework) loc.getWorld().spawn(loc, (Class) Firework.class);
             final FireworkMeta fireworkMeta = firework.getFireworkMeta();
-            fireworkMeta.addEffect(FireworkEffect.builder().flicker(NumUtils.rndBool()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(NumUtils.rndBool()).build());
+            fireworkMeta.addEffect(FireworkEffect.builder().flicker(NumUtil.rndBool()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(NumUtil.rndBool()).build());
             fireworkMeta.setPower(0);
             firework.setFireworkMeta(fireworkMeta);
         }

@@ -12,7 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 //не нужна команда, блокстэйт можно найти через команду /entity
 
@@ -27,7 +27,7 @@ public class BlockstateCmd {
 
 
             case 1:
-                if (NumUtils.isInt(arg[0])) {
+                if (NumUtil.isInt(arg[0])) {
                     int r = Integer.valueOf(arg[0]);
                     final Map<String, Integer> count = new HashMap<>();
 
@@ -53,7 +53,7 @@ public class BlockstateCmd {
 
 
             case 2:
-                if (NumUtils.isInt(arg[0])) {
+                if (NumUtil.isInt(arg[0])) {
 
                     Material mat = Material.matchMaterial(arg[1]);
                     if (mat == null) {

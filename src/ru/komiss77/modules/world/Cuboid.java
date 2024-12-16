@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.BlockUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.version.Nms;
 
 //https://gist.github.com/ursinn/871525236408e33d4cbee607f7eff8ae
@@ -35,19 +35,19 @@ public class Cuboid {
     public Cuboid(final String fromString) { // x1 + ", " + y1 + ", " + z1 + ", " + x2 + ", " + y2 + ", " + z2;
         String[] data = fromString.split(", ");
         if (data.length >= 6) {
-            minX = NumUtils.intOf(data[0], 0);
-            minY = NumUtils.intOf(data[1], 0);
-            minZ = NumUtils.intOf(data[2], 0);
-            maxX = NumUtils.intOf(data[3], 0);
-            maxY = NumUtils.intOf(data[4], 0);
-            maxZ = NumUtils.intOf(data[5], 0);
+            minX = NumUtil.intOf(data[0], 0);
+            minY = NumUtil.intOf(data[1], 0);
+            minZ = NumUtil.intOf(data[2], 0);
+            maxX = NumUtil.intOf(data[3], 0);
+            maxY = NumUtil.intOf(data[4], 0);
+            maxZ = NumUtil.intOf(data[5], 0);
         }
         if (data.length >= 11) {
-            spawnAddX = NumUtils.intOf(data[6], 0);
-            spawnAddY = NumUtils.intOf(data[7], 0);
-            spawnAddZ = NumUtils.intOf(data[8], 0);
-            spawnYaw = NumUtils.intOf(data[9], 0);
-            spawnPitch = NumUtils.intOf(data[10], 0);
+            spawnAddX = NumUtil.intOf(data[6], 0);
+            spawnAddY = NumUtil.intOf(data[7], 0);
+            spawnAddZ = NumUtil.intOf(data[8], 0);
+            spawnYaw = NumUtil.intOf(data[9], 0);
+            spawnPitch = NumUtil.intOf(data[10], 0);
         }
     }
 

@@ -19,28 +19,25 @@ import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
-import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemUtil.Texture;
 import ru.komiss77.utils.TCUtil;
+import ru.komiss77.version.Nms;
 
 public class ItemBuilder {
 
     private ItemType type;//private Material mat;
     private int amount = 1; //по умолчанию 1, или build() выдаёт AIR!
     private ItemData data = null;
-    private CaseInsensitiveMap<Serializable> pdcs = null;
+    private PDC.Data pdcs = null;
     private EnumSet<ItemFlag> flags = null;
 
     public ItemBuilder(final ItemType type) {
@@ -99,9 +96,9 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder data(final String key, final Serializable data) {
-        if (pdcs == null) pdcs = new CaseInsensitiveMap<>();
-        pdcs.put(key, data);
+    public ItemBuilder data(final Key key, final Serializable data) {
+        if (pdcs == null) pdcs = new PDC.Data();
+        pdcs.add(OStrap.key(key), data);
         return this;
     }
 
@@ -512,31 +509,10 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
-        if (amount < 1) {
-            return ItemUtil.air.clone();
-        }
-
+        if (amount < 1) return ItemUtil.air.clone();
         final ItemStack item = type.createItemStack(amount);
         if (data != null) data.addTo(item);
-
-        if (pdcs != null) {
-            final ItemMeta im = item.getItemMeta();
-            final PersistentDataContainer pdc = im.getPersistentDataContainer();
-            for (final Map.Entry<String, Serializable> en : pdcs.entrySet()) {
-                switch (en.getValue()) {
-                    case final Byte d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.BYTE, d);
-                    case final Long d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.LONG, d);
-                    case final Integer d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.INTEGER, d);
-                    case final Float d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.FLOAT, d);
-                    case final Double d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.DOUBLE, d);
-                    case final byte[] d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.BYTE_ARRAY, d);
-                    case final int[] d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.INTEGER_ARRAY, d);
-                    case final String d -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.STRING, d);
-                    default -> pdc.set(OStrap.key(en.getKey()), PersistentDataType.STRING, en.getValue().toString());
-                }
-            }
-            item.setItemMeta(im);
-        }
+        if (pdcs != null) Nms.setCustomData(item, pdcs);
         return item;
     }
 }

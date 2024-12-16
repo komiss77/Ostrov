@@ -220,7 +220,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "accept")) return 0;
 
           if (arg.length == 2) { //принятие с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1], -1);
+            final int missionId = NumUtil.intOf(arg[1], -1);
             if (missionId < 0 || !MissionManager.missions.containsKey(missionId)) {
               p.sendMessage("§cНет активной миссии с ИД " + arg[1] + "!");
               return 0;
@@ -380,7 +380,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "complete")) return 0;
           //обновить missionIds и Data.MISSION
           if (arg.length == 2) { //выполнить с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1], -1);
+            final int missionId = NumUtil.intOf(arg[1], -1);
             if (missionId < 0) {  //missionIds подгружаются при входе и меняются при принятии!
               p.sendMessage("§cНе может быть миссии с ИД " + arg[1] + "!");
               return 0;
@@ -530,7 +530,7 @@ public class MissionCmd implements OCommand {
           if (!MissionManager.canUseCommand(p, "deny")) return 0;
           //отказ должен быть возможен для устаревших тоже!
           if (arg.length == 2) { //отказ с указанием ИД
-            final int missionId = NumUtils.intOf(arg[1], -1);
+            final int missionId = NumUtil.intOf(arg[1], -1);
             //if (missionId<0 || !op.missionIds.contains(missionId)) {  //missionIds подгружаются при входе и меняются при принятии!
             //    p.sendMessage("§cВы не выполняете миссию с ИД "+arg[1]+"!");
             //    return true;

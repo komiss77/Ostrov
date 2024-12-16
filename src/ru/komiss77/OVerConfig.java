@@ -8,13 +8,13 @@ public class OVerConfig extends OConfig {
     private static final String VER_PATH = "version";
     private static final int MIN_VER = 0;
 
-    public final boolean isOld;
+    public final boolean isNew;
 
     public OVerConfig(final File configFile, final int comments, final int current) {
         super(configFile, comments);
         int version = getInt(VER_PATH, MIN_VER);
-        isOld = version < current;
-        if (!isOld) return;
+        isNew = version > current;
+        if (isNew || version == current) return;
         set(VER_PATH, current);
         saveConfig();
     }

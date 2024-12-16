@@ -27,7 +27,7 @@ import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
 
 
@@ -137,7 +137,7 @@ public class TprCmd implements OCommand {
       switch (arg.length) {
 
         case 3:
-          radiusLimit = NumUtils.intOf(arg[2], 0);
+          radiusLimit = NumUtil.intOf(arg[2], 0);
           if (radiusLimit < 1) {
             cs.sendMessage("§c" + Lang.t(p, "Лимит радиуса поиска - число больше 1!"));
             return 0;
@@ -311,8 +311,8 @@ public class TprCmd implements OCommand {
 
               //find_x = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_x + minFindRadius, xMax) : ApiOstrov.randInt(xMin, center_x - minFindRadius);
               //find_z = Ostrov.random.nextBoolean() ? ApiOstrov.randInt(center_z + minFindRadius, zMax) : ApiOstrov.randInt(zMin, center_z - minFindRadius);
-              feetLoc.x = Ostrov.random.nextBoolean() ? NumUtils.randInt(center_x + minFindRadius, xMax) : NumUtils.randInt(xMin, center_x - minFindRadius);
-              feetLoc.z = Ostrov.random.nextBoolean() ? NumUtils.randInt(center_z + minFindRadius, zMax) : NumUtils.randInt(zMin, center_z - minFindRadius);
+              feetLoc.x = Ostrov.random.nextBoolean() ? NumUtil.randInt(center_x + minFindRadius, xMax) : NumUtil.randInt(xMin, center_x - minFindRadius);
+              feetLoc.z = Ostrov.random.nextBoolean() ? NumUtil.randInt(center_z + minFindRadius, zMax) : NumUtil.randInt(zMin, center_z - minFindRadius);
 
               feetLoc.y = maxY;
 

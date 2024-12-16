@@ -6,7 +6,7 @@ import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
 
 
-public class NumUtils {
+public class NumUtil {
 
     private static final float R_TO_D = 57.3f;
     private static final double PIx2 = Math.PI * 2;

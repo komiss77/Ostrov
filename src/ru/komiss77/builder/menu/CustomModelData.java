@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InputButton.InputType;
@@ -49,7 +49,7 @@ public class CustomModelData implements InventoryProvider {
             .name("§7Перейти к ИД ....")
             .build(), "" + from, input -> {
 
-            if (!NumUtils.isInt(input)) {
+            if (!NumUtil.isInt(input)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

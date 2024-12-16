@@ -13,7 +13,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -122,7 +122,7 @@ public class EntityTypeMenu implements InventoryProvider {
             .lore("§7")
             .build(), "" + radius, imput -> {
 
-            if (!NumUtils.isInt(imput)) {
+            if (!NumUtil.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

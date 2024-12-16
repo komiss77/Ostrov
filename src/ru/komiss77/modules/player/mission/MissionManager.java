@@ -650,7 +650,7 @@ public class MissionManager {
         int splitterIndex;
         for (final String progressRaw : raw.split("∫")) {
             splitterIndex = progressRaw.indexOf(":");
-            if (splitterIndex > 0 && NumUtils.isInt(progressRaw.substring(splitterIndex + 1))) {
+            if (splitterIndex > 0 && NumUtil.isInt(progressRaw.substring(splitterIndex + 1))) {
                 map.put(progressRaw.substring(0, splitterIndex), Integer.valueOf(progressRaw.substring(splitterIndex + 1)));
             }
         }

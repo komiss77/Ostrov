@@ -30,7 +30,7 @@ import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
@@ -182,14 +182,14 @@ public class PM {
         for (String s : raw.split("∫")) {
             if (s.length() < 4) continue;
 
-            enumTag = NumUtils.intOf(s.substring(0, 3), Integer.MIN_VALUE); //здесь и далее не надо передавать дефолтный 0, т.к. чекается v > Integer.MIN_VALUE
+            enumTag = NumUtil.intOf(s.substring(0, 3), Integer.MIN_VALUE); //здесь и далее не надо передавать дефолтный 0, т.к. чекается v > Integer.MIN_VALUE
             value = s.substring(3);
 
             if (enumTag >= 100 && enumTag <= 299) {
                 final Data _data = Data.byTag(enumTag);
                 if (_data != null) {
                     if (_data.is_integer) {
-                        v = NumUtils.intOf(value, Integer.MIN_VALUE);
+                        v = NumUtil.intOf(value, Integer.MIN_VALUE);
                         if (v > Integer.MIN_VALUE) {
                             op.dataInt.put(_data, v);
                         }
@@ -199,13 +199,13 @@ public class PM {
                 }
             } else if (enumTag >= 300 && enumTag <= 599) {
                 final Stat e_stat = Stat.byTag(enumTag);
-                v = NumUtils.intOf(value, Integer.MIN_VALUE);
+                v = NumUtil.intOf(value, Integer.MIN_VALUE);
                 if (e_stat != null && v > Integer.MIN_VALUE) {
                     op.stat.put(e_stat, v);
                 }
             } else if (enumTag >= 600 && enumTag <= 899) {
                 final Stat e_stat = Stat.byTag(enumTag - Stat.diff);
-                v = NumUtils.intOf(value, Integer.MIN_VALUE);
+                v = NumUtil.intOf(value, Integer.MIN_VALUE);
                 if (e_stat != null && v > Integer.MIN_VALUE) {
                     op.dailyStat.put(e_stat, v);
                 }
@@ -218,7 +218,7 @@ public class PM {
         }
         if (op.dataString.containsKey(Data.MISSIONS)) {
             for (String id : op.dataString.get(Data.MISSIONS).split(";")) {
-                if (NumUtils.isInt(id)) {
+                if (NumUtil.isInt(id)) {
                     op.missionIds.add(Integer.valueOf(id));
                 }
             }

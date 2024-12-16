@@ -9,7 +9,7 @@ import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 
 public class RewardLoni {
@@ -109,7 +109,7 @@ public class RewardLoni {
         if (expAdd > 0) {
             op.addExp(p, expAdd);
         } else if (loniAdd > 0) {
-            op.addExp(p, NumUtils.randInt(1, loniAdd));
+            op.addExp(p, NumUtil.randInt(1, loniAdd));
         }
 
     }
@@ -121,23 +121,23 @@ public class RewardLoni {
         switch (customStatName) {
             case "Убийство бескроватного" -> {
                 loniAdd = 5;
-                expAdd = NumUtils.randInt(5, 15);
+                expAdd = NumUtil.randInt(5, 15);
             }
             case "Захват флага" -> {
                 loniAdd = 5;
-                expAdd = NumUtils.randInt(5, 15);
+                expAdd = NumUtil.randInt(5, 15);
             }
             case "Битва Строителей - 1 место" -> {
                 loniAdd = 20;
-                expAdd = NumUtils.randInt(20, 40);
+                expAdd = NumUtil.randInt(20, 40);
             }
             case "Битва Строителей - 2 место" -> {
                 loniAdd = 10;
-                expAdd = NumUtils.randInt(15, 35);
+                expAdd = NumUtil.randInt(15, 35);
             }
             case "Битва Строителей - 3 место" -> {
                 loniAdd = 5;
-                expAdd = NumUtils.randInt(10, 30);
+                expAdd = NumUtil.randInt(10, 30);
             }
         }
 

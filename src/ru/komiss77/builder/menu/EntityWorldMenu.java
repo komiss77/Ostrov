@@ -18,7 +18,7 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -303,7 +303,7 @@ public class EntityWorldMenu implements InventoryProvider {
             .lore("§7(0 - весь мир)")
             .lore("§7")
             .build(), "" + radius, imput -> {
-            if (!NumUtils.isInt(imput)) {
+            if (!NumUtil.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }

@@ -15,7 +15,7 @@ import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 public class TpposCMD implements OCommand {
 
@@ -100,7 +100,7 @@ public class TpposCMD implements OCommand {
       if (Cfg.tppos_command || op.hasGroup("youtuber")) {
         if (p.hasPermission("ostrov.tppos") || op.hasGroup("youtuber")) {
           if (arg.length == 3) {
-            if (NumUtils.isInt(arg[0]) && NumUtils.isInt(arg[1]) && NumUtils.isInt(arg[2])) {
+            if (NumUtil.isInt(arg[0]) && NumUtil.isInt(arg[1]) && NumUtil.isInt(arg[2])) {
               DelayTeleport.tp(p, new Location(p.getWorld(), Double.parseDouble(arg[0]), Double.parseDouble(arg[1]), Double.parseDouble(arg[2])), 3, "Вы вернулись на указанную локацию", true, true, DyeColor.BROWN);
               //Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "tp "+p.name()+" "+arg[0]+" "+arg[1]+" "+arg[2] );
             } else {

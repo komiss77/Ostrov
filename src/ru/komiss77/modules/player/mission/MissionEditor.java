@@ -192,7 +192,7 @@ public class MissionEditor implements InventoryProvider {
                 .lore("§7ЛКМ - изменить")
                 .lore("§7")
                 .build(), "" + mi.level, imput -> {
-            if (!NumUtils.isInt(imput)) {
+            if (!NumUtil.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
                 return;
@@ -221,7 +221,7 @@ public class MissionEditor implements InventoryProvider {
                 .lore("§7ЛКМ - изменить")
                 .lore("§7")
                 .build(), "" + mi.reputation, imput -> {
-            if (!NumUtils.isInt(imput)) {
+            if (!NumUtil.isInt(imput)) {
                 p.sendMessage("§cДолжно быть число!");
                 PM.soundDeny(p);
                 return;
@@ -341,7 +341,7 @@ public class MissionEditor implements InventoryProvider {
                         }
                         case SHIFT_LEFT -> {
                             PlayerInput.get(InputButton.InputType.ANVILL, p, (msg) -> {
-                                if (!NumUtils.isInt(msg)) {
+                                if (!NumUtil.isInt(msg)) {
                                     p.sendMessage("§cДолжно быть число!");
                                 }
                                 final int value = Integer.parseInt(msg);

@@ -1,18 +1,7 @@
 package ru.komiss77.objects;
 
-import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.RandomAccess;
-import java.util.Spliterator;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -406,7 +395,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
     public boolean add(final E e) {
         int prv = 0;
         int to = size;
-        int mid, sn = -1;
+        int mid, sn;
         while (prv != to) {
             mid = (to - prv) >> 1;
             sn = e.compareTo(get(prv + mid)) >> 31;
@@ -455,10 +444,33 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         Objects.checkIndex(index, size);
         final Object[] es = elementData;
 
-        @SuppressWarnings("unchecked") E oldValue = (E) es[index];
+        @SuppressWarnings("unchecked")
+        final E oldValue = (E) es[index];
         fastRemove(es, index);
 
         return oldValue;
+    }
+
+    /**
+     * @implSpec
+     * If this List is not empty, the implementation in this interface returns the result
+     * of calling {@code remove(0)}. Otherwise, it throws {@code NoSuchElementException}.
+     *
+     * @since 21
+     */
+    public @Nullable E removeFirst() {
+        return size == 0 ? null : this.remove(0);
+    }
+
+    /**
+     * @implSpec
+     * If this List is not empty, the implementation in this interface returns the result
+     * of calling {@code remove(size() - 1)}. Otherwise, it throws {@code NoSuchElementException}.
+     *
+     * @since 21
+     */
+    public @Nullable  E removeLast() {
+        return size == 0 ? null : this.remove(size - 1);
     }
 
     /**
@@ -565,21 +577,20 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
         final Object[] es = elementData;
         final int size = this.size;
         int i = 0;
-        found:
-        {
-            if (o == null) {
-                for (; i < size; i++)
-                    if (es[i] == null)
-                        break found;
-            } else {
-                for (; i < size; i++)
-                    if (o.equals(es[i]))
-                        break found;
-            }
-            return false;
+        if (o == null) {
+            for (; i < size; i++)
+                if (es[i] == null) {
+                    fastRemove(es, i);
+                    return true;
+                }
+        } else {
+            for (; i < size; i++)
+                if (o.equals(es[i])) {
+                    fastRemove(es, i);
+                    return true;
+                }
         }
-        fastRemove(es, i);
-        return true;
+        return false;
     }
 
     /**

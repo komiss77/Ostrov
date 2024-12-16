@@ -179,7 +179,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.accesBuyPrice)
                 .build(), "" + kit.accesBuyPrice, newValue -> {
 
-            if (!NumUtils.isInt(newValue)) {
+            if (!NumUtil.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -203,7 +203,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.accesSellPrice)
                 .build(), "" + kit.accesSellPrice, newValue -> {
 
-            if (!NumUtils.isInt(newValue)) {
+            if (!NumUtil.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -230,7 +230,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7Сейчас: §6" + kit.getPrice)
                 .build(), "" + kit.getPrice, newValue -> {
 
-            if (!NumUtils.isInt(newValue)) {
+            if (!NumUtil.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;
@@ -255,7 +255,7 @@ public class KitSettingsEditor implements InventoryProvider {
                 .lore("§7(§6" + TimeUtil.secondToTime(kit.delaySec) + "§7)")
                 .build(), "" + kit.delaySec / 60, newValue -> {
 
-            if (!NumUtils.isInt(newValue)) {
+            if (!NumUtil.isInt(newValue)) {
                 player.sendMessage("§cДолжно быть число!");
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                 return;

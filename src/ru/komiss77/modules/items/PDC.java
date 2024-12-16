@@ -1,5 +1,6 @@
 package ru.komiss77.modules.items;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.NamespacedKey;
@@ -16,14 +17,14 @@ public class PDC implements DataComponentType.Valued<PDC.Data> {
     public @NotNull NamespacedKey getKey() {
         return OStrap.key(ID);
     }
-    public static class Data extends ArrayList<Duo<NamespacedKey, String>> {
-        public boolean add(final NamespacedKey key, final String val) {
+    public static class Data extends ArrayList<Duo<NamespacedKey, Serializable>> {
+        public boolean add(final NamespacedKey key, final Serializable val) {
             return add(new Duo<>(key, val));
         }
 
         @ApiStatus.Internal
         @Deprecated(forRemoval = true)
-        public boolean add(Duo<NamespacedKey, String> e) {
+        public boolean add(Duo<NamespacedKey, Serializable> e) {
             return super.add(e);
         }
     }

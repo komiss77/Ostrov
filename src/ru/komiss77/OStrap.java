@@ -48,6 +48,10 @@ public class OStrap implements PluginBootstrap {
         return new NamespacedKey(space, key.toLowerCase(Locale.ROOT));
     }
 
+    public static NamespacedKey key(final Key key) {
+        return new NamespacedKey(key.namespace(), key.value());
+    }
+
     @Override
     public void bootstrap(@NotNull BootstrapContext cntx) {
         final @NotNull LifecycleEventManager<BootstrapContext> mgr = cntx.getLifecycleManager();

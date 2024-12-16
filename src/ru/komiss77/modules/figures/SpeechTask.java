@@ -6,7 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.objects.Figure;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -56,7 +56,7 @@ class SpeechTask implements Runnable {
             sendLookAtPlayerPacket();
         }
         if (tick % 7 == 0 && sound != null && f.entity != null) {// 3*7
-            p.playSound(f.entity.getLocation(), sound, .5f, (float) NumUtils.randInt(7, 15) / 10);
+            p.playSound(f.entity.getLocation(), sound, .5f, (float) NumUtil.randInt(7, 15) / 10);
         }
 
 

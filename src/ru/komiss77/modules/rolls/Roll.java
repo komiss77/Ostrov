@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.function.Function;
 import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
-import ru.komiss77.OConfig;
 import ru.komiss77.OVerConfig;
 import ru.komiss77.Ostrov;
 
@@ -13,6 +12,8 @@ public abstract class Roll<R> {
     private static final HashMap<String, Roll<?>> rolls = new HashMap<>();
     private static final String CON_NAME = "rolls.yml";
     private static final int VERSION = 1;
+
+    protected static OVerConfig CFG = null;
 
     protected final R it;
     protected final String id;
@@ -25,6 +26,7 @@ public abstract class Roll<R> {
         this.number = (byte) Math.max(0, number);
         this.extra = (byte) Math.max(1, extra + 1);
         if (rolls.putIfAbsent(id, this) == null) save();
+        RollTree.tryFill(this);
     }
 
     protected abstract R asAmount(final int amt);
@@ -35,6 +37,7 @@ public abstract class Roll<R> {
 
     @Override
     public boolean equals(final Object o) {
+        if (this == o) return true;
         return o instanceof Roll && id.equals(((Roll<?>) o).id);
     }
 
@@ -50,36 +53,37 @@ public abstract class Roll<R> {
     protected static final String EX = "ex";
 
     public Roll<R> save() {
-        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
         final String dir = getClass().getSimpleName() + "." + id + ".";
-        irc.set(dir + VAL, encode());
-        irc.set(dir + NUM, number);
-        irc.set(dir + EX, extra);
-        irc.saveConfig();
+        CFG.set(dir + VAL, encode());
+        CFG.set(dir + NUM, number);
+        CFG.set(dir + EX, extra);
+        CFG.saveConfig();
         return this;
     }
 
     public Roll<R> delete() {
-        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
-        irc.removeKey(getClass().getSimpleName() + "." + id);
-        irc.saveConfig();
+        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
+        CFG.removeKey(getClass().getSimpleName() + "." + id);
+        CFG.saveConfig();
         return this;
     }
 
-    public static Roll<?> getRoll(final String id) {
+    public static Roll<?> get(final String id) {
         return rolls.get(id);
     }
 
-    public static <R> Roll<R> getRoll(final String id, final Class<Roll<R>> cls) {
+    public static <R> Roll<R> get(final String id, final Class<Roll<R>> cls) {
         final Roll<?> rl = rolls.get(id);
         return rl != null && rl.getClass().isAssignableFrom(cls) ? cls.cast(rl) : null;
     }
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
         rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
-        final OVerConfig irc = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
-        if (cs == null || irc.isOld) return;
+        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
+        if (!CFG.isNew) return;
+        final ConfigurationSection cs = CFG.getConfigurationSection(rlc.getSimpleName());
+        if (cs == null) return;
         for (final String id : cs.getKeys(false)) {
             fun.apply(cs.getConfigurationSection(id));
         }

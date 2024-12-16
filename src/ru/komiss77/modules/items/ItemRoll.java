@@ -6,8 +6,6 @@ import ru.komiss77.utils.ItemUtil;
 
 public class ItemRoll extends Roll<ItemStack> {
 
-    private static final String SEP = "=";
-
     public ItemRoll(final String id, final ItemStack it) {
         super(id, it, it.getAmount(), 0);
     }
@@ -28,12 +26,12 @@ public class ItemRoll extends Roll<ItemStack> {
 
     @Override
     protected String encode() {
-        return ItemUtil.toString(it, SEP);
+        return ItemUtil.write(it);
     }
 
     public static void loadAll() {
         load(ItemRoll.class, cs -> new ItemRoll(cs.getName(),
-            ItemUtil.parseItem(cs.getString(VAL), SEP),
+            ItemUtil.parse(cs.getString(VAL)),
             cs.getInt(NUM, 0), cs.getInt(EX, 0)));
     }
 }

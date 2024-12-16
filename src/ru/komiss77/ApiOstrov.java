@@ -25,7 +25,7 @@ import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -284,27 +284,27 @@ public class ApiOstrov {
     //****************************************************
     @Deprecated
     public static int randInt(final int num1, final int num2) {
-        return NumUtils.randInt(num1, num2);
+        return NumUtil.randInt(num1, num2);
     }
     @Deprecated
     public static boolean randBoolean() {
-        return NumUtils.rndBool();
+        return NumUtil.rndBool();
     }
     @Deprecated
     public static int rndSignNum(int init, final int rnd) {
-        return NumUtils.rndSignNum(init, rnd);
+        return NumUtil.rndSignNum(init, rnd);
     }
     @Deprecated
     public static boolean isInteger(final String i) {
-        return NumUtils.isInt(i);
+        return NumUtil.isInt(i);
     }
     @Deprecated
     public static int getInteger(final String num) {//удобнее получать без лишних аргументов, чтобы дважды не парсить - ", 0" момент
-        return NumUtils.intOf(num, Integer.MIN_VALUE);
+        return NumUtil.intOf(num, Integer.MIN_VALUE);
     }
     @Deprecated
     public static int getInteger(final String num, final int or) {
-        return NumUtils.intOf(num, or);
+        return NumUtil.intOf(num, or);
     }
 
     @Deprecated //use Oplayer.userID

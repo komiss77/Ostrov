@@ -69,7 +69,7 @@ public class PlayerInput implements Listener {
                         case AnvilGUI.Slot.INPUT_RIGHT -> {
                         }
                         case AnvilGUI.Slot.OUTPUT -> {
-                            final int res = NumUtils.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
+                            final int res = NumUtil.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
                             if (res == Integer.MIN_VALUE) {
                                 p.sendMessage("§cДолжно быть число!");
                                 PM.soundDeny(p);

@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.LocalDataLoadEvent;
-import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -27,7 +26,7 @@ import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 
 public class LocalDB {
@@ -430,7 +429,7 @@ public class LocalDB {
                 for (String info : split) {
                     splitterIndex = info.indexOf(W_SPLIT);
                     if (splitterIndex > 0) {
-                        stamp = NumUtils.intOf(info.substring(splitterIndex + 1), 0);
+                        stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
                         if (stamp > 0) {
                             op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
                         }

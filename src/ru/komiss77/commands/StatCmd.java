@@ -13,7 +13,7 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
-import ru.komiss77.utils.NumUtils;
+import ru.komiss77.utils.NumUtil;
 
 public class StatCmd implements OCommand {
 
@@ -123,7 +123,7 @@ public class StatCmd implements OCommand {
         return 0;
       }
 
-      final int value = NumUtils.intOf(arg[2], 0);
+      final int value = NumUtil.intOf(arg[2], 0);
       if (value < 1 || value > 100) {
         cs.sendMessage("§eЗначение допустимо от 1 до 100!");
         return 0;

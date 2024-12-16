@@ -21,46 +21,57 @@ import ru.komiss77.OStrap;
 import ru.komiss77.OVerConfig;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.version.Nms;
 
 public abstract class ItemGroup implements Keyed {
 
     public static final NamespacedKey KEY = OStrap.key("mat");
     public static final Map<String, ItemGroup> VALUES = new HashMap<>();
 
-    public static boolean exist = false;
-
     private static final String CON_NAME = "items.yml";
     private static final int VERSION = 1;
+
+    public static boolean exist = false;
+
+    protected static OVerConfig CFG = null;
 
     private final Map<ItemType, ItemStack> mits;
     private final NamespacedKey key;
 
     protected ItemGroup(final ItemStack... its) {
-        this.mits = new HashMap<>();
         this.key = OStrap.key(this.getClass().getSimpleName());
-        final OVerConfig irc = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        final Collection<String> itls = irc.getStringList(key().value());
-        if (itls.isEmpty() || irc.isOld) {
-            for (final ItemStack it : its) {
-                if (ItemUtil.isBlank(it, false)) continue;
-                it.editMeta(im -> im.getPersistentDataContainer()
-                    .set(KEY, PersistentDataType.STRING, KEY.value()));
-                final List<Data<?>> datas = data();
-                if (datas != null) for (final Data<?> p : datas) p.merge(it);
-                mits.put(it.getType().asItemType(), it);
-            }
-            irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.write(it)).toList());
-            irc.saveConfig();
-        } else {
-            for (final String is : itls) {
-                final ItemStack it = ItemUtil.parse(is);
-                mits.put(it.getType().asItemType(), it);
+        this.mits = new HashMap<>(); before();
+        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
+        if (CFG.isNew) {
+            final Collection<String> itls = CFG.getStringList(key().value());
+            if (!itls.isEmpty()) {
+                for (final String is : itls) {
+                    final ItemStack it = ItemUtil.parse(is);
+                    mits.put(it.getType().asItemType(), it);
+                }
+
+                VALUES.put(key.value(), this);
+                exist = true;
+                return;
             }
         }
+        for (final ItemStack it : its) {
+            if (ItemUtil.isBlank(it, false)) continue;
+            final PDC.Data pdc = new PDC.Data();
+            pdc.add(KEY, key().value());
+            Nms.setCustomData(it, pdc);
+            final List<Data<?>> datas = data();
+            if (datas != null) for (final Data<?> p : datas) p.merge(it);
+            mits.put(it.getType().asItemType(), it);
+        }
+        CFG.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.write(it)).toList());
+        CFG.saveConfig();
 
         VALUES.put(key.value(), this);
         exist = true;
     }
+
+    public abstract void before();
 
     public abstract @Nullable List<Data<?>> data();
 
