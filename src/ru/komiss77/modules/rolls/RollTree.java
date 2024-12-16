@@ -43,8 +43,10 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         for (int i = 0; i != wgts.length; i++) {
             cnt += wgts[i];
             while (curr < cnt) {
-                ix++; curr = sar[ix];
-                rls[ix] = it[i];
+                rls[ix] = it[i]; ix++;
+                if (ix == sar.length)
+                    return rls;
+                curr = sar[ix];
             }
         }
         return rls;
@@ -88,7 +90,7 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
     public <R> List<R> genRolls(final Class<R> cls) {
         if (it.length == 0) return List.of();
         final ArrayList<R> lst = new ArrayList<>();
-        for (final Roll<?> rl : asAmount(number + Ostrov.random.nextInt(extra))) {
+        for (final Roll<?> rl : generate()) {
             addGen(rl, lst, cls);
         }
         return lst;
