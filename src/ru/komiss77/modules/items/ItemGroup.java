@@ -26,8 +26,8 @@ import ru.komiss77.version.Nms;
 public abstract class ItemGroup implements Keyed {
 
     public static final NamespacedKey KEY = OStrap.key("mat");
-    public static final Map<String, ItemGroup> VALUES = new HashMap<>();
 
+    private static final Map<String, ItemGroup> VALUES = new HashMap<>();
     private static final String CON_NAME = "items.yml";
     private static final int VERSION = 1;
 
@@ -71,19 +71,19 @@ public abstract class ItemGroup implements Keyed {
         exist = true;
     }
 
-    public abstract void before();
+    protected abstract void before();
 
-    public abstract @Nullable List<Data<?>> data();
+    protected abstract @Nullable List<Data<?>> data();
 
-    public static ItemGroup[] values() {
-        return VALUES.values().toArray(new ItemGroup[0]);
+    public static Collection<ItemGroup> values() {
+        return VALUES.values();
     }
 
     public @Nullable ItemStack item(final ItemType mt) {
         return mits.get(mt);
     }
 
-    public Collection<ItemStack> allIts() {
+    public Collection<ItemStack> items() {
         return mits.values();
     }
 

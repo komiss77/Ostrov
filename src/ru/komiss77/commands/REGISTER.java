@@ -17,6 +17,7 @@ public class REGISTER {
         new PrefixCmd(); //+
         new SuffixCmd(); //+
         new GmCmd(); //++
+        new IGroupCmd();//++
         Ostrov.regCommand(new FlyCmd()); //+
         Ostrov.regCommand(new OpermCmd());//+
         Ostrov.regCommand(new TpposCMD());//+

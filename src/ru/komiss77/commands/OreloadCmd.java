@@ -7,7 +7,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import ru.komiss77.*;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Module;
@@ -59,9 +58,9 @@ public class OreloadCmd implements OCommand {
                     return switch (md) {
                         case "all" -> {
                             Cfg.ReLoadAllConfig();
-                            Ostrov.modules.entrySet().forEach(es -> {
-                                es.getValue().reload();
-                              cs.sendMessage("§freload modeule : §a" + es.getKey());
+                            Ostrov.modules.forEach((key, value) -> {
+                                value.reload();
+                                cs.sendMessage("§freload modeule : §a" + key);
                             });
                             yield Command.SINGLE_SUCCESS;
                         }

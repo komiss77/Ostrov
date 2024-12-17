@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.List;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -9,8 +10,6 @@ import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.builder.menu.ModerInv;
 import ru.komiss77.utils.inventory.SmartInventory;
-
-import java.util.List;
 
 public class ModerCmd implements OCommand {
 
@@ -33,7 +32,7 @@ public class ModerCmd implements OCommand {
                 .provider(new ModerInv())
                 .size(3, 9)
                 .title("§aМеню Модера")
-                .build().open((Player) cs);
+                .build().open(pl);
             return Command.SINGLE_SUCCESS;
         }).build();
     }
