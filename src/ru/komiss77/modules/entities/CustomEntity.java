@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.*;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
 import ru.komiss77.modules.world.WXYZ;
@@ -44,7 +45,7 @@ public abstract class CustomEntity implements Keyed {
 
     protected CustomEntity() {
         key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
-        if (EntityManager.enable) EntityManager.register(this);
+        if (Cfg.entities) EntityManager.register(this);
 
         cd = spawnCd();
     }

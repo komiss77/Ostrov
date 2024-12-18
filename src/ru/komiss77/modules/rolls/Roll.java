@@ -4,16 +4,13 @@ import java.util.HashMap;
 import java.util.function.Function;
 import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
-import ru.komiss77.OVerConfig;
+import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 
 public abstract class Roll<R> {
 
     private static final HashMap<String, Roll<?>> rolls = new HashMap<>();
     private static final String CON_NAME = "rolls.yml";
-    private static final int VERSION = 1;
-
-    protected static OVerConfig CFG = null;
 
     protected final R it;
     protected final String id;
@@ -53,19 +50,19 @@ public abstract class Roll<R> {
     protected static final String EX = "ex";
 
     public Roll<R> save() {
-        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
+        final OConfig irc = Cfg.manager.config(CON_NAME);
         final String dir = getClass().getSimpleName() + "." + id + ".";
-        CFG.set(dir + VAL, encode());
-        CFG.set(dir + NUM, number);
-        CFG.set(dir + EX, extra);
-        CFG.saveConfig();
+        irc.set(dir + VAL, encode());
+        irc.set(dir + NUM, number);
+        irc.set(dir + EX, extra);
+        irc.saveConfig();
         return this;
     }
 
     public Roll<R> delete() {
-        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        CFG.removeKey(getClass().getSimpleName() + "." + id);
-        CFG.saveConfig();
+        final OConfig irc = Cfg.manager.config(CON_NAME);
+        irc.removeKey(getClass().getSimpleName() + "." + id);
+        irc.saveConfig();
         return this;
     }
 
@@ -80,9 +77,9 @@ public abstract class Roll<R> {
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
         rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
-        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        if (!CFG.isNew) return;
-        final ConfigurationSection cs = CFG.getConfigurationSection(rlc.getSimpleName());
+        final OConfig irc = Cfg.manager.config(CON_NAME);
+        if (!irc.load()) return;
+        final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
         if (cs == null) return;
         for (final String id : cs.getKeys(false)) {
             fun.apply(cs.getConfigurationSection(id));

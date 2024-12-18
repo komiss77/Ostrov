@@ -20,7 +20,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import ru.komiss77.*;
+import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
+import ru.komiss77.OStrap;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.objects.CaseInsensitiveMap;
@@ -31,7 +34,6 @@ public abstract class SpecialItem implements Keyed {
     public static final CaseInsensitiveMap<SpecialItem> VALUES = new CaseInsensitiveMap<>();
 
     private static final String CON_NAME = "specials.yml";
-    private static final int VERSION = 1;
     private static final NamespacedKey DATA = OStrap.key("special");
     private static final XYZ DEF_SPAWN = new WXYZ(Bukkit.getWorlds().getFirst(), 0, 100, 0);
 
@@ -39,10 +41,8 @@ public abstract class SpecialItem implements Keyed {
 
     public static final XYZ SPAWN = getSpawnLoc();
 
-    protected static OVerConfig CFG = null;
-
     private static XYZ getSpawnLoc() {
-        final OConfig irc = Cfg.manager.getNewConfig(CON_NAME);
+        final OConfig irc = Cfg.manager.config(CON_NAME);
         if (irc.contains("spawn")) {
             final XYZ spawn = XYZ.fromString(irc.getString("spawn"));
             if (spawn != null) return spawn;
@@ -66,12 +66,12 @@ public abstract class SpecialItem implements Keyed {
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);
-        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        crafted = CFG.getBoolean(name + ".crafted", false);
-        dropped = CFG.getBoolean(name + ".dropped", false);
-        final XYZ loc = XYZ.fromString(CFG.getString(name + ".loc"));
-        this.item = CFG.isNew ? ItemUtil.parse(CFG.getString(name + ".org")) : it;
-        final ItemStack curr = ItemUtil.parse(CFG.getString(name + ".curr"));
+        final OConfig irc = Cfg.manager.config(CON_NAME);
+        crafted = irc.getBoolean(name + ".crafted", false);
+        dropped = irc.getBoolean(name + ".dropped", false);
+        final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
+        this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
+        final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
         lastLoc = loc == null ? null : new WXYZ(loc);
         if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
 
@@ -170,26 +170,26 @@ public abstract class SpecialItem implements Keyed {
 
     public void save(final ItemStack curr) {
         Ostrov.async(() -> {
-            if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-            CFG.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            CFG.set(name + ".curr", curr);
+            final OConfig irc = Cfg.manager.config(CON_NAME);
+            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".curr", curr);
 
-            CFG.set(name + ".dropped", dropped);
-            CFG.set(name + ".crafted", crafted);
-            CFG.saveConfig();
+            irc.set(name + ".dropped", dropped);
+            irc.set(name + ".crafted", crafted);
+            irc.saveConfig();
         });
     }
 
     public void saveAll(final ItemStack curr) {
         Ostrov.async(() -> {
-            if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-            CFG.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            CFG.set(name + ".org", ItemUtil.write(item));
-            CFG.set(name + ".curr", curr);
+            final OConfig irc = Cfg.manager.config(CON_NAME);
+            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+            irc.set(name + ".org", ItemUtil.write(item));
+            irc.set(name + ".curr", curr);
 
-            CFG.set(name + ".dropped", dropped);
-            CFG.set(name + ".crafted", crafted);
-            CFG.saveConfig();
+            irc.set(name + ".dropped", dropped);
+            irc.set(name + ".crafted", crafted);
+            irc.saveConfig();
         });
     }
 

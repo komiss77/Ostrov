@@ -17,8 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
+import ru.komiss77.OConfig;
 import ru.komiss77.OStrap;
-import ru.komiss77.OVerConfig;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.version.Nms;
@@ -29,11 +29,8 @@ public abstract class ItemGroup implements Keyed {
 
     private static final Map<String, ItemGroup> VALUES = new HashMap<>();
     private static final String CON_NAME = "items.yml";
-    private static final int VERSION = 1;
 
     public static boolean exist = false;
-
-    protected static OVerConfig CFG = null;
 
     private final Map<ItemType, ItemStack> mits;
     private final NamespacedKey key;
@@ -41,9 +38,9 @@ public abstract class ItemGroup implements Keyed {
     protected ItemGroup(final ItemStack... its) {
         this.key = OStrap.key(this.getClass().getSimpleName());
         this.mits = new HashMap<>(); before();
-        if (CFG == null) CFG = Cfg.manager.getNewConfig(CON_NAME, VERSION);
-        if (CFG.isNew) {
-            final Collection<String> itls = CFG.getStringList(key().value());
+        final OConfig irc = Cfg.manager.config(CON_NAME);
+        if (irc.load()) {
+            final Collection<String> itls = irc.getStringList(key().value());
             if (!itls.isEmpty()) {
                 for (final String is : itls) {
                     final ItemStack it = ItemUtil.parse(is);
@@ -64,8 +61,8 @@ public abstract class ItemGroup implements Keyed {
             if (datas != null) for (final Data<?> p : datas) p.merge(it);
             mits.put(it.getType().asItemType(), it);
         }
-        CFG.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.write(it)).toList());
-        CFG.saveConfig();
+        irc.set(key().value(), Arrays.stream(its).map(it -> ItemUtil.write(it)).toList());
+        irc.saveConfig();
 
         VALUES.put(key.value(), this);
         exist = true;

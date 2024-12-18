@@ -334,7 +334,7 @@ public class PvPManager implements Initiable {
                                 EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
                                     + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
                             } else {
-                                final Botter dbe = BotManager.enable ? BotManager.getBot(damager.getEntityId()) : null;
+                                final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                 if (dbe != null) {//B v P
                                     targetHand = tgtPl.getInventory().getItemInMainHand();
                                     final Material mt = targetHand.getType();
@@ -383,7 +383,7 @@ public class PvPManager implements Initiable {
                                 }
                             }
                         } else {
-                            final Botter tbe = BotManager.enable ? BotManager.getBot(target.getEntityId()) : null;
+                            final Botter tbe = Cfg.bots ? BotManager.getBot(target.getEntityId()) : null;
                             if (tbe != null) {// # v B
                                 if (damager instanceof final Player dmgrPl) {// P v B
                                     targetHand = tbe.item(EquipmentSlot.HAND);
@@ -462,7 +462,7 @@ public class PvPManager implements Initiable {
                                     EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
                                         + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
                                 } else {
-                                    final Botter dbe = BotManager.enable ? BotManager.getBot(damager.getEntityId()) : null;
+                                    final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                     if (dbe != null) {// B v B
                                         targetHand = tbe.item(EquipmentSlot.HAND);
                                         if (targetHand != null) {
@@ -576,7 +576,7 @@ public class PvPManager implements Initiable {
                                     EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
                                         + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
                                 } else {
-                                    final Botter dbe = BotManager.enable ? BotManager.getBot(damager.getEntityId()) : null;
+                                    final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                     if (dbe != null) {// B v M
                                         final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
                                         if (dbe.isParrying(damager)) {

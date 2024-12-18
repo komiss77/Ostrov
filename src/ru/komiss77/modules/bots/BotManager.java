@@ -27,6 +27,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.objects.CaseInsensitiveMap;
@@ -35,14 +36,13 @@ import ru.komiss77.objects.IntHashMap;
 
 public class BotManager implements Initiable, Listener {
 
-    public static boolean enable;
     public static final IntHashMap<Botter> botById = new IntHashMap<>();
     protected static final CaseInsensitiveMap<Botter> botByName = new CaseInsensitiveMap<>();
     protected static final CaseInsensitiveMap<String[]> skin = new CaseInsensitiveMap<>();
 
     public BotManager() {
 
-        if (!enable) {
+        if (!Cfg.bots) {
             Ostrov.log_ok("§6Боты выключены!");
             return;
         }
@@ -86,7 +86,7 @@ public class BotManager implements Initiable, Listener {
     @Override
     public void reload() {
         HandlerList.unregisterAll(this);
-        if (!enable) {
+        if (!Cfg.bots) {
             Ostrov.log_ok("§6Боты выключены!");
             return;
         }
@@ -98,7 +98,7 @@ public class BotManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (enable) {
+        if (Cfg.bots) {
             clearBots();
         }
         //for (final Player p : Bukkit.getOnlinePlayers()) {
@@ -206,7 +206,7 @@ public class BotManager implements Initiable, Listener {
     }
 
     public static Botter createBot(final String name, final World w, final Botter.Extent ext) {
-        if (!enable) {
+        if (!Cfg.bots) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
             return null;
         }
@@ -224,7 +224,7 @@ public class BotManager implements Initiable, Listener {
     }
 
     public static Botter createBot(final String name, final World w, final Function<Botter, Botter.Extent> exs) {
-        if (!enable) {
+        if (!Cfg.bots) {
             Ostrov.log_warn("BotManager Tried creating a Bot while the module is off!");
             return null;
         }
@@ -256,7 +256,7 @@ public class BotManager implements Initiable, Listener {
     }
 
     public static void regSkin(final String name) {
-        if (!enable) {
+        if (!Cfg.bots) {
             Ostrov.log_warn("BotManager Tried setting skin while the module is off!");
             return;
         }

@@ -19,7 +19,6 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.modules.regions.RM;
-import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
@@ -496,7 +495,7 @@ public class BuilderMain implements InventoryProvider {
         }
 
 
-        if (SignProtectLst.enable) {
+        if (Cfg.signProtect) {
             content.set(4, 2, ClickableItem.of(new ItemBuilder(Material.WARPED_HANGING_SIGN)
                 .name("§7SignProtect §aВКЛЮЧЕН")
                 .lore("")
@@ -504,7 +503,7 @@ public class BuilderMain implements InventoryProvider {
                 .lore("")
                 .build(), e -> {
                 if (e.isRightClick()) {
-                    SignProtectLst.enable = false;
+                    Cfg.signProtect = false;
                     Cfg.getConfig().set("modules.signProtect", false);
                     Cfg.getConfig().saveConfig();
                     Ostrov.getModule(Module.signProtect).onDisable();
@@ -519,7 +518,7 @@ public class BuilderMain implements InventoryProvider {
                 .lore("")
                 .build(), e -> {
                 if (e.isLeftClick()) {
-                    SignProtectLst.enable = true;
+                    Cfg.signProtect = true;
                     Cfg.getConfig().set("modules.signProtect", true);
                     Cfg.getConfig().saveConfig();
                     Ostrov.getModule(Module.signProtect).reload();

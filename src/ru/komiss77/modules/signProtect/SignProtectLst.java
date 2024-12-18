@@ -7,7 +7,10 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
-import org.bukkit.block.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -39,17 +42,16 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class SignProtectLst implements Initiable, Listener {
 
     public SignProtectLst() {
-        SignProtectLst.this.reload();
+        reload();
     }
 
-    public static boolean enable;
     public static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "signProtect");
     public static final int LIMIT = 30;
     private static final Predicate<Block> predicate = b -> Tag.WALL_SIGNS.isTagged(b.getType());
 
     public void reload() {
         onDisable();
-        if (!enable) {
+        if (!Cfg.signProtect) {
             return;
         }
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());

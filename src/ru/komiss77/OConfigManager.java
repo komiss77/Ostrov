@@ -1,5 +1,6 @@
 package ru.komiss77;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +13,7 @@ public class OConfigManager {
     /**
      * Manage custom configurations and files
      */
-    public OConfigManager(JavaPlugin plugin) {
+    public OConfigManager(final JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -21,21 +22,9 @@ public class OConfigManager {
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
+    @Deprecated
     public OConfig getNewConfig(final String filePath, final String[] header) {
-
-        File file = this.getConfigFile(filePath);
-
-        if (!file.exists()) {
-            this.prepareFile(filePath);
-
-            if (header != null && header.length != 0) {
-                this.setHeader(file, header);
-            }
-
-        }
-
-//        return new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
-        return new OConfig(file, this.getCommentsNum(file));
+        return config(filePath, header);
 
     }
 
@@ -44,40 +33,37 @@ public class OConfigManager {
      * @param filePath - Path to file
      * @return - New SimpleConfig
      */
+    @Deprecated
     public OConfig getNewConfig(final String filePath) {
-        return this.getNewConfig(filePath, null);
+        return config(filePath);
+    }
+
+    /**
+     * Get new configuration
+     * @param path Path to file
+     * @return New SimpleConfig
+     */
+    public OConfig config(final String path) {
+        return this.config(path, null);
     }
 
     /**
      * Get new configuration with header
-     * @param filePath - Path to file
-     * @return - New SimpleConfig
+     * @param path Path to file
+     * @return New SimpleConfig
      */
-    public OVerConfig getNewConfig(final String filePath, final String[] header, final int version) {
-
-        File file = this.getConfigFile(filePath);
-
+    public OConfig config(final String path, final @Nullable String[] header) {
+        final File file = this.getConfigFile(path);
         if (!file.exists()) {
-            this.prepareFile(filePath);
+            this.prepareFile(path);
 
             if (header != null && header.length != 0) {
                 this.setHeader(file, header);
             }
 
         }
+        return new OConfig(file, this.getCommentsNum(file));
 
-//        return new OConfig(this.getConfigContent(filePath), file, this.getCommentsNum(file), plugin);
-        return new OVerConfig(file, this.getCommentsNum(file), version);
-
-    }
-
-    /**
-     * Get new configuration
-     * @param filePath - Path to file
-     * @return - New SimpleConfig
-     */
-    public OVerConfig getNewConfig(final String filePath, final int version) {
-        return this.getNewConfig(filePath, null, version);
     }
 
     /**

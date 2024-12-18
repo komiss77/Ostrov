@@ -6,10 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 import org.bukkit.GameMode;
-import ru.komiss77.modules.bots.BotManager;
-import ru.komiss77.modules.entities.EntityManager;
-import ru.komiss77.modules.items.ItemManager;
-import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.utils.NumUtil;
 
 
@@ -71,6 +67,10 @@ public class Cfg {
     public static boolean enchants;
     public static boolean crafts;
     public static boolean displays;
+    public static boolean bots;
+    public static boolean items;
+    public static boolean entities;
+    public static boolean signProtect;
     //public static boolean quests; //как бы лишнее. какой-то плагин обратился - значит нужны. если нет адванскрези, будет работать заглушка
 
     static {
@@ -138,18 +138,17 @@ public class Cfg {
         crafts = cfg.getBoolean("modules.crafts");
         displays = cfg.getBoolean("modules.displays");
         //quests = cfg.getBoolean("modules.quests");
-        BotManager.enable = cfg.getBoolean("modules.bots");
-        EntityManager.enable = cfg.getBoolean("modules.entities");
-        ItemManager.enable = cfg.getBoolean("modules.materials");
-        SignProtectLst.enable = cfg.getBoolean("modules.signProtect");
-
+        bots = cfg.getBoolean("modules.bots");
+        entities = cfg.getBoolean("modules.entities");
+        items = cfg.getBoolean("modules.items");
+        signProtect = cfg.getBoolean("modules.signProtect");
     }
 
 
     public static void loadConfigs() {
 
-        cfg = manager.getNewConfig("config.yml", new String[]{"", "Ostrov77 config file", ""});
-        variable = manager.getNewConfig("variable.yml");
+        cfg = manager.config("config.yml", new String[]{"", "Ostrov77 config file", ""});
+        variable = manager.config("variable.yml");
 
         //Remove
       //cfg.removeKey("");
@@ -196,7 +195,7 @@ public class Cfg {
         cfg.addDefault("modules.quests", false);
         cfg.addDefault("modules.bots", false);
         cfg.addDefault("modules.entities", false);
-        cfg.addDefault("modules.materials", false);
+        cfg.addDefault("modules.items", false);
         cfg.addDefault("modules.signProtect", false);
 
 

@@ -70,7 +70,7 @@ public class IGroupCmd {
 
                 final String tp = Resolver.string(cntx, type);
                 ItemUtil.giveItemsTo(pl, ig.item(Ostrov.registries.ITEMS.get(Key.key(tp))));
-                pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выдан предмет " + tp + "группы: " + id));
+                pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выдан предмет " + tp + " группы: " + id));
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")

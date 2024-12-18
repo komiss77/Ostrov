@@ -1,21 +1,23 @@
 package ru.komiss77;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class OConfig {
+
+    private static final String LOAD = "load";
+
     private int comments;
     //private final OstrovConfigManager manager;
 
     private final File file;
+    private final boolean load;
     protected FileConfiguration config;
 
     public OConfig(final File configFile, final int comments) {
@@ -25,17 +27,14 @@ public class OConfig {
         this.file = configFile;
         //this.config = YamlConfiguration.loadConfiguration(configStream);
         this.config = YamlConfiguration.loadConfiguration(configFile);
+        if (!config.contains(LOAD)) {
+            config.set(LOAD, false);
+            saveConfig(); load = false;
+        }
+        else load = config.getBoolean(LOAD);
     }
 
-    @Deprecated
-    public OConfig(InputStream configStream, File configFile, int comments, JavaPlugin plugin) {
-        this.comments = comments;
-        //this.manager = new OstrovConfigManager(plugin);
-
-        this.file = configFile;
-        //this.config = YamlConfiguration.loadConfiguration(configStream);
-        this.config = YamlConfiguration.loadConfiguration(configFile);
-    }
+    public boolean load() {return load;}
 
     public Object get(String path) {
         return this.config.get(path);
@@ -174,7 +173,8 @@ public class OConfig {
     }
 
     public Set<String> getKeys() {
-        return this.config.getKeys(false);
+        final Set<String> keys = config.getKeys(false);
+        keys.remove(LOAD); return keys;
     }
 
 }

@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
@@ -67,7 +68,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
 
         switch (packet) {
             case final ServerboundInteractPacket ip:
-                if (BotManager.enable) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
+                if (Cfg.bots) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
                     final int id = ip.getEntityId();
                     for (final Botter bot : BotManager.botById.values()) {
                         if (bot.hashCode() == id) {
@@ -176,7 +177,7 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             }
         }
 
-        if (BotManager.enable) {
+        if (Cfg.bots) {
             int id = 0;
             if (packet instanceof final ClientboundAddEntityPacket p) {
                 id = p.getId();

@@ -31,6 +31,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
@@ -39,7 +40,9 @@ import ru.komiss77.utils.ItemUtil;
 
 public class ItemManager implements Initiable, Listener {
 
-    public static boolean enable;
+    public ItemManager() {
+        reload();
+    }
 
     @Override
     public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
@@ -49,7 +52,7 @@ public class ItemManager implements Initiable, Listener {
     public void reload() {
         ItemRoll.loadAll();
         HandlerList.unregisterAll(this);
-        if (!enable) return;
+        if (!Cfg.items) return;
 
         Ostrov.log_ok("§2Предметы включены!");
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
@@ -57,7 +60,7 @@ public class ItemManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (!enable) return;
+        if (!Cfg.items) return;
 
         Ostrov.log_ok("§6Предметы выключены!");
     }
@@ -173,6 +176,7 @@ public class ItemManager implements Initiable, Listener {
             final EntityEquipment eq = le.getEquipment();
             if (eq == null) return;
             for (final EquipmentSlot es : EquipmentSlot.values()) {
+                if (!le.canUseEquipmentSlot(es)) continue;
                 final ItemStack is = eq.getItem(es);
                 if (!SpecialItem.exist) {
                     final SpecialItem spi = SpecialItem.get(is);

@@ -18,13 +18,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 
 public class EntityManager implements Initiable, Listener {
 
-    public static boolean enable;
     public static BukkitTask spawnTask = null;
     protected static final HashMap<String, CustomEntity> custom = new HashMap<>();
     protected static final List<CustomEntity> spawns = new ArrayList<>();
@@ -46,7 +46,7 @@ public class EntityManager implements Initiable, Listener {
     public void reload() {
         if (spawnTask != null) spawnTask.cancel();
         HandlerList.unregisterAll(this);
-        if (!enable) return;
+        if (!Cfg.entities) return;
 
         Ostrov.log_ok("§2Сущности включены!");
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
@@ -75,7 +75,7 @@ public class EntityManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (!enable) return;
+        if (!Cfg.entities) return;
         Ostrov.log_ok("§6Сущности выключены!");
     }
 
