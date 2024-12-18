@@ -1,7 +1,9 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 import com.mojang.brigadier.Command;
+import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,8 +44,11 @@ public class IGroupCmd {
                 pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выданы предметы группы: " + id));
                 return Command.SINGLE_SUCCESS;
             }).then(Resolver.string(type)).suggest(cntx -> {
-                final String id = Resolver.string(cntx, group);
-
+                final String id = cntx.arg(1);
+                final ItemGroup ig = ItemGroup.get(id);
+                if (ig == null) return Set.of();
+                return ig.items().stream().map(i -> i.getType().asItemType()
+                    .key().asMinimalString()).collect(Collectors.toSet());
             }, true).run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
@@ -63,8 +68,9 @@ public class IGroupCmd {
                     return 0;
                 }
 
-                ItemUtil.giveItemsTo(pl, ig.items().toArray(new ItemStack[0]));
-                pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выданы предметы группы: " + id));
+                final String tp = Resolver.string(cntx, type);
+                ItemUtil.giveItemsTo(pl, ig.item(Ostrov.registries.ITEMS.get(Key.key(tp))));
+                pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выдан предмет " + tp + "группы: " + id));
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")
