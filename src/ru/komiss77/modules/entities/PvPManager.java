@@ -331,8 +331,8 @@ public class PvPManager implements Initiable {
                                     }
                                 }
 
-                                EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                    + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
+                                Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                    + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
                             } else {
                                 final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                 if (dbe != null) {//B v P
@@ -459,8 +459,8 @@ public class PvPManager implements Initiable {
                                             Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
                                     }
 
-                                    EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
+                                    Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
                                 } else {
                                     final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                     if (dbe != null) {// B v B
@@ -573,8 +573,8 @@ public class PvPManager implements Initiable {
                                         }
                                     }
 
-                                    EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl);
+                                    Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
                                 } else {
                                     final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                     if (dbe != null) {// B v M
@@ -1068,7 +1068,7 @@ public class PvPManager implements Initiable {
     }
 
     private static void loadConfig() {
-        config = Cfg.manager.getNewConfig("pvp.yml", new String[]{"Ostrov77 pvp config file"});
+        config = Cfg.manager.config("pvp.yml", new String[]{"Ostrov77 pvp config file"});
 
         //портировать старые настройки и убрать из старого конфига
         if (Cfg.getConfig().getConfigurationSection("modules.pvp") != null) {
