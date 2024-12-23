@@ -1,8 +1,9 @@
 package ru.komiss77.builder.menu;
 
 import java.util.Map;
-import ca.spottedleaf.moonrise.common.util.ChunkSystem;
+import ca.spottedleaf.moonrise.paper.util.BaseChunkSystemHooks;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -21,11 +22,18 @@ import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
+import ru.komiss77.version.Craft;
 
 
 public class EntityWorldMenu implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.NETHER_SPROUTS).name("§8.").build());
+    private static final BaseChunkSystemHooks CHUNK_HOLD = new BaseChunkSystemHooks() {
+        @Override
+        public boolean screenEntity(final ServerLevel serverLevel, final net.minecraft.world.entity.Entity entity, final boolean b, final boolean b1) {
+            return false;
+        }
+    };
     private final World world;
     private int radius;
 
@@ -84,7 +92,7 @@ public class EntityWorldMenu implements InventoryProvider {
 
             int cLoc;
 
-            for (ChunkHolder visibleChunk : ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
+            for (ChunkHolder visibleChunk : CHUNK_HOLD.getVisibleChunkHolders(Craft.toNMS(world))) {
                 net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
                 if (lc == null) {
                     continue;
@@ -186,7 +194,7 @@ public class EntityWorldMenu implements InventoryProvider {
 
             if (group == EntityGroup.TILE) {
 
-                for (ChunkHolder visibleChunk : ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
+                for (ChunkHolder visibleChunk : CHUNK_HOLD.getVisibleChunkHolders(Craft.toNMS(world))) {
                     net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
                     if (lc == null) {
                         continue;

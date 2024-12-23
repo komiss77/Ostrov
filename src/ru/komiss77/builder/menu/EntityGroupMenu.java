@@ -3,8 +3,9 @@ package ru.komiss77.builder.menu;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import ca.spottedleaf.moonrise.common.util.ChunkSystem;
+import ca.spottedleaf.moonrise.paper.util.BaseChunkSystemHooks;
 import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.bukkit.*;
@@ -31,6 +32,12 @@ import ru.komiss77.version.Craft;
 public class EntityGroupMenu implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
+    private static final BaseChunkSystemHooks CHUNK_HOLD = new BaseChunkSystemHooks() {
+        @Override
+        public boolean screenEntity(final ServerLevel serverLevel, final net.minecraft.world.entity.Entity entity, final boolean b, final boolean b1) {
+            return false;
+        }
+    };
     private final IntHashMap<Chunk> chunks;
     private final World world;
     private int radius;
@@ -87,7 +94,7 @@ public class EntityGroupMenu implements InventoryProvider {
         if (group == EntityGroup.TILE) {
 
             final Map<BlockType, Integer> count = new HashMap<>();
-            for (ChunkHolder visibleChunk : ChunkSystem.getVisibleChunkHolders(((CraftWorld) world).getHandle())) {
+            for (ChunkHolder visibleChunk : CHUNK_HOLD.getVisibleChunkHolders(Craft.toNMS(world))) {
                 net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
                 if (lc == null) {
                     continue;
