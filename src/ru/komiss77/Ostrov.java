@@ -238,48 +238,50 @@ public class Ostrov extends JavaPlugin {
 //    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-        logger.debug(TCUtil.form(s));
+      logger.debug(s);//logger.debug(TCUtil.form(s));
     }
 
     public static void log_ok(String s) {
-        logger.info(TCUtil.form(s));
-        //кринж
-        /*if (s.startsWith("§") && s.length() >= 2) {
-            final String strip = s.substring(2);
-            switch (s.charAt(1)) {
-                case '0' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;232m" + strip;
-                case '1' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[34;1m" + strip;
-                case '2' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;29m" + strip;
-                case '3' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;6m" + strip;
-                case '4' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;1m" + strip;
-                case '5' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;128m" + strip;
-                case '6' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;214m" + strip;
-                case '7' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;241m" + strip;
-                case '8' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;238m" + strip;
-                case '9' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;63m" + strip;
-                case 'a' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[32;1m" + strip;
-                case 'b' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[36;1m" + strip;
-                case 'c' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;9m" + strip;
-                case 'd' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;207m" + strip;
-                case 'e' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[33m" + strip;
-                case 'f' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[37m" + strip;
-                default -> {
-                    Bukkit.getLogger().info(prefixOK + strip);
-                    return;
-                }
+      if (!windows) {
+        logger.info(s);//logger.info(TCUtil.form(s));
+      } else {//кринж      цветов в винде не появилось, вернул кодировку консоли. Еще ComponentLogger ставит в начале название плагина, всегда монохромное
+        if (s.startsWith("§") && s.length() >= 2) {
+          final String strip = s.substring(2);
+          switch (s.charAt(1)) {
+            case '0' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;232m" + strip;
+            case '1' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[34;1m" + strip;
+            case '2' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;29m" + strip;
+            case '3' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;6m" + strip;
+            case '4' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;1m" + strip;
+            case '5' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;128m" + strip;
+            case '6' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;214m" + strip;
+            case '7' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;241m" + strip;
+            case '8' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;238m" + strip;
+            case '9' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;63m" + strip;
+            case 'a' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[32;1m" + strip;
+            case 'b' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[36;1m" + strip;
+            case 'c' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;9m" + strip;
+            case 'd' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;207m" + strip;
+            case 'e' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[33m" + strip;
+            case 'f' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[37m" + strip;
+            default -> {
+              Bukkit.getLogger().info(s);
+              return;
             }
-            Bukkit.getLogger().info(s + "\u001B[0m");
+          }
+          Bukkit.getLogger().info(s + "\u001B[0m");
         } else {
-            Bukkit.getLogger().info(prefixOK + s);
-        }*/
+          Bukkit.getLogger().info("\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] " + s);
+        }
+      }
     }
 
     public static void log_warn(String s) {
-        logger.warn(TCUtil.form(s));
+      logger.warn(s);//logger.warn(TCUtil.form(s));
     }
 
     public static void log_err(String s) {
-        logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
+      logger.warn(s);//logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
         if (LocalDB.useLocalData && LocalDB.connection != null) {
             try (PreparedStatement pst1 = LocalDB.connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);")) {
                 pst1.setString(1, s);

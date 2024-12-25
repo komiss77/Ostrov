@@ -29,6 +29,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -1959,7 +1960,11 @@ public class ItemUtil {
         return type.name().endsWith("_EGG");
     }
 
-
+  //@Deprecated зачем удалил? нужно на островках
+  public static boolean isInteractable(final Material mat) {
+    final BlockType bt = Registry.BLOCK.get(mat.getKey());
+    return bt != null && bt.isInteractable();
+  }
 //MySQL Player Data Bridge
 //https://www.spigotmc.org/resources/mysql-inventory-bridge.7849/
 

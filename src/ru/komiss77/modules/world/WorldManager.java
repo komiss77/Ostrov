@@ -227,15 +227,14 @@ public class WorldManager implements Initiable {
             sender.sendMessage(Ostrov.PREFIX + "§e*Название перекодировано в " + translitName);
             world_name = translitName;
         }
-
-        if (Bukkit.getWorld(world_name) != null) {
-
+      World world = Bukkit.getWorld(world_name);
+      if (world != null) {
             sender.sendMessage(Component.text()
                 .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен! §7тп в мир - /ostrov wm tp " + world_name + " <клик"))
                 .hoverEvent(HoverEvent.showText(Component.text("клик - ТП")))
                 .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
                 .build());//spigot().sendMessage(msg);
-            return Bukkit.getWorld(world_name);
+        return world;
         }
 
 
@@ -267,14 +266,22 @@ public class WorldManager implements Initiable {
         boolean valid_level_dat = false;
         boolean valid_regions = false;
 
-        final String regionFolderName = environment == Environment.NORMAL ? "region" :
-            environment == Environment.NETHER ? "DIM-1" : "DIM1";
+      //final String regionFolderName = environment == Environment.NORMAL ? "region" : //бывает тип мира указан oдин, а по факту он другой
+      //    environment == Environment.NETHER ? "DIM-1" : "DIM1";
 
         for (final File f : worldFoldersDirectory.listFiles()) {
             if (f.isDirectory()) {
 //Ostrov.log("folder="+f.getName());
-                if (f.getName().equals(regionFolderName) && f.listFiles().length != 0) {
-                    valid_regions = true;
+              if (f.listFiles().length != 0) {
+                if (f.getName().equals("region")) {
+                  valid_regions = true;
+                } else if (f.getName().equals("DIM-1")) {
+                  valid_regions = true;
+                  environment = Environment.NETHER;
+                } else if (f.getName().equals("DIM1")) {
+                  valid_regions = true;
+                  environment = Environment.THE_END;
+                }
                 }
 
             } else {
@@ -302,7 +309,7 @@ public class WorldManager implements Initiable {
         }
 
         if (!valid_regions) {
-            sender.sendMessage(Ostrov.PREFIX + "§cв директории " + worldFoldersDirectory.getName() + " нет папки " + regionFolderName + ", или она пустая.");
+          sender.sendMessage(Ostrov.PREFIX + "§cв директории " + worldFoldersDirectory.getName() + " нет папки region/DIM-1/DIM1, или она пустая.");
             return null;
         }
 
@@ -323,7 +330,7 @@ public class WorldManager implements Initiable {
 
         applyGenerator(wc, generator);
 
-        final World world = wc.createWorld();
+      world = wc.createWorld();
 
         if (sender instanceof ConsoleCommandSender) {
             Ostrov.log_ok("§2Мир загружен за " + (System.currentTimeMillis() - currentTimeMillis5) + "ms");

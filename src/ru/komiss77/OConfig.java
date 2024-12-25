@@ -11,13 +11,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class OConfig {
 
-    private static final String LOAD = "load";
+    //private static final String LOAD = "load";
 
     private int comments;
     //private final OstrovConfigManager manager;
 
     private final File file;
-    private final boolean load;
+    //private final boolean load; //стало пихать во все конфиги, перенёс в ItemGroup
     protected FileConfiguration config;
 
     public OConfig(final File configFile, final int comments) {
@@ -27,14 +27,17 @@ public class OConfig {
         this.file = configFile;
         //this.config = YamlConfiguration.loadConfiguration(configStream);
         this.config = YamlConfiguration.loadConfiguration(configFile);
-        if (!config.contains(LOAD)) {
-            config.set(LOAD, false);
-            saveConfig(); load = false;
+        if (config.contains("load")) {
+            //config.set(LOAD, false);
+            //saveConfig();
+            // load = false;
+            //load = config.getBoolean(LOAD);
+            config.set("load", null);
+            saveConfig();
         }
-        else load = config.getBoolean(LOAD);
     }
 
-    public boolean load() {return load;}
+    //public boolean load() {return load;}
 
     public Object get(String path) {
         return this.config.get(path);
@@ -174,7 +177,8 @@ public class OConfig {
 
     public Set<String> getKeys() {
         final Set<String> keys = config.getKeys(false);
-        keys.remove(LOAD); return keys;
+        //keys.remove(LOAD);
+        return keys;
     }
 
 }

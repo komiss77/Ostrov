@@ -66,12 +66,12 @@ public abstract class SpecialItem implements Keyed {
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);
-        final OConfig irc = Cfg.manager.config(CON_NAME);
-        crafted = irc.getBoolean(name + ".crafted", false);
-        dropped = irc.getBoolean(name + ".dropped", false);
-        final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
-        this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
-        final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
+      //final OConfig irc = Cfg.manager.config(CON_NAME);
+      crafted = ItemGroup.irc.getBoolean(name + ".crafted", false);
+      dropped = ItemGroup.irc.getBoolean(name + ".dropped", false);
+      final XYZ loc = XYZ.fromString(ItemGroup.irc.getString(name + ".loc"));
+      this.item = ItemGroup.load ? ItemUtil.parse(ItemGroup.irc.getString(name + ".org")) : it;
+      final ItemStack curr = ItemUtil.parse(ItemGroup.irc.getString(name + ".curr"));
         lastLoc = loc == null ? null : new WXYZ(loc);
         if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
 

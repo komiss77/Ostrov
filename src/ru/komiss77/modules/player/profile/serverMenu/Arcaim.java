@@ -1,13 +1,17 @@
 package ru.komiss77.modules.player.profile.serverMenu;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
+import ru.komiss77.events.BuilderMenuEvent;
+import ru.komiss77.events.LocalMenuEvent;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.profile.ProfileManager;
@@ -45,6 +49,10 @@ public class Arcaim implements InventoryProvider {
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
+
+      final LocalMenuEvent event = (new LocalMenuEvent(p, content));
+      Bukkit.getPluginManager().callEvent(event);
+      if (event.isCancelled()) return;
 
 
         content.set(0, 1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
@@ -130,7 +138,7 @@ public class Arcaim implements InventoryProvider {
       }
 
 
-        /*content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
+      content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
                 .name("§eВернуться в свой регион")
                 //.lore("§7Дом любимый дом.")
                 //.lore("§7Создание, удаление,")
@@ -141,7 +149,7 @@ public class Arcaim implements InventoryProvider {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("land home");
-        }));*/
+      }));
 
 
         content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
