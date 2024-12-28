@@ -34,26 +34,12 @@ public abstract class ItemGroup implements Keyed {
 
     private final Map<ItemType, ItemStack> mits;
     private final NamespacedKey key;
-    private static final String LOAD = "load";
-
-    public static final OConfig irc;
-    public static boolean load;
-
-    static {
-        irc = Cfg.manager.config(CON_NAME);
-        if (irc.contains(LOAD)) {
-            load = irc.getBoolean(LOAD);
-        } else {
-            irc.set(LOAD, false);
-            irc.saveConfig();
-        }
-    }
 
     protected ItemGroup(final ItemStack... its) {
         this.key = OStrap.key(this.getClass().getSimpleName());
         this.mits = new HashMap<>(); before();
-        //final OConfig irc = Cfg.manager.config(CON_NAME);
-        if (load) {//if (irc.load()) {
+        final OConfig irc = Cfg.manager.config(CON_NAME);
+        if (irc.load()) {
             final Collection<String> itls = irc.getStringList(key().value());
             if (!itls.isEmpty()) {
                 for (final String is : itls) {
