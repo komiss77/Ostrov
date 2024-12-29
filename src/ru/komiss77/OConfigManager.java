@@ -70,6 +70,15 @@ public class OConfigManager {
      * @param path Path to file
      * @return New SimpleConfig
      */
+    public OConfig config(final String path, final boolean loadable) {
+        return this.config(path, null, loadable);
+    }
+
+    /**
+     * Get new configuration with header
+     * @param path Path to file
+     * @return New SimpleConfig
+     */
     public OConfig config(final String path, final @Nullable String[] header, final boolean loadable) {
         final File file = this.getConfigFile(path);
         if (file == null) return Cfg.getConfig();
@@ -95,15 +104,12 @@ public class OConfigManager {
         }
 
         File configFile;
-
         if (file.contains("/")) {
-
             if (file.startsWith("/")) {
                 configFile = new File(plugin.getDataFolder() + file.replace("/", File.separator));
             } else {
                 configFile = new File(plugin.getDataFolder() + File.separator + file.replace("/", File.separator));
             }
-
         } else {
             configFile = new File(plugin.getDataFolder(), file);
         }

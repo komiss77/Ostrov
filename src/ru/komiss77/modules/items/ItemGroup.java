@@ -38,7 +38,7 @@ public abstract class ItemGroup implements Keyed {
     protected ItemGroup(final ItemStack... its) {
         this.key = OStrap.key(this.getClass().getSimpleName());
         this.mits = new HashMap<>(); before();
-        final OConfig irc = Cfg.manager.config(CON_NAME);
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
         if (irc.load()) {
             final Collection<String> itls = irc.getStringList(key().value());
             if (!itls.isEmpty()) {

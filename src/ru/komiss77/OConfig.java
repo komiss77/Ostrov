@@ -24,7 +24,7 @@ public class OConfig {
 
         this.file = configFile;
         this.config = YamlConfiguration.loadConfiguration(configFile);
-        load = config.contains(LOAD) && config.getBoolean(LOAD);
+        load = config.getBoolean(LOAD);
     }
 
     public OConfig(final File configFile, final int comments, final boolean loadable) {
