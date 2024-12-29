@@ -102,7 +102,7 @@ public class ItemManager implements Initiable, Listener {
         });
         if (!SpecialItem.exist) return;
         if (!BlockType.BARRIER.equals(e.getBlock().getType().asBlockType())) return;
-        final ItemStack hnd = e.getPlayer().getInventory().getItemInMainHand();
+        final ItemStack hnd = e.getPlayer().getInventory().getItemInOffHand();
         final SpecialItem spi = SpecialItem.get(hnd);
         if (spi != null) spi.saveAll(hnd);
     }
