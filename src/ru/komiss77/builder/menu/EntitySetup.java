@@ -251,10 +251,10 @@ public class EntitySetup implements InventoryProvider {
             DyeColor dc = ((Colorable) en).getColor();
             content.add(ClickableItem.of(new ItemBuilder(Material.ORANGE_GLAZED_TERRACOTTA)
                     .name("§fЦвет")
-                    .lore("§fСейчас : " + TCUtil.toChat(dc) + TCUtil.dyeDisplayName(dc))
+                .lore("§fСейчас : " + dc == null ? "§8нет цвета" : (TCUtil.toChat(dc) + TCUtil.dyeDisplayName(dc)))
                     .build(), e -> {
                 if (e.isLeftClick()) {
-                    final DyeColor dc2 = ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
+                  final DyeColor dc2 = dc == null ? DyeColor.WHITE : ClassUtil.rotateEnum(dc);//DyeColor.values()[dc.ordinal() + 1 % DyeColor.values().length];
                     ((Colorable) en).setColor(dc2);
                     reopen(p, content);
                 }

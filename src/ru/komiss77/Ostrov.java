@@ -242,9 +242,9 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void log_ok(String s) {
-      if (!windows) {
-        logger.info(s);//logger.info(TCUtil.form(s));
-      } else {//кринж      цветов в винде не появилось, вернул кодировку консоли. Еще ComponentLogger ставит в начале название плагина, всегда монохромное
+      //if (!windows) { хм, в линуксе тоже цвета грохнулись, используем костыль
+      //  logger.info(s);//logger.info(TCUtil.form(s));
+      //} else {//кринж      цветов в винде не появилось, вернул кодировку консоли. Еще ComponentLogger ставит в начале название плагина, всегда монохромное
         if (s.startsWith("§") && s.length() >= 2) {
           final String strip = s.substring(2);
           switch (s.charAt(1)) {
@@ -273,7 +273,7 @@ public class Ostrov extends JavaPlugin {
         } else {
           Bukkit.getLogger().info("\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] " + s);
         }
-      }
+      // }
     }
 
     public static void log_warn(String s) {

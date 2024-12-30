@@ -60,7 +60,7 @@ public class GlobalBugFix implements Listener {
     boolean cancel = false;
     if (GM.GAME.type == ServerType.ARENAS) {
       switch (GM.GAME) {
-        case BB, TW, SN, HS, QU -> {
+        case TW, SN, HS, QU -> { //BB-таблички нужны
           cancel = true;
         }
         default -> {

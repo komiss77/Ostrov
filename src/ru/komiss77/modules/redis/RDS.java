@@ -213,7 +213,7 @@ public class RDS implements Initiable {
                 try {
                     unifiedJedis.publish(channel, message);
 //Ostrov.log_warn("PDS sendChannelMessage channel="+channel+" message="+message);
-                } catch (JedisConnectionException ex) {
+                } catch (Exception ex) {//} catch (JedisConnectionException ex) {
                     // Redis server has disappeared!
                   Ostrov.log_warn("RDS sendMessage : " + ex.getMessage());
                     //throw new RuntimeException("Unable to publish channel message", e);
@@ -222,6 +222,24 @@ public class RDS implements Initiable {
             }
         }.execute();
     }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    /* private static Long getRedisTime(UnifiedJedis unifiedJedis) {
@@ -240,9 +258,6 @@ public class RDS implements Initiable {
         }
         return 0L;
     }*/
-
-
-}
 
 
 

@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.PassportCmd;
 import ru.komiss77.enums.ServerType;
@@ -228,13 +229,14 @@ public class InteractLst implements Listener {
                 } else if (GM.GAME.type == ServerType.ARENAS) {
                     e.setUseInteractedBlock(Event.Result.DENY); //на минииграх редактируют таблички
                 }
-
+/*  не прижилось, если надо будет с делать то сделать на persistent
                 //командная табличка
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     final Sign sign = (Sign) b.getState();
                     final SignSide ss = sign.getSide(Side.FRONT);
                     final String line0 = TCUtil.strip(ss.line(0)).toLowerCase();
                     final String line1 = TCUtil.strip(ss.line(1));
+Ostrov.log_warn("=== line0="+line0+" line1="+line1);
                     if (line0.isEmpty() || line1.isEmpty()) return;
                     switch (line0) {
                         case "[команда]" -> {
@@ -246,7 +248,7 @@ public class InteractLst implements Listener {
                             return;
                         }
                     }
-                }
+                }*/
             }
 
             //блокировка лавы
@@ -263,7 +265,7 @@ public class InteractLst implements Listener {
 
     }
 
-
+/*  не прижилось, если надо будет с делать то сделать на persistent
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void Sign_edit(SignChangeEvent e) {
         final Player p = e.getPlayer();
@@ -282,7 +284,7 @@ public class InteractLst implements Listener {
         e.line(1, Component.text(TCUtil.deform(e.line(1)).replaceAll("&", "§")));
         e.line(2, Component.text(TCUtil.deform(e.line(2)).replaceAll("&", "§")));
         e.line(3, Component.text(TCUtil.deform(e.line(3)).replaceAll("&", "§")));
-    }
+    }*/
 
 
     private void signEdit(final Player p, final PlayerInteractEvent e) {
