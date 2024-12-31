@@ -39,25 +39,12 @@ public class InventoryManager {
 
     }
 
-    // public static InventoryManager get() {
-    //      return Ostrov.invManager;
-    //   }
-
-    //  public InventoryManager() {
-    //      Bukkit.getPluginManager().registerEvents(new InvListener(), Ostrov.instance);
-    //  }
-
-    //public void init() {
-    //     Bukkit.getPluginManager().registerEvents(new InvListener(), Ostrov.instance);
-//      new InvTask().runTaskTimer(plugin, 1, 1);
-    // }
-
     public static Optional<InventoryOpener> findOpener(InventoryType type) {
         Optional<InventoryOpener> opInv = InventoryManager.openers.stream()
             .filter(opener -> opener.supports(type))
             .findAny();
 
-        if (!opInv.isPresent()) {
+        if (opInv.isEmpty()) {
             opInv = InventoryManager.defaultOpeners.stream()
                 .filter(opener -> opener.supports(type))
                 .findAny();
@@ -159,13 +146,13 @@ public class InventoryManager {
             }
         */
             if (e.getClickedInventory() == p.getOpenInventory().getTopInventory()) {
-                int row = e.getSlot() / 9;
-                int column = e.getSlot() % 9;
+                int row = e.getSlot() / inv.getColumns();
+                int column = e.getSlot() % inv.getColumns();
 
                 if (!inv.checkBounds(row, column)) return;
 
-                InventoryContent invContents = contents.get(p.getName());
-                SlotPos slot = SlotPos.of(row, column);
+                final InventoryContent invContents = contents.get(p.getName());
+                final SlotPos slot = SlotPos.of(row, column);
 
                 if (!invContents.isEditable(slot)) {
                     e.setCancelled(true);

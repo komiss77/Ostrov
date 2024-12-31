@@ -26,7 +26,7 @@ public class SmartInventory {
 
 
     private String id;
-  private Component title;
+    private Component title;
     private InventoryType type;
     private int rows, columns;
     private boolean closeable;
@@ -129,10 +129,10 @@ public class SmartInventory {
     }
 
     public String getTitle() {
-      return TCUtil.deform(title);
+        return TCUtil.deform(title);
     }
 
-  public Component title() {
+    public Component title() {
         return title;
     }
 
@@ -182,7 +182,7 @@ public class SmartInventory {
     public static final class Builder {
 
         private String id = "unknown";
-      private Component title = Component.empty();
+        private Component title = Component.empty();
         private InventoryType type = InventoryType.CHEST;
         private Optional<Integer> rows = Optional.empty();
         private Optional<Integer> columns = Optional.empty();
@@ -203,11 +203,11 @@ public class SmartInventory {
         }
 
         public Builder title(String title) {
-          this.title = TCUtil.form(title);
-          return this;
+            this.title = TCUtil.form(title);
+            return this;
         }
 
-      public Builder title(Component title) {
+        public Builder title(Component title) {
             this.title = title;
             return this;
         }
@@ -273,10 +273,10 @@ public class SmartInventory {
         }
 
         public String getTitle() {
-          return TCUtil.deform(title);
+            return TCUtil.deform(title);
         }
 
-      public Component title() {
+        public Component title() {
             return title;
         }
 
@@ -327,7 +327,7 @@ public class SmartInventory {
             //   }
             // }
 
-            SmartInventory inv = new SmartInventory();
+            final SmartInventory inv = new SmartInventory();
             inv.id = this.id;
             inv.title = this.title;
             inv.type = this.type;
@@ -343,15 +343,10 @@ public class SmartInventory {
 
         private SlotPos getDefaultDimensions(InventoryType type) {
             //InventoryOpener opener = this.manager.findOpener(type).orElse(null);
-            InventoryOpener opener = InventoryManager.findOpener(type).orElse(null);
+            final InventoryOpener opener = InventoryManager.findOpener(type).orElse(null);
             if (opener == null)
                 throw new IllegalStateException("Cannot find InventoryOpener for type " + type);
-
-            SlotPos size = opener.defaultSize(type);
-            if (size == null)
-                throw new IllegalStateException(String.format("%s returned null for input InventoryType %s", opener.getClass().getSimpleName(), type));
-
-            return size;
+            return opener.defaultSize(type);
         }
 
     }

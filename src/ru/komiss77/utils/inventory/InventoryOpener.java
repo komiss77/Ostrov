@@ -36,7 +36,7 @@ public interface InventoryOpener {
      * (3x9) for type (ender)chest, (3x3) for dispenser & dropper and
      * (1x_sizeOfInventoryType_) for everything else.
      */
-    default SlotPos defaultSize(InventoryType type) {
+    default SlotPos defaultSize(final InventoryType type) {
         return switch (type) {
             case CHEST, ENDER_CHEST -> SlotPos.of(3, 9);
             case DISPENSER, DROPPER -> SlotPos.of(3, 3);
