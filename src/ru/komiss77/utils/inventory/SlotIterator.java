@@ -3,7 +3,6 @@ package ru.komiss77.utils.inventory;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import com.google.common.base.Preconditions;
 
 /**
@@ -415,7 +414,7 @@ public interface SlotIterator {
 
         @Override
         public SlotIterator blacklist(SlotPos slotPos) {
-            return blacklist(slotPos.getRow(), slotPos.getColumn());
+            return blacklist(slotPos.row(), slotPos.column());
         }
 
         @Override
@@ -475,7 +474,7 @@ public interface SlotIterator {
 
         @Override
         public SlotIterator endPosition(SlotPos endPosition) {
-            return endPosition(endPosition.getRow(), endPosition.getColumn());
+            return endPosition(endPosition.row(), endPosition.column());
         }
 
         @Override

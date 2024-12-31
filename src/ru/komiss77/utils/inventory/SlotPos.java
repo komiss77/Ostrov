@@ -39,11 +39,21 @@ public class SlotPos {
             '}';
     }
 
+    @Deprecated
     public int getRow() {
+        return row();
+    }
+
+    public int row() {
         return row;
     }
 
+    @Deprecated
     public int getColumn() {
+        return column();
+    }
+
+    public int column() {
         return column;
     }
 

@@ -160,7 +160,7 @@ public interface InventoryContent {
 
         @Override
         public SlotIterator newIterator(String id, SlotIterator.Type type, SlotPos startPos) {
-            return newIterator(id, type, startPos.getRow(), startPos.getColumn());
+            return newIterator(id, type, startPos.row(), startPos.column());
         }
 
         @Override
@@ -170,7 +170,7 @@ public interface InventoryContent {
 
         @Override
         public SlotIterator newIterator(SlotIterator.Type type, SlotPos startPos) {
-            return newIterator(type, startPos.getRow(), startPos.getColumn());
+            return newIterator(type, startPos.row(), startPos.column());
         }
 
         @Override
@@ -220,7 +220,7 @@ public interface InventoryContent {
 
         @Override
         public Optional<ClickableItem> get(SlotPos slotPos) {
-            return get(slotPos.getRow(), slotPos.getColumn());
+            return get(slotPos.row(), slotPos.column());
         }
 
         @Override
@@ -261,7 +261,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent set(SlotPos slotPos, ClickableItem item) {
-            return set(slotPos.getRow(), slotPos.getColumn(), item);
+            return set(slotPos.row(), slotPos.column(), item);
         }
 
         @Override
@@ -301,7 +301,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent updateItem(SlotPos slotPos, ItemStack itemStack) {
-            return updateItem(slotPos.getRow(), slotPos.getColumn(), itemStack);
+            return updateItem(slotPos.row(), slotPos.column(), itemStack);
         }
 
         @Override
@@ -386,7 +386,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillRect(SlotPos fromPos, SlotPos toPos, ClickableItem item) {
-            return fillRect(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
+            return fillRect(fromPos.row(), fromPos.column(), toPos.row(), toPos.column(), item);
         }
 
         @Override
@@ -415,7 +415,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillSquare(SlotPos fromPos, SlotPos toPos, ClickableItem item) {
-            return fillSquare(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
+            return fillSquare(fromPos.row(), fromPos.column(), toPos.row(), toPos.column(), item);
         }
 
         @Override
@@ -432,7 +432,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillPattern(Pattern<ClickableItem> pattern, SlotPos startPos) {
-            return fillPattern(pattern, startPos.getRow(), startPos.getColumn());
+            return fillPattern(pattern, startPos.row(), startPos.column());
         }
 
         @Override
@@ -474,7 +474,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillPatternRepeating(Pattern<ClickableItem> pattern, SlotPos startPos, SlotPos endPos) {
-            return fillPatternRepeating(pattern, startPos.getRow(), startPos.getColumn(), endPos.getRow(), endPos.getColumn());
+            return fillPatternRepeating(pattern, startPos.row(), startPos.column(), endPos.row(), endPos.column());
         }
 
         @Override

@@ -331,8 +331,8 @@ public class SmartInventory {
             inv.id = this.id;
             inv.title = this.title;
             inv.type = this.type;
-            inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).getRow());
-            inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).getColumn());
+            inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).row());
+            inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).column());
             inv.closeable = this.closeable;
             inv.updateFrequency = this.updateFrequency;
             inv.provider = this.provider;

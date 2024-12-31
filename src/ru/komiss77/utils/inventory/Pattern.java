@@ -1,7 +1,6 @@
 package ru.komiss77.utils.inventory;
 
 import java.util.*;
-
 import com.google.common.base.Preconditions;
 
 
@@ -102,7 +101,7 @@ public class Pattern<T> {
      * @see #getObject(int, int) For the more detailed information
      */
     public T getObject(SlotPos slot) {
-        return this.getObject(slot.getRow(), slot.getColumn());
+        return this.getObject(slot.row(), slot.column());
     }
 
     /**

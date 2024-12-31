@@ -15,10 +15,11 @@ public interface InventoryOpener {
     default void fill(Inventory handle, InventoryContent contents, Player player) {
         ClickableItem[][] items = contents.all();
 
+        final SlotPos size = defaultSize(handle.getType());
         for (int row = 0; row < items.length; row++) {
             for (int column = 0; column < items[row].length; column++) {
                 if (items[row][column] != null)
-                    handle.setItem(9 * row + column, items[row][column].getItem(player));
+                    handle.setItem(size.column() * row + column, items[row][column].getItem(player));
             }
         }
     }
@@ -36,16 +37,11 @@ public interface InventoryOpener {
      * (1x_sizeOfInventoryType_) for everything else.
      */
     default SlotPos defaultSize(InventoryType type) {
-        switch (type) {
-            case CHEST:
-            case ENDER_CHEST:
-                return SlotPos.of(3, 9);
-            case DISPENSER:
-            case DROPPER:
-                return SlotPos.of(3, 3);
-            default:
-                return SlotPos.of(1, type.getDefaultSize());
-        }
+        return switch (type) {
+            case CHEST, ENDER_CHEST -> SlotPos.of(3, 9);
+            case DISPENSER, DROPPER -> SlotPos.of(3, 3);
+            default -> SlotPos.of(1, type.getDefaultSize());
+        };
     }
 
 
