@@ -7,6 +7,7 @@ import java.util.Set;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import ru.komiss77.utils.ItemUtil;
 
 @SuppressWarnings("unchecked")
 public class ItemData extends HashMap<DataComponentType, Object> {
@@ -94,7 +95,10 @@ public class ItemData extends HashMap<DataComponentType, Object> {
         final ItemData data = new ItemData();
         for (final DataComponentType dtc : datas) {
             switch (dtc) {
-                case final DataComponentType.NonValued nvd -> data.put(nvd);
+                case final DataComponentType.NonValued nvd -> {
+                    if (nvd.key().value().equals(ItemUtil.OLD_PDC)) continue;
+                    data.put(nvd);
+                }
                 case final DataComponentType.Valued<?> vld -> data.addVal(vld, it);
                 default -> {}
             }

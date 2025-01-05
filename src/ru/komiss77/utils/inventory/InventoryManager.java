@@ -146,8 +146,8 @@ public class InventoryManager {
             }
         */
             if (e.getClickedInventory() == p.getOpenInventory().getTopInventory()) {
-                int row = e.getSlot() / inv.getColumns();
-                int column = e.getSlot() % inv.getColumns();
+                int row = e.getSlot() / inv.columns();
+                int column = e.getSlot() % inv.columns();
 
                 if (!inv.checkBounds(row, column)) return;
 
@@ -210,7 +210,7 @@ public class InventoryManager {
             InventoryContent content = contents.get(p.getName());
 
             for (int slot : e.getRawSlots()) {
-                SlotPos pos = SlotPos.of(slot / 9, slot % 9);
+                SlotPos pos = SlotPos.of(slot / inv.columns(), slot % inv.columns());
                 if (slot >= p.getOpenInventory().getTopInventory().getSize() || content.isEditable(pos))
                     continue;
 

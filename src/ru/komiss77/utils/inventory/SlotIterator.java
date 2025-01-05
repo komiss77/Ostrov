@@ -304,8 +304,8 @@ public interface SlotIterator {
 
             this.type = type;
 
-            this.endRow = this.inv.getRows() - 1;
-            this.endColumn = this.inv.getColumns() - 1;
+            this.endRow = this.inv.rows() - 1;
+            this.endColumn = this.inv.columns() - 1;
 
             this.startRow = this.row = startRow;
             this.startColumn = this.column = startColumn;
@@ -324,9 +324,7 @@ public interface SlotIterator {
 
         @Override
         public SlotIterator set(ClickableItem item) {
-            if (canPlace())
-                contents.set(row, column, item);
-
+            if (canPlace()) contents.set(row, column, item);
             return this;
         }
 
@@ -346,7 +344,7 @@ public interface SlotIterator {
                             column--;
 
                             if (column == 0) {
-                                column = inv.getColumns() - 1;
+                                column = inv.columns() - 1;
                                 row--;
                             }
                             break;
@@ -354,7 +352,7 @@ public interface SlotIterator {
                             row--;
 
                             if (row == 0) {
-                                row = inv.getRows() - 1;
+                                row = inv.rows() - 1;
                                 column--;
                             }
                             break;
@@ -379,13 +377,13 @@ public interface SlotIterator {
                 } else {
                     switch (type) {
                         case HORIZONTAL:
-                            column = ++column % inv.getColumns();
+                            column = ++column % inv.columns();
 
                             if (column == 0)
                                 row++;
                             break;
                         case VERTICAL:
-                            row = ++row % inv.getRows();
+                            row = ++row % inv.rows();
 
                             if (row == 0)
                                 column++;
@@ -400,7 +398,7 @@ public interface SlotIterator {
 
         @Override
         public SlotIterator blacklist(int index) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             this.blacklisted.add(SlotPos.of(index / columnCount, index % columnCount));
             return this;
@@ -461,9 +459,9 @@ public interface SlotIterator {
         @Override
         public SlotIterator endPosition(int row, int column) {
             if (row < 0)
-                row = this.inv.getRows() - 1;
+                row = this.inv.rows() - 1;
             if (column < 0)
-                column = this.inv.getColumns() - 1;
+                column = this.inv.columns() - 1;
             Preconditions.checkArgument(row * column >= this.startRow * this.startColumn, "The end position needs to be after the start of the slot iterator");
 
             this.endRow = row;
@@ -526,7 +524,7 @@ public interface SlotIterator {
             if (blacklistPattern != null) {
                 blacklistPatternAllows = !checkPattern(blacklistPattern, blacklistPatternRowOffset, blacklistPatternColumnOffset);
             }
-            return !blacklisted.contains(SlotPos.of(row, column)) && (allowOverride || !this.get().isPresent()) && patternAllows && blacklistPatternAllows;
+            return !blacklisted.contains(SlotPos.of(row, column)) && (allowOverride || this.get().isEmpty()) && patternAllows && blacklistPatternAllows;
         }
 
         private boolean checkPattern(Pattern<Boolean> pattern, int rowOffset, int columnOffset) {

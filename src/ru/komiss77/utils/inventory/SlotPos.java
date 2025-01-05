@@ -63,7 +63,7 @@ public class SlotPos {
 
     public static SlotPos of(final int slot) {
         final String string = Integer.toString(slot, 9);
-        return new SlotPos((string.length() == 1) ? 0 : Integer.valueOf("" + string.charAt(0)), Integer.valueOf("" + string.charAt((int) ((string.length() != 1) ? 1 : 0))));
+        return new SlotPos((string.length() == 1) ? 0 : Integer.parseInt("" + string.charAt(0)), Integer.parseInt("" + string.charAt((int) ((string.length() != 1) ? 1 : 0))));
     }
 
 }

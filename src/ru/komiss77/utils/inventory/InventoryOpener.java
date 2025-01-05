@@ -6,7 +6,7 @@ import org.bukkit.inventory.Inventory;
 
 public interface InventoryOpener {
 
-    public Inventory getInventory(SmartInventory inv, Player player);
+    Inventory getInventory(SmartInventory inv, Player player);
 
     Inventory open(SmartInventory inv, Player player);
 
@@ -15,11 +15,12 @@ public interface InventoryOpener {
     default void fill(Inventory handle, InventoryContent contents, Player player) {
         ClickableItem[][] items = contents.all();
 
-        final SlotPos size = defaultSize(handle.getType());
-        for (int row = 0; row < items.length; row++) {
-            for (int column = 0; column < items[row].length; column++) {
-                if (items[row][column] != null)
-                    handle.setItem(size.column() * row + column, items[row][column].getItem(player));
+        for (int r = 0; r < items.length; r++) {
+            final ClickableItem[] row = items[r];
+            for (int c = 0; c < row.length; c++) {
+                if (row[c] != null) {
+                    handle.setItem(row.length * r + c, row[c].getItem(player));
+                }
             }
         }
     }

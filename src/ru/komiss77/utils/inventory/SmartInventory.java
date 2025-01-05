@@ -60,7 +60,7 @@ public class SmartInventory {
 
     @SuppressWarnings("unchecked")
     public Inventory open(Player player, int page, Map<String, Object> properties) {
-        Optional<SmartInventory> oldInv = InventoryManager.getInventory(player);
+        final Optional<SmartInventory> oldInv = InventoryManager.getInventory(player);
 
         oldInv.ifPresent(inv -> {
             inv.getListeners().stream()
@@ -140,11 +140,21 @@ public class SmartInventory {
         return type;
     }
 
+    @Deprecated
     public int getRows() {
         return rows;
     }
 
+    public int rows() {
+        return rows;
+    }
+
+    @Deprecated
     public int getColumns() {
+        return columns;
+    }
+
+    public int columns() {
         return columns;
     }
 
@@ -184,8 +194,7 @@ public class SmartInventory {
         private String id = "unknown";
         private Component title = Component.empty();
         private InventoryType type = InventoryType.CHEST;
-        private Optional<Integer> rows = Optional.empty();
-        private Optional<Integer> columns = Optional.empty();
+        private int rows = 0, columns = 0;
         private boolean closeable = true;
         private int updateFrequency = 1;
         //private InventoryManager manager;
@@ -218,14 +227,13 @@ public class SmartInventory {
         }
 
         public Builder size(final int rows) {
-            this.rows = Optional.of(rows);// = rows;
-            this.columns = Optional.of(9);// = 9;
+            this.rows = rows;// = rows;
             return this;
         }
 
         public Builder size(int rows, int columns) {
-            this.rows = Optional.of(rows);
-            this.columns = Optional.of(columns);
+            this.rows = rows;
+            this.columns = columns;
             return this;
         }
 
@@ -284,11 +292,11 @@ public class SmartInventory {
             return type;
         }
 
-        public Optional<Integer> getRows() {
+        /*public int getRows() {
             return rows;
         }
 
-        public Optional<Integer> getColumns() {
+        public int getColumns() {
             return columns;
         }
 
@@ -298,7 +306,7 @@ public class SmartInventory {
 
         public int getUpdateFrequency() {
             return updateFrequency;
-        }
+        }*/
 
         // public InventoryManager getManager() {
         //      return InventoryManager;//manager;
@@ -331,8 +339,8 @@ public class SmartInventory {
             inv.id = this.id;
             inv.title = this.title;
             inv.type = this.type;
-            inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).row());
-            inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).column());
+            inv.rows = rows == 0 ? getDefaultDimensions(type).row() : rows;
+            inv.columns = columns == 0 ? getDefaultDimensions(type).column() : columns;
             inv.closeable = this.closeable;
             inv.updateFrequency = this.updateFrequency;
             inv.provider = this.provider;

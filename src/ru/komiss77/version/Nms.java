@@ -12,7 +12,11 @@ import com.mojang.serialization.DynamicOps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.DeathProtection;
 import io.papermc.paper.math.BlockPosition;
+import io.papermc.paper.persistence.PaperPersistentDataContainerView;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandSourceStack;
@@ -54,9 +58,11 @@ import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
@@ -64,6 +70,7 @@ import org.spigotmc.SpigotConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.BotEntity;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.PDC;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -112,8 +119,7 @@ public class Nms {
   }
 
   public static void fakeBlock(final Player p, final long l, final BlockData bd) {
-    final ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(BlockPos.of(l), ((CraftBlockData) bd).getState());
-    sendPacket(p, packet);//mutableBlockPosition не катит, меняется пока пакет отправляется! надо BlockPos.of(l)
+    sendPacket(p, new ClientboundBlockUpdatePacket(BlockPos.of(l), ((CraftBlockData) bd).getState()));
     final Oplayer op = PM.getOplayer(p);
     op.fakeBlock.put(l, bd); //2! это заблочит исходящий пакет обновы
     op.hasFakeBlock = true;
@@ -124,11 +130,32 @@ public class Nms {
     //mutableBlockPosition.set(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     final long l = LocUtil.asLong(loc);
     if (op.hasFakeBlock && op.fakeBlock.remove(l) != null) {
-      final ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(BlockPos.of(l), ((CraftBlockData) loc.getBlock().getBlockData()).getState());
-      sendPacket(p, packet);//p.sendBlockChange(loc, loc.getBlock().getBlockData());
+      sendPacket(p, new ClientboundBlockUpdatePacket(BlockPos.of(l),
+          ((CraftBlockData) loc.getBlock().getBlockData()).getState()));
       op.hasFakeBlock = !op.fakeBlock.isEmpty();
     }
     //PM.getOplayer(p).fakeBlock.remove(mutableBlockPosition.asLong());
+  }
+
+  public static void fakeItem(final Player p, final ItemStack it, final int slot) {
+    sendPacket(p, new ClientboundSetPlayerInventoryPacket(slot, net.minecraft.world.item.ItemStack.fromBukkitCopy(it)));
+  }
+
+  private static final int OFH_SLOT = 40;
+  public static void totemPop(final Player p, final ItemStack totem) {
+    fakeItem(p, new ItemBuilder(totem).set(DataComponentTypes.DEATH_PROTECTION,
+        DeathProtection.deathProtection().build()).build(), OFH_SLOT);
+    sendPacket(p, new ClientboundEntityEventPacket(Craft.toNMS(p), EntityEffect.TOTEM_RESURRECT.getData()));
+    fakeItem(p, p.getInventory().getItemInOffHand(), OFH_SLOT);
+  }
+
+  public static void totemWorldPop(final Player p, final ItemStack totem) {
+    final PlayerInventory inv = p.getInventory();
+    final ItemStack ofh = inv.getItemInOffHand();
+    inv.setItemInOffHand(new ItemBuilder(totem).set(DataComponentTypes.DEATH_PROTECTION,
+        DeathProtection.deathProtection().build()).build());
+    p.playEffect(EntityEffect.TOTEM_RESURRECT);
+    inv.setItemInOffHand(ofh);
   }
 
   public static void chatFix() { // Chat Report fix  https://github.com/e-im/FreedomChat https://www.libhunt.com/r/FreedomChat
@@ -216,9 +243,19 @@ public class Nms {
   }
 
   public static final CraftPersistentDataTypeRegistry PDT_REG = new CraftPersistentDataTypeRegistry();
+  public static PersistentDataContainer newPDC() {return new CraftPersistentDataContainer(PDT_REG);}
+  public static PersistentDataContainer newPDC(final PersistentDataContainerView data) {
+    if (!(data instanceof final PaperPersistentDataContainerView pd))
+      return new CraftPersistentDataContainer(PDT_REG);
+    final Map<String, Tag> tags = new HashMap<>();
+    for (final NamespacedKey nk : pd.getKeys()) {
+      final String k = nk.asString(); tags.put(k, pd.getTag(k));
+    }
+    return new CraftPersistentDataContainer(tags, PDT_REG);
+  }
   public static final String P_B_V = "PublicBukkitValues";
   public static void setCustomData(final ItemStack it, final PDC.Data data) {
-    if (it == null || data.isEmpty()) return; 
+    if (it == null || data.isEmpty()) return;
     final DataComponentPatch.Builder builder = DataComponentPatch.builder();
     final CraftPersistentDataContainer pdc = new CraftPersistentDataContainer(PDT_REG);
     for (final Duo<NamespacedKey, Serializable> en : data) {
@@ -234,6 +271,26 @@ public class Nms {
         default -> pdc.set(en.key(), PersistentDataType.STRING, en.val().toString());
       }
     }
+    final CompoundTag pdcTag = new CompoundTag();
+    for (final Map.Entry<String, Tag> en : pdc.getRaw().entrySet()) {
+      pdcTag.put(en.getKey(), en.getValue());
+    }
+    final CompoundTag ct = new CompoundTag();
+    ct.put(P_B_V, pdcTag);
+    builder.set(DataComponents.CUSTOM_DATA, CustomData.of(ct));
+    if (it instanceof final CraftItemStack cit) {
+      cit.handle.applyComponents(builder.build());
+    }
+  }
+
+  public static void setCustomData(final ItemStack it, final PersistentDataContainerView data) {
+    if (it == null || data.isEmpty() || !(data instanceof final PaperPersistentDataContainerView pd)) return;
+    final DataComponentPatch.Builder builder = DataComponentPatch.builder();
+    final Map<String, Tag> tags = new HashMap<>();
+    for (final NamespacedKey nk : pd.getKeys()) {
+      final String k = nk.asString(); tags.put(k, pd.getTag(k));
+    }
+    final CraftPersistentDataContainer pdc = new CraftPersistentDataContainer(tags, PDT_REG);
     final CompoundTag pdcTag = new CompoundTag();
     for (final Map.Entry<String, Tag> en : pdc.getRaw().entrySet()) {
       pdcTag.put(en.getKey(), en.getValue());

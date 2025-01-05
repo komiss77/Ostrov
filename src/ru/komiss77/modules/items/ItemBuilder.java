@@ -1,13 +1,13 @@
 package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.*;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
@@ -22,6 +22,8 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 import ru.komiss77.OStrap;
@@ -37,7 +39,7 @@ public class ItemBuilder {
     private ItemType type;//private Material mat;
     private int amount = 1; //по умолчанию 1, или build() выдаёт AIR!
     private ItemData data = null;
-    private PDC.Data pdcs = null;
+    private PersistentDataContainer pdcs = null;
     private EnumSet<ItemFlag> flags = null;
 
     public ItemBuilder(final ItemType type) {
@@ -54,8 +56,9 @@ public class ItemBuilder {
         type = from.getType().asItemType();
         amount = from.getAmount();
         final ItemData datas = ItemData.of(from);
-        if (datas.isEmpty()) return;
-        checkData();
+        if (!datas.isEmpty()) data = datas;
+        final PersistentDataContainerView pdc = from.getPersistentDataContainer();
+        if (!pdc.isEmpty()) pdcs = Nms.newPDC(pdc);
     }
 
     private void checkData() {
@@ -96,9 +99,20 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder data(final Key key, final Serializable data) {
-        if (pdcs == null) pdcs = new PDC.Data();
-        pdcs.add(OStrap.key(key), data);
+    public ItemBuilder data(final Key key, final Boolean data) {return data(key, PersistentDataType.BOOLEAN, data);}
+    public ItemBuilder data(final Key key, final Byte data) {return data(key, PersistentDataType.BYTE, data);}
+    public ItemBuilder data(final Key key, final Short data) {return data(key, PersistentDataType.SHORT, data);}
+    public ItemBuilder data(final Key key, final Integer data) {return data(key, PersistentDataType.INTEGER, data);}
+    public ItemBuilder data(final Key key, final Long data) {return data(key, PersistentDataType.LONG, data);}
+    public ItemBuilder data(final Key key, final Float data) {return data(key, PersistentDataType.FLOAT, data);}
+    public ItemBuilder data(final Key key, final Double data) {return data(key, PersistentDataType.DOUBLE, data);}
+    public ItemBuilder data(final Key key, final String data) {return data(key, PersistentDataType.STRING, data);}
+    public ItemBuilder data(final Key key, final byte[] data) {return data(key, PersistentDataType.BYTE_ARRAY, data);}
+    public ItemBuilder data(final Key key, final int[] data) {return data(key, PersistentDataType.INTEGER_ARRAY, data);}
+    public ItemBuilder data(final Key key, final long[] data) {return data(key, PersistentDataType.LONG_ARRAY, data);}
+    public <C> ItemBuilder data(final Key key, final PersistentDataType<?, C> type, final C data) {
+        if (pdcs == null) pdcs = Nms.newPDC();
+        pdcs.set(OStrap.key(key), type, data);
         return this;
     }
 

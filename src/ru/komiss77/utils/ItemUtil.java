@@ -1062,7 +1062,7 @@ public class ItemUtil {
         return dp;
     }
 
-    private static final String OLD_PDC = "custom_data";
+    public static final String OLD_PDC = "custom_data";
 
     @Slow(priority = 3)
     public static String write(final @Nullable ItemStack is) {
@@ -1084,8 +1084,7 @@ public class ItemUtil {
         final PDC.Data data = new PDC.Data();
         for (final NamespacedKey k : pdc.getKeys()) {
             final String s = pdc.get(k, PersistentDataType.STRING);
-            if (s == null) continue;
-            data.add(k, s);
+            if (s == null) continue; data.add(k, s);
         }
         final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
         if (prs == null) return res.toString();
