@@ -47,7 +47,8 @@ public class Schematic {
     private Environment createdEnvironment = Environment.NORMAL;
     private Biome createdBiome = Biome.DEEP_OCEAN;
     protected boolean ready; //флаг для вставки - пока false вставлять не начнёт	
-    private int dX, dY, dZ, spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch;
+  private int dX, dY, dZ;
+  public int spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch;
 
     public Schematic(final CommandSender cs, final String name, final String param, final Location min, final Location max, final boolean save) {
         blockDatas.put(new XYZ("", 0, 1, 2).getSLoc(), Material.BAMBOO_SLAB.createBlockData().toString());

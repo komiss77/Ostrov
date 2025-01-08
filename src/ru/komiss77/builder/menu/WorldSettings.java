@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocUtil;
@@ -39,14 +40,13 @@ public class WorldSettings implements InventoryProvider {
 
         //p.teleport( Bukkit.getWorld(itemname).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-
         for (final GameRule rule : GameRule.values()) {
-
+          try {
             if (rule.getType() == Boolean.class) {
 
-                final boolean on = (boolean) world.getGameRuleValue(rule);
+              final boolean on = (boolean) world.getGameRuleValue(rule);
 
-                contents.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
+              contents.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
                         .name(rule.getName())
                         .lore("")
                         .lore(on ? "§7сейчас §aвключено" : "§7сейчас §cвыключено")
@@ -54,32 +54,32 @@ public class WorldSettings implements InventoryProvider {
                         .lore(on ? "§7ПКМ - §4выкл." : "§7ЛКМ - §2вкл.")
                         .lore("")
                         .build(), e -> {
-                    switch (e.getClick()) {
-                        case LEFT:
-                            if (!on) {
-                                world.setGameRule(rule, true);
-                                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
-                                reopen(p, contents);
-                            }
-                            break;
-                        case RIGHT:
-                            if (on) {
-                                world.setGameRule(rule, false);
-                                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
-                                reopen(p, contents);
-                            }
-                            break;
-                        default:
-                            break;
-
+                switch (e.getClick()) {
+                  case LEFT:
+                    if (!on) {
+                      world.setGameRule(rule, true);
+                      p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+                      reopen(p, contents);
                     }
-                }));
+                    break;
+                  case RIGHT:
+                    if (on) {
+                      world.setGameRule(rule, false);
+                      p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+                      reopen(p, contents);
+                    }
+                    break;
+                  default:
+                    break;
+
+                }
+              }));
 
             } else if (rule.getType() == Integer.class) {
 
-                final int value = (int) world.getGameRuleValue(rule);
+              final int value = (int) world.getGameRuleValue(rule);
 
-                contents.set(1, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
+              contents.set(1, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
                         .name(rule.getName())
                         .lore("")
                         .lore("§7сейчас: " + value)
@@ -88,25 +88,28 @@ public class WorldSettings implements InventoryProvider {
                         .lore("")
                         .build(), String.valueOf(value), msg -> {
 
-                    if (!NumUtil.isInt(msg)) {
-                        p.sendMessage("§cДолжно быть число!");
-                        PM.soundDeny(p);
-                        return;
-                    }
-                    final int amount = Integer.valueOf(msg);
-                    if (amount < 1 || amount > 1_000_000) {
-                        p.sendMessage("§cот 1 до 1000000");
-                        PM.soundDeny(p);
-                        return;
-                    }
+                if (!NumUtil.isInt(msg)) {
+                  p.sendMessage("§cДолжно быть число!");
+                  PM.soundDeny(p);
+                  return;
+                }
+                final int amount = Integer.valueOf(msg);
+                if (amount < 1 || amount > 1_000_000) {
+                  p.sendMessage("§cот 1 до 1000000");
+                  PM.soundDeny(p);
+                  return;
+                }
 
-                    world.setGameRule(rule, amount);
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
-                    reopen(p, contents);
-                    //return;
-                }));
+                world.setGameRule(rule, amount);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+                reopen(p, contents);
+                //return;
+              }));
 
 
+            }
+          } catch (IllegalArgumentException ex) { //.IllegalArgumentException: Tried to access invalid game rule
+            Ostrov.log_warn("GameRule " + rule.getName() + " is @MinecraftExperimental");
             }
 
         }

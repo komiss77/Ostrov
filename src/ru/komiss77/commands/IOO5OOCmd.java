@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Arrays;
 import com.mojang.brigadier.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -50,7 +51,21 @@ public class IOO5OOCmd {
         })
         .description("")
         .register();*/
-
+    new OCmdBuilder("tps")
+        .run(cntx -> {
+          final CommandSender cs = cntx.getSource().getSender();
+          //if (!cs.isOp()) {
+          //if (ApiOstrov.isLocalBuilder(cs, true)) {
+          final double[] d = Bukkit.getTPS();
+          cs.sendMessage("§bTPS 1m,5m,15m : §e" + (int) d[0] + ", " + (int) d[1] + ", " + (int) d[2]);
+          //} else {
+          //  cs.sendMessage("§cдоступно билдерам");
+          //}
+          //}
+          return Command.SINGLE_SUCCESS;
+        })
+        .description("Меню серверов")
+        .register();
 
     new OCmdBuilder("serv")
         .run(cntx -> {

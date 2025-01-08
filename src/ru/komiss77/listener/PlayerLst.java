@@ -76,7 +76,7 @@ public class PlayerLst implements Listener {
       final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
       final String cmd = args[0].toLowerCase();
 //Ostrov.log_warn("PlayerCommandPreprocessEvent cmd="+cmd+" msg="+e.getMessage());
-        final Player p = e.getPlayer();
+      final Player p = e.getPlayer();
 
       if (ApiOstrov.isLocalBuilder(p, false)) {
 //            if (cmd.startsWith("builder") || cmd.startsWith("gm")) return;

@@ -399,7 +399,7 @@ public class Timer {
         cd.put(p.getName().hashCode() ^ type.hashCode(), currentTime + seconds);
     }
 
-    public static void del(final Player p, final String type) {
+  public static void del(final Player p, final String type) { //вроде не работает, чекнуть потом
         cd.remove(p.getName().hashCode() ^ type.hashCode());
     }
 
