@@ -69,11 +69,11 @@ public class NumUtil {
         return Math.abs(a) < Math.abs(b) ? a : b;
     }
 
-    public static double mulDiff(final int a, final int b) {
+    public static int mulDiff(final int a, final int b) {
         return a > b ? a / b : b / a;
     }
 
-    public static double mulDiff(final float a, final float b) {
+    public static float mulDiff(final float a, final float b) {
         return a > b ? a / b : b / a;
     }
 

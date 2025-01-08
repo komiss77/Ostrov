@@ -2033,7 +2033,6 @@ public class ItemUtil {
     }
 
     public static @Nullable Collection<PotionEffect> deseripotlize(String s) {
-
         try {
             final ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(s));
             final ObjectInputStream bois = new ObjectInputStream(bais);
