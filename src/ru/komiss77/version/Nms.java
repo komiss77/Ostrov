@@ -119,7 +119,7 @@ public class Nms {
   }
 
   public static void fakeBlock(final Player p, final long l, final BlockData bd) {
-    sendPacket(p, new ClientboundBlockUpdatePacket(BlockPos.of(l), ((CraftBlockData) bd).getState()));
+    sendPacket(p, new ClientboundBlockUpdatePacket(BlockPos.of(l), Craft.toNMS(bd)));
     final Oplayer op = PM.getOplayer(p);
     op.fakeBlock.put(l, bd); //2! это заблочит исходящий пакет обновы
     op.hasFakeBlock = true;

@@ -4,13 +4,10 @@ import java.util.HashMap;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.EntitiesLoadEvent;
-
 import ru.komiss77.Initiable;
+import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
 
 public class ScoreManager implements Initiable, Listener {
@@ -18,7 +15,7 @@ public class ScoreManager implements Initiable, Listener {
     //@Deprecated
     //protected static final HashMap<UUID, ScoreBoard> scores = new HashMap<>();
     protected static final HashMap<UUID, ScoreDis> lists = new HashMap<>();
-    protected static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "score");
+    protected static final NamespacedKey key = OStrap.key("score");
 
     public ScoreManager() {
         reload();
@@ -41,7 +38,7 @@ public class ScoreManager implements Initiable, Listener {
         Ostrov.log_ok("§6Статистика выключена!");
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onEntLoad(final EntitiesLoadEvent e) {
         boolean fnd = false;
         for (final Entity ent : e.getEntities()) {
@@ -57,6 +54,5 @@ public class ScoreManager implements Initiable, Listener {
                 sb.reanimate(sb.getEntity());
             }
         }
-    }
-
+    }*/
 }
