@@ -8,7 +8,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
@@ -19,10 +23,26 @@ import ru.komiss77.modules.player.PM;
 
 public class TestLst implements Listener {
 
+   /* public TestLst() {
+        for (World w : Bukkit.getWorlds()) {
+            Ostrov.log_warn("=== уже загружен мир "+w.getName());
+            for (Chunk c : w.getLoadedChunks()) {
+                Ostrov.log_warn("=== уже загружен чанк "+c.getX()+"x"+c.getZ());
+                for (Entity en : c.getEntities()) {
+                    if (en.getType()==EntityType.ARMOR_STAND) {
+                        Ostrov.log_warn("=== "+en.getType());
+
+                    }
+                }
+            }
+        }
+    }*/
+
+
     Botter bt = null;
 
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));

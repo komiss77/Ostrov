@@ -29,7 +29,7 @@ public class SmartInventory {
   private Component title;
     private InventoryType type;
     private int rows, columns;
-    private boolean closeable;
+  private boolean closeable, updateViewsOnClick;
     private int updateFrequency;
     private InventoryProvider provider;
     private SmartInventory parent;
@@ -148,11 +148,15 @@ public class SmartInventory {
         return columns;
     }
 
-    public boolean isCloseable() {
-        return closeable;
-    }
+  public boolean isCloseable() {
+    return closeable;
+  }
 
-    public void setCloseable(boolean closeable) {
+  public boolean updateViewsOnClick() {
+    return updateViewsOnClick;
+  }
+
+  public void setCloseable(boolean closeable) {
         this.closeable = closeable;
     }
 
@@ -186,7 +190,7 @@ public class SmartInventory {
         private InventoryType type = InventoryType.CHEST;
         private Optional<Integer> rows = Optional.empty();
         private Optional<Integer> columns = Optional.empty();
-        private boolean closeable = true;
+      private boolean closeable = true, updateViewsOnClick = false;
         private int updateFrequency = 1;
         //private InventoryManager manager;
         private InventoryProvider provider;
@@ -229,12 +233,17 @@ public class SmartInventory {
             return this;
         }
 
-        public Builder closeable(boolean closeable) {
-            this.closeable = closeable;
-            return this;
-        }
+      public Builder closeable(boolean closeable) {
+        this.closeable = closeable;
+        return this;
+      }
 
-        /**
+      public Builder updateViewsOnClick(boolean updateViewsOnClick) {
+        this.updateViewsOnClick = updateViewsOnClick;
+        return this;
+      }
+
+      /**
          * This method is used to configure the frequency at which the {@link InventoryProvider#update(Player, InventoryContent)}
          * method is called.Defaults to 1
          *
@@ -338,6 +347,7 @@ public class SmartInventory {
             inv.provider = this.provider;
             inv.parent = this.parent;
             inv.listeners = this.listeners;
+          inv.updateViewsOnClick = this.updateViewsOnClick;
             return inv;
         }
 

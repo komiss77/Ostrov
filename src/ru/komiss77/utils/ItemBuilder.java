@@ -211,7 +211,7 @@ public class ItemBuilder {
     public ItemBuilder lore(final Component c) {
         if (c==null) return this;
         if (lore == null) lore = new ArrayList<>();
-        else lore.add(c);
+      lore.add(c);
         return this;
     }
 

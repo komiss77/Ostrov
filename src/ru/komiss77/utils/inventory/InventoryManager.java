@@ -175,7 +175,21 @@ public class InventoryManager {
                     .filter(listener -> listener.getType() == InventoryClickEvent.class)
                     .forEach(listener -> ((InventoryListener<InventoryClickEvent>) listener).accept(e));
 
-                invContents.get(slot).ifPresent(item -> item.run(new ItemClickData(p, e, e.getClick(), e.getCurrentItem(), slot)));
+                invContents.get(slot).ifPresent(item -> {
+                    item.run(new ItemClickData(p, e, e.getClick(), e.getCurrentItem(), slot));
+                    if (inv.updateViewsOnClick()) {
+                        for (Player pl : Bukkit.getOnlinePlayers()) { //принудительная обнова меню у других с таким же ид по клику
+                            if (pl.getName().equals(p.getName())) continue;
+                            InventoryManager.getInventory(pl).filter(si -> si.getId().equals(inv.getId())).ifPresent(si -> {
+                                //pl.closeInventory();
+                                InventoryContent c = contents.get(pl.getName());
+                                if (c != null) {
+                                    si.getProvider().reopen(pl, c);//getHandle().setItem(slot, icon);
+                                }
+                            });
+                        }
+                    }
+                });
 
                 // Don't update if the clicked slot is editable - prevent item glitching
                 if (!invContents.isEditable(slot)) {
