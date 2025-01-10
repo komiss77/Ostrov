@@ -11,14 +11,12 @@ public class ChestInventoryOpener implements InventoryOpener {
 
     @Override
     public Inventory getInventory(SmartInventory inv, Player player) {
-        Preconditions.checkArgument(inv.getColumns() == 9,
-            "The column count for the chest inventory must be 9, found: %s.", inv.getColumns());
-        Preconditions.checkArgument(inv.getRows() >= 1 && inv.getRows() <= 6,
-            "The row count for the chest inventory must be between 1 and 6, found: %s", inv.getRows());
+        Preconditions.checkArgument(inv.columns() == 9,
+            "The column count for the chest inventory must be 9, found: %s.", inv.columns());
+        Preconditions.checkArgument(inv.rows() >= 1 && inv.rows() <= 6,
+            "The row count for the chest inventory must be between 1 and 6, found: %s", inv.rows());
 
-      Inventory handle = Bukkit.createInventory(player, inv.getRows() * inv.getColumns(), inv.title());
-
-        return handle;
+        return Bukkit.createInventory(player, inv.rows() * inv.columns(), inv.title());
     }
 
     @Override

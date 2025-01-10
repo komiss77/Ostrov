@@ -91,12 +91,8 @@ public class ClickableItem {
     public void run(ItemClickData data) {
         if ((canSee == null || canSee.test(data.getPlayer())) && (canClick == null || canClick.test(data.getPlayer()))) {
             if (this.legacy) {
-                if (data.getEvent() instanceof InventoryClickEvent) {
-                    InventoryClickEvent e = (InventoryClickEvent) data.getEvent();
+                if (data.getEvent() instanceof final InventoryClickEvent e) {
                     if ((canSee == null || canSee.test((Player) e.getWhoClicked())) && (canClick == null || canClick.test((Player) e.getWhoClicked()))) {
-                        if (!this.legacy)
-                            return;
-
                         Consumer<InventoryClickEvent> legacyConsumer = (Consumer<InventoryClickEvent>) this.consumer;
                         legacyConsumer.accept(e);
                     }

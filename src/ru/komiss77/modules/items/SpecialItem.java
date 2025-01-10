@@ -42,7 +42,7 @@ public abstract class SpecialItem implements Keyed {
     public static final XYZ SPAWN = getSpawnLoc();
 
     private static XYZ getSpawnLoc() {
-        final OConfig irc = Cfg.manager.config(CON_NAME);
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
         if (irc.contains("spawn")) {
             final XYZ spawn = XYZ.fromString(irc.getString("spawn"));
             if (spawn != null) return spawn;
@@ -66,12 +66,12 @@ public abstract class SpecialItem implements Keyed {
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);
-      //final OConfig irc = Cfg.manager.config(CON_NAME);
-      crafted = ItemGroup.irc.getBoolean(name + ".crafted", false);
-      dropped = ItemGroup.irc.getBoolean(name + ".dropped", false);
-      final XYZ loc = XYZ.fromString(ItemGroup.irc.getString(name + ".loc"));
-      this.item = ItemGroup.load ? ItemUtil.parse(ItemGroup.irc.getString(name + ".org")) : it;
-      final ItemStack curr = ItemUtil.parse(ItemGroup.irc.getString(name + ".curr"));
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
+        crafted = irc.getBoolean(name + ".crafted", false);
+        dropped = irc.getBoolean(name + ".dropped", false);
+        final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
+        this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
+        final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
         lastLoc = loc == null ? null : new WXYZ(loc);
         if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
 
@@ -170,7 +170,7 @@ public abstract class SpecialItem implements Keyed {
 
     public void save(final ItemStack curr) {
         Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME);
+            final OConfig irc = Cfg.manager.config(CON_NAME, true);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
             irc.set(name + ".curr", curr);
 
@@ -182,7 +182,7 @@ public abstract class SpecialItem implements Keyed {
 
     public void saveAll(final ItemStack curr) {
         Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME);
+            final OConfig irc = Cfg.manager.config(CON_NAME, true);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
             irc.set(name + ".org", ItemUtil.write(item));
             irc.set(name + ".curr", curr);

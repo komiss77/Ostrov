@@ -238,7 +238,7 @@ public class Ostrov extends JavaPlugin {
 //    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-      logger.debug(s);//logger.debug(TCUtil.form(s));
+        logger.debug(TCUtil.form(s));
     }
 
     public static void log_ok(String s) {
@@ -277,11 +277,11 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void log_warn(String s) {
-      logger.warn(s);//logger.warn(TCUtil.form(s));
+        logger.warn(TCUtil.form(s));
     }
 
     public static void log_err(String s) {
-      logger.warn(s);//logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
+        logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
         if (LocalDB.useLocalData && LocalDB.connection != null) {
             try (PreparedStatement pst1 = LocalDB.connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);")) {
                 pst1.setString(1, s);

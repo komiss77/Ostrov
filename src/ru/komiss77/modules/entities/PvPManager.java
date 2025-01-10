@@ -268,16 +268,15 @@ public class PvPManager implements Initiable {
                                 break;
                         }
 
-                        final ItemStack targetHand;
+                        final ItemStack tgtHand;
                         final LivingEntity target = (LivingEntity) e.getEntity();
                         if (target.getType() == EntityType.PLAYER) {//# v P
                             final Player tgtPl = (Player) target;
                             if (damager instanceof final Player dmgrPl) {//P v P
-                                targetHand = tgtPl.getInventory().getItemInMainHand();
-                                final Material mt = targetHand.getType();
-                                if (tgtPl.hasCooldown(mt) && CAN_PARRY.contains(mt.asItemType())) {
+                                tgtHand = tgtPl.getInventory().getItemInMainHand();
+                                if (tgtPl.hasCooldown(tgtHand) && CAN_PARRY.contains(tgtHand.getType().asItemType())) {
                                     tgtPl.getWorld().playSound(tgtPl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                    tgtPl.setCooldown(mt, 0);
+                                    tgtPl.setCooldown(tgtHand, 0);
                                     if (!e.isCritical()) {
                                         e.setDamage(0d);
                                         e.setCancelled(true);
@@ -301,8 +300,9 @@ public class PvPManager implements Initiable {
                                     && MELEE.contains(damagerHand.getType().asItemType())) {
                                     final ItemStack ofh = inv.getItemInOffHand();
                                     if (ItemUtil.isBlank(ofh, false)) {
-                                        if (tgtPl.isBlocking() && !tgtPl.hasCooldown(Material.SHIELD)) {
-                                            tgtPl.setCooldown(Material.SHIELD, 40);
+                                        final ItemStack shld = ItemType.SHIELD.createItemStack();
+                                        if (tgtPl.isBlocking() && !tgtPl.hasCooldown(shld)) {
+                                            tgtPl.setCooldown(shld, 40);
                                             tgtPl.playEffect(EntityEffect.SHIELD_BREAK);
                                             return;
 //                                                final PlayerInventory ti = tpl.getInventory();
@@ -336,11 +336,10 @@ public class PvPManager implements Initiable {
                             } else {
                                 final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                 if (dbe != null) {//B v P
-                                    targetHand = tgtPl.getInventory().getItemInMainHand();
-                                    final Material mt = targetHand.getType();
-                                    if (tgtPl.hasCooldown(mt) && CAN_PARRY.contains(mt.asItemType())) {
+                                    tgtHand = tgtPl.getInventory().getItemInMainHand();
+                                    if (tgtPl.hasCooldown(tgtHand) && CAN_PARRY.contains(tgtHand.getType().asItemType())) {
                                         tgtPl.getWorld().playSound(tgtPl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                        tgtPl.setCooldown(mt, 0);
+                                        tgtPl.setCooldown(tgtHand, 0);
                                         if (!e.isCritical()) {
                                             e.setDamage(0d);
                                             e.setCancelled(true);
@@ -364,7 +363,7 @@ public class PvPManager implements Initiable {
                                         final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                                         if (ItemUtil.isBlank(ofh, false)) {
                                             if (tgtPl.isBlocking()) {
-                                                tgtPl.setCooldown(Material.SHIELD, 40);
+                                                tgtPl.setCooldown(ItemType.SHIELD.createItemStack(), 40);
                                                 tgtPl.playEffect(EntityEffect.SHIELD_BREAK);
                                             }
                                         } else if (MELEE.contains(ofh.getType().asItemType())
@@ -386,9 +385,9 @@ public class PvPManager implements Initiable {
                             final Botter tbe = Cfg.bots ? BotManager.getBot(target.getEntityId()) : null;
                             if (tbe != null) {// # v B
                                 if (damager instanceof final Player dmgrPl) {// P v B
-                                    targetHand = tbe.item(EquipmentSlot.HAND);
-                                    if (targetHand != null) {
-                                        final Material mt = targetHand.getType();
+                                    tgtHand = tbe.item(EquipmentSlot.HAND);
+                                    if (tgtHand != null) {
+                                        final Material mt = tgtHand.getType();
                                         if (tbe.isParrying(target) && MELEE.contains(mt.asItemType())) {
                                             target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
                                             tbe.parrying(target, false);
@@ -464,9 +463,9 @@ public class PvPManager implements Initiable {
                                 } else {
                                     final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
                                     if (dbe != null) {// B v B
-                                        targetHand = tbe.item(EquipmentSlot.HAND);
-                                        if (targetHand != null) {
-                                            final Material mt = targetHand.getType();
+                                        tgtHand = tbe.item(EquipmentSlot.HAND);
+                                        if (tgtHand != null) {
+                                            final Material mt = tgtHand.getType();
                                             if (tbe.isParrying(target) && MELEE.contains(mt.asItemType())) {
                                                 target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
                                                 tbe.parrying(target, false);
@@ -714,11 +713,12 @@ public class PvPManager implements Initiable {
                 public void onIntr(final PlayerInteractEvent e) {
                     final InventoryView iv = e.getPlayer().getOpenInventory();
                     switch (iv.getType()) {
-                        case CRAFTING, CREATIVE: return;
+                        case CRAFTING, CREATIVE, PLAYER: break;
                         default:
                             e.setCancelled(true);
                             e.setUseInteractedBlock(Event.Result.DENY);
                             e.setUseItemInHand(Event.Result.DENY);
+                            return;
                     }
 
                     switch (e.getAction()) {
@@ -728,16 +728,15 @@ public class PvPManager implements Initiable {
                             final Player p = e.getPlayer();
                             final ItemStack it = e.getItem();
                             if (!ItemUtil.isBlank(it, false)) {
-                                final Material mt = it.getType();
-                                if (e.getHand() == EquipmentSlot.HAND && !p.hasCooldown(mt)
-                                    && CAN_PARRY.contains(mt.asItemType()) && p.getAttackCooldown() == 1f) {
+                                if (e.getHand() == EquipmentSlot.HAND && !p.hasCooldown(it)
+                                    && CAN_PARRY.contains(it.getType().asItemType()) && p.getAttackCooldown() == 1f) {
                                     final ItemStack ofh = p.getInventory().getItemInOffHand();
                                     if (ItemUtil.isBlank(ofh, false)) {
                                         p.getWorld().playSound(p.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
                                         p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK,
                                             p.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
                                         p.addPotionEffect(slw);
-                                        p.setCooldown(mt, 36);
+                                        p.setCooldown(it, 36);
                                         p.getInventory().setItemInMainHand(ItemUtil.air);
                                         p.getInventory().setItemInMainHand(it);
                                     }
@@ -753,12 +752,11 @@ public class PvPManager implements Initiable {
                 public void onHit(final ProjectileHitEvent e) {
                     if (e.getHitEntity() instanceof final Player pl) {
                         final ItemStack hnd = pl.getInventory().getItemInMainHand();
-                        final Material mt = hnd.getType();
-                        if (pl.hasCooldown(mt) && CAN_PARRY.contains(mt.asItemType())) {
+                        if (pl.hasCooldown(hnd) && CAN_PARRY.contains(hnd.getType().asItemType())) {
                             e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(-0.6d));
                             pl.getWorld().playSound(pl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
                             pl.removePotionEffect(PotionEffectType.MINING_FATIGUE);
-                            pl.setCooldown(mt, 0);
+                            pl.setCooldown(hnd, 0);
                             pl.swingMainHand();
                             e.setCancelled(true);
                         }

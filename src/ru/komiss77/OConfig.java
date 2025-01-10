@@ -8,36 +8,44 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-
 public class OConfig {
 
-    //private static final String LOAD = "load";
+    private static final String LOAD = "load";
 
     private int comments;
     //private final OstrovConfigManager manager;
 
+    private final boolean load; //стало пихать во все конфиги, перенёс в ItemGroup - переделал бы по нормальному вместо того чтоб убирать
     private final File file;
-    //private final boolean load; //стало пихать во все конфиги, перенёс в ItemGroup
     protected FileConfiguration config;
 
     public OConfig(final File configFile, final int comments) {
         this.comments = comments;
-        //this.manager = new OstrovConfigManager(plugin);
 
         this.file = configFile;
-        //this.config = YamlConfiguration.loadConfiguration(configStream);
         this.config = YamlConfiguration.loadConfiguration(configFile);
-        if (config.contains("load")) {
-            //config.set(LOAD, false);
-            //saveConfig();
-            // load = false;
-            //load = config.getBoolean(LOAD);
-            config.set("load", null);
-            saveConfig();
-        }
+        load = config.getBoolean(LOAD);
     }
 
-    //public boolean load() {return load;}
+    public OConfig(final File configFile, final int comments, final boolean loadable) {
+        this.comments = comments;
+
+        this.file = configFile;
+        this.config = YamlConfiguration.loadConfiguration(configFile);
+        if (loadable) {
+            if (!config.contains(LOAD)) {
+                config.set(LOAD, false);
+                load = false;
+                return;
+            }
+            load = config.getBoolean(LOAD);
+            saveConfig();
+            return;
+        }
+        load = false;
+    }
+
+    public boolean load() {return load;}
 
     public Object get(String path) {
         return this.config.get(path);
@@ -144,18 +152,13 @@ public class OConfig {
     }
 
     public void set(String path, Object value, String[] comment) {
-
-        for (String comm : comment) {
-
+        for (final String comm : comment) {
             if (!this.config.contains(path)) {
                 this.config.set(Cfg.manager.getPluginName() + "_COMMENT_" + comments, " " + comm);
                 comments++;
             }
-
         }
-
         this.config.set(path, value);
-
     }
 
     public void setHeader(String[] header) {
@@ -177,7 +180,7 @@ public class OConfig {
 
     public Set<String> getKeys() {
         final Set<String> keys = config.getKeys(false);
-        //keys.remove(LOAD);
+        keys.remove(LOAD);
         return keys;
     }
 

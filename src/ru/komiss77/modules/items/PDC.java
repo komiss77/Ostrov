@@ -24,7 +24,7 @@ public class PDC implements DataComponentType.Valued<PDC.Data> {
 
         @ApiStatus.Internal
         @Deprecated(forRemoval = true)
-        public boolean add(Duo<NamespacedKey, Serializable> e) {
+        public boolean add(final Duo<NamespacedKey, Serializable> e) {
             return super.add(e);
         }
     }

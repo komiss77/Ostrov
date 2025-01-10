@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
-import ru.komiss77.utils.FastMath;
+import ru.komiss77.utils.NumUtil;
 
 public class WXYZ extends XYZ {
 
@@ -165,6 +165,6 @@ public class WXYZ extends XYZ {
     }
 
     public int dist2DSq(final WXYZ at) {
-        return FastMath.square(at.x - x) + FastMath.square(at.z - z);
+        return NumUtil.square(at.x - x) + NumUtil.square(at.z - z);
     }
 }

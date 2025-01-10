@@ -63,7 +63,34 @@ public class OConfigManager {
 
         }
         return new OConfig(file, this.getCommentsNum(file));
+    }
 
+    /**
+     * Get new configuration with header
+     * @param path Path to file
+     * @return New SimpleConfig
+     */
+    public OConfig config(final String path, final boolean loadable) {
+        return this.config(path, null, loadable);
+    }
+
+    /**
+     * Get new configuration with header
+     * @param path Path to file
+     * @return New SimpleConfig
+     */
+    public OConfig config(final String path, final @Nullable String[] header, final boolean loadable) {
+        final File file = this.getConfigFile(path);
+        if (file == null) return Cfg.getConfig();
+        if (!file.exists()) {
+            this.prepareFile(path);
+
+            if (header != null && header.length != 0) {
+                this.setHeader(file, header);
+            }
+
+        }
+        return new OConfig(file, this.getCommentsNum(file), loadable);
     }
 
     /**
@@ -71,22 +98,18 @@ public class OConfigManager {
      * @param file - File path
      * @return - New file object
      */
-    private File getConfigFile(final String file) {
-
+    private @Nullable File getConfigFile(final String file) {
         if (file == null || file.isEmpty()) {
             return null;
         }
 
         File configFile;
-
         if (file.contains("/")) {
-
             if (file.startsWith("/")) {
                 configFile = new File(plugin.getDataFolder() + file.replace("/", File.separator));
             } else {
                 configFile = new File(plugin.getDataFolder() + File.separator + file.replace("/", File.separator));
             }
-
         } else {
             configFile = new File(plugin.getDataFolder(), file);
         }

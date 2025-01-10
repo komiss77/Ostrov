@@ -123,7 +123,7 @@ public interface InventoryContent {
         public Impl(SmartInventory inv, Player player) {
             this.inv = inv;
             this.player = player;
-            this.contents = new ClickableItem[inv.getRows()][inv.getColumns()];
+            this.contents = new ClickableItem[inv.rows()][inv.columns()];
         }
 
 
@@ -160,7 +160,7 @@ public interface InventoryContent {
 
         @Override
         public SlotIterator newIterator(String id, SlotIterator.Type type, SlotPos startPos) {
-            return newIterator(id, type, startPos.getRow(), startPos.getColumn());
+            return newIterator(id, type, startPos.row(), startPos.column());
         }
 
         @Override
@@ -170,7 +170,7 @@ public interface InventoryContent {
 
         @Override
         public SlotIterator newIterator(SlotIterator.Type type, SlotPos startPos) {
-            return newIterator(type, startPos.getRow(), startPos.getColumn());
+            return newIterator(type, startPos.row(), startPos.column());
         }
 
         @Override
@@ -193,7 +193,7 @@ public interface InventoryContent {
         public Optional<SlotPos> firstEmpty() {
             for (int row = 0; row < contents.length; row++) {
                 for (int column = 0; column < contents[0].length; column++) {
-                    if (!this.get(row, column).isPresent())
+                    if (this.get(row, column).isEmpty())
                         return Optional.of(new SlotPos(row, column));
                 }
             }
@@ -203,7 +203,7 @@ public interface InventoryContent {
 
         @Override
         public Optional<ClickableItem> get(int index) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             return get(index / columnCount, index % columnCount);
         }
@@ -220,7 +220,7 @@ public interface InventoryContent {
 
         @Override
         public Optional<ClickableItem> get(SlotPos slotPos) {
-            return get(slotPos.getRow(), slotPos.getColumn());
+            return get(slotPos.row(), slotPos.column());
         }
 
         @Override
@@ -242,9 +242,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent set(int index, ClickableItem item) {
-            int columnCount = this.inv.getColumns();
-
-            return set(index / columnCount, index % columnCount, item);
+            return set(index / inv.columns(), index % inv.columns(), item);
         }
 
         @Override
@@ -261,7 +259,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent set(SlotPos slotPos, ClickableItem item) {
-            return set(slotPos.getRow(), slotPos.getColumn(), item);
+            return set(slotPos.row(), slotPos.column(), item);
         }
 
         @Override
@@ -280,7 +278,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent updateItem(int index, ItemStack itemStack) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             return updateItem(index / columnCount, index % columnCount, itemStack);
         }
@@ -289,7 +287,7 @@ public interface InventoryContent {
         public InventoryContent updateItem(int row, int column, ItemStack itemStack) {
             Optional<ClickableItem> optional = get(row, column);
 
-            if (!optional.isPresent()) {
+            if (optional.isEmpty()) {
                 set(row, column, ClickableItem.empty(itemStack));
                 return this;
             }
@@ -301,7 +299,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent updateItem(SlotPos slotPos, ItemStack itemStack) {
-            return updateItem(slotPos.getRow(), slotPos.getColumn(), itemStack);
+            return updateItem(slotPos.row(), slotPos.column(), itemStack);
         }
 
         @Override
@@ -357,13 +355,13 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillBorders(ClickableItem item) {
-            fillRect(0, 0, inv.getRows() - 1, inv.getColumns() - 1, item);
+            fillRect(0, 0, inv.rows() - 1, inv.columns() - 1, item);
             return this;
         }
 
         @Override
         public InventoryContent fillRect(int fromIndex, int toIndex, ClickableItem item) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             return fillRect(
                 fromIndex / columnCount, fromIndex % columnCount,
@@ -386,12 +384,12 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillRect(SlotPos fromPos, SlotPos toPos, ClickableItem item) {
-            return fillRect(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
+            return fillRect(fromPos.row(), fromPos.column(), toPos.row(), toPos.column(), item);
         }
 
         @Override
         public InventoryContent fillSquare(int fromIndex, int toIndex, ClickableItem item) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             return fillSquare(
                 fromIndex / columnCount, fromIndex % columnCount,
@@ -415,7 +413,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillSquare(SlotPos fromPos, SlotPos toPos, ClickableItem item) {
-            return fillSquare(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
+            return fillSquare(fromPos.row(), fromPos.column(), toPos.row(), toPos.column(), item);
         }
 
         @Override
@@ -425,14 +423,14 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillPattern(Pattern<ClickableItem> pattern, int startIndex) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
 
             return fillPattern(pattern, startIndex / columnCount, startIndex % columnCount);
         }
 
         @Override
         public InventoryContent fillPattern(Pattern<ClickableItem> pattern, SlotPos startPos) {
-            return fillPattern(pattern, startPos.getRow(), startPos.getColumn());
+            return fillPattern(pattern, startPos.row(), startPos.column());
         }
 
         @Override
@@ -442,7 +440,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillPatternRepeating(Pattern<ClickableItem> pattern, int startIndex, int endIndex) {
-            int columnCount = this.inv.getColumns();
+            int columnCount = this.inv.columns();
             boolean maxSize = endIndex < 0;
 
             return fillPatternRepeating(pattern, startIndex / columnCount, startIndex % columnCount, (maxSize ? -1 : endIndex / columnCount), (maxSize ? -1 : endIndex % columnCount));
@@ -453,9 +451,9 @@ public interface InventoryContent {
             Preconditions.checkArgument(pattern.isWrapAround(), "To fill in a repeating pattern wrapAround needs to be enabled for the pattern to work!");
 
             if (endRow < 0)
-                endRow = this.inv.getRows();
+                endRow = this.inv.rows();
             if (endColumn < 0)
-                endColumn = this.inv.getColumns();
+                endColumn = this.inv.columns();
 
             Preconditions.checkArgument(startRow < endRow, "The start row needs to be lower than the end row");
             Preconditions.checkArgument(startColumn < endColumn, "The start column needs to be lower than the end column");
@@ -474,7 +472,7 @@ public interface InventoryContent {
 
         @Override
         public InventoryContent fillPatternRepeating(Pattern<ClickableItem> pattern, SlotPos startPos, SlotPos endPos) {
-            return fillPatternRepeating(pattern, startPos.getRow(), startPos.getColumn(), endPos.getRow(), endPos.getColumn());
+            return fillPatternRepeating(pattern, startPos.row(), startPos.column(), endPos.row(), endPos.column());
         }
 
         @Override
@@ -510,11 +508,10 @@ public interface InventoryContent {
         }
 
         private void update(int row, int column, ItemStack item) {
-            if (!InventoryManager.getOpenedPlayers(inv).contains(player))
-                return;
+            if (!InventoryManager.getOpenedPlayers(inv).contains(player)) return;
 
-            Inventory topInventory = player.getOpenInventory().getTopInventory();
-            topInventory.setItem(inv.getColumns() * row + column, item);
+            player.getOpenInventory().getTopInventory()
+                .setItem(inv.columns() * row + column, item);
         }
 
         @Override

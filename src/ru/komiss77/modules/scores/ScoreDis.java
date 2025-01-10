@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.persistence.PersistentDataType;
@@ -19,6 +18,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.events.ScoreWorldRecordEvent;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.ThreadSafe;
+import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -33,17 +33,20 @@ public class ScoreDis {
     private final HashMap<String, Integer> stats = new HashMap<>();
     private final ArrayList<String> ranks = new ArrayList<>();
 
+    private static final double MARGIN = 1d;
     public ScoreDis(final String name, final WXYZ loc, final int length, final boolean isAsc) {
         this.score = name;
         this.loc = loc;
         this.length = length;
         this.isAsc = isAsc;
         final Location lc = loc.getCenterLoc();
-        lc.getChunk().load();
-        lc.getChunk().setForceLoaded(true);
-        final TextDisplay td = loc.w.spawn(lc, TextDisplay.class);
-        ScoreManager.lists.put(disp = modify(td), this);
-        reanimate(td);
+        lc.getWorld().getChunkAtAsync(lc).thenAccept(ch -> {
+            final TextDisplay near = LocUtil.getClsChEnt(lc, MARGIN, TextDisplay.class, null);
+            final TextDisplay td = near == null ? loc.w.spawn(lc, TextDisplay.class) : near;
+            ScoreManager.lists.put(disp = modify(td), this);
+            reanimate(td);
+            ch.setForceLoaded(true);
+        });
     }
 
     private UUID modify(final TextDisplay td) {
@@ -59,15 +62,7 @@ public class ScoreDis {
         return td.getUniqueId();
     }
 
-    public void reanimate(@Nullable final Entity dis) {
-        final TextDisplay td;
-        if (dis == null || dis.getType() != EntityType.TEXT_DISPLAY) {
-            td = loc.w.spawn(loc.getCenterLoc(), TextDisplay.class);
-            ScoreManager.lists.remove(disp);
-            ScoreManager.lists.put(disp = modify(td), this);
-        } else {
-            td = (TextDisplay) dis;
-        }
+    public void reanimate(final TextDisplay dis) {
         final StringBuilder sb = new StringBuilder();
         sb.append(score).append("\n\n");
         for (int i = 0; i < length; i++) {
@@ -86,25 +81,25 @@ public class ScoreDis {
             }
         }
         final String text = sb.toString();
-        td.text(TCUtil.form(score));
+        dis.text(TCUtil.form(score));
         new BukkitRunnable() {
-            Entity etd = td;
+            TextDisplay etd = dis;
             int i = score.length() + 1;
 
             @Override
             public void run() {
                 if (etd == null || !etd.isValid()) {
-                    etd = loc.w.getEntity(disp);
+                    if (loc.w.getEntity(disp) instanceof final TextDisplay td) etd = td;
                     return;
                 }
 
                 if ((i++) == text.length()) {
-                    ((TextDisplay) etd).text(TCUtil.form(text));
+                    etd.text(TCUtil.form(text));
                     cancel();
                     return;
                 }
 
-                td.text(TCUtil.form(text.substring(0, i)));
+                etd.text(TCUtil.form(text.substring(0, i)));
             }
         }.runTaskTimer(Ostrov.instance, 2, 2);
     }
@@ -146,7 +141,7 @@ public class ScoreDis {
         if (plc == 1) {
             new ScoreWorldRecordEvent(name, amt, this).callEvent();
         }
-        reanimate(getEntity());
+        reanimate(display());
         return true;
     }
 
@@ -176,10 +171,10 @@ public class ScoreDis {
         for (final String nm : cpd.keySet()) {
             stats.remove(nm);
         }
-        Ostrov.sync(() -> reanimate(loc.w.getEntity(disp)));
+        Ostrov.sync(() -> reanimate(display()));
     }
 
-    public String toDisplay(final Integer amt) {
+    public static String toDisplay(final Integer amt) {
         return amt == null ? "--" : String.valueOf((int) amt);
     }
 
@@ -187,24 +182,23 @@ public class ScoreDis {
         return place <= ranks.size() && ranks.get(Math.max(1, place) - 1).equals(name);
     }
 
-    public @Nullable Integer getAmt(final String name) {
+    public @Nullable Integer amount(final String name) {
         return stats.get(name);
     }
 
-    public @Nullable Entity getEntity() {
-        return loc.w.getEntity(disp);
+    public @Nullable TextDisplay display() {
+        return loc.w.getEntity(disp) instanceof final TextDisplay td ? td : null;
     }
 
     public void remove() {
-        final Entity ent = getEntity();
-        if (ent != null) {
-            ent.remove();
-        }
+        final Entity ent = display();
+        if (ent != null) ent.remove();
         ScoreManager.lists.remove(disp);
     }
 
     @Override
     public boolean equals(final Object o) {
+        if (this == o) return true;
         return o instanceof ScoreDis && ((ScoreDis) o).score.equals(score);
     }
 

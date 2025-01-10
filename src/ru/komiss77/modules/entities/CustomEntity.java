@@ -85,8 +85,6 @@ public abstract class CustomEntity implements Keyed {
 
     protected abstract void onShoot(final ProjectileLaunchEvent e);
 
-    protected abstract void onExtra(final EntityEvent e);
-
     @Override
     public NamespacedKey getKey() {
         return key;

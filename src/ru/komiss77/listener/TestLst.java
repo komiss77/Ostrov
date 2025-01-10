@@ -1,7 +1,5 @@
 package ru.komiss77.listener;
 
-import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.Tool;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -14,7 +12,6 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.Botter;
@@ -45,6 +42,7 @@ public class TestLst implements Listener {
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
+//        Nms.totemPop(p, ItemUtil.nextPage);
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
         if (!ApiOstrov.isLocalBuilder(p)) return;
         final Oplayer op = PM.getOplayer(p);
@@ -58,9 +56,7 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
 
-              if (p.isSneaking()) {
-                  final Tool tl = ItemType.IRON_PICKAXE.getDefaultData(DataComponentTypes.TOOL);
-                  p.sendMessage(tl.damagePerBlock() + ", " + tl.defaultMiningSpeed() + ", " + tl.rules().stream().map(r -> r.speed() + "' " + r.correctForDrops().name() + "' " + r.blocks().iterator().next().key().value()).toList().toString());
+                if (p.isSneaking()) {
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   wb = Bukkit.createWorldBorder();
@@ -70,11 +66,11 @@ public class TestLst implements Listener {
                 p.setWorldBorder(wb);
                 p.sendMessage("setSize(10) wb=" + wb);*/
 
-                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
-                //op.tag(true);
-                //op.tag("<blue>dddd", "<yellow>dddf");
+                    //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, -100, 0), true);
+                    //op.tag(true);
+                    //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
-                //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
+                    //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   p.sendMessage("wb = null");
@@ -82,8 +78,8 @@ public class TestLst implements Listener {
                   p.sendMessage("wb =" + wb + " world=" + (wb.getWorld() == null ? wb.getWorld() : wb.getWorld().getName())
                       + " center=" + wb.getCenter() + " size=" + wb.getSize());
                 }*/
-                //op.tag(false);
-                //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
+                    //op.tag(false);
+                    //MoveUtil.teleportSave(p, p.getLocation().clone().add(0, 100, 0), true);
                    /* final BlockData gold = BlockType.GOLD_BLOCK.createBlockData();
                     LocUtil.trace(p.getEyeLocation(), p.getEyeLocation().getDirection(), 10d, (bp, bd) -> {
                         p.sendBlockChange(bp.toLocation(p.getWorld()), gold);
@@ -151,7 +147,7 @@ public class TestLst implements Listener {
                     p.sendMessage("§3teleportSave DOWN");
                     final Location loc = p.getLocation().clone().add(0, -100, 0);
 //                    long t = System.currentTimeMillis();
-                  //MoveUtil.safeTP(p, loc, true);
+                    //MoveUtil.safeTP(p, loc, true);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);
@@ -163,7 +159,7 @@ public class TestLst implements Listener {
                     final Location loc = p.getLocation();
                     loc.setY(loc.getWorld().getMaxHeight());
 //                    long t = System.currentTimeMillis();
-                  //MoveUtil.safeTP(p, loc, true);
+                    //MoveUtil.safeTP(p, loc, true);
                     /*p.sendMessage("n-" + (System.currentTimeMillis() - t));
                     t = System.currentTimeMillis();
                     MoveUtil.teleportSave(p, loc, true);

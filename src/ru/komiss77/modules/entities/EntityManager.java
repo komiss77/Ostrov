@@ -4,12 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import com.destroystokyo.paper.event.entity.WitchReadyPotionEvent;
-import io.papermc.paper.event.entity.EntityFertilizeEggEvent;
-import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -123,7 +119,7 @@ public class EntityManager implements Initiable, Listener {
         if (he != null) he.onShoot(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onExtra(final ProjectileHitEvent e) {
         if (e.getEntity().getShooter() instanceof final Mob mb) {
             final CustomEntity he = CustomEntity.get(mb);
@@ -189,5 +185,5 @@ public class EntityManager implements Initiable, Listener {
     private static void extraEvent(final EntityEvent e) {
         final CustomEntity he = CustomEntity.get(e.getEntity());
         if (he != null) he.onExtra(e);
-    }
+    }*/
 }

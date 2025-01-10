@@ -45,23 +45,35 @@ public class NumUtil {
         return (i + (i >>= 63)) ^ i;
     }
 
-    public static int absDec(final int a, final int b) {
+    public static int absMax(final int a, final int b) {
         return abs(a) < abs(b) ? b : a;
     }
 
-    public static float absDec(final float a, final float b) {
+    public static float absMax(final float a, final float b) {
         return Math.abs(a) < Math.abs(b) ? b : a;
     }
 
-    public static double absDec(final double a, final double b) {
+    public static double absMax(final double a, final double b) {
         return Math.abs(a) < Math.abs(b) ? b : a;
     }
 
-    public static double mulDiff(final int a, final int b) {
+    public static int absMin(final int a, final int b) {
+        return abs(a) < abs(b) ? a : b;
+    }
+
+    public static float absMin(final float a, final float b) {
+        return Math.abs(a) < Math.abs(b) ? a : b;
+    }
+
+    public static double absMin(final double a, final double b) {
+        return Math.abs(a) < Math.abs(b) ? a : b;
+    }
+
+    public static int mulDiff(final int a, final int b) {
         return a > b ? a / b : b / a;
     }
 
-    public static double mulDiff(final float a, final float b) {
+    public static float mulDiff(final float a, final float b) {
         return a > b ? a / b : b / a;
     }
 

@@ -6,7 +6,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.items.ItemGroup;
 
 public abstract class Roll<R> {
 
@@ -51,7 +50,7 @@ public abstract class Roll<R> {
     protected static final String EX = "ex";
 
     public Roll<R> save() {
-        final OConfig irc = Cfg.manager.config(CON_NAME);
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
         final String dir = getClass().getSimpleName() + "." + id + ".";
         irc.set(dir + VAL, encode());
         irc.set(dir + NUM, number);
@@ -61,7 +60,7 @@ public abstract class Roll<R> {
     }
 
     public Roll<R> delete() {
-        final OConfig irc = Cfg.manager.config(CON_NAME);
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
         irc.removeKey(getClass().getSimpleName() + "." + id);
         irc.saveConfig();
         return this;
@@ -78,8 +77,8 @@ public abstract class Roll<R> {
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {
         rolls.values().removeIf(rl -> rl.getClass().isAssignableFrom(rlc));
-        final OConfig irc = Cfg.manager.config(CON_NAME);
-        if (!ItemGroup.load) return;
+        final OConfig irc = Cfg.manager.config(CON_NAME, true);
+        if (!irc.load()) return;
         final ConfigurationSection cs = irc.getConfigurationSection(rlc.getSimpleName());
         if (cs == null) return;
         for (final String id : cs.getKeys(false)) {

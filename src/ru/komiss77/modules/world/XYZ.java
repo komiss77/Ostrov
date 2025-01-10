@@ -6,7 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
-import ru.komiss77.utils.FastMath;
+import ru.komiss77.utils.NumUtil;
 
 
 public class XYZ implements Cloneable {
@@ -59,27 +59,27 @@ public class XYZ implements Cloneable {
 
 
     public int distSq(final Location to) {
-        return FastMath.square(to.getBlockX() - x) + FastMath.square(to.getBlockY() - y) + FastMath.square(to.getBlockZ() - z);
+        return NumUtil.square(to.getBlockX() - x) + NumUtil.square(to.getBlockY() - y) + NumUtil.square(to.getBlockZ() - z);
     }
 
     public int distSq(final XYZ to) {
-        return FastMath.square(x - to.x) + FastMath.square(y - to.y) + FastMath.square(z - to.z);
+        return NumUtil.square(x - to.x) + NumUtil.square(y - to.y) + NumUtil.square(z - to.z);
     }
 
     public int distAbs(final Location to) {
-        return FastMath.abs(to.getBlockX() - x) + FastMath.abs(to.getBlockY() - y) + FastMath.abs(to.getBlockZ() - z);
+        return NumUtil.abs(to.getBlockX() - x) + NumUtil.abs(to.getBlockY() - y) + NumUtil.abs(to.getBlockZ() - z);
     }
 
     public int distAbs(final XYZ to) {
-        return FastMath.abs(x - to.x) + FastMath.abs(y - to.y) + FastMath.abs(z - to.z);
+        return NumUtil.abs(x - to.x) + NumUtil.abs(y - to.y) + NumUtil.abs(z - to.z);
     }
 
     public int distAprx(final Location to) {
-        return FastMath.sqrt(distSq(to));
+        return NumUtil.sqrt(distSq(to));
     }
 
     public int distAprx(final XYZ to) {
-        return FastMath.sqrt(distSq(to));
+        return NumUtil.sqrt(distSq(to));
     }
 
 

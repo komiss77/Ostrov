@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import com.destroystokyo.paper.ParticleBuilder;
+import io.papermc.paper.math.Position;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -422,21 +423,34 @@ public class EntityUtil {
     }
 
     public static void effect(final Entity ent, final Sound snd, final float pt, final Particle pr) {
-        final double hd2 = ent.getHeight() * 0.5d;
-        final double wd2 = ent.getWidth() * 0.5d;
-        final Location loc = ent.getLocation().add(0d, hd2, 0d);
+        final double hd2 = ent.getHeight() * 0.55d;
+        final double wd2 = ent.getWidth() * 0.6d;
+        final Location loc = center(ent);
         new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 20d))
             .offset(wd2, hd2, wd2).extra(0d).allPlayers().spawn();
         loc.getWorld().playSound(loc, snd, 1f, pt);
     }
 
     public static void effect(final Entity ent, final Sound snd, final float pt, final Particle pr, final Object data) {
-        final double hd2 = ent.getHeight() * 0.5d;
-        final double wd2 = ent.getWidth() * 0.5d;
-        final Location loc = ent.getLocation().add(0d, hd2, 0d);
+        final double hd2 = ent.getHeight() * 0.55d;
+        final double wd2 = ent.getWidth() * 0.6d;
+        final Location loc = center(ent);
         final ParticleBuilder pb = new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 20d));
         if (data != null && pr.getDataType().isAssignableFrom(data.getClass())) pb.data(data);
         pb.offset(wd2, hd2, wd2).extra(0d).allPlayers().spawn();
+        loc.getWorld().playSound(loc, snd, 1f, pt);
+    }
+
+    private static final double TR_DST = 4d, TR_DEL = 1.4d;
+    private static final int TR_TIME = (int) (TR_DST * TR_DEL);
+    public static void moveffect(final Entity ent, final Sound snd, final float pt, final Color color) {
+        final double hd2 = ent.getHeight() * 0.75d;
+        final double wd2 = ent.getWidth() * 0.75d;
+        final Location loc = center(ent);
+        final Vector vel = ent.getVelocity();
+        final double dY = vel.getY() / (TR_DST * TR_DEL);
+        final Vector dir = new Vector(vel.getX(), vel.getY() - Math.abs(dY), vel.getZ()).multiply(TR_DST);
+        PartUtil.trail(loc, dir.add(vel.normalize()), (int) (hd2 * wd2 * 40d), Position.fine(wd2, hd2, wd2), color, TR_TIME);
         loc.getWorld().playSound(loc, snd, 1f, pt);
     }
 

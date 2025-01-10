@@ -162,6 +162,24 @@ public class TCUtil {
                 .build()).build();*/
     }
 
+    public static String bind(final Input key) {
+        return "[<key:key." + key.key + ">]";
+    }
+
+    public enum Input {
+        FORWARD, BACK, RIGHT, LEFT, DROP, ATTACK, USE,
+        JUMP, SPRINT, SNEAK, INVENTORY, ADVANCEMENTS;
+        private final String key = name().toLowerCase(Locale.US);
+    }
+
+    public static String sided(final String msg, final String side) {
+        return N + side + " " + msg + " " + N + side;
+    }
+
+    public static String sided(final String msg) {
+        return N + "🢖 " + msg + N + " 🢔";
+    }
+
     public static ItemStack changeColor(ItemStack source, byte new_color) {
         DyeColor dc;
         switch (new_color) {
