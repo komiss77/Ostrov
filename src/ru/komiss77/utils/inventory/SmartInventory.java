@@ -29,7 +29,7 @@ public class SmartInventory {
   private Component title;
     private InventoryType type;
     private int rows, columns;
-    private boolean closeable;
+  private boolean closeable, updateViewsOnClick;
     private int updateFrequency;
     private InventoryProvider provider;
     private SmartInventory parent;
@@ -133,20 +133,28 @@ public class SmartInventory {
     }
 
   public Component title() {
-        return title;
-    }
+    return title;
+  }
 
     public InventoryType getType() {
         return type;
     }
 
-    public int getRows() {
-        return rows;
-    }
+  public int getRows() {
+    return rows;
+  }
+
+  public int rows() {
+    return rows;
+  }
 
     public int getColumns() {
-        return columns;
+      return columns;
     }
+
+  public int columns() {
+    return columns;
+  }
 
     public boolean isCloseable() {
         return closeable;
@@ -179,14 +187,18 @@ public class SmartInventory {
         return new Builder();
     }
 
-    public static final class Builder {
+  public boolean updateViewsOnClick() {
+    return updateViewsOnClick;
+  }
+
+  public static final class Builder {
 
         private String id = "unknown";
       private Component title = Component.empty();
         private InventoryType type = InventoryType.CHEST;
         private Optional<Integer> rows = Optional.empty();
         private Optional<Integer> columns = Optional.empty();
-        private boolean closeable = true;
+    private boolean closeable = true, updateViewsOnClick;
         private int updateFrequency = 1;
         //private InventoryManager manager;
         private InventoryProvider provider;
@@ -230,11 +242,16 @@ public class SmartInventory {
         }
 
         public Builder closeable(boolean closeable) {
-            this.closeable = closeable;
-            return this;
+          this.closeable = closeable;
+          return this;
         }
 
-        /**
+    public Builder updateViewsOnClick(boolean updateViewsOnClick) {
+      this.updateViewsOnClick = updateViewsOnClick;
+      return this;
+        }
+
+    /**
          * This method is used to configure the frequency at which the {@link InventoryProvider#update(Player, InventoryContent)}
          * method is called.Defaults to 1
          *
@@ -292,9 +309,13 @@ public class SmartInventory {
             return columns;
         }
 
-        public boolean isCloseable() {
-            return closeable;
-        }
+    public boolean isCloseable() {
+      return closeable;
+    }
+
+    public boolean isUpdateViewsOnClick() {
+      return updateViewsOnClick;
+    }
 
         public int getUpdateFrequency() {
             return updateFrequency;
@@ -331,9 +352,10 @@ public class SmartInventory {
             inv.id = this.id;
             inv.title = this.title;
             inv.type = this.type;
-            inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).getRow());
-            inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).getColumn());
+          inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).row());
+          inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).column());
             inv.closeable = this.closeable;
+          inv.updateViewsOnClick = this.updateViewsOnClick;
             inv.updateFrequency = this.updateFrequency;
             inv.provider = this.provider;
             inv.parent = this.parent;
