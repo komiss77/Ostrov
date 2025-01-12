@@ -19,7 +19,7 @@ public class StringUtil {
     public static final String SPLIT_2 = "" + CHAR_2;
     public static final char CHAR_NA = '○';
     public static final String NA = String.valueOf(CHAR_NA);
-
+    private static final Set<String> NA_SET = Set.of(NA, "na", "null", "NULL", "n/a", "N/A", "none", "NONE");
 
     public static String[] wrap(final String msg, final int length, final String newLine) {
         if (msg.length() < 2) return new String[]{msg};
@@ -109,6 +109,10 @@ public class StringUtil {
         } else {
             return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
         }
+    }
+
+    public static boolean isNA(final String str) {
+        return NA_SET.contains(str);
     }
 
 

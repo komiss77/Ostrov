@@ -255,7 +255,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
                 ParticleUtil.spawnRandomFirework(p.getLocation());
                 final String chatColor = TCUtil.randomColor();
                 p.sendMessage(" ");
-                p.sendMessage(TCUtil.form(chatColor + "§m=-=- §к<obf>AA<!obf> §eВыполнены условия достижения §к<obf>AA<!obf> " + chatColor + "§m-=-="));
+                p.sendMessage(TCUtil.form(chatColor + "<u>=-=-<!u> <obf>AA<!obf> §eВыполнены условия достижения <obf>AA<!obf> " + chatColor + "<u>-=-=<!u>"));
                 p.sendMessage(TCUtil.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
                 p.sendMessage(" ");
                 ad.displayToast(p);

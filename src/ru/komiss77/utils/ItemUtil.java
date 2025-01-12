@@ -849,7 +849,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[2], 0));
+                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -871,7 +871,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[2], 0));
+                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -886,8 +886,9 @@ public class ItemUtil {
                 final String[] parts = str.split(seps[0]);
                 final Equippable.Builder bld = Equippable.equippable(EquipmentSlot.valueOf(parts[0]));
                 if (!ClassUtil.check(parts, 6, false)) return bld.build();
-                return bld.assetId(StringUtil.NA.equals(parts[1]) ? null : Key.key(parts[1])).damageOnHurt(Boolean.parseBoolean(parts[2]))
-                    .dispensable(Boolean.parseBoolean(parts[3])).swappable(Boolean.parseBoolean(parts[4])).equipSound(Key.key(parts[5])).build();
+                if (!StringUtil.isNA(parts[1])) bld.assetId(Key.key(parts[1]));
+                return bld.damageOnHurt(Boolean.parseBoolean(parts[2])).dispensable(Boolean.parseBoolean(parts[3]))
+                    .swappable(Boolean.parseBoolean(parts[4])).equipSound(Key.key(parts[5])).build();
             }
         });
         dp.put(DataComponentTypes.FIREWORKS, new DataParser.Parser<Fireworks>() {
@@ -949,7 +950,8 @@ public class ItemUtil {
                 final String[] parts = str.split(seps[0]);
                 final UseCooldown.Builder bld = UseCooldown.useCooldown(NumUtil.floatOf(parts[0], 0f));
                 if (!ClassUtil.check(parts, 2, false)) return bld.build();
-                return bld.cooldownGroup(Key.key(parts[1])).build();
+                if (!StringUtil.isNA(parts[1])) bld.cooldownGroup(Key.key(parts[1]));
+                return bld.build();
             }
         });
         dp.put(DataComponentTypes.TRIM, new DataParser.Parser<ItemArmorTrim>() {
@@ -987,8 +989,8 @@ public class ItemUtil {
                 final String[] parts = str.split(seps[0]);
                 final PotionContents.Builder bld = PotionContents.potionContents();
                 if (!ClassUtil.check(parts, 2, true)) return bld.build();
-                bld.potion(Registry.POTION.get(Key.key(parts[0])))
-                    .customColor(Color.fromARGB(NumUtil.intOf(parts[1], 0)));
+                bld.potion(Registry.POTION.get(Key.key(parts[0])));
+                if (!StringUtil.isNA(parts[1])) bld.customColor(Color.fromARGB(NumUtil.intOf(parts[1], 0)));
                 for (int i = 2; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 4, false)) continue;

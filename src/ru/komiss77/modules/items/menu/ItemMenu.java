@@ -46,9 +46,6 @@ public class ItemMenu implements InventoryProvider {
                 case 10:
                     invIts[i] = new ItemBuilder(ItemType.QUARTZ).name("§bЗначение Модели").build();
                     break;
-                case 4:
-                    invIts[i] = new ItemBuilder(ItemType.AIR).build();
-                    break;
                 case 3, 5:
                     invIts[i] = new ItemBuilder(ItemType.HANGING_ROOTS).build();
                     break;
