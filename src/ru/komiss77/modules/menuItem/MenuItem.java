@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.modules.translate.Lang;
@@ -23,9 +23,8 @@ public class MenuItem {
     public final int id;
     public final String name;
     public int slot;
-    public boolean forceGive, give_on_join, give_on_respavn, give_on_world_change;
+    public boolean forced, give_on_join, give_on_respavn, give_on_world_change;
     public boolean duplicate; //выдавать, если уже есть
-    public boolean anycase; //если слот занят, предмет из слота будет дропнут и поставлен менюитем
     public boolean can_move, can_drop, can_pickup, can_swap_hand;
     public boolean can_interact; //даёт ПКМ например для лука или ракеты
     public Consumer<Player> on_left_click, on_right_click, on_left_sneak_click, on_right_sneak_click;
@@ -58,27 +57,48 @@ public class MenuItem {
         return itemRu;
     }
 
+    public ItemType getType() {
+        return itemRu.getType().asItemType();
+    }
+
     public Material getMaterial() {
         return itemRu.getType();
     }
 
     public boolean give(final Player p) {
         if (!duplicate) { //если дубликаты не даём, быстрый чек по инвентарю
-            for (final ItemStack is : p.getInventory().getContents()) {
-                if (MenuItemsManager.idFromItemStack(is) == id) {
-                    return false;
+            if (forced) {
+                final ItemStack there = p.getInventory().getItem(slot);
+                if (MenuItemsManager.idFromItemStack(there) == id) return false;
+            } else {
+                for (final ItemStack is : p.getInventory().getContents()) {
+                    if (MenuItemsManager.idFromItemStack(is) == id) return false;
                 }
             }
         }
-        final boolean ru = p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-        ItemUtil.giveItemTo(p, ru ? itemRu : itemEn, slot, false);
-        return true;
-//System.out.println("================ SpecItem give name="+name);
-        // return ItemUtils.Add_to_inv(p, slot, item.clone(), anycase, false); //менюшки нокогда не дублируем!!
+        return ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
+            .equals("ru_ru") ? itemRu : itemEn, slot, forced);
     }
 
+    public boolean give(final Player p, final int cSlot) {
+        if (!duplicate) { //если дубликаты не даём, быстрый чек по инвентарю
+            if (forced && !can_move) {
+                final ItemStack there = p.getInventory().getItem(cSlot);
+                if (MenuItemsManager.idFromItemStack(there) == id) return false;
+            } else {
+                for (final ItemStack is : p.getInventory().getContents()) {
+                    if (MenuItemsManager.idFromItemStack(is) == id) return false;
+                }
+            }
+        }
+        return ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
+            .equals("ru_ru") ? itemRu : itemEn, cSlot, forced);
+    }
+
+    @Deprecated
     public void giveForce(final Player p) {
-        if (!duplicate) { //чекать тут отдельно, или ItemUtils.giveItemTo делает дубль при force
+        give(p);
+        /*if (!duplicate) { //чекать тут отдельно, или ItemUtils.giveItemTo делает дубль при force
             final PlayerInventory inv = p.getInventory();
             final ItemStack curr = inv.getItem(slot);
             final MenuItem mi = MenuItemsManager.fromItemStack(curr);
@@ -87,12 +107,14 @@ public class MenuItem {
             }
         }
         ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
-            .equals("ru_ru") ? itemRu : itemEn, slot, true);
+            .equals("ru_ru") ? itemRu : itemEn, slot, true);*/
     }
 
-    public void giveForce(final Player p, final int customSlot) {
-        ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
-            .equals("ru_ru") ? itemRu : itemEn, customSlot, true);
+    @Deprecated
+    public void giveForce(final Player p, final int cSlot) {
+        give(p, cSlot);
+        /*ItemUtil.giveItemTo(p, p.getClientOption(ClientOption.LOCALE)
+            .equals("ru_ru") ? itemRu : itemEn, cSlot, true);*/
     }
 
     @Deprecated//ничего не делает...

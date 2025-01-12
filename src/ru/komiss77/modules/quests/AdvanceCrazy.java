@@ -16,13 +16,13 @@ import eu.endercentral.crazy_advancements.event.AdvancementScreenCloseEvent;
 import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
@@ -111,7 +111,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
         final Advancement adv = adm.get(qst);
         if (adv != null) return adv;
 
-        final AdvancementDisplay dis = new AdvancementDisplay(qst.icon, qst.displayName, qst.description, getFrame(qst), qst.backGround, getVision(qst));
+        final AdvancementDisplay dis = new AdvancementDisplay(qst.icon.createItemStack(),
+            qst.displayName, qst.description, getFrame(qst), qst.backGround, getVision(qst));
         final Advancement ad;
         if (qst.parent.equals(qst)) {
             dis.setCoordinates(qst.dx, qst.dy);
@@ -226,8 +227,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
         sendToast(p, q.icon, "§aНовый квест: " + q.displayName, q.frame);
     }
 
-    public void sendToast(final Player p, final Material mt, final String msg, final QuestFrame frm) {
-        new ToastNotification(mt, msg, switch (frm) {
+    public void sendToast(final Player p, final ItemType mt, final String msg, final QuestFrame frm) {
+        new ToastNotification(mt.createItemStack(), msg, switch (frm) {
             case CHALLENGE -> AdvancementFrame.CHALLENGE;
             case GOAL -> AdvancementFrame.GOAL;
             default -> AdvancementFrame.TASK;

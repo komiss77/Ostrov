@@ -15,7 +15,7 @@ public class MenuItemBuilder {
         si = new MenuItem(name, is);
         //закидываем типовые значения
         si.slot = 8;
-        si.anycase = false;
+        si.forced = false;
         si.can_interact = false;
         si.can_drop = true;
         si.can_move = true;
@@ -31,8 +31,13 @@ public class MenuItemBuilder {
         return this;
     }
 
+    @Deprecated
     public MenuItemBuilder anycase(final boolean value) {
-        si.anycase = value;
+        return forced(value);
+    }
+
+    public MenuItemBuilder forced(final boolean value) {
+        si.forced = value;
         return this;
     }
 

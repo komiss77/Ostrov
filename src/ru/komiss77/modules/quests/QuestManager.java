@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Settings;
@@ -33,19 +33,19 @@ public class QuestManager implements Initiable {
 
     @Override
     public void reload() {
-      onDisable();
-      //if (Cfg.quests) {
-      if (Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI") != null) {
-        Ostrov.log_ok("§2Квесты включены (AdvanceCrazy)");
-        iAdvance = new AdvanceCrazy();
-      } else {
-        Ostrov.log_ok("§2Квесты включены (AdvanceVanila)");
-        iAdvance = new AdvanceVanila();
-      }
-      //} else {
-      //Ostrov.log_ok("§6Квесты выключены!");
-      //iAdvance = null;
-      //}
+        onDisable();
+        //if (Cfg.quests) {
+        if (Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI") != null) {
+            Ostrov.log_ok("§2Квесты включены (AdvanceCrazy)");
+            iAdvance = new AdvanceCrazy();
+        } else {
+            Ostrov.log_ok("§2Квесты включены (AdvanceVanila)");
+            iAdvance = new AdvanceVanila();
+        }
+        //} else {
+        //Ostrov.log_ok("§6Квесты выключены!");
+        //iAdvance = null;
+        //}
 
         //Bukkit.getPluginManager().registerEvents(acr, Ostrov.getInstance());
 //        rt = new Quest('a', Material.STICKY_PISTON, 0, null, null, "parent", "quest desc", "textures/block/muddy_mangrove_roots_side.png", QuestVis.ALWAYS, QuestFrame.TASK, 0);
@@ -61,29 +61,29 @@ public class QuestManager implements Initiable {
 
     @Override
     public void onDisable() {
-      //if (Cfg.quests) {
-      if (iAdvance != null) {
+        //if (Cfg.quests) {
+        if (iAdvance != null) {
             for (final Player pl : Bukkit.getOnlinePlayers()) {
                 iAdvance.resetProgress(pl, true);
             }
-        iAdvance.unregister();//HandlerList.unregisterAll(iAdvance);
-        iAdvance = null;
+            iAdvance.unregister();//HandlerList.unregisterAll(iAdvance);
+            iAdvance = null;
         }
-      //Ostrov.log_ok("§6Квесты выключены!");
-      // }
+        //Ostrov.log_ok("§6Квесты выключены!");
+        // }
     }
 
     public static Quest byCode(final char code) {
-      //if (!Cfg.quests) {
-      //    return null;
-      //}
+        //if (!Cfg.quests) {
+        //    return null;
+        //}
         return Quest.codeMap.get(code);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
     }
 
     public static Quest byName(final String name) {
-      //if (!Cfg.quests) {
-      //    return null;
-      //}
+        //if (!Cfg.quests) {
+        //    return null;
+        //}
         return Quest.nameMap.get(name);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
     }
 
@@ -91,15 +91,15 @@ public class QuestManager implements Initiable {
     @Slow(priority = 1)
     public static List<Quest> getQuests(final Predicate<Quest> pass) {
         final ArrayList<Quest> qs = new ArrayList<>();
-      //if (!Cfg.quests) {
-      //    return qs;
-      //}
+        //if (!Cfg.quests) {
+        //    return qs;
+        //}
         return Quest.nameMap.values().stream().filter(pass).collect(Collectors.toList());
     }
 
     //для квестов где ammount>0
     public static int updatePrg(final Player p, final Oplayer op, final Quest qs) {
-      if (justGame(op)) return 0;
+        if (justGame(op)) return 0;
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
             iAdvance.sendProgress(p, qs, 0, true);
@@ -111,7 +111,7 @@ public class QuestManager implements Initiable {
 
     //для квестов где ammount>0
     public static int updatePrg(final Player p, final Oplayer op, final Quest qs, final IProgress prg, final boolean silent) {
-      if (justGame(op)) return 0;
+        if (justGame(op)) return 0;
 //		p.sendMessage("qs-" + qs.displayName + ", prg=" + prg.getProg() + ", amt=" + prg.getGoal());
         iAdvance.sendProgress(p, qs, prg.getProg(), false);
         if (prg.isDone()) {
@@ -121,17 +121,17 @@ public class QuestManager implements Initiable {
     }
 
     public static void setOnCloseTab(final Consumer<Player> onAdvCls) {
-      //if (disabled()) return;
-      iAdvance.onAdvCls(onAdvCls);
+        //if (disabled()) return;
+        iAdvance.onAdvCls(onAdvCls);
     }
 
     public static void loadQuests() {
-      //if (disabled()) return;
+        //if (disabled()) return;
         iAdvance.buildAdv();
     }
 
     public static void showForPl(final Player p, final Oplayer op) {
-      if (justGame(op)) return;
+        if (justGame(op)) return;
         if (Bukkit.isPrimaryThread()) {
             iAdvance.loadPlQs(p, op);
         } else {
@@ -145,7 +145,7 @@ public class QuestManager implements Initiable {
     //ну, естественно он будет завершен, если был получен и не был завершен, что проверяется выше.
     //checkProgress нужен для отладки из меню квестов (чтобы не засылало в updateProgress и не меняло lp.getProgress)
     public static boolean complete(final Player p, final Oplayer op, final Quest quest) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
 
         if (!Bukkit.isPrimaryThread()) {
             Ostrov.log_warn("Асинхронный вызов tryCompleteQuest :" + quest + ", " + p.getName());
@@ -169,7 +169,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
 
         if (addProgress(p, op, qs, 1)) {
             return true;
@@ -187,7 +187,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final int i) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
 
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
@@ -204,7 +204,7 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final Comparable<?> obj) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
 
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
@@ -225,14 +225,14 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean resetProgress(final Player p, final Oplayer op) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
         iAdvance.resetProgress(p, false);
         op.quests.clear();
         return true;
     }
 
     public static int getProgress(final Oplayer op, final Quest qs) {
-      if (justGame(op)) return 0;
+        if (justGame(op)) return 0;
         final IProgress prg = op.quests.get(qs);
         if (prg == null) {
             return 0;
@@ -241,24 +241,24 @@ public class QuestManager implements Initiable {
     }
 
     public static boolean isComplete(final Oplayer op, final Quest qs) {
-      if (justGame(op)) return false;
+        if (justGame(op)) return false;
         final IProgress prg = op.quests.get(qs);
         return prg != null && prg.isDone();
     }
 
-    public static void sendToast(final Player p, final Material mat, final String msg, final QuestFrame frm) {
-      if (justGame(PM.getOplayer(p))) return;
+    public static void sendToast(final Player p, final ItemType mat, final String msg, final QuestFrame frm) {
+        if (justGame(PM.getOplayer(p))) return;
         iAdvance.sendToast(p, mat, msg, frm);
     }
 
 
-  //private static boolean disabled() {
-  //    if (!Cfg.quests) {
-  //         Ostrov.log_warn("Tried using while Quests are off!");
-  //        return true;
-  //    }
-  //    return false;
-  //}
+    //private static boolean disabled() {
+    //    if (!Cfg.quests) {
+    //         Ostrov.log_warn("Tried using while Quests are off!");
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
     private static boolean justGame(Oplayer op) {
         return op.isGuest || op.hasSettings(Settings.JustGame);

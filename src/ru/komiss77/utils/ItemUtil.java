@@ -29,7 +29,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
-import org.bukkit.block.BlockType;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -53,6 +52,7 @@ import ru.komiss77.modules.items.DataParser;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.items.PDC;
+import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.notes.Slow;
@@ -449,9 +449,11 @@ public class ItemUtil {
             return true;
         } else if (force) {
             inv.setItem(pos, item);                                            //ставим предмет и возврат
+            final MenuItem mi = MenuItemsManager.fromItemStack(there);
+            if (mi != null && mi.forced) return true;
             giveItemsTo(p, there);
             return true;
-        } else if (compareItem(there, item, false)) {//уже есть в слоту
+        } else if (compare(there, item, Stat.TYPE, Stat.NAME, Stat.AMOUNT)) {//уже есть в слоту
             return true;
         } else {
             giveItemsTo(p, item);//кидаем предмет рядом
@@ -683,10 +685,6 @@ public class ItemUtil {
         if (left) {
             ScreenUtil.sendActionBarDirect(p, "§4В твоем инвентаре не было места, предмет выпал рядом!");
         }
-    }
-
-    public static String toString(final ItemStack is) {
-        return toString(is, ":");
     }
 
     private static final String[] seps = {StringUtil.SPLIT_1, StringUtil.SPLIT_2};
@@ -1162,6 +1160,11 @@ public class ItemUtil {
         if (k == null) return null;
         final NamespacedKey key = reg.getKey(k);
         return key == null ? null : key.asMinimalString();
+    }
+
+    @Deprecated
+    public static String toString(final ItemStack is) {
+        return toString(is, ":");
     }
 
     @Deprecated
@@ -1943,6 +1946,7 @@ public class ItemUtil {
         return cls.has(is == null ? Material.AIR : is.getType());
     }
 
+    @Deprecated
     public static boolean isMineCart(final Material type) {
         return switch (type) {
             case MINECART, CHEST_MINECART, FURNACE_MINECART,
@@ -1951,6 +1955,7 @@ public class ItemUtil {
         };
     }
 
+    @Deprecated
     public static boolean isSpawnEgg(final Material type) {
         //switch (type) { пока лень забивать енумы
         //   case EGG, : return true;
@@ -1959,10 +1964,10 @@ public class ItemUtil {
         return type.name().endsWith("_EGG");
     }
 
-  //@Deprecated зачем удалил? нужно на островках
+  @Deprecated
   public static boolean isInteractable(final Material mat) {
-    final BlockType bt = Registry.BLOCK.get(mat.getKey());
-    return bt != null && bt.isInteractable();
+//    final BlockType bt = Registry.BLOCK.get(mat.getKey());??????????????????????????
+    return mat.asBlockType().isInteractable();
   }
 //MySQL Player Data Bridge
 //https://www.spigotmc.org/resources/mysql-inventory-bridge.7849/

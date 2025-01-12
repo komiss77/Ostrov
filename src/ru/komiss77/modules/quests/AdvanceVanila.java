@@ -1,9 +1,9 @@
 package ru.komiss77.modules.quests;
 
 import java.util.function.Consumer;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ScreenUtil;
 
@@ -25,7 +25,7 @@ public class AdvanceVanila implements IAdvance, Listener {
     }
 
     @Override
-    public void sendToast(Player p, Material mt, String msg, Quest.QuestFrame frame) {
+    public void sendToast(Player p, ItemType mt, String msg, Quest.QuestFrame frame) {
         ScreenUtil.sendTitle(p, "", "§7Квест: " + msg, 20, 40, 20);
     }
 

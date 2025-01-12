@@ -47,8 +47,6 @@ public class BuilderCmd implements OCommand {
 
         bmi = new MenuItemBuilder("bmi", buildMenu)
             .slot(0)
-            //.rightClickCmd("builder")
-            //.leftClickCmd("builder")
             .giveOnJoin(false)
             .giveOnWorld_change(false)
             .giveOnRespavn(false)
@@ -98,7 +96,7 @@ public class BuilderCmd implements OCommand {
             }
             if (op.setup == null) {
                 op.setup = new SetupMode(pl);
-                bmi.giveForce(pl);
+                bmi.give(pl);
             }
             op.setup.openSetupMenu(pl);
 

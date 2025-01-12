@@ -12,6 +12,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 import ru.komiss77.Ostrov;
@@ -32,6 +33,8 @@ public class ScoreDis {
     private final boolean isAsc;
     private final HashMap<String, Integer> stats = new HashMap<>();
     private final ArrayList<String> ranks = new ArrayList<>();
+
+    private BukkitTask task = null;
 
     private static final double MARGIN = 1d;
     public ScoreDis(final String name, final WXYZ loc, final int length, final boolean isAsc) {
@@ -82,7 +85,8 @@ public class ScoreDis {
         }
         final String text = sb.toString();
         dis.text(TCUtil.form(score));
-        new BukkitRunnable() {
+        if (task != null) task.cancel();
+        task = new BukkitRunnable() {
             TextDisplay etd = dis;
             int i = score.length() + 1;
 
@@ -101,7 +105,7 @@ public class ScoreDis {
 
                 etd.text(TCUtil.form(text.substring(0, i)));
             }
-        }.runTaskTimer(Ostrov.instance, 2, 2);
+        }.runTaskTimer(Ostrov.instance, 1, 1);
     }
 
     public boolean tryAdd(final String name, final int amt) {
@@ -174,7 +178,7 @@ public class ScoreDis {
         Ostrov.sync(() -> reanimate(display()));
     }
 
-    public static String toDisplay(final Integer amt) {
+    public String toDisplay(final Integer amt) {
         return amt == null ? "--" : String.valueOf((int) amt);
     }
 

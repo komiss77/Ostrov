@@ -19,8 +19,8 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.events.LocalDataLoadEvent;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 
 
 public final class MenuItemsManager implements Initiable, Listener {
@@ -62,7 +62,7 @@ public final class MenuItemsManager implements Initiable, Listener {
           final String left_cmd = Cfg.getConfig().getString("system.pipboy_left_click_command");
           final String right_cmd = Cfg.getConfig().getString("system.pipboy_rigth_click_command");
 
-            final ItemStack is = new ItemBuilder(mat)
+            final ItemStack is = new ItemBuilder(mat.asItemType())
                     .name(Cfg.getConfig().getString("system.pipboy_name"))
 //                    .addEnchant(Enchantment.LUCK, 1)
                     .build();
@@ -74,7 +74,6 @@ public final class MenuItemsManager implements Initiable, Listener {
             pipboy.can_move = !item_lobby_mode;
             pipboy.can_drop = !item_lobby_mode;
             pipboy.give_on_respavn = true;
-            pipboy.anycase = true;
             pipboy.duplicate = false;
             pipboy.on_left_click = p -> {
               if (p.getGameMode() == GameMode.SPECTATOR //перехватывало интеракт зрителя для аркаима
@@ -392,9 +391,7 @@ public final class MenuItemsManager implements Initiable, Listener {
         //return is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData() && itemById.containsKey(is.getItemMeta().getCustomModelData());
         if (is != null && possibleMat.contains(is.getType()) && !is.getPersistentDataContainer().isEmpty()) {
             Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-            if (id != null && itemById.containsKey(id)) {
-                return true;
-            }
+            return id != null && itemById.containsKey(id);
         }
         return false;
     }
@@ -435,16 +432,9 @@ public final class MenuItemsManager implements Initiable, Listener {
     }
 
     public static int idFromItemStack(final ItemStack is) {
-        //if (is != null && possibleMat.contains(is.getType()) && is.hasItemMeta() && is.getItemMeta().hasCustomModelData()) {
-        if (is != null && possibleMat.contains(is.getType()) && !is.getPersistentDataContainer().isEmpty()) {
-            Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-            if (id != null) {
-                return id;
-            }
-            //int id = is.getItemMeta().getCustomModelData();
-            //return (itemById.containsKey(id)) ? id : 0;
-        }
-        return 0;
+        if (is == null || !possibleMat.contains(is.getType())) return 0;
+        final Integer id = is.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+        return id == null ? 0 : id;
     }
 
 }

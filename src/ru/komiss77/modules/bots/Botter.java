@@ -117,7 +117,12 @@ public interface Botter {
 
     void updateAll(final Player pl);
 
+    @Deprecated
     void move(final Location loc, final Vector vc, final boolean look);
+
+    void move(final Location loc, final Vector vc);
+
+    void move(final Location loc);
 
     void pickup(final Location loc);
 

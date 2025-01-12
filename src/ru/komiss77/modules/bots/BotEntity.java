@@ -13,6 +13,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
+import io.papermc.paper.math.FinePosition;
 import net.minecraft.Optionull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.RemoteChatSession;
@@ -250,9 +251,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     protected void teleport(final LivingEntity mb, final Location to) {
         Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()));
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        Nms.sendWorldPackets(world,
-            new ClientboundAddEntityPacket(this, 0,
-                new BlockPos(to.getBlockX(), to.getBlockY(), to.getBlockZ())),
+        Nms.sendWorldPackets(world, addEntityPacket(to),
             new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         tag(true);
@@ -290,74 +289,16 @@ public class BotEntity extends ServerPlayer implements Botter {
         currMode = GameType.SURVIVAL;
 
         setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        Nms.sendWorldPackets(world,
-            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-            modListPlayerPacket(), //UPDATE_GAME_MODE
-            new ClientboundAddEntityPacket(this, 0, blockPosition()),
+//        Bukkit.getConsoleSender().sendMessage("pos2-" + position().toString());
+        Nms.sendWorldPackets(world, addListPlayerPacket(), modListPlayerPacket(), addEntityPacket(to),
             new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         swapToSlot(0);
         ext.spawn(this, getEntity());
         tag(true);
+//        Ostrov.sync(() -> move(to.add(1, 1, 1)), 16);
         return vc;
     }
-
-    /*public void telespawn(final Location to, @Nullable final LivingEntity le) {
-        final EntitySnapshot es;
-        final double maxHp, hp;
-        if (le instanceof Vindicator && le.isValid()) {
-            es = le.createSnapshot();
-            BotManager.botById.remove(rid);
-            le.remove();
-            maxHp = le.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
-            hp = le.getHealth();
-        } else {
-            es = null;
-            maxHp = 0d;
-            hp = 0d;
-        }
-        isDead = true;
-        currMode = GameType.SPECTATOR;
-        Nms.sendWorldPackets(world, new ClientboundRemoveEntitiesPacket(this.hashCode()),
-            modListPlayerPacket(), new ClientboundRemoveEntitiesPacket(tag.tagEntityId));
-        BotManager.botById.remove(rid);
-        isDead = false;
-        final Vindicator vc = es == null ? world
-            .spawn(to, Vindicator.class, false, mb -> {
-            mb.setVisibleByDefault(false);
-            mb.setSilent(true);
-            mb.setPersistent(true);
-            mb.setRemoveWhenFarAway(false);
-            mb.customName(TCUtil.form(name));
-            mb.setCustomNameVisible(true);
-        }) : (Vindicator) es.createEntity(to);
-        if (maxHp != 0d) vc.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHp);
-        if (hp != 0d) vc.setHealth(hp);
-        this.rplc = new WeakReference<>(vc);
-        this.rid = vc.getEntityId();
-        Bukkit.getMobGoals().removeAllGoals(vc);
-        Bukkit.getMobGoals().addGoal(vc, 0, goal(vc));
-        lastHand = EquipmentSlot.HAND;
-        lastType = ItemType.AIR;
-        lastUseTick = NO_USE;
-        BotManager.botById.put(rid, this);
-        setPosRaw(to.getX(), to.getY(), to.getZ(), true);
-        currMode = GameType.SURVIVAL;
-        final EntityEquipment eq = le.getEquipment();
-        for (final EquipmentSlot esl : EquipmentSlot.values()) {
-            if (esl == EquipmentSlot.BODY) continue;
-            eq.setItem(esl, inv.getItem(esl), true);
-        }
-        Nms.sendWorldPackets(world,
-            addListPlayerPacket(), //ADD_PLAYER, UPDATE_LISTED, UPDATE_DISPLAY_NAME
-            modListPlayerPacket(), //UPDATE_GAME_MODE
-            new ClientboundAddEntityPacket(this, 0, blockPosition()),
-            new ClientboundTeleportEntityPacket(this),
-            new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
-        swapToSlot(0);
-        tag(true);
-        ext.spawn(this, getEntity());
-    }*/
 
     @OverrideMe
     protected Goal<Mob> goal(final Mob org) {
@@ -365,18 +306,20 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     private List<ClientboundPlayerInfoUpdatePacket.Entry> entryList() {
-        //private List<ClientboundPlayerInfoUpdatePacket.b> entryList() {
         return List.of(new ClientboundPlayerInfoUpdatePacket.Entry(getUUID(), getGameProfile(), true, 1,
             currMode, getTabListDisplayName(), true, 0, Optionull.map(getChatSession(), RemoteChatSession::asData)));
-        //return List.of(new ClientboundPlayerInfoUpdatePacket.b(cw(), fR(),
-        //true, 1, e.b(), N(), Optionull.a(ab(), RemoteChatSession::a)));
+    }
+
+    private ClientboundAddEntityPacket addEntityPacket(final FinePosition fp) {
+        return new ClientboundAddEntityPacket(getId(), getUUID(), fp.x(), fp.y(), fp.z(),
+            getXRot(), getYRot(), getType(), 0, getDeltaMovement(), getYHeadRot());
     }
 
     private ClientboundPlayerInfoUpdatePacket addListPlayerPacket() {
         return new ClientboundPlayerInfoUpdatePacket(EnumSet.of(
-            ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,//ClientboundPlayerInfoUpdatePacket.a.a, //ADD_PLAYER
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,//ClientboundPlayerInfoUpdatePacket.a.d, //UPDATE_LISTED
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),//ClientboundPlayerInfoUpdatePacket.a.f), //UPDATE_DISPLAY_NAME
+            ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
             entryList());
     }
 
@@ -590,11 +533,20 @@ public class BotEntity extends ServerPlayer implements Botter {
         ext.drop(this, loc);
     }
 
+    @Deprecated
     public void move(final Location loc, final Vector vc, final boolean look) {
-        if (look) loc.setDirection(vc);
+        if (look) move(loc, vc); else move(loc);
+    }
+
+    public void move(final Location loc, final Vector vc) {
+        loc.setDirection(vc); move(loc);
+    }
+
+    public void move(final Location loc) {
         final Vec3 ps = this.position();
         this.moveTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         final Vector vector = new Vector(loc.getX() - ps.x, loc.getY() - ps.y, loc.getZ() - ps.z);
+//        Bukkit.getConsoleSender().sendMessage("dx=" + vector.getX() + " dy=" + vector.getY() + " dz=" + vector.getZ());
         Nms.sendWorldPackets(world, new ClientboundRotateHeadPacket(this, (byte) (loc.getYaw() * 256 / 360)),
             new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
                 (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));

@@ -2,15 +2,15 @@ package ru.komiss77.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -24,14 +24,14 @@ public class ClassUtil {
     private static final char PKG_SEPARATOR = '.';
     private static final char DIR_SEPARATOR = '/';
 
-
-    public static <T extends Enum> T rotateEnum(T t) {
+    public static <T extends Enum<?>> T rotateEnum(T t) {
         try {
-            Method values = t.getClass().getMethod("values");
-            if (t.ordinal() == ((T[]) values.invoke(t)).length - 1)
-                return ((T[]) values.invoke(t))[0];
-            else
-                return ((T[]) values.invoke(t))[t.ordinal() + 1];
+            final Method values = t.getClass().getMethod("values");
+            @SuppressWarnings("unchecked")
+            final T[] vals = (T[]) values.invoke(t);
+            if (t.ordinal() == vals.length - 1)
+                return vals[0];
+            else return vals[t.ordinal() + 1];
         } catch (Exception ex) {
             return t;
         }
@@ -121,7 +121,7 @@ public class ClassUtil {
      */
 
   public static List<String> listJarFiles(JarFile pluginJar, String folderPath, String fileSuffix) {
-    List<String> result = new ArrayList();
+    List<String> result = new ArrayList<>();
     Enumeration<JarEntry> entries = pluginJar.entries();
     while (entries.hasMoreElements()) {
       JarEntry entry = (JarEntry) entries.nextElement();
@@ -134,7 +134,7 @@ public class ClassUtil {
   }
 
   public static File saveResourceFromJar(JarFile jar, String jarResource, File destinationFolder, boolean replace, boolean ignoreJarPath) {
-    if (jarResource != null && !jarResource.equals("")) {
+    if (jarResource != null && !jarResource.isEmpty()) {
       jarResource = jarResource.replace('\\', '/');
 
       try {
@@ -146,7 +146,7 @@ public class ClassUtil {
           }
 
           //InputStream in = jar.getInputStream(jarConfig);
-          try (InputStream in = jar.getInputStream(jarConfig)) {
+          try (final InputStream in = jar.getInputStream(jarConfig)) {
             if (in == null) {
               throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
             }
@@ -162,8 +162,6 @@ public class ClassUtil {
             }
 
             writedFile = outFile;
-          } catch (Throwable t) {
-            throw t;
           }
         } catch (Throwable t) {
           try {

@@ -478,7 +478,7 @@ public class ArcaimLst implements Listener {
                     tgt.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_WEAK, 1f, 1f);
                 }
             } else vc = tgt.getLocation().subtract(loc).toVector();
-            bot.move(loc, vc.normalize(), true);
+            bot.move(loc, vc);
         }
 
         @Override

@@ -22,7 +22,7 @@ import ru.komiss77.utils.TCUtil;
 
 public class FakeItemDis extends BukkitRunnable {
 
-    private static final float HGHT = 1.6f;
+    private static final float HGHT = 0.8f;
     private static final float WDTH = 0.6f;
 
     private final Player pl;
@@ -34,10 +34,8 @@ public class FakeItemDis extends BukkitRunnable {
 
     private float scale = 1f;
     private boolean showName = false, follow = false, rotate = false;
-    private BiConsumer<Player, FakeItemDis> onClick = (pl, fid) -> {
-    };
-    private BiConsumer<Player, FakeItemDis> onLook = (pl, fid) -> {
-    };
+    private BiConsumer<Player, FakeItemDis> onClick = (pl, fid) -> {};
+    private BiConsumer<Player, FakeItemDis> onLook = (pl, fid) -> {};
     private Predicate<Integer> isDone = tm -> false;
 
     private static final ItemStack stn = new ItemStack(Material.STONE);
@@ -121,7 +119,6 @@ public class FakeItemDis extends BukkitRunnable {
         this.scale = sc;
         tds.setTransformation(new Transformation(new Vector3f(), new Quaternionf(),
             new Vector3f(sc, sc, sc), new Quaternionf()));
-        ine.teleport(olc.clone().add(0d, -0.1d, 0d));
         ine.setInteractionHeight(HGHT * sc);
         ine.setInteractionWidth(WDTH * sc);
         return this;
@@ -139,7 +136,7 @@ public class FakeItemDis extends BukkitRunnable {
 
     public void create() {
         ine.setCustomNameVisible(showName);
-        ine.teleport(olc.clone().add(0d, -0.1d, 0d));
+        ine.teleport(olc.clone().add(0d, -0.4d, 0d));
         pl.showEntity(Ostrov.instance, tds);
         pl.showEntity(Ostrov.instance, ine);
         this.runTaskTimer(Ostrov.instance, 2, 1);
@@ -181,7 +178,7 @@ public class FakeItemDis extends BukkitRunnable {
         final Location elc = pl.getEyeLocation();
         if (follow) {
             final Location nls = elc.clone().add(dv);
-            nls.setYaw((yaw - 360 * (yaw / 180)) * 0.7f);
+            nls.setYaw((yaw /*- 360 * (yaw / 360)*/) * 0.7f);
             tds.teleportAsync(nls);
             ine.teleportAsync(new Location(nls.getWorld(), nls.getX(),
                 nls.getY() - 0.1d, nls.getZ(), nls.getYaw(), nls.getPitch()));
@@ -201,7 +198,7 @@ public class FakeItemDis extends BukkitRunnable {
 
             ine.setCustomNameVisible(showName || look);
         } else {
-            tds.setRotation((yaw - 360 * (yaw / 180)) * 0.7f, 0f);
+            tds.setRotation((yaw /*- 360 * (yaw / 360)*/) * 0.7f, 0f);
 
             boolean look = false;
             final Location dlc = ine.getLocation().subtract(elc);

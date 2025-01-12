@@ -328,11 +328,11 @@ public class Cuboid {
         return maxZ - minZ + 1;
     }
 
-  public double size() {
-    return sizeX() * sizeY() * sizeZ();
-  }
+    @Deprecated
+    public double size() {
+        return sizeX() * sizeY() * sizeZ();
+    }
 
-  @Deprecated
     public int volume() {
         return sizeX() * sizeY() * sizeZ();
     }
@@ -811,19 +811,19 @@ public class Cuboid {
 
     //@Override
     public Cuboid copy() {
-      final Cuboid c = new Cuboid(0, 0, 0);
-      c.minX = minX;
-      c.maxX = maxX;
-      c.minY = minY;
-      c.maxY = maxY;
-      c.minZ = minZ;
-      c.maxZ = maxZ;
-      c.spawnAddX = spawnAddX;
-      c.spawnAddY = spawnAddY;
-      c.spawnAddZ = spawnAddZ;
-      c.spawnYaw = spawnYaw;
-      c.spawnPitch = spawnPitch;
-      return c;
+        final Cuboid c = new Cuboid(0, 0, 0);
+        c.minX = minX;
+        c.maxX = maxX;
+        c.minY = minY;
+        c.maxY = maxY;
+        c.minZ = minZ;
+        c.maxZ = maxZ;
+        c.spawnAddX = spawnAddX;
+        c.spawnAddY = spawnAddY;
+        c.spawnAddZ = spawnAddZ;
+        c.spawnYaw = spawnYaw;
+        c.spawnPitch = spawnPitch;
+        return c;
     }
 
     @Override

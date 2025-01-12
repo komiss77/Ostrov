@@ -220,6 +220,11 @@ public class NumUtil {
       catch (NumberFormatException ex) {return or;}
     }
 
+    public static long longOf(final String num, final long or) {
+        try {return Long.parseLong(num);}
+        catch (NumberFormatException ex) {return or;}
+    }
+
     public static float floatOf(final String num, final float or) {
         try {return Float.parseFloat(num);}
         catch (NumberFormatException ex) {return or;}

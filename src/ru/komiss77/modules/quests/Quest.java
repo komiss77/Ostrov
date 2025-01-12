@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.modules.quests.progs.BlnProg;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.quests.progs.NumProg;
@@ -23,7 +23,7 @@ public class Quest {
 
     public final char code; //только для загрузки/сохранения!
     public final int amount;
-    public final Material icon;
+    public final ItemType icon;
     public final String displayName;
     public final String description;
     public final String backGround;
@@ -40,9 +40,9 @@ public class Quest {
 
     //с квестами связано
     //public static final Map<String,Integer>racePlayers = new HashMap<>();
-    public <G extends Comparable<?>> Quest(final char code, final Material icon, final int amount,
-                                           final @Nullable G[] needs, final Quest parent, final String displayName, final String description,
-                                           final String backGround, final QuestVis vision, final QuestFrame frame, final int pay) {
+    public <G extends Comparable<?>> Quest(final char code, final ItemType icon, final int amount,
+        final @Nullable G[] needs, final Quest parent, final String displayName, final String description,
+        final String backGround, final QuestVis vision, final QuestFrame frame, final int pay) {
 
         this.code = code;
         this.icon = icon;
