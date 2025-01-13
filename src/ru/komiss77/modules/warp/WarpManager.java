@@ -16,6 +16,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.StringUtil;
 
 
 public final class WarpManager implements Initiable {
@@ -189,8 +191,8 @@ public final class WarpManager implements Initiable {
             p.teleport(w.getLocation());
             p.sendMessage("§7Телепорт в режиме строителя на " + warpName);
         } else {
-            if (p.getWorld().getName().equals("lobby") || Ostrov.MOT_D.startsWith("lobby")) {
-                ApiOstrov.teleportSave(p, w.getLocation(), false);
+            if (StringUtil.isLobby(p.getWorld()) || Ostrov.MOT_D.startsWith("lobby")) {
+                MoveUtil.safeTP(p, w.getLocation());
             } else {
                 DelayTeleport.tp(p, w.getLocation(), 5, "§6Перемещение на " + warpName + " прошло удачно.", true, true, DyeColor.YELLOW);
                 w.use_counter++;

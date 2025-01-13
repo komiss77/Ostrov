@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.codehaus.plexus.util.Os;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -35,10 +34,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.InputButton;
 
 
@@ -445,7 +441,7 @@ public class ChatLst implements Listener {
 
                 //на минииграх - показать подготовленное сообщение всем, кто в одном мире или в лобби
                 for (Player p : ce.viewers()) {
-                    if (p.getWorld().getName().equals(senderWorldName) || p.getWorld().getName().equals("lobby")) {
+                    if (p.getWorld().getName().equals(senderWorldName) || StringUtil.isLobby(p.getWorld())) {
                         if (p.getClientOption(ClientOption.LOCALE).equals("ru_ru")) {
                             p.sendMessage(viewerResultRU);
                         } else {

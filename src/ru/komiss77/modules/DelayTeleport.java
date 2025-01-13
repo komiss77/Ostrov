@@ -1,20 +1,15 @@
 package ru.komiss77.modules;
 
 import java.util.HashMap;
-import org.bukkit.DyeColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.MoveUtil;
 import ru.komiss77.utils.ScreenUtil;
 
 public class DelayTeleport {
@@ -52,7 +47,7 @@ public class DelayTeleport {
                 @Override
                 public void run() {
                     //final Player pl = Bukkit.getPlayerExact(name);
-                    if (p == null || !p.isOnline() || p.isDead()) {
+                    if (!p.isOnline() || p.isDead()) {
                         this.cancel();
                         tpData.remove(name);
                         return;
@@ -67,7 +62,7 @@ public class DelayTeleport {
                     sec--;
                     if (sec == 0) {
                         this.cancel();
-                        ApiOstrov.teleportSave(p, toLoc, true);
+                        MoveUtil.safeTP(p, toLoc);
                         if (toEffect) playTpEffect(toLoc, color);
                         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2, 2));
                         //pl.setVelocity(pl.getVelocity().setY(0.2));

@@ -41,10 +41,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.*;
 
 
 public class PlayerLst implements Listener {
@@ -222,7 +219,7 @@ public class PlayerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onDrop(PlayerDropItemEvent e) {
-        if (ItemUtil.compareItem(e.getItemDrop().getItemStack(), InteractLst.passport, true)) {
+        if (ItemUtil.compare(e.getItemDrop().getItemStack(), InteractLst.passport, ItemUtil.Stat.TYPE, ItemUtil.Stat.NAME)) {
             e.getItemDrop().remove();
             e.getPlayer().updateInventory();
         }
@@ -505,8 +502,35 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerLoseFood(FoodLevelChangeEvent e) {
         if (Cfg.disable_hungry) {
-            e.setCancelled(true);
-            (e.getEntity()).setFoodLevel(20);
+            e.setFoodLevel(20);
+            return;
+        }
+        final Player p = (Player) e.getEntity();
+        switch (GM.GAME.type) {
+            case LOBBY:
+                e.setFoodLevel(20);
+                return;
+            case ARENAS:
+                switch (GM.GAME) {
+                    case PA -> e.setFoodLevel(20);
+                    case SK, OB, SG -> {
+                        if (StringUtil.isLobby(p.getWorld()))
+                            e.setFoodLevel(20);
+                    }
+                }
+                return;
+            case ONE_GAME:
+                switch (GM.GAME) {
+                    //BB-таблички нужны
+                    case WZ: break;
+                    case TW, SN, HS, QU:
+                        e.setFoodLevel(20);
+                        break;
+                    default:
+                        if (StringUtil.isLobby(p.getWorld()))
+                            e.setFoodLevel(20);
+                        break;
+                }
         }
     }
 
