@@ -183,7 +183,10 @@ public class Nms {
     try {
       pipeline.addBefore("packet_handler", "ostrov_" + p.getName(), packetSpy);
     } catch (NoSuchElementException e) {
-      p.kick(TCUtil.form("<gold>Остров <apple>все еще загружается!"));
+      //p.kick(TCUtil.form("<gold>Остров <apple>все еще загружается!")); //такого не должно быть, ищем ошибку
+      Ostrov.log_err("addPlayerPacketSpy " + p.getName() + " : " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      Ostrov.log_warn("addPlayerPacketSpy " + p.getName() + " : " + e.getMessage());
     }
   }
 

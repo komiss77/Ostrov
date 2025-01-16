@@ -99,7 +99,11 @@ public class Timer {
         //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
-            authMode = true; //startAuthMode();
+          if (Ostrov.MOT_D.equals("nb0")) {
+            authMode = false; //на новичках в authMode не работает боссбар!
+          } else {
+            authMode = true;
+          }
         } else if (Ostrov.MOT_D.equals("jail")) { //jail 
             jailMode = true;
         } else {

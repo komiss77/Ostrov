@@ -1,5 +1,6 @@
 package ru.komiss77.listener;
 
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.version.GameApi;
 
 public class TestLst implements Listener {
 
@@ -55,8 +58,8 @@ public class TestLst implements Listener {
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
-
                 if (p.isSneaking()) {
+                    GameApi.sendFakeDimension(p, World.Environment.THE_END);
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   wb = Bukkit.createWorldBorder();
