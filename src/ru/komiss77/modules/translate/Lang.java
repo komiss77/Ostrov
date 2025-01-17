@@ -111,7 +111,15 @@ public class Lang {
     }
 
     public static Component t(final Translatable o, final Locale locale) {
-        return o == null ? err : GlobalTranslator.render(Component.translatable(o), locale);
+        if (o == null) {
+            return err;
+        }
+        try {
+            return GlobalTranslator.render(Component.translatable(o), locale);
+        } catch (IllegalArgumentException ex) {
+            Ostrov.log_warn("Lang t : " + ex.getMessage());
+        }
+        return Component.text(o.translationKey());
     }
 
 

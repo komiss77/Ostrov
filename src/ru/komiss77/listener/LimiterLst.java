@@ -333,8 +333,8 @@ public final class LimiterLst implements Initiable, Listener {
 
         for (final Entity entity : chunk.getEntities()) {
             type = entity.getType();
-            group = EntityUtil.group(entity);
             if (type == EntityType.PLAYER) continue;
+            group = EntityUtil.group(entity);
             r = false;
 
             limit = groupsLimit.get(group);
@@ -409,7 +409,7 @@ public final class LimiterLst implements Initiable, Listener {
                      TRAP, //When an entity spawns as a trap for players approaching
                      ENDER_PEARL, //When an entity is spawned as a result of ender pearl usage
                      SHOULDER_ENTITY,
-                     //When an entity is spawned as a result of the entity it is being perched on jumping or being damaged
+//When an entity is spawned as a result of the entity it is being perched on jumping or being damaged
                      DROWNED, //When a creature is spawned by another entity drowning
                      SHEARED, //When a cow is spawned by shearing a mushroom cow
                      EXPLOSION,
@@ -781,7 +781,8 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
 
             if (mode == MenuMode.group) {
                 for (final EntityGroup g : EntityGroup.values()) {
-                    if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
+                    if (g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE)
+                        continue; // EntityGroup.UNDEFINED тоже лимит - настреляли снежков
                     final Integer limit = groupsLimit.get(g);
                     menuEntry.add(ClickableItem.of(new ItemBuilder(limit == null ? Material.CLAY_BALL : limit == 0 ? Material.RED_DYE : g.displayMat)
                         .name(g.displayName)
@@ -813,7 +814,8 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                 for (final EntityType t : EntityType.values()) {
                     if (t == EntityType.PLAYER) continue;
                     g = EntityUtil.group(t);
-                    if (g == EntityGroup.UNDEFINED || g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE) continue;
+                    if (g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE)
+                        continue; //g == EntityGroup.UNDEFINED ||
                     final Integer limit = entityTypeLimit.get(t);
                     menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(t)
                             .type(limit == null ? ItemType.CLAY_BALL : limit == 0 ? ItemType.RED_DYE : null)
