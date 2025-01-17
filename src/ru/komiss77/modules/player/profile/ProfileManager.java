@@ -13,6 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -41,6 +42,7 @@ import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.SmartInventory;
 
 
@@ -342,7 +344,25 @@ public class ProfileManager {
                         ));
                         case "ошибка" -> {
                             final int id = rs.getInt("id");
-                            buttons.add(ClickableItem.of(new ItemBuilder(Material.RED_CANDLE)
+
+                          buttons.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.RED_CANDLE)
+                              .name(TimeUtil.dateFromStamp(rs.getInt("time")))
+                              .lore("")
+                              .lore("§7сумма : §e" + rs.getInt("summ"))
+                              .lore("")
+                              .lore("§7Статус: §cошибка")
+                              .lore("")
+                              .lore(ItemUtil.genLore(null, rs.getString("note"), "§7"))
+                              .lore("")
+                              .lore("§7ЛКМ - §bредактировать примечание")
+                              .lore("")
+                              .build(), "", s -> {
+                            p.closeInventory();
+                            RemoteDB.executePstAsync(p, "UPDATE `withdraw` SET `status`='ожидание', `note`='" + s + "' WHERE `id`=" + id);
+                            p.sendMessage("§fЗаявка на вывод отправлена на повторную обработку");
+                          }
+                          ));
+                            /*buttons.add(ClickableItem.of(new ItemBuilder(Material.RED_CANDLE)
                                             .name(TimeUtil.dateFromStamp(rs.getInt("time")))
                                             .lore("")
                                             .lore("§7сумма : §e" + rs.getInt("summ"))
@@ -354,13 +374,13 @@ public class ProfileManager {
                                             .lore("§7ЛКМ - §bповторить обработку")
                                             .lore("")
                                             .build(), e -> {
-                                        if (e.isLeftClick()) {
+                                        if (e.getClick() == ClickType.LEFT) {
                                             p.closeInventory();
                                             RemoteDB.executePstAsync(p, "UPDATE `withdraw` SET `status`='ожидание' WHERE `id`=" + id);
                                             p.sendMessage("§fЗаявка на вывод отправлена на повторную обработку");
                                         }
                                     }
-                            ));
+                            ));*/
                         }
                     }
 
