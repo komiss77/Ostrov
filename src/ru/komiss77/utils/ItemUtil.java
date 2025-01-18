@@ -1929,7 +1929,7 @@ public class ItemUtil {
 
     private static final List<ItemType> ITEM_TYPES = OStrap.retrieveAll(RegistryKey.ITEM);
     public static ItemBuilder buildEntityIcon(final EntityType type) {
-        final ItemBuilder builder = null; //new ItemBuilder(ItemType.PLAYER_HEAD);
+        //final ItemBuilder builder = null; //new ItemBuilder(ItemType.PLAYER_HEAD);
         ItemType it = null;
 
         for (ItemType it2 : ITEM_TYPES) {
@@ -1941,11 +1941,15 @@ public class ItemUtil {
 
         if (it == null) {
             switch (type) {
+                case UNKNOWN -> { // UNKNOWN entities do not have translation keys !
+                    return new ItemBuilder(ItemType.DRIED_KELP_BLOCK).name("Неизвестный тип");
+                }
                 case ARMOR_STAND -> it = ItemType.ARMOR_STAND;
                 case ZOMBIE -> it = ItemType.ZOMBIE_HEAD;
                 case CREEPER -> it = ItemType.CREEPER_HEAD;
                 case PIGLIN -> it = ItemType.PIGLIN_HEAD;
                 case ENDER_DRAGON -> it = ItemType.DRAGON_HEAD;
+                //case ENDER_DRAGON -> it = ItemType.DRAGON_HEAD;
                 //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
                 default -> it = ItemType.NAME_TAG;
             }

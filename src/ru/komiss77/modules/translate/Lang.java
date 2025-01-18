@@ -118,8 +118,9 @@ public class Lang {
             return GlobalTranslator.render(Component.translatable(o), locale);
         } catch (IllegalArgumentException ex) {
             Ostrov.log_warn("Lang t : " + ex.getMessage());
+            return Component.text("§c" + ex.getMessage().substring(0, 20));
         }
-        return Component.text(o.translationKey());
+        //return Component.text(o.);
     }
 
 

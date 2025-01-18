@@ -8,6 +8,7 @@ import java.util.Map;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,6 +22,8 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.jetbrains.annotations.NotNull;
@@ -307,11 +310,19 @@ public final class LimiterLst implements Initiable, Listener {
 
     static class chunkLst implements Listener {
         @EventHandler
-        public void onChunkLoadEvent(ChunkLoadEvent e) {
+        public void onChunkLoad(ChunkLoadEvent e) {
             //if (flags.get(limiterFlag.checkChunkOnLoad)) {по флагу подключается листенер
             checkChunk(null, e.getChunk());
             //checkBlockStates(e.getChunk()); - сносит сундуки!
             //}
+        }
+
+        //если слушаешь ChunkLoadEvent, то несколько начальных не услышишь-они загружаются пакетом вместе с миром
+        @EventHandler
+        public void onWorldLoad(WorldLoadEvent e) {
+            for (final Chunk chunk : e.getWorld().getLoadedChunks()) {
+                checkChunk(null, chunk);
+            }
         }
         //@EventHandler
         // public void onChunkUnloadEvent(ChunkUnloadEvent e) {
@@ -816,31 +827,54 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
                     g = EntityUtil.group(t);
                     if (g == EntityGroup.TILE || g == EntityGroup.TICKABLE_TILE)
                         continue; //g == EntityGroup.UNDEFINED ||
-                    final Integer limit = entityTypeLimit.get(t);
-                    menuEntry.add(ClickableItem.of(ItemUtil.buildEntityIcon(t)
-                            .type(limit == null ? ItemType.CLAY_BALL : limit == 0 ? ItemType.RED_DYE : null)
-                        .lore(limit == null ? "§8не учитывается" : limit == 0 ? "§4==0 : Запрещены" : "§e" + limit + " §6на чанк")
-                        .lore(limit == null ? "" : "§7ЛКМ §b+1")
-                        .lore(limit == null ? "" : "§7Шифт+ЛКМ §3+10")
-                        .lore(limit == null ? "" : "§7ПКМ §5-1")
-                        .lore(limit == null ? "" : "§7Шифт+ПКМ §d-10")
-                        .lore("")
-                        .build(), e -> {
-                        int i = limit == null ? -1 : limit;
-                        switch (e.getClick()) {
-                            case LEFT -> i++;
-                            case SHIFT_LEFT -> i += 10;
-                            case RIGHT -> i--;
-                            case SHIFT_RIGHT -> i -= 10;
-                        }
-                        if (i < 0) {
-                            entityTypeLimit.remove(t);
+                    final int limit = entityTypeLimit.getOrDefault(t, -1);
+                    ru.komiss77.modules.items.ItemBuilder builder = ItemUtil.buildEntityIcon(t);
+                    if (limit < 0) {
+                        builder.lore("§8не учитывается");
+                        builder.lore("§7ЛКМ - §cзапретить");
+                        builder.lore("§7Шифт+ЛКМ - §aразрешить 9");
+                    } else if (limit == 0) {
+                        builder.type(ItemType.BARRIER);
+                        builder.lore("§4==0 : Запрещены");
+                        builder.lore("§7ЛКМ - §aразрешить 1");
+                        builder.lore("§7Шифт+ЛКМ - §aразрешить 9");
+                        builder.lore("§7ПКМ - §fне учитывать");
+                    } else {
+                        if (limit == 1) {
+                            builder.lore("§fНа иконке колл-во 2 для наглядности");
+                            builder.amount(2);
                         } else {
-                            entityTypeLimit.put(t, i);
+                            builder.amount(
+                                limit);
                         }
-                        saveConfig();
-                        reopen(p, content);
-                    }));
+                        builder.lore("§e§l" + limit + " §6на чанк");
+                        builder.lore("§7ЛКМ §b+1");
+                        builder.lore("§7Шифт+ЛКМ §3+10");
+                        builder.lore("§7ПКМ §5-1");
+                        builder.lore("§7Шифт+ПКМ §d-10");
+                        //builder.enchant(Enchantment.LUCK_OF_THE_SEA);
+                        builder.flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+                    }
+                    builder.lore(TCUtil.EMPTY);
+
+
+                    menuEntry.add(ClickableItem.of(builder.build(), e -> {
+                            int i = limit;// == null ? -1 : limit;
+                            switch (e.getClick()) {
+                                case LEFT -> i++;
+                                case SHIFT_LEFT -> i += 10;
+                                case RIGHT -> i--;
+                                case SHIFT_RIGHT -> i -= 10;
+                            }
+                            if (i < 0) {
+                                entityTypeLimit.remove(t);
+                            } else {
+                                entityTypeLimit.put(t, i);
+                            }
+                            saveConfig();
+                            reopen(p, content);
+                        }
+                    ));
                 }
             } else if (mode == MenuMode.state) {
                 for (final BlockStateType bst : BlockStateType.values()) {
