@@ -26,7 +26,10 @@ import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.komiss77.*;
+import ru.komiss77.Cfg;
+import ru.komiss77.Initiable;
+import ru.komiss77.OConfig;
+import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -35,7 +38,7 @@ import ru.komiss77.utils.TCUtil;
 
 public final class ResourcePacksLst implements Initiable, OCommand {
 
-  public static boolean use, onlySuggest;
+    public static boolean use, onlySuggest;
     public static final String rpCMD = "rpack";
     private static ResourcePackInfo pack = null;
     private static ResourcePackRequest request = null;
@@ -44,34 +47,34 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     public LiteralCommandNode<CommandSourceStack> command() {
         return Commands.literal(rpCMD).executes(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
+            if (!(cs instanceof final Player p)) {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
-          execute(p);
-          return Command.SINGLE_SUCCESS;
+            execute(p);
+            return Command.SINGLE_SUCCESS;
         }).build();
     }
 
-  public static void execute(final Player p) {
-    if (!use || request == null) {
-      p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
-      if (p.hasResourcePack()) {
+    public static void execute(final Player p) {
+        if (!use || request == null) {
+            p.sendMessage("§cДанный сервер не требует пакета ресурсов!");
+            if (p.hasResourcePack()) {
                 p.clearResourcePacks();
-      }
-      return;
-    }
-    if (p.hasResourcePack()) {
+            }
+            return;
+        }
+        if (p.hasResourcePack()) {
             p.sendMessage("§aУ вас уже установлен пакет ресурсов!");
-      return;
-    }
-    p.sendResourcePacks(request);
+            return;
+        }
+        p.sendResourcePacks(request);
 //            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
     }
 
     @Override
     public List<String> aliases() {
-      return List.of("rp");
+        return List.of("rp");
     }
 
     @Override
@@ -86,16 +89,16 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     }
 
 
-  //public static void onLoadData(Player p) {
-  //  if (use) {
-  //    Ostrov.sync(() -> execute(p));
-  //  }
-  //}
+    //public static void onLoadData(Player p) {
+    //  if (use) {
+    //    Ostrov.sync(() -> execute(p));
+    //  }
+    //}
 
     public static void preDisconnect(final Player p) {
-      if (use) {
-        p.removeResourcePacks(request);
-      }
+        if (use) {
+            p.removeResourcePacks(request);
+        }
     }
 
     @Override
@@ -109,14 +112,14 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
     @Override
     public void reload() {
-        final OConfig packsConfig = Cfg.manager.getNewConfig("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
+        final OConfig packsConfig = Cfg.manager.config("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
 
         packsConfig.addDefault("use", false);
-      packsConfig.addDefault("link", "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
-      packsConfig.addDefault("only_suggest", false);
+        packsConfig.addDefault("link", "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
+        packsConfig.addDefault("only_suggest", false);
 
-      packsConfig.removeKey("block_interact");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
-      packsConfig.removeKey("block_menu");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
+        packsConfig.removeKey("block_interact");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
+        packsConfig.removeKey("block_menu");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
 
         packsConfig.saveConfig();
 
@@ -129,13 +132,13 @@ public final class ResourcePacksLst implements Initiable, OCommand {
             return;
         }
 
-      final String rpLink = packsConfig.getString("link");
-      if (rpLink == null || rpLink.isEmpty()) {
+        final String rpLink = packsConfig.getString("link");
+        if (rpLink == null || rpLink.isEmpty()) {
             Ostrov.log_err("Менеджер пакетов текстур выгружен - URL не указан");
             return;
         }
 
-      onlySuggest = packsConfig.getBoolean("only_suggest");
+        onlySuggest = packsConfig.getBoolean("only_suggest");
 
         Ostrov.async(() -> {
 
@@ -164,12 +167,12 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                     final String hash = byteArray2Hex(digest.digest());
                     pack = ResourcePackInfo.resourcePackInfo(randUUID(fileName), URI.create(rpLink), hash);
 
-                  final Component prompt;
-                  if (onlySuggest) {
-                    prompt = TCUtil.form("<yellow>Для полноценной игры рекомендуем установить пакет ресурсов!");
-                  } else {
-                    prompt = TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!");
-                  }
+                    final Component prompt;
+                    if (onlySuggest) {
+                        prompt = TCUtil.form("<yellow>Для полноценной игры рекомендуем установить пакет ресурсов!");
+                    } else {
+                        prompt = TCUtil.form("<yellow>Установи этот пакет ресурсов для игры!");
+                    }
 
                     request = ResourcePackRequest.resourcePackRequest()
                         .packs(pack)
@@ -181,14 +184,10 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
                             switch (status) {
 
-                              case ACCEPTED -> {
-                              }
-                              case DOWNLOADED -> {
-                              }
-                              case FAILED_RELOAD -> {
-                              }
+                                case ACCEPTED, DOWNLOADED, FAILED_RELOAD -> {
+                                }
 
-                              case INVALID_URL -> Ostrov.log_err("ResourcePackRequest INVALID_URL : " + rpLink);
+                                case INVALID_URL -> Ostrov.log_err("ResourcePackRequest INVALID_URL : " + rpLink);
 
                                 case SUCCESSFULLY_LOADED -> {
                                     final Oplayer op = PM.getOplayer(p.getName());
@@ -197,7 +196,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
                                     p.sendMessage("§2Пакет ресурсов установлен!");
                                 }
 
-                              case DISCARDED, DECLINED -> //op.resourcepack_locked = true;
+                                case DISCARDED, DECLINED -> //op.resourcepack_locked = true;
                                     p.sendMessage(TCUtil.form("""
                                     §e*******************************************************************
                                     §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
@@ -209,14 +208,14 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
                                 case FAILED_DOWNLOAD -> {
 //                                    op.resourcepack_locked = true;
-                                  p.sendMessage(TCUtil.form("""
+                                    p.sendMessage(TCUtil.form("""
                                           §e*******************************************************************
                                           §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
                                           §2>>> §aКлик сюда для ручной загрузки. §2<<<
                                           §e*******************************************************************
                                           """)
                                         .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для загрузки")))
-                                      .clickEvent(ClickEvent.openUrl(rpLink)));
+                                        .clickEvent(ClickEvent.openUrl(rpLink)));
                                 }
                             }
                         }).build();
@@ -278,7 +277,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
 
 //    private static final Listener rpLst, inventoryLst, interactLst;
-  //  public static final ItemStack lock, key, lobby;
+    //  public static final ItemStack lock, key, lobby;
 //    private static String link;
 //    private static byte[] hash;
 //    private static UUID packUuid;
