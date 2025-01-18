@@ -31,7 +31,7 @@ public interface Botter {
     EntityType TYPE = EntityType.VINDICATOR;
     double DHIT_DST_SQ = 4d;
     double SPEED_RUN = 1.25d;
-    double SPEED_WALK = 1.1d;
+    double SPEED_WALK = 1.0d;
     double SPEED_SLOW = 0.8d;
     /*int BASH_TICKS = 40;
     int BLOCK_ACT = 1;

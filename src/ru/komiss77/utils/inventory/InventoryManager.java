@@ -165,8 +165,8 @@ public class InventoryManager {
                 invContents.get(slot).ifPresent(item -> {
                     item.run(new ItemClickData(p, e, e.getClick(), e.getCurrentItem(), slot));
                     if (inv.updateViewsOnClick()) {
-                        for (Player pl : Bukkit.getOnlinePlayers()) { //принудительная обнова меню у других с таким же ид по клику
-                            if (pl.getName().equals(p.getName())) continue;
+                        for (final Player pl : Bukkit.getOnlinePlayers()) { //принудительная обнова меню у других с таким же ид по клику
+                            if (pl.getEntityId() == p.getEntityId()) continue;
                             InventoryManager.getInventory(pl).filter(si -> si.getId().equals(inv.getId())).ifPresent(si -> {
                                 //pl.closeInventory();
                                 InventoryContent c = contents.get(pl.getName());

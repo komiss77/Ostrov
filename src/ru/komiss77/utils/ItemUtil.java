@@ -1405,10 +1405,10 @@ public class ItemUtil {
         for (int i = 1; i < paramAndArg.size(); ++i) { //первый-материаал, пропускаем
             raw = paramAndArg.get(i);
             idx = raw.indexOf(":");
-            param = raw.substring(0, idx).trim().toLowerCase();
 
             //@Subst("") final String[] param = paramAndArg.get(i).trim().split(":");
             if (idx < 0) {// только один параметрр, без :  if (param.length == 1) {
+                param = raw.trim().toLowerCase();
                 switch (param) { //param[0].trim().toLowerCase()) {
                     case "end", "unbreakable" -> { //работают без аргументов
                     }
@@ -1418,6 +1418,7 @@ public class ItemUtil {
                     }
                 }
             } else {
+                param = raw.substring(0, idx).trim().toLowerCase();
                 arg = raw.substring(idx + 1);
             }
 
@@ -1505,7 +1506,10 @@ public class ItemUtil {
                         //}
                     }
 
-                    case "unbreakable" -> builder.unbreak(true);
+                    case "unbreakable" -> {
+                        if (builder == null) builder = new ItemBuilder(mat);
+                        builder.unbreak(true);
+                    }
 
                     case "attribute" -> {
                         if (builder == null) builder = new ItemBuilder(mat);

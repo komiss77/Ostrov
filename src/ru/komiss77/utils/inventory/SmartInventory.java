@@ -26,10 +26,10 @@ public class SmartInventory {
 
 
     private String id;
-  private Component title;
+    private Component title;
     private InventoryType type;
     private int rows, columns;
-  private boolean closeable, updateViewsOnClick;
+    private boolean closeable, updateViewsOnClick;
     private int updateFrequency;
     private InventoryProvider provider;
     private SmartInventory parent;
@@ -129,32 +129,32 @@ public class SmartInventory {
     }
 
     public String getTitle() {
-      return TCUtil.deform(title);
+        return TCUtil.deform(title);
     }
 
-  public Component title() {
-    return title;
-  }
+    public Component title() {
+        return title;
+    }
 
     public InventoryType getType() {
         return type;
     }
 
-  public int getRows() {
-    return rows;
-  }
-
-  public int rows() {
-    return rows;
-  }
-
-    public int getColumns() {
-      return columns;
+    public int getRows() {
+        return rows;
     }
 
-  public int columns() {
-    return columns;
-  }
+    public int rows() {
+        return rows;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public int columns() {
+        return columns;
+    }
 
     public boolean isCloseable() {
         return closeable;
@@ -187,18 +187,18 @@ public class SmartInventory {
         return new Builder();
     }
 
-  public boolean updateViewsOnClick() {
-    return updateViewsOnClick;
-  }
+    public boolean updateViewsOnClick() {
+        return updateViewsOnClick;
+    }
 
-  public static final class Builder {
+    public static final class Builder {
 
         private String id = "unknown";
-      private Component title = Component.empty();
+        private Component title = Component.empty();
         private InventoryType type = InventoryType.CHEST;
         private Optional<Integer> rows = Optional.empty();
         private Optional<Integer> columns = Optional.empty();
-    private boolean closeable = true, updateViewsOnClick;
+        private boolean closeable = true, updateViewsOnClick;
         private int updateFrequency = 1;
         //private InventoryManager manager;
         private InventoryProvider provider;
@@ -215,11 +215,11 @@ public class SmartInventory {
         }
 
         public Builder title(String title) {
-          this.title = TCUtil.form(title);
-          return this;
+            this.title = TCUtil.form(title);
+            return this;
         }
 
-      public Builder title(Component title) {
+        public Builder title(Component title) {
             this.title = title;
             return this;
         }
@@ -242,16 +242,16 @@ public class SmartInventory {
         }
 
         public Builder closeable(boolean closeable) {
-          this.closeable = closeable;
-          return this;
+            this.closeable = closeable;
+            return this;
         }
 
-    public Builder updateViewsOnClick(boolean updateViewsOnClick) {
-      this.updateViewsOnClick = updateViewsOnClick;
-      return this;
+        public Builder updateViewsOnClick(boolean updateViewsOnClick) {
+            this.updateViewsOnClick = updateViewsOnClick;
+            return this;
         }
 
-    /**
+        /**
          * This method is used to configure the frequency at which the {@link InventoryProvider#update(Player, InventoryContent)}
          * method is called.Defaults to 1
          *
@@ -290,10 +290,10 @@ public class SmartInventory {
         }
 
         public String getTitle() {
-          return TCUtil.deform(title);
+            return TCUtil.deform(title);
         }
 
-      public Component title() {
+        public Component title() {
             return title;
         }
 
@@ -309,13 +309,13 @@ public class SmartInventory {
             return columns;
         }
 
-    public boolean isCloseable() {
-      return closeable;
-    }
+        public boolean isCloseable() {
+            return closeable;
+        }
 
-    public boolean isUpdateViewsOnClick() {
-      return updateViewsOnClick;
-    }
+        public boolean isUpdateViewsOnClick() {
+            return updateViewsOnClick;
+        }
 
         public int getUpdateFrequency() {
             return updateFrequency;
@@ -339,23 +339,16 @@ public class SmartInventory {
 
         public SmartInventory build() {
             if (this.provider == null)
-                throw new IllegalStateException("The provider of the SmartInventory.Builder must be set.");
-
-            //if(this.manager == null) {          // if it's null, use the default instance
-            //  this.manager = InventoryManager.get();//SmartInvsPlugin.manager();
-            //   if(this.manager == null) {      // if it's still null, throw an exception
-            //       throw new IllegalStateException("Manager of the SmartInventory.Builder must be set, or SmartInvs should be loaded as a plugin.");
-            //   }
-            // }
+                throw new IllegalStateException("The provider of the SmartInventory.Builder must be set");
 
             SmartInventory inv = new SmartInventory();
             inv.id = this.id;
             inv.title = this.title;
             inv.type = this.type;
-          inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).row());
-          inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).column());
+            inv.rows = this.rows.orElseGet(() -> getDefaultDimensions(type).row());
+            inv.columns = this.columns.orElseGet(() -> getDefaultDimensions(type).column());
             inv.closeable = this.closeable;
-          inv.updateViewsOnClick = this.updateViewsOnClick;
+            inv.updateViewsOnClick = this.updateViewsOnClick;
             inv.updateFrequency = this.updateFrequency;
             inv.provider = this.provider;
             inv.parent = this.parent;

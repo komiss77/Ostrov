@@ -10,12 +10,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -201,12 +198,6 @@ public abstract class SpecialItem implements Keyed {
 
     protected abstract void onInteract(final EquipmentSlot es, final PlayerInteractEvent e);
 
-    protected abstract void onBreak(final EquipmentSlot es, final BlockBreakEvent e);
-
-    protected abstract void onPlace(final EquipmentSlot es, final BlockPlaceEvent e);
-
-    protected abstract void onExtra(final EquipmentSlot es, final PlayerEvent e);
-
     @Override
     public NamespacedKey getKey() {
         return key;
@@ -235,5 +226,14 @@ public abstract class SpecialItem implements Keyed {
                 return si;
         }
         return null;
+    }
+
+    public static void process(final Entity ent, final ItemManager.SpecProc prc) {
+        ItemManager.process(ent, new ItemManager.Processor() {
+            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {
+                prc.onSpec(es, si);
+            }
+        });
     }
 }

@@ -4,13 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.BlockType;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -20,11 +15,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
@@ -68,12 +62,12 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         process(e.getEntity(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onDefense(ess, e);}
+            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onDefense(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onDefense(es, e);}
         });
         if (e instanceof final EntityDamageByEntityEvent ee) {
             process(e.getDamageSource().getCausingEntity(), new Processor() {
-                public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onAttack(ess, ee);}
+                public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onAttack(ess, ee);}
                 public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onAttack(es, ee);}
             });
         }
@@ -89,12 +83,12 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(final PlayerInteractEvent e) {
         process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onInteract(ess, e);}
+            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onInteract(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onInteract(es, e);}
         });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(final BlockBreakEvent e) {
         process(e.getPlayer(), new Processor() {
             public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onBreak(ess, e);}
@@ -113,19 +107,19 @@ public class ItemManager implements Initiable, Listener {
             public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onPlace(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onPlace(es, e);}
         });
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
         if (e.getEntity().getShooter() instanceof final LivingEntity le) {
             process(le, new Processor() {
-                public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onShoot(ess, e);}
+                public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onShoot(ess, e);}
                 public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onShoot(es, e);}
             });
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExtra(final PlayerJumpEvent e) {
         process(e.getPlayer(), extraProc(e));
     }
@@ -168,9 +162,9 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreak(final PlayerInteractEntityEvent e) {
         process(e.getPlayer(), extraProc(e));
-    }
+    }*/
 
-    private static void process(final Entity ent, final Processor pc) {
+    protected static void process(final Entity ent, final Processor pc) {
         if (ent instanceof final LivingEntity le) {
             final HashMap<ItemGroup, List<EquipmentSlot>> cmp = new HashMap<>();
             final EntityEquipment eq = le.getEquipment();
@@ -199,7 +193,7 @@ public class ItemManager implements Initiable, Listener {
             }
             if (!ItemGroup.exist) return;
             for (final Map.Entry<ItemGroup, List<EquipmentSlot>> en : cmp.entrySet()) {
-                pc.onMats(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
+                pc.onGroup(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
             }
         }
     }
@@ -321,15 +315,11 @@ public class ItemManager implements Initiable, Listener {
         si.destroy();
     }
 
-    public interface Processor {
-        void onMats(final EquipmentSlot[] ess, final ItemGroup cm);
-        void onSpec(final EquipmentSlot es, final SpecialItem si);
+    protected interface Processor extends GroupProc, SpecProc {}
+    public interface GroupProc {
+        void onGroup(final EquipmentSlot[] ess, final ItemGroup cm);
     }
-
-    private static Processor extraProc(final PlayerEvent e) {
-        return new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onExtra(ess, e);}
-            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onExtra(es, e);}
-        };
+    public interface SpecProc {
+        void onSpec(final EquipmentSlot es, final SpecialItem si);
     }
 }

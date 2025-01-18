@@ -5,12 +5,10 @@ import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -84,11 +82,6 @@ public abstract class ItemGroup implements Keyed {
         return mits.values();
     }
 
-    public static @Nullable ItemGroup get(final ItemStack it) {
-        final String id = it.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
-        return id == null ? null : get(id);
-    }
-
     public static @Nullable ItemGroup get(final String id) {
         return VALUES.get(id);
     }
@@ -101,12 +94,6 @@ public abstract class ItemGroup implements Keyed {
 
     protected abstract void onInteract(final EquipmentSlot[] es, final PlayerInteractEvent e);
 
-    protected abstract void onBreak(final EquipmentSlot[] es, final BlockBreakEvent e);
-
-    protected abstract void onPlace(final EquipmentSlot[] es, final BlockPlaceEvent e);
-
-    protected abstract void onExtra(final EquipmentSlot[] es, final PlayerEvent e);
-
     @Override
     public NamespacedKey getKey() {
         return key;
@@ -116,12 +103,12 @@ public abstract class ItemGroup implements Keyed {
     public boolean equals(final Object o) {
         if (this == o) return true;
         return o instanceof ItemGroup
-            && Objects.equals(((ItemGroup) o).key, key);
+            && Objects.equals(((ItemGroup) o).key.value(), key.value());
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return key.value().hashCode();
     }
 
     public record Data<D>(DataComponentType.Valued<D> vld, Onection<D> on) {
@@ -135,5 +122,19 @@ public abstract class ItemGroup implements Keyed {
             if (def == null) return;
             it.setData(vld, on.apply(def));
         }
+    }
+
+    public static @Nullable ItemGroup get(final ItemStack it) {
+        final String id = it.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
+        return id == null ? null : get(id);
+    }
+
+    public static void process(final Entity ent, final ItemManager.GroupProc prc) {
+        ItemManager.process(ent, new ItemManager.Processor() {
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {}
+            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {
+                prc.onGroup(ess, cm);
+            }
+        });
     }
 }
