@@ -3,12 +3,9 @@ package ru.komiss77.builder.menu;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import ca.spottedleaf.moonrise.paper.util.BaseChunkSystemHooks;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BlockType;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
@@ -26,18 +23,19 @@ import ru.komiss77.utils.*;
 import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
-import ru.komiss77.version.Craft;
 
 
 public class EntityGroupMenu implements InventoryProvider {
 
     private static final ItemStack fill = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build();
-    private static final BaseChunkSystemHooks CHUNK_HOLD = new BaseChunkSystemHooks() {
-        @Override
-        public boolean screenEntity(final ServerLevel serverLevel, final net.minecraft.world.entity.Entity entity, final boolean b, final boolean b1) {
-            return false;
-        }
-    };
+    //java.lang.NoClassDefFoundError: ca/spottedleaf/moonrise/paper/util/BaseChunkSystemHooks
+    // private static final BaseChunkSystemHooks CHUNK_HOLD = new BaseChunkSystemHooks() {
+    //    @Override
+    //    public boolean screenEntity(final ServerLevel serverLevel, final net.minecraft.world.entity.Entity entity, final boolean b, final boolean b1) {
+    //         return false;
+    //     }
+    // };
+
     private final IntHashMap<Chunk> chunks;
     private final World world;
     private int radius;
@@ -94,25 +92,40 @@ public class EntityGroupMenu implements InventoryProvider {
         if (group == EntityGroup.TILE) {
 
             final Map<BlockType, Integer> count = new HashMap<>();
-            for (ChunkHolder visibleChunk : CHUNK_HOLD.getVisibleChunkHolders(Craft.toNMS(world))) {
-                net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
-                if (lc == null) {
-                    continue;
-                }
-                int cLoc = LocUtil.cLoc("", lc.locX, lc.locZ);
+            //??? java.lang.NoClassDefFoundError: ca/spottedleaf/moonrise/paper/util/BaseChunkSystemHooks
+            //for (ChunkHolder visibleChunk : CHUNK_HOLD.getVisibleChunkHolders(Craft.toNMS(world))) {
+            //    net.minecraft.world.level.chunk.LevelChunk lc = visibleChunk.getTickingChunk();
+            //  if (lc == null) {
+            //       continue;
+            //    }
+            //   int cLoc = LocUtil.cLoc("", lc.locX, lc.locZ);
+            // if (!chunks.containsKey(cLoc)) {
+            //      continue;
+            //   }
+            // for (BlockEntity be : lc.blockEntities.values()) {
+            //    final BlockType mat = Craft.fromNMS(be.getBlockState().getBlock());
+            //    if (count.containsKey(mat)) {
+            //        count.replace(mat, count.get(mat) + 1);
+            //   } else {
+            //        count.put(mat, 1);
+            //   }
+            // }
+            //}
+            for (Chunk chunk : world.getLoadedChunks()) {
+                int cLoc = LocUtil.cLoc("", chunk.getX(), chunk.getZ());
                 if (!chunks.containsKey(cLoc)) {
                     continue;
                 }
-                for (BlockEntity be : lc.blockEntities.values()) {
-                    final BlockType mat = Craft.fromNMS(be.getBlockState().getBlock());
+                for (BlockState bs : chunk.getTileEntities()) {
+                    final BlockType mat = bs.getType().asBlockType();
                     if (count.containsKey(mat)) {
                         count.replace(mat, count.get(mat) + 1);
                     } else {
                         count.put(mat, 1);
                     }
                 }
-
             }
+
 
             for (final Map.Entry<BlockType, Integer> entry : count.entrySet()) {
                 final BlockType bt = entry.getKey();

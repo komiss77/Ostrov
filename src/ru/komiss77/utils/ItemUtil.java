@@ -36,6 +36,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
@@ -1930,21 +1931,31 @@ public class ItemUtil {
             .name(Lang.t(b, Lang.RU));
     }
 
+    private static final List<ItemType> ITEM_TYPES = OStrap.retrieveAll(RegistryKey.ITEM);
     public static ItemBuilder buildEntityIcon(final EntityType type) {
-        final ItemBuilder builder = new ItemBuilder(ItemType.PLAYER_HEAD);
+        final ItemBuilder builder = null; //new ItemBuilder(ItemType.PLAYER_HEAD);
+        ItemType it = null;
 
-        switch (type) {
-            case ARMOR_STAND -> builder.type(ItemType.ARMOR_STAND);
-            case ZOMBIE -> builder.type(ItemType.ZOMBIE_HEAD);
-            case CREEPER -> builder.type(ItemType.CREEPER_HEAD);
-            case PIGLIN -> builder.type(ItemType.PIGLIN_HEAD);
-            case ENDER_DRAGON -> builder.type(ItemType.DRAGON_HEAD);
-            //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
-            default -> builder.type(ItemType.NAME_TAG);
+        for (ItemType it2 : ITEM_TYPES) {
+            if (it2.getKey().value().equalsIgnoreCase(type.name())) {
+                it = it2;
+                break;
+            }
         }
 
-        builder.name(Lang.t(type, Lang.RU));
-        return builder;
+        if (it == null) {
+            switch (type) {
+                case ARMOR_STAND -> it = ItemType.ARMOR_STAND;
+                case ZOMBIE -> it = ItemType.ZOMBIE_HEAD;
+                case CREEPER -> it = ItemType.CREEPER_HEAD;
+                case PIGLIN -> it = ItemType.PIGLIN_HEAD;
+                case ENDER_DRAGON -> it = ItemType.DRAGON_HEAD;
+                //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
+                default -> it = ItemType.NAME_TAG;
+            }
+        }
+
+        return new ItemBuilder(it).name(Lang.t(type, Lang.RU));
     }
 
     @Deprecated
