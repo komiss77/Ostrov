@@ -124,6 +124,8 @@ public interface Botter {
 
     void move(final Location loc);
 
+    void sneak(final boolean sneak);
+
     void pickup(final Location loc);
 
     void drop(final Location loc);

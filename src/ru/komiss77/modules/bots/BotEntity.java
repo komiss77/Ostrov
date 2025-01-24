@@ -138,7 +138,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         }
     }
 
-    private static final byte USE_MAIN = 1, USE_OFF = 3, USE_STOP = 0;
+    private static final byte USE_MAIN = 1, USE_OFF = 3, USE_STOP = 0, SNEAK = 1;
     private static final int NO_USE = -1;
     private int lastUseTick = NO_USE;
     private ItemType lastType = ItemType.AIR;
@@ -158,13 +158,13 @@ public class BotEntity extends ServerPlayer implements Botter {
                 return;
         }
         if (hand != lastHand || lastUseTick == NO_USE) {
-            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, data, true);
+            this.entityData.set(DATA_LIVING_ENTITY_FLAGS, data, true);
             lastUseTick = mb.getTicksLived();
             lastHand = hand;
             final ItemStack hit = item(hand);
             lastType = hit == null ? ItemType.AIR : hit.getType().asItemType();
             Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
-                List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
+                List.of(entityData.getItem(DATA_LIVING_ENTITY_FLAGS).value())));
         }
     }
 
@@ -173,9 +173,9 @@ public class BotEntity extends ServerPlayer implements Botter {
             lastUseTick = NO_USE;
             lastType = ItemType.AIR;
             lastHand = EquipmentSlot.HAND;
-            this.entityData.set(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS, USE_STOP, true);
+            this.entityData.set(DATA_LIVING_ENTITY_FLAGS, USE_STOP, true);
             Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
-                List.of(entityData.getItem(net.minecraft.world.entity.LivingEntity.DATA_LIVING_ENTITY_FLAGS).value())));
+                List.of(entityData.getItem(DATA_LIVING_ENTITY_FLAGS).value())));
         }
     }
 
@@ -254,7 +254,7 @@ public class BotEntity extends ServerPlayer implements Botter {
         Nms.sendWorldPackets(world, addEntityPacket(to),
             new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
-        tag(true);
+        tag(true); tagThru(true);
         ext.teleport(this, mb);
     }
 
@@ -295,7 +295,7 @@ public class BotEntity extends ServerPlayer implements Botter {
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         swapToSlot(0);
         ext.spawn(this, getEntity());
-        tag(true);
+        tag(true); tagThru(true);
 //        Ostrov.sync(() -> move(to.add(1, 1, 1)), 16);
         return vc;
     }
@@ -475,6 +475,10 @@ public class BotEntity extends ServerPlayer implements Botter {
         tag.visible(show);
     }
 
+    public void tagThru(final boolean see) {
+        tag.seeThru(see);
+    }
+
     public void tag(final String prefix, final String affix, final String suffix) {
         tag.content(prefix + affix + name + suffix);
     }
@@ -550,6 +554,13 @@ public class BotEntity extends ServerPlayer implements Botter {
         Nms.sendWorldPackets(world, new ClientboundRotateHeadPacket(this, (byte) (loc.getYaw() * 256 / 360)),
             new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
                 (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));
+    }
+
+    public void sneak(final boolean sneak) {
+        setShiftKeyDown(sneak);
+//        this.entityData.set(DATA_SHARED_FLAGS_ID, SNEAK, sneak);
+//        Nms.sendWorldPackets(world, new ClientboundSetEntityDataPacket(this.getId(),
+//            List.of(entityData.getItem(DATA_SHARED_FLAGS_ID).value())));
     }
 
     public void interact(final PlayerInteractAtEntityEvent e) {

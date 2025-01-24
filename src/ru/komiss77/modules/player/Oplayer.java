@@ -3,7 +3,6 @@ package ru.komiss77.modules.player;
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.function.Predicate;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
@@ -137,6 +136,8 @@ public class Oplayer {
         firstJoin = (isGuest = nik.startsWith("guest_"));
         score = new CustomScore((Player) p);
         tag = new CustomTag(p);
+        tag.visible(true);
+        tag.seeThru(true);
         tag(tagPreffix, tagSuffix);
         beforeName(ChatLst.NIK_COLOR, (Player) p);
         //packetSpy = Nms.addPacketSpy((Player) p, Oplayer.this);
@@ -287,8 +288,12 @@ public class Oplayer {
         tag.content(this.tagPreffix + displayName + this.tagSuffix);
     }
 
-    public void tag(final boolean visible) {
+    /*public void tag(final boolean visible) {
         tag.visible(visible);
+    }
+
+    public void tagThru(final boolean see) {
+        tag.seeThru(see);
     }
 
     public void setTagVis(final Predicate<Player> canSee) {
@@ -297,7 +302,7 @@ public class Oplayer {
 
     public boolean isTagVisTo(final Player pl) {
         return tag.canSee(pl);
-    }
+    }*/
 
     public void onPVPEnter(final Player p, final int time,
                            final boolean blockFly, final boolean giveTag) {

@@ -161,15 +161,18 @@ public class PlayerLst implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void toggleFly(final PlayerToggleFlightEvent e) {
         final Player p = e.getPlayer();
-        if (!e.isFlying()) return;
-        PM.getOplayer(p).tag.visible(true);
+        if (e.isFlying()) {
+            PM.getOplayer(p).tag.seeThru(true);
+            return;
+        }
+        PM.getOplayer(p).tag.seeThru(!p.isSneaking());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void toggleSneak(final PlayerToggleSneakEvent e) {
         final Player p = e.getPlayer();
         if (p.isInsideVehicle() || p.isFlying()) return;
-        PM.getOplayer(p).tag.visible(!e.isSneaking());
+        PM.getOplayer(p).tag.seeThru(!e.isSneaking());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

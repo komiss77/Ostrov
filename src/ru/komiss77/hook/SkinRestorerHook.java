@@ -1,5 +1,11 @@
 package ru.komiss77.hook;
 
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.io.ByteArrayDataInput;
@@ -7,25 +13,19 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Chanell;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.inventory.*;
-
-import java.io.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 public class SkinRestorerHook {
 
@@ -135,6 +135,7 @@ public class SkinRestorerHook {
             out.writeUTF(p.getName());
             out.writeUTF(skinName);
             p.sendPluginMessage(Ostrov.instance, Chanell.SKIN.name, bytes.toByteArray());
+            PM.getOplayer(p).tag.visible(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -147,6 +148,7 @@ public class SkinRestorerHook {
             out.writeUTF("clearSkin");
             out.writeUTF(p.getName());
             p.sendPluginMessage(Ostrov.instance, Chanell.SKIN.name, bytes.toByteArray());
+            PM.getOplayer(p).tag.visible(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -160,7 +162,7 @@ class SkinGui implements InventoryProvider {
     private final int page;
     final Map<String, String> skinList;
 
-    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.NETHER_SPROUTS).name("§8.").build());
+    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.NETHER_SPROUTS).name("§8.").build());
 
 
     public SkinGui(final int page, final Map<String, String> skinList) {
@@ -178,7 +180,7 @@ class SkinGui implements InventoryProvider {
 
         if (skinList.isEmpty()) {
 
-            content.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
+            content.add(ClickableItem.empty(new ItemBuilder(ItemType.GLASS_BOTTLE)
                     .name("§7нет записей!")
                     .build()
             ));
@@ -192,7 +194,7 @@ class SkinGui implements InventoryProvider {
                     break;
                 }
                 final String skinName = en.getKey();
-                final ItemStack is = new ItemBuilder(Material.PLAYER_HEAD)
+                final ItemStack is = new ItemBuilder(ItemType.PLAYER_HEAD)
                         .name(skinName)
                         .lore("ЛКМ - посмотреть на сайте")
                         .lore("ПКМ - одеть")
@@ -216,7 +218,7 @@ class SkinGui implements InventoryProvider {
 
         }
 
-        content.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
+        content.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
                         .name("§3Скин по нику")
                         .lore("")
                         .lore("§7Ввести название")
@@ -237,7 +239,7 @@ class SkinGui implements InventoryProvider {
                 )
         );
 
-        final ItemStack is = new ItemBuilder(Material.REDSTONE)
+        final ItemStack is = new ItemBuilder(ItemType.REDSTONE)
                 .name("§6Удалить скин")
                 .build();
 

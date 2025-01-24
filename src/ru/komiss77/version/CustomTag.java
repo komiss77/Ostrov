@@ -26,7 +26,8 @@ import ru.komiss77.utils.TCUtil;
 public class CustomTag {
 
     //    public static final boolean SELF_VIEW = true; //удобно для отладки видеть свой тэг //пускай всегда будет вкл, пока что, чтоб люди видели как выглядит их тег
-    private static final byte FLAGS = (/*shadow*/1 /*| seethrough 0*/) & /*background*/ ~4;
+    private static final byte FLAGS_OCL = /*shadow*/1 & /*background*/ ~4;
+    private static final byte FLAGS_STR = (/*shadow*/1 | /*seethrough*/ 2) & /*background*/ ~4;
     private final WeakReference<LivingEntity> taggedLink; //@Nullable может быть содержимое, но не контейнер
     private final boolean real;
     public final int tagEntityId;
@@ -37,10 +38,11 @@ public class CustomTag {
     private Predicate<Player> canSee = p -> true;
     private Component name;
     private boolean visible = true;
+    private boolean seeThru = true;
 
 
-    private static final EntityDataAccessor<?> DATA_BILLBOARD_RENDER_CONSTRAINTS_ID,
-        DATA_TEXT_ID, DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID;
+    private static final EntityDataAccessor<?> DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, DATA_TEXT_ID,
+        DATA_BACKGROUND_COLOR_ID, DATA_LINE_WIDTH_ID, DATA_STYLE_FLAGS_ID, DATA_TEXT_OPACITY_ID;
 
     //      new EntityDataAccessor<>(0, EntityDataSerializers.BYTE), glowingByte
     //https://wiki.vg/Entity_metadata#Display
@@ -50,6 +52,7 @@ public class CustomTag {
         DATA_TEXT_ID = new EntityDataAccessor<>(23, EntityDataSerializers.COMPONENT);
         DATA_LINE_WIDTH_ID = Display.TextDisplay.DATA_LINE_WIDTH_ID;
         DATA_BACKGROUND_COLOR_ID = Display.TextDisplay.DATA_BACKGROUND_COLOR_ID;
+        DATA_TEXT_OPACITY_ID = new EntityDataAccessor<>(26, EntityDataSerializers.BYTE);
         DATA_STYLE_FLAGS_ID = new EntityDataAccessor<>(27, EntityDataSerializers.BYTE);
     }
 
@@ -66,11 +69,13 @@ public class CustomTag {
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
         this.name = PaperAdventure.asVanilla(TCUtil.form(name + "\n"));
-        if (visible) {
-            sendTrackersPacket(spawnPacket());
-        }
+        if (visible) sendTrackersPacket(syncPacket());
     }
 
+    public void seeThru(final boolean see) {
+        this.seeThru = see;
+        if (visible) sendTrackersPacket(syncPacket());
+    }
 
     public void visible(final boolean visible) {
         this.visible = visible;
@@ -79,9 +84,7 @@ public class CustomTag {
 
     public void canSee(final Predicate<Player> canSee) {
         this.canSee = canSee;
-        if (visible) {
-            sendTrackersPacket(spawnPacket());
-        }
+        if (visible) sendTrackersPacket(spawnPacket());
     }
 
     public boolean canSee(final Player pl) {
@@ -165,9 +168,9 @@ public class CustomTag {
 
     public ClientboundSetEntityDataPacket syncPacket() {
         return new ClientboundSetEntityDataPacket(tagEntityId,
-            List.of(ofData(DATA_TEXT_ID, name),
-                ofData(DATA_LINE_WIDTH_ID, 1000),
-                ofData(DATA_STYLE_FLAGS_ID, FLAGS),
+            List.of(ofData(DATA_TEXT_ID, name), ofData(DATA_LINE_WIDTH_ID, 1000),
+                ofData(DATA_STYLE_FLAGS_ID, seeThru ? FLAGS_STR : FLAGS_OCL),
+                ofData(DATA_TEXT_OPACITY_ID, (byte) (seeThru ? 0 : -80)),
                 ofData(DATA_BACKGROUND_COLOR_ID, 1))
         );
     }

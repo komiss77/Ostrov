@@ -29,67 +29,55 @@ public class PlayerInput implements Listener {
     static {
         inputData = new WeakHashMap<>();
         left = new ItemBuilder(ItemType.RED_DYE)
-                //.name("§7Сейчас:")
-                //.addLore("§7"+sugg)
-                //.addLore("Режим ввода текста")
-                //.addLore("§7Наберите в строке")
-                //.addLore("§7значение и нажмите")
-                //.addLore("§7на результат.")
-                //.addLore("")
-                .lore("§6Клик сюда - ")
-                .lore("§eоставить как есть")
-                .build();
+            .lore("§6Клик сюда - ")
+            .lore("§eоставить как есть")
+            .build();
         out = new ItemBuilder(ItemType.LIME_DYE)
-                //.name("§7Сейчас:")
-                //.addLore("§7"+sugg)
-                .lore("Режим ввода текста")
-                .lore("")
-                .lore("§fНаберите в строке")
-                .lore("§fзначение и")
-                .lore("§bнажмите сюда.")
-                //.addLore("")
-                //.addLore("§6Клик  - ")
-                //.addLore("§eпринять")
-                .build();
+            .lore("Режим ввода текста")
+            .lore("")
+            .lore("§fНаберите в строке")
+            .lore("§fзначение и")
+            .lore("§bнажмите сюда.")
+            .build();
     }
 
 
     public static void get(final Player p, final int suggest, final int min, final int max, final Consumer<Integer> onDone) {
         new AnvilGUI.Builder()
-                .title("§fОт §a" + min + " §fдо §a" + max)
-                .text(String.valueOf(suggest))
-                .itemLeft(left)
-                //.itemRight(right)
-                .itemOutput(out)
-                //.onClick(p1 -> consumer.accept(sugg))
-                .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
+            .title("§fОт §a" + min + " §fдо §a" + max)
+            .text(String.valueOf(suggest))
+            .itemLeft(left)
+            //.itemRight(right)
+            .itemOutput(out)
+            //.onClick(p1 -> consumer.accept(sugg))
+            .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
 //Ostrov.log("AnvilGUI.Slot="+slot);
-                    switch (slot) {
-                        case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(suggest);
-                        case AnvilGUI.Slot.INPUT_RIGHT -> {
-                        }
-                        case AnvilGUI.Slot.OUTPUT -> {
-                            final int res = NumUtil.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
-                            if (res == Integer.MIN_VALUE) {
-                                p.sendMessage("§cДолжно быть число!");
-                                PM.soundDeny(p);
-                            } else if (res < min || res > max) {
-                                p.sendMessage("§cот " + min + " до " + max);
-                                PM.soundDeny(p);
-                            } else {
-                                onDone.accept(res);
-                            }
+                switch (slot) {
+                    case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(suggest);
+                    case AnvilGUI.Slot.INPUT_RIGHT -> {
+                    }
+                    case AnvilGUI.Slot.OUTPUT -> {
+                        final int res = NumUtil.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
+                        if (res == Integer.MIN_VALUE) {
+                            p.sendMessage("§cДолжно быть число!");
+                            PM.soundDeny(p);
+                        } else if (res < min || res > max) {
+                            p.sendMessage("§cот " + min + " до " + max);
+                            PM.soundDeny(p);
+                        } else {
+                            onDone.accept(res);
                         }
                     }
-                    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                    //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
-                    //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
-                    //    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                    //} else {
-                    //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
-                    //}
-                })
-                .open(p);
+                }
+                return Arrays.asList(AnvilGUI.ResponseAction.close());
+                //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
+                //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
+                //    return Arrays.asList(AnvilGUI.ResponseAction.close());
+                //} else {
+                //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
+                //}
+            })
+            .open(p);
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> onDone, String suggest) {
@@ -100,37 +88,27 @@ public class PlayerInput implements Listener {
         switch (type) {
             case ANVILL -> {
                 new AnvilGUI.Builder()
-                        .title("Введите значение")
-                        .text(sugg)
-                        .itemLeft(left)
-                        //.itemRight(right)
-                        .itemOutput(out)
-                        //.onClick(p1 -> consumer.accept(sugg))
-                        .onClick((slot, stateSnapshot) -> { // Either use sync or async variant, not both
-//Ostrov.log("AnvilGUI.Slot="+slot);
-                            switch (slot) {
-                                case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
-                                case AnvilGUI.Slot.INPUT_RIGHT -> {
-                                }
-                                case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
-                            }
-                            return Arrays.asList(AnvilGUI.ResponseAction.close());
-                            //if(stateSnapshot.getText().equalsIgnoreCase("you")) {
-                            //    stateSnapshot.getPlayer().sendMessage("You have magical powers!");
-                            //    return Arrays.asList(AnvilGUI.ResponseAction.close());
-                            //} else {
-                            //     return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
-                            //}
-                        })
-                        .open(p);
+                    .title("Введите значение")
+                    .text(sugg)
+                    .itemLeft(left)
+                    .itemOutput(out)
+                    .onClick((slot, stateSnapshot) -> {
+                        switch (slot) {
+                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
+                            case AnvilGUI.Slot.INPUT_RIGHT -> {}
+                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
+                        }
+                        return Arrays.asList(AnvilGUI.ResponseAction.close());
+                    })
+                    .open(p);
                 return;
             }
 
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(TCUtil.form("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик - подставить текущее<"))
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("§7Клик - подставить текст для редактирования")))
-                        .clickEvent(ClickEvent.suggestCommand(sugg)));
+                p.sendMessage(TCUtil.form("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик<"))
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("§7Клик - подставить '" + sugg + "'")))
+                    .clickEvent(ClickEvent.suggestCommand(sugg)));
             }
 
             case SIGN -> {

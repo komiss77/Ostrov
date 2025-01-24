@@ -29,30 +29,16 @@ import ru.komiss77.utils.inventory.InputButton;
 public class PlayerPacketHandler extends ChannelDuplexHandler {
 
     private final Oplayer op;
-//    public static Field interactIdField; //ServerboundInteractPacket - подмена ид для бота
     public static Field moveIdField; //ClientboundMoveEntityPacket - получение ид бота
-//    public static Field containerClickItem; //ServerboundContainerClickPacket - подмена входящего хакнутого предмета
-//    public static Field creativeSlotItem; //ServerboundSetCreativeModeSlotPacket - подмена входящего хакнутого предмета
-//    public static Field containerSetSlotItem; //ClientboundContainerSetSlotPacket - подмена исходящего хакнутого предмета
     public static AtomicBoolean nbtCheck = new AtomicBoolean(false);
 
     static {
         try {
             //утилитка поиска номера поля - не удалять!!
-            //int i=0; for (Field f : ClientboundContainerSetSlotPacket.class.getDeclaredFields()) {Ostrov.log_warn(i+"="+f.getName()); i++;}
-//            interactIdField = ServerboundInteractPacket.class.getDeclaredFields()[1]; //по entityId не прокатит - на запущеном имена обфусцированны!
-//            interactIdField.setAccessible(true);
             moveIdField = ClientboundMoveEntityPacket.class.getDeclaredFields()[0];
             moveIdField.setAccessible(true);
-//            containerClickItem = ServerboundContainerClickPacket.class.getDeclaredFields()[8];
-//            containerClickItem.setAccessible(true);
-//            creativeSlotItem = ServerboundSetCreativeModeSlotPacket.class.getDeclaredFields()[2];
-//            creativeSlotItem.setAccessible(true);
-//            containerSetSlotItem = ClientboundContainerSetSlotPacket.class.getDeclaredFields()[5];
-//            containerSetSlotItem.setAccessible(true);
         } catch (ArrayIndexOutOfBoundsException ex) {
             Ostrov.log_err("PlayerPacketHandler getIdField : " + ex.getMessage());
-            //ex.printStackTrace();
         }
     }
 

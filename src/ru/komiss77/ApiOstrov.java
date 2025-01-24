@@ -6,7 +6,6 @@ import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -220,25 +219,23 @@ public class ApiOstrov {
     }
 
     public static boolean isLocalBuilder(final CommandSender cs, final boolean message) {
-        switch (cs) {
-            case null:
-                return false;
-            case ConsoleCommandSender cns:
-                return true;
-            case Player p when canBeBuilder(p)://!! фиксить права в CDM case "gm", или не даст перейти в гм1
-                if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
-                    return true;
-                }
-                if (message) {
+        return switch (cs) {
+            case ConsoleCommandSender ignored -> true;
+            case Player p when canBeBuilder(p) ->
+                switch (p.getGameMode()) {
+                case CREATIVE, SURVIVAL -> true;
+                default -> {
+                    if (!message) yield false;
+                    //!! фиксить права в CDM case "gm", или не даст перейти в гм1
                     final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
                     p.sendMessage(TCUtil.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                            .hoverEvent(HoverEvent.showText(TCUtil.form(eng ? "§7Click - enable" : "§7Клик - включить")))
-                            .clickEvent(ClickEvent.runCommand("/builder")));
+                        .hoverEvent(HoverEvent.showText(TCUtil.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                        .clickEvent(ClickEvent.runCommand("/builder")));
+                    yield false;
                 }
-                return false;
-            default:
-                return false;
-        }
+            };
+            case null, default -> false;
+        };
     }
     //****************************************************
 

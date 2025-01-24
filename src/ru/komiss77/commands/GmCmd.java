@@ -28,16 +28,23 @@ public class GmCmd {
                     p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                     return 0;
                 }
-                /*if (!p.hasPermission("ostrov.gm")) {
-                    p.sendMessage("§cНет права ostrov.gm!");//что это за право??????
-                    return 0;
-                }*/
-                if (p.getGameMode() == GameMode.SURVIVAL) {
-                    p.setGameMode(GameMode.CREATIVE);
-                    p.sendMessage("§e" + Lang.t(p, "Установлен креатив!"));
-                } else if (p.getGameMode() == GameMode.CREATIVE) {
-                    p.setGameMode(GameMode.SURVIVAL);
-                    p.sendMessage("§e" + Lang.t(p, "Установлено выживание!"));
+                switch (p.getGameMode()) {
+                    case CREATIVE:
+                        p.setGameMode(GameMode.SURVIVAL);
+                        p.sendMessage("§e" + Lang.t(p, "Установлено выживание!"));
+                        break;
+                    case SURVIVAL:
+                        p.setGameMode(GameMode.CREATIVE);
+                        p.sendMessage("§e" + Lang.t(p, "Установлен креатив!"));
+                        break;
+                    case ADVENTURE:
+                        p.setGameMode(GameMode.CREATIVE);
+                        p.sendMessage("§e" + Lang.t(p, "Установлен креатив!"));
+                        break;
+                    case SPECTATOR:
+                        p.setGameMode(GameMode.SURVIVAL);
+                        p.sendMessage("§e" + Lang.t(p, "Установлено выживание!"));
+                        break;
                 }
                 return Command.SINGLE_SUCCESS;
             })
