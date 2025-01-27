@@ -2,7 +2,7 @@ package ru.komiss77.modules.quests;
 
 import java.util.function.Consumer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.player.Oplayer;
 
 
@@ -14,7 +14,7 @@ public interface IAdvance {
 
     void sendToast(final Player p, final Quest q);
 
-    void sendToast(final Player p, final ItemType mt, final String msg, final Quest.QuestFrame frm);
+    void sendToast(final Player p, final ItemStack it, final String msg, final Quest.QuestFrame frm);
 
     void resetProgress(final Player p, final boolean rmv);
 

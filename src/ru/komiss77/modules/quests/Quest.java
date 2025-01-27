@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.text.Component;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.modules.quests.progs.BlnProg;
 import ru.komiss77.modules.quests.progs.IProgress;
@@ -23,7 +24,7 @@ public class Quest {
 
     public final char code; //только для загрузки/сохранения!
     public final int amount;
-    public final ItemType icon;
+    public final ItemStack icon;
     public final String displayName;
     public final String description;
     public final String backGround;
@@ -41,6 +42,32 @@ public class Quest {
     //с квестами связано
     //public static final Map<String,Integer>racePlayers = new HashMap<>();
     public <G extends Comparable<?>> Quest(final char code, final ItemType icon, final int amount,
+        final @Nullable G[] needs, final Quest parent, final String displayName, final String description,
+        final String backGround, final QuestVis vision, final QuestFrame frame, final int pay) {
+
+        this.code = code;
+        this.icon = icon.createItemStack();
+        this.amount = amount;
+        this.parent = parent == null ? this : parent;
+        this.displayName = displayName;
+        this.description = description;
+        this.backGround = backGround;
+        this.vision = vision;
+        this.frame = frame;
+        this.needs = needs;
+        this.pay = pay;
+
+        children = new Quest[0];
+        dx = 0f;
+        dy = 0f;
+        size = 1;
+
+        codeMap.put(code, this);
+        nameMap.put(displayName, this);
+        loreMap.put(this, ItemUtil.genLore(null, description));
+    }
+
+    public <G extends Comparable<?>> Quest(final char code, final ItemStack icon, final int amount,
         final @Nullable G[] needs, final Quest parent, final String displayName, final String description,
         final String backGround, final QuestVis vision, final QuestFrame frame, final int pay) {
 
@@ -64,10 +91,6 @@ public class Quest {
         codeMap.put(code, this);
         nameMap.put(displayName, this);
         loreMap.put(this, ItemUtil.genLore(null, description));
-
-//        Quest rq = this;
-//        while (rq.code != ((rq = rq.parent).code));
-//        root = rq;
     }
 
     public IProgress createPrg(final int prg) {

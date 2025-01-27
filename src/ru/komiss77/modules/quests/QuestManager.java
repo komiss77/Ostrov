@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Settings;
@@ -246,9 +246,9 @@ public class QuestManager implements Initiable {
         return prg != null && prg.isDone();
     }
 
-    public static void sendToast(final Player p, final ItemType mat, final String msg, final QuestFrame frm) {
+    public static void sendToast(final Player p, final ItemStack it, final String msg, final QuestFrame frm) {
         if (justGame(PM.getOplayer(p))) return;
-        iAdvance.sendToast(p, mat, msg, frm);
+        iAdvance.sendToast(p, it, msg, frm);
     }
 
 
