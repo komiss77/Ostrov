@@ -1,5 +1,7 @@
 package ru.komiss77.modules.world;
 
+import java.lang.ref.WeakReference;
+import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,7 +11,13 @@ import ru.komiss77.utils.NumUtil;
 
 public class WXYZ extends XYZ {
 
-    public final World w;
+  @Deprecated
+  @SuppressWarnings("не хранить мир - после отгрузки остаётся ghost!!! use world()")
+  public final World w; //не хранить мир - после отгрузки остаётся ghost!!! use world()
+
+  public @Nullable World world() {
+    return Bukkit.getWorld(worldName);
+  }
 
     public WXYZ(final Block b) {
         this.x = b.getX();

@@ -20,12 +20,14 @@ import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftMob;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.inventory.CraftItemType;
 import org.bukkit.craftbukkit.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.Scoreboard;
@@ -79,6 +81,10 @@ public class Craft {
     public static ItemType fromNMS(final Item bt) {
         return CraftItemType.minecraftToBukkitNew(bt);
     }
+
+  public static net.minecraft.world.item.ItemStack toNMS(final ItemStack is) {
+    return CraftItemStack.asNMSCopy(is);
+  }
 
     public static BlockData fromNMS(final BlockState bs) {
         return CraftBlockData.fromData(bs);

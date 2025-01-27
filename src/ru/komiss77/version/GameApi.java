@@ -1,36 +1,147 @@
 package ru.komiss77.version;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import io.papermc.paper.adventure.PaperAdventure;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.DimensionTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.PlainTextContents;
-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.world.WXYZ;
 
 
 public class GameApi {
+
+
+  //отлом из net.minecraft.world.entity.Mob public boolean doHurtTarget(ServerLevel level, Entity source) 1612
+  public static void attack(final org.bukkit.entity.LivingEntity source, final List<org.bukkit.entity.Entity> entitys) {
+    if (source == null || entitys == null || entitys.isEmpty()) return;
+    //ServerPlayer sp = Craft.toNMS(p);
+    final ItemStack inHand = source.getEquipment().getItemInMainHand();
+//Ostrov.log_warn("========== attack "+source.getType()+" inHand="+inHand.getType()+" ============");    //org.bukkit.entity.Entity en = null;
+    AttributeModifier attackMod = null;
+    io.papermc.paper.datacomponent.item.ItemAttributeModifiers itemMods = inHand.getData(DataComponentTypes.ATTRIBUTE_MODIFIERS);//ItemData data =
+    if (itemMods != null) {
+      for (final io.papermc.paper.datacomponent.item.ItemAttributeModifiers.Entry ie : itemMods.modifiers()) {
+        final AttributeModifier mod = ie.modifier();
+//Core.log_warn("§fPaper mod="+mod.toString());
+        //ai.removeModifier(mod);
+        if (mod.getKey().getKey().equals("base_attack_damage")) {
+//Ostrov.log_warn("§5inHand base_attack_damage val="+mod.getAmount());
+          attackMod = mod;
+          break;
+        } //else {
+//Ostrov.log_warn("§5inHand mod="+mod.toString());
+        //}
+      }
+    }
+    float knockback = 0;//, fire = 0;
+    if (inHand.hasItemMeta()) {
+      if (inHand.getItemMeta().hasEnchant(Enchantment.KNOCKBACK)) {
+        knockback = inHand.getItemMeta().getEnchantLevel(Enchantment.KNOCKBACK);
+      } //else if (inHand.getItemMeta().hasEnchant(Enchantment.FIRE_ASPECT)) {
+      //  fire = inHand.getItemMeta().getEnchantLevel(Enchantment.FIRE_ASPECT);
+      //}
+    }
+//Ostrov.log_warn("§5knockback="+knockback);
+
+
+    AttributeInstance ai = source.getAttribute(Attribute.ATTACK_DAMAGE);
+    if (ai == null) {
+      if (attackMod != null) {
+//Ostrov.log_warn("§bsource registerAttribute ATTACK_DAMAGE + addModifier");
+        source.registerAttribute(Attribute.ATTACK_DAMAGE);
+        ai = source.getAttribute(Attribute.ATTACK_DAMAGE);
+        ai.addModifier(attackMod); //создали - сразу добавляем
+      }
+    } else {
+      boolean add = false;
+      for (AttributeModifier mod : ai.getModifiers()) {
+        if (mod.getKey().getKey().equals("base_attack_damage")) {
+          if (attackMod == null) {
+            ai.removeModifier(attackMod);
+//Ostrov.log_warn("§6source has base_attack_damage, remove");
+          } else if (mod.getAmount() != attackMod.getAmount()) {
+            ai.removeModifier(attackMod);
+            add = true;
+//Ostrov.log_warn("§6source mod.getAmount()!=attackMod.getAmount, remove");
+          }
+        }
+      }
+      if (add) {
+        ai.addModifier(attackMod);
+//Ostrov.log_warn("§a++source addModifier value="+attackMod.getAmount());
+      }
+    }
+
+//Ostrov.log_warn("§a++source Mod ATTACK_DAMAGE result="+source.getAttribute(Attribute.ATTACK_DAMAGE).getValue());
+
+    LivingEntity attacker = Craft.toNMS(source);
+    ServerLevel level = attacker.level().getMinecraftWorld();//Craft.toNMS(p.getWorld());
+    final float base_damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+    net.minecraft.world.item.ItemStack weaponItem = attacker.getWeaponItem();//Craft.toNMS(it);
+
+    DamageSource damageSource = (DamageSource) Optional.ofNullable(weaponItem.getItem().getDamageSource(attacker))
+        .orElse(attacker.damageSources().mobAttack(attacker));
+//Ostrov.log_warn("DamageSource type="+damageSource.getEntity().getType()+" Weapon="+damageSource.getWeaponItem().asBukkitCopy().getType());
+    net.minecraft.world.entity.Entity target;
+    for (org.bukkit.entity.Entity entity : entitys) {
+      target = Craft.toNMS(entity);
+      float damage = EnchantmentHelper.modifyDamage(level, weaponItem, target, damageSource, base_damage);
+      //damage += weaponItem.getItem().getAttackDamageBonus(target, damage, damageSource); //тут добавить только булаве
+      boolean succes = target.hurtServer(level, damageSource, damage);
+
+      if (succes) {
+//Ostrov.log_warn("GameApi.attack "+source.getType()+"->"+entity.getType()+" final damage="+damage+" knockback="+knockback);
+        if (target instanceof LivingEntity livingEntity) {
+          if (knockback > 0) {
+            livingEntity.knockback(
+                knockback * 0.5F,
+                Mth.sin(attacker.getYRot() * (float) (Math.PI / 180.0)),
+                -Mth.cos(attacker.getYRot() * (float) (Math.PI / 180.0)),
+                attacker, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.ENTITY_ATTACK // CraftBukkit // Paper - knockback events
+            );
+          }
+          EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(level, target, damageSource, weaponItem, null);
+        }
+
+        //if (source instanceof LivingEntity livingEntity) {
+        //  weaponItem.hurtEnemy(livingEntity, attacker);
+        //}
+
+        EnchantmentHelper.doPostAttackEffects(level, target, damageSource);
+        //this.setLastHurtMob(source);
+        //this.playAttackSound();
+      }
+    }
+
+  }
 
   //также этим можно обновить видимый скин. Пока в стадии разработки, мучения не чистить!!
   public static void sendFakeDimension(final Player p, final World.Environment environment) {

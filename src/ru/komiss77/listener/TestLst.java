@@ -1,48 +1,27 @@
 package ru.komiss77.listener;
 
-import net.kyori.adventure.bossbar.BossBar;
+
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.version.GameApi;
+
 
 public class TestLst implements Listener {
-
-   /* public TestLst() {
-        for (World w : Bukkit.getWorlds()) {
-            Ostrov.log_warn("=== уже загружен мир "+w.getName());
-            for (Chunk c : w.getLoadedChunks()) {
-                Ostrov.log_warn("=== уже загружен чанк "+c.getX()+"x"+c.getZ());
-                for (Entity en : c.getEntities()) {
-                    if (en.getType()==EntityType.ARMOR_STAND) {
-                        Ostrov.log_warn("=== "+en.getType());
-
-                    }
-                }
-            }
-        }
-    }*/
 
 
     Botter bt = null;
 
 
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //        Nms.totemPop(p, ItemUtil.nextPage);
@@ -50,16 +29,18 @@ public class TestLst implements Listener {
         if (!ApiOstrov.isLocalBuilder(p)) return;
         final Oplayer op = PM.getOplayer(p);
 
-        final ItemStack it = e.getItem();
-        if (it == null) return;
+        final ItemStack inHand = e.getItem();
+        if (inHand == null) return;
 
-        if (it.getType() == Material.WOODEN_PICKAXE) {
+        if (inHand.getType() == Material.WOODEN_PICKAXE) {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
                 if (p.isSneaking()) {
-                    GameApi.sendFakeDimension(p, World.Environment.THE_END);
+
+
+                    // GameApi.sendFakeDimension(p, World.Environment.THE_END);
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
                   wb = Bukkit.createWorldBorder();
@@ -173,13 +154,13 @@ public class TestLst implements Listener {
             }
         }
 
-        if (it.getType() == Material.ENCHANTED_BOOK) {
-            //CustomEnchant.CHANNELING.level(it, 1, false);
-            p.getInventory().setItemInMainHand(it);
+        if (inHand.getType() == Material.ENCHANTED_BOOK) {
+            //CustomEnchant.CHANNELING.level(inHand, 1, false);
+            p.getInventory().setItemInMainHand(inHand);
             return;
         }
 
-        if (it.getType() == Material.DRAGON_BREATH) {
+        if (inHand.getType() == Material.DRAGON_BREATH) {
             p.sendMessage("§8TestListener - interact cancel!");
             if (e.getClickedBlock() != null) {
                 e.setCancelled(true);

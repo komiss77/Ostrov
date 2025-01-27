@@ -177,6 +177,7 @@ public class EntityGroupMenu implements InventoryProvider {
             for (final Chunk chunk : chunks.values()) {
                 if (!chunk.isLoaded() || !chunk.isEntitiesLoaded()) continue;
                 for (final Entity e : chunk.getEntities()) {
+                  if (e.getType() == EntityType.PLAYER) continue;
                     if (EntityUtil.group(e.getType()) == group) {
                         if (count.containsKey(e.getType())) {
                             count.replace(e.getType(), count.get(e.getType()) + 1);
