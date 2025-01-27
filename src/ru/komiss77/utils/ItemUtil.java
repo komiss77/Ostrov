@@ -690,8 +690,8 @@ public class ItemUtil {
     private static final String[] seps = {StringUtil.SPLIT_1, StringUtil.SPLIT_2};
     private static final DataParser parsers = createParser();
     private static DataParser createParser() {
-        final DataParser dp = new DataParser();
-        dp.put(DataParser.PDC_TYPE, new DataParser.Parser<>() {
+        final DataParser dataParser = new DataParser();
+        dataParser.put(DataParser.PDC_TYPE, new DataParser.Parser<>() {
             public String write(final PDC.Data val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 boolean first = true;
@@ -715,7 +715,7 @@ public class ItemUtil {
                 return bld;
             }
         });
-        dp.put(DataComponentTypes.ITEM_MODEL, new DataParser.Parser<Key>() {
+        dataParser.put(DataComponentTypes.ITEM_MODEL, new DataParser.Parser<Key>() {
             public String write(final Key val, final String... seps) {
                 return val.asMinimalString();
             }
@@ -723,7 +723,7 @@ public class ItemUtil {
                 return Key.key(str);
             }
         });
-        dp.put(DataComponentTypes.ATTRIBUTE_MODIFIERS, new DataParser.Parser<ItemAttributeModifiers>() {
+        dataParser.put(DataComponentTypes.ATTRIBUTE_MODIFIERS, new DataParser.Parser<ItemAttributeModifiers>() {
             public String write(final ItemAttributeModifiers val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append(val.showInTooltip());
@@ -749,7 +749,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.DAMAGE, new DataParser.Parser<Integer>() {
+        dataParser.put(DataComponentTypes.DAMAGE, new DataParser.Parser<Integer>() {
             public String write(final Integer val, final String... seps) {
                 return val.toString();
             }
@@ -757,7 +757,7 @@ public class ItemUtil {
                 return NumUtil.intOf(str, 0);
             }
         });
-        dp.put(DataComponentTypes.ITEM_NAME, new DataParser.Parser<Component>() {
+        dataParser.put(DataComponentTypes.ITEM_NAME, new DataParser.Parser<Component>() {
             public String write(final Component val, final String... seps) {
                 return TCUtil.deform(val);
             }
@@ -765,7 +765,7 @@ public class ItemUtil {
                 return TCUtil.form(str);
             }
         });
-        dp.put(DataComponentTypes.CUSTOM_NAME, new DataParser.Parser<Component>() {
+        dataParser.put(DataComponentTypes.CUSTOM_NAME, new DataParser.Parser<Component>() {
             public String write(final Component val, final String... seps) {
                 return TCUtil.deform(val);
             }
@@ -773,7 +773,7 @@ public class ItemUtil {
                 return TCUtil.form(str);
             }
         });
-        dp.put(DataComponentTypes.LORE, new DataParser.Parser<ItemLore>() {
+        dataParser.put(DataComponentTypes.LORE, new DataParser.Parser<ItemLore>() {
             public String write(final ItemLore val, final String... seps) {
                 return String.join(seps[0], val.lines().stream().map(TCUtil::deform).toArray(i -> new String[i]));
             }
@@ -781,7 +781,7 @@ public class ItemUtil {
                 return ItemLore.lore(Arrays.stream(str.split(seps[0])).map(TCUtil::form).toList());
             }
         });
-        dp.put(DataComponentTypes.DYED_COLOR, new DataParser.Parser<DyedItemColor>() {
+        dataParser.put(DataComponentTypes.DYED_COLOR, new DataParser.Parser<DyedItemColor>() {
             public String write(final DyedItemColor val, final String... seps) {
                 return val.showInTooltip() + seps[0] + val.color().asARGB();
             }
@@ -793,7 +793,7 @@ public class ItemUtil {
                     .color(Color.fromARGB(NumUtil.intOf(parts[1], 0))).build();
             }
         });
-        dp.put(DataComponentTypes.CONSUMABLE, new DataParser.Parser<Consumable>() {
+        dataParser.put(DataComponentTypes.CONSUMABLE, new DataParser.Parser<Consumable>() {
             public String write(final Consumable val, final String... seps) {
                 return String.join(seps[0], val.animation().name(),
                     StringUtil.toSigFigs(val.consumeSeconds(), (byte) 2),
@@ -808,7 +808,7 @@ public class ItemUtil {
                     .hasConsumeParticles(Boolean.parseBoolean(parts[2])).build();
             }
         });
-        dp.put(DataComponentTypes.DAMAGE_RESISTANT, new DataParser.Parser<DamageResistant>() {
+        dataParser.put(DataComponentTypes.DAMAGE_RESISTANT, new DataParser.Parser<DamageResistant>() {
             public String write(final DamageResistant val, final String... seps) {
                 return ofKey(val.types());
             }
@@ -816,7 +816,7 @@ public class ItemUtil {
                 return DamageResistant.damageResistant(TagKey.create(RegistryKey.DAMAGE_TYPE, Key.key(str)));
             }
         });
-        dp.put(DataComponentTypes.ENCHANTABLE, new DataParser.Parser<Enchantable>() {
+        dataParser.put(DataComponentTypes.ENCHANTABLE, new DataParser.Parser<Enchantable>() {
             public String write(final Enchantable val, final String... seps) {
                 return String.valueOf(val.value());
             }
@@ -824,7 +824,7 @@ public class ItemUtil {
                 return Enchantable.enchantable(NumUtil.intOf(str, 0));
             }
         });
-        dp.put(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, new DataParser.Parser<Boolean>() {
+        dataParser.put(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, new DataParser.Parser<Boolean>() {
             public String write(final Boolean val, final String... seps) {
                 return val.toString();
             }
@@ -832,7 +832,7 @@ public class ItemUtil {
                 return Boolean.parseBoolean(str);
             }
         });
-        dp.put(DataComponentTypes.ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
+        dataParser.put(DataComponentTypes.ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
             public String write(final ItemEnchantments val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append(val.showInTooltip());
@@ -854,7 +854,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.STORED_ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
+        dataParser.put(DataComponentTypes.STORED_ENCHANTMENTS, new DataParser.Parser<ItemEnchantments>() {
             public String write(final ItemEnchantments val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append(val.showInTooltip());
@@ -876,7 +876,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.EQUIPPABLE, new DataParser.Parser<Equippable>() {
+        dataParser.put(DataComponentTypes.EQUIPPABLE, new DataParser.Parser<Equippable>() {
             public String write(final Equippable val, final String... seps) {
                 final Key model = val.assetId();
                 return String.join(seps[0], val.slot().name(), model == null ? StringUtil.NA : model.asMinimalString(), String.valueOf(val.damageOnHurt()),
@@ -891,7 +891,7 @@ public class ItemUtil {
                     .swappable(Boolean.parseBoolean(parts[4])).equipSound(Key.key(parts[5])).build();
             }
         });
-        dp.put(DataComponentTypes.FIREWORKS, new DataParser.Parser<Fireworks>() {
+        dataParser.put(DataComponentTypes.FIREWORKS, new DataParser.Parser<Fireworks>() {
             public String write(final Fireworks val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append(val.flightDuration());
@@ -920,7 +920,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.FOOD, new DataParser.Parser<FoodProperties>() {
+        dataParser.put(DataComponentTypes.FOOD, new DataParser.Parser<FoodProperties>() {
             public String write(final FoodProperties val, final String... seps) {
                 return String.join(seps[0], String.valueOf(val.nutrition()),
                     StringUtil.toSigFigs(val.saturation(), (byte) 2), String.valueOf(val.canAlwaysEat()));
@@ -933,7 +933,7 @@ public class ItemUtil {
                     .canAlwaysEat(Boolean.parseBoolean(parts[2])).build();
             }
         });
-        dp.put(DataComponentTypes.UNBREAKABLE, new DataParser.Parser<Unbreakable>() {
+        dataParser.put(DataComponentTypes.UNBREAKABLE, new DataParser.Parser<Unbreakable>() {
             public String write(final Unbreakable val, final String... seps) {
                 return String.valueOf(val.showInTooltip());
             }
@@ -941,7 +941,7 @@ public class ItemUtil {
                 return Unbreakable.unbreakable(Boolean.parseBoolean(str));
             }
         });
-        dp.put(DataComponentTypes.USE_COOLDOWN, new DataParser.Parser<UseCooldown>() {
+        dataParser.put(DataComponentTypes.USE_COOLDOWN, new DataParser.Parser<UseCooldown>() {
             public String write(final UseCooldown val, final String... seps) {
                 final Key key = val.cooldownGroup();
                 return val.seconds() + seps[0] + (key == null ? StringUtil.NA : key.asMinimalString());
@@ -954,7 +954,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.TRIM, new DataParser.Parser<ItemArmorTrim>() {
+        dataParser.put(DataComponentTypes.TRIM, new DataParser.Parser<ItemArmorTrim>() {
             public String write(final ItemArmorTrim val, final String... seps) {
                 return String.join(seps[0], String.valueOf(val.showInTooltip()),
                     ofKey(val.armorTrim().getMaterial()), ofKey(val.armorTrim().getPattern()));
@@ -966,7 +966,7 @@ public class ItemUtil {
                     Ostrov.registries.TRIM_PATTS.get(Key.key(parts[2]))), Boolean.parseBoolean(parts[0]));
             }
         });
-        dp.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
+        dataParser.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
             public String write(final Integer val, final String... seps) {
                 return val.toString();
             }
@@ -974,7 +974,7 @@ public class ItemUtil {
                 return NumUtil.intOf(str, 1);
             }
         });
-        dp.put(DataComponentTypes.POTION_CONTENTS, new DataParser.Parser<PotionContents>() {
+        dataParser.put(DataComponentTypes.POTION_CONTENTS, new DataParser.Parser<PotionContents>() {
             public String write(final PotionContents val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 final Color clr = val.customColor();
@@ -1001,7 +1001,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        dp.put(DataComponentTypes.MAX_STACK_SIZE, new DataParser.Parser<Integer>() {
+        dataParser.put(DataComponentTypes.MAX_STACK_SIZE, new DataParser.Parser<Integer>() {
             public String write(final Integer val, final String... seps) {
                 return val.toString();
             }
@@ -1009,7 +1009,7 @@ public class ItemUtil {
                 return NumUtil.intOf(str, 1);
             }
         });
-        dp.put(DataComponentTypes.REPAIRABLE, new DataParser.Parser<Repairable>() {
+        dataParser.put(DataComponentTypes.REPAIRABLE, new DataParser.Parser<Repairable>() {
             public String write(final Repairable val, final String... seps) {
                 return String.join(seps[0], val.types().values().stream()
                     .map(tk -> ofKey(tk)).toArray(i -> new String[i]));
@@ -1019,7 +1019,7 @@ public class ItemUtil {
                     .map(Key::key).toList(), RegistryKey.ITEM));
             }
         });
-        dp.put(DataComponentTypes.RARITY, new DataParser.Parser<ItemRarity>() {
+        dataParser.put(DataComponentTypes.RARITY, new DataParser.Parser<ItemRarity>() {
             public String write(final ItemRarity val, final String... seps) {
                 return val.name();
             }
@@ -1027,7 +1027,7 @@ public class ItemUtil {
                 return ItemRarity.valueOf(str);
             }
         });
-        dp.put(DataComponentTypes.TOOL, new DataParser.Parser<Tool>() {
+        dataParser.put(DataComponentTypes.TOOL, new DataParser.Parser<Tool>() {
             public String write(final Tool val, final String... seps) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append(StringUtil.toSigFigs(val.defaultMiningSpeed(), (byte) 2)).append(seps[0]).append(val.damagePerBlock());
@@ -1059,7 +1059,7 @@ public class ItemUtil {
                 return bld.build();
             }
         });
-        return dp;
+        return dataParser;
     }
 
     public static final String OLD_PDC = "custom_data";
@@ -1931,31 +1931,38 @@ public class ItemUtil {
     }
 
     //есть Ostrov.registries.ITEMS, список предметов не надо
-//    private static final List<ItemType> ITEM_TYPES = OStrap.retrieveAll(RegistryKey.ITEM);
+    private static final List<ItemType> ITEM_TYPES = OStrap.retrieveAll(RegistryKey.ITEM);
     public static ItemBuilder buildEntityIcon(final EntityType type) {
         //final ItemBuilder builder = null; //new ItemBuilder(ItemType.PLAYER_HEAD);
 
         //хз что это должно делать? нету предметов с только назв. сущности
-        /*for (ItemType it2 : ITEM_TYPES) {
+        //там как раз много чего находит - стойка для брони,снежки,стрелы и тд. Удобно когда их сразу показвает без лишних танцев
+        ItemType it = null;
+        for (ItemType it2 : ITEM_TYPES) {
             if (it2.getKey().value().equalsIgnoreCase(type.name())) {
                 it = it2;
                 break;
             }
-        }*/
-        if (type == EntityType.UNKNOWN)
-            return new ItemBuilder(ItemType.DRIED_KELP_BLOCK).name("Неизвестный тип");
-
-        final ItemType it = switch (type) {
-            case ARMOR_STAND -> ItemType.ARMOR_STAND;
-            case ZOMBIE -> ItemType.ZOMBIE_HEAD;
-            case CREEPER -> ItemType.CREEPER_HEAD;
-            case PIGLIN -> ItemType.PIGLIN_HEAD;
-            case ENDER_DRAGON -> ItemType.DRAGON_HEAD;
-            case PLAYER -> ItemType.PLAYER_HEAD;
-            default -> Optional.of(Ostrov.registries.ITEMS
-                .get(Key.key(type.key().value() + "_spawn_egg")))
-                .orElse(ItemType.NAME_TAG);
-        };
+        }
+        if (it == null) {
+            switch (type) {
+                case UNKNOWN -> { // UNKNOWN entities do not have translation keys !
+                    return new ItemBuilder(ItemType.DRIED_KELP_BLOCK).name("Неизвестный тип");
+                }
+                case ARMOR_STAND -> it = ItemType.ARMOR_STAND;
+                case ZOMBIE -> it = ItemType.ZOMBIE_HEAD;
+                case CREEPER -> it = ItemType.CREEPER_HEAD;
+                case PIGLIN -> it = ItemType.PIGLIN_HEAD;
+                case ENDER_DRAGON -> it = ItemType.DRAGON_HEAD;
+                //case ENDER_DRAGON -> it = ItemType.DRAGON_HEAD;
+                //case  -> builder.setCustomHeadTexture("6d865aae2746a9b8e9a4fe629fb08d18d0a9251e5ccbe5fa7051f53eab9b94");
+                default -> it = ItemType.NAME_TAG;
+                //не помню почему, но с яйцами чо-то было не так и спецом их не ставил
+                //default -> Optional.of(Ostrov.registries.ITEMS
+                //        .get(Key.key(type.key().value() + "_spawn_egg")))
+                //    .orElse(ItemType.NAME_TAG);
+            }
+        }
 
         return new ItemBuilder(it).name(Lang.t(type, Lang.RU));
     }

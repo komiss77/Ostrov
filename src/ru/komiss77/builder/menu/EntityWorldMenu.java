@@ -241,6 +241,7 @@ public class EntityWorldMenu implements InventoryProvider {
                 for (final Chunk chunk : chunks.values()) {
                     int cLoc = LocUtil.cLoc(chunk);
                     for (final Entity e : chunk.getEntities()) {
+                      if (e.getType() == EntityType.PLAYER) continue;
                         if (EntityUtil.group(e.getType()) == group) {
                             if (count2.containsKey(cLoc)) {
                                 count2.replace(cLoc, count2.get(cLoc) + 1);
@@ -284,6 +285,7 @@ public class EntityWorldMenu implements InventoryProvider {
 
                         final Chunk c = LocUtil.getChunk(world.getName(), entry.getKey());
                         for (final Entity en : c.getEntities()) {
+                          if (en.getType() == EntityType.PLAYER) continue;
                             if (EntityUtil.group(en) == group) {
                                 en.remove();
                             }

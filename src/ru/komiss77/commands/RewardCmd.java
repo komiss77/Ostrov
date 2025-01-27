@@ -33,7 +33,7 @@ public class RewardCmd implements OCommand {
         .executes(cntx -> {//выполнение без аргументов
           final CommandSender cs = cntx.getSource().getSender();
           if (!ApiOstrov.isLocalBuilder(cs)) {
-            cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
+            cs.sendMessage("§cКоманда исполняется от имени консоли/билдера/плагинов/!");
             return 0;
           }
           help(cs);
@@ -120,10 +120,10 @@ public class RewardCmd implements OCommand {
   private static Command<CommandSourceStack> tryReward() {
     return cntx -> {
       final CommandSender cs = cntx.getSource().getSender();
-      if (!ApiOstrov.isLocalBuilder(cs)) {
-        cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
-        return 0;
-      }
+      //if (!ApiOstrov.isLocalBuilder(cs)) { уже проверяется в начале
+      //  cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
+      //  return 0;
+      //}
 
       final String tgt = Resolver.string(cntx, player);
       final RewardType type = RewardType.fromString(Resolver.string(cntx, item));
@@ -136,6 +136,7 @@ public class RewardCmd implements OCommand {
       String value = Resolver.string(cntx, val);
       int amt;
       switch (type) {
+
         case PERM:
         case GROUP:
           if (oper.length() > 64) {
@@ -163,17 +164,18 @@ public class RewardCmd implements OCommand {
             return 0;
           }
 
-          if (type == RewardType.GROUP && Ostrov.MOT_D.equals("pay")) {
-            amt = amt / 60 / 60 / 24; //привести к дням
-            if (amt < 1) {
-              cs.sendMessage("§cГруппа дни > 0!");
-              return 0;
-            }
-            RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `gr`, `days`) VALUES ('" + tgt + "', '" + oper + "', '" + amt + "')");
-            cs.sendMessage("§aГруппа " + oper + " для " + tgt + " на " + amt + "дн. : отправлена запись в БД");
-            return Command.SINGLE_SUCCESS;
-          }
+          //if (type == RewardType.GROUP && Ostrov.MOT_D.equals("pay")) {
+          //  amt = amt / 60 / 60 / 24; //привести к дням
+          //  if (amt < 1) {
+          //    cs.sendMessage("§cГруппа дни > 0!");
+          //     return 0;
+          //  }
+          //   RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `gr`, `days`) VALUES ('" + tgt + "', '" + oper + "', '" + amt + "')");
+          //   cs.sendMessage("§aГруппа " + oper + " для " + tgt + " на " + amt + "дн. : отправлена запись в БД");
+          //   return Command.SINGLE_SUCCESS;
+          //}
           break;
+
         case LONI:
         case EXP:
         case REP:
@@ -210,13 +212,13 @@ public class RewardCmd implements OCommand {
             cs.sendMessage("§eОпыт нужно прибавлять!");
             return 0;
           }
-
-          if (type == RewardType.RIL && Ostrov.MOT_D.equals("pay")) {
-            RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `rub`) VALUES ('" + tgt + "', '" + amt + "')");
-            cs.sendMessage("§a" + amt + " рил для " + tgt + " : отправлена запись в БД");
-            return Command.SINGLE_SUCCESS;
-          }
+          //if (type == RewardType.RIL && Ostrov.MOT_D.equals("pay")) {
+          //  RemoteDB.executePstAsync(cs, "INSERT INTO `payments` (`name`, `rub`) VALUES ('" + tgt + "', '" + amt + "')");
+          //  cs.sendMessage("§a" + amt + " рил для " + tgt + " : отправлена запись в БД");
+          //  return Command.SINGLE_SUCCESS;
+          //}
           break;
+
         default:
           amt = 0;
           break;
@@ -234,7 +236,7 @@ public class RewardCmd implements OCommand {
           return 0;
         }
       }
-      cs.sendMessage("§2reward done : " + tgt + " " + type + " " + oper + " " + value + " " + cs.getName());
+      cs.sendMessage("§aЗапрос reward отправлен в обработку на прокси: §f" + cs.getName() + " §b-> §e" + oper + " " + value + " " + type + " " + tgt);
       return Command.SINGLE_SUCCESS;
     };
   }
