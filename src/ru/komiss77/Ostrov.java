@@ -15,24 +15,21 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.komiss77.builder.BuilderCmd;
+import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
-import ru.komiss77.commands.Server;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
 import ru.komiss77.listener.*;
-import ru.komiss77.modules.figures.FigureManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
-import ru.komiss77.version.Registries;
 
 
 public class Ostrov extends JavaPlugin {

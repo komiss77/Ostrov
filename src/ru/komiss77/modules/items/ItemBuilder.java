@@ -26,8 +26,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
-import ru.komiss77.OStrap;
-import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemUtil.Texture;
@@ -380,7 +379,7 @@ public class ItemBuilder {
         cnb.consumeSeconds(ticks * 0.05f);
         cnb.hasConsumeParticles(true);
         cnb.animation(iua);
-        cnb.sound(Ostrov.registries.SOUNDS.getKey(snd));
+        cnb.sound(OStrap.keyOf(snd));
         return set(DataComponentTypes.CONSUMABLE, cnb.build());
     }
 
@@ -391,7 +390,7 @@ public class ItemBuilder {
         cnb.consumeSeconds(ticks * 0.05f);
         cnb.hasConsumeParticles(false);
         cnb.animation(iua);
-        cnb.sound(Ostrov.registries.SOUNDS.getKey(snd));
+        cnb.sound(OStrap.keyOf(snd));
         return set(DataComponentTypes.CONSUMABLE, cnb.build());
     }
 

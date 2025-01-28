@@ -7,8 +7,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import ru.komiss77.Initiable;
-import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 
 public class ScoreManager implements Initiable, Listener {
 

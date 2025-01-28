@@ -6,7 +6,7 @@ import io.papermc.paper.datacomponent.DataComponentType;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import ru.komiss77.OStrap;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.objects.Duo;
 
 public class PDC implements DataComponentType.Valued<PDC.Data> {

@@ -7,8 +7,10 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.items.ItemGroup;
@@ -69,7 +71,7 @@ public class IGroupCmd {
                 }
 
                 final String tp = Resolver.string(cntx, type);
-                ItemUtil.giveItemsTo(pl, ig.item(Ostrov.registries.ITEMS.get(Key.key(tp))));
+                ItemUtil.giveItemsTo(pl, ig.item(OStrap.retrieve(Key.key(tp), ItemType.AIR)));
                 pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выдан предмет " + tp + " группы: " + id));
                 return Command.SINGLE_SUCCESS;
             })

@@ -39,6 +39,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -46,8 +48,8 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.items.DataParser;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.ItemClass;
@@ -729,7 +731,7 @@ public class ItemUtil {
                 sb.append(val.showInTooltip());
                 for (final ItemAttributeModifiers.Entry ie : val.modifiers()) {
                     final AttributeModifier mod = ie.modifier();
-                    sb.append(seps[0]).append(String.join(seps[1], ofRegKey(Ostrov.registries.ATTRIES, ie.attribute()), ofKey(mod),
+                    sb.append(seps[0]).append(String.join(seps[1], ofRegKey(Ostrov.registries.ATTRIBS, ie.attribute()), ofKey(mod),
                         StringUtil.toSigFigs(mod.getAmount(), (byte) 4), mod.getOperation().name(), mod.getSlotGroup().toString()));
                 }
                 return sb.toString();
@@ -742,7 +744,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 5, false)) continue;
-                    bld.addModifier(Ostrov.registries.ATTRIES.get(Key.key(mod[0])),
+                    bld.addModifier(OStrap.retrieve(Key.key(mod[0]), LUCK),
                         new AttributeModifier(NamespacedKey.fromString(mod[1]), NumUtil.doubleOf(mod[2], 0d),
                             Operation.valueOf(mod[3]), EquipmentSlotGroup.getByName(mod[4])));
                 }
@@ -849,7 +851,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[1], 0));
+                    bld.add(OStrap.retrieve(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -871,7 +873,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(Ostrov.registries.ENCHANTS.get(Key.key(mod[0])), NumUtil.intOf(mod[1], 0));
+                    bld.add(OStrap.retrieve(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -962,8 +964,8 @@ public class ItemUtil {
             public ItemArmorTrim parse(final String str, final String... seps) {
                 final String[] parts = str.split(seps[0]);
                 if (!ClassUtil.check(parts, 3, false)) return null;
-                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(Ostrov.registries.TRIM_TYPES.get(Key.key(parts[1])),
-                    Ostrov.registries.TRIM_PATTS.get(Key.key(parts[2]))), Boolean.parseBoolean(parts[0]));
+                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(OStrap.retrieve(Key.key(parts[1]), TrimMaterial.IRON),
+                    OStrap.retrieve(Key.key(parts[2]), TrimPattern.COAST)), Boolean.parseBoolean(parts[0]));
             }
         });
         dataParser.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
@@ -1099,15 +1101,15 @@ public class ItemUtil {
         final String[] idt = split[0].split(StringUtil.SPLIT_1);
         final ItemType tp;
         try {
-            tp = Ostrov.registries.ITEMS.get(Key.key(idt[0]));
+            tp = OStrap.retrieve(Key.key(idt[0]), ItemType.AIR);
         } catch (InvalidKeyException e) {
             Ostrov.log_err("Couldn't parse type for " + str);
             e.printStackTrace();
             return ItemType.AIR.createItemStack();
         }
-        if (tp == null) {
+        if (tp == ItemType.AIR) {
             Ostrov.log_err("Failed parsing item type for " + str);
-            return ItemType.AIR.createItemStack();
+            return tp.createItemStack();
         }
         final ItemStack it = tp.createItemStack(idt.length == 2 ? NumUtil.intOf(idt[1], 1) : 1);
         String data = null;
@@ -1212,8 +1214,8 @@ public class ItemUtil {
                 if (am.hasTrim()) {
                     final ArmorTrim trim = am.getTrim();
                     if (trim != null) {
-                        final Key type = Ostrov.registries.TRIM_TYPES.getKey(trim.getMaterial()),
-                            patt = Ostrov.registries.TRIM_PATTS.getKey(trim.getPattern());
+                        final Key type = OStrap.keyOf(trim.getMaterial()),
+                            patt = OStrap.keyOf(trim.getPattern());
                         if (type != null && patt != null) {
                             res.append(spl).append("trim:").append(type.value())
                                 .append(":").append(patt.value());

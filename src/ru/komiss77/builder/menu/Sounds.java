@@ -6,6 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -18,15 +19,18 @@ public class Sounds implements InventoryProvider {
     private Sound previos;
     private int page;
 
+    private final List<String> sounds;
+
     public Sounds(final int page) {
         this.page = page;
+        this.sounds = Ostrov.registries.SOUNDS.stream().map(s -> OStrap.keyOf(s).value()).sorted().toList();
     }
 
 
     @Override
     public void init(final Player p, final InventoryContent content) {
-        int from = page * 44;
-        int to = page * 44 + 45;
+        int from = page * 45;
+        int to = from + 45;
 
         content.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR)
             .name("<gold>Закрыть").build(), e -> p.closeInventory()));
@@ -39,9 +43,6 @@ public class Sounds implements InventoryProvider {
                 })
             );
         }
-
-        final List<Sound> ses = Ostrov.registries.SOUNDS.stream().toList();
-        final List<String> sounds = ses.stream().map(s -> Ostrov.registries.SOUNDS.getKey(s).value()).sorted().toList();
         if (to > sounds.size()) {
             to = sounds.size();
         } else {
@@ -52,7 +53,7 @@ public class Sounds implements InventoryProvider {
 
         for (int i = from; i != to; i++) {
             final String snm = sounds.get(i);
-            final Sound sound = Ostrov.registries.SOUNDS.get(Key.key(snm));
+            final Sound sound = OStrap.retrieve(Key.key(snm), Sound.BLOCK_COMPARATOR_CLICK);
             if (sound == null) continue;
             final String tpn;
             final int sp1 = snm.indexOf('.');
@@ -64,14 +65,14 @@ public class Sounds implements InventoryProvider {
                 else tpn = snm1.substring(0, sp2);
             }
 
-            ItemType tp = null;
+            ItemType tp = ItemType.AIR;
             for (final String spl : tpn.split("\\.")) {
-                tp = Ostrov.registries.ITEMS.get(Key.key(spl.toLowerCase()));
-                if (tp == null) tp = Ostrov.registries.ITEMS.get(Key
-                    .key(spl.toLowerCase() + "_spawn_egg"));
-                if (tp != null) break;
+                tp = OStrap.retrieve(Key.key(spl.toLowerCase()), ItemType.AIR);
+                if (tp == ItemType.AIR) tp = OStrap.retrieve(Key.key(spl.toLowerCase()
+                        + "_spawn_egg"), ItemType.AIR);
+                if (tp != ItemType.AIR) break;
             }
-            if (tp == null) tp = ItemType.FLOW_BANNER_PATTERN;
+            if (tp == ItemType.AIR) tp = ItemType.FLOW_BANNER_PATTERN;
 
             content.add(ClickableItem.of(new ItemBuilder(tp)
                 .name("§f" + sound)
@@ -98,7 +99,7 @@ public class Sounds implements InventoryProvider {
                         p.playSound(p.getLocation(), sound, 1f, 0.5f);
                         break;
                     case MIDDLE:
-                        p.sendMessage(Ostrov.registries.SOUNDS.getKey(sound).value() + ", tp-" + tpn);
+                        p.sendMessage(OStrap.keyOf(sound).value() + ", tp-" + tpn);
                         break;
                 }
             }));

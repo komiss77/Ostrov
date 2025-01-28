@@ -12,7 +12,7 @@ import org.bukkit.entity.*;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
-import ru.komiss77.OStrap;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemBuilder;

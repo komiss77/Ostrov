@@ -15,8 +15,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemType;
-import ru.komiss77.OStrap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 
 
 public abstract class CustomEnchant implements Keyed {

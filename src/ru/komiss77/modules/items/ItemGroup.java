@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemType;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
-import ru.komiss77.OStrap;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.version.Nms;

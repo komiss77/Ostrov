@@ -1,4 +1,4 @@
-package ru.komiss77;
+package ru.komiss77.boot;
 
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;

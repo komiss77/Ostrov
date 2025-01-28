@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Colorable;
 import org.intellij.lang.annotations.Subst;
-import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.version.GameApi;
 
@@ -243,8 +243,7 @@ public class TCUtil {
         if (source == null) return ItemType.BEDROCK; //заглушки от NullPoint  в плагинах
         if (color == null) return source; //заглушки от NullPoint  в плагинах
         final String stripName = stripMaterialName(source.key().value());
-        final ItemType newMat = Ostrov.registries.ITEMS.get(Key
-            .key(color.name().toLowerCase() + "_" + stripName));
+        final ItemType newMat = OStrap.retrieve(Key.key(color.name().toLowerCase() + "_" + stripName), source);
         return newMat == null ? source : newMat;
     }
 
