@@ -7,11 +7,23 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.WallSign;
 
 
 public class BlockUtil {
+
+    public static final BlockData air = BlockType.AIR.createBlockData();
+
+    public static boolean is(final Block b, final BlockType bt) {
+        return b.getType().asBlockType().equals(bt);
+    }
+
+    public static void set(final Block b, final BlockType bt, final boolean upd) {
+        b.setBlockData(bt.createBlockData(), upd);
+    }
 
     public static Block getSignAttachedBlock(final Block b) {
         if (b.getState() instanceof final Sign sign
@@ -25,10 +37,6 @@ public class BlockUtil {
     public static Block getHighestBlock(final World world, final int x, final int z) { //не отдавать null!!
         final Location loc = LocUtil.getHighestLoc(world, x, z);
         return loc == null ? world.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING) : loc.getBlock().getRelative(BlockFace.UP);
-        //Block block;
-        //for ( block = world.getHighestBlockAt(x, z).getRelative(BlockFace.DOWN); 
-        //        Tag.LEAVES.isTagged(block.getType()) || block.getType() == Material.AIR || block.getType() == Material.GRASS || block.getType() == Material.TALL_GRASS; block = block.getRelative(BlockFace.DOWN)) {}
-        //return block.getRelative(BlockFace.UP).getType()==Material.AIR ? block.getRelative(BlockFace.UP) : block.getLocation().clone().add(0, 2, 0).getBlock();
     }
 
     //для регионГуи
