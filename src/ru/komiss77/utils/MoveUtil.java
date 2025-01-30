@@ -11,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -33,19 +34,31 @@ public class MoveUtil {
     public static boolean safeTP(final Player p, final Location feetLoc) {
         final LocFinder.Check[] mts = {
             (LocFinder.DataCheck) (dt, y) -> {
-                if (dt instanceof Snow) return ((Snow) dt).getLayers() > 4;//снег
+                switch (dt) {
+                    case final Snow sn: return sn.getLayers() > 4;
+                    case final Waterlogged sn: return sn.isWaterlogged();
+                    default: break;
+                }
                 final BlockType bt = dt.getMaterial().asBlockType();
                 if (BlockType.BEDROCK.equals(bt)) return false;
                 if (BlockType.WATER.equals(bt)) return true;
                 return LocUtil.canStand(bt);//крыша мира (как в незере)
             },
             (LocFinder.DataCheck) (dt, y) -> {
-                if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
+                switch (dt) {
+                    case final Snow sn: return sn.getLayers() < 5;
+                    case final Waterlogged sn: return !sn.isWaterlogged();
+                    default: break;
+                }
                 final BlockType bt = dt.getMaterial().asBlockType();
                 return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
             },
             (LocFinder.DataCheck) (dt, y) -> {
-                if (dt instanceof Snow) return ((Snow) dt).getLayers() < 5;//снег
+                switch (dt) {
+                    case final Snow sn: return sn.getLayers() < 5;
+                    case final Waterlogged sn: return !sn.isWaterlogged();
+                    default: break;
+                }
                 final BlockType bt = dt.getMaterial().asBlockType();
                 return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
             }
