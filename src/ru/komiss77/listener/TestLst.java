@@ -39,9 +39,10 @@ public class TestLst implements Listener {
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
-                TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
-                p.sendMessage("TPR");
                 if (p.isSneaking()) {
+                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
+                    //TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
+                    p.sendMessage("safeTP down");
 
 
                     // GameApi.sendFakeDimension(p, World.Environment.THE_END);
@@ -58,6 +59,9 @@ public class TestLst implements Listener {
                     //op.tag(true);
                     //op.tag("<blue>dddd", "<yellow>dddf");
                 } else {
+                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, 200, 0));
+                    //TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
+                    p.sendMessage("safeTP up");
                     //p.setWorldBorder(null);//p.getWorldBorder().setSize(100);
                 /*WorldBorder wb = p.getWorldBorder();
                 if (wb == null) {
@@ -80,7 +84,8 @@ public class TestLst implements Listener {
                 }
 
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-
+                p.sendMessage("TprCmd.runCommand");
+                TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
                 //Nms.PlaceType pt = Nms.isSafeLocation(p, new WXYZ(e.getClickedBlock().getLocation()));
                 //p.sendMessage("§3" + pt);
 

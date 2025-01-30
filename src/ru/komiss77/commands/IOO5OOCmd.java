@@ -64,7 +64,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меню серверов")
-            .aliases("езы")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("serv")
@@ -78,7 +78,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меню серверов")
-            .aliases("ыукм")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("skin")
@@ -92,7 +92,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Установить скин")
-            .aliases("ылшт")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("land")
@@ -110,7 +110,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Помошник привата")
-            .aliases("дфтв")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("admin")
@@ -134,7 +134,7 @@ public class IOO5OOCmd {
             })
             //.aliases("админ")
             .description("Открывает меню Абьюзера")
-            .aliases("фвьшт")
+            //.aliases("")//альясы на кирилице на работают!
             .register();
 
         new OCmdBuilder("home")
@@ -152,7 +152,7 @@ public class IOO5OOCmd {
                 op.menu.openHomes(p);
                 return Command.SINGLE_SUCCESS;
             })
-            .aliases("sethome", "delhome", "рщьу")
+            .aliases("sethome", "delhome")
             .description("Управление точками дома")
             .register();
 
@@ -186,7 +186,7 @@ public class IOO5OOCmd {
             })
             //.aliases("меню")
             .description("серверное меню")
-            .aliases("ьутг")
+            //.aliases("")//альясы на кирилице на работают!
             .register();
 
         new OCmdBuilder("settings")
@@ -205,7 +205,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Личные настройки")
-            .aliases("ыуеештпы")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("profile")
@@ -225,7 +225,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Открывает Профиль")
-            .aliases("зкщашду")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("sound")
@@ -249,7 +249,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Sound player")
-            .aliases("ыщгтв")
+            //.aliases("")
             .register();
 
         new OCmdBuilder("lobby")
@@ -262,7 +262,7 @@ public class IOO5OOCmd {
                 p.performCommand("server lobby");
                 return Command.SINGLE_SUCCESS;
             })
-            .aliases("hub", "дщиин", "рги")
+            .aliases("hub")
             .description("Личные настройки")
             .register();
 
@@ -309,7 +309,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Телепорт")
-            .aliases("езфссузе")
+            //.aliases("")
             .register();
 
 
@@ -331,7 +331,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Телепорт вверх")
-            .aliases("ещз")
+            //.aliases("ещз")
             .register();
 
         new OCmdBuilder("spawn")
@@ -353,7 +353,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Телепорт")
-            .aliases("ызфцт")
+            //.aliases("ызфцт")
             .register();
 
         new OCmdBuilder("back")
@@ -384,7 +384,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Вернуться на точку гибели")
-            .aliases("ифсл")
+            //.aliases("ифсл")
             .register();
 
         new OCmdBuilder("biome")
@@ -399,7 +399,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Узнать биом")
-            .aliases("ишщьу")
+            //.aliases("ишщьу")
             .register();
 
 
