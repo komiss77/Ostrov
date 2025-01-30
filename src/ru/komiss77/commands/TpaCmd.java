@@ -94,7 +94,7 @@ public class TpaCmd implements OCommand {
                                 return 0;
                             }
                             Timer.add(targetPlayer, "tp_request_from_" + p.getName(), 15);
-                            targetOp.tpRequestFrom = p.getName();
+                            targetOp.tpRequestFrom = p.getUniqueId();
 
                             targetPlayer.sendMessage(TCUtil.form("§f<obf>11<!obf>§f Телепорт от §a" + p.getName() + "§f<obf>11<!obf> §2[>§aпринять§2<]")
                                     .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))

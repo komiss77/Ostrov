@@ -42,7 +42,7 @@ public class SuffixCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Ставит суффикс")
-        .aliases("суффикс")
+        .aliases("ыгаашч")
         .register();
   }
 /*

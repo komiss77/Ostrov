@@ -237,11 +237,6 @@ public class AdvanceCrazy implements IAdvance, Listener {
 
     public void resetProgress(final Player p, final boolean rmv) {
         for (final Advancement ad : mgr.getAdvancements()) {
-            //Error occurred (in the plugin loader) while disabling Ostrov v2.0 java.lang.IllegalStateException: zip file closed
-            //at java.util.zip.ZipFile.ensureOpen(ZipFile.java:831) ~[?:?]
-            //at ru.komiss77.modules.quests.AdvanceCrazy.resetProgress(AdvanceCrazy.java:222) ~[Ostrov.jar:?]
-            //at ru.komiss77.modules.quests.QuestManager.onDisable(QuestManager.java:63) ~[Ostrov.jar:?]
-            //at ru.komiss77.Ostrov.lambda$onDisable$1(Ostrov.java:138) ~[Ostrov.jar:?]
             mgr.revokeAdvancement(p, ad);
         }
         if (rmv) mgr.removePlayer(p);

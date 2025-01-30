@@ -71,7 +71,7 @@ public class MoveUtil {
                 public void run() {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
-                        || alc.distAbs(pl.getLocation()) < 3) {
+                        || alc.distAbs(pl.getLocation()) > 3) {
                         alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.AIR);
                         this.cancel();
                     }
@@ -90,7 +90,7 @@ public class MoveUtil {
                     public void run() {
                         final Player pl = prf.get();
                         if (pl == null || !pl.isOnline() || pl.isDead()
-                            || new WXYZ(b).distAbs(pl.getLocation()) < 3) {
+                            || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
                             b.setType(Material.AIR, false);
                             this.cancel();
                         }

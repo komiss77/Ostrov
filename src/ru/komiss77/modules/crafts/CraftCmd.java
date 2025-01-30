@@ -104,7 +104,7 @@ public class CraftCmd {
                 };
             })
             .description("Редактор крафтов")
-            .aliases("крафт")
+            .aliases("скфае")
             .register();
     }
 }

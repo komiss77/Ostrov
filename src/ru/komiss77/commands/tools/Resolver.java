@@ -1,6 +1,9 @@
 package ru.komiss77.commands.tools;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -175,5 +178,22 @@ public class Resolver {
         } catch (final IllegalArgumentException e) {
             throw new SimpleCommandExceptionType(() -> "Wrong argument for " + name).create();
         }
+    }
+
+    public static String arg(final CommandContext<?> cntx, final int last) {
+        final String in = cntx.getInput();
+        final String[] args = in.split(" ");
+        final int sub;
+        if (in.charAt(in.length() - 1) == ' ') {
+            if (last == 0) return "";
+            sub = 0;
+        } else sub = 1;
+        final int ix = args.length - sub - last;
+        return ix < 1 ? "" : args[ix];
+    }
+
+    public static Set<String> matching(final CommandContext<?> cntx, final Stream<String> sgs) {
+        final String arg = arg(cntx, 0);
+        return sgs.filter(s -> s.contains(arg)).collect(Collectors.toSet());
     }
 }

@@ -272,9 +272,10 @@ public class ApiOstrov {
         }
     }
 
+    @Deprecated //ник не юзать
     public static int moneyGetBalance(final String name) {
         final Oplayer op = PM.getOplayer(name); //и тут тоже удобнее работать по нику, чем сначала брать игрока и потом оплеера))))
-        return op == null ? 0 : op.getDataInt(Data.LONI);
+        return op == null ? 0 : op.loni();
         //if (PM.exists(name)) return PM.getOplayer(name).getDataInt(Data.LONI);
         //else return 0;
     }
