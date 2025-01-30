@@ -330,7 +330,13 @@ public class WorldManager implements Initiable {
 
         applyGenerator(wc, generator);
 
-      world = wc.createWorld();
+        //world = wc.createWorld();
+        try {
+            world = wc.createWorld();
+        } catch (IllegalStateException ex) { //как-то кинуло java.lang.IllegalStateException: Overworld settings missing
+            Ostrov.log_err("WorldManager load->create world : " + ex.getMessage());
+            return null;
+        }
 
         if (sender instanceof ConsoleCommandSender) {
             Ostrov.log_ok("§2Мир загружен за " + (System.currentTimeMillis() - currentTimeMillis5) + "ms");
@@ -392,7 +398,13 @@ public class WorldManager implements Initiable {
 
         applyGenerator(wc, generator);
 
-        final World world = wc.createWorld();
+        World world = null;
+        try {
+            world = wc.createWorld();
+        } catch (IllegalStateException ex) { //как-то кинуло java.lang.IllegalStateException: Overworld settings missing
+            Ostrov.log_err("WorldManager load->create world : " + ex.getMessage());
+            return null;
+        }
         world.setSpawnLocation(0, 65, 0);
 
 

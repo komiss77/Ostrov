@@ -10,9 +10,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.commands.TprCmd;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.MoveUtil;
 
 
 public class TestLst implements Listener {
@@ -26,7 +28,7 @@ public class TestLst implements Listener {
         final Player p = e.getPlayer();
 //        Nms.totemPop(p, ItemUtil.nextPage);
 //p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
-        if (!ApiOstrov.isLocalBuilder(p)) return;
+        if (!ApiOstrov.canBeBuilder(p)) return;
         final Oplayer op = PM.getOplayer(p);
 
         final ItemStack inHand = e.getItem();
@@ -37,6 +39,8 @@ public class TestLst implements Listener {
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+                TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
+                p.sendMessage("TPR");
                 if (p.isSneaking()) {
 
 

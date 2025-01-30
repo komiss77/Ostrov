@@ -35,7 +35,7 @@ public final class GM {
 
     private static final OConfig gameSigns;
 
-    @Deprecated //на одном ядре может быть несколько игр, надо придумать что-то другое
+    //временно раздепрецировали @Deprecated //на одном ядре может быть несколько игр, надо придумать что-то другое
     public static final Game GAME; //не передвигать! не переименовывать!!!! другие плагины берут напрямую!
     private static Component chatLogo; //не передвигать! не переименовывать!!!! другие плагины берут напрямую!
     private static final EnumMap<Game, GameInfo> games; //  game (аркаим даария bw01 bb01 sg02), gameInfo (арены)

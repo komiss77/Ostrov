@@ -128,14 +128,16 @@ public class GameApi {
                 attacker, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.ENTITY_ATTACK // CraftBukkit // Paper - knockback events
             );
           }
-          EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(level, target, damageSource, weaponItem, null);
+          //EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(level, target, damageSource, weaponItem, null);
+          EnchantmentHelper.doPostAttackEffects(level, target, damageSource);
+          weaponItem.hurtEnemy((LivingEntity) target, attacker);
+          weaponItem.getItem().hurtEnemy(weaponItem, (LivingEntity) target, attacker);
         }
 
         //if (source instanceof LivingEntity livingEntity) {
         //  weaponItem.hurtEnemy(livingEntity, attacker);
         //}
 
-        EnchantmentHelper.doPostAttackEffects(level, target, damageSource);
         //this.setLastHurtMob(source);
         //this.playAttackSound();
       }

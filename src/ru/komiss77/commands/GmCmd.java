@@ -17,6 +17,7 @@ public class GmCmd {
 
     public GmCmd() { //новое
         final String mode = "mode";
+
         new OCmdBuilder("gm", "/gm [режим]")
             .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
@@ -24,7 +25,7 @@ public class GmCmd {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-                if (!Cfg.gm_command && !ApiOstrov.canBeBuilder(cs)) {
+                if (!Cfg.gm_command && (!ApiOstrov.isStaff(cs) && !ApiOstrov.canBeBuilder(cs))) {
                     p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                     return 0;
                 }
@@ -48,17 +49,24 @@ public class GmCmd {
                 }
                 return Command.SINGLE_SUCCESS;
             })
-            .then(Resolver.string(mode)).suggest(cntx -> {
+
+
+            .then(Resolver.string(mode))
+            .suggest(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
-                if (!ApiOstrov.isStaff(cs)) return Set.of();
-                return Set.of("0", "1", "2", "3", "sv", "cr", "ad", "sp");
-            }, true).run(cntx -> {
+                if (ApiOstrov.isStaff(cs) || ApiOstrov.canBeBuilder(cs)) {
+                    return Set.of("0", "1", "2", "3", "sv", "cr", "ad", "sp");
+                }
+                return Set.of();
+            }, true)
+
+            .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-                if (!Cfg.gm_command && !ApiOstrov.canBeBuilder(cs)) {
+                if (!Cfg.gm_command && (!ApiOstrov.isStaff(cs) && !ApiOstrov.canBeBuilder(cs))) {
                     p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                     return 0;
                 }
@@ -75,7 +83,7 @@ public class GmCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меняет режим игры")
-            .aliases("гм")
+            .aliases("")
             .register();
     }
 

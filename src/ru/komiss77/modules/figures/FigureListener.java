@@ -183,9 +183,19 @@ public class FigureListener implements Listener {
 //System.out.println("open  FigureMenu");
                 if (e.getRightClicked() instanceof Merchant) {
                     //final Figure fg = figure;
-                    Ostrov.sync(() -> SmartInventory.builder().id("FigureMenu" + e.getPlayer().getName()).provider(new MenuSetup(figure)).size(6, 9).title("§fНастройка фигуры").build().open(e.getPlayer()), 1);
+                    Ostrov.sync(() -> SmartInventory.builder()
+                        .id("FigureMenu" + e.getPlayer().getName())
+                        .provider(new MenuSetup(figure))
+                        .size(6, 9)
+                        .title("§fНастройка фигуры")
+                        .build().open(e.getPlayer()), 1);
                 } else {
-                    SmartInventory.builder().id("FigureMenu" + e.getPlayer().getName()).provider(new MenuSetup(figure)).size(6, 9).title("§fНастройка фигуры").build().open(e.getPlayer());
+                    SmartInventory.builder()
+                        .id("FigureMenu" + e.getPlayer()
+                            .getName()).provider(new MenuSetup(figure))
+                        .size(6, 9)
+                        .title("§fНастройка фигуры")
+                        .build().open(e.getPlayer());
                 }
 
             }
@@ -272,7 +282,10 @@ public class FigureListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPotion(final EntityPotionEffectEvent e) {
         if (FigureManager.isFigure(e.getEntity())) {
-            e.setCancelled(true);
+            if (e.getAction() == EntityPotionEffectEvent.Action.ADDED || e.getAction() == EntityPotionEffectEvent.Action.CHANGED) {
+                e.setCancelled(true);
+            }
+
         }
     }
 

@@ -27,6 +27,7 @@ import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.MoveUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
 
@@ -403,7 +404,7 @@ public class TprCmd implements OCommand {
 //Ostrov.log("TPR feetLoc="+feetLoc+" ignoreMove?"+ignoreMove);
             if (ignoreMove) {
               //p.teleport(feetLoc.getCenterLoc());
-              ApiOstrov.teleportSave(p, feetLoc.getCenterLoc(), true);
+              MoveUtil.safeTP(p, feetLoc.getCenterLoc());
             } else {
               DelayTeleport.tp(p, feetLoc.getCenterLoc(), 3, Lang.t(p, "Вы в рандомной локации."), true, true, DyeColor.WHITE);
             }

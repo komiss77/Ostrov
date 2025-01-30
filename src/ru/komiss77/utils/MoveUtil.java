@@ -30,7 +30,7 @@ public class MoveUtil {
     //  findSaveLocation вернуть GameMode.CREATIVE
     private static final int MAX_DST = 1;
 
-    public static boolean safeTP(final Player p, final Location feetLoc) {
+   /* public static boolean safeTP(final Player p, final Location feetLoc) {
         final LocFinder.Check[] mts = {
             (LocFinder.DataCheck) (dt, y) -> {
                 if (dt instanceof Snow) return ((Snow) dt).getLayers() > 4;//снег
@@ -105,16 +105,17 @@ public class MoveUtil {
         finLoc.setPitch(p.getEyeLocation().getPitch());
         p.teleport(finLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
         return true;
-    }
+    }*/
 
-  @Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены
-    public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
+  //@Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены
+  public static boolean safeTP(final Player p, final Location feetLoc) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
         if (!Bukkit.isPrimaryThread()) {
-            Ostrov.sync(() -> teleportSave(p, feetLoc, buildSafePlace));
+          Ostrov.sync(() -> safeTP(p, feetLoc));
             return true;
         }
+    boolean buildSafePlace = true;
         //аркаим и билдер кидает в небо - как-то не очень, пусть работает для всех, не особо грузит.
         //if (ApiOstrov.isLocalBuilder(p)) {
         //    p.sendMessage("teleportSave для билдера");
@@ -171,7 +172,7 @@ public class MoveUtil {
 
             if (add > 0) {
                 feetXYZ.y = y_ori - add;
-//Ostrov.log_warn("----------- y="+feetXYZ.y+" "+Nms.isSafeLocation(p, feetXYZ)+" add=-"+add+add+((feetXYZ.y > y_max)?" SKIP!!":""));
+//Ostrov.log_warn("----------- y="+feetXYZ.y+" "+Nms.isSafeLocation(feetXYZ)+" add=-"+add+add+((feetXYZ.y > y_max)?" SKIP!!":""));
                 if (feetXYZ.y > y_min) {
                     pt = Nms.isSafeLocation(feetXYZ);
 //Ostrov.log_warn("y="+feetXYZ.y+" "+pt+" add=-"+add);
@@ -300,8 +301,8 @@ public class MoveUtil {
             feetBlock.getRelative(BlockFace.DOWN).setType(Material.GLASS);
             p.setVelocity(p.getVelocity().zero());
             p.setFallDistance(0);
-            p.teleport(feetXYZ.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
-
+          //p.teleport(feetXYZ.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
+          p.teleportAsync(feetXYZ.getCenterLoc(), PlayerTeleportEvent.TeleportCause.COMMAND);
         } else { //ничего не вышло - просто тп на ориг.точку
             p.teleport(feetLoc, PlayerTeleportEvent.TeleportCause.COMMAND);//feetLoc.setY(feetLoc.getBlockY() + 0.5);//feetLoc.setY(y_ori + 0.5);
         }
