@@ -49,6 +49,7 @@ public class WorldCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Перемещение между марами")
+        .aliases("цщкдв")
         .register();
 
   }

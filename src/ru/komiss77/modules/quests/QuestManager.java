@@ -1,6 +1,5 @@
 package ru.komiss77.modules.quests;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -23,7 +22,6 @@ public class QuestManager implements Initiable {
     public static IAdvance iAdvance; //не катит, раз есть ссылка на класс - грузит AdvanceCrazy и срёт ошибку. Надо прятать за интерфейс!
 
     public QuestManager() {
-//Ostrov.log("QuestManager ?"+Config.quests+" AdvanceCrazy?"+(Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI") != null) );
         reload();
     }
 
@@ -34,7 +32,6 @@ public class QuestManager implements Initiable {
     @Override
     public void reload() {
         onDisable();
-        //if (Cfg.quests) {
         if (Bukkit.getPluginManager().getPlugin("CrazyAdvancementsAPI") != null) {
             Ostrov.log_ok("§2Квесты включены (AdvanceCrazy)");
             iAdvance = new AdvanceCrazy();
@@ -42,21 +39,6 @@ public class QuestManager implements Initiable {
             Ostrov.log_ok("§2Квесты включены (AdvanceVanila)");
             iAdvance = new AdvanceVanila();
         }
-        //} else {
-        //Ostrov.log_ok("§6Квесты выключены!");
-        //iAdvance = null;
-        //}
-
-        //Bukkit.getPluginManager().registerEvents(acr, Ostrov.getInstance());
-//        rt = new Quest('a', Material.STICKY_PISTON, 0, null, null, "parent", "quest desc", "textures/block/muddy_mangrove_roots_side.png", QuestVis.ALWAYS, QuestFrame.TASK, 0);
-//        q1 = new Quest('b', Material.ACACIA_BOAT, 2, null, rt, "first quest", "quest desc", "", QuestVis.ALWAYS, QuestFrame.TASK, 0);
-//        q11 = new Quest('g', Material.ACACIA_CHEST_BOAT, 10, null, q1, "first second quest", "quest desc", "", QuestVis.PARENT, QuestFrame.GOAL, 0);
-//        q2 = new Quest('c', Material.ACACIA_BUTTON, 0, null, rt, "second quest", "quest desc", "", QuestVis.ALWAYS, QuestFrame.GOAL, 0);
-//        q3 = new Quest('d', Material.ACACIA_DOOR, 3, new String[] {"do", "tho", "the"}, q2, "third quest", "quest desc", "", QuestVis.HIDDEN, QuestFrame.CHALLENGE, 0);
-//        q4 = new Quest('e', Material.ACACIA_FENCE_GATE, 0, null, q2, "fourth quest", "quest desc", "", QuestVis.ALWAYS, QuestFrame.CHALLENGE, 0);
-//        q5 = new Quest('f', Material.ACACIA_FENCE, 0, null, rt, "fifth quest", "quest desc", "", QuestVis.ALWAYS, QuestFrame.TASK, 0);
-//        q6 = new Quest('z', Material.ACACIA_LEAVES, 7, null, rt, "six quest", "quest desc", "", QuestVis.ALWAYS, QuestFrame.TASK, 0);
-//        loadQuests();
     }
 
     @Override
@@ -74,26 +56,16 @@ public class QuestManager implements Initiable {
     }
 
     public static Quest byCode(final char code) {
-        //if (!Cfg.quests) {
-        //    return null;
-        //}
-        return Quest.codeMap.get(code);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
+        return Quest.codeMap.get(code);
     }
 
     public static Quest byName(final String name) {
-        //if (!Cfg.quests) {
-        //    return null;
-        //}
-        return Quest.nameMap.get(name);//intMap.containsKey(tag) ? intMap.get(tag) : EMPTY;
+        return Quest.nameMap.get(name);
     }
 
 
     @Slow(priority = 1)
     public static List<Quest> getQuests(final Predicate<Quest> pass) {
-        final ArrayList<Quest> qs = new ArrayList<>();
-        //if (!Cfg.quests) {
-        //    return qs;
-        //}
         return Quest.nameMap.values().stream().filter(pass).collect(Collectors.toList());
     }
 

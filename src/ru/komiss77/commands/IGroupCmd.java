@@ -46,7 +46,7 @@ public class IGroupCmd {
                 pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выданы предметы группы: " + id));
                 return Command.SINGLE_SUCCESS;
             }).then(Resolver.string(type)).suggest(cntx -> {
-                final String id = cntx.arg(1);
+                final String id = Resolver.arg(cntx, 1);
                 final ItemGroup ig = ItemGroup.get(id);
                 if (ig == null) return Set.of();
                 return ig.items().stream().map(i -> i.getType().asItemType()
@@ -76,6 +76,7 @@ public class IGroupCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")
+            .aliases("шпкщгз")
             .register();
     }
 }

@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -14,6 +15,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.commands.tools.OCmdBuilder;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
@@ -26,7 +28,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 public class IOO5OOCmd {
 
-  public IOO5OOCmd() {
+    public IOO5OOCmd() {
 
     /*new OCmdBuilder("тест")
         .then(Commands.argument("арг", StringArgumentType.greedyString()).executes(cntx -> {
@@ -48,351 +50,369 @@ public class IOO5OOCmd {
         })
         .description("")
         .register();*/
-    new OCmdBuilder("tps")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          //if (!cs.isOp()) {
-          //if (ApiOstrov.isLocalBuilder(cs, true)) {
-          final double[] d = Bukkit.getTPS();
-          cs.sendMessage("§bTPS 1m,5m,15m : §e" + (int) d[0] + ", " + (int) d[1] + ", " + (int) d[2]);
-          //} else {
-          //  cs.sendMessage("§cдоступно билдерам");
-          //}
-          //}
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Меню серверов")
-        .register();
+        new OCmdBuilder("tps")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                //if (!cs.isOp()) {
+                //if (ApiOstrov.isLocalBuilder(cs, true)) {
+                final double[] d = Bukkit.getTPS();
+                cs.sendMessage("§bTPS 1m,5m,15m : §e" + (int) d[0] + ", " + (int) d[1] + ", " + (int) d[2]);
+                //} else {
+                //  cs.sendMessage("§cдоступно билдерам");
+                //}
+                //}
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Меню серверов")
+            .aliases("езы")
+            .register();
 
-    new OCmdBuilder("serv")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          PM.getOplayer(p).menu.open(p, Section.РЕЖИМЫ);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Меню серверов")
-        .register();
+        new OCmdBuilder("serv")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                PM.getOplayer(p).menu.open(p, Section.РЕЖИМЫ);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Меню серверов")
+            .aliases("ыукм")
+            .register();
 
-    new OCmdBuilder("skin")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          SkinRestorerHook.openGui(p, 0);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Установить скин")
-        .register();
+        new OCmdBuilder("skin")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                SkinRestorerHook.openGui(p, 0);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Установить скин")
+            .aliases("ылшт")
+            .register();
 
-    new OCmdBuilder("land")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (!Ostrov.wg) {
-            p.sendMessage("§cПомошник привата недоступен (нет WG)!");
-            return 0;
-          }
-          PM.getOplayer(p).menu.openRegions(p);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Помошник привата")
-        .register();
+        new OCmdBuilder("land")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (!Ostrov.wg) {
+                    p.sendMessage("§cПомошник привата недоступен (нет WG)!");
+                    return 0;
+                }
+                PM.getOplayer(p).menu.openRegions(p);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Помошник привата")
+            .aliases("дфтв")
+            .register();
 
-    new OCmdBuilder("admin")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          if (op.hasGroup("xpanitely") || op.hasGroup("owner")) {
-            SmartInventory.builder().id("Admin " + cs.getName())
-                .provider(new AdminInv())
-                .size(3, 9)
-                .title("§dМеню Абьюзера")
-                .build().open(p);
-            return Command.SINGLE_SUCCESS;
-          }
-          cs.sendMessage("§cУ вас нету разрешения на это!");
-          return 0;
-        })
-        //.aliases("админ")
-        .description("Открывает меню Абьюзера")
-        .register();
-
-    new OCmdBuilder("home")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (!Cfg.home_command) {
-            p.sendMessage("§cУправление домами отключено!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          op.menu.openHomes(p);
-          return Command.SINGLE_SUCCESS;
-        })
-        .aliases("sethome", "delhome")
-        .description("Управление точками дома")
-        .register();
-
-    new OCmdBuilder("menu")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          op.menu.openLocalMenu(p);
-          return Command.SINGLE_SUCCESS;
-        })
-        //.aliases("меню")
-        .description("серверное меню")
-        .register();
-
-    new OCmdBuilder("settings")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (!Cfg.settings_command) {
-            p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          op.menu.openLocalSettings(p, true);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Личные настройки")
-        .register();
-
-    new OCmdBuilder("profile")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          if (op.menu == null) {
-            p.sendMessage("§eПодождите, данные ещё не получены..");
-            return 0;
-          }
-          op.menu.open(p, Section.ПРОФИЛЬ);
-          p.playSound(p.getLocation(), Sound.BLOCK_COMPOSTER_EMPTY, 2, 2);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Открывает Профиль")
-        .register();
-
-    new OCmdBuilder("sound")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (ApiOstrov.isLocalBuilder(p, true)) {
-            SmartInventory.builder()
-                .id("Sounds" + p.getName())
-                .provider(new Sounds(0))
-                .size(6, 9)
-                .title("§2Звуки")
-                .build()
-                .open(p);
-          } else {
-            p.sendMessage("§cдоступно билдерам");
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Sound player")
-        .register();
-
-
-    new OCmdBuilder("givemenu")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (MenuItemsManager.hasItem("pipboy")) {
-            if (!MenuItemsManager.giveItem(p, "pipboy")) p.sendMessage("§cУ Вас уже есть предмет-меню!");
-          } else {
-            p.sendMessage("§cЧасики отключены на этом сервере!");
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Получить предмет-меню")
-        .register();
-
-    new OCmdBuilder("lobby")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          p.performCommand("server lobby");
-          return Command.SINGLE_SUCCESS;
-        })
-        .aliases("hub")
-        .description("Личные настройки")
-        .register();
-
-    new OCmdBuilder("tpaccept")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          final Oplayer op = PM.getOplayer(p);
-          if (op.tpRequestFrom == null) {//(arg.length == 0) {
-            p.sendMessage("§сНикто не отправлял запроса на ТП!");
-            return 0;
-          }
-          final Oplayer from = PM.getOplayer(op.tpRequestFrom);
-          if (from == null) {
-            p.sendMessage("§c" + op.tpRequestFrom + "§с" + Lang.t(p, "уже нет на сервере!"));
-            return 0;
-          }
-          if (!Timer.has(p, "tp_request_from_" + op.tpRequestFrom)) {
-            p.sendMessage("§с" + Lang.t(p, "запрос на ТП устарел!"));
-            return 0;
-          }
-          int price = getTpPrice(from.getPlayer(), p.getLocation());
-          if (price > 0) {
-            if (ApiOstrov.moneyGetBalance(from.nik) < price) {
-              from.getPlayer().sendMessage("§cУ Вас недостаточно лони для телепорта!");
-              p.sendMessage("§cУ " + from.nik + " недостаточно лони для телепорта!");
-              return 0;
-            }
-            ApiOstrov.moneyChange(from.getPlayer(), -price, "телепорт к " + p.getName());
-          }
-          Timer.del(p, "tp_request_from_" + op.tpRequestFrom); //баг: тыкают много раз принять и снимают деньги
-          op.tpRequestFrom = null;
-          Timer.add(from.getPlayer(), "tpa_command", Cfg.tpa_command_delay); //задержка даётся вызывающему
-          DelayTeleport.tp(from.getPlayer(), p.getLocation(), 3, "Вы переместились к " + p.getName(), true, true, DyeColor.YELLOW);
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Телепорт")
-        .register();
-
-
-    new OCmdBuilder("top")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (Cfg.top_command) {
-            if (p.hasPermission("ostrov.top")) {
-              DelayTeleport.tp(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation().add(0, 1, 0), 3, "Наивысшая точка над Вами..", true, true, DyeColor.BLUE);
-              //ApiOstrov.teleportSave(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation(), false );
-            } else p.sendMessage("§cУ Вас нет пава ostrov.top !");
-          } else {
-            p.sendMessage("§ctop отключёна на этом сервере!");
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Телепорт")
-        .register();
-
-    new OCmdBuilder("spawn")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (Cfg.spawn_command) {
-            if (WarpManager.exist("spawn")) {
-              DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
-            } else {
-              DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
-            }
-          } else {
-            p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Телепорт")
-        .register();
-
-    new OCmdBuilder("back")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          if (Cfg.back_command) {
-            if (p.hasPermission("ostrov.back")) {
-              final Oplayer op = PM.getOplayer(p);
-              final Location dlc = p.getLastDeathLocation();
-              if (dlc == null) {//if (op.last_death == null) {
-                p.sendMessage("§c" + Lang.t(p, "Вы еще не погибали!"));
+        new OCmdBuilder("admin")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                if (op.hasGroup("xpanitely") || op.hasGroup("owner")) {
+                    SmartInventory.builder().id("Admin " + cs.getName())
+                        .provider(new AdminInv())
+                        .size(3, 9)
+                        .title("§dМеню Абьюзера")
+                        .build().open(p);
+                    return Command.SINGLE_SUCCESS;
+                }
+                cs.sendMessage("§cУ вас нету разрешения на это!");
                 return 0;
-              }
-              final Location cl = p.getLocation();//Location b1 = p.getLocation();
-              DelayTeleport.tp(p, dlc, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
-              p.setLastDeathLocation(cl);//op.last_death = b1;
-            } else {
-              p.sendMessage("§c" + Lang.t(p, "У Вас нет пава ostrov.back !"));
-              return 0;
-            }
-          } else {
-            p.sendMessage("§c" + Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
-            return 0;
-          }
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Вернуться на точку гибели")
-        .register();
+            })
+            //.aliases("админ")
+            .description("Открывает меню Абьюзера")
+            .aliases("фвьшт")
+            .register();
 
-    new OCmdBuilder("biome")
-        .run(cntx -> {
-          final CommandSender cs = cntx.getSource().getSender();
-          if (!(cs instanceof final Player p)) {
-            cs.sendMessage("§eНе консольная команда!");
-            return 0;
-          }
-          p.sendMessage("§fВы находитесь в биоме: "
-              + p.getWorld().getBiome(p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()));
-          return Command.SINGLE_SUCCESS;
-        })
-        .description("Узнать биом")
-        .register();
+        new OCmdBuilder("home")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (!Cfg.home_command) {
+                    p.sendMessage("§cУправление домами отключено!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                op.menu.openHomes(p);
+                return Command.SINGLE_SUCCESS;
+            })
+            .aliases("sethome", "delhome", "рщьу")
+            .description("Управление точками дома")
+            .register();
+
+        final String act = "action";
+        new OCmdBuilder("menu")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                op.menu.openLocalMenu(p);
+                return Command.SINGLE_SUCCESS;
+            }).then(Resolver.string(act))
+            .suggest(cntx -> Set.of("give"), true).run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (!MenuItemsManager.hasItem("pipboy")) {
+                    p.sendMessage("§cЧасики отключены на этом сервере!");
+                    return 0;
+                }
+                if (!MenuItemsManager.giveItem(p, "pipboy")) {
+                    p.sendMessage("§cУ тебя уже есть предмет-меню!");
+                    return 0;
+                }
+                return Command.SINGLE_SUCCESS;
+            })
+            //.aliases("меню")
+            .description("серверное меню")
+            .aliases("ьутг")
+            .register();
+
+        new OCmdBuilder("settings")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (!Cfg.settings_command) {
+                    p.sendMessage("§cЛичные настройки отключёны на этом сервере!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                op.menu.openLocalSettings(p, true);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Личные настройки")
+            .aliases("ыуеештпы")
+            .register();
+
+        new OCmdBuilder("profile")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                if (op.menu == null) {
+                    p.sendMessage("§eПодождите, данные ещё не получены..");
+                    return 0;
+                }
+                op.menu.open(p, Section.ПРОФИЛЬ);
+                p.playSound(p.getLocation(), Sound.BLOCK_COMPOSTER_EMPTY, 2, 2);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Открывает Профиль")
+            .aliases("зкщашду")
+            .register();
+
+        new OCmdBuilder("sound")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (ApiOstrov.isLocalBuilder(p, true)) {
+                    SmartInventory.builder()
+                        .id("Sounds" + p.getName())
+                        .provider(new Sounds(0))
+                        .size(6, 9)
+                        .title("§2Звуки")
+                        .build()
+                        .open(p);
+                } else {
+                    p.sendMessage("§cдоступно билдерам");
+                }
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Sound player")
+            .aliases("ыщгтв")
+            .register();
+
+        new OCmdBuilder("lobby")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                p.performCommand("server lobby");
+                return Command.SINGLE_SUCCESS;
+            })
+            .aliases("hub", "дщиин", "рги")
+            .description("Личные настройки")
+            .register();
+
+        new OCmdBuilder("tpaccept")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                final Oplayer op = PM.getOplayer(p);
+                if (op.tpRequestFrom == null) {//(arg.length == 0) {
+                    p.sendMessage("§сНикто не отправлял запроса на ТП!");
+                    return 0;
+                }
+                final Oplayer from = PM.getOplayer(op.tpRequestFrom);
+                if (from == null) {
+                    p.sendMessage("§c" + op.tpRequestFrom + "§с" + Lang.t(p, "уже нет на сервере!"));
+                    return 0;
+                }
+                if (!Timer.has(p, "tp_request_from_" + op.tpRequestFrom)) {
+                    p.sendMessage("§с" + Lang.t(p, "запрос на ТП устарел!"));
+                    return 0;
+                }
+                final Player pl = from.getPlayer();
+                if (pl == null) {
+                    p.sendMessage("§cИгрок " + from.nik + " больше не онлайн!");
+                    op.tpRequestFrom = null;
+                    return 0;
+                }
+                int price = getTpPrice(pl, p.getLocation());
+                if (price > 0) {
+                    if (from.loni() < price) {
+                        pl.sendMessage("§cУ Вас недостаточно лони для телепорта!");
+                        p.sendMessage("§cУ " + from.nik + " недостаточно лони для телепорта!");
+                        return 0;
+                    }
+                    ApiOstrov.moneyChange(pl, -price, "телепорт к " + p.getName());
+                }
+                Timer.del(p, "tp_request_from_" + op.tpRequestFrom); //баг: тыкают много раз принять и снимают деньги
+                op.tpRequestFrom = null;
+                Timer.add(pl, "tpa_command", Cfg.tpa_command_delay); //задержка даётся вызывающему
+                DelayTeleport.tp(pl, p.getLocation(), 3, "Перемещаем тебя к " + p.getName(), true, true, DyeColor.YELLOW);
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Телепорт")
+            .aliases("езфссузе")
+            .register();
+
+
+        new OCmdBuilder("top")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (Cfg.top_command) {
+                    if (p.hasPermission("ostrov.top")) {
+                        DelayTeleport.tp(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation().add(0, 1, 0), 3, "Наивысшая точка над Вами..", true, true, DyeColor.BLUE);
+                        //ApiOstrov.teleportSave(p, p.getWorld().getHighestBlockAt(p.getLocation()).getLocation(), false );
+                    } else p.sendMessage("§cУ Вас нет пава ostrov.top !");
+                } else {
+                    p.sendMessage("§ctop отключёна на этом сервере!");
+                }
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Телепорт вверх")
+            .aliases("ещз")
+            .register();
+
+        new OCmdBuilder("spawn")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (Cfg.spawn_command) {
+                    if (WarpManager.exist("spawn")) {
+                        DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                    } else {
+                        DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                    }
+                } else {
+                    p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
+                }
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Телепорт")
+            .aliases("ызфцт")
+            .register();
+
+        new OCmdBuilder("back")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                if (Cfg.back_command) {
+                    if (p.hasPermission("ostrov.back")) {
+                        final Location dlc = p.getLastDeathLocation();
+                        if (dlc == null) {//if (op.last_death == null) {
+                            p.sendMessage("§c" + Lang.t(p, "Вы еще не погибали!"));
+                            return 0;
+                        }
+                        final Location cl = p.getLocation();//Location b1 = p.getLocation();
+                        DelayTeleport.tp(p, dlc, 3, Lang.t(p, "Вы вернулись на предыдущую позицию"), true, true, DyeColor.BROWN);
+                        p.setLastDeathLocation(cl);//op.last_death = b1;
+                    } else {
+                        p.sendMessage("§c" + Lang.t(p, "У Вас нет пава ostrov.back !"));
+                        return 0;
+                    }
+                } else {
+                    p.sendMessage("§c" + Lang.t(p, "Возврат в место гибели отключён на этом сервере!"));
+                    return 0;
+                }
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Вернуться на точку гибели")
+            .aliases("ифсл")
+            .register();
+
+        new OCmdBuilder("biome")
+            .run(cntx -> {
+                final CommandSender cs = cntx.getSource().getSender();
+                if (!(cs instanceof final Player p)) {
+                    cs.sendMessage("§eНе консольная команда!");
+                    return 0;
+                }
+                p.sendMessage("§fТы в биоме: " + p.getWorld()
+                    .getBiome(p.getLocation()).key().asString());
+                return Command.SINGLE_SUCCESS;
+            })
+            .description("Узнать биом")
+            .aliases("ишщьу")
+            .register();
 
 
 
-  }
+    }
 
-  public static int getTpPrice(final Player p, final Location loc) {
-    if (p.hasPermission("ostrov.tpa.free")) return 0;
-    //учесть разные миры   Cannot measure distance between world and world_the_end
-    if (!p.getWorld().getName().equals(loc.getWorld().getName())) return 10;
+    public static int getTpPrice(final Player p, final Location loc) {
+        if (p.hasPermission("ostrov.tpa.free")) return 0;
+        //учесть разные миры   Cannot measure distance between world and world_the_end
+        if (!p.getWorld().getName().equals(loc.getWorld().getName())) return 10;
 
-    return 5;
-  }
+        return 5;
+    }
 
 }
 /*

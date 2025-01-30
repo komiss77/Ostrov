@@ -1,15 +1,14 @@
 package ru.komiss77.commands.tools;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -79,14 +78,8 @@ public class OCmdBuilder {
             final Suggestor finSugg = suggests;
             rarg.suggests((cntx, sb) -> {
                 @SuppressWarnings("unchecked")
-                final CommandContext<CommandSourceStack> ccs =
-                    (CommandContext<CommandSourceStack>) cntx;
-                final Map<String, ParsedArgument<CommandSourceStack, ?>> args = new HashMap<>();
-                final CommandContext<CommandSourceStack> cx = new CommandContext<>(ccs.getSource(), cntx.getInput(),
-                    args, ccs.getCommand(), ccs.getRootNode(), ccs.getNodes(), ccs.getRange(),
-                    ccs.getChild(), ccs.getRedirectModifier(), ccs.isForked());
-                final Details dts = new Details(ccs);
-                dts.matching(finSugg.get(dts).stream()).forEach(sb::suggest);
+                final CommandContext<CommandSourceStack> ccs = (CommandContext<CommandSourceStack>) cntx;
+                Resolver.matching(cntx, finSugg.get(ccs).stream()).forEach(sb::suggest);
                 return sb.buildFuture();
             });
         }
@@ -105,15 +98,12 @@ public class OCmdBuilder {
             final RequiredArgumentBuilder<?, ?> rarg) {
             final Suggestor finSugg = suggests;
             arg.executes(cntx -> {
-                if (!(rarg.getType() instanceof StringArgumentType)) {
-                    return finCMD.run(cntx);
-                }
-                final Details dts = new Details(cntx);
-                final Set<String> sgs = dts.matching(finSugg.get(dts).stream());
-                if (!sgs.contains(Resolver.string(cntx, rarg.getName()))) {
+                if (!(rarg.getType() instanceof StringArgumentType)) return finCMD.run(cntx);
+                final Set<String> suggs = finSugg.get(cntx);
+                if (!suggs.contains(Resolver.string(cntx, rarg.getName()))) {
                     final CommandSender cs = cntx.getSource().getSender();
                     cs.sendMessage(TCUtil.form("§cВибери одну опцию из списка:\n§6"
-                        + String.join(", ", sgs) + "\n§cСинтакс комманды:\n§e" + synthax));
+                        + String.join(", ", suggs) + "\n§cСинтакс комманды:\n§e" + synthax));
                     return 0;
                 }
 
@@ -122,8 +112,6 @@ public class OCmdBuilder {
         } else arg.executes(finCMD);
         return arg.build();
     }
-
-//    private void <S> stack() {}
 
     public OCmdBuilder description(final String desc) {
         this.desc = desc;
@@ -163,32 +151,7 @@ public class OCmdBuilder {
         });
     }
 
-    public static class Details extends CommandContext<CommandSourceStack> {
-        public Details(final CommandContext<CommandSourceStack> cntx) {
-            super(cntx.getSource(), cntx.getInput(), new HashMap<>(), cntx.getCommand(), cntx.getRootNode(),
-                cntx.getNodes(), cntx.getRange(), cntx.getChild(), cntx.getRedirectModifier(), cntx.isForked());
-        }
-
-        public String arg(final int last) {
-            final String in = getInput();
-            final String[] args = in.split(" ");
-            final int sub;
-            if (in.charAt(in.length() - 1) == ' ') {
-                if (last == 0) return "";
-                sub = 0;
-            } else sub = 1;
-            final int ix = args.length - sub - last;
-            return ix < 1 ? "" : args[ix];
-        }
-
-        protected Set<String> matching(final Stream<String> sgs) {
-            final String arg = arg(0);
-            return sgs.filter(s -> s.contains(arg))
-                .collect(Collectors.toSet());
-        }
-    }
-
     public interface Suggestor {
-        Set<String> get(final Details dts);
+        Set<String> get(final CommandContext<CommandSourceStack> dts);
     }
 }

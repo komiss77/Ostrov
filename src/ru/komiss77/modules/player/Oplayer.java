@@ -116,7 +116,7 @@ public class Oplayer {
     public Location spyOrigin;//public BukkitTask spyTask;
     public Gender gender = Gender.NEUTRAL;
     public String lastCommand; //последняя команда введёная билдером
-    public String tpRequestFrom; //от кого пришел запрос на ТП
+    public UUID tpRequestFrom; //от кого пришел запрос на ТП
 
     //Боссбар, титры, экшэнбар с задержками
     public final List<String> delayActionbars = new ArrayList<>();
@@ -448,7 +448,6 @@ public class Oplayer {
         daylyLoginTime = ApiOstrov.currentTimeSec();
     }
 
-
     public boolean hasFlag(final StatFlag flag) {
         return StatFlag.hasFlag(getStat(Stat.FLAGS), flag);
     }
@@ -594,7 +593,7 @@ public class Oplayer {
 //------------------------------------------------------------------------------
 
 
-    public Player getPlayer() {
+    public @Nullable Player getPlayer() {
         return Bukkit.getPlayerExact(nik);
     }
 
@@ -660,6 +659,10 @@ public class Oplayer {
 
     public int getOnlineTime() {
         return Timer.getTime() - loginTime;
+    }
+
+    public int loni() {
+        return getDataInt(Data.LONI);
     }
 
     public void hideScore() {

@@ -240,7 +240,7 @@ public class TpaMenu implements InventoryProvider {
                                     if (find.isOnline()) {
                                         p.closeInventory();
                                         Timer.add(find, "tp_request_from_" + p.getName(), 15);
-                                        PM.getOplayer(find).tpRequestFrom = p.getName();
+                                        PM.getOplayer(find).tpRequestFrom = p.getUniqueId();
                                         find.sendMessage(TCUtil.form("§f<obf>11<!obf>§f Телепорт от §a" + p.getName() + "§f<obf>11<!obf> §2[>§aпринять§2<]")
                                                 .hoverEvent(HoverEvent.showText(Component.text("§5Клик - принять")))
                                                 //.clickEvent(ClickEvent.runCommand("/tpaccept " + p.getName()))
