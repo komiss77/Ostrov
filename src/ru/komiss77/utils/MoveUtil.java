@@ -30,49 +30,59 @@ public class MoveUtil {
     //p может быть null
     //  findSaveLocation вернуть GameMode.CREATIVE
     private static final int MAX_DST = 1;
+    private static final LocFinder.Check[] SAFE_CHECK = {
+        (LocFinder.DataCheck) (dt, y) -> {
+            switch (dt) {
+                case final Snow sn:
+                    return sn.getLayers() > 4;
+                case final Waterlogged sn:
+                    return sn.isWaterlogged();
+                default:
+                    break;
+            }
+            final BlockType bt = dt.getMaterial().asBlockType();
+            if (BlockType.BEDROCK.equals(bt)) return false;
+            if (BlockType.WATER.equals(bt)) return true;
+            return LocUtil.canStand(bt);//крыша мира (как в незере)
+        },
+        (LocFinder.DataCheck) (dt, y) -> {
+            switch (dt) {
+                case final Snow sn:
+                    return sn.getLayers() < 5;
+                case final Waterlogged sn:
+                    return !sn.isWaterlogged();
+                default:
+                    break;
+            }
+            final BlockType bt = dt.getMaterial().asBlockType();
+            return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
+        },
+        (LocFinder.DataCheck) (dt, y) -> {
+            switch (dt) {
+                case final Snow sn:
+                    return sn.getLayers() < 5;
+                case final Waterlogged sn:
+                    return !sn.isWaterlogged();
+                default:
+                    break;
+            }
+            final BlockType bt = dt.getMaterial().asBlockType();
+            return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
+        }
+    };
+
+    private static final LocFinder.Check[] AIR_CHECK = {
+        (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
+        (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
+        (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
+    };
 
     public static boolean safeTP(final Player p, final Location feetLoc) {
-        final LocFinder.Check[] mts = {
-            (LocFinder.DataCheck) (dt, y) -> {
-                switch (dt) {
-                    case final Snow sn: return sn.getLayers() > 4;
-                    case final Waterlogged sn: return sn.isWaterlogged();
-                    default: break;
-                }
-                final BlockType bt = dt.getMaterial().asBlockType();
-                if (BlockType.BEDROCK.equals(bt)) return false;
-                if (BlockType.WATER.equals(bt)) return true;
-                return LocUtil.canStand(bt);//крыша мира (как в незере)
-            },
-            (LocFinder.DataCheck) (dt, y) -> {
-                switch (dt) {
-                    case final Snow sn: return sn.getLayers() < 5;
-                    case final Waterlogged sn: return !sn.isWaterlogged();
-                    default: break;
-                }
-                final BlockType bt = dt.getMaterial().asBlockType();
-                return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
-            },
-            (LocFinder.DataCheck) (dt, y) -> {
-                switch (dt) {
-                    case final Snow sn: return sn.getLayers() < 5;
-                    case final Waterlogged sn: return !sn.isWaterlogged();
-                    default: break;
-                }
-                final BlockType bt = dt.getMaterial().asBlockType();
-                return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
-            }
-        };
         final Location finLoc;
-        final WXYZ loc = new LocFinder(new WXYZ(feetLoc), mts).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+        final WXYZ loc = new LocFinder(new WXYZ(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
       //Bukkit.broadcast(TCUtil.form(loc + "-l1"));
         if (loc == null) {
-            final LocFinder.Check[] ars = {
-                (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
-                (LocFinder.TypeCheck) (dt, y) -> dt.isAir(),
-                (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
-            };
-            final WXYZ alc = new LocFinder(new WXYZ(feetLoc), ars).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+            final WXYZ alc = new LocFinder(new WXYZ(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
           //Bukkit.broadcast(TCUtil.form(alc + "-l2"));
             if (alc == null) return false;
 
@@ -94,21 +104,25 @@ public class MoveUtil {
         } else {
             finLoc = loc.getCenterLoc();
             final Block b = finLoc.getBlock();
-            if (b.getType().isAir() && BlockType.WATER.equals(b.getRelative(BlockFace.DOWN).getType().asBlockType())) {
-                b.setType(Material.LILY_PAD, false);
-                new BukkitRunnable() {
-                    final WeakReference<Player> prf = new WeakReference<>(p);
+            if (b.getType().isAir()) {
+                final Block rb = b.getRelative(BlockFace.DOWN);
+                if (BlockUtil.is(rb, BlockType.WATER) ||
+                    (rb.getBlockData() instanceof final Waterlogged wl && wl.isWaterlogged())) {
+                    b.setType(Material.LILY_PAD, false);
+                    new BukkitRunnable() {
+                        final WeakReference<Player> prf = new WeakReference<>(p);
 
-                    @Override
-                    public void run() {
-                        final Player pl = prf.get();
-                        if (pl == null || !pl.isOnline() || pl.isDead()
-                            || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
-                            b.setType(Material.AIR, false);
-                            this.cancel();
+                        @Override
+                        public void run() {
+                            final Player pl = prf.get();
+                            if (pl == null || !pl.isOnline() || pl.isDead()
+                                || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
+                                b.setType(Material.AIR, false);
+                                this.cancel();
+                            }
                         }
-                    }
-                }.runTaskTimer(Ostrov.instance, 30, 10);
+                    }.runTaskTimer(Ostrov.instance, 30, 10);
+                }
             }
         }
 
