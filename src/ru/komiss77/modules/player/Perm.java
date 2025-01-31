@@ -332,10 +332,11 @@ public class Perm {
 
     protected static @Nullable String thisSertverPermission(final String perm) {
         final int idx = perm.indexOf(".");
+        String serverName;
         if (idx >= 0) {
-            final String serverName = perm.substring(0, idx); //отделить сервер
+            serverName = perm.substring(0, idx); //отделить сервер
 //System.out.println("-- serverName="+serverName+ " this?"+serverName.equals(GM.this_server_name)+" other?"+GM.allBungeeServersName.contains(serverName));
-            if (serverName.equals(Ostrov.MOT_D)) { //если для этого сервера - отрезать сервер
+            if (serverName.equalsIgnoreCase(Ostrov.MOT_D)) { //если для этого сервера - отрезать сервер
                 return (perm.substring(idx + 1));//op.user_perms.add(perm.substring(idx+1));
             } else if (GM.allBungeeServersName.contains(serverName)) { //если начинается с имени другого сервера
                 return null;

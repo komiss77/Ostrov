@@ -27,6 +27,7 @@ import ru.komiss77.enums.Table;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -42,7 +43,7 @@ public final class GM {
     public static final HashMap<String, GameSign> signs;
     public static final int LOAD_INTERVAL; //секунды
     //динамические
-    public static final Set<String> allBungeeServersName;
+    public static final CaseInsensitiveSet allBungeeServersName;
     public static int bungee_online = 0;
     public static long tsServer, tsArena, tsLang = 0;
 
@@ -60,7 +61,7 @@ public final class GM {
             games.put(g, new GameInfo(g));
         }
         signs = new HashMap<>();
-        allBungeeServersName = new HashSet<>();
+        allBungeeServersName = new CaseInsensitiveSet();
 
         switch (GAME.type) {
             case ARENAS -> LOAD_INTERVAL = 60; //на аренах раз в минуту прогрузить требования уровня и репутации!
