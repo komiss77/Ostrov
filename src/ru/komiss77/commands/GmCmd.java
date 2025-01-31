@@ -83,7 +83,7 @@ public class GmCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меняет режим игры")
-            .aliases("")
+            .aliases("гм", "пь")
             .register();
     }
 

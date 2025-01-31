@@ -60,7 +60,7 @@ public class HatCmd {
 
                 return Command.SINGLE_SUCCESS;
             })
-            //.aliases("") //альясы на кирилице на работают!
+            .aliases("рфе")
             .description("Надеть шляпу")
             .register();
     }

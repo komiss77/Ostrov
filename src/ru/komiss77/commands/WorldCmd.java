@@ -49,7 +49,7 @@ public class WorldCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Перемещение между марами")
-        //.aliases("цщкдв") //альясы на кирилице на работают!
+        .aliases("цщкдв")
         .register();
 
   }

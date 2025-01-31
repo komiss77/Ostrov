@@ -42,7 +42,7 @@ public class PrefixCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Ставит префикс")
-            //.aliases("зкуашч") //альясы на кирилице на работают!
+            .aliases("зкуашч")
             .register();
     }
 /*

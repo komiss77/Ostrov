@@ -33,7 +33,7 @@ public class FigureCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Фигуры")
-        //.aliases("")//альясы на кирилице на работают!
+        .aliases("рфе")
         .register();
   }
 }

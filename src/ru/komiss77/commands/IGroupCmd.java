@@ -76,7 +76,7 @@ public class IGroupCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")
-            //.aliases("")//альясы на кирилице на работают!
+            .aliases("шпкщгз")
             .register();
     }
 }
