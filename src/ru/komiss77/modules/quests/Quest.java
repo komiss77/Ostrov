@@ -93,6 +93,15 @@ public class Quest {
         loreMap.put(this, ItemUtil.genLore(null, description));
     }
 
+    public static @Nullable Quest get(final char code) {
+        return Quest.codeMap.get(code);
+    }
+
+    public static <E extends Quest> @Nullable E get(final char code, final Class<E> cls) throws ClassCastException {
+        final Quest q = Quest.codeMap.get(code);
+        return q == null ? null : cls.cast(q);
+    }
+
     public IProgress createPrg(final int prg) {
         if (needs != null) {
             return new VarProg(prg, needs);

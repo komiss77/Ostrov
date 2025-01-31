@@ -70,20 +70,12 @@ public abstract class ItemGroup implements Keyed {
 
     protected abstract @Nullable List<Data<?>> data();
 
-    public static Collection<ItemGroup> values() {
-        return VALUES.values();
-    }
-
     public @Nullable ItemStack item(final ItemType mt) {
         return mits.get(mt);
     }
 
     public Collection<ItemStack> items() {
         return mits.values();
-    }
-
-    public static @Nullable ItemGroup get(final String id) {
-        return VALUES.get(id);
     }
 
     protected abstract void onAttack(final EquipmentSlot[] es, final EntityDamageByEntityEvent e);
@@ -127,6 +119,24 @@ public abstract class ItemGroup implements Keyed {
     public static @Nullable ItemGroup get(final ItemStack it) {
         final String id = it.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
         return id == null ? null : get(id);
+    }
+
+    public static <E extends ItemGroup> @Nullable E get(final ItemStack it, final Class<E> cls) throws ClassCastException {
+        final ItemGroup q = get(it);
+        return q == null ? null : cls.cast(q);
+    }
+
+    public static @Nullable ItemGroup get(final String id) {
+        return VALUES.get(id);
+    }
+
+    public static <E extends ItemGroup> @Nullable E get(final String id, final Class<E> cls) throws ClassCastException {
+        final ItemGroup q = get(id);
+        return q == null ? null : cls.cast(q);
+    }
+
+    public static Collection<ItemGroup> values() {
+        return VALUES.values();
     }
 
     public static void process(final Entity ent, final ItemManager.GroupProc prc) {

@@ -1,5 +1,6 @@
 package ru.komiss77.modules.quests;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -55,12 +56,9 @@ public class QuestManager implements Initiable {
         // }
     }
 
-    public static Quest byCode(final char code) {
-        return Quest.codeMap.get(code);
-    }
-
-    public static Quest byName(final String name) {
-        return Quest.nameMap.get(name);
+    @Deprecated
+    public static @Nullable Quest byCode(final char code) {
+        return Quest.get(code);
     }
 
 
