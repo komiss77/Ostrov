@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AStarFinder.Node;
 import ru.komiss77.notes.Slow;
-import ru.komiss77.utils.FastMath;
+import ru.komiss77.utils.NumUtil;
 
 public class AStarPath {
 
@@ -97,7 +97,7 @@ public class AStarPath {
 
         if (isJump) {
             if (!mb.isOnGround()) {
-//				mb.setRotation(FastMath.getYaw(mb.getVelocity()), 0f);
+//				mb.setRotation(NumUtil.getYaw(mb.getVelocity()), 0f);
                 return done = false;
             }
 
@@ -138,7 +138,7 @@ public class AStarPath {
                     if (dst < 2) next(NextState.FALL);
                 } else {
                     if (nxt.jump && jump) {
-                        if (dst == 0 || FastMath.abs(crr.y - lc.getBlockY()) == dst)
+                        if (dst == 0 || NumUtil.abs(crr.y - lc.getBlockY()) == dst)
                             next(NextState.JUMP);
                     } else {
                         next(crr.distAbs(nxt) < 3 ? NextState.WALK : NextState.FAST);

@@ -30,44 +30,39 @@ public class MoveUtil {
     //p может быть null
     //  findSaveLocation вернуть GameMode.CREATIVE
     private static final int MAX_DST = 1;
-    private static final LocFinder.Check[] SAFE_CHECK = {
-        (LocFinder.DataCheck) (dt, y) -> {
-            switch (dt) {
-                case final Snow sn:
-                    return sn.getLayers() > 4;
-                case final Waterlogged sn:
-                    return sn.isWaterlogged();
-                default:
-                    break;
-            }
+    private static final LocFinder.DataCheck[] SAFE_CHECK = {
+        (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
+            switch (dt) {
+                case final Snow sn: return sn.getLayers() > 4;
+                case final Waterlogged sn: return sn.isWaterlogged() || bt.isSolid();
+                case final Levelled lv: return lv.getLevel() == 0 //вода для кувшинок
+                    && BlockType.WATER.equals(bt);
+                default: break;
+            }
             if (BlockType.BEDROCK.equals(bt)) return false;
-            if (BlockType.WATER.equals(bt)) return true;
-            return LocUtil.canStand(bt);//крыша мира (как в незере)
+//            if (BlockType.LAVA.equals(bt)) Bukkit.getConsoleSender().sendMessage("sl-" + bt.isSolid());
+            return bt.isSolid();//крыша мира (как в незере)
         },
-        (LocFinder.DataCheck) (dt, y) -> {
-            switch (dt) {
-                case final Snow sn:
-                    return sn.getLayers() < 5;
-                case final Waterlogged sn:
-                    return !sn.isWaterlogged();
-                default:
-                    break;
-            }
+        (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
-            return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
+            return switch (dt) {
+                case final Snow sn -> sn.getLayers() < 5;
+                case final Waterlogged sn -> !sn.isWaterlogged();
+                case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
+                    && BlockType.WATER.equals(bt);
+                default -> LocUtil.isPassable(bt);
+            };
         },
-        (LocFinder.DataCheck) (dt, y) -> {
-            switch (dt) {
-                case final Snow sn:
-                    return sn.getLayers() < 5;
-                case final Waterlogged sn:
-                    return !sn.isWaterlogged();
-                default:
-                    break;
-            }
+        (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
-            return LocUtil.isPassable(bt) && !BlockType.WATER.equals(bt);//вода для кувшинок
+            return switch (dt) {
+                case final Snow sn -> sn.getLayers() < 5;
+                case final Waterlogged sn -> !sn.isWaterlogged();
+                case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
+                    && BlockType.WATER.equals(bt);
+                default -> LocUtil.isPassable(bt);
+            };
         }
     };
 
@@ -80,13 +75,11 @@ public class MoveUtil {
     public static boolean safeTP(final Player p, final Location feetLoc) {
         final Location finLoc;
         final WXYZ loc = new LocFinder(new WXYZ(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
-      //Bukkit.broadcast(TCUtil.form(loc + "-l1"));
         if (loc == null) {
             final WXYZ alc = new LocFinder(new WXYZ(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
-          //Bukkit.broadcast(TCUtil.form(alc + "-l2"));
             if (alc == null) return false;
 
-            alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.YELLOW_STAINED_GLASS, false);
+            BlockUtil.set(alc.getBlock().getRelative(BlockFace.DOWN), BlockType.YELLOW_STAINED_GLASS, false);
             new BukkitRunnable() {
                 final WeakReference<Player> prf = new WeakReference<>(p);
 
@@ -95,43 +88,59 @@ public class MoveUtil {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
                         || alc.distAbs(pl.getLocation()) > 3) {
-                        alc.getBlock().getRelative(BlockFace.DOWN).setType(Material.AIR);
+                        BlockUtil.set(alc.getBlock().getRelative(BlockFace.DOWN), BlockType.AIR, false);
                         this.cancel();
                     }
                 }
             }.runTaskTimer(Ostrov.instance, 30, 10);
             finLoc = alc.getCenterLoc();
-        } else {
-            finLoc = loc.getCenterLoc();
-            final Block b = finLoc.getBlock();
-            if (b.getType().isAir()) {
-                final Block rb = b.getRelative(BlockFace.DOWN);
-                if (BlockUtil.is(rb, BlockType.WATER) ||
-                    (rb.getBlockData() instanceof final Waterlogged wl && wl.isWaterlogged())) {
-                    b.setType(Material.LILY_PAD, false);
-                    new BukkitRunnable() {
-                        final WeakReference<Player> prf = new WeakReference<>(p);
-
-                        @Override
-                        public void run() {
-                            final Player pl = prf.get();
-                            if (pl == null || !pl.isOnline() || pl.isDead()
-                                || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
-                                b.setType(Material.AIR, false);
-                                this.cancel();
-                            }
-                        }
-                    }.runTaskTimer(Ostrov.instance, 30, 10);
-                }
-            }
+            tpCorrect(p, finLoc);
+            return true;
         }
 
+        finLoc = loc.getCenterLoc();
+        final Block b = finLoc.getBlock();
+        if (!b.getType().isAir()) {
+            tpCorrect(p, finLoc);
+            return true;
+        }
+
+        final Block rb = b.getRelative(BlockFace.DOWN);
+        if (BlockUtil.is(rb, BlockType.WATER)
+            || (rb.getBlockData() instanceof final Waterlogged wl && wl.isWaterlogged())) {
+            if (isDrySolid(Nms.fastData(loc.w(), loc.x, loc.y - 2, loc.z))) {
+                tpCorrect(p, finLoc);
+                return true;
+            }
+            BlockUtil.set(b, BlockType.LILY_PAD, false);
+            new BukkitRunnable() {
+                final WeakReference<Player> prf = new WeakReference<>(p);
+                public void run() {
+                    final Player pl = prf.get();
+                    if (pl == null || !pl.isOnline() || pl.isDead()
+                        || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
+                        BlockUtil.set(b, BlockType.AIR, false);
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(Ostrov.instance, 30, 10);
+        }
+
+        tpCorrect(p, finLoc);
+        return true;
+    }
+
+    private static void tpCorrect(final Player p, final Location loc) {
         p.setVelocity(p.getVelocity().zero());
         p.setFallDistance(0);
-        finLoc.setYaw(p.getEyeLocation().getYaw());
-        finLoc.setPitch(p.getEyeLocation().getPitch());
-        p.teleport(finLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-        return true;
+        loc.setYaw(p.getEyeLocation().getYaw());
+        loc.setPitch(p.getEyeLocation().getPitch());
+        p.teleport(loc, PlayerTeleportEvent.TeleportCause.COMMAND);
+    }
+
+    private static boolean isDrySolid(final BlockData dt) {
+        return dt.getMaterial().asBlockType().isSolid()
+            || (dt instanceof final Waterlogged sn && !sn.isWaterlogged());
     }
 
   @Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены

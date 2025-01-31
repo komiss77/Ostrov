@@ -256,7 +256,8 @@ public class LocUtil {
 
     private static final Set<BlockType> PASS = Set.of(BlockType.BARRIER, BlockType.STRUCTURE_VOID,
         BlockType.CHORUS_PLANT, BlockType.SWEET_BERRY_BUSH, BlockType.BAMBOO, BlockType.VINE,
-        BlockType.WEEPING_VINES, BlockType.TWISTING_VINES, BlockType.LADDER, BlockType.LILY_PAD);
+        BlockType.WEEPING_VINES, BlockType.TWISTING_VINES, BlockType.LADDER, BlockType.LILY_PAD,
+        BlockType.CHORUS_FLOWER);
     //годится ли блок для головы?
     public static boolean isPassable(final BlockType tp) {
         if (tp == null) return false;
@@ -271,12 +272,15 @@ public class LocUtil {
         return isPassable(mat);
     }
 
+    @Deprecated
     public static boolean canStand(Material mat) {
         return canStand(mat.asBlockType());
     }
 
+    @Deprecated
     public static boolean canStand(final BlockType tp) {
-        return tp != null && !BlockType.LAVA.equals(tp) && tp.isSolid();
+        return tp != null && tp.isSolid();
+//        return tp != null && !BlockType.LAVA.equals(tp) && tp.isSolid(); хз зач лава, она всегда false на isSolid()
     }
 
     @Slow(priority = 1)
@@ -367,8 +371,8 @@ public class LocUtil {
                 for (final Entity e : loc.w.getChunkAt(cx, cz).getEntities()) {
                     if (ent.isAssignableFrom(e.getClass())) {
                         final Location el = e.getLocation();
-                        final int d = FastMath.square(el.getBlockX() - X)
-                            + FastMath.square(el.getBlockY() - Y) + FastMath.square(el.getBlockZ() - Z);
+                        final int d = NumUtil.square(el.getBlockX() - X)
+                            + NumUtil.square(el.getBlockY() - Y) + NumUtil.square(el.getBlockZ() - Z);
                         if (d < dS) {
                             final G ge = ent.cast(e);
                             if (which == null || which.test(ge)) {
@@ -419,7 +423,7 @@ public class LocUtil {
 
         final World w = org.getWorld();
         final List<Duo<BlockPosition, BlockData>> info =
-            new ArrayList<>(FastMath.abs(finX - mapX) + FastMath.abs(finY - mapY) + FastMath.abs(finZ - mapZ));
+            new ArrayList<>(NumUtil.abs(finX - mapX) + NumUtil.abs(finY - mapY) + NumUtil.abs(finZ - mapZ));
         while (true) {
             if (sideDistZ < sideDistX && sideDistZ < sideDistY) {
                 sideDistZ += deltaDistZ;

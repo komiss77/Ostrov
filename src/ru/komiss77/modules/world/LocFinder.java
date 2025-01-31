@@ -7,14 +7,14 @@ import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.ThreadSafe;
-import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.version.Nms;
 
 public final class LocFinder {
 
     public static final Check[] DEFAULT_CHECKS = {
-        (TypeCheck) (bt, y) -> LocUtil.canStand(bt),
+        (TypeCheck) (bt, y) -> bt.isSolid(),
         (TypeCheck) (bt, y) -> LocUtil.isPassable(bt),
         (TypeCheck) (bt, y) -> LocUtil.isPassable(bt)
     };
@@ -29,7 +29,7 @@ public final class LocFinder {
     public static WXYZ findInArea(final WXYZ from, final int radius, final int offset,
         final int near, final Check[] checks, final int yDst) {
         final int ofs2 = offset << 1;
-        final WXYZ in = new WXYZ(from.w, FastMath.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
+        final WXYZ in = new WXYZ(from.w(), NumUtil.rndCircPos(from, radius)).add(Ostrov.random.nextInt(ofs2) - offset,
             Ostrov.random.nextInt(ofs2) - offset, Ostrov.random.nextInt(ofs2) - offset);
         return new LocFinder(in, checks).find(DYrect.BOTH, near, yDst);
     }
@@ -44,8 +44,8 @@ public final class LocFinder {
 
     public LocFinder(final WXYZ loc) {
         this.checks = DEFAULT_CHECKS;
-        this.minY = loc.w.getMinHeight();
-        this.maxY = loc.w.getMaxHeight();
+        this.minY = loc.w().getMinHeight();
+        this.maxY = loc.w().getMaxHeight();
         if (loc.y < minY) loc.y = minY;
         if (loc.y > maxY) loc.y = maxY;
         this.bloc = loc;
@@ -53,8 +53,8 @@ public final class LocFinder {
 
     public LocFinder(final WXYZ loc, final Check[] checks) {
         this.checks = checks;
-        this.minY = loc.w.getMinHeight();
-        this.maxY = loc.w.getMaxHeight();
+        this.minY = loc.w().getMinHeight();
+        this.maxY = loc.w().getMaxHeight();
         if (loc.y < minY) loc.y = minY;
         if (loc.y > maxY) loc.y = maxY;
         this.bloc = loc;
@@ -76,8 +76,8 @@ public final class LocFinder {
             for (int dx = d; dx != fd; dx--) {
                 for (int dz = d; dz != fd; dz--) {
                     if (dx == d || dz == d || dx == -d || dz == -d) {
-                        bloc = lc.clone().add(dx * FastMath.abs(dx),
-                            0, dz * FastMath.abs(dz));
+                        bloc = lc.clone().add(dx * NumUtil.abs(dx),
+                            0, dz * NumUtil.abs(dz));
                         fin = testLoc(dir);
                       //Bukkit.broadcast(TCUtil.form(fin + "-f2"));
                         if (fin != null) {
@@ -118,7 +118,7 @@ public final class LocFinder {
                     miss = true;
                     break;
                 }
-                if (!miss) return new WXYZ(bloc.w, bloc.x, topY - checks.length, bloc.z);
+                if (!miss) return new WXYZ(bloc.w(), bloc.x, topY - checks.length, bloc.z);
                 topY++; topCnt = topY < maxY;
             }
 
@@ -138,7 +138,7 @@ public final class LocFinder {
                     miss = true;
                     break;
                 }
-                if (!miss) return new WXYZ(bloc.w, bloc.x, botY, bloc.z);
+                if (!miss) return new WXYZ(bloc.w(), bloc.x, botY, bloc.z);
                 botY--; botCnt = botY > minY;
             }
         }
@@ -158,7 +158,7 @@ public final class LocFinder {
                 mats[slot] = nbt;
                 return nbt;
             }
-            final BlockType nbt = Nms.fastType(bloc.w, bloc.x, y, bloc.z);
+            final BlockType nbt = Nms.fastType(bloc.w(), bloc.x, y, bloc.z);
             mats[slot] = nbt;
             return nbt;
         }
@@ -173,7 +173,7 @@ public final class LocFinder {
 
         final BlockData bd = datas[slot];
         if (bd == null) {
-            final BlockData nbd = Nms.fastData(bloc.w, bloc.x, y, bloc.z);
+            final BlockData nbd = Nms.fastData(bloc.w(), bloc.x, y, bloc.z);
             datas[slot] = nbd;
             return nbd;
         }

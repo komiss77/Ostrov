@@ -1,17 +1,15 @@
 package ru.komiss77.listener;
 
 
-import org.bukkit.*;
-import org.bukkit.entity.*;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.TprCmd;
-import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.MoveUtil;
@@ -19,11 +17,9 @@ import ru.komiss77.utils.MoveUtil;
 
 public class TestLst implements Listener {
 
+//    Botter bt = null;
 
-    Botter bt = null;
-
-
-    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
 //        Nms.totemPop(p, ItemUtil.nextPage);

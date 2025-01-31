@@ -1,5 +1,6 @@
 package ru.komiss77.modules.world;
 
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -17,27 +18,13 @@ public class XYZ implements Cloneable {
     public int z;
 
     //доп.поля
+    @Deprecated //где это нужно?
     public BlockFace bf;
+
     public int yaw;
     public int pitch;
 
-    public XYZ() {
-    }
-
-    @Slow
-    public static XYZ fromString(final String asString) {
-        try {
-            final String[] split = asString.split(",");
-            if (split.length == 3) {
-                return new XYZ("", Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
-            } else if (split.length > 3) {
-                return new XYZ(split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
-            }
-        } catch (NullPointerException | NumberFormatException | ArrayIndexOutOfBoundsException ex) {
-            Ostrov.log_err("XYZ fromString  =" + asString + " " + ex.getMessage());
-        }
-        return null;
-    }
+    public XYZ() {}
 
     public XYZ(final Location loc) {
         worldName = loc.getWorld().getName();
@@ -53,10 +40,28 @@ public class XYZ implements Cloneable {
         this.worldName = worldName;
     }
 
+    @Slow(priority = 1)
+    public static XYZ fromString(final String asString) {
+        try {
+            final String[] split = asString.split(",");
+            if (split.length == 3) {
+                return new XYZ("", Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+            } else if (split.length > 3) {
+                return new XYZ(split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
+            }
+        } catch (NullPointerException | NumberFormatException | ArrayIndexOutOfBoundsException ex) {
+            Ostrov.log_err("XYZ fromString  =" + asString + " " + ex.getMessage());
+        }
+        return null;
+    }
+
     public static XYZ of(long packedPos) {
         return new XYZ(null, (int) (packedPos >> 38), (int) ((packedPos << 52) >> 52), (int) ((packedPos << 26) >> 38)); // Paper - simplify/inline
     }
 
+    public void w(final World w) {
+        this.worldName = w.getName();
+    }
 
     public int distSq(final Location to) {
         return NumUtil.square(to.getBlockX() - x) + NumUtil.square(to.getBlockY() - y) + NumUtil.square(to.getBlockZ() - z);
@@ -119,16 +124,24 @@ public class XYZ implements Cloneable {
         return (worldName == null ? "" : worldName + ",") + x + "," + y + "," + z;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (!(o instanceof final XYZ xyz)) return false;
+        return Objects.equals(xyz.worldName, worldName)
+            && xyz.x == x && xyz.y == y && xyz.z == z;
+    }
 
     @Override
+    public int hashCode() {
+        return Long.hashCode(asLong());
+    }
+
+    /*@Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof final XYZ compare)) {
-            return false;
-        }
-        return ((compare.worldName == null && worldName == null) || (compare.worldName.hashCode() == worldName.hashCode())) //nullpointer
+        if (this == obj) return true;
+        if (!(obj instanceof final XYZ compare)) return false;
+        return ((compare.worldName == null && worldName == null) || compare.worldName.hashCode() == worldName.hashCode()) //nullpointer
             && compare.x == x && compare.y == y && compare.z == z;
     }
 
@@ -140,7 +153,7 @@ public class XYZ implements Cloneable {
         } else {
             return Long.hashCode(l) ^ worldName.hashCode();
         }
-    }
+    }*/
 
     @Override
     public XYZ clone() {

@@ -25,8 +25,8 @@ import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.utils.ClassUtil;
-import ru.komiss77.utils.FastMath;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.version.Nms;
 
@@ -232,11 +232,11 @@ public class Protocol77 implements Listener {
                                     for (int x = -dl; x <= dl; x++) {
                                         for (int y = -dl; y <= dl; y++) {
                                             for (int z = -dl; z <= dl; z++) {
-                                                if (((FastMath.abs(x) - dl) >> 31) + ((FastMath.abs(y) - dl) >> 31)
-                                                    + ((FastMath.abs(z) - dl) >> 31) + 2 < 0) continue;
+                                                if (((NumUtil.abs(x) - dl) >> 31) + ((NumUtil.abs(y) - dl) >> 31)
+                                                    + ((NumUtil.abs(z) - dl) >> 31) + 2 < 0) continue;
                                                 final WXYZ cl = new WXYZ(lc).add(x, y, z);
-                                                if (Nms.getFastMat(lc.getWorld(), cl.x, cl.y, cl.z).isCollidable()) {
-                                                    bdm.put(cl.getCenterLoc(), dark ? ClassUtil.rndElmt(bds) : cl.w.getBlockData(cl.x, cl.y, cl.z));
+                                                if (Nms.fastType(lc.getWorld(), cl.x, cl.y, cl.z).hasCollision()) {
+                                                    bdm.put(cl.getCenterLoc(), dark ? ClassUtil.rndElmt(bds) : cl.w().getBlockData(cl.x, cl.y, cl.z));
                                                 }
                                             }
                                         }

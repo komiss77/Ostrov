@@ -22,6 +22,10 @@ public class BlockUtil {
     }
 
     public static void set(final Block b, final BlockType bt, final boolean upd) {
+        if (BlockType.AIR.equals(bt)) {
+            b.setBlockData(air, upd);
+            return;
+        }
         b.setBlockData(bt.createBlockData(), upd);
     }
 
