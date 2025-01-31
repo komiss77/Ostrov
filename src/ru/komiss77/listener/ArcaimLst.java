@@ -181,7 +181,7 @@ public class ArcaimLst implements Listener {
 // *************** RedstoneClockController END ***************
 
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+   /* @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteract(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (e.getAction() == Action.PHYSICAL) return;
@@ -200,7 +200,7 @@ public class ArcaimLst implements Listener {
                 e.setUseItemInHand(Event.Result.DENY);
                 break;
         }
-    }
+    }*/
 
     //--------------------------------
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

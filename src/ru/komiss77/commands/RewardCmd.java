@@ -224,11 +224,13 @@ public class RewardCmd implements OCommand {
           break;
       }
 
-      //выполняем на банжи, чтобы кросссерверно!
+      //выполняем на банжи, чтобы кросссерверно!  сообщение reward отправлен писать до отправки
       if (cs instanceof Player) {
+        cs.sendMessage("§aЗапрос reward отправлен в обработку на прокси: §f" + cs.getName() + " §b-> §e" + oper + " " + value + " " + type + " " + tgt);
         SpigotChanellMsg.sendMessage(((Player) cs), Operation.REWARD, cs.getName(), type.tag, amt, tgt, oper);
       } else {
         if (PM.getOnlineCount() > 0) {
+          cs.sendMessage("§aЗапрос reward отправлен в обработку на прокси: §f" + cs.getName() + " §b-> §e" + oper + " " + value + " " + type + " " + tgt);
           SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(),
               Operation.REWARD, "консоль", type.tag, amt, tgt, oper);
         } else {
@@ -236,7 +238,7 @@ public class RewardCmd implements OCommand {
           return 0;
         }
       }
-      cs.sendMessage("§aЗапрос reward отправлен в обработку на прокси: §f" + cs.getName() + " §b-> §e" + oper + " " + value + " " + type + " " + tgt);
+      //cs.sendMessage("§aЗапрос reward отправлен в обработку на прокси: §f" + cs.getName() + " §b-> §e" + oper + " " + value + " " + type + " " + tgt);
       return Command.SINGLE_SUCCESS;
     };
   }

@@ -204,6 +204,10 @@ public class FigureManager implements Initiable {
                                         f.setName(f.lastName);
                                         f.lastName = null;
                                     }
+                                    if (e instanceof LivingEntity) {
+                                        LivingEntity le = (LivingEntity) e;
+                                        le.getActivePotionEffects().stream().forEach(eff -> le.removePotionEffect(eff.getType()));
+                                    }
                                     Bukkit.getPluginManager().callEvent(new FigureActivateEntityEvent(f));
                                 } else {
                                     e.remove();

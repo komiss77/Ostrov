@@ -39,11 +39,14 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.PassportCmd;
+import ru.komiss77.commands.SpyCmd;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameSign;
 import ru.komiss77.modules.games.GameSignEditor;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
@@ -126,12 +129,20 @@ public class InteractLst implements Listener {
         if (e.getAction() == Action.PHYSICAL) return;
 
         final Player p = e.getPlayer();
+//p.sendMessage("Interact gm="+p.getGameMode()+" getAction="+e.getAction());
         if (p.getGameMode() == GameMode.SPECTATOR && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)) {
             if (p.getOpenInventory().getType() != InventoryType.CHEST) {
-                if (PM.getOplayer(p.getUniqueId()).setup != null) {
-                    PM.getOplayer(p.getUniqueId()).setup.openSetupMenu(p);
+                final Oplayer op = PM.getOplayer(p.getUniqueId());
+                if (op.spyOrigin != null) {
+                    SpyCmd.SpyMenu.open(p);
                     return;
-                } //else {
+                } else if (op.setup != null) {
+                    op.setup.openSetupMenu(p);
+                    return;
+                } else if (GM.GAME == Game.AR) {
+                    p.performCommand("menu");
+                    return;
+                }//else {
                 //p.performCommand("menu"); может перекрыть в минииграх
                 //}
             }
