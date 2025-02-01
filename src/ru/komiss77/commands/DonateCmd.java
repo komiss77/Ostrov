@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.destroystokyo.paper.ClientOption;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -70,8 +70,8 @@ public class DonateCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("донат");
+    public Set<String> aliases() {
+        return Set.of("донат");
     }
 
     @Override

@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -121,8 +121,8 @@ public final class PvpCmd implements OCommand, Listener {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("пвп");
+    public Set<String> aliases() {
+        return Set.of("пвп");
     }
 
     @Override

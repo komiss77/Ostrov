@@ -79,8 +79,8 @@ public class EntityCmd implements Listener, OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("");
+    public Set<String> aliases() {
+        return Set.of("");
     }
 
     @Override

@@ -1,6 +1,6 @@
 package ru.komiss77.modules.kits;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -120,8 +120,8 @@ public class KitCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-      return List.of("kits");
+    public Set<String> aliases() {
+      return Set.of("kits");
     }
 
     @Override

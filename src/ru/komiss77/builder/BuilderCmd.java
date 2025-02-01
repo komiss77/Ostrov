@@ -2,6 +2,7 @@ package ru.komiss77.builder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -137,8 +138,8 @@ public class BuilderCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("билдер");
+    public Set<String> aliases() {
+        return Set.of("билдер");
     }
 
     @Override

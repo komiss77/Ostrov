@@ -2,6 +2,7 @@ package ru.komiss77.utils;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,19 +34,19 @@ public class MoveUtil {
     private static final LocFinder.DataCheck[] SAFE_CHECK = {
         (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
-            switch (dt) {
-                case final Snow sn: return sn.getLayers() > 4;
-                case final Waterlogged sn: return sn.isWaterlogged() || bt.isSolid();
-                case final Levelled lv: return lv.getLevel() == 0 //вода для кувшинок
-                    && BlockType.WATER.equals(bt);
-                default: break;
-            }
             if (BlockType.BEDROCK.equals(bt)) return false;
-//            if (BlockType.LAVA.equals(bt)) Bukkit.getConsoleSender().sendMessage("sl-" + bt.isSolid());
-            return bt.isSolid();//крыша мира (как в незере)
+            if (BlockType.BUBBLE_COLUMN.equals(bt)) return true;
+            return switch (dt) {
+                case final Snow sn -> sn.getLayers() > 4;
+                case final Waterlogged sn -> sn.isWaterlogged() || bt.isSolid();
+                case final Levelled lv -> lv.getLevel() == 0 //вода для кувшинок
+                    && BlockType.WATER.equals(bt);
+                default -> bt.isSolid();
+            };
         },
         (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
+            if (BlockType.BUBBLE_COLUMN.equals(bt)) return false;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
                 case final Waterlogged sn -> !sn.isWaterlogged();
@@ -56,6 +57,7 @@ public class MoveUtil {
         },
         (dt, y) -> {
             final BlockType bt = dt.getMaterial().asBlockType();
+            if (BlockType.BUBBLE_COLUMN.equals(bt)) return false;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
                 case final Waterlogged sn -> !sn.isWaterlogged();
@@ -72,6 +74,7 @@ public class MoveUtil {
         (LocFinder.TypeCheck) (dt, y) -> dt.isAir()
     };
 
+    private static final Set<BlockType> WATERS = Set.of(BlockType.WATER, BlockType.BUBBLE_COLUMN);
     public static boolean safeTP(final Player p, final Location feetLoc) {
         final Location finLoc;
         final WXYZ loc = new LocFinder(new WXYZ(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
@@ -106,7 +109,7 @@ public class MoveUtil {
         }
 
         final Block rb = b.getRelative(BlockFace.DOWN);
-        if (BlockUtil.is(rb, BlockType.WATER)
+        if (WATERS.contains(rb.getType().asBlockType())
             || (rb.getBlockData() instanceof final Waterlogged wl && wl.isWaterlogged())) {
             if (isDrySolid(Nms.fastData(loc.w(), loc.x, loc.y - 2, loc.z))) {
                 tpCorrect(p, finLoc);
@@ -400,13 +403,13 @@ public class MoveUtil {
 
 
         final int y_max;
-        if (feetLoc.w.getEnvironment() == World.Environment.NETHER) { //фикс - тэпешит над верхним бедроком
-            y_max = feetLoc.w.getHighestBlockYAt(feetLoc.x, feetLoc.z) - 3;
+        if (feetLoc.w().getEnvironment() == World.Environment.NETHER) { //фикс - тэпешит над верхним бедроком
+            y_max = feetLoc.w().getHighestBlockYAt(feetLoc.x, feetLoc.z) - 3;
             if (feetLoc.y > y_max) {//в аду или при генерации как в аду (определяем потолок из бедрока)
                 feetLoc.y = y_max;
             }
         } else {
-            y_max = feetLoc.w.getMaxHeight() - 2;
+            y_max = feetLoc.w().getMaxHeight() - 2;
         }
         final int y_ori = feetLoc.y;//feet_y;
 

@@ -1,5 +1,6 @@
 package ru.komiss77.utils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +38,10 @@ public class ClassUtil {
         }
     }
 
+    @Nullable
+    public static <G, T extends G> T cast(final G obj, final Class<T> cls) {
+        return cls.isInstance(obj) ? cls.cast(obj) : null;
+    }
 
     @SuppressWarnings("unchecked")
     public static <G> G rndElmt(final G... arr) {

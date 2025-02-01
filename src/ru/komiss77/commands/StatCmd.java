@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -18,7 +18,7 @@ import ru.komiss77.utils.NumUtil;
 public class StatCmd implements OCommand {
 
   private static final String COMMAND = "stat";
-  private static final List<String> ALIASES = List.of();
+  private static final Set<String> ALIASES = Set.of();
   private static final String DESCRIPTION = "Добавить статистику";
   private static final boolean CAN_CONSOLE = true;
   private static final String arg0 = "player", arg1 = "stat", arg2 = "value", arg3 = "arg4", arg4 = "arg4";
@@ -166,7 +166,7 @@ public class StatCmd implements OCommand {
   }
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 
@@ -241,8 +241,8 @@ public class StatCmd implements Listener, OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("стат");
+    public Set<String> aliases() {
+        return Set.of("стат");
     }
 
     @Override

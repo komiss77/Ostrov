@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -33,7 +33,7 @@ import ru.komiss77.utils.TimeUtil;
 public class Server implements OCommand {
 
   private static final String COMMAND = "server";
-  private static final List<String> ALIASES = List.of();
+  private static final Set<String> ALIASES = Set.of();
   private static final String DESCRIPTION = "Выбор игры";
   private static final boolean CAN_CONSOLE = false;
   private static final String arg0 = "game", arg1 = "arena", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
@@ -301,7 +301,7 @@ public class Server implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 

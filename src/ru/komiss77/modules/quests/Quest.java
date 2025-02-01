@@ -12,6 +12,7 @@ import ru.komiss77.modules.quests.progs.BlnProg;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.quests.progs.NumProg;
 import ru.komiss77.modules.quests.progs.VarProg;
+import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 
@@ -44,27 +45,8 @@ public class Quest {
     public <G extends Comparable<?>> Quest(final char code, final ItemType icon, final int amount,
         final @Nullable G[] needs, final Quest parent, final String displayName, final String description,
         final String backGround, final QuestVis vision, final QuestFrame frame, final int pay) {
-
-        this.code = code;
-        this.icon = icon.createItemStack();
-        this.amount = amount;
-        this.parent = parent == null ? this : parent;
-        this.displayName = displayName;
-        this.description = description;
-        this.backGround = backGround;
-        this.vision = vision;
-        this.frame = frame;
-        this.needs = needs;
-        this.pay = pay;
-
-        children = new Quest[0];
-        dx = 0f;
-        dy = 0f;
-        size = 1;
-
-        codeMap.put(code, this);
-        nameMap.put(displayName, this);
-        loreMap.put(this, ItemUtil.genLore(null, description));
+        this(code, icon.createItemStack(), amount, needs, parent, displayName,
+            description, backGround, vision, frame, pay);
     }
 
     public <G extends Comparable<?>> Quest(final char code, final ItemStack icon, final int amount,
@@ -93,13 +75,9 @@ public class Quest {
         loreMap.put(this, ItemUtil.genLore(null, description));
     }
 
+    @OverrideMe
     public static @Nullable Quest get(final char code) {
         return Quest.codeMap.get(code);
-    }
-
-    public static <E extends Quest> @Nullable E get(final char code, final Class<E> cls) throws ClassCastException {
-        final Quest q = Quest.codeMap.get(code);
-        return q == null ? null : cls.cast(q);
     }
 
     public IProgress createPrg(final int prg) {

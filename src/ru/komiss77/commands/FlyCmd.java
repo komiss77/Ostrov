@@ -1,12 +1,11 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Cfg;
 import ru.komiss77.commands.tools.Resolver;
@@ -94,8 +93,8 @@ public class FlyCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of();
+    public Set<String> aliases() {
+        return Set.of();
     }
 
     @Override

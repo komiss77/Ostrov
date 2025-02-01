@@ -3,14 +3,8 @@ package ru.komiss77.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -18,9 +12,8 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import com.mojang.brigadier.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -28,9 +21,9 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -287,8 +280,8 @@ public class AnalyticsCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("аналитика");
+    public Set<String> aliases() {
+        return Set.of("аналитика");
     }
 
     @Override

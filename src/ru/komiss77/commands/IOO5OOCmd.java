@@ -64,7 +64,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Нагрузка на сервер")
-            .aliases("езы")
             .register();
 
         new OCmdBuilder("serv")
@@ -78,7 +77,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меню серверов")
-            .aliases("ыукм")
             .register();
 
         new OCmdBuilder("skin")
@@ -92,7 +90,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Установить скин")
-            .aliases("ылшт")
             .register();
 
         new OCmdBuilder("land")
@@ -110,7 +107,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Помошник привата")
-            .aliases("дфтв")
             .register();
 
         new OCmdBuilder("admin")
@@ -133,7 +129,6 @@ public class IOO5OOCmd {
                 return 0;
             })
             .description("Открывает меню Абьюзера")
-            .aliases("админ", "фвьшт")
             .register();
 
         new OCmdBuilder("home")
@@ -151,7 +146,6 @@ public class IOO5OOCmd {
                 op.menu.openHomes(p);
                 return Command.SINGLE_SUCCESS;
             })
-            .aliases("sethome", "delhome", "рщьу")
             .description("Управление точками дома")
             .register();
 
@@ -184,7 +178,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("серверное меню")
-            .aliases("меню", "ьутг")
             .register();
 
         new OCmdBuilder("settings")
@@ -203,7 +196,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Личные настройки")
-            .aliases("ыуеештпы")
             .register();
 
         new OCmdBuilder("profile")
@@ -223,7 +215,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Открывает Профиль")
-            .aliases("зкщашду")
             .register();
 
         new OCmdBuilder("sound")
@@ -247,7 +238,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Sound player")
-            .aliases("ыщгтв")
             .register();
 
         new OCmdBuilder("lobby")
@@ -260,7 +250,7 @@ public class IOO5OOCmd {
                 p.performCommand("server lobby");
                 return Command.SINGLE_SUCCESS;
             })
-            .aliases("hub", "дщиин", "рги")
+            .aliases("hub")
             .description("Перейти в лобби")
             .register();
 
@@ -307,7 +297,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Принять запрос на Телепорт")
-            .aliases("езфссузе")
             .register();
 
 
@@ -329,7 +318,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Телепорт вверх")
-            .aliases("ещз")
             .register();
 
         new OCmdBuilder("spawn")
@@ -351,7 +339,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Переместиться на спавн")
-            .aliases("ызфцт")
             .register();
 
         new OCmdBuilder("back")
@@ -382,7 +369,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Вернуться на точку гибели")
-            .aliases("ифсл")
             .register();
 
         new OCmdBuilder("biome")
@@ -397,7 +383,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Узнать биом")
-            .aliases("ишщьу")
             .register();
 
 
@@ -511,8 +496,8 @@ public class HomeCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("дом");
+    public Set<String> aliases() {
+        return Set.of("дом");
     }
 
     @Override

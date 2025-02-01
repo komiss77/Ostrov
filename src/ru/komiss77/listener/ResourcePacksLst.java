@@ -11,8 +11,8 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
-import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -73,8 +73,8 @@ public final class ResourcePacksLst implements Initiable, OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("rp");
+    public Set<String> aliases() {
+        return Set.of("rp");
     }
 
     @Override

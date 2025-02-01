@@ -56,7 +56,8 @@ public class Oplayer {
     public final String nik;
     public final UUID id;
     public boolean eng; //true - english; false - russian
-    public int karmaCalc, reputationCalc; //просчитывается в
+    public int karmaCalc,
+        reputationCalc; //просчитывается в
     private final int loginTime = ApiOstrov.currentTimeSec();
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа

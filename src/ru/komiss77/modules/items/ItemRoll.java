@@ -2,6 +2,7 @@ package ru.komiss77.modules.items;
 
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.modules.rolls.Roll;
+import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemUtil;
 
 public class ItemRoll extends Roll<ItemStack> {
@@ -16,6 +17,10 @@ public class ItemRoll extends Roll<ItemStack> {
 
     public ItemRoll(final String id, final ItemStack it, final int number, final int extra) {
         super(id, it, number, extra);
+    }
+
+    public static ItemRoll get(final String id) {
+        return ClassUtil.cast(Roll.get(id), ItemRoll.class);
     }
 
     @Override

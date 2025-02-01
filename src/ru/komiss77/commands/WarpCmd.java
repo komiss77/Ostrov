@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -12,8 +13,6 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.modules.warp.WarpMenu;
 import ru.komiss77.utils.inventory.SmartInventory;
-
-import java.util.List;
 
 
 public class WarpCmd implements OCommand {
@@ -65,8 +64,8 @@ public class WarpCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("варп");
+    public Set<String> aliases() {
+        return Set.of("варп");
     }
 
     @Override

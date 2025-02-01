@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
+import ru.komiss77.notes.OverrideMe;
 
 public abstract class Roll<R> {
 
@@ -66,13 +67,16 @@ public abstract class Roll<R> {
         return this;
     }
 
+    @OverrideMe
     public static Roll<?> get(final String id) {
         return rolls.get(id);
     }
 
+    @Deprecated
+    @SuppressWarnings("use said roll class to .get(id) and then cast to class")
     public static <R> Roll<R> get(final String id, final Class<Roll<R>> cls) {
         final Roll<?> rl = rolls.get(id);
-        return rl != null && rl.getClass().isAssignableFrom(cls) ? cls.cast(rl) : null;
+        return cls.isInstance(rl) ? cls.cast(rl) : null;
     }
 
     protected static <R extends Roll<?>> void load(final Class<R> rlc, final Function<ConfigurationSection, R> fun) {

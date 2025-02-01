@@ -52,7 +52,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.items.DataParser;
 import ru.komiss77.modules.items.ItemBuilder;
-import ru.komiss77.modules.items.ItemClass;
 import ru.komiss77.modules.items.PDC;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
@@ -1967,11 +1966,6 @@ public class ItemUtil {
         }
 
         return new ItemBuilder(it).name(Lang.t(type, Lang.RU));
-    }
-
-    @Deprecated
-    public static boolean isItemA(final ItemStack is, final ItemClass cls) {
-        return cls.has(is == null ? Material.AIR : is.getType());
     }
 
     @Deprecated

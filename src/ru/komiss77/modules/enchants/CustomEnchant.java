@@ -7,7 +7,6 @@ import java.util.Set;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.set.RegistryKeySet;
-import io.papermc.paper.registry.set.RegistrySet;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -17,6 +16,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.notes.OverrideMe;
 
 
 public abstract class CustomEnchant implements Keyed {
@@ -216,6 +216,7 @@ public abstract class CustomEnchant implements Keyed {
 
     public abstract RegistryKeySet<Enchantment> conflicts();
 
+    @OverrideMe
     public static CustomEnchant get(final Key key) {
         return VALUES.get(key);
     }
@@ -252,53 +253,5 @@ public abstract class CustomEnchant implements Keyed {
     @Override
     public int hashCode() {
         return key.hashCode();
-    }
-
-    protected static class Glint extends CustomEnchant {
-
-        @Override
-        public String name() {
-            return "§0.";
-        }
-
-        @Override
-        public Set<EquipmentSlotGroup> slots() {
-            return Set.of(EquipmentSlotGroup.ANY);
-        }
-
-        @Override
-        public RegistryKeySet<ItemType> targets() {
-            return RegistrySet.keySet(RegistryKey.ITEM);
-        }
-
-        @Override
-        public RegistryKeySet<Enchantment> conflicts() {
-            return OStrap.regSetOf(List.of(), RegistryKey.ENCHANTMENT);
-        }
-
-        @Override
-        public int anvilCost() {
-            return 0;
-        }
-
-        @Override
-        public int maxLevel() {
-            return 1;
-        }
-
-        @Override
-        public int weight() {
-            return 1;
-        }
-
-        @Override
-        public boolean isInTable() {
-            return false;
-        }
-
-        @Override
-        public List<EnchData> act(final Event e, final List<EnchData> data) {
-            return List.of();
-        }
     }
 }

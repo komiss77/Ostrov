@@ -71,8 +71,6 @@ public class EnchantManager implements Initiable, Listener {
     }
   };*/
 
-    public static final CustomEnchant GLINT = new CustomEnchant.Glint();
-
     public static void init() {
         //doesnt actually do shit
     }

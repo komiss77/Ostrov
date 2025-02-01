@@ -33,7 +33,6 @@ public class FigureCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Фигуры")
-        .aliases("рфе")
         .register();
   }
 }

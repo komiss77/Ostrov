@@ -1,6 +1,5 @@
 package ru.komiss77.modules.world;
 
-import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -124,7 +123,7 @@ public class XYZ implements Cloneable {
         return (worldName == null ? "" : worldName + ",") + x + "," + y + "," + z;
     }
 
-    @Override
+    /*@Override
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof final XYZ xyz)) return false;
@@ -135,9 +134,9 @@ public class XYZ implements Cloneable {
     @Override
     public int hashCode() {
         return Long.hashCode(asLong());
-    }
+    }*/
 
-    /*@Override
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof final XYZ compare)) return false;
@@ -153,14 +152,13 @@ public class XYZ implements Cloneable {
         } else {
             return Long.hashCode(l) ^ worldName.hashCode();
         }
-    }*/
+    }
 
     @Override
     public XYZ clone() {
         final XYZ cln;
         try {
             cln = (XYZ) super.clone();
-//          cln.x = x; cln.y = y; cln.z = z;
             cln.worldName = worldName;
             return cln;
         } catch (CloneNotSupportedException e) {

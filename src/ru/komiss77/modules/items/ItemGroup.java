@@ -17,6 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.version.Nms;
@@ -116,23 +117,15 @@ public abstract class ItemGroup implements Keyed {
         }
     }
 
+    @OverrideMe
     public static @Nullable ItemGroup get(final ItemStack it) {
         final String id = it.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
         return id == null ? null : get(id);
     }
 
-    public static <E extends ItemGroup> @Nullable E get(final ItemStack it, final Class<E> cls) throws ClassCastException {
-        final ItemGroup q = get(it);
-        return q == null ? null : cls.cast(q);
-    }
-
+    @OverrideMe
     public static @Nullable ItemGroup get(final String id) {
         return VALUES.get(id);
-    }
-
-    public static <E extends ItemGroup> @Nullable E get(final String id, final Class<E> cls) throws ClassCastException {
-        final ItemGroup q = get(id);
-        return q == null ? null : cls.cast(q);
     }
 
     public static Collection<ItemGroup> values() {

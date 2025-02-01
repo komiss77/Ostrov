@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -12,8 +13,6 @@ import ru.komiss77.enums.Operation;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-
-import java.util.List;
 
 
 public class SeenCmd implements OCommand {
@@ -53,8 +52,8 @@ public class SeenCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("инфо");
+    public Set<String> aliases() {
+        return Set.of("инфо");
     }
 
     @Override

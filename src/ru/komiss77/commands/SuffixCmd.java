@@ -79,8 +79,8 @@ public class SuffixCmd {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("суффикс");
+    public Set<String> aliases() {
+        return Set.of("суффикс");
     }
 
     @Override

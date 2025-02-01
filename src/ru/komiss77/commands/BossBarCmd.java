@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -12,8 +12,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
 
 
 public class BossBarCmd implements OCommand {
@@ -74,8 +72,8 @@ public class BossBarCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of();
+    public Set<String> aliases() {
+        return Set.of();
     }
 
     @Override

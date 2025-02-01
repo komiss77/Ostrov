@@ -1,7 +1,7 @@
 package ru.komiss77.commands;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -35,7 +35,7 @@ import ru.komiss77.utils.ScreenUtil;
 public class TprCmd implements OCommand {
 
   private static final String COMMAND = "tpr";
-  private static final List<String> ALIASES = List.of("rtp");
+  private static final Set<String> ALIASES = Set.of("rtp");
   private static final String DESCRIPTION = "Случайный телепорт";
   private static final boolean CAN_CONSOLE = true;
   private static final String arg0 = "player", arg1 = "world", arg2 = "radius", arg3 = "arg4", arg4 = "arg4";
@@ -440,7 +440,7 @@ public class TprCmd implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 

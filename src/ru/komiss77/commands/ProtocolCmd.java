@@ -1,5 +1,6 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -11,8 +12,6 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.protocols.Protocol77;
-
-import java.util.List;
 
 public class ProtocolCmd implements OCommand {
 
@@ -62,8 +61,8 @@ public class ProtocolCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("протокол");
+    public Set<String> aliases() {
+        return Set.of("протокол");
     }
 
     @Override

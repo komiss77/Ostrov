@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -45,7 +46,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class MissionCmd implements OCommand {
 
   private static final String COMMAND = "mission";
-  private static final List<String> ALIASES = List.of();
+  private static final Set<String> ALIASES = Set.of();
   private static final String DESCRIPTION = "Управления миссиями";
   private static final boolean CAN_CONSOLE = false;
   private static final String arg0 = "action", arg1 = "arg1", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
@@ -565,7 +566,7 @@ public class MissionCmd implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 
@@ -1024,8 +1025,8 @@ public class M implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("миссии");
+    public Set<String> aliases() {
+        return Set.of("миссии");
     }
 
     @Override

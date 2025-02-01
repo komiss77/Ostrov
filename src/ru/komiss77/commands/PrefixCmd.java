@@ -42,7 +42,6 @@ public class PrefixCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Ставит префикс")
-            .aliases("зкуашч")
             .register();
     }
 /*
@@ -79,8 +78,8 @@ public class PrefixCmd {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("префикс");
+    public Set<String> aliases() {
+        return Set.of("префикс");
     }
 
     @Override

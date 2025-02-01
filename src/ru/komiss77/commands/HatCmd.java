@@ -60,7 +60,6 @@ public class HatCmd {
 
                 return Command.SINGLE_SUCCESS;
             })
-            .aliases("рфе")
             .description("Надеть шляпу")
             .register();
     }

@@ -12,6 +12,7 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.notes.OverrideMe;
 
 
 public abstract class CustomEntity implements Keyed {
@@ -106,6 +107,7 @@ public abstract class CustomEntity implements Keyed {
         return key.toString() + " of " + getEntClass().getSimpleName().toLowerCase();
     }
 
+    @OverrideMe
     public static CustomEntity get(final Entity ent) {
         return ent.getPersistentDataContainer().get(KEY, DATA);
     }

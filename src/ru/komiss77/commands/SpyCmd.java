@@ -1,7 +1,7 @@
 package ru.komiss77.commands;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -19,8 +19,8 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.inventory.*;
@@ -152,8 +152,8 @@ public class SpyCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of(""); //альясы на кирилице не робят
+    public Set<String> aliases() {
+        return Set.of(""); //альясы на кирилице не робят
     }
 
     @Override

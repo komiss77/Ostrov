@@ -1,10 +1,9 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-
-import java.util.List;
 
 public class Comm implements OCommand {
     @Override
@@ -13,8 +12,8 @@ public class Comm implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of();
+    public Set<String> aliases() {
+        return Set.of();
     }
 
     @Override

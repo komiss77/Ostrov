@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -15,7 +15,7 @@ import ru.komiss77.modules.player.PM;
 public class TphereCmd implements OCommand {
 
   private static final String COMMAND = "tphere";
-  private static final List<String> ALIASES = List.of();
+  private static final Set<String> ALIASES = Set.of();
   private static final String DESCRIPTION = "ТП к себе";
   private static final boolean CAN_CONSOLE = false;
 
@@ -109,7 +109,7 @@ public class TphereCmd implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 

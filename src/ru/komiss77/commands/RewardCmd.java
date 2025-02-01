@@ -1,7 +1,7 @@
 package ru.komiss77.commands;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.RemoteDB;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
@@ -244,8 +243,8 @@ public class RewardCmd implements OCommand {
   }
 
   @Override
-  public List<String> aliases() {
-    return List.of();
+  public Set<String> aliases() {
+    return Set.of();
   }
 
   @Override

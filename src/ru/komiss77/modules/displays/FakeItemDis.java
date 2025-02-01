@@ -219,6 +219,7 @@ public class FakeItemDis extends BukkitRunnable {
 
     @Override
     public boolean equals(final Object o) {
+        if (this == o) return true;
         if (o instanceof final FakeItemDis fd)
             return fd.tds.getEntityId() == tds.getEntityId();
         return false;

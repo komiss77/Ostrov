@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -19,7 +19,7 @@ import ru.komiss77.modules.player.PM;
 public class EXAMPLE implements OCommand {
 
   private static final String COMMAND = "example";
-  private static final List<String> ALIASES = List.of("aliase");
+  private static final Set<String> ALIASES = Set.of("aliase");
   private static final String DESCRIPTION = "команда";
   private static final boolean CAN_CONSOLE = false;
   private static final String arg0 = "arg0", arg1 = "arg1", arg2 = "arg2", arg3 = "arg4", arg4 = "arg4";
@@ -111,7 +111,7 @@ public class EXAMPLE implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 

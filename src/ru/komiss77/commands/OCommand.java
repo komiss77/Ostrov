@@ -1,14 +1,13 @@
 package ru.komiss77.commands;
 
+import java.util.Set;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-
-import java.util.List;
 
 public interface OCommand {
     LiteralCommandNode<CommandSourceStack> command();
 
-    List<String> aliases();
+    Set<String> aliases();
 
     String description();
 }

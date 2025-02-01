@@ -15,11 +15,6 @@ public class WXYZ extends XYZ {
     @SuppressWarnings("не хранить мир - после отгрузки остаётся ghost!!! use world()")
     public final World w; //не хранить мир - после отгрузки остаётся ghost!!! use world()
 
-    @Deprecated
-    public @Nullable World world() {
-        return Bukkit.getWorld(worldName);
-    }
-
     private WeakReference<World> world; //не хранить мир - после отгрузки остаётся ghost!!! use world()
 
     public @Nullable World w() {

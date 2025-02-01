@@ -1,16 +1,16 @@
 package ru.komiss77.modules.translate;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -41,7 +41,7 @@ public class Lang {
     private static HttpRequest.Builder rb;
     public static final Locale RU, EN;
     private static final TextComponent err;
-    private static String apiKey = "", folderId = "";
+    private static String folderId = "";
 
 
     static {
@@ -70,7 +70,7 @@ public class Lang {
             if (add > 0) {
                 Ostrov.log_ok("Lang loadBase добавлено записей : §b" + add + " (всего:" + ruToEng.size() + ")");
             }
-            apiKey = ruToEng.getOrDefault("apiKey", "");
+            final String apiKey = ruToEng.getOrDefault("apiKey", "");
             folderId = ruToEng.getOrDefault("folderId", "");
             if (rb == null && !apiKey.isEmpty() && !folderId.isEmpty()) { //не надо тут оптимизаций
                 // Lang translateChat error : responce=Request Header Fields Too Large

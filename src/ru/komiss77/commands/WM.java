@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import com.google.common.io.Files;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -37,7 +38,7 @@ import ru.komiss77.utils.inventory.*;
 public class WM implements OCommand {
 
   private static final String COMMAND = "wm";
-  private static final List<String> ALIASES = List.of("worldmanager");
+  private static final Set<String> ALIASES = Set.of("worldmanager");
   private static final String DESCRIPTION = "Управление мирами";
   private static final String arg0 = "operation", arg1 = "world", arg2 = "environment", arg3 = "generator", arg4 = "arg4";
   private static final List<String> subCmd = Arrays.asList("list", "tp", "create",
@@ -549,7 +550,7 @@ public class WM implements OCommand {
 
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 
@@ -927,8 +928,8 @@ public class WorldManagerCmd implements OCommand {
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("мм");
+    public Set<String> aliases() {
+        return Set.of("мм");
     }
 
     @Override

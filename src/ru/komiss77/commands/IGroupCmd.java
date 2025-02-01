@@ -76,7 +76,6 @@ public class IGroupCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")
-            .aliases("шпкщгз")
             .register();
     }
 }

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.objects.Duo;
+import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.StringUtil;
 
@@ -29,6 +30,10 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         for (int i = 0; i != wgts.length; i++)
             total += wgts[i];
         this.total = total;
+    }
+
+    public static RollTree get(final String id) {
+        return ClassUtil.cast(Roll.get(id), RollTree.class);
     }
 
     @Override

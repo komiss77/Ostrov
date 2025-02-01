@@ -1,6 +1,6 @@
 package ru.komiss77.commands;
 
-import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -22,12 +22,12 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class OpermCmd implements OCommand {
 
   private static final String COMMAND = "operm";
-  private static final List<String> ALIASES = List.of();
+  private static final Set<String> ALIASES = Set.of();
   private static final String DESCRIPTION = "";
   private static final boolean CAN_CONSOLE = false;
 
   @Override
-  public List<String> aliases() {
+  public Set<String> aliases() {
     return ALIASES;
   }
 

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -110,8 +111,8 @@ final static String player = "игрок", reason = "причина";
     }
 
     @Override
-    public List<String> aliases() {
-        return List.of("репорт");
+    public Set<String> aliases() {
+        return Set.of("репорт");
     }
 
     @Override

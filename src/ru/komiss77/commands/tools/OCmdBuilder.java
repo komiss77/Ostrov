@@ -2,6 +2,7 @@ package ru.komiss77.commands.tools;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import com.mojang.brigadier.Command;
@@ -16,6 +17,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.OCommand;
+import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -133,6 +135,9 @@ public class OCmdBuilder {
             return;
         }
 
+        final Set<String> convs = new HashSet<>(aliases);
+        for (final String als : aliases)
+            convs.add(TransLiter.reLayOut(als));
         Ostrov.regCommand(new OCommand() {
             @Override
             public LiteralCommandNode<CommandSourceStack> command() {
@@ -140,8 +145,8 @@ public class OCmdBuilder {
             }
 
             @Override
-            public List<String> aliases() {
-                return aliases;
+            public Set<String> aliases() {
+                return convs;
             }
 
             @Override

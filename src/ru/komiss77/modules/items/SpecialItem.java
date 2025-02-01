@@ -23,6 +23,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
 
@@ -213,12 +214,14 @@ public abstract class SpecialItem implements Keyed {
         return name.hashCode();
     }
 
+    @OverrideMe
     public static @Nullable SpecialItem get(final ItemStack it) {
         if (it == null) return null;
         final String nm = it.getPersistentDataContainer().get(DATA, PersistentDataType.STRING);
         return nm == null ? null : VALUES.get(nm);
     }
 
+    @OverrideMe
     public static @Nullable SpecialItem get(final Entity own) {
         for (final SpecialItem si : VALUES.values()) {
             final Entity ent = si.own.get();
