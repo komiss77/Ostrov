@@ -15,18 +15,21 @@ public class WXYZ extends XYZ {
     @SuppressWarnings("не хранить мир - после отгрузки остаётся ghost!!! use world()")
     public final World w; //не хранить мир - после отгрузки остаётся ghost!!! use world()
 
-    private WeakReference<World> world; //не хранить мир - после отгрузки остаётся ghost!!! use world()
-
+    //private WeakReference<World> world; //не хранить мир - после отгрузки остаётся ghost!!! use world()
+    //зачем такие навороты? лишний объект, проверки.. Всегда проще сделать Bukkit.getWorld и получить самый актуальный мир из ядра.
+    //посмотри исходник, там всего одно действие - берётся мир по имени из мапы (кст,именно по этому нужно юзать название а не uuid)
+    //к тому же WeakReference хоть и слабая, но ссылка, т.е. до прохода GC она всё равно выдаст старый мир который уже мог быть отгружен
     public @Nullable World w() {
-        final World wl = this.world.get();
-        if (wl != null) return wl;
-        final World nw = Bukkit.getWorld(worldName);
-        if (nw != null) world = new WeakReference<>(nw);
-        return nw;
+        return Bukkit.getWorld(worldName);
+        //final World wl = this.world.get();
+        //if (wl != null) return wl;
+        //final World nw = Bukkit.getWorld(worldName);
+        //if (nw != null) world = new WeakReference<>(nw);
+        //return nw;
     }
 
     public void w(final World w) {
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
     }
 
@@ -35,7 +38,7 @@ public class WXYZ extends XYZ {
         this.y = b.getY();
         this.z = b.getZ();
         this.w = b.getWorld();
-        this.world = new WeakReference<>(b.getWorld());
+        //this.world = new WeakReference<>(b.getWorld());
         this.pitch = 0;
         this.yaw = 0;
         this.worldName = w.getName();
@@ -46,7 +49,7 @@ public class WXYZ extends XYZ {
         this.y = b.getY();
         this.z = b.getZ();
         this.w = b.getWorld();
-        this.world = new WeakReference<>(b.getWorld());
+        //this.world = new WeakReference<>(b.getWorld());
         this.worldName = w.getName();
         this.pitch = pt;
         this.yaw = 0;
@@ -57,7 +60,7 @@ public class WXYZ extends XYZ {
         this.y = b.getY();
         this.z = b.getZ();
         this.w = b.getWorld();
-        this.world = new WeakReference<>(b.getWorld());
+        //this.world = new WeakReference<>(b.getWorld());
         this.worldName = w.getName();
         this.pitch = pt;
         this.yaw = yw;
@@ -68,7 +71,7 @@ public class WXYZ extends XYZ {
         this.y = loc.getBlockY();
         this.z = loc.getBlockZ();
         this.w = loc.getWorld();
-        this.world = new WeakReference<>(loc.getWorld());
+        //this.world = new WeakReference<>(loc.getWorld());
         this.worldName = w.getName();
         this.pitch = 0;
         this.yaw = 0;
@@ -79,7 +82,7 @@ public class WXYZ extends XYZ {
         this.y = loc.getBlockY();
         this.z = loc.getBlockZ();
         this.w = loc.getWorld();
-        this.world = new WeakReference<>(loc.getWorld());
+        //this.world = new WeakReference<>(loc.getWorld());
         this.worldName = w.getName();
         this.pitch = dir ? (int) loc.getPitch() : 0;
         this.yaw = dir ? (int) loc.getYaw() : 0;
@@ -90,7 +93,7 @@ public class WXYZ extends XYZ {
         this.y = loc.getBlockY();
         this.z = loc.getBlockZ();
         this.w = w;
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
         this.pitch = 0;
         this.yaw = 0;
@@ -101,7 +104,7 @@ public class WXYZ extends XYZ {
         this.y = p.y;
         this.z = p.z;
         this.w = Bukkit.getWorld(p.worldName);
-        this.world = new WeakReference<>(Bukkit.getWorld(p.worldName));
+        //this.world = new WeakReference<>(Bukkit.getWorld(p.worldName));
         this.worldName = p.worldName;
         this.pitch = p.pitch;
         this.yaw = p.yaw;
@@ -112,7 +115,7 @@ public class WXYZ extends XYZ {
         this.y = p.y;
         this.z = p.z;
         this.w = w;
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
         this.pitch = p.pitch;
         this.yaw = p.yaw;
@@ -123,7 +126,7 @@ public class WXYZ extends XYZ {
         this.y = y;
         this.z = z;
         this.w = w;
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
         this.pitch = 0;
         this.yaw = 0;
@@ -134,7 +137,7 @@ public class WXYZ extends XYZ {
         this.y = y;
         this.z = z;
         this.w = w;
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
         this.pitch = pt;
         this.yaw = 0;
@@ -145,7 +148,7 @@ public class WXYZ extends XYZ {
         this.y = y;
         this.z = z;
         this.w = w;
-        this.world = new WeakReference<>(w);
+        //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
         this.pitch = pt;
         this.yaw = yw;
