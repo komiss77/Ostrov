@@ -1,12 +1,12 @@
 package ru.komiss77.modules.world;
 
 import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
+import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.NumUtil;
 
 public class WXYZ extends XYZ {
@@ -167,7 +167,8 @@ public class WXYZ extends XYZ {
     public boolean equals(final Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof final WXYZ comp)) return false;
-        return comp.w.getUID().equals(w.getUID()) && comp.x == x && comp.y == y && comp.z == z;
+        return ClassUtil.equal(comp.w(), w(), World::getUID)
+            && comp.x == x && comp.y == y && comp.z == z;
     }
 
     @Override

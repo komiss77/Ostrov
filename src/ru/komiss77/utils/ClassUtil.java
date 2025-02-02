@@ -9,10 +9,8 @@ import java.lang.reflect.Method;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -125,69 +123,72 @@ public class ClassUtil {
     }
      */
 
-  public static List<String> listJarFiles(JarFile pluginJar, String folderPath, String fileSuffix) {
-    List<String> result = new ArrayList<>();
-    Enumeration<JarEntry> entries = pluginJar.entries();
-    while (entries.hasMoreElements()) {
-      JarEntry entry = (JarEntry) entries.nextElement();
-      String path = entry.getName();
-      if (path.startsWith(folderPath) && entry.getName().endsWith(fileSuffix)) {
-        result.add(entry.getName());
-      }
-    }
-    return result;
-  }
-
-  public static File saveResourceFromJar(JarFile jar, String jarResource, File destinationFolder, boolean replace, boolean ignoreJarPath) {
-    if (jarResource != null && !jarResource.isEmpty()) {
-      jarResource = jarResource.replace('\\', '/');
-
-      try {
-        File writedFile;
-        try {
-          JarEntry jarConfig = jar.getJarEntry(jarResource);
-          if (jarConfig == null) {
-            throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
-          }
-
-          //InputStream in = jar.getInputStream(jarConfig);
-          try (final InputStream in = jar.getInputStream(jarConfig)) {
-            if (in == null) {
-              throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
+    public static List<String> listJarFiles(JarFile pluginJar, String folderPath, String fileSuffix) {
+        List<String> result = new ArrayList<>();
+        Enumeration<JarEntry> entries = pluginJar.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = (JarEntry) entries.nextElement();
+            String path = entry.getName();
+            if (path.startsWith(folderPath) && entry.getName().endsWith(fileSuffix)) {
+                result.add(entry.getName());
             }
-
-            File outFile = new File(destinationFolder, jarResource.replaceAll("/", Matcher.quoteReplacement(File.separator)));
-            if (ignoreJarPath) {
-              outFile = new File(destinationFolder, outFile.getName());
-            }
-
-            outFile.getParentFile().mkdirs();
-            if (!outFile.exists() || replace) {
-              Files.copy(in, outFile.toPath(), new CopyOption[]{StandardCopyOption.REPLACE_EXISTING});
-            }
-
-            writedFile = outFile;
-          }
-        } catch (Throwable t) {
-          try {
-            jar.close();
-          } catch (Throwable var10) {
-            t.addSuppressed(var10);
-          }
-
-          throw t;
         }
-
-        jar.close();
-        return writedFile;
-      } catch (IOException var14) {
-        Ostrov.log_err("Could not save from jar file. From " + jarResource + " to " + destinationFolder.getAbsolutePath());
-        return null;
-      }
-    } else {
-      throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        return result;
     }
-  }
+
+    public static File saveResourceFromJar(JarFile jar, String jarResource, File destinationFolder, boolean replace, boolean ignoreJarPath) {
+        if (jarResource != null && !jarResource.isEmpty()) {
+            jarResource = jarResource.replace('\\', '/');
+
+            try {
+                File writedFile;
+                try {
+                    JarEntry jarConfig = jar.getJarEntry(jarResource);
+                    if (jarConfig == null) {
+                        throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
+                    }
+
+                    //InputStream in = jar.getInputStream(jarConfig);
+                    try (final InputStream in = jar.getInputStream(jarConfig)) {
+                        if (in == null) {
+                            throw new IllegalArgumentException("The embedded resource '" + jarResource + "' cannot be found in " + jar.getName());
+                        }
+
+                        File outFile = new File(destinationFolder, jarResource.replaceAll("/", Matcher.quoteReplacement(File.separator)));
+                        if (ignoreJarPath) {
+                            outFile = new File(destinationFolder, outFile.getName());
+                        }
+
+                        outFile.getParentFile().mkdirs();
+                        if (!outFile.exists() || replace) {
+                            Files.copy(in, outFile.toPath(), new CopyOption[]{StandardCopyOption.REPLACE_EXISTING});
+                        }
+
+                        writedFile = outFile;
+                    }
+                } catch (Throwable t) {
+                    try {
+                        jar.close();
+                    } catch (Throwable var10) {
+                        t.addSuppressed(var10);
+                    }
+
+                    throw t;
+                }
+
+                jar.close();
+                return writedFile;
+            } catch (IOException var14) {
+                Ostrov.log_err("Could not save from jar file. From " + jarResource + " to " + destinationFolder.getAbsolutePath());
+                return null;
+            }
+        } else {
+            throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        }
+    }
 
 
+    public static <G> boolean equal(final G o1, final G o2, final Function<G, ?> by) {
+        return o1 == null ? o2 == null : o2 != null && Objects.equals(by.apply(o1), by.apply(o2));
+    }
 }

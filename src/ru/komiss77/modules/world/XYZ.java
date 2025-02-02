@@ -1,5 +1,6 @@
 package ru.komiss77.modules.world;
 
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -139,19 +140,16 @@ public class XYZ implements Cloneable {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof final XYZ compare)) return false;
-        return ((compare.worldName == null && worldName == null) || compare.worldName.hashCode() == worldName.hashCode()) //nullpointer
-            && compare.x == x && compare.y == y && compare.z == z;
+        if (!(obj instanceof final XYZ xyz)) return false;
+        return Objects.equals(xyz.worldName, worldName) //nullpointer
+            && xyz.x == x && xyz.y == y && xyz.z == z;
     }
 
     @Override
     public int hashCode() {
-        long l = asLong();
-        if (worldName == null) {
-            return Long.hashCode(l);//return toString().hashCode();
-        } else {
-            return Long.hashCode(l) ^ worldName.hashCode();
-        }
+        final long l = asLong(); //return toString().hashCode();
+        if (worldName == null) return Long.hashCode(l);
+        else return Long.hashCode(l) ^ worldName.hashCode();
     }
 
     @Override
