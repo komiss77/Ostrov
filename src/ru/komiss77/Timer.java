@@ -47,7 +47,7 @@ public class Timer {
     private static int reloadPermIntervalSec;
 
     private static final ConcurrentHashMap<Integer, Integer> cd;
-    private static int tickTime = (int) (System.currentTimeMillis() / 50l);
+    private static long tickTime = System.currentTimeMillis() / 50l;
     private static final int MIDNIGHT_STAMP;
     private static final AtomicBoolean lockQuery = new AtomicBoolean(false);
     private static final AtomicBoolean lockSecond = new AtomicBoolean(false);
@@ -113,7 +113,7 @@ public class Timer {
 
             @Override
             public void run() {
-                tickTime = (int) (System.currentTimeMillis() / 50l);
+                tickTime = System.currentTimeMillis() / 50l;
                 if (tick++ % 20 != 0) return;
 
                 Ostrov.calendar.setTimeInMillis(tickTime * 50l);
@@ -442,7 +442,7 @@ public class Timer {
     }
 
     public static int tickTime() {
-        return tickTime;
+        return (int) tickTime;
     }
     @Deprecated
     public static int leftBeforeResetDayly() {
