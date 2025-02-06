@@ -67,29 +67,6 @@ public class QuestManager implements Initiable {
         return Quest.nameMap.values().stream().filter(pass).collect(Collectors.toList());
     }
 
-    //для квестов где ammount>0
-    public static int updatePrg(final Player p, final Oplayer op, final Quest qs) {
-        if (justGame(op)) return 0;
-        final IProgress prg = op.quests.get(qs);
-        if (prg == null) {
-            iAdvance.sendProgress(p, qs, 0, true);
-            return 0;
-        } else {
-            return updatePrg(p, op, qs, prg, true);
-        }
-    }
-
-    //для квестов где ammount>0
-    public static int updatePrg(final Player p, final Oplayer op, final Quest qs, final IProgress prg, final boolean silent) {
-        if (justGame(op)) return 0;
-//		p.sendMessage("qs-" + qs.displayName + ", prg=" + prg.getProg() + ", amt=" + prg.getGoal());
-        iAdvance.sendProgress(p, qs, prg.getProg(), false);
-        if (prg.isDone()) {
-            iAdvance.sendComplete(p, qs, silent);
-        }
-        return prg.getProg();
-    }
-
     public static void setOnCloseTab(final Consumer<Player> onAdvCls) {
         //if (disabled()) return;
         iAdvance.onAdvCls(onAdvCls);
@@ -109,89 +86,51 @@ public class QuestManager implements Initiable {
         }
     }
 
+    //для квестов где ammount>0
+    @Deprecated
+    public static int updatePrg(final Player p, final Oplayer op, final Quest qs) {
+        return qs.updProg(p, op);
+    }
+
+    //для квестов где ammount>0
+    @Deprecated
+    public static int updatePrg(final Player p, final Oplayer op, final Quest qs, final IProgress prg, final boolean silent) {
+        return qs.setProg(p, op, prg, silent);
+    }
+
     // вызывать SYNC !!!
     //тут только дополнительные проверки.
     //По дефолту, раз сюда засланао проверка, квест должен быть завершен.
     //ну, естественно он будет завершен, если был получен и не был завершен, что проверяется выше.
     //checkProgress нужен для отладки из меню квестов (чтобы не засылало в updateProgress и не меняло lp.getProgress)
+    @Deprecated
     public static boolean complete(final Player p, final Oplayer op, final Quest quest) {
-        if (justGame(op)) return false;
-
-        if (!Bukkit.isPrimaryThread()) {
-            Ostrov.log_warn("Асинхронный вызов tryCompleteQuest :" + quest + ", " + p.getName());
-        }
-
-        if (quest.amount > 0) { //перед завершением квестов со счётчиками обновить прогресс
-            updatePrg(p, op, quest);
-        }
-
-        final IProgress pr = op.quests.get(quest);
-        if (pr == null) {
-            final IProgress np = quest.createPrg(0);
-            op.quests.put(quest, np.markDone());
-            updatePrg(p, op, quest, np, false);
-            return true;
-        } else if (!pr.isDone()) {
-            updatePrg(p, op, quest, pr.markDone(), false);
-            return true;
-        }
-        return false;
+        return quest.complete(p, op, false);
     }
 
+    @Deprecated
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs) {
-        if (justGame(op)) return false;
-
-        if (addProgress(p, op, qs, 1)) {
-            return true;
-        }
-        if (qs.needs != null) {
-            final IProgress prg = op.quests.get(qs);
-            for (final Comparable<?> c : qs.needs) {
-                if (prg.addVar(c)) {
-                    updatePrg(p, op, qs, prg, false);
-                    return true;
-                }
-            }
-        }
-        return false;
+        return qs.addProg(p, op);
     }
 
+    @Deprecated
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final int i) {
-        if (justGame(op)) return false;
-
-        final IProgress prg = op.quests.get(qs);
-        if (prg == null) {
-            final IProgress np = qs.createPrg(i);
-            op.quests.put(qs, np);
-            updatePrg(p, op, qs, np, false);
-            return true;
-        } else if (prg.addNum(i)) {
-            updatePrg(p, op, qs, prg, false);
-            return true;
-        } else {
-            return false;
-        }
+        return qs.addProg(p, op, i);
     }
 
+    @Deprecated
     public static boolean addProgress(final Player p, final Oplayer op, final Quest qs, final Comparable<?> obj) {
-        if (justGame(op)) return false;
+        return qs.addProg(p, op, obj);
+    }
 
-        final IProgress prg = op.quests.get(qs);
-        if (prg == null) {
-            final IProgress np = qs.createPrg(0);
-            if (np.addVar(obj)) {
-                op.quests.put(qs, np);
-                updatePrg(p, op, qs, np, false);
-                return true;
-            } else {
-                return false;
-            }
-        } else if (prg.addVar(obj)) {
-            updatePrg(p, op, qs, prg, false);
-            return true;
-        } else {
-            return false;
-        }
+    @Deprecated
+    public static int getProgress(final Oplayer op, final Quest qs) {
+        return qs.getProg(op);
+    }
+
+    @Deprecated
+    public static boolean isComplete(final Oplayer op, final Quest qs) {
+        return qs.isComplete(op);
     }
 
     public static boolean resetProgress(final Player p, final Oplayer op) {
@@ -199,21 +138,6 @@ public class QuestManager implements Initiable {
         iAdvance.resetProgress(p, false);
         op.quests.clear();
         return true;
-    }
-
-    public static int getProgress(final Oplayer op, final Quest qs) {
-        if (justGame(op)) return 0;
-        final IProgress prg = op.quests.get(qs);
-        if (prg == null) {
-            return 0;
-        }
-        return prg.getProg();
-    }
-
-    public static boolean isComplete(final Oplayer op, final Quest qs) {
-        if (justGame(op)) return false;
-        final IProgress prg = op.quests.get(qs);
-        return prg != null && prg.isDone();
     }
 
     public static void sendToast(final Player p, final ItemStack it, final String msg, final QuestFrame frm) {
@@ -230,7 +154,7 @@ public class QuestManager implements Initiable {
     //    return false;
     //}
 
-    private static boolean justGame(Oplayer op) {
+    protected static boolean justGame(Oplayer op) {
         return op.isGuest || op.hasSettings(Settings.JustGame);
     }
 

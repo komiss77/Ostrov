@@ -111,6 +111,7 @@ public class TCUtil {
         dyeLs.put(NamedTextColor.WHITE, DyeColor.WHITE);
         chrLs.put(NamedTextColor.WHITE, 'f');//confidence
         clrLs.put(NamedTextColor.WHITE, Color.WHITE);
+
         chrLs.put(CustomTextColor.OLIVE, 'о');//peace
         clrLs.put(CustomTextColor.OLIVE, Color.OLIVE);
         chrLs.put(CustomTextColor.AMBER, 'я');//strength
@@ -121,7 +122,7 @@ public class TCUtil {
         clrLs.put(CustomTextColor.BEIGE, Color.fromRGB(CustomTextColor.BEIGE.value()));
         chrLs.put(CustomTextColor.CARDINAL, 'к');//passion
         clrLs.put(CustomTextColor.CARDINAL, Color.fromRGB(CustomTextColor.CARDINAL.value()));
-        chrLs.put(CustomTextColor.INDIGO, 'ф');//energy
+        chrLs.put(CustomTextColor.INDIGO, 'и');//energy
         clrLs.put(CustomTextColor.INDIGO, Color.fromRGB(CustomTextColor.INDIGO.value()));
         chrLs.put(CustomTextColor.PINK, 'р');//love
         clrLs.put(CustomTextColor.PINK, Color.fromRGB(CustomTextColor.PINK.value()));
@@ -131,6 +132,11 @@ public class TCUtil {
         clrLs.put(CustomTextColor.STALE, Color.fromRGB(CustomTextColor.STALE.value()));
         chrLs.put(CustomTextColor.MITHRIL, 'м');//durability
         clrLs.put(CustomTextColor.MITHRIL, Color.fromRGB(CustomTextColor.MITHRIL.value()));
+        chrLs.put(CustomTextColor.MINT, 'т');//freshness
+        clrLs.put(CustomTextColor.MINT, Color.fromRGB(CustomTextColor.MINT.value()));
+        chrLs.put(CustomTextColor.LILIAN, 'л');//essential
+        clrLs.put(CustomTextColor.LILIAN, Color.fromRGB(CustomTextColor.LILIAN.value()));
+
         dyeIx = Index.create(tc -> dyeLs.get(tc), dyeLs.keySet().stream().toList());
         chrIx = Index.create(tc -> chrLs.get(tc), chrLs.keySet().stream().toList());
         chrSet = chrIx.keyToValue().entrySet();

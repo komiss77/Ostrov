@@ -50,21 +50,19 @@ public abstract class Roll<R> {
     protected static final String NUM = "num";
     protected static final String EX = "ex";
 
-    public Roll<R> save() {
+    public void save() {
         final OConfig irc = Cfg.manager.config(CON_NAME, true);
         final String dir = getClass().getSimpleName() + "." + id + ".";
         irc.set(dir + VAL, encode());
         irc.set(dir + NUM, number);
         irc.set(dir + EX, extra);
         irc.saveConfig();
-        return this;
     }
 
-    public Roll<R> delete() {
+    public void delete() {
         final OConfig irc = Cfg.manager.config(CON_NAME, true);
         irc.removeKey(getClass().getSimpleName() + "." + id);
         irc.saveConfig();
-        return this;
     }
 
     @OverrideMe

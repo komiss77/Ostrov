@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 import com.google.common.collect.Multimap;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
@@ -141,8 +142,8 @@ public final class Crafts implements Initiable, Listener {
                 it = ItemUtil.parse(cs.getString("recipe.a"));
                 final ItemStack scd = ItemUtil.parse(cs.getString("recipe.b"));
                 if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
-                recipe = new SmithingTransformRecipe(nsk, resultItem, IdChoice.of(
-                    ItemUtil.parse(cs.getString("recipe.c"))), IdChoice.of(it), IdChoice.of(scd), false);
+                recipe = new SmithingTransformRecipe(nsk, resultItem, IdChoice.of(ItemUtil.parse(cs.getString("recipe.c"))),
+                    IdChoice.of(it), IdChoice.of(scd), !it.hasData(DataComponentTypes.DAMAGE));
                 break;
             case "noshape":
                 recipe = new ShapelessRecipe(nsk, resultItem);

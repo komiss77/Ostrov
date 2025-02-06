@@ -2,11 +2,11 @@ package ru.komiss77;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.sql.Statement;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -23,12 +23,12 @@ import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.games.ArenaInfo;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.RDS;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.games.GM;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
@@ -36,7 +36,8 @@ import ru.komiss77.version.Nms;
 
 public class Timer {
 
-    private static BukkitTask timer, playerTimer, redisTimer;
+    private static BukkitTask timer;
+    private static BukkitTask playerTimer;
     private static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
 
     public static boolean auto_restart, to_restart;
@@ -46,7 +47,7 @@ public class Timer {
     private static int reloadPermIntervalSec;
 
     private static final ConcurrentHashMap<Integer, Integer> cd;
-    private static int currentTime = (int) (System.currentTimeMillis() / 1000);
+    private static int tickTime = (int) (System.currentTimeMillis() / 50l);
     private static final int MIDNIGHT_STAMP;
     private static final AtomicBoolean lockQuery = new AtomicBoolean(false);
     private static final AtomicBoolean lockSecond = new AtomicBoolean(false);
@@ -99,11 +100,7 @@ public class Timer {
         //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
-          if (Ostrov.MOT_D.equals("nb0")) {
-            authMode = false; //на новичках в authMode не работает боссбар!
-          } else {
-            authMode = true;
-          }
+            authMode = !Ostrov.MOT_D.equals("nb0"); //на новичках в authMode не работает боссбар!
         } else if (Ostrov.MOT_D.equals("jail")) { //jail 
             jailMode = true;
         } else {
@@ -112,14 +109,14 @@ public class Timer {
 
         timer = new BukkitRunnable() {
             int time_left = 300;
+            int tick;
 
             @Override
             public void run() {
+                tickTime = (int) (System.currentTimeMillis() / 50l);
+                if (tick++ % 20 != 0) return;
 
-                //currentTime =  (int) ((System.currentTimeMillis()-time_delta)/1000);
-                currentTime = (int) ((System.currentTimeMillis()) / 1000);
-                //Ostrov.calendar.setTimeInMillis(System.currentTimeMillis()-time_delta);
-                Ostrov.calendar.setTimeInMillis(System.currentTimeMillis());
+                Ostrov.calendar.setTimeInMillis(tickTime * 50l);
 
                 if (auto_restart && syncSecondCounter % 60 == 0) {
                     if (rstHour == Ostrov.calendar.get(Calendar.HOUR_OF_DAY) && rstMin == Ostrov.calendar.get(Calendar.MINUTE)) {
@@ -159,16 +156,18 @@ public class Timer {
                 }
 
                 if (!cd.isEmpty()) {
-                    cd.entrySet().removeIf(entry -> entry.getValue() <= currentTime);//чтобы точнее ловить если надо меньше секунды
+                    cd.entrySet().removeIf(entry -> entry.getValue() <= (int) secTime());//чтобы точнее ловить если надо меньше секунды
                 }
 
                 syncSecondCounter++;
 
 
             }
-        }.runTaskTimer(Ostrov.instance, 20, 20);
+        }.runTaskTimer(Ostrov.instance, 20, 1);
 
-        redisTimer = new BukkitRunnable() { //вынес отдельно - редис вечно багается
+        //вынес отдельно - редис вечно багается
+        //ex.printStackTrace();
+        new BukkitRunnable() { //вынес отдельно - редис вечно багается
             int sec;
 
             @Override
@@ -378,7 +377,7 @@ public class Timer {
 
     public static void add(final String name, final String type, final int seconds) { //getEntityId - нельзя, после перезахода другой!!
         if (seconds <= 0) return;
-        cd.put(name.hashCode() ^ type.hashCode(), currentTime + seconds);
+        cd.put(name.hashCode() ^ type.hashCode(), (int) secTime() + seconds);
     }
 
     public static void del(final String name, final String type) {
@@ -400,7 +399,7 @@ public class Timer {
 
     public static void add(final Player p, final String type, final int seconds) { //getEntityId - нельзя, после перезахода другой!!
         if (seconds <= 0) return;
-        cd.put(p.getName().hashCode() ^ type.hashCode(), currentTime + seconds);
+        cd.put(p.getName().hashCode() ^ type.hashCode(), (int) secTime() + seconds);
     }
 
   public static void del(final Player p, final String type) { //вроде не работает, чекнуть потом
@@ -418,7 +417,7 @@ public class Timer {
 
     public static void add(final int id, final int seconds) {
         if (seconds <= 0) return;
-        cd.put(id, currentTime + seconds);
+        cd.put(id, (int) secTime() + seconds);
     }
 
     public static void del(final int id) {
@@ -433,14 +432,25 @@ public class Timer {
         int left = cd.getOrDefault(id, 0);
         return left == 0 ? 0 : left - Timer.getTime();
     }
-
-
+    @Deprecated
     public static int getTime() {
-        return currentTime;
+        return (int) secTime();
     }
 
+    public static double secTime() {
+        return tickTime / 20d;
+    }
+
+    public static int tickTime() {
+        return tickTime;
+    }
+    @Deprecated
     public static int leftBeforeResetDayly() {
-        return MIDNIGHT_STAMP - currentTime;
+        return leftBeforeResetDaily();
+    }
+
+    public static int leftBeforeResetDaily() {
+        return MIDNIGHT_STAMP - (int) secTime();
     }
 
     public static long getTimeStamp() {

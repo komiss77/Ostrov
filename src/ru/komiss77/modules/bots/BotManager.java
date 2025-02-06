@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
@@ -22,6 +23,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -30,12 +32,14 @@ import org.json.simple.parser.ParseException;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
 
 
 public class BotManager implements Initiable, Listener {
 
+    public static final NamespacedKey KEY = OStrap.key("bot");
     public static final IntHashMap<Botter> botById = new IntHashMap<>();
     protected static final CaseInsensitiveMap<Botter> botByName = new CaseInsensitiveMap<>();
     protected static final CaseInsensitiveMap<String[]> skin = new CaseInsensitiveMap<>();
@@ -183,23 +187,30 @@ public class BotManager implements Initiable, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onLoad(final EntitiesLoadEvent e) {
+    public void onLoad(final WorldLoadEvent e) {
+        for (final Entity ent : e.getWorld().getEntities()) {
+            if (!(ent instanceof final LivingEntity le)) continue;
+            if (ent.getType() != Botter.TYPE
+                || le.getPersistentDataContainer().has(KEY)) continue;
+            final Botter be = botById.get(ent.getEntityId());
+            if (be == null) ent.remove();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onEnts(final EntitiesLoadEvent e) {
         for (final Entity ent : e.getEntities()) {
             if (!(ent instanceof final LivingEntity le)) continue;
             if (ent.getType() != Botter.TYPE
-                || le.getMaximumAir() != BotEntity.BOT_ID) continue;
+                || le.getPersistentDataContainer().has(KEY)) continue;
             final Botter be = botById.get(ent.getEntityId());
-            if (be == null) {
-                ent.remove();
-                continue;
-            }
-//            be.remove();
+            if (be == null) ent.remove();
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onFish(final EntityMountEvent e) {
-        if (e.getEntity() instanceof final FishHook fh) {
+        if (e.getEntity() instanceof FishHook) {
             final Botter be = botById.get(e.getMount().getEntityId());
             if (be != null) Ostrov.log_ok("bot hooked");
         }

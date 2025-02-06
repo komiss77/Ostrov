@@ -130,22 +130,17 @@ public class LocUtil {
         return loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ() + ":" + (int) loc.getYaw() + ":" + (int) loc.getPitch();
     }
 
+    @Deprecated
     public static int getDistance(final Location loc1, final Location loc2) {
         return (int) Math.sqrt(getDistanceSquared(loc1, loc2));
     }
 
     public static int getDistanceSquared(final Location loc1, final Location loc2) {
-        if (loc1 == null || loc2 == null || !loc1.getWorld().getName().equals(loc2.getWorld().getName())) {
-            return Integer.MAX_VALUE;
-        }
-        //return ( (int) (Math.pow( loc1.getBlockX()-loc2.getBlockX(), 2) +
-        //                    Math.pow( loc1.getBlockY()- loc2.getBlockY(), 2) +
-        //                        Math.pow( loc1.getBlockZ()- loc2.getBlockZ(), 2)) );
-        return square(loc1.getBlockX() - loc2.getBlockX()) + square(loc1.getBlockY() - loc2.getBlockY()) + square(loc1.getBlockZ() - loc2.getBlockZ());
-    }
-
-    private static int square(final int num) {
-        return num * num;
+        if (loc1 == null || loc2 == null || !loc1.getWorld()
+            .getName().equals(loc2.getWorld().getName())) return Integer.MAX_VALUE;
+        return NumUtil.square(loc1.getBlockX() - loc2.getBlockX()) +
+            NumUtil.square(loc1.getBlockY() - loc2.getBlockY()) +
+            NumUtil.square(loc1.getBlockZ() - loc2.getBlockZ());
     }
 
     public static Location getNearestPlayer(final Player p) {
@@ -161,30 +156,45 @@ public class LocUtil {
         return loc;
     }
 
+    @Deprecated
     public static Player getNearestPlayer(final Player p, final int maxDist) {
-        Player find = null;
-        int minDistance = Integer.MAX_VALUE;
-        for (final Player pl : p.getWorld().getPlayers()) {
-            final int dst = getDistance(p.getLocation(), pl.getLocation());
-            if (p.getEntityId() != pl.getEntityId() && dst < minDistance && dst < maxDist) {
-                find = pl;
-                minDistance = dst;
-            }
-        }
-        return find;
+        final int pId = p.getEntityId();
+        return getNearPl(new WXYZ(p.getLocation()), maxDist, pl -> pl.getEntityId() != pId);
     }
 
+    @Deprecated
     public static Player getNearestPlayer(final Location loc, final int maxDist) {
-        Player find = null;
-        int minDistance = Integer.MAX_VALUE;
-        for (final Player pl : loc.getWorld().getPlayers()) {
-            final int dst = getDistance(loc, pl.getLocation());
-            if (dst < minDistance && dst < maxDist) {
-                find = pl;
-                minDistance = dst;
-            }
+        return getNearPl(new WXYZ(loc), maxDist, null);
+    }
+
+    @Slow(priority = 1)
+    public static @Nullable Player getNearPl(final Location loc, final double dst, final @Nullable Predicate<Player> which) {
+        final double X = loc.getX(), Y = loc.getY(), Z = loc.getZ();
+        double dS = dst * dst;
+        Player fin = null;
+        for (final Player e : loc.getWorld().getPlayers()) {
+            final Location el = e.getLocation();
+            final double d = Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
+            if (d > dS || which != null && !which.test(e)) continue;
+            dS = d; fin = e;
         }
-        return find;
+        return fin;
+    }
+
+    @Slow(priority = 1)
+    public static @Nullable Player getNearPl(final WXYZ loc, final int dst, final @Nullable Predicate<Player> which) {
+        final int X = loc.x, Y = loc.y, Z = loc.z;
+        double dS = dst * dst;
+        Player fin = null;
+        final World w = loc.w();
+        if (w == null) return null;
+        for (final Player e : w.getPlayers()) {
+            final Location el = e.getLocation();
+            final double d = Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
+            if (d > dS || which != null && !which.test(e)) continue;
+            dS = d; fin = e;
+        }
+        return fin;
     }
 
     public static Biome biomeFromString(final String biomename) {
@@ -284,7 +294,7 @@ public class LocUtil {
     }
 
     @Slow(priority = 1)
-    public static <G extends Entity> Collection<G> getChEnts(final Location loc, final double dst, final Class<G> ent, final Predicate<G> which) {
+    public static <G extends Entity> Collection<G> getChEnts(final Location loc, final double dst, final Class<G> ent, final @Nullable Predicate<G> which) {
         final HashMap<Integer, G> hs = new HashMap<>();
         final double X = loc.getX(), Y = loc.getY(), Z = loc.getZ(), dS = dst * dst;
         final int mnX = (int) (X + dst) >> 4, mnZ = (int) (Z + dst) >> 4;
@@ -292,15 +302,13 @@ public class LocUtil {
         for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
-                    if (ent.isAssignableFrom(e.getClass())) {
-                        final Location el = e.getLocation();
-                        if (Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d) < dS) {
-                            final G ge = ent.cast(e);
-                            if (which == null || which.test(ge)) {
-                                hs.put(e.getEntityId(), ge);
-                            }
-                        }
-                    }
+                    if (!ent.isInstance(e)) continue;
+                    final Location el = e.getLocation();
+                    if (Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d)
+                        + Math.pow(el.getZ() - Z, 2d) > dS) continue;
+                    final G ge = ent.cast(e);
+                    if (which != null && !which.test(ge)) continue;
+                    hs.put(e.getEntityId(), ge);
                 }
             }
         }
@@ -308,7 +316,7 @@ public class LocUtil {
     }
 
     @Slow(priority = 2)
-    public static <G extends Entity> G getClsChEnt(final Location loc, final double dst, final Class<G> ent, final Predicate<G> which) {
+    public static <G extends Entity> G getClsChEnt(final Location loc, final double dst, final Class<G> ent, final @Nullable Predicate<G> which) {
         final double X = loc.getX(), Y = loc.getY(), Z = loc.getZ();
         final int mnX = (int) (X + dst) >> 4, mnZ = (int) (Z + dst) >> 4;
         final World w = loc.getWorld();
@@ -318,17 +326,14 @@ public class LocUtil {
         for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
-                    if (ent.isAssignableFrom(e.getClass())) {
-                        final Location el = e.getLocation();
-                        final double d = Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
-                        if (d < dS) {
-                            final G ge = ent.cast(e);
-                            if (which == null || which.test(ge)) {
-                                dS = d;
-                                fin = ge;
-                            }
-                        }
-                    }
+                    if (!ent.isInstance(e)) continue;
+                    final Location el = e.getLocation();
+                    final double d = Math.pow(el.getX() - X, 2d)
+                        + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
+                    if (d > dS) continue;
+                    final G ge = ent.cast(e);
+                    if (which != null && !which.test(ge)) continue;
+                    dS = d; fin = ge;
                 }
             }
         }
@@ -336,23 +341,21 @@ public class LocUtil {
     }
 
     @Slow(priority = 1)
-    public static <G extends Entity> Collection<G> getChEnts(final WXYZ loc, final int dst, final Class<G> ent, final Predicate<G> which) {
+    public static <G extends Entity> Collection<G> getChEnts(final WXYZ loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
         final HashMap<Integer, G> hs = new HashMap<>();
         final int X = loc.x, Y = loc.y, Z = loc.z, dS = dst * dst;
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
         for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
-                for (final Entity e : loc.w.getChunkAt(cx, cz).getEntities()) {
-                    if (ent.isAssignableFrom(e.getClass())) {
-                        final Location el = e.getLocation();
-                        final int dx = el.getBlockX() - X, dy = el.getBlockY() - Y, dz = el.getBlockZ() - Z;
-                        if (dx * dx + dy * dy + dz * dz < dS) {
-                            final G ge = ent.cast(e);
-                            if (which == null || which.test(ge)) {
-                                hs.put(e.getEntityId(), ge);
-                            }
-                        }
-                    }
+                for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
+                    if (!ent.isInstance(e)) continue;
+                    final Location el = e.getLocation();
+                    final int dx = el.getBlockX() - X,
+                        dy = el.getBlockY() - Y, dz = el.getBlockZ() - Z;
+                    if (dx * dx + dy * dy + dz * dz > dS) continue;
+                    final G ge = ent.cast(e);
+                    if (which != null && !which.test(ge)) continue;
+                    hs.put(e.getEntityId(), ge);
                 }
             }
         }
@@ -360,7 +363,7 @@ public class LocUtil {
     }
 
     @Slow(priority = 2)
-    public static <G extends Entity> G getClsChEnt(final WXYZ loc, final int dst, final Class<G> ent, final Predicate<G> which) {
+    public static <G extends Entity> G getClsChEnt(final WXYZ loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
         final int X = loc.x, Y = loc.y, Z = loc.z;
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
 
@@ -368,19 +371,16 @@ public class LocUtil {
         G fin = null;
         for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
-                for (final Entity e : loc.w.getChunkAt(cx, cz).getEntities()) {
-                    if (ent.isAssignableFrom(e.getClass())) {
-                        final Location el = e.getLocation();
-                        final int d = NumUtil.square(el.getBlockX() - X)
-                            + NumUtil.square(el.getBlockY() - Y) + NumUtil.square(el.getBlockZ() - Z);
-                        if (d < dS) {
-                            final G ge = ent.cast(e);
-                            if (which == null || which.test(ge)) {
-                                dS = d;
-                                fin = ge;
-                            }
-                        }
-                    }
+                for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
+                    if (!ent.isInstance(e)) continue;
+                    final Location el = e.getLocation();
+                    final int d = NumUtil.square(el.getBlockX() - X)
+                        + NumUtil.square(el.getBlockY() - Y)
+                        + NumUtil.square(el.getBlockZ() - Z);
+                    if (d > dS) continue;
+                    final G ge = ent.cast(e);
+                    if (which != null && !which.test(ge)) continue;
+                    dS = d; fin = ge;
                 }
             }
         }
@@ -458,7 +458,7 @@ public class LocUtil {
     public record TraceResult(List<Duo<BlockPosition, BlockData>> posData, WXYZ last, boolean endDst) {
         @Slow(priority = 2)
         public List<Block> blocks() {
-            final World w = last.w;
+            final World w = last.w(); if (w == null) return List.of();
             return posData.stream().map(bs -> w.getBlockAt(bs.key().toLocation(w))).toList();
         }
 
@@ -470,6 +470,7 @@ public class LocUtil {
         }
     }
 
+    @Deprecated
     public static boolean rayThruAir(final Location org, final Vector to, final double inc) {
         final Vector ch = org.toVector().subtract(to);
         if (ch.lengthSquared() < inc) {

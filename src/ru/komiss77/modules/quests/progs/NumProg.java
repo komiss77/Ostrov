@@ -6,7 +6,7 @@ public class NumProg implements IProgress {
     private int prog;
 
     public NumProg(final int prog, final int max) {
-        this.prog = prog;
+        this.prog = Math.min(max, prog);
         this.max = max;
     }
 

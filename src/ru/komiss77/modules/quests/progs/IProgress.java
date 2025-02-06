@@ -2,18 +2,18 @@ package ru.komiss77.modules.quests.progs;
 
 public interface IProgress {
 
-    public int getProg();
+    int getProg();
 
-    public int getSave();
+    int getSave();
 
-    public int getGoal();
+    int getGoal();
 
-    public boolean isDone();
+    boolean isDone();
 
-    public IProgress markDone();
+    IProgress markDone();
 
-    public boolean addNum(final int prog);
+    boolean addNum(final int prog);
 
-    public boolean addVar(final Comparable<?> vr);
+    boolean addVar(final Comparable<?> vr);
 
 }

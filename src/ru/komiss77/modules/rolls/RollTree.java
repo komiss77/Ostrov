@@ -6,14 +6,13 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.objects.Duo;
 import ru.komiss77.utils.ClassUtil;
-import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.StringUtil;
 
 
 public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
     protected static final Map<String, Wait> waits = new HashMap<>();
-    protected record Wait(Roll<?>[] rls, Integer pos) {}
+    protected record Wait(Roll<?>[] rls, int pos) {}
 
     public static void tryFill(final Roll<?> roll) {
         final Wait wait = waits.remove(roll.id);
@@ -131,7 +130,7 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         return sb.substring(StringUtil.SPLIT_0.length());
     }
 
-    public static void loadAll() {
+    /*public static void loadAll() {
         load(RollTree.class, cs -> {
             final Builder bld = of(cs.getName());
             final String[] rls = cs.getString(VAL).split(StringUtil.SPLIT_0);
@@ -143,7 +142,11 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
             }
             return bld.build(cs.getInt(NUM, 0), cs.getInt(EX, 0));
         });
-    }
+    }*/
+
+    public void save() {}
+
+    public void delete() {}
 
     public static Builder of(final String id) {
         return new Builder(id);
@@ -183,7 +186,7 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
             final int[] weigh = new int[sz];
             for (int i = 0; i != sz; i++) {
                 final Duo<String, Integer> wrl = weighed.get(i);
-                final Roll<?> rl = get(wrl.key());
+                final Roll<?> rl = Roll.get(wrl.key());
                 if (rl == null) waits.put(wrl.key(), new Wait(rls, i));
                 rls[i] = rl; weigh[i] = wrl.val();
             }

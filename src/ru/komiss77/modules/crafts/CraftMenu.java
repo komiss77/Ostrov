@@ -1,11 +1,13 @@
 package ru.komiss77.modules.crafts;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -166,7 +168,8 @@ public class CraftMenu implements InventoryProvider {
                     cs.set("recipe.a", ItemUtil.write(it));
                     cs.set("recipe.b", ItemUtil.write(scd));
                     cs.set("recipe.c", ItemUtil.write(tpl));
-                    nrc = new SmithingTransformRecipe(nKey, rst, IdChoice.of(tpl), IdChoice.of(it), IdChoice.of(scd), false);
+                    nrc = new SmithingTransformRecipe(nKey, rst, IdChoice.of(tpl), IdChoice.of(it),
+                        IdChoice.of(scd), !it.hasData(DataComponentTypes.DAMAGE));
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.STONECUTTER.equals(tp)) {
@@ -260,7 +263,7 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(1, 2), ((IdChoice) ((CookingRecipe<?>) rc).getInputChoice()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), choiceIt(((CookingRecipe<?>) rc).getInputChoice()), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -272,9 +275,9 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(0, 2), ((IdChoice) ((SmithingTransformRecipe) rc).getTemplate()).getItemStack(), its, canEdit);
-                setEditSlot(SlotPos.of(1, 1), ((IdChoice) ((SmithingTransformRecipe) rc).getBase()).getItemStack(), its, canEdit);
-                setEditSlot(SlotPos.of(1, 3), ((IdChoice) ((SmithingTransformRecipe) rc).getAddition()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), choiceIt(((SmithingTransformRecipe) rc).getTemplate()), its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), choiceIt(((SmithingTransformRecipe) rc).getBase()), its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), choiceIt(((SmithingTransformRecipe) rc).getAddition()), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -284,7 +287,7 @@ public class CraftMenu implements InventoryProvider {
 
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
-                setEditSlot(SlotPos.of(1, 2), ((IdChoice) ((StonecuttingRecipe) rc).getInputChoice()).getItemStack(), its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), choiceIt(((StonecuttingRecipe) rc).getInputChoice()), its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -303,15 +306,15 @@ public class CraftMenu implements InventoryProvider {
                 setEditSlot(SlotPos.of(1, 5), null, its, canEdit);
             } else {
                 final Iterator<RecipeChoice> rci = ((ShapelessRecipe) rc).getChoiceList().iterator();
-                setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
-                setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? ((IdChoice) rci.next()).getItemStack() : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 1), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 2), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(0, 3), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 1), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 2), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(1, 3), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 1), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 2), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
+                setEditSlot(SlotPos.of(2, 3), rci.hasNext() ? choiceIt(rci.next()) : null, its, canEdit);
 
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
@@ -342,6 +345,10 @@ public class CraftMenu implements InventoryProvider {
                 setEditSlot(SlotPos.of(1, 5), rc.getResult(), its, canEdit);
             }
         }
+    }
+
+    private static @Nullable ItemStack choiceIt(final RecipeChoice rc) {
+        return rc instanceof final IdChoice idc ? idc.getItemStack() : null;
     }
 
     private static final String dsp = "abcdefghi";

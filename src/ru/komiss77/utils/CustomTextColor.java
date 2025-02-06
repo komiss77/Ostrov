@@ -15,12 +15,14 @@ public class CustomTextColor implements TextColor {
     public static final CustomTextColor APPLE = new CustomTextColor("apple", 0x88BB22, "green");//Салатовый
     public static final CustomTextColor BEIGE = new CustomTextColor("beige", 0xDDCCAA, "yellow");//Бежевый
     public static final CustomTextColor CARDINAL = new CustomTextColor("cardinal", 0xAA2266, "red");//Кардинный
-    public static final CustomTextColor INDIGO = new CustomTextColor("indigo", 0x8866DD, "blue");//Сиреневый
-    public static final CustomTextColor OLIVE = new CustomTextColor("olive", 0xAAAA22, "green");//Оливковый
+    public static final CustomTextColor INDIGO = new CustomTextColor("indigo", 0x8866DD, "blue");//Сереневый
+    public static final CustomTextColor OLIVE = new CustomTextColor("olive", 0xAAAA22, "dark_green");//Оливковый
     public static final CustomTextColor PINK = new CustomTextColor("pink", 0xEE88BB, "light_purple");//Малиновый
-    public static final CustomTextColor SKY = new CustomTextColor("sky", 0x99DDDD, "aqua");//Небесный
-    public static final CustomTextColor STALE = new CustomTextColor("stale", 0x557766, "dark_green");//Черствый
+    public static final CustomTextColor SKY = new CustomTextColor("sky", 0xAADDDD, "aqua");//Небесный
+    public static final CustomTextColor STALE = new CustomTextColor("stale", 0x557766, "dark_aqua");//Черствый
     public static final CustomTextColor MITHRIL = new CustomTextColor("mithril", 0xAABBDD, "gray");//Мифриловый
+    public static final CustomTextColor MINT = new CustomTextColor("mint", 0xBBEEBB, "green");//Мятный
+    public static final CustomTextColor LILIAN = new CustomTextColor("lilian", 0xDDDDFF, "light_purple");//Лиловый
 
     private final String name;
     private final int val;

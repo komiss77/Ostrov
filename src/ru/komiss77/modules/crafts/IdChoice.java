@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.RecipeChoice.MaterialChoice;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.modules.items.ItemGroup;
@@ -13,8 +14,8 @@ public class IdChoice extends MaterialChoice {
 
     private final String id;
 
-    public static IdChoice of(final @Nullable ItemStack it) {
-        if (it == null) return new IdChoice(null, Material.AIR);
+    public static RecipeChoice of(final @Nullable ItemStack it) {
+        if (ItemUtil.isBlank(it, false)) return RecipeChoice.empty();
         final String id = it.getPersistentDataContainer().get(ItemGroup.KEY, PersistentDataType.STRING);
         return new IdChoice(id, it.getType());
     }

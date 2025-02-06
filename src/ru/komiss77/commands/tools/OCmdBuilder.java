@@ -23,6 +23,7 @@ import ru.komiss77.utils.TCUtil;
 
 public class OCmdBuilder {
 
+    private final String name;
     private final String synthax;
     private CommandNode<CommandSourceStack> last;
     private ArgumentBuilder<CommandSourceStack, ?> arg;
@@ -35,6 +36,7 @@ public class OCmdBuilder {
     private @Nullable Suggestor suggests;
 
     public OCmdBuilder(final String cmd) {
+        name = cmd;
         arg = Commands.literal(cmd);
         synthax = "/" + cmd;
         desc = "Комманда";
@@ -44,6 +46,7 @@ public class OCmdBuilder {
     }
 
     public OCmdBuilder(final String cmd, final String stx) {
+        name = cmd;
         arg = Commands.literal(cmd);
         synthax = stx;
         desc = "Комманда";
@@ -138,18 +141,14 @@ public class OCmdBuilder {
         final Set<String> convs = new HashSet<>(aliases);
         for (final String als : aliases)
             convs.add(TransLiter.reLayOut(als));
+        convs.add(TransLiter.reLayOut(name));
         Ostrov.regCommand(new OCommand() {
-            @Override
             public LiteralCommandNode<CommandSourceStack> command() {
                 return origin;
             }
-
-            @Override
             public Set<String> aliases() {
                 return convs;
             }
-
-            @Override
             public String description() {
                 return desc;
             }

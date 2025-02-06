@@ -32,6 +32,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
@@ -279,6 +280,8 @@ public class BotEntity extends ServerPlayer implements Botter {
             v.setRemoveWhenFarAway(false);
             v.customName(TCUtil.form(name));
             v.setCustomNameVisible(true);
+            v.getPersistentDataContainer().set(BotManager.KEY,
+                PersistentDataType.INTEGER, BOT_ID);
             v.setMaximumAir(BOT_ID);
         });
         this.rplc = new WeakReference<>(vc);

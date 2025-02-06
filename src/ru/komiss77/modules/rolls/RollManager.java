@@ -5,14 +5,17 @@ import ru.komiss77.Ostrov;
 
 public class RollManager implements Initiable {
 
-    @Override
-    public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
+    public RollManager() {
+        reload();
     }
+
+    @Override
+    public void postWorld() {}
 
     @Override
     public void reload() {
         Ostrov.log_ok("§2Перебор включен!");
-        RollTree.loadAll();
+//        RollTree.loadAll();
     }
 
     @Override

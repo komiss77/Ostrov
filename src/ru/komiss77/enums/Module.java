@@ -17,7 +17,6 @@ import ru.komiss77.modules.kits.KitManager;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.quests.QuestManager;
 import ru.komiss77.modules.redis.RDS;
-import ru.komiss77.modules.rolls.RollManager;
 import ru.komiss77.modules.scores.ScoreManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.warp.WarpManager;
@@ -45,7 +44,7 @@ public enum Module {
     signProtect(SignProtectLst.class),
     scores(ScoreManager.class),
     entities(EntityManager.class),
-    rolls(RollManager.class),
+//    rolls(RollManager.class),
     items(ItemManager.class),
     redis(RDS.class),
     pvp(PvPManager.class),

@@ -32,17 +32,17 @@ public class OConfig {
 
         this.file = configFile;
         this.config = YamlConfiguration.loadConfiguration(configFile);
-        if (loadable) {
-            if (!config.contains(LOAD)) {
-                config.set(LOAD, false);
-                load = false;
-                return;
-            }
-            load = config.getBoolean(LOAD);
-            saveConfig();
+        if (!loadable) {
+            load = false;
             return;
         }
-        load = false;
+        if (!config.contains(LOAD)) {
+            config.set(LOAD, false);
+            saveConfig();
+            load = false;
+            return;
+        }
+        load = config.getBoolean(LOAD);
     }
 
     public boolean load() {return load;}

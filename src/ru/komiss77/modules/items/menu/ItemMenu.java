@@ -3,6 +3,7 @@ package ru.komiss77.modules.items.menu;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import io.papermc.paper.datacomponent.DataComponentType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ public class ItemMenu implements InventoryProvider {
         invIts = new ItemStack[27];
         for (int i = 0; i < 27; i++) {
             switch (i) {
-                case 22:
+                /*case 22:
                     invIts[i] = new ItemBuilder(ItemType.HONEYCOMB).name("§6Выдать Предмет").build();
                     break;
                 case 16:
@@ -45,7 +46,7 @@ public class ItemMenu implements InventoryProvider {
                     break;
                 case 10:
                     invIts[i] = new ItemBuilder(ItemType.QUARTZ).name("§bЗначение Модели").build();
-                    break;
+                    break;*/
                 case 3, 5:
                     invIts[i] = new ItemBuilder(ItemType.HANGING_ROOTS).build();
                     break;
@@ -205,27 +206,12 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        final ItemBuilder cmd = new ItemBuilder(ItemType.QUARTZ);
-        if (im.hasCustomModelData()) {
-            cmd.name("§7Значение Модели: §b" + im.getCustomModelData())
-                .lore(" ", "§c-1 §7- Сбросить значение модели");
-        } else {
-            cmd.name("§7Значение Модели: §8(Не Указано)")
-                .lore(" ", "§8-1 §7- Сбросить значение модели");
-        }
-        its.set(10, new InputButton(InputType.ANVILL, cmd.build(), "10", msg -> {
-            final int cd;
-            try {
-                cd = Integer.parseInt(msg);
-            } catch (NumberFormatException ex) {
-                p.sendMessage(Ostrov.PREFIX + "§cЗначение должно быть числом!");
-                reopen(p, its);
-                return;
-            }
-
-            im.setCustomModelData(cd < 0 ? null : cd);
-            it.setItemMeta(im);
-            reopen(p, its);
-        }));
+        final ItemType tp = it.getType().asItemType();
+        its.set(0, ClickableItem.empty(new ItemBuilder(ItemType.QUARTZ).name("<mithril>Стандарт дата:")
+            .lore(tp.getDefaultDataTypes().stream().map(dt -> {
+                if (dt instanceof final DataComponentType.Valued<?> vdt)
+                    return "§7- " + dt.key().asMinimalString() + " > " + tp.getDefaultData(vdt);
+                return "§7- " + dt.key().asMinimalString();
+            }).toList()).build()));
     }
 }

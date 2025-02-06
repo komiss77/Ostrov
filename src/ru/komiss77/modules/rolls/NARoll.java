@@ -18,7 +18,7 @@ public class NARoll extends Roll<Object> {
 
     protected String encode() {return "";}
 
-    public Roll<Object> save() {return this;}
+    public void save() {}
 
-    public Roll<Object> delete() {return this;}
+    public void delete() {}
 }
