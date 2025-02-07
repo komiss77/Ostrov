@@ -28,6 +28,9 @@ public class WXYZ extends XYZ {
         //return nw;
     }
 
+    public @Nullable World world() { //не успел моргнуть, а этот метод куда-то пропал, плагин выдал ошибку. всё, НИЧЕГО не переименовываем,не удаляем, не перемещаем!!!!!
+        return Bukkit.getWorld(worldName);
+    }
     public void w(final World w) {
         //this.world = new WeakReference<>(w);
         this.worldName = w.getName();
