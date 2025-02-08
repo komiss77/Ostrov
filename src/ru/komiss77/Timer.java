@@ -156,7 +156,7 @@ public class Timer {
                 }
 
                 if (!cd.isEmpty()) {
-                    cd.entrySet().removeIf(entry -> entry.getValue() <= (int) secTime());//чтобы точнее ловить если надо меньше секунды
+                    cd.entrySet().removeIf(entry -> entry.getValue() <= secTime());//чтобы точнее ловить если надо меньше секунды
                 }
 
                 syncSecondCounter++;
@@ -377,7 +377,7 @@ public class Timer {
 
     public static void add(final String name, final String type, final int seconds) { //getEntityId - нельзя, после перезахода другой!!
         if (seconds <= 0) return;
-        cd.put(name.hashCode() ^ type.hashCode(), (int) secTime() + seconds);
+        cd.put(name.hashCode() ^ type.hashCode(), secTime() + seconds);
     }
 
     public static void del(final String name, final String type) {
@@ -399,7 +399,7 @@ public class Timer {
 
     public static void add(final Player p, final String type, final int seconds) { //getEntityId - нельзя, после перезахода другой!!
         if (seconds <= 0) return;
-        cd.put(p.getName().hashCode() ^ type.hashCode(), (int) secTime() + seconds);
+        cd.put(p.getName().hashCode() ^ type.hashCode(), secTime() + seconds);
     }
 
   public static void del(final Player p, final String type) { //вроде не работает, чекнуть потом
@@ -417,7 +417,7 @@ public class Timer {
 
     public static void add(final int id, final int seconds) {
         if (seconds <= 0) return;
-        cd.put(id, (int) secTime() + seconds);
+        cd.put(id, secTime() + seconds);
     }
 
     public static void del(final int id) {
@@ -434,15 +434,15 @@ public class Timer {
     }
     @Deprecated
     public static int getTime() {
-        return (int) secTime();
+        return secTime();
     }
 
-    public static double secTime() {
-        return tickTime / 20d;
+    public static int secTime() {
+        return (int) (tickTime / 20l);
     }
 
-    public static int tickTime() {
-        return (int) tickTime;
+    public static long tickTime() {
+        return tickTime;
     }
     @Deprecated
     public static int leftBeforeResetDayly() {
@@ -450,7 +450,7 @@ public class Timer {
     }
 
     public static int leftBeforeResetDaily() {
-        return MIDNIGHT_STAMP - (int) secTime();
+        return MIDNIGHT_STAMP - secTime();
     }
 
     public static long getTimeStamp() {

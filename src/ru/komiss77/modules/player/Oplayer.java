@@ -38,6 +38,7 @@ import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -80,7 +81,7 @@ public class Oplayer {
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
-  public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
+    public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
     public final CaseInsensitiveMap<Integer> kits_use_timestamp = new CaseInsensitiveMap<>();
     public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
 
@@ -95,7 +96,7 @@ public class Oplayer {
     public String party_leader = ""; //ник лидера команды
     public CaseInsensitiveMap<String> party_members = new CaseInsensitiveMap<>(); //ник, сервер всех членов команды
     public final CaseInsensitiveSet partyInvite = new CaseInsensitiveSet(); //предложения в комманду, до выхода
-  protected final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
+    protected final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
     public final Map<Quest, IProgress> quests = new HashMap<>();
 
     public PermissionAttachment permissionAttachmen = null;
@@ -142,9 +143,7 @@ public class Oplayer {
         tag.seeThru(true);
         tag(tagPreffix, tagSuffix);
         beforeName(ChatLst.NIK_COLOR, (Player) p);
-        //packetSpy = Nms.addPacketSpy((Player) p, Oplayer.this);
         Nms.addPlayerPacketSpy((Player) p, Oplayer.this);
-        //VM.getNmsNameTag().updateTag(Oplayer.this, Bukkit.getOnlinePlayers());
     }
 
 
@@ -155,21 +154,33 @@ public class Oplayer {
             return;
         }
 
-        if (Cfg.afk_sec > 0 && GM.GAME.type == ServerType.ONE_GAME) {
+        if (Cfg.afk_sec > 0 && !GM.GAME.type.canAfk()) {
             final Location loc = p.getEyeLocation();
-            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch();
+            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch() + new XYZ(loc).offSet();
+            final int time = Timer.secTime();
             if (look != lookSum) {
                 lookSum = look;
-                if (lookStamp != Integer.MAX_VALUE) lookStamp = Integer.MAX_VALUE;
-            } else if (Timer.getTime() - lookStamp > Cfg.afk_sec) {
-                p.sendMessage(Ostrov.PREFIX + "Ты простоял(а) афк более " + (Cfg.afk_sec / 60) + " мин!");
-                ApiOstrov.sendToServer(p, "lobby0", "");
+                if (time - lookStamp > 60) ScreenUtil.sendTitleDirect(p, "",
+                    "<olive>С Возвращением!", 8, 40, 20);
+                lookStamp = time;
+            } else {
+                final int afk = time - lookStamp;
+                final int min = afk / 60;
+                if (afk > Cfg.afk_sec) {
+                    p.sendMessage(Ostrov.PREFIX + "Ты уже АФК более " + min + " мин!");
+                    ApiOstrov.sendToServer(p, "lobby0", "");
+                    p.clearTitle();
+                } else if (min > 0) ScreenUtil.sendTitleDirect(p, "",
+                    "<beige>Ты находишься АФК...", 0, 40, 20);
             }
         }
 
         if (pvp_time > 0) {
             pvp_time--;
-            if (pvp_time == 0) PvPManager.pvpEndFor(this, p);    //не переставлять!!
+            if (pvp_time == 0) {
+                pvp_time = 1;
+                PvPManager.pvpEndFor(this, p);    //не переставлять!!
+            }
         }
 
         if (nextAb > 0) {
@@ -312,26 +323,28 @@ public class Oplayer {
 
     public void onPVPEnter(final Player p, final int time,
                            final boolean blockFly, final boolean giveTag) {
-        ScreenUtil.sendActionBarDirect(p, (eng ? "§cBattle mode " : "§cРежим боя ") + time + (eng ? " sec." : " сек."));
+        final int pt = pvp_time;
+        pvp_time = time;
+        if (pt > 0) return;
+        ScreenUtil.sendActionBarDirect(p, eng ? "§cBattle mode " + time + " sec." : "§cРежим боя " + time + " сек.");
         if (blockFly) {
-//            p.setFlySpeed(fly_speed);
             p.setAllowFlight(false);
             p.setFlying(false);
             if (p.isGliding()) {
                 p.setGliding(false);
-                ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§cКажется, Вам прострелили крыло :("));
+                ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§cТебе прострелили крыло :("));
             }
         }
         if (giveTag) beforeName("§4⚔ ", p);
-        pvp_time = time;
     }
 
     public void onPVPEnd(final Player p,
                          final boolean blockFly, final boolean giveTag) {
+        final int pt = pvp_time;
+        pvp_time = 0;
+        if (pt < 1) return;
         ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§aТы больше не в бою!"));
-//    	if (p == null) return;
         if (blockFly) {
-//            p.setFlySpeed(fly_speed);
             p.setAllowFlight(
                 switch (p.getGameMode()) {
                     case CREATIVE, SPECTATOR -> true;
@@ -664,7 +677,7 @@ public class Oplayer {
     }
 
     public int getOnlineTime() {
-        return Timer.getTime() - loginTime;
+        return Timer.secTime() - loginTime;
     }
 
     public int loni() {

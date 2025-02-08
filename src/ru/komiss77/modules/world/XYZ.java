@@ -31,6 +31,8 @@ public class XYZ implements Cloneable {
         x = loc.getBlockX();
         y = loc.getBlockY();
         z = loc.getBlockZ();
+        yaw = (int) loc.getYaw();
+        pitch = (int) loc.getPitch();
     }
 
     public XYZ(final String worldName, final int x, final int y, final int z) {
@@ -147,9 +149,8 @@ public class XYZ implements Cloneable {
 
     @Override
     public int hashCode() {
-        final long l = asLong(); //return toString().hashCode();
-        if (worldName == null) return Long.hashCode(l);
-        else return Long.hashCode(l) ^ worldName.hashCode();
+        return worldName == null ? getSLoc()
+            : getSLoc() ^ worldName.hashCode();
     }
 
     @Override
@@ -173,6 +174,6 @@ public class XYZ implements Cloneable {
     }
 
     public long asLong() {
-        return (((long) x & (long) 67108863) << 38) | (((long) y & (long) 4095)) | (((long) z & (long) 67108863) << 12);
+        return (((long) x & 67108863l) << 38) | ((long) y & 4095l) | (((long) z & 67108863l) << 12);
     }
 }

@@ -361,13 +361,10 @@ public class PlayerLst implements Listener {
             }
         }
 
-        if (op.pvp_time > 0) {
-            Ostrov.sync(() -> {
-                PvPManager.pvpEndFor(op, e.getPlayer()); //восстановить настроки до начала битвы, убрать тэги
-            }, 5);
-        }
-
-        Ostrov.sync(() -> op.tag.showTo(e.getPlayer()), 4);
+        Ostrov.sync(() -> {
+            op.tag.showTo(e.getPlayer());
+            PvPManager.pvpEndFor(op, e.getPlayer()); //восстановить настроки до начала битвы, убрать тэги
+        }, 5);
     }
 
 

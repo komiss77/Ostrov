@@ -30,6 +30,13 @@ public enum ServerType {
         return nameMap.containsKey(as_string) ? nameMap.get(as_string.toUpperCase()) : NONE;
     }
 
+    public boolean canAfk() {
+        return switch (this) {
+            case NONE, ONE_GAME, REG_OLD, REG_NEW -> false;
+            default -> true;
+        };
+    }
+
 
 }
 
