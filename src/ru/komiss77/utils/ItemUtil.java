@@ -29,6 +29,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -508,9 +509,9 @@ public class ItemUtil {
     }
 
     public static boolean substractOneItem(final HumanEntity he, final Material mat) {
-        if (!he.getInventory().contains(mat)) {
-            return false;
-        }
+      //if (!he.getInventory().contains(mat)) {бессмысленно, там тоже делается обход циклом
+      //    return false;
+      //}
         ItemStack is;
         for (int i = 0; i < he.getInventory().getContents().length; i++) {
             is = he.getInventory().getContents()[i];
