@@ -25,7 +25,6 @@ import org.bukkit.material.Colorable;
 import org.intellij.lang.annotations.Subst;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.notes.Slow;
-import ru.komiss77.version.GameApi;
 
 
 public class TCUtil {
@@ -1092,7 +1091,8 @@ public class TCUtil {
         //пока такой фикс
         //return strip(deform(of)).equals(strip(deform(to)));
         //return deform(of).equals(deform(to));
-        return GameApi.fromComponent(of).equals(GameApi.fromComponent(to));
+        return strip(of).equals(strip(to));
+//        return GameApi.fromComponent(of).equals(GameApi.fromComponent(to));
     }
 
     //надо для скайблока

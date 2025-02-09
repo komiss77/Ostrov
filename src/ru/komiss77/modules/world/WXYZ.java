@@ -9,6 +9,8 @@ import org.bukkit.util.Vector;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.NumUtil;
 
+/**use ru.komiss77.modules.world.BVec*/
+@Deprecated
 public class WXYZ extends XYZ {
 
     @Deprecated
