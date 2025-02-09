@@ -9,6 +9,7 @@ import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.set.RegistrySet;
 import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -421,7 +422,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder repairable(final List<ItemType> reps) {
-        return set(DataComponentTypes.REPAIRABLE, Repairable.repairable(OStrap.regSetOf(RegistryKey.ITEM, reps)));
+        return set(DataComponentTypes.REPAIRABLE, Repairable.repairable(RegistrySet.keySetFromValues(RegistryKey.ITEM, reps)));
     }
 
     public ItemBuilder tool(final int dmg, final float speed) {

@@ -2,6 +2,7 @@ package ru.komiss77.utils;
 
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
 
@@ -168,6 +169,13 @@ public class NumUtil {
     @Slow(priority = 1)
     public static float getYaw(final Vector vc) {
         return toDegree((float) ((Math.atan2(-vc.getX(), vc.getZ()) + PIx2) % PIx2));
+    }
+
+    public static BVec rndCircPos(final BVec pos, final int dst) {
+        final float aa = Ostrov.random.nextFloat() - 0.5f,
+            bb = Ostrov.random.nextFloat() - 0.5f, a2 = aa * aa, b2 = bb * bb;
+        return pos.clone().add((int) (dst * (a2 - b2) / (a2 + b2)),
+            0, (int) ((dst << 1) * aa * bb / (a2 + b2)));
     }
 
     public static XYZ rndCircPos(final XYZ pos, final int dst) {

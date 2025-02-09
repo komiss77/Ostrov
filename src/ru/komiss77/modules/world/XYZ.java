@@ -9,7 +9,6 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.notes.Slow;
 import ru.komiss77.utils.NumUtil;
 
-
 public class XYZ implements Cloneable {
 
     public String worldName;

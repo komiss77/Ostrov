@@ -11,7 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AreaSpawner;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.notes.OverrideMe;
 
 
@@ -61,7 +61,7 @@ public abstract class CustomEntity implements Keyed {
 //  protected abstract void goal(final E e);
 
     public LivingEntity spawn(final Location loc) {
-        final AreaSpawner.SpawnCondition cnd = spawner().condition(new WXYZ(loc));
+        final AreaSpawner.SpawnCondition cnd = spawner().condition(BVec.of(loc));
         return loc.getWorld().spawn(loc, getEntClass(), cnd.reason(), false, this::apply);
     }
 

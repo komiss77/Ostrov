@@ -46,11 +46,9 @@ public class OStrap implements PluginBootstrap {
 
     public static NamespacedKey key(final String key) {
         final int ix = key.indexOf(':');
-        if (ix != -1) {
-            return new NamespacedKey(key.substring(0, ix).toLowerCase(Locale.ROOT),
-                key.substring(ix + 1).toLowerCase(Locale.ROOT));
-        }
-        return new NamespacedKey(space, key.toLowerCase(Locale.ROOT));
+        return ix == -1 ? new NamespacedKey(space, key.toLowerCase(Locale.ROOT))
+            : new NamespacedKey(key.substring(0, ix).toLowerCase(Locale.ROOT),
+            key.substring(ix + 1).toLowerCase(Locale.ROOT));
     }
 
     public static NamespacedKey key(final Key key) {
@@ -84,17 +82,24 @@ public class OStrap implements PluginBootstrap {
         return RegistrySet.keySet(reg, keys.stream().map(k -> TypedKey.create(reg, k)).toList());
     }
 
+    @Deprecated
     public static <T extends Keyed> RegistryKeySet<T> regSetOf(final RegistryKey<T> reg, final Collection<T> keys) {
         return RegistrySet.keySetFromValues(reg, keys);
     }
 
     @Nullable
+    @Deprecated
     public static <E extends Keyed> E retrieve(final RegistryKey<E> reg, final Key key) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.get(TypedKey.create(reg, key));
     }
 
+    @Deprecated
     public static <E extends Keyed> E retrieve(final Key key, final E or) {
+        return get(key, or);
+    }
+
+    public static <E extends Keyed> E get(final Key key, final E or) {
         final Registry<E> reg = regOf(or);
         final E val = reg == null ? null : reg.get(key);
         return val == null ? or : val;
@@ -102,7 +107,7 @@ public class OStrap implements PluginBootstrap {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public static <E extends Keyed> Registry<E> regOf(final E val) {
+    public static <E extends @NotNull Keyed> Registry<E> regOf(final E val) {
         final Registry<?> reg = switch (val) {
             case final Sound ignored -> Ostrov.registries.SOUNDS;
             case final Enchantment ignored -> Ostrov.registries.ENCHANTS;
@@ -127,13 +132,13 @@ public class OStrap implements PluginBootstrap {
         return nk == null ? key(val.key()) : nk;
     }
 
+    @Deprecated
     public static <E extends Keyed> List<E> retrieveAll(final RegistryKey<E> reg) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.stream().toList();
     }
 
-    private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
-
+    @Deprecated
     public static <T extends Keyed> boolean hasTag(final TagKey<T> tk, final T val) {
         final Registry<T> reg = regOf(val);
         final TypedKey<T> tp = TypedKey.create(tk.registryKey(), val.key());
@@ -150,6 +155,8 @@ public class OStrap implements PluginBootstrap {
     private static <T extends Keyed> boolean has(final Tag<T> tag, final TypedKey<?> val) {
         return tag.contains((TypedKey<T>) val);
     }
+
+    private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
 
     public static <T extends Keyed> Tag<T> regTag(final TagKey<T> key, final Collection<T> def) {
         final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(key.registryKey());
@@ -169,5 +176,18 @@ public class OStrap implements PluginBootstrap {
         };
         tags.computeIfAbsent(tag.registryKey(), t -> new ArrayList<>()).add(tag);
         return tag;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk, final RegistryKey<T> rk) {
+        final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(rk);
+        if (!tags.isEmpty()) {
+            final List<Tag<?>> tags = OStrap.tags.get(tk.registryKey());
+            if (tags != null) {
+                for (final Tag<?> tg : tags) if (tk.equals(tg.tagKey()))
+                    return new HashSet<>(((Tag<T>) tg).resolve(reg));
+            }
+        }
+        return new HashSet<>(reg.getTag(tk).resolve(reg));
     }
 }

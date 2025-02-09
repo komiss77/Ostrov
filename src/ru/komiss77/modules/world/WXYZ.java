@@ -15,6 +15,16 @@ public class WXYZ extends XYZ {
     @SuppressWarnings("не хранить мир - после отгрузки остаётся ghost!!! use world()")
     public final World w; //не хранить мир - после отгрузки остаётся ghost!!! use world()
 
+    @Deprecated
+    public @Nullable World world() { //не успел моргнуть, а этот метод куда-то пропал, плагин выдал ошибку. всё, НИЧЕГО не переименовываем,не удаляем, не перемещаем!!!!!
+        return w();
+    }
+    @Deprecated
+    public void w(final World w) {
+        //this.world = new WeakReference<>(w);
+        this.worldName = w.getName();
+    }
+
     //private WeakReference<World> world; //не хранить мир - после отгрузки остаётся ghost!!! use world()
     //зачем такие навороты? лишний объект, проверки.. Всегда проще сделать Bukkit.getWorld и получить самый актуальный мир из ядра.
     //посмотри исходник, там всего одно действие - берётся мир по имени из мапы (кст,именно по этому нужно юзать название а не uuid)
@@ -26,14 +36,6 @@ public class WXYZ extends XYZ {
         //final World nw = Bukkit.getWorld(worldName);
         //if (nw != null) world = new WeakReference<>(nw);
         //return nw;
-    }
-
-    public @Nullable World world() { //не успел моргнуть, а этот метод куда-то пропал, плагин выдал ошибку. всё, НИЧЕГО не переименовываем,не удаляем, не перемещаем!!!!!
-        return Bukkit.getWorld(worldName);
-    }
-    public void w(final World w) {
-        //this.world = new WeakReference<>(w);
-        this.worldName = w.getName();
     }
 
     public WXYZ(final Block b) {

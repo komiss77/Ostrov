@@ -74,6 +74,7 @@ import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.PDC;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.Slow;
@@ -326,9 +327,16 @@ public class Nms {
     return iBlockData.getBukkitMaterial();
   }
 
+  @Deprecated
   public static BlockType fastType(final WXYZ loc) {
     final ServerLevel sl = Craft.toNMS(loc.w);
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.x, loc.y, loc.z));
+    return Craft.fromNMS(iBlockData.getBlock());
+  }
+
+  public static BlockType fastType(final World w, final BVec bv) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(bv.x, bv.y, bv.z));
     return Craft.fromNMS(iBlockData.getBlock());
   }
 
@@ -351,9 +359,17 @@ public class Nms {
     return iBlockData.createCraftBlockData();
   }
 
+  @Deprecated
   public static BlockData fastData(final WXYZ loc) {
     final ServerLevel sl = Craft.toNMS(loc.w);
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(loc.x, loc.y, loc.z));
+    return iBlockData.createCraftBlockData();
+  }
+
+  @Deprecated
+  public static BlockData fastData(final World w, final BVec bv) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(bv.x, bv.y, bv.z));
     return iBlockData.createCraftBlockData();
   }
 
@@ -368,10 +384,11 @@ public class Nms {
     final BlockState bs = Craft.toNMS(bt).defaultBlockState();
     for (final BlockPosition bp : poss) {
       mutableBlockPosition.set(bp.blockX(), bp.blockY(), bp.blockZ());
-      setNmsData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs);
+      setNmsData(sl, sl.getBlockState(mutableBlockPosition), bs);
     }
   }
 
+  @Deprecated
   public static void fastData(final WXYZ wxyz, final BlockPosition dims, final BlockData bd) {
     final ServerLevel sl = Craft.toNMS(wxyz.w);
     final BlockState bs = Craft.toNMS(bd);
@@ -379,18 +396,33 @@ public class Nms {
       for (int z_ = 0; z_ != dims.blockY(); z_++) {
         for (int y_ = 0; y_ != dims.blockZ(); y_++) {
           mutableBlockPosition.set(wxyz.x + x_, wxyz.y + y_, wxyz.z + z_);
-          setNmsData(sl, mutableBlockPosition, sl.getBlockState(mutableBlockPosition), bs);
+          setNmsData(sl, sl.getBlockState(mutableBlockPosition), bs);
         }
       }
     }
   }
 
+  public static void fastData(final World w, final BVec bv, final BVec dims, final BlockData bd) {
+    final ServerLevel sl = Craft.toNMS(w);
+    final BlockState bs = Craft.toNMS(bd);
+    for (int x_ = 0; x_ != dims.x; x_++) {
+      for (int z_ = 0; z_ != dims.y; z_++) {
+        for (int y_ = 0; y_ != dims.z; y_++) {
+          mutableBlockPosition.set(bv.x + x_, bv.y + y_, bv.z + z_);
+          setNmsData(sl, sl.getBlockState(mutableBlockPosition), bs);
+        }
+      }
+    }
+  }
+
+  @Deprecated
   public static String getBiomeKey(final World w, int x, int y, int z) {
     final BiomeManager bm = Craft.toNMS(w).getBiomeManager();
     final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(x, y, z)).unwrapKey();
     return opk.map(bk -> bk.location().getPath()).orElse("void");
   }
 
+  @Deprecated
   public static String getBiomeKey(final WXYZ loc) {
     final BiomeManager bm = Craft.toNMS(loc.w).getBiomeManager();
     final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(loc.x, loc.y, loc.z)).unwrapKey();
@@ -399,13 +431,12 @@ public class Nms {
 
   //упрощенный вид
   private static final int FST_FLAGS = 2 | 16 | 1024;
-
-  protected static void setNmsData(final ServerLevel sl, final BlockPos.MutableBlockPos pos, final BlockState old, final BlockState curr) {
+  protected static void setNmsData(final ServerLevel sl, final BlockState old, final BlockState curr) {
     if (old.hasBlockEntity() && curr.getBlock() != old.getBlock()) {
-      sl.removeBlockEntity(pos);
+      sl.removeBlockEntity(mutableBlockPosition);
     }
-    final boolean success = sl.setBlock(pos, curr, FST_FLAGS); // NOTIFY | NO_OBSERVER | NO_PLACE (custom)
-    if (success) sl.sendBlockUpdated(pos, old, curr, 3);
+    final boolean success = sl.setBlock(mutableBlockPosition, curr, FST_FLAGS); // NOTIFY | NO_OBSERVER | NO_PLACE (custom)
+    if (success) sl.sendBlockUpdated(mutableBlockPosition, old, curr, 3);
   }
 
   public enum PlaceType {

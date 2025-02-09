@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.version.Nms;
@@ -77,12 +78,13 @@ public class MoveUtil {
     private static final Set<BlockType> WATERS = Set.of(BlockType.WATER, BlockType.BUBBLE_COLUMN);
     public static boolean safeTP(final Player p, final Location feetLoc) {
         final Location finLoc;
-        final WXYZ loc = new LocFinder(new WXYZ(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+        final World w = p.getWorld();
+        final BVec loc = new LocFinder(BVec.of(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
         if (loc == null) {
-            final WXYZ alc = new LocFinder(new WXYZ(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+            final BVec alc = new LocFinder(BVec.of(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
             if (alc == null) return false;
 
-            BlockUtil.set(alc.getBlock().getRelative(BlockFace.DOWN), BlockType.YELLOW_STAINED_GLASS, false);
+            BlockUtil.set(alc.block(w).getRelative(BlockFace.DOWN), BlockType.YELLOW_STAINED_GLASS, false);
             new BukkitRunnable() {
                 final WeakReference<Player> prf = new WeakReference<>(p);
 
@@ -91,17 +93,17 @@ public class MoveUtil {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
                         || alc.distAbs(pl.getLocation()) > 3) {
-                        BlockUtil.set(alc.getBlock().getRelative(BlockFace.DOWN), BlockType.AIR, false);
+                        BlockUtil.set(alc.block(w).getRelative(BlockFace.DOWN), BlockType.AIR, false);
                         this.cancel();
                     }
                 }
             }.runTaskTimer(Ostrov.instance, 30, 10);
-            finLoc = alc.getCenterLoc();
+            finLoc = alc.center(w);
             tpCorrect(p, finLoc);
             return true;
         }
 
-        finLoc = loc.getCenterLoc();
+        finLoc = loc.center(w);
         final Block b = finLoc.getBlock();
         if (!b.getType().isAir()) {
             tpCorrect(p, finLoc);

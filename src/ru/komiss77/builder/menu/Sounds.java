@@ -53,7 +53,7 @@ public class Sounds implements InventoryProvider {
 
         for (int i = from; i != to; i++) {
             final String snm = sounds.get(i);
-            final Sound sound = OStrap.retrieve(Key.key(snm), Sound.BLOCK_COMPARATOR_CLICK);
+            final Sound sound = OStrap.get(Key.key(snm), Sound.BLOCK_COMPARATOR_CLICK);
             if (sound == null) continue;
             final String tpn;
             final int sp1 = snm.indexOf('.');
@@ -67,8 +67,8 @@ public class Sounds implements InventoryProvider {
 
             ItemType tp = ItemType.AIR;
             for (final String spl : tpn.split("\\.")) {
-                tp = OStrap.retrieve(Key.key(spl.toLowerCase()), ItemType.AIR);
-                if (tp == ItemType.AIR) tp = OStrap.retrieve(Key.key(spl.toLowerCase()
+                tp = OStrap.get(Key.key(spl.toLowerCase()), ItemType.AIR);
+                if (tp == ItemType.AIR) tp = OStrap.get(Key.key(spl.toLowerCase()
                         + "_spawn_egg"), ItemType.AIR);
                 if (tp != ItemType.AIR) break;
             }

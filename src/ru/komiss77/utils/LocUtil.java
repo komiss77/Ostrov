@@ -15,6 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.modules.world.XYZ;
@@ -340,8 +341,15 @@ public class LocUtil {
         return fin;
     }
 
+    @Deprecated
     @Slow(priority = 1)
     public static <G extends Entity> Collection<G> getChEnts(final WXYZ loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
+        return getChEnts(BVec.of(loc.w(), loc.x, loc.y, loc.z), dst, ent, which);
+    }
+
+    @Slow(priority = 1)
+    public static <G extends Entity> Collection<G> getChEnts(final BVec loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
+        final World w = loc.w(); if (w == null) return List.of();
         final HashMap<Integer, G> hs = new HashMap<>();
         final int X = loc.x, Y = loc.y, Z = loc.z, dS = dst * dst;
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
@@ -362,11 +370,17 @@ public class LocUtil {
         return hs.values();
     }
 
+    @Deprecated
     @Slow(priority = 2)
     public static <G extends Entity> G getClsChEnt(final WXYZ loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
+        return getClsChEnt(BVec.of(loc.w(), loc.x, loc.y, loc.z), dst, ent, which);
+    }
+
+    @Slow(priority = 2)
+    public static <G extends Entity> G getClsChEnt(final BVec loc, final int dst, final Class<G> ent, final @Nullable Predicate<G> which) {
+        final World w = loc.w(); if (w == null) return null;
         final int X = loc.x, Y = loc.y, Z = loc.z;
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
-
         int dS = dst * dst;
         G fin = null;
         for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
@@ -387,29 +401,35 @@ public class LocUtil {
         return fin;
     }
 
+    @Deprecated
     public static TraceResult trace(final Location org, final Vector dir, final double dst, final OnPosData done) {
-        dir.normalize();
-        final int finX = (int) (dir.getX() * dst + org.getX()), finY = (int) (dir.getY() * dst + org.getY()), finZ = (int) (dir.getZ() * dst + org.getZ());
+        return trace(org, dir.normalize().multiply(dst), done);
+    }
+
+    public static TraceResult trace(final Location org, final Vector dir, final OnPosData done) {
+        final double dst = dir.length();
+        final double dirX = dir.getX() / dst, dirY = dir.getY() / dst, dirZ = dir.getZ() / dst;
+        final int finX = (int) (dir.getX() + org.getX()), finY = (int) (dir.getY() + org.getY()), finZ = (int) (dir.getZ() + org.getZ());
         int mapX = (int) Math.floor(org.getX()), mapY = (int) Math.floor(org.getY()), mapZ = (int) Math.floor(org.getZ());
-        final double deltaDistX = Math.abs(1.0F / dir.getX()), deltaDistY = Math.abs(1.0F / dir.getY()), deltaDistZ = Math.abs(1.0F / dir.getZ());
+        final double deltaDistX = Math.abs(1.0F / dirX), deltaDistY = Math.abs(1.0F / dirY), deltaDistZ = Math.abs(1.0F / dirZ);
 
         final int stepX, stepY, stepZ;
         double sideDistX, sideDistY, sideDistZ;
-        if (dir.getX() < 0.0F) {
+        if (dirX < 0.0F) {
             stepX = -1;
             sideDistX = (org.getX() - mapX) * deltaDistX;
         } else {
             stepX = 1;
             sideDistX = (1.0F - org.getX() + mapX) * deltaDistX;
         }
-        if (dir.getY() < 0.0F) {
+        if (dirY < 0.0F) {
             stepY = -1;
             sideDistY = (org.getY() - mapY) * deltaDistY;
         } else {
             stepY = 1;
             sideDistY = (1.0F - org.getY() + mapY) * deltaDistY;
         }
-        if (dir.getZ() < 0.0F) {
+        if (dirZ < 0.0F) {
             stepZ = -1;
             sideDistZ = (org.getZ() - mapZ) * deltaDistZ;
         } else {

@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 
 public class EntityManager implements Initiable, Listener {
 
@@ -51,14 +51,14 @@ public class EntityManager implements Initiable, Listener {
             public void run() {
                 final Collection<? extends Player> pls = Bukkit.getOnlinePlayers();
                 if (pls.isEmpty()) return;
-                final ArrayList<WXYZ> locs = new ArrayList<>(pls.size());
-                for (final Player p : pls) locs.add(new WXYZ(p.getLocation()));
+                final ArrayList<BVec> locs = new ArrayList<>(pls.size());
+                for (final Player p : pls) locs.add(BVec.of(p.getLocation()));
 
                 for (final CustomEntity ce : spawns) {
                     if (ce.cd < 0) continue;
                     if (ce.cd == 0) {
                         ce.cd = ce.spawnCd();
-                        for (final WXYZ lc : locs) {
+                        for (final BVec lc : locs) {
                             ce.spawner().trySpawn(lc, ce.getEntClass(), ce::apply);
                         }
                         continue;

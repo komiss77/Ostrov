@@ -29,7 +29,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Biome;
-import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
@@ -744,7 +743,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 5, false)) continue;
-                    bld.addModifier(OStrap.retrieve(Key.key(mod[0]), LUCK),
+                    bld.addModifier(OStrap.get(Key.key(mod[0]), LUCK),
                         new AttributeModifier(NamespacedKey.fromString(mod[1]), NumUtil.doubleOf(mod[2], 0d),
                             Operation.valueOf(mod[3]), EquipmentSlotGroup.getByName(mod[4])));
                 }
@@ -851,7 +850,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(OStrap.retrieve(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
+                    bld.add(OStrap.get(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -873,7 +872,7 @@ public class ItemUtil {
                 for (int i = 1; i != parts.length; i++) {
                     final String[] mod = parts[i].split(seps[1]);
                     if (!ClassUtil.check(mod, 2, false)) continue;
-                    bld.add(OStrap.retrieve(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
+                    bld.add(OStrap.get(Key.key(mod[0]), Enchantment.AQUA_AFFINITY), NumUtil.intOf(mod[1], 0));
                 }
                 return bld.build();
             }
@@ -964,8 +963,8 @@ public class ItemUtil {
             public ItemArmorTrim parse(final String str, final String... seps) {
                 final String[] parts = str.split(seps[0]);
                 if (!ClassUtil.check(parts, 3, false)) return null;
-                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(OStrap.retrieve(Key.key(parts[1]), TrimMaterial.IRON),
-                    OStrap.retrieve(Key.key(parts[2]), TrimPattern.COAST)), Boolean.parseBoolean(parts[0]));
+                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(OStrap.get(Key.key(parts[1]), TrimMaterial.IRON),
+                    OStrap.get(Key.key(parts[2]), TrimPattern.COAST)), Boolean.parseBoolean(parts[0]));
             }
         });
         dataParser.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
@@ -1101,7 +1100,7 @@ public class ItemUtil {
         final String[] idt = split[0].split(StringUtil.SPLIT_1);
         final ItemType tp;
         try {
-            tp = OStrap.retrieve(Key.key(idt[0]), ItemType.AIR);
+            tp = OStrap.get(Key.key(idt[0]), ItemType.AIR);
         } catch (InvalidKeyException e) {
             Ostrov.log_err("Couldn't parse type for " + str);
             e.printStackTrace();

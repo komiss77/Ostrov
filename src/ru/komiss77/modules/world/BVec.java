@@ -1,0 +1,352 @@
+package ru.komiss77.modules.world;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
+import io.papermc.paper.math.Position;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import ru.komiss77.Ostrov;
+import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.StringUtil;
+
+public class BVec implements Cloneable {
+
+    public static final String SPLIT = StringUtil.SPLIT_1;
+
+    public int x, y, z;
+
+    private BVec(final int x, final int y, final int z) {
+        this.x = x; this.y = y; this.z = z;
+    }
+
+    public int pit() {return 0;}
+    public BVec pit(final int pit) {
+        return of(x, y, z, pit, 0);
+    }
+    public int yaw() {return 0;}
+    public BVec yaw(final int yaw) {
+        return of(x, y, z, 0, yaw);
+    }
+
+    public @Nullable World w() {return null;}
+    public BVec w(final String wname) {
+        return of(wname, x, y, z);
+    }
+    public BVec w(final World w) {
+        return of(w, x, y, z);
+    }
+
+    public BVec add(final int x, final int y, final int z) {
+        return of(this.x + x, this.y + y, this.z + z);
+    }
+
+    public BVec add(final BVec bv) {
+        return of(this.x + bv.x, this.y + bv.y, this.z + bv.z);
+    }
+
+    public BVec mul(final int m) {
+        return of(this.x * m, this.y * m, this.z * m);
+    }
+
+    public BVec mul(final float m) {
+        return of((int) (x * m), (int) (y * m), (int) (z * m));
+    }
+
+    public int distSq(final Location to) {
+        return NumUtil.square(to.getBlockX() - x) + NumUtil.square(to.getBlockY() - y) + NumUtil.square(to.getBlockZ() - z);
+    }
+
+    public int distSq(final BVec to) {
+        return NumUtil.square(x - to.x) + NumUtil.square(y - to.y) + NumUtil.square(z - to.z);
+    }
+
+    public int distAbs(final Location to) {
+        return NumUtil.abs(to.getBlockX() - x) + NumUtil.abs(to.getBlockY() - y) + NumUtil.abs(to.getBlockZ() - z);
+    }
+
+    public int distAbs(final BVec to) {
+        return NumUtil.abs(x - to.x) + NumUtil.abs(y - to.y) + NumUtil.abs(z - to.z);
+    }
+
+    public int dist(final Location to) {
+        return NumUtil.sqrt(distSq(to));
+    }
+
+    public int dist(final BVec to) {
+        return NumUtil.sqrt(distSq(to));
+    }
+
+    /*public @Nullable Location center() {return null;}
+    public @Nullable Block block() {return null;}*/
+    public Location center(final World w) {
+        return new Location(w, x, y, z);
+    }
+    public Block block(final World w) {
+        return w.getBlockAt(x, y, z);
+    }
+
+    public int thin() { //координата в одном int для небольших значений, работает с '-'
+        return y >> 31 << 30 ^ x >> 31 << 29 ^ z >> 31 << 28 ^ y << 20 ^ x << 10 ^ z;
+    }
+
+    public boolean equals(final Object o) {
+        if (!(o instanceof BVec bv)) return false;
+        return x == bv.x && y == bv.y && z == bv.z;
+    }
+
+    public int hashCode() {
+        return thin();
+    }
+    
+    public String toString() {
+        return x + SPLIT + y + SPLIT + z;
+    }
+
+    public BVec clone() {
+        try {return (BVec) super.clone();}
+        catch (CloneNotSupportedException e)
+            {return new BVec(x, y, z);}
+    }
+
+    public static BVec of() {
+        return new BVec(0, 0, 0);
+    }
+
+    public static BVec of(final int x, final int y, final int z) {
+        return new BVec(x, y, z);
+    }
+
+    public static BVec of(final Position ps) {
+        return new BVec(ps.blockX(), ps.blockY(), ps.blockZ());
+    }
+
+    private static class BVecDir extends BVec {
+        private final int pit, yaw;
+        protected BVecDir(final int x, final int y, final int z, final int pit, final int yaw) {
+            super(x, y, z);
+            this.pit = pit;
+            this.yaw = yaw;
+        }
+
+        public int pit() {return pit;}
+        public BVec pit(final int pit) {
+            return of(x, y, z, pit, yaw);
+        }
+        public int yaw() {return yaw;}
+        public BVec yaw(final int yaw) {
+            return of(x, y, z, pit, yaw);
+        }
+
+        public BVec add(final int x, final int y, final int z) {
+            return of(this.x + x, this.y + y, this.z + z, pit, yaw);
+        }
+
+        public BVec add(final BVec bv) {
+            return of(this.x + bv.x, this.y + bv.y, this.z + bv.z, pit, yaw);
+        }
+
+        public BVec mul(final int m) {
+            return of(this.x * m, this.y * m, this.z * m, pit, yaw);
+        }
+
+        public BVec mul(final float m) {
+            return of((int) (x * m), (int) (y * m), (int) (z * m), pit, yaw);
+        }
+
+        public BVec w(final String wname) {
+            return of(wname, x, y, z, pit, yaw);
+        }
+        public BVec w(final World w) {
+            return of(w, x, y, z, pit, yaw);
+        }
+
+        public boolean equals(final Object o) {
+            if (!(o instanceof BVecDir bv)) return false;
+            return super.equals(bv) && pit == bv.pit && yaw == bv.yaw;
+        }
+
+        public String toString() {
+            return super.toString() + SPLIT + pit + SPLIT + yaw;
+        }
+
+        @Override
+        public BVec clone() {
+            final BVec cln = super.clone();
+            return BVec.of(cln.x, cln.y, cln.z, pit, yaw);
+        }
+    }
+
+    public static BVec of(final int x, final int y, final int z, final int pit, final int yaw) {
+        return new BVecDir(x, y, z, pit, yaw);
+    }
+
+    private static class WBVec extends BVec {
+        private final String world;
+        protected WBVec(final String world, final int x, final int y, final int z) {
+            super(x, y, z);
+            this.world = world;
+            this.world.hashCode();
+        }
+
+        public BVec pit(final int pit) {
+            return of(world, x, y, z, pit, 0);
+        }
+        public BVec yaw(final int yaw) {
+            return of(world, x, y, z, 0, yaw);
+        }
+
+        public BVec add(final int x, final int y, final int z) {
+            return of(world, this.x + x, this.y + y, this.z + z);
+        }
+
+        public BVec add(final BVec bv) {
+            return of(world, this.x + bv.x, this.y + bv.y, this.z + bv.z);
+        }
+
+        public BVec mul(final int m) {
+            return of(world, this.x * m, this.y * m, this.z * m);
+        }
+
+        public BVec mul(final float m) {
+            return of(world, (int) (x * m), (int) (y * m), (int) (z * m));
+        }
+
+        public @Nullable World w() {return Bukkit.getWorld(world);}
+
+        public boolean equals(final Object o) {
+            if (!(o instanceof WBVec bv)) return false;
+            return super.equals(bv) && Objects.equals(world, bv.world);
+        }
+
+        public String toString() {
+            return super.toString() + SPLIT + world;
+        }
+
+        public BVec clone() {
+            final BVec cln = super.clone();
+            return BVec.of(world, cln.x, cln.y, cln.z);
+        }
+    }
+
+    public static BVec of(final World w, final int x, final int y, final int z) {
+        if (w == null) return new BVec(x, y, z);
+        return new WBVec(w.getName(), x, y, z);
+    }
+
+    public static BVec of(final String wname, final int x, final int y, final int z) {
+        return new WBVec(wname, x, y, z);
+    }
+
+    public static BVec of(final Block bl) {
+        return new WBVec(bl.getWorld().getName(), bl.getX(), bl.getY(), bl.getZ());
+    }
+
+    private static class WBVecDir extends BVec {
+        private final int pit, yaw;
+        private final String world;
+        protected WBVecDir(final String world, final int x, final int y, final int z, final int pit, final int yaw) {
+            super(x, y, z);
+            this.world = world;
+            this.world.hashCode();
+            this.pit = pit;
+            this.yaw = yaw;
+        }
+
+        public int pit() {return pit;}
+        public BVec pit(final int pit) {
+            return of(world, x, y, z, pit, yaw);
+        }
+        public int yaw() {return yaw;}
+        public BVec yaw(final int yaw) {
+            return of(world, x, y, z, pit, yaw);
+        }
+
+        public BVec add(final int x, final int y, final int z) {
+            return of(world, this.x + x, this.y + y, this.z + z, pit, yaw);
+        }
+
+        public BVec add(final BVec bv) {
+            return of(world, this.x + bv.x, this.y + bv.y, this.z + bv.z, pit, yaw);
+        }
+
+        public BVec mul(final int m) {
+            return of(world, this.x * m, this.y * m, this.z * m, pit, yaw);
+        }
+
+        public BVec mul(final float m) {
+            return of(world, (int) (x * m), (int) (y * m), (int) (z * m), pit, yaw);
+        }
+
+        public @Nullable World w() {return Bukkit.getWorld(world);}
+        public BVec w(final String wname) {
+            return of(wname, x, y, z, pit, yaw);
+        }
+        public BVec w(final World w) {
+            return of(w, x, y, z, pit, yaw);
+        }
+
+        public boolean equals(final Object o) {
+            if (!(o instanceof WBVecDir bv)) return false;
+            return super.equals(bv) && pit == bv.pit && yaw == bv.yaw
+                && Objects.equals(world, bv.world);
+        }
+
+        public String toString() {
+            return super.toString() + SPLIT + world 
+                + SPLIT + pit + SPLIT + yaw;
+        }
+
+        public BVec clone() {
+            final BVec cln = super.clone();
+            return BVec.of(world, cln.x, cln.y, cln.z, pit, yaw);
+        }
+    }
+
+    public static BVec of(final World w, final int x, final int y, final int z, final int pit, final int yaw) {
+        if (w == null) return new BVecDir(x, y, z, pit, yaw);
+        return new WBVecDir(w.getName(), x, y, z, pit, yaw);
+    }
+
+    public static BVec of(final String world, final int x, final int y, final int z, final int pit, final int yaw) {
+        return new WBVecDir(world, x, y, z, pit, yaw);
+    }
+
+    public static BVec of(final Location loc) {
+        return new WBVecDir(loc.getWorld().getName(), loc.getBlockX(),
+            loc.getBlockY(), loc.getBlockZ(), (int) loc.getPitch(), (int) loc.getYaw());
+    }
+
+    public static BVec parse(final String bVec) {
+        final String[] parts = bVec.split(SPLIT);
+        BVec bv = of();
+        switch (parts.length) {
+            case 6:
+                bv = bv.w(parts[3]).pit(NumUtil.intOf(parts[4], 0))
+                    .yaw(NumUtil.intOf(parts[5], 0));
+                bv.z = NumUtil.intOf(parts[2], 0);
+                bv.y = NumUtil.intOf(parts[1], 0);
+                bv.x = NumUtil.intOf(parts[0], 0);
+                break;
+            case 5:
+                bv = bv.pit(NumUtil.intOf(parts[3], 0))
+                    .yaw(NumUtil.intOf(parts[4], 0));
+                bv.z = NumUtil.intOf(parts[2], 0);
+                bv.y = NumUtil.intOf(parts[1], 0);
+                bv.x = NumUtil.intOf(parts[0], 0);
+                break;
+            case 4:
+                bv = bv.w(parts[3]);
+            case 3:
+                bv.z = NumUtil.intOf(parts[2], 0);
+            case 2:
+                bv.y = NumUtil.intOf(parts[1], 0);
+            case 1:
+                bv.x = NumUtil.intOf(parts[0], 0);
+                break;
+            default: Ostrov.log_err("BVec parse? " + bVec + " len=" + parts.length);
+        }
+        return bv;
+    }
+}

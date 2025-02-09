@@ -249,7 +249,7 @@ public class TCUtil {
         if (source == null) return ItemType.BEDROCK; //заглушки от NullPoint  в плагинах
         if (color == null) return source; //заглушки от NullPoint  в плагинах
         final String stripName = stripMaterialName(source.key().value());
-        final ItemType newMat = OStrap.retrieve(Key.key(color.name().toLowerCase() + "_" + stripName), source);
+        final ItemType newMat = OStrap.get(Key.key(color.name().toLowerCase() + "_" + stripName), source);
         return newMat == null ? source : newMat;
     }
 
