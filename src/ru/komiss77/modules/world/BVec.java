@@ -15,7 +15,7 @@ public class BVec implements Cloneable {
 
     public static final String SPLIT = StringUtil.SPLIT_1;
 
-    private static final int[] EIA = {};
+    private static final byte[] EIA = {};
 
     public int x, y, z;
 
@@ -23,8 +23,8 @@ public class BVec implements Cloneable {
         this.x = x; this.y = y; this.z = z;
     }
 
-    public int[] vals() {return EIA;}
-    public BVec wals(final World w, final int[] vals) {
+    public byte[] vals() {return EIA;}
+    public BVec wals(final World w, final byte[] vals) {
         return of(w, x, y, z, vals);
     }
 
@@ -237,15 +237,15 @@ public class BVec implements Cloneable {
 
     private static class WBVecVals extends BVec {
         private final String world;
-        private final int[] vals;
-        protected WBVecVals(final String world, final int x, final int y, final int z, final int... vals) {
+        private final byte[] vals;
+        protected WBVecVals(final String world, final int x, final int y, final int z, final byte... vals) {
             super(x, y, z);
             this.world = world;
             this.world.hashCode();
             this.vals = vals;
         }
 
-        public int[] vals() {return vals;}
+        public byte[] vals() {return vals;}
 
         public BVec add(final int x, final int y, final int z) {
             return of(world, this.x + x, this.y + y, this.z + z, vals);
@@ -291,13 +291,13 @@ public class BVec implements Cloneable {
         }
     }
 
-    public static BVec of(final World w, final int x, final int y, final int z, final int... vals) {
+    public static BVec of(final World w, final int x, final int y, final int z, final byte... vals) {
         if (w == null) return new BVec(x, y, z);
         if (vals.length == 0) return new WBVec(w.getName(), x, y, z);
         return new WBVecVals(w.getName(), x, y, z, vals);
     }
 
-    public static BVec of(final String world, final int x, final int y, final int z, final int... vals) {
+    public static BVec of(final String world, final int x, final int y, final int z, final byte... vals) {
         if (world == null) return new BVec(x, y, z);
         if (vals.length == 0) return new WBVec(world, x, y, z);
         return new WBVecVals(world, x, y, z, vals);
@@ -305,7 +305,7 @@ public class BVec implements Cloneable {
 
     public static BVec of(final Location loc) {
         return new WBVecVals(loc.getWorld().getName(), loc.getBlockX(),
-            loc.getBlockY(), loc.getBlockZ(), (int) loc.getPitch(), (int) loc.getYaw());
+            loc.getBlockY(), loc.getBlockZ(), (byte) loc.getPitch(), (byte) loc.getYaw());
     }
 
     public static BVec parse(final String bVec) {
@@ -326,8 +326,8 @@ public class BVec implements Cloneable {
                     Ostrov.log_err("BVec " + SPLIT + " parse < 3 for " + bVec + " len=" + parts.length);
                     return bv;
                 }
-                final int[] vals = new int[parts.length - 4];
-                for (int i = 0; i != vals.length; i++) vals[i] = NumUtil.intOf(parts[i + 4], 0);
+                final byte[] vals = new byte[parts.length - 4];
+                for (int i = 0; i != vals.length; i++) vals[i] = (byte) NumUtil.intOf(parts[i + 4], 0);
                 return of(parts[3], NumUtil.intOf(parts[0], 0),
                     NumUtil.intOf(parts[1], 0), NumUtil.intOf(parts[2], 0), vals);
         }
