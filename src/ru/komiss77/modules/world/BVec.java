@@ -15,6 +15,7 @@ public class BVec implements Cloneable {
 
     public static final String SPLIT = StringUtil.SPLIT_1;
 
+    private static final BVec EBV = BVec.of();
     private static final byte[] EIA = {};
 
     public int x, y, z;

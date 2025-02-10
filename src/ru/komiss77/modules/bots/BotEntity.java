@@ -14,6 +14,7 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.math.FinePosition;
+import io.papermc.paper.math.Position;
 import net.minecraft.Optionull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.RemoteChatSession;
@@ -37,6 +38,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.entities.PvPManager;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
@@ -458,6 +460,11 @@ public class BotEntity extends ServerPlayer implements Botter {
         return new WXYZ(world, bp.getX(), bp.getY(), bp.getZ());
     }
 
+    public BVec pos() {
+        final BlockPos bp = this.blockPosition();//dm();
+        return BVec.of(world, bp.getX(), bp.getY(), bp.getZ());
+    }
+
     public void tab(final String prefix, final String affix, final String suffix) {
         listName = PaperAdventure.asVanilla(TCUtil.form(prefix + affix + name + suffix));
         Nms.sendWorldPacket(world, updListPlayerPacket());
@@ -503,7 +510,8 @@ public class BotEntity extends ServerPlayer implements Botter {
 
     public void updateAll(final Player pl) {
 //      pl.sendMessage("bot-" + name);
-        Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), new ClientboundAddEntityPacket(this, 0, blockPosition()),
+        final Vec3 pos = position();
+        Nms.sendPackets(pl, addListPlayerPacket(), modListPlayerPacket(), addEntityPacket(Position.fine(pos.x, pos.y, pos.z)),
             new ClientboundTeleportEntityPacket(getId(), PositionMoveRotation.of(this), Relative.DELTA, true),
             new ClientboundSetEquipmentPacket(this.hashCode(), updateIts()));
         team.send(pl);
