@@ -30,6 +30,19 @@ public class IOO5OOCmd {
 
     public IOO5OOCmd() {
 
+      /*new OCmdBuilder("skin")
+          .run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+              cs.sendMessage("§eНе консольная команда!");
+              return 0;
+            }
+            SkinRestorerHook.openGui(p, 0);
+            return Command.SINGLE_SUCCESS;
+          })
+          .description("Установить скин")
+          .register();*/
+
     /*new OCmdBuilder("тест")
         .then(Commands.argument("арг", StringArgumentType.greedyString()).executes(cntx -> {
           final String arg = Resolver.string(cntx, "арг");
@@ -77,19 +90,6 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меню серверов")
-            .register();
-
-        new OCmdBuilder("skin")
-            .run(cntx -> {
-                final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof final Player p)) {
-                    cs.sendMessage("§eНе консольная команда!");
-                    return 0;
-                }
-                SkinRestorerHook.openGui(p, 0);
-                return Command.SINGLE_SUCCESS;
-            })
-            .description("Установить скин")
             .register();
 
         new OCmdBuilder("land")

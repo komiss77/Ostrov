@@ -10,10 +10,7 @@ import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -50,6 +47,7 @@ import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
+import se.file14.procosmetics.nms.p;
 
 
 public class Oplayer {
@@ -116,7 +114,8 @@ public class Oplayer {
     public int lookSum = 0, lookStamp = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
-    public Location spyOrigin;//public BukkitTask spyTask;
+    public Location spyOrigin;
+    public GameMode spyOldGm;
     public Gender gender = Gender.NEUTRAL;
     public String lastCommand; //последняя команда введёная билдером
     public UUID tpRequestFrom; //от кого пришел запрос на ТП
@@ -363,13 +362,22 @@ public class Oplayer {
     }
 
     public boolean setData(final Data e_data, final int value) {  //отправляем на банжи, и обнов.локально
+        int old_val = dataInt.getOrDefault(e_data, 0);
+        if (old_val == value) {
+            return true;
+        }
         if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, e_data.tag, value, "", "")) {
+            dataInt.put(e_data, value);
             if (e_data == Data.RIL) {
-                Ostrov.globalLog(GlobalLogType.ADD_RIL, nik, "setData RIL old=" + dataInt.get(e_data) + " new=" + value);
+                if (old_val > value) { //use
+                    Ostrov.history(HistoryType.MONEY_REAL_USE, this, "setData RIL old=" + old_val + " new=" + value);
+                } else { //add
+                    Ostrov.history(HistoryType.MONEY_REAL_ADD, this, "setData RIL old=" + old_val + " new=" + value);
+                }
+
             } else if (e_data == Data.LANG) {
                 eng = value == 1;
             }
-            dataInt.put(e_data, value);
             return true;
         } else {
             getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);

@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -80,21 +81,28 @@ public class SpyCmd implements OCommand {
                     return 0;
                 }
 
-                //if (tgt.getGameMode() == GameMode.SPECTATOR) {
-                //    cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
-                //    return 0;
-                //}
+                if (tgt.getGameMode() == GameMode.SPECTATOR) {
+                    cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
+                    return 0;
+                }
 
-                op.spyOrigin = p.getLocation();
+                final Location loc = p.getLocation().clone();
+                op.spyOldGm = p.getGameMode(); //!! до setGameMode
                 p.setGameMode(GameMode.SPECTATOR);
-                p.teleport(tgt);
-                //p.setSpectatorTarget(tgt);
                 tgt.hidePlayer(Ostrov.instance, p);
+                p.teleport(tgt);
+                Ostrov.sync(() -> {
+                    p.setSpectatorTarget(tgt);
+                    op.spyOrigin = loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
+                    ScreenUtil.sendActionBarDirect(p, "§bПриседание - закончить наблюдение");
+                }, 5);
+                //p.setSpectatorTarget(tgt);
+                //op.spyOrigin =loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
+                //tgt.hidePlayer(Ostrov.instance, p);
                 op.tag.visible(false);
                 //final String nameArg = tgt.getName();
 
-                new BukkitRunnable() {
-                    final GameMode oldGamemode = p.getGameMode();
+              /*  new BukkitRunnable() {
 
                     @Override
                     public void run() {
@@ -119,15 +127,18 @@ public class SpyCmd implements OCommand {
                             //    p.setSpectatorTarget(tgt);
                             //}
                             final int distance = LocUtil.getDistance(p.getLocation(), t.getLocation());
-                            if (distance > 20) {
+                            if (distance > 5) {
                                 p.teleport(t);
-                            } else if (distance > 15) {
+                            } else if (distance > 2) {
                                 ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §4" + distance);
                             }
                             if (distance > 10) {
                                 ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §6" + distance);
                             } else {
                                 ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §a" + distance);
+                            }
+                            if (p.getSpectatorTarget()!=null) {
+                                p.setSpectatorTarget(null);
                             }
                         }
                     }
@@ -145,7 +156,8 @@ public class SpyCmd implements OCommand {
                         this.cancel();
                     }
 
-                }.runTaskTimer(Ostrov.instance, 3, 11);
+                }.runTaskTimer(Ostrov.instance, 3, 11);*/
+
                 return Command.SINGLE_SUCCESS;
             }))
             .build();

@@ -18,13 +18,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
-import ru.komiss77.enums.Chanell;
-import ru.komiss77.enums.Game;
+import ru.komiss77.enums.*;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
+import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.listener.*;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
@@ -96,6 +97,7 @@ public class Ostrov extends JavaPlugin {
 
         log_ok("§5===== Регистрация каналов Proxy =====");
         for (final Chanell ch : Chanell.values()) {
+          if (ch == Chanell.SKIN && !SkinRestorerHook.USE) continue;
             instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
             instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
         }
@@ -291,11 +293,17 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-
+  @Deprecated
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
     }
+
+  public static void history(final HistoryType type, final Oplayer op, final String msg) {
+    RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
+        "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.getDataString(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
+    ;
+  }
 
 
     public static String dateFromStamp(int stamp_in_second) {

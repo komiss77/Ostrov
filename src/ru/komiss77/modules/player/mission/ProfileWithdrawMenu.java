@@ -11,6 +11,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GlobalLogType;
+import ru.komiss77.enums.HistoryType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -161,7 +162,7 @@ public class ProfileWithdrawMenu implements InventoryProvider {
                     RemoteDB.executePstAsync(p,
                             "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
                     );
-                    Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
+          Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
                     p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
                     p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
                     ApiOstrov.addStat(p, Stat.WD_c);

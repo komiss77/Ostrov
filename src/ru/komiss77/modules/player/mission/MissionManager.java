@@ -31,7 +31,7 @@ import ru.komiss77.utils.inventory.SmartInventory;
 public class MissionManager {
 
     //public static final int WITHDRAW_MIN = 50;
-    public static final int WITHDRAW_MAX = 300;
+    public static final int WITHDRAW_MAX = 500;
 
     protected static final Map<Integer, Mission> missions = new HashMap<>();
     private static final List<RecordData> record = new ArrayList<>();
