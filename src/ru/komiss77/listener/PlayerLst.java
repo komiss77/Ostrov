@@ -1,5 +1,7 @@
 package ru.komiss77.listener;
 
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
@@ -368,6 +370,31 @@ public class PlayerLst implements Listener {
     }
 
 
+  //@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+  //public void onTeleport(final PlayerStartSpectatingEntityEvent e) {
+  //  e.getPlayer().sendMessage("PlayerStartSpectatingEntityEvent");
+  //}
+
+  @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+  public void onSpectateEnd(final PlayerStopSpectatingEntityEvent e) {
+    final Player p = e.getPlayer();
+    final Oplayer op = PM.getOplayer(p);
+    if (op == null) return;
+    if (op.spyOrigin != null && e.getSpectatorTarget().getType() == EntityType.PLAYER) {
+      p.setGameMode(op.spyOldGm);
+      final Location loc = op.spyOrigin;
+      op.spyOrigin = null; //обнулить до ТП или не даст в PlayerTeleportEvent
+      p.teleport(loc);
+      //Ostrov.sync(() -> p.setGameMode(oldGamemode), 1);
+      final Player target = (Player) e.getSpectatorTarget();
+      target.showPlayer(Ostrov.instance, p);
+      op.tag.visible(true);
+      //p.resetTitle();
+      p.sendMessage("§6Наблюдение закончено");
+      //e.setCancelled(true); //шпиону не давать ТП
+      //p.sendMessage("§6В режиме шпиона нельзя вселяться.");
+    }
+  }
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onTeleport(final PlayerTeleportEvent e) {//перед тп в другой мир
         if (GM.GAME.type == ServerType.ARENAS || GM.GAME.type == ServerType.LOBBY) return;
@@ -376,6 +403,11 @@ public class PlayerLst implements Listener {
         final Oplayer op = PM.getOplayer(p);
         if (op == null) return;
 
+      if (op.spyOrigin != null) {// && e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
+        e.setCancelled(true); //шпиону не давать ТП
+        p.sendMessage("§6В режиме шпиона нельзя перемещаться");
+        return;
+      }
         final String world_from = e.getFrom().getWorld().getName();
         final String world_to = e.getTo().getWorld().getName();
 

@@ -10,7 +10,7 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
-import ru.komiss77.enums.GlobalLogType;
+import ru.komiss77.enums.HistoryType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
@@ -44,7 +44,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
         if (ril < min || ril > MissionManager.WITHDRAW_MAX) {
 
-            content.set(2, 2, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
+          content.set(2, 2, ClickableItem.empty(new ItemBuilder(Material.MAGENTA_DYE)
                 .name("§5Вывод средств возможен от §b" + min + " до " + MissionManager.WITHDRAW_MAX + "рил")
                 .lore("")
                 .lore("§7Расчёт мин. суммы такой:")
@@ -71,7 +71,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
         if (GM.GAME != Game.LOBBY) {
 
-            content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
+          content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.MAGENTA_DYE)
                     .name("§4✕ §6Надо Находиться в лобби")
                     .lore("")
                     .lore("§7Перейдите в лобби")
@@ -96,7 +96,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
         if (op.getDataString(Data.PHONE).isEmpty()) {
 
-            content.set(2, 4, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
+          content.set(2, 4, ClickableItem.of(new ItemBuilder(Material.MAGENTA_DYE)
                     .name("§4✕ §6Не указан номер телефона в профиле")
                     .lore("")
                     .lore("§7Оттедактируйте профиль")
@@ -123,7 +123,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
         if (op.getDataString(Data.NOTES).isEmpty()) {
 
-            content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.GRAY_DYE)
+          content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.MAGENTA_DYE)
                     .name("§4✕ §6Не указано куда переводить в примечаниях")
                     .lore("")
                     .lore("§7Оттедактируйте 'примечания'")
@@ -212,7 +212,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
                 RemoteDB.executePstAsync(p,
                     "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
                 );
-                Ostrov.globalLog(GlobalLogType.WITHDRAW_RIL, op.nik, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
+              Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
                 p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
                 p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
                 ApiOstrov.addStat(p, Stat.WD_c);

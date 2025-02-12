@@ -27,6 +27,7 @@ public enum HistoryType {
 
     MONEY_REAL_USE("расходование средств", "GOLD_INGOT"),
     MONEY_REAL_ADD("пополнение счёта", "GOLD_INGOT"),
+  MONEY_REAL_WITHDRAW("заявка на вывод", "GOLD_INGOT"),
 
     SESSION_INFO("сессия", "GRAY_DYE"),
     PASS_CHANGE("смена пароля", "MAGENTA_GLAZED_TERRACOTTA"),

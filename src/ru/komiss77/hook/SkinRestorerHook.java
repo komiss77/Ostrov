@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Chanell;
@@ -29,6 +30,7 @@ import ru.komiss77.utils.inventory.*;
 
 public class SkinRestorerHook {
 
+  public static final boolean USE = false;
     protected static final String TEXTURES_NAME;
     private static final Map<Integer, Map<String, String>> cache;
 
@@ -38,6 +40,8 @@ public class SkinRestorerHook {
     }
 
     public static void openGui(final Player p, final int page) {
+      ApiOstrov.executeBungeeCmd(p, "skins");
+      if (1 == 1) return;
         final Map<String, String> skinList = cache.get(page);
         if (skinList == null) {
             requestPage(p, page);
