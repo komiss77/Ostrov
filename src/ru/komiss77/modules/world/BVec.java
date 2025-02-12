@@ -15,7 +15,6 @@ public class BVec implements Cloneable {
 
     public static final String SPLIT = StringUtil.SPLIT_1;
 
-    private static final BVec EBV = BVec.of();
     private static final byte[] EIA = {};
 
     public int x, y, z;
@@ -24,17 +23,17 @@ public class BVec implements Cloneable {
         this.x = x; this.y = y; this.z = z;
     }
 
-    public byte[] vals() {return EIA;}
-    public BVec wals(final World w, final byte[] vals) {
-        return of(w, x, y, z, vals);
-    }
-
     public @Nullable World w() {return null;}
     public BVec w(final String wname) {
         return of(wname, x, y, z);
     }
     public BVec w(final World w) {
         return of(w, x, y, z);
+    }
+
+    public byte[] vals() {return EIA;}
+    public BVec wals(final World w, final byte[] vals) {
+        return of(w, x, y, z, vals);
     }
 
     public BVec add(final int x, final int y, final int z) {
@@ -80,7 +79,7 @@ public class BVec implements Cloneable {
     /*public @Nullable Location center() {return null;}
     public @Nullable Block block() {return null;}*/
     public Location center(final World w) {
-        return new Location(w, x, y, z);
+        return new Location(w, x + 0.5d, y + 0.5d, z + 0.5d);
     }
     public Block block(final World w) {
         return w.getBlockAt(x, y, z);

@@ -39,7 +39,7 @@ public class MoveUtil {
             if (BlockType.BUBBLE_COLUMN.equals(bt)) return true;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() > 4;
-                case final Waterlogged sn -> sn.isWaterlogged() || bt.isSolid();
+                case final Waterlogged sn -> sn.isWaterlogged() || bt.hasCollision();
                 case final Levelled lv -> lv.getLevel() == 0 //вода для кувшинок
                     && BlockType.WATER.equals(bt);
                 default -> bt.isSolid();
@@ -50,9 +50,9 @@ public class MoveUtil {
             if (BlockType.BUBBLE_COLUMN.equals(bt)) return false;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
-                case final Waterlogged sn -> !sn.isWaterlogged() && !bt.isSolid();
-                case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
-                    && BlockType.WATER.equals(bt);
+                case final Waterlogged sn -> !sn.isWaterlogged() && !bt.hasCollision();
+                case final Levelled lv -> lv.getLevel() > 0 && lv.getLevel() < 8
+                    && BlockType.WATER.equals(bt); //не падающая вода
                 default -> LocUtil.isPassable(bt);
             };
         },
@@ -62,8 +62,8 @@ public class MoveUtil {
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
                 case final Waterlogged sn -> !sn.isWaterlogged() && !bt.isSolid();
-                case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
-                    && BlockType.WATER.equals(bt);
+                case final Levelled lv -> lv.getLevel() > 0 && lv.getLevel() < 8
+                    && BlockType.WATER.equals(bt); //не падающая вода
                 default -> LocUtil.isPassable(bt);
             };
         }
@@ -123,7 +123,7 @@ public class MoveUtil {
                 public void run() {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
-                        || new WXYZ(b).distAbs(pl.getLocation()) > 3) {
+                        || BVec.of(b).distAbs(pl.getLocation()) > 3) {
                         BlockUtil.set(b, BlockType.AIR, false);
                         this.cancel();
                     }

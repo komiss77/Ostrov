@@ -608,11 +608,17 @@ public class TCUtil {
             fin = fin.replace(STYLE + en.getKey().toString(), "<" + rpl + ">");
         }
         fin = fin.replace(STYLE + "k", "<obf>");
+        fin = fin.replace(STYLE + "K", "<obf>");
         fin = fin.replace(STYLE + "l", "<b>");
+        fin = fin.replace(STYLE + "L", "<b>");
         fin = fin.replace(STYLE + "m", "<st>");
+        fin = fin.replace(STYLE + "M", "<st>");
         fin = fin.replace(STYLE + "n", "<u>");
+        fin = fin.replace(STYLE + "N", "<u>");
         fin = fin.replace(STYLE + "o", "<i>");
+        fin = fin.replace(STYLE + "O", "<i>");
         fin = fin.replace(STYLE + "r", "<r>");
+        fin = fin.replace(STYLE + "R", "<r>");
         for (final Entry<String, CustomTextColor> en : CustomTextColor.VALUES.entrySet()) {
             fin = fin.replace(":" + en.getKey(), ":#" + Integer.toHexString(en.getValue().value()));
         }
