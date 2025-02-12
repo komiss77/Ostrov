@@ -50,7 +50,7 @@ public class MoveUtil {
             if (BlockType.BUBBLE_COLUMN.equals(bt)) return false;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
-                case final Waterlogged sn -> !sn.isWaterlogged();
+                case final Waterlogged sn -> !sn.isWaterlogged() && !bt.isSolid();
                 case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
                     && BlockType.WATER.equals(bt);
                 default -> LocUtil.isPassable(bt);
@@ -61,7 +61,7 @@ public class MoveUtil {
             if (BlockType.BUBBLE_COLUMN.equals(bt)) return false;
             return switch (dt) {
                 case final Snow sn -> sn.getLayers() < 5;
-                case final Waterlogged sn -> !sn.isWaterlogged();
+                case final Waterlogged sn -> !sn.isWaterlogged() && !bt.isSolid();
                 case final Levelled lv -> lv.getLevel() < 8 //не падающая вода
                     && BlockType.WATER.equals(bt);
                 default -> LocUtil.isPassable(bt);
@@ -78,7 +78,7 @@ public class MoveUtil {
     private static final Set<BlockType> WATERS = Set.of(BlockType.WATER, BlockType.BUBBLE_COLUMN);
     public static boolean safeTP(final Player p, final Location feetLoc) {
         final Location finLoc;
-        final World w = p.getWorld();
+        final World w = feetLoc.getWorld();
         final BVec loc = new LocFinder(BVec.of(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
         if (loc == null) {
             final BVec alc = new LocFinder(BVec.of(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
