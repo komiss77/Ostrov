@@ -146,7 +146,7 @@ public class Nms {
   public static void totemPop(final Player p, final ItemStack totem) {
     fakeItem(p, new ItemBuilder(totem).set(DataComponentTypes.DEATH_PROTECTION,
         DeathProtection.deathProtection().build()).build(), OFH_SLOT);
-    sendPacket(p, new ClientboundEntityEventPacket(Craft.toNMS(p), EntityEffect.TOTEM_RESURRECT.getData()));
+    sendPacket(p, new ClientboundEntityEventPacket(Craft.toNMS(p), EntityEffect.PROTECTED_FROM_DEATH.getData()));
     fakeItem(p, p.getInventory().getItemInOffHand(), OFH_SLOT);
   }
 
@@ -155,7 +155,7 @@ public class Nms {
     final ItemStack ofh = inv.getItemInOffHand();
     inv.setItemInOffHand(new ItemBuilder(totem).set(DataComponentTypes.DEATH_PROTECTION,
         DeathProtection.deathProtection().build()).build());
-    p.playEffect(EntityEffect.TOTEM_RESURRECT);
+    p.playEffect(EntityEffect.PROTECTED_FROM_DEATH);
     inv.setItemInOffHand(ofh);
   }
 
@@ -439,10 +439,12 @@ public class Nms {
     if (success) sl.sendBlockUpdated(mutableBlockPosition, old, curr, 3);
   }
 
+  @Deprecated
   public enum PlaceType {
-    SAFELY, FLUID, AIR, DANGEROUS;
+    SAFELY, FLUID, AIR, DANGEROUS
   }
 
+  @Deprecated
   public static PlaceType isSafeLocation(WXYZ feetXYZ) {
     final ServerLevel sl = Craft.toNMS(feetXYZ.w);
     //final ServerPlayer sp = p==null ? null : Craft.toNMS(p);
@@ -594,6 +596,7 @@ public class Nms {
     return CraftEntityTypes.getEntityTypeData(cls).entityType();
   }
 
+  @Deprecated
   public static void sendBlockCrack(final Player p, final WXYZ bl, final float state) {
     p.sendBlockDamage(bl.getCenterLoc(), state);
   }

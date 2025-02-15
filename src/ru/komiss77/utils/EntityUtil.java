@@ -37,16 +37,43 @@ public class EntityUtil {
         return null;
     }
 
+    private static final float MAX_EXH = 4f;
+    public static boolean food(final HumanEntity he, float amt) {
+        final float sat = he.getSaturation();
+        if (sat != 0f) {
+            if (sat >= amt) {
+                he.setSaturation(sat - amt);
+                return true;
+            }
+            he.setSaturation(0f);
+            amt -= sat;
+        }
+        final int rem;
+        final int food = (int) amt;
+        final float exh = (amt - food) * MAX_EXH + he.getExhaustion(); //0 to 4
+        if (exh > MAX_EXH) {
+            he.setExhaustion(exh - MAX_EXH);
+            rem = he.getFoodLevel() - food - 1;
+        } else {
+            he.setExhaustion(exh);
+            rem = he.getFoodLevel() - food;
+        }
+        if (rem < 0) {
+            he.setFoodLevel(0);
+            return false;
+        }
+        he.setFoodLevel(rem);
+        return true;
+    }
+
     public static List<Projectile> shoot(final LivingEntity shooter, final ItemStack prj) {
         ItemStack weapon = shooter.getEquipment().getItemInMainHand();
 
-        if (!ItemType.BOW.equals(weapon.getType().asItemType())
-            && !ItemType.CROSSBOW.equals(weapon.getType().asItemType())) {
+        if (!ItemUtil.is(weapon, ItemType.BOW) && !ItemUtil.is(weapon, ItemType.CROSSBOW)) {
             weapon = shooter.getEquipment().getItemInOffHand();
         }
 
-        if (!ItemType.BOW.equals(weapon.getType().asItemType())
-            && !ItemType.CROSSBOW.equals(weapon.getType().asItemType())) {
+        if (!ItemUtil.is(weapon, ItemType.BOW) && !ItemUtil.is(weapon, ItemType.CROSSBOW)) {
             return List.of();
         }
 
