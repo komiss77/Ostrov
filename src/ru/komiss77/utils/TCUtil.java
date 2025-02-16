@@ -561,7 +561,8 @@ public class TCUtil {
         return MiniMessage.miniMessage().stripTags(deLegacify(str));
     }
 
-    public static String strip(final Component cmp) {
+    public static String strip(final @Nullable Component cmp) {
+        if (cmp == null) return "";
         final StringBuilder sb = new StringBuilder();
         if (cmp instanceof TextComponent) {
             sb.append(strip(((TextComponent) cmp).content()));
@@ -957,6 +958,7 @@ public class TCUtil {
         }
     }*/
 
+    @Deprecated
     public static boolean has(final Component parent, final Component has) {
         return parent.contains(has);
     }
@@ -1092,13 +1094,7 @@ public class TCUtil {
     // private record Gradient(TextColor init, int start, boolean ext) {}
 
     public static boolean compare(final Component of, final Component to) {
-        ////defom делает какое-то месиво вроде <!italic><!underlined><!strikethrough><!bold><!obfuscated><red>
-        ////имя не сравнивает нормально,посыпались предметы меню на минииграх
-        //пока такой фикс
-        //return strip(deform(of)).equals(strip(deform(to)));
-        //return deform(of).equals(deform(to));
         return strip(of).equals(strip(to));
-//        return GameApi.fromComponent(of).equals(GameApi.fromComponent(to));
     }
 
     //надо для скайблока
