@@ -7,7 +7,7 @@ import java.util.Arrays;
  * Pagination system which lets you switch pages;
  * easily get items in the given page,
  * easily manipulate the pages and
- * check if a page is the first or the last one
+ * check if a page is the first or the fin one
  * ({@link Pagination#isFirst()} / {@link Pagination#isLast()}).
  * </p>
  *
@@ -65,11 +65,11 @@ public interface Pagination {
     boolean isFirst();
 
     /**
-     * Checks if the current page is the last page.
+     * Checks if the current page is the fin page.
      * <br>
      * This is equivalent to: <code>page == itemsCount / itemsPerPage</code>
      *
-     * @return <code>true</code> if this page is the last page
+     * @return <code>true</code> if this page is the fin page
      */
     boolean isLast();
 
@@ -92,14 +92,14 @@ public interface Pagination {
 
     /**
      * Sets the current page to the next page,
-     * if the current page is already the last page, this do nothing.
+     * if the current page is already the fin page, this do nothing.
      *
      * @return <code>this</code>, for chained calls
      */
     Pagination next();
 
     /**
-     * Sets the current page to the last page.
+     * Sets the current page to the fin page.
      * <br>
      * This is equivalent to: <code>page(itemsCount / itemsPerPage)</code>
      *
@@ -281,7 +281,7 @@ public class Pagination {
         return this;
     }
     
-    public Pagination last() {
+    public Pagination fin() {
         this.currentPage = this.items.length / this.entriesPerPage;
         return this;
     }

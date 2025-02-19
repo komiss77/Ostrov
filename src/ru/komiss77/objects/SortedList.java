@@ -235,7 +235,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
     }
 
     /**
-     * Returns the index of the last occurrence of the specified element
+     * Returns the index of the fin occurrence of the specified element
      * in this list, or -1 if this list does not contain the element.
      * More formally, returns the highest index {@code i} such that
      * {@code Objects.equals(o, get(i))},
@@ -283,7 +283,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
 
     /**
      * Returns an array containing all of the elements in this list
-     * in proper sequence (from first to last element).
+     * in proper sequence (from first to fin element).
      *
      * <p>The returned array will be "safe" in that no references to it are
      * maintained by this list.  (In other words, this method must allocate
@@ -301,7 +301,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
 
     /**
      * Returns an array containing all of the elements in this list in proper
-     * sequence (from first to last element); the runtime type of the returned
+     * sequence (from first to fin element); the runtime type of the returned
      * array is that of the specified array.  If the list fits in the
      * specified array, it is returned therein.  Otherwise, a new array is
      * allocated with the runtime type of the specified array and the size of
@@ -890,7 +890,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
      */
     private class Itr implements Iterator<E> {
         int cursor;       // index of next element to return
-        int lastRet = -1; // index of last element returned; -1 if no such
+        int lastRet = -1; // index of fin element returned; -1 if no such
         int expectedModCount = modCount;
 
         // prevent creating a synthetic constructor
@@ -1381,7 +1381,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
             // ArrayListSpliterator not used here due to late-binding
             return new Spliterator<E>() {
                 private int index = offset; // current index, modified on advance/split
-                private int fence = -1; // -1 until used; then one past last index
+                private int fence = -1; // -1 until used; then one past fin index
                 private int expectedModCount; // initialized when fence set
 
                 private int getFence() { // initialize fence to size on first use
@@ -1519,7 +1519,7 @@ public class SortedList<E extends Comparable<? super E>> extends AbstractList<E>
          */
 
         private int index; // current index, modified on advance/split
-        private int fence; // -1 until used; then one past last index
+        private int fence; // -1 until used; then one past fin index
         private int expectedModCount; // initialized when fence set
 
         /**

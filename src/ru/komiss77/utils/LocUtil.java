@@ -159,13 +159,13 @@ public class LocUtil {
 
     @Deprecated
     public static Player getNearestPlayer(final Player p, final int maxDist) {
-        final int pId = p.getEntityId();
-        return getNearPl(new WXYZ(p.getLocation()), maxDist, pl -> pl.getEntityId() != pId);
+        final int pId = p.getEntityId(); final WXYZ loc = new WXYZ(p.getLocation());
+        return getNearPl(BVec.of(loc.worldName, loc.x, loc.y, loc.z), maxDist, pl -> pl.getEntityId() != pId);
     }
 
     @Deprecated
     public static Player getNearestPlayer(final Location loc, final int maxDist) {
-        return getNearPl(new WXYZ(loc), maxDist, null);
+        return getNearPl(loc, maxDist, null);
     }
 
     @Slow(priority = 1)
@@ -183,7 +183,7 @@ public class LocUtil {
     }
 
     @Slow(priority = 1)
-    public static @Nullable Player getNearPl(final WXYZ loc, final int dst, final @Nullable Predicate<Player> which) {
+    public static @Nullable Player getNearPl(final BVec loc, final int dst, final @Nullable Predicate<Player> which) {
         final int X = loc.x, Y = loc.y, Z = loc.z;
         double dS = dst * dst;
         Player fin = null;
@@ -460,13 +460,13 @@ public class LocUtil {
             final BlockData bd = Nms.fastData(w, mapX, mapY, mapZ);
             final BlockPosition bp = Position.block(mapX, mapY, mapZ);
             if (done.test(bp, bd)) {
-                return new TraceResult(info, new WXYZ(w, mapX, mapY, mapZ), false);
+                return new TraceResult(info, BVec.of(w, mapX, mapY, mapZ), false);
             }
 
             info.add(new Duo<>(bp, bd));
             if ((mapX - finX) * stepX > 0 || (mapY - finY) * stepY > 0 || (mapZ - finZ) * stepZ > 0) {
                 final BlockPosition lbp = info.getLast().key();
-                return new TraceResult(info, new WXYZ(w, lbp.blockX(), lbp.blockY(), lbp.blockZ()), true);
+                return new TraceResult(info, BVec.of(w, lbp.blockX(), lbp.blockY(), lbp.blockZ()), true);
             }
         }
     }
@@ -475,10 +475,10 @@ public class LocUtil {
         boolean test(final BlockPosition pos, final BlockData data);
     }
 
-    public record TraceResult(List<Duo<BlockPosition, BlockData>> posData, WXYZ last, boolean endDst) {
+    public record TraceResult(List<Duo<BlockPosition, BlockData>> posData, BVec fin, boolean endDst) {
         @Slow(priority = 2)
         public List<Block> blocks() {
-            final World w = last.w(); if (w == null) return List.of();
+            final World w = fin.w(); if (w == null) return List.of();
             return posData.stream().map(bs -> w.getBlockAt(bs.key().toLocation(w))).toList();
         }
 
@@ -487,6 +487,11 @@ public class LocUtil {
             for (final Duo<BlockPosition, BlockData> pd : posData)
                 if (pd.key().equals(pos)) return true;
             return false;
+        }
+
+        @Deprecated
+        public WXYZ last() {
+            return new WXYZ(fin.w(), fin.x, fin.y, fin.z);
         }
     }
 

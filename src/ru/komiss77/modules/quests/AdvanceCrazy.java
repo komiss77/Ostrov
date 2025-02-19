@@ -32,7 +32,6 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.quests.Quest.QuestFrame;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.NumUtil;
-import ru.komiss77.utils.ParticleUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -247,11 +246,10 @@ public class AdvanceCrazy implements IAdvance, Listener {
         if (ad != null && new QuestCompleteEvent(p, q).callEvent()) {
             mgr.grantAdvancement(p, ad);
             if (!silent) {
-                ParticleUtil.spawnRandomFirework(p.getLocation());
-                final String chatColor = TCUtil.randomColor();
+//                ParticleUtil.spawnRandomFirework(p.getLocation());
+                final String chatColor = TCUtil.randomColor(true);
                 p.sendMessage(" ");
-                p.sendMessage(TCUtil.form(chatColor + "<u>=-=-<!u> <obf>AA<!obf> §eВыполнены условия достижения <obf>AA<!obf> " + chatColor + "<u>-=-=<!u>"));
-                p.sendMessage(TCUtil.form(chatColor + q.displayName + " §f: §aКвест завершен!"));
+                p.sendMessage(TCUtil.form(chatColor + "<u>=-<!u> <obf>AA<!obf> §eВыполнено: " + q.displayName + chatColor + " <obf>AA<!obf> <u>-=<!u>"));
                 p.sendMessage(" ");
                 ad.displayToast(p);
             }

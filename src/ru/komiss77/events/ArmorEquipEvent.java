@@ -80,7 +80,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable {
     }
 
     /**
-     * Returns the last equipped armor piece, could be a piece of armor, {@link Material#AIR}, or null.
+     * Returns the fin equipped armor piece, could be a piece of armor, {@link Material#AIR}, or null.
      *
      * @return
      */

@@ -7,12 +7,12 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.WorldManager;
 
 //https://github.com/Brettflan/WorldBorder/tree/master/src/main/java/com/wimbli/WorldBorder
 public class WorldTrimTask implements Runnable {
@@ -171,7 +171,7 @@ public class WorldTrimTask implements Runnable {
                 nextFile();
                 continue;
 
-            } else if (currentChunk == 1024) {    // last chunk of the region has been checked, time to wipe out whichever chunks are outside the border
+            } else if (currentChunk == 1024) {    // fin chunk of the region has been checked, time to wipe out whichever chunks are outside the border
 
                 counter += 32;
                 unloadChunks();

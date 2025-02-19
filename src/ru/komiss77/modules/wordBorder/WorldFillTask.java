@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.WorldManager;
 
 //https://github.com/Brettflan/WorldBorder/tree/master/src/main/java/com/wimbli/WorldBorder
 public class WorldFillTask implements Runnable {
@@ -179,7 +179,7 @@ public class WorldFillTask implements Runnable {
             worldData.chunkExistsNow(cX, cZ);
 
             // There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
-            // So, we keep the last few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
+            // So, we keep the fin few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
             int popX = !isZLeg ? cX : (cX + (isNeg ? -1 : 1));
             int popZ = isZLeg ? cZ : (cZ + (!isNeg ? -1 : 1));
             world.loadChunk(popX, popZ, false);
@@ -250,7 +250,7 @@ public class WorldFillTask implements Runnable {
             }
         }
 
-        // keep track of the last chunk we were at
+        // keep track of the fin chunk we were at
         lastChunk.x = cX;
         lastChunk.z = cZ;
 

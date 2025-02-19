@@ -80,7 +80,7 @@ public class EntityCmd implements Listener, OCommand {
 
     @Override
     public Set<String> aliases() {
-        return Set.of("");
+        return Set.of();
     }
 
     @Override

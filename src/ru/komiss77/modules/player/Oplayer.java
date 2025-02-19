@@ -47,7 +47,6 @@ import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
-import se.file14.procosmetics.nms.p;
 
 
 public class Oplayer {
@@ -160,7 +159,7 @@ public class Oplayer {
             if (look != lookSum) {
                 lookSum = look;
                 if (time - lookStamp > 60) ScreenUtil.sendTitleDirect(p, "",
-                    "<olive>С Возвращением!", 8, 40, 20);
+                    "<olive>✨ С Возвращением! ✨", 8, 20, 20);
                 lookStamp = time;
             } else {
                 final int afk = time - lookStamp;

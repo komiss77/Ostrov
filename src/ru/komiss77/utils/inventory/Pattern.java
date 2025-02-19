@@ -153,7 +153,7 @@ public class Pattern<T> {
 
     /**
      * Searches through this patterns lines to find all occurrences of this key.
-     * The first position is the most top-left and the last position is the most bottom-right one.
+     * The first position is the most top-left and the fin position is the most bottom-right one.
      * <br>
      * If the key isn't contained in this pattern, the returned list will be empty.
      *

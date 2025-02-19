@@ -24,6 +24,7 @@ public class BVec implements Cloneable {
     }
 
     public @Nullable World w() {return null;}
+    public @Nullable String wname() {return null;}
     public BVec w(final String wname) {
         return of(wname, x, y, z);
     }
@@ -205,6 +206,7 @@ public class BVec implements Cloneable {
         }
 
         public @Nullable World w() {return Bukkit.getWorld(world);}
+        public @Nullable String wname() {return world;}
 
         public boolean equals(final Object o) {
             if (!(o instanceof WBVec bv)) return false;
@@ -264,6 +266,7 @@ public class BVec implements Cloneable {
         }
 
         public @Nullable World w() {return Bukkit.getWorld(world);}
+        public @Nullable String wname() {return world;}
         public BVec w(final String wname) {
             return of(wname, x, y, z, vals);
         }

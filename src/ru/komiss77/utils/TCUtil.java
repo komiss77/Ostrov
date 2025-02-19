@@ -303,6 +303,8 @@ public class TCUtil {
             case 'н' -> "Небесн";
             case 'ч' -> "Черств";
             case 'м' -> "Мифрилов";
+            case 'т' -> "Мятн";
+            case 'л' -> "Лилов";
             default -> "Бел";
         };
         return (clrz ? "§" + color + cnm : cnm) + end;
@@ -351,6 +353,7 @@ public class TCUtil {
         };
     }
 
+    @Deprecated
     public static String randomColor() {
         return randomColor(false);
     }
@@ -377,13 +380,15 @@ public class TCUtil {
             case 23 -> "§к";
             case 24 -> "§ч";
             case 25 -> "§м";
+            case 26 -> "§т";
+            case 27 -> "§л";
             default -> "§f";
         };
     }
 
     public static char[] getColors(final boolean extra) {
         return extra ? new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            'a', 'b', 'c', 'd', 'e', 'f', 'я', 'н', 'б', 'р', 'о', 'ф', 'с', 'к', 'ч', 'м'}
+            'a', 'b', 'c', 'd', 'e', 'f', 'я', 'н', 'б', 'р', 'о', 'ф', 'с', 'к', 'ч', 'м', 'т', 'л'}
             : new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     }
 
@@ -896,21 +901,21 @@ public class TCUtil {
             final Style.Builder stb = Style.style().decoration(TextDecoration.ITALIC, false);
             if (gradTo == null || sb.length() == 1) {
                 final EnumSet<TextDecoration> decs = EnumSet.noneOf(TextDecoration.class);
-                int last = 0;
+                int fin = 0;
                 if (!dec.isEmpty()) {
                     for (final Entry<TextDecoration, Integer> en : dec.entrySet()) {
                         final int end = en.getValue();
-                        if (last != end) {
-                            comps.add(Component.text(sb.substring(last, end),
+                        if (fin != end) {
+                            comps.add(Component.text(sb.substring(fin, end),
                                 stb.decorations(decs, true).color(color).build()));
-                            last = end;
+                            fin = end;
                         }
                         decs.add(en.getKey());
                     }
                 }
 
-                if (last != sb.length()) {
-                    comps.add(Component.text(sb.substring(last, sb.length()),
+                if (fin != sb.length()) {
+                    comps.add(Component.text(sb.substring(fin, sb.length()),
                         stb.decorations(decs, true).color(color).build()));
                 }
             } else if (color != null) {

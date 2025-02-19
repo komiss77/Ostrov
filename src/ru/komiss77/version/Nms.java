@@ -570,6 +570,7 @@ public class Nms {
     }
   }
 
+  @Deprecated
   @Slow(priority = 1)
   public static FoodComponent getFood(final ItemStack it) {
     final FoodComponent fc = it.getItemMeta().getFood();
@@ -626,6 +627,14 @@ public class Nms {
   public static void swing(final LivingEntity le, final EquipmentSlot hand) {
     Craft.toNMS(le).swinging = false;
     le.swingHand(hand);
+  }
+
+  public static void noFallDmg(final Player pl) {
+    Craft.toNMS(pl).setIgnoreFallDamageFromCurrentImpulse(true);
+  }
+
+  public static boolean hasFallDmg(final Player pl) {
+    return !Craft.toNMS(pl).isIgnoringFallDamageFromCurrentImpulse();
   }
 
   public static void setAggro(final Mob le, final boolean aggro) {

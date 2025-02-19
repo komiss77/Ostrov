@@ -95,8 +95,8 @@ public class NtpV3Impl implements NtpV3Packet {
     /***
      * Returns leap indicator as defined in RFC-1305 which is a two-bit code:
      *  0=no warning
-     *  1=last minute has 61 seconds
-     *  2=last minute has 59 seconds
+     *  1=fin minute has 61 seconds
+     *  2=fin minute has 59 seconds
      *  3=alarm condition (clock not synchronized)
      *
      * @return leap indicator as defined in RFC-1305.

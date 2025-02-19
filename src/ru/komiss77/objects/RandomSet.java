@@ -1,13 +1,6 @@
 package ru.komiss77.objects;
 
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 import ru.komiss77.Ostrov;
 
 public class RandomSet<E> extends AbstractSet<E> {
@@ -36,7 +29,7 @@ public class RandomSet<E> extends AbstractSet<E> {
     }
 
     /**
-     * Override element at position <code>id</code> with last element.
+     * Override element at position <code>id</code> with fin element.
      *
      * @param id
      */
@@ -47,7 +40,7 @@ public class RandomSet<E> extends AbstractSet<E> {
         E res = dta.get(id);
         idx.remove(res);
         E last = dta.remove(dta.size() - 1);
-        // skip filling the hole if last is removed
+        // skip filling the hole if fin is removed
         if (id < dta.size()) {
             idx.put(last, id);
             dta.set(id, last);

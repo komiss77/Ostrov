@@ -21,14 +21,14 @@ public interface SlotIterator {
         /**
          * Iterates horizontally from the left to the right
          * of the inventory, and jump to the next line
-         * when the last column is reached.
+         * when the fin column is reached.
          */
         HORIZONTAL,
 
         /**
          * Iterates vertically from the up to the down
          * of the inventory, and jump to the next column
-         * when the last line is reached.
+         * when the fin line is reached.
          */
         VERTICAL
     }
@@ -65,7 +65,7 @@ public interface SlotIterator {
      * the inventory.
      * <br>
      * This has no effect if the cursor is already
-     * at the last position of the inventory.
+     * at the fin position of the inventory.
      *
      * @return <code>this</code>, for chained calls
      */
@@ -161,7 +161,7 @@ public interface SlotIterator {
     /**
      * Checks if this iterator has been ended.
      * <br>
-     * An iterator is not ended until it has reached the last
+     * An iterator is not ended until it has reached the fin
      * slot of the inventory.
      *
      * @return <code>true</code> if this iterator has been ended

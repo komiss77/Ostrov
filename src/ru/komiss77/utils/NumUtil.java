@@ -210,8 +210,12 @@ public class NumUtil {
     }
 
     public static int rndSignNum(int init, final int rnd) {
-      if (rnd > 0) init += Ostrov.random.nextInt(rnd);
-      return Ostrov.random.nextBoolean() ? init : -init;
+      if (rnd > 0) init += Ostrov.random.nextInt(rnd + 1);
+      return randSign() * init;
+    }
+
+    public static int randSign() {
+        return (Ostrov.random.nextInt(2) - 1) | 1;
     }
 
     public static boolean isInt(final String i) {

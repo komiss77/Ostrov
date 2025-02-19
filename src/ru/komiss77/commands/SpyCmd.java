@@ -14,7 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
-import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
@@ -22,7 +21,6 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.inventory.*;
 
@@ -165,7 +163,7 @@ public class SpyCmd implements OCommand {
 
     @Override
     public Set<String> aliases() {
-        return Set.of(""); //альясы на кирилице не робят
+        return Set.of();
     }
 
     @Override
