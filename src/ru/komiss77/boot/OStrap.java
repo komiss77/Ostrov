@@ -90,8 +90,7 @@ public class OStrap implements PluginBootstrap {
     @Nullable
     @Deprecated
     public static <E extends Keyed> E retrieve(final RegistryKey<E> reg, final Key key) {
-        final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
-        return rg.get(TypedKey.create(reg, key));
+        return RegistryAccess.registryAccess().getRegistry(reg).get(key);
     }
 
     @Deprecated

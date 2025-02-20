@@ -9,7 +9,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
-import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.world.AreaSpawner;
 import ru.komiss77.modules.world.BVec;
 import ru.komiss77.notes.OverrideMe;
@@ -45,7 +45,7 @@ public abstract class CustomEntity implements Keyed {
     protected final NamespacedKey key;
 
     protected CustomEntity() {
-        key = new NamespacedKey(Ostrov.instance, this.getClass().getSimpleName());
+        key = OStrap.key(this.getClass().getSimpleName());
         if (Cfg.entities) EntityManager.register(this);
 
         cd = spawnCd();

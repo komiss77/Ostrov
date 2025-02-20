@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import net.kyori.adventure.key.Key;
@@ -238,7 +237,7 @@ public abstract class CustomEnchant implements Keyed {
     public abstract boolean isInTable();
 
     public Enchantment getEnch() {
-        return OStrap.retrieve(RegistryKey.ENCHANTMENT, getKey());
+        return Ostrov.registries.ENCHANTS.get(getKey());
     }
 
     public abstract List<EnchData> act(final Event e, final List<EnchData> data);

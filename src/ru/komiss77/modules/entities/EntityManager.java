@@ -21,7 +21,7 @@ import ru.komiss77.modules.world.BVec;
 
 public class EntityManager implements Initiable, Listener {
 
-    public static BukkitTask spawnTask = null;
+    protected static BukkitTask task = null;
     protected static final HashMap<String, CustomEntity> custom = new HashMap<>();
     protected static final List<CustomEntity> spawns = new ArrayList<>();
 
@@ -30,6 +30,7 @@ public class EntityManager implements Initiable, Listener {
     }
 
     public static void register(final CustomEntity ce) {
+        if (!Cfg.entities) return;
         custom.put(ce.key.value(), ce);
         if (ce.spawner() != null) spawns.add(ce);
     }
@@ -40,13 +41,13 @@ public class EntityManager implements Initiable, Listener {
 
     @Override
     public void reload() {
-        if (spawnTask != null) spawnTask.cancel();
+        if (task != null) task.cancel();
         HandlerList.unregisterAll(this);
         if (!Cfg.entities) return;
 
         Ostrov.log_ok("§2Сущности включены!");
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
-        spawnTask = new BukkitRunnable() {
+        task = new BukkitRunnable() {
             @Override
             public void run() {
                 final Collection<? extends Player> pls = Bukkit.getOnlinePlayers();

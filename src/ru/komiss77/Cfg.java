@@ -70,6 +70,7 @@ public class Cfg {
     public static boolean bots;
     public static boolean items;
     public static boolean entities;
+    public static boolean effects;
     public static boolean signProtect;
     //public static boolean quests; //как бы лишнее. какой-то плагин обратился - значит нужны. если нет адванскрези, будет работать заглушка
 
@@ -141,6 +142,7 @@ public class Cfg {
         bots = cfg.getBoolean("modules.bots");
         entities = cfg.getBoolean("modules.entities");
         items = cfg.getBoolean("modules.items");
+        effects = cfg.getBoolean("modules.effects");
         signProtect = cfg.getBoolean("modules.signProtect");
     }
 
@@ -196,6 +198,7 @@ public class Cfg {
         cfg.addDefault("modules.bots", false);
         cfg.addDefault("modules.entities", false);
         cfg.addDefault("modules.items", false);
+        cfg.addDefault("modules.effects", false);
         cfg.addDefault("modules.signProtect", false);
 
 

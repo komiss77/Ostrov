@@ -8,6 +8,7 @@ import ru.komiss77.modules.Pandora;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.crafts.Crafts;
 import ru.komiss77.modules.displays.DisplayManager;
+import ru.komiss77.modules.effects.EffectManager;
 import ru.komiss77.modules.enchants.EnchantManager;
 import ru.komiss77.modules.entities.EntityManager;
 import ru.komiss77.modules.entities.PvPManager;
@@ -48,6 +49,7 @@ public enum Module {
     items(ItemManager.class),
     redis(RDS.class),
     pvp(PvPManager.class),
+    effects(EffectManager.class),
     ;
 
     public final Class<? extends Initiable> clazz;
