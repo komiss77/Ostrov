@@ -166,11 +166,7 @@ public class PlayerLst implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void toggleFly(final PlayerToggleFlightEvent e) {
         final Player p = e.getPlayer();
-        if (e.isFlying()) {
-            PM.getOplayer(p).tag.seeThru(true);
-            return;
-        }
-        PM.getOplayer(p).tag.seeThru(!p.isSneaking());
+        PM.getOplayer(p).tag.seeThru(e.isFlying() || !p.isSneaking());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -297,9 +293,7 @@ public class PlayerLst implements Listener {
                     return;
                 }
                 final ItemStack it = p.getInventory().getItemInMainHand();
-                if (ItemUtil.isBlank(it, false)) {
-                    break;
-                }
+                if (ItemUtil.isBlank(it, false)) break;
                 final ItemFrame ent;
                 switch (it.getType()) {
                     case GLOWSTONE_DUST -> {
@@ -324,12 +318,7 @@ public class PlayerLst implements Listener {
                             p.getInventory().setItemInMainHand(it.subtract());
                         }
                     }
-                    default -> {
-                    }
                 }
-            }
-
-            default -> {
             }
         }
 
@@ -546,7 +535,7 @@ public class PlayerLst implements Listener {
         switch (GM.GAME.type) {
             case LOBBY:
                 e.setFoodLevel(20);
-                return;
+                break;
             case ARENAS:
                 switch (GM.GAME) {
                     //BB-таблички нужны
@@ -559,7 +548,7 @@ public class PlayerLst implements Listener {
                             e.setFoodLevel(20);
                         break;
                 }
-                return;
+                break;
             case ONE_GAME:
                 switch (GM.GAME) {
                     case PA -> e.setFoodLevel(20);

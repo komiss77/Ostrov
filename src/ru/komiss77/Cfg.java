@@ -174,7 +174,6 @@ public class Cfg {
         cfg.addDefault("player.disable_hungry", false);
         cfg.addDefault("player.disable_break_place", false);
         cfg.addDefault("player.item_lobby_mode", false);
-        cfg.addDefault("player.block_fly_pvp", false);
         cfg.addDefault("player.give_pipboy", false, "выдавать часики при входе");
         cfg.addDefault("player.give_pipboy_slot", 0);
         //config.addDefault("player.invulnerability_on_join_or_teleport", -1);

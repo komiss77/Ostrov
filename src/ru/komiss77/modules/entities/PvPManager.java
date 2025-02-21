@@ -204,7 +204,7 @@ public class PvPManager implements Initiable {
 
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
                 public void EntityDamageByEntityEvent(final EntityDamageByEntityEvent e) {
-                    if (!e.getEntityType().isAlive() || e.getEntityType() == EntityType.ARMOR_STAND) {
+                    if (!e.getEntityType().isAlive()) {
                         return;   //не обрабатывать урон рамкам, опыту и провее
                     }            //System.out.println("EDBE: cause="+e.getCause()+" entity="+e.getEntity()+" damager="+e.getDamager());
 
@@ -1115,6 +1115,7 @@ public class PvPManager implements Initiable {
             if (f == PvpFlag.enable) continue;
             Cfg.getConfig().set(f.name(), en.getValue());
         }
+//        Bukkit.getConsoleSender().sendMessage("trying to save pvp config");
         config.saveConfig();
     }
 }
