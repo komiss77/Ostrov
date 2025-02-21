@@ -1,6 +1,5 @@
 package ru.komiss77.listener;
 
-import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -40,10 +39,14 @@ import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
+import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.StringUtil;
 
 
 public class PlayerLst implements Listener {
@@ -352,14 +355,16 @@ public class PlayerLst implements Listener {
 
         if (Cfg.home_command && op.homes.containsKey("home")) {
             final Player p = e.getPlayer();
-            Location loc = LocUtil.stringToLoc(op.homes.get("home"), false, true);
-            if (!MoveUtil.isSafeLocation(loc)) {
-                loc = MoveUtil.findSafeLocation(new WXYZ(loc)).getCenterLoc();
-            }
+            final Location loc = LocUtil.stringToLoc(op.homes.get("home"), false, true);
             if (loc == null) {
+                p.sendMessage("§cТочка респавна дома сохранена неправильно\n- " + op.homes.get("home"));
+                return;
+            }
+            final BVec flc = new LocFinder(BVec.of(loc)).find(LocFinder.DYrect.BOTH, 3, 1);
+            if (flc == null) {
                 p.sendMessage("§7Не получилось респавниться дома - точка дома может быть опасна.");
             } else {
-                e.setRespawnLocation(loc);
+                e.setRespawnLocation(flc.center(loc.getWorld()));
             }
         }
 
@@ -544,15 +549,6 @@ public class PlayerLst implements Listener {
                 return;
             case ARENAS:
                 switch (GM.GAME) {
-                    case PA -> e.setFoodLevel(20);
-                    case SK, OB, SG -> {
-                        if (StringUtil.isLobby(p.getWorld()))
-                            e.setFoodLevel(20);
-                    }
-                }
-                return;
-            case ONE_GAME:
-                switch (GM.GAME) {
                     //BB-таблички нужны
                     case WZ: break;
                     case TW, SN, HS, QU:
@@ -562,6 +558,15 @@ public class PlayerLst implements Listener {
                         if (StringUtil.isLobby(p.getWorld()))
                             e.setFoodLevel(20);
                         break;
+                }
+                return;
+            case ONE_GAME:
+                switch (GM.GAME) {
+                    case PA -> e.setFoodLevel(20);
+                    case SK, OB, SG -> {
+                        if (StringUtil.isLobby(p.getWorld()))
+                            e.setFoodLevel(20);
+                    }
                 }
         }
     }

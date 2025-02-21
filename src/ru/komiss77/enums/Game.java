@@ -13,71 +13,72 @@ public enum Game {
 
     LOBBY("§6☣1 ", 0, 0, 49, "Hub", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6<obf>0<!obf> §e§lЛобби §6<obf>0<!obf>", Arrays.asList(""), 0, -99),
 
-  DA("§a❂ ", 1, 0, 3, "Daaria", "daaria",
-      ServerType.ONE_GAME, "NETHERITE_SWORD", "§a§lДаария",
-      Arrays.asList("§оКлассическое выживание", "§она последней версии игры.", "§оТорговля, работы, приваты, и др.", "§eЗаходи и развивайся с друзьями!"),
-      0, -99),
-  SE("§4☠ ", 2, 0, 15, "Sedna", "sedna_wastes",
-      ServerType.ONE_GAME, "CRIMSON_NYLIUM", "§4§lСедна",
-      Arrays.asList("§cХардкорный режим с новыми", "§cскиллами, мирами, мобами,", "§cкрафтами, и постройками.", "§eУничтожай местную фауну!", " ", "§4§nНе для новичков. [Бета Тест]"),
-      0, -99),
-  AR("§a☺ ", 3, 0, 11, "Arcaim", "arcaim",
-      ServerType.ONE_GAME, "DIAMOND_PICKAXE", "§e§lАркаим", Arrays.asList("§бТвой собственный мир,", "§бв котором ты полный хозяин!", "§бЛюбой игровой режим.", "§eИграй один или с друзьями!"),
-      0, -99),
-  MI("§5✠ ", 4, 0, 19, "Midgard", "midgard",
-      ServerType.ONE_GAME, "SCULK_SHRIEKER", "§d§lМидгард", Arrays.asList("§5Кланы, оружие, турели, работы.", "§5Создай свою империю!"),
-      0, -99),
-  SK("§f☯ ", 5, 0, 5, "SkyWorld", "skyworld",
-      ServerType.ONE_GAME, "FLOWERING_AZALEA", "§b§lОстрова", Arrays.asList("§нНачни жизнь на крохотном", "§ностровке, добывай ресурсы,", "§ни выполняй задания.", "§eПострой свою империю с нуля!"),
-      0, -99),
-  OB("§b◈ ", 6, 0, 29, "OneBlock", "oneblock",
-      ServerType.ONE_GAME, "AZALEA", "§bOneBlock", Arrays.asList("§нПогрузись в выживание на", "§нодном блоке в пустоте,", "§нрасширяя границы за преодоление", "§нразличных фаз.", "§eПострой свою империю с нуля!"),
-      0, -77),
-  SD("§f✜ ", 7, 0, 39, "SkyGrid", "skygrid",
-      ServerType.ONE_GAME, "SPAWNER", "§bSkyGrid", Arrays.asList("§нВыживи в брутальной сетке", "§нблоков, собери всё, чтобы", "§нпостроить собственный островок", "§ни пройти игру.", "§eПострой свою империю с нуля!"),
-      0, -77),
-  PA("§5❖ ", 8, 0, 33, "Parkour", "parkur",
-      ServerType.ONE_GAME, "FEATHER", "§b§lПаркуры", Arrays.asList("§мОтточи свое мастерство паркура", "§мна нашем захватывающем режиме", "§мс 60+ различных карт.", "§eПородемонстрируй свое проворство!"),
-      0, -77),
-  EN("E", 7, 0, 0, "Enigma", "enigma",
-      ServerType.ONE_GAME, "END_PORTAL_FRAME", "§d§lЭнигма", Arrays.asList("§5Сервер тайн и загадок"),
-      0, -77),
-  JL("§5☭ ", 10, 0, 41, "Jail", "jail",
-      ServerType.ONE_GAME, "SOUL_LANTERN", "§ф§lЧистилище", Arrays.asList(" "),
-      0, -99),
-  FA("§5🤓 ", 9, 0, 41, "Fatta", "fatta",
-      ServerType.ONE_GAME, "LECTERN", "§ф§lФатта", Arrays.asList("§фБанды, оружие, работы, и", "§фмногое другое ждет тебя.", "§eНовый и интересный РП режим!", " ", "§к§n[В Разработке]"),
-      0, -99),
+    DA("§a❂ ", 1, 0, 3, "Daaria", "daaria",
+        ServerType.ONE_GAME, "NETHERITE_SWORD", "§a§lДаария",
+        Arrays.asList("§оКлассическое выживание", "§она последней версии игры.", "§оТорговля, работы, приваты, и др.", "§eЗаходи и развивайся с друзьями!"),
+        0, -99),
+    SE("§4☠ ", 2, 0, 15, "Sedna", "sedna_wastes",
+        ServerType.ONE_GAME, "CRIMSON_NYLIUM", "§4§lСедна",
+        Arrays.asList("§cХардкорный режим с новыми", "§cскиллами, мирами, мобами,", "§cкрафтами, и постройками.", "§eУничтожай местную фауну!", " ", "§4§nНе для новичков. [Бета Тест]"),
+        0, -99),
+    AR("§a☺ ", 3, 0, 11, "Arcaim", "arcaim",
+        ServerType.ONE_GAME, "DIAMOND_PICKAXE", "§e§lАркаим", Arrays.asList("§бТвой собственный мир,", "§бв котором ты полный хозяин!", "§бЛюбой игровой режим.", "§eИграй один или с друзьями!"),
+        0, -99),
+    MI("§5✠ ", 4, 0, 19, "Midgard", "midgard",
+        ServerType.ONE_GAME, "SCULK_SHRIEKER", "§d§lМидгард", Arrays.asList("§5Кланы, оружие, турели, работы.", "§5Создай свою империю!"),
+        0, -99),
+    @Deprecated // use SB
+    SK("§f☯ ", 5, 0, 5, "SkyWorld", "skyworld",
+        ServerType.ONE_GAME, "FLOWERING_AZALEA", "§b§lОстрова", Arrays.asList("§нНачни жизнь на крохотном", "§ностровке, добывай ресурсы,", "§ни выполняй задания.", "§eПострой свою империю с нуля!"),
+        0, -99),
+    OB("§b◈ ", 6, 0, 29, "OneBlock", "oneblock",
+        ServerType.ONE_GAME, "AZALEA", "§bOneBlock", Arrays.asList("§нПогрузись в выживание на", "§нодном блоке в пустоте,", "§нрасширяя границы за преодоление", "§нразличных фаз.", "§eПострой свою империю с нуля!"),
+        0, -77),
+    SD("§f✜ ", 7, 0, 39, "SkyGrid", "skygrid",
+        ServerType.ONE_GAME, "SPAWNER", "§bSkyGrid", Arrays.asList("§нВыживи в брутальной сетке", "§нблоков, собери всё, чтобы", "§нпостроить собственный островок", "§ни пройти игру.", "§eПострой свою империю с нуля!"),
+        0, -77),
+    PA("§5❖ ", 8, 0, 33, "Parkour", "parkur",
+        ServerType.ONE_GAME, "FEATHER", "§b§lПаркуры", Arrays.asList("§мОтточи свое мастерство паркура", "§мна нашем захватывающем режиме", "§мс 60+ различных карт.", "§eПородемонстрируй свое проворство!"),
+        0, -77),
+    EN("E", 7, 0, 0, "Enigma", "enigma",
+        ServerType.ONE_GAME, "END_PORTAL_FRAME", "§d§lЭнигма", Arrays.asList("§5Сервер тайн и загадок"),
+        0, -77),
+    JL("§5☭ ", 10, 0, 41, "Jail", "jail",
+        ServerType.ONE_GAME, "SOUL_LANTERN", "§ф§lЧистилище", Arrays.asList(" "),
+        0, -99),
+    FA("§5🤓 ", 9, 0, 41, "Fatta", "fatta",
+        ServerType.ONE_GAME, "LECTERN", "§ф§lФатта", Arrays.asList("§фБанды, оружие, работы, и", "§фмногое другое ждет тебя.", "§eНовый и интересный РП режим!", " ", "§к§n[В Разработке]"),
+        0, -99),
 
-  BW("§e☢ ", 18, 1, 10, "Bedwars", "bw01",
-      ServerType.ARENAS, "RED_BED", "§e§lБедВарс", Arrays.asList(""), 0, -77),
-  SG("§c☠ ", 19, 1, 25, "SurvivalGames", "sg01",
-      ServerType.ARENAS, "GOLDEN_APPLE", "§4§lГолодные Игры", Arrays.asList(""), 0, -77),
-  SW("§b҈ ", 20, 1, 2, "SkyWars", "sw01",
-      ServerType.ARENAS, "COMPASS", "§5§lСкайВарс", Arrays.asList(""), 0, -77),
-  ZH("§4⚚ ", 21, 1, 6, "Zombie", "zh01",
-      ServerType.ARENAS, "ROTTEN_FLESH", "§c§lЗомби", Arrays.asList(""), 0, -77),
-  KB("§c⚔ ", 22, 1, 5, "KitPvp", "kb01",
-      ServerType.ARENAS, "DIAMOND_CHESTPLATE", "§b§lКит-ПВП", Arrays.asList(""), 0, -77),
-  GR("§6$ ", 23, 1, 16, "GoldRush", "gr01",
-      ServerType.ARENAS, "RAW_GOLD", "§6§lЗолотая Лихорадка", Arrays.asList(""), 0, -77),
-  WZ("§3⚒ ", 24, 1, 3, "WarZone", "wz01",
-      ServerType.ARENAS, "TOTEM_OF_UNDYING", "§b§lПоле Брани", Arrays.asList(""), 0, -77), //warzone
-  BB("§3✍ ", 25, 1, 33, "BuildBattle", "bb01",
-      ServerType.ARENAS, "GOLDEN_PICKAXE", "§a§lБитва Строителей", Arrays.asList(""), 0, -77),
+    BW("§e☢ ", 18, 1, 10, "Bedwars", "bw01",
+        ServerType.ARENAS, "RED_BED", "§e§lБедВарс", Arrays.asList(""), 0, -77),
+    SG("§c☠ ", 19, 1, 25, "SurvivalGames", "sg01",
+        ServerType.ARENAS, "GOLDEN_APPLE", "§4§lГолодные Игры", Arrays.asList(""), 0, -77),
+    SW("§b҈ ", 20, 1, 2, "SkyWars", "sw01",
+        ServerType.ARENAS, "COMPASS", "§5§lСкайВарс", Arrays.asList(""), 0, -77),
+    ZH("§4⚚ ", 21, 1, 6, "Zombie", "zh01",
+        ServerType.ARENAS, "ROTTEN_FLESH", "§c§lЗомби", Arrays.asList(""), 0, -77),
+    KB("§c⚔ ", 22, 1, 5, "KitPvp", "kb01",
+        ServerType.ARENAS, "DIAMOND_CHESTPLATE", "§b§lКит-ПВП", Arrays.asList(""), 0, -77),
+    GR("§6$ ", 23, 1, 16, "GoldRush", "gr01",
+        ServerType.ARENAS, "RAW_GOLD", "§6§lЗолотая Лихорадка", Arrays.asList(""), 0, -77),
+    WZ("§3⚒ ", 24, 1, 3, "WarZone", "wz01",
+        ServerType.ARENAS, "TOTEM_OF_UNDYING", "§b§lПоле Брани", Arrays.asList(""), 0, -77), //warzone
+    BB("§3✍ ", 25, 1, 33, "BuildBattle", "bb01",
+        ServerType.ARENAS, "GOLDEN_PICKAXE", "§a§lБитва Строителей", Arrays.asList(""), 0, -77),
     //21 - пусто
     TW("§e▦ ", 27, 1, 30, "Twist", "mg01",
         ServerType.ARENAS, "MUSIC_DISC_RELIC", "§d§lТвист", Arrays.asList(""), 0, -77),
-  SN("§6ಊ ", 28, 1, 32, "Snake", "mg01",
-      ServerType.ARENAS, "STRING", "§f§lЗмейка", Arrays.asList(""), 0, -77),
-  CS("§3✡ ", 29, 1, 19, "CounterStrike", "cs01",
-      ServerType.ARENAS, "FLINT_AND_STEEL", "§5§lКонтра", Arrays.asList(""), 0, -77),
-  HS("§a۩ ", 30, 1, 13, "HideAndSeek", "hs01",
-      ServerType.ARENAS, "JACK_O_LANTERN", "§3§lПрятки", Arrays.asList(""), 0, -77),
-  QU("§4⚛ ", 31, 1, 29, "Quake", "qu01",
-      ServerType.ARENAS, "TRIDENT", "§c§lКвэйк", Arrays.asList(""), 0, -77),
-
+    SN("§6ಊ ", 28, 1, 32, "Snake", "mg01",
+        ServerType.ARENAS, "STRING", "§f§lЗмейка", Arrays.asList(""), 0, -77),
+    CS("§3✡ ", 29, 1, 19, "CounterStrike", "cs01",
+        ServerType.ARENAS, "FLINT_AND_STEEL", "§5§lКонтра", Arrays.asList(""), 0, -77),
+    HS("§a۩ ", 30, 1, 13, "HideAndSeek", "hs01",
+        ServerType.ARENAS, "JACK_O_LANTERN", "§3§lПрятки", Arrays.asList(""), 0, -77),
+    QU("§4⚛ ", 31, 1, 29, "Quake", "qu01",
+        ServerType.ARENAS, "TRIDENT", "§c§lКвэйк", Arrays.asList(""), 0, -77),
     ;
+    public static final Game SB = SK;
 
 
     public static String getGamePageTitle(final int page) {
@@ -173,16 +174,16 @@ public enum Game {
         return GLOBAL; //rg0 ol0 ?
     }
 
-  public static boolean storeWorldPosition() {
-    switch (GM.GAME) {
-      case AR, DA, MI, SE, FA -> {
-        return true;
-      }
-      default -> {
-        return false;
-      }
+    public static boolean storeWorldPosition() {
+        switch (GM.GAME) {
+            case AR, DA, MI, SE, FA -> {
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
-  }
 
 }
 

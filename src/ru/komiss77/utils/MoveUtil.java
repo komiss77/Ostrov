@@ -148,7 +148,7 @@ public class MoveUtil {
             || (dt instanceof final Waterlogged sn && !sn.isWaterlogged());
     }
 
-  @Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены
+    @Deprecated // уже месяц прошел а баг с тп в потоки воды не пофикшены
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
 //Ostrov.log("teleportSave feetBlock="+feetLoc);
 //сначала попытка коррекций +1..-1 из-за непоняток с точкой в ногах или под ногами
@@ -166,18 +166,18 @@ public class MoveUtil {
         //}
 
         //отфильтровка высоты за пределами по оси Y
-      int y_max = feetLoc.getWorld().getMaxHeight();
+        int y_max = feetLoc.getWorld().getMaxHeight();
 
-      if (feetLoc.getWorld().getEnvironment() == World.Environment.NETHER
-          && feetLoc.getWorld().getGenerator() == null) { //фикс по генератору для островов - тепешило под платформу
-        y_max = feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3;
-      }
+        if (feetLoc.getWorld().getEnvironment() == World.Environment.NETHER
+            && feetLoc.getWorld().getGenerator() == null) { //фикс по генератору для островов - тепешило под платформу
+            y_max = feetLoc.getWorld().getHighestBlockYAt(feetLoc.getBlockX(), feetLoc.getBlockZ()) - 3;
+        }
 
-      final int y_min = feetLoc.getWorld().getMinHeight();
+        final int y_min = feetLoc.getWorld().getMinHeight();
         if (feetLoc.getBlockY() > y_max) {
             feetLoc.setY(y_max);
         } else if (feetLoc.getBlockY() < y_min) {
-          feetLoc.setY(y_min);
+            feetLoc.setY(y_min);
         }
 
         final WXYZ feetXYZ = new WXYZ(feetLoc);
@@ -398,7 +398,7 @@ public class MoveUtil {
         return true;
     }*/
 
-  public static @Nullable WXYZ findSafeLocation(final WXYZ feetLoc) {
+    public static @Nullable WXYZ findSafeLocation(final WXYZ feetLoc) {
         //if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR) {
         //    return feetLoc;
         //}
@@ -504,6 +504,7 @@ public class MoveUtil {
     }
 
     //не менять, юзают плагины!
+    @Deprecated
     public static boolean isSafeLocation(final Location feetLoc) {
         if (feetLoc == null) return false;
         //final World w = feetLoc.getWorld();
@@ -511,14 +512,20 @@ public class MoveUtil {
         //final Material feetMat = Nms.getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY(), feetLoc.getBlockZ());
         //final Material downMat = Nms.getFastMat(w, feetLoc.getBlockX(), feetLoc.getBlockY() - 1, feetLoc.getBlockZ());
         //return isSafePlace(headMat, feetMat, downMat);
-        return Nms.isSafeLocation(new WXYZ(feetLoc)) == Nms.PlaceType.SAFELY;//isSafeLocation(new WXYZ(feetLoc));
+        return isSafe(feetLoc.getWorld(), BVec.of(feetLoc));
+    }
+
+    public static boolean isSafe(final World w, final BVec loc) {
+        return SAFE_CHECK[0].check(Nms.fastData(w, loc.add(0, -1, 0)), loc.y - 1)
+            && SAFE_CHECK[1].check(Nms.fastData(w, loc), loc.y)
+            && SAFE_CHECK[2].check(Nms.fastData(w, loc.add(0, 1, 0)), loc.y + 1);
     }
 
     @Deprecated
     public static boolean isSafePlace(final Material headMat, final Material feetMat, final Material downMat) {
         if (headMat == null || feetMat == null || downMat == null) return false;
         return LocUtil.isPassable(headMat) && LocUtil.isPassable(feetMat)
-                && (LocUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
+            && (LocUtil.canStand(downMat) || downMat == Material.WATER);//вода под ногами подходит
     }
 
     //public static boolean isSafeLocation(final WXYZ feetXYZ) {

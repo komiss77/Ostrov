@@ -366,7 +366,6 @@ public class Nms {
     return iBlockData.createCraftBlockData();
   }
 
-  @Deprecated
   public static BlockData fastData(final World w, final BVec bv) {
     final ServerLevel sl = Craft.toNMS(w);
     final BlockState iBlockData = sl.getBlockState(mutableBlockPosition.set(bv.x, bv.y, bv.z));
