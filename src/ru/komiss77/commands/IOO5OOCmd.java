@@ -63,6 +63,19 @@ public class IOO5OOCmd {
         })
         .description("")
         .register();*/
+      new OCmdBuilder("givemenu")
+          .run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+              cs.sendMessage("§eНе консольная команда!");
+              return 0;
+            }
+            ApiOstrov.giveMenuItem(p);
+            return Command.SINGLE_SUCCESS;
+          })
+          .description("Получить часики")
+          .register();
+
         new OCmdBuilder("tps")
             .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();

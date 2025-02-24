@@ -223,16 +223,16 @@ public class ApiOstrov {
             case ConsoleCommandSender ignored -> true;
             case Player p when canBeBuilder(p) ->
                 switch (p.getGameMode()) {
-                case CREATIVE, SURVIVAL -> true;
-                default -> {
-                    if (!message) yield false;
-                    //!! фиксить права в CDM case "gm", или не даст перейти в гм1
-                    final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-                    p.sendMessage(TCUtil.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
-                        .hoverEvent(HoverEvent.showText(TCUtil.form(eng ? "§7Click - enable" : "§7Клик - включить")))
-                        .clickEvent(ClickEvent.runCommand("/builder")));
-                    yield false;
-                }
+                    case CREATIVE, SPECTATOR -> true;
+                    default -> {
+                        if (!message) yield false;
+                        //!! фиксить права в CDM case "gm", или не даст перейти в гм1
+                        final boolean eng = !p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
+                        p.sendMessage(TCUtil.form(eng ? "§e*Click on this message - §aenable Builder mode" : "§e*Клик на это сообшение - §aвключить режим Строителя")
+                            .hoverEvent(HoverEvent.showText(TCUtil.form(eng ? "§7Click - enable" : "§7Клик - включить")))
+                            .clickEvent(ClickEvent.runCommand("/builder")));
+                        yield false;
+                    }
             };
             case null, default -> false;
         };

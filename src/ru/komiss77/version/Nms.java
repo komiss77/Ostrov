@@ -607,7 +607,7 @@ public class Nms {
   for PacketPlayOutSetSlot starts at index 36, and continues to index 44. Items placed where index is < 0 or > 44 have no action.
    */
   public static void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack item) {
-    Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
+//Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
     final ServerPlayer sp = Craft.toNMS(p); //5-шлем
     sp.connection.send(new ClientboundContainerSetSlotPacket(sp.inventoryMenu.containerId,
         sp.inventoryMenu.getStateId(), playerInventorySlot, net.minecraft.world.item.ItemStack.fromBukkitCopy(item)));

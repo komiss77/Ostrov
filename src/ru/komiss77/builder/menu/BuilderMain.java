@@ -360,33 +360,35 @@ public class BuilderMain implements InventoryProvider {
 
 
         content.set(3, 7, ClickableItem.of(new ItemBuilder(Material.LEATHER_HORSE_ARMOR)
-            .name("§7Просмотр Model Data")
-            .lore("§7Перетащи сюда предмет,")
-            .lore("§7будут показаны все его")
-            .lore("§7вариации,")
-            .lore("§7или ЛКМ - показать для")
-            .lore("§7кожаной конской брони.")
+            .name("§7Частицы и эффекты")
+            //.lore("§7Перетащи сюда предмет,")
+            //.lore("§7будут показаны все его")
+            //.lore("§7вариации,")
+            //.lore("§7или ЛКМ - показать для")
+            //.lore("§7кожаной конской брони.")
             .build(), e -> {
-            if (e.getCursor().getType() != Material.AIR) {
-                p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
-                SmartInventory.builder()
-                    .id("CustomModelData" + p.getName())
-                    .provider(new CustomModelData(0, e.getCursor().getType()))
-                    .size(6, 9)
-                    .title("§6" + e.getCursor().getType().name())
-                    .build()
-                    .open(p);
-                e.getView().setCursor(new ItemStack(Material.AIR));
-            } else {
-                SmartInventory.builder()
-                    .id("CustomModelData" + p.getName())
-                    .provider(new CustomModelData(0, Material.LEATHER_HORSE_ARMOR))
-                    .size(6, 9)
-                    .title("§6" + Material.LEATHER_HORSE_ARMOR.name())
-                    .build()
-                    .open(p);
+
+                /*if (e.getCursor().getType() != Material.AIR) {
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
+                    SmartInventory.builder()
+                        .id("CustomModelData" + p.getName())
+                        .provider(new CustomModelData(0, e.getCursor().getType()))
+                        .size(6, 9)
+                        .title("§6" + e.getCursor().getType().name())
+                        .build()
+                        .open(p);
+                    e.getView().setCursor(new ItemStack(Material.AIR));
+                } else {
+                    SmartInventory.builder()
+                        .id("CustomModelData" + p.getName())
+                        .provider(new CustomModelData(0, Material.LEATHER_HORSE_ARMOR))
+                        .size(6, 9)
+                        .title("§6" + Material.LEATHER_HORSE_ARMOR.name())
+                        .build()
+                        .open(p);
+                }*/
             }
-        }));
+        ));
 
 
         if (Cfg.displays) {
