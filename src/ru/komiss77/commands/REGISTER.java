@@ -44,7 +44,6 @@ public class REGISTER {
         Ostrov.regCommand(new ProtocolCmd()); //+
         Ostrov.regCommand(new DonateCmd()); //+
         Ostrov.regCommand(new MissionCmd()); //+
-        Ostrov.regCommand(new ResourcePacksLst()); //+ возможно придётся вернуть ключик и замок - сейчас не учитываетсяку, что могли установить вручную
         Ostrov.regCommand(new TprCmd()); //+
       //Ostrov.regCommand(new Server()); //не даёт русские аргументы - сервера пришлось сделать на англ
 

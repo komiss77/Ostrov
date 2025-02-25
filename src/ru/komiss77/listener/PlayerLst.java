@@ -66,7 +66,7 @@ public class PlayerLst implements Listener {
         }
     }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR)
   public void onLocalDataLoad(LocalDataLoadEvent e) {
     if (ResourcePacksLst.use) {
       ResourcePacksLst.execute(e.getPlayer());
