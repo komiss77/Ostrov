@@ -68,7 +68,6 @@ public class ParticleUtil {
     public static void display(final Location location) {
         new BukkitRunnable() {
             int count = 20;
-
             @Override
             public void run() {
                 displayColorTube(location.clone().add(0, count / 2, 0));
@@ -137,21 +136,15 @@ public class ParticleUtil {
 
 
     public static void displayGalaxy(final Location loc) {
-        //Particle particle = Particle.FLAME;
         int strands = 8;
         int particles = 80;
         float radius = 10;
         float curve = 10;
         double rotation = Math.PI / 4;
-        //int period = 10;
-        //int iterations = 8;
-
         new BukkitRunnable() {
             int count = 20;
-
             @Override
             public void run() {
-
                 for (int i = 1; i <= strands; i++) {
                     for (int j = 1; j <= particles; j++) {
                         float ratio = (float) j / particles;
@@ -168,11 +161,8 @@ public class ParticleUtil {
                 if (count == 0) {
                     this.cancel();
                 }
-
             }
         }.runTaskTimer(Ostrov.instance, 1, 10);
-
-
     }
 
 
@@ -182,7 +172,6 @@ public class ParticleUtil {
         float radiusDonut = 2;
         float radiusTube = .5f;
         double xRotation = 0, yRotation = 0, zRotation = 0;
-
         Vector v = new Vector();
         for (int i = 0; i < circles; i++) {
             double theta = 2 * Math.PI * i / circles;
@@ -190,17 +179,11 @@ public class ParticleUtil {
                 double phi = 2 * Math.PI * j / particlesCircle;
                 double cosPhi = Math.cos(phi);
                 v.setX((radiusDonut + radiusTube * cosPhi) * Math.cos(theta));
-                v.setZ((radiusDonut + radiusTube * cosPhi) * Math.sin(theta));
-                //v.setY((radiusDonut + radiusTube * cosPhi) * Math.sin(theta));
+              Vector vector = v.setZ((radiusDonut + radiusTube * cosPhi) * Math.sin(theta));
                 v.setY(radiusTube * Math.sin(phi));
-                //v.setZ(radiusTube * Math.sin(phi));
-
                 rotateVector(v, xRotation, yRotation, zRotation);
-
                 loc.add(v);
-                //loc.getWorld().spawnParticle(Particle.FLAME, loc, 1, 0, 0, 0);//display(particle, location);
                 loc.getWorld().spawnParticle(Particle.FALLING_DUST, loc, 1, 0, 0, 0, Material.matchMaterial(TCUtil.randomDyeColor().toString() + "_WOOL").createBlockData());
-                //.spawnParticle(Particle.FLAME, currentLocation, 1, 0, 0, 0);
                 loc.subtract(v);
             }
         }

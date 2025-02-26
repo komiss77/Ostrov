@@ -36,24 +36,14 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtil;
 
 
-public final class ResourcePacksLst implements Initiable, OCommand {
+public final class ResourcePacksLst implements Initiable {
 
     public static boolean use, onlySuggest;
-    public static final String rpCMD = "rpack";
     private static ResourcePackInfo pack = null;
     private static ResourcePackRequest request = null;
 
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
-        return Commands.literal(rpCMD).executes(cntx -> {
-            final CommandSender cs = cntx.getSource().getSender();
-            if (!(cs instanceof final Player p)) {
-                cs.sendMessage("§eНе консольная команда!");
-                return 0;
-            }
-            execute(p);
-            return Command.SINGLE_SUCCESS;
-        }).build();
+    public ResourcePacksLst() { //не переносить сюда обработчик команды, или пытается грузить дважды, в RegisterCommands и как модуль
+        reload();
     }
 
     public static void execute(final Player p) {
@@ -72,21 +62,7 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 //            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
     }
 
-    @Override
-    public Set<String> aliases() {
-        return Set.of("rp");
-    }
 
-    @Override
-    public String description() {
-        return "Загрузка ресурс-пака";
-    }
-
-
-    public ResourcePacksLst() { //или пытается грузить дважды, в RegisterCommands и как модуль
-        reload();
-        //Ostrov.getInstance().getCommand("rp").setExecutor(this);
-    }
 
 
     //public static void onLoadData(Player p) {
@@ -112,14 +88,15 @@ public final class ResourcePacksLst implements Initiable, OCommand {
 
     @Override
     public void reload() {
+//Ostrov.log_warn("============== RP reload");
         final OConfig packsConfig = Cfg.manager.config("resoucepacks.yml", new String[]{"", "Ostrov77 resoucepacks", ""});
 
         packsConfig.addDefault("use", false);
         packsConfig.addDefault("link", "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
         packsConfig.addDefault("only_suggest", false);
 
-        packsConfig.removeKey("block_interact");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
-        packsConfig.removeKey("block_menu");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
+        //packsConfig.removeKey("block_interact");//, "http://site.ostrov77.ru/uploads/resourcepacks/none.zip");
+        //packsConfig.removeKey("block_menu");//, "http://site.ostrov77.ru/uploads/resourcepacks/ostrov77.zip");
 
         packsConfig.saveConfig();
 

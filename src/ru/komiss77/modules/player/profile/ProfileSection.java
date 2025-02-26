@@ -8,10 +8,12 @@ import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.commands.ReportCmd;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Settings;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.modules.Pandora;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
@@ -255,14 +257,24 @@ public class ProfileSection implements InventoryProvider {
         );
 
 
+      if (GM.GAME.type == ServerType.LOBBY) {
         content.set(2, 6, ClickableItem.of(new ItemBuilder(Material.PITCHER_PLANT)
-                .name(op.eng ? "§5Change skin" : "§5Сменить скин")
-                .lore("")
-                .lore(op.eng ? "§7LMB - open skin menu" : "§7ЛКМ - открыть меню скинов")
-                .lore("")
-                .build(), e -> {
+            .name(op.eng ? "§5Change skin" : "§5Сменить скин")
+            .lore("")
+            .lore(op.eng ? "§7LMB - open skin menu" : "§7ЛКМ - открыть меню скинов")
+            .lore("")
+            .build(), e -> {
             SkinRestorerHook.openGui(p, 0);
         }));
+      } else {
+        content.set(2, 6, ClickableItem.empty(new ItemBuilder(Material.PITCHER_PLANT)
+            .name(op.eng ? "§5Change skin" : "§5Сменить скин")
+            .lore("")
+            .lore(op.eng ? "§7Go to lobby" : "§eДля смены скина перейдите в лобби")
+            .lore("")
+            .build()
+        ));
+      }
 
 
         content.set(3, 1, ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)

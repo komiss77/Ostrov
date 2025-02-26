@@ -2,6 +2,9 @@ package ru.komiss77.commands;
 
 import java.util.Set;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -17,6 +20,7 @@ import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.hook.SkinRestorerHook;
+import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
@@ -63,6 +67,34 @@ public class IOO5OOCmd {
         })
         .description("")
         .register();*/
+
+      new OCmdBuilder("rpack") //не переносить в ResourcePacksLst, или пытается грузить дважды, в RegisterCommands и как модуль
+          .run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+              cs.sendMessage("§eНе консольная команда!");
+              return 0;
+            }
+            ResourcePacksLst.execute(p);
+            return Command.SINGLE_SUCCESS;
+          })
+          .description("Установить ресурс-пак")
+          .aliases("rp")
+          .register();
+
+      new OCmdBuilder("givemenu")
+          .run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+              cs.sendMessage("§eНе консольная команда!");
+              return 0;
+            }
+            ApiOstrov.giveMenuItem(p);
+            return Command.SINGLE_SUCCESS;
+          })
+          .description("Получить часики")
+          .register();
+
         new OCmdBuilder("tps")
             .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();

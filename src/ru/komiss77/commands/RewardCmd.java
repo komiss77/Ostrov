@@ -125,9 +125,10 @@ public class RewardCmd implements OCommand {
       //}
 
       final String tgt = Resolver.string(cntx, player);
-      final RewardType type = RewardType.fromString(Resolver.string(cntx, item));
+      final String typeName = Resolver.string(cntx, item);
+      RewardType type = RewardType.fromString(typeName);
       if (type == null) {
-        cs.sendMessage(Ostrov.PREFIX + "§cТакой награды не существует : §6" + tgt);
+        cs.sendMessage(Ostrov.PREFIX + "§cТакой награды не существует : §6" + typeName);
         return 0;
       }
 

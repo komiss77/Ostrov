@@ -46,6 +46,9 @@ public enum RewardType {
 
 
     public static RewardType fromString(final String as_string) {
+        if (as_string.equalsIgnoreCase("permission")) {
+            return RewardType.PERM; //багфикс - PERMISSION переименовали в PERM, посыпались награды в неожиданных местах
+        }
         for (RewardType type : RewardType.values()) {
             if (type.name().equalsIgnoreCase(as_string)) return type;
         }
