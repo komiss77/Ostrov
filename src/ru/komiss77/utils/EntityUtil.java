@@ -483,7 +483,7 @@ public class EntityUtil {
 
     public static Location center(final Entity ent) {
         return ent instanceof final LivingEntity le ?
-            le.getEyeLocation().add(0d, ent.getHeight() * -0.5d, 0d)
+            le.getEyeLocation().add(0d, ent.getHeight() * -0.4d, 0d)
             : ent.getLocation().add(0d, ent.getHeight() * 0.5d, 0d);
     }
 }

@@ -1,19 +1,17 @@
 package ru.komiss77.modules.signProtect;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.function.Predicate;
 import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Tag;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.Sign;
+import org.bukkit.Location;
+import org.bukkit.block.*;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,23 +29,23 @@ import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.util.Vector;
 import ru.komiss77.*;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.LocUtil;
+import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.version.Nms;
 
 public class SignProtectLst implements Initiable, Listener {
 
     public SignProtectLst() {
         reload();
     }
-
-    public static final NamespacedKey key = new NamespacedKey(Ostrov.instance, "signProtect");
-    public static final int LIMIT = 30;
-    private static final Predicate<Block> predicate = b -> Tag.WALL_SIGNS.isTagged(b.getType());
 
     public void reload() {
         onDisable();
@@ -76,207 +74,183 @@ public class SignProtectLst implements Initiable, Listener {
     public void onBucketUse(PlayerBucketFillEvent e) {
     }
 
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void chunkLoad(ChunkLoadEvent e) {
-        final Collection<BlockState> signs = e.getChunk().getTileEntities(predicate, false);
-//Ostrov.log("chunkLoad signs:"+signs.size());
+    public void chunkLoad(final ChunkLoadEvent e) {
+        final Collection<BlockState> signs = e.getChunk().getTileEntities(SignProtect.predicate, false);
         for (final BlockState bs : signs) {
-            //if (bs instanceof Sign) { predicate выдаст только таблички
-            Sign sign = (Sign) bs;
-            if (sign.getPersistentDataContainer().has(key)) {
-                final ProtectionData pd = ProtectionData.of(sign);
-//Ostrov.log("ProtectionData : isValid?"+pd.isValid());
-                if (!pd.isValid()) {
-                    final Oplayer op = PM.getOplayer(pd.owner);
-                    if (op != null) {
-                        int curr = 0;
-                        if (op.mysqlData.containsKey("signProtect") && !op.mysqlData.get("signProtect").isEmpty()) {
-                            curr = Integer.parseInt(op.mysqlData.get("signProtect"));
-                            curr--;
-                        }
-                        op.mysqlData.put("signProtect", String.valueOf(curr));
-                    } else {
-                        LocalDB.executePstAsync(Bukkit.getConsoleSender(),
-                            "UPDATE `playerData` SET signProtect=signProtect-1 WHERE `signProtect` > 0 AND `name`='" + pd.owner + "' ;");
-                    }
-                    SignSide f = sign.getSide(Side.FRONT);
-                    f.line(0, Component.text("§4[§сЧастный§4]"));
-                    f.line(1, Component.text("§b" + pd.owner));
-                    f.line(2, Component.text("§4Просрочено"));
-                    f.line(3, Component.empty());
-                    sign.getPersistentDataContainer().remove(key);
-                    sign.update();
-                }
+            if (!(bs instanceof final Sign sign)) continue;
+            if (!sign.getPersistentDataContainer().has(SignProtect.KEY)) continue;
+            final ProtectionData pd = ProtectionData.of(sign);
+            if (pd.isValid()) continue;
+            final Oplayer op = PM.getOplayer(pd.owner);
+            final SignSide f = sign.getSide(Side.FRONT);
+            f.line(0, TCUtil.form("§4[§сЧастный§4]"));
+            f.line(1, TCUtil.form("§b" + pd.owner));
+            f.line(2, TCUtil.form("§4Просрочено"));
+            f.line(3, Component.empty());
+            sign.getPersistentDataContainer().remove(SignProtect.KEY);
+            sign.update();
+            if (op == null) {
+                LocalDB.executePstAsync(Bukkit.getConsoleSender(),
+                    "UPDATE `playerData` SET signProtect=signProtect-1 WHERE `signProtect` > 0 AND `name`='" + pd.owner + "' ;");
+                continue;
             }
-            // }
+            int curr = 0;
+            final String spr = op.mysqlData.get("signProtect");
+            if (spr != null && !spr.isEmpty()) {
+                curr = Math.max(NumUtil.intOf(spr, 0) - 1, 0);
+            }
+            op.mysqlData.put("signProtect", String.valueOf(curr));
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void openSign(PlayerOpenSignEvent e) {
-        Sign s = e.getSign();
-        if (s.getPersistentDataContainer().has(key)) {
-            e.setCancelled(true);
-            final ProtectionData pd = new ProtectionData(s);//ProtectionData.of(s); в меню переваривается долго, может подмениться данные
-            if (pd.isValid() && pd.isOwner(e.getPlayer())) {
-                SmartInventory.builder()
-                    .provider(new AccesEdit(s, pd))
-                    .type(InventoryType.CHEST)
-                    .size(5)
-                    .title("§7Настройки доступа")
-                    .build()
-                    .open(e.getPlayer());
-            }
-        }
+    public void openSign(final PlayerOpenSignEvent e) {
+        final Sign s = e.getSign();
+        if (!s.getPersistentDataContainer().has(SignProtect.KEY)) return;
+        e.setCancelled(true);
+        final ProtectionData pd = new ProtectionData(s);
+        if (!pd.isValid() || !pd.isOwner(e.getPlayer())) return;
+        SmartInventory.builder()
+            .provider(new AccesEdit(s, pd))
+            .type(InventoryType.CHEST)
+            .size(5)
+            .title("§7Настройки доступа")
+            .build()
+            .open(e.getPlayer());
     }
 
-
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void inventoryOpen(InventoryOpenEvent e) {
-        //InventoryHolder ih = e.getInventory().getHolder();
-        //if (ih instanceof DoubleChest){
-        //  ih = ((DoubleChest)ih).getLeftSide();
-        //}
-        //if (ih instanceof BlockState) {
+    public void inventoryOpen(final InventoryOpenEvent e) {
         final Block b = getInventoryBlock(e.getInventory());//((BlockState)ih).getBlock();
-        if (b != null && SignProtect.lockables.contains(b.getType())) {
-            Sign s = SignProtect.findBlockProtection(b);
-            if (s != null) {
-                final ProtectionData pd = ProtectionData.of(s);
-                if (pd.isValid() && pd.valid != -1) {
-                    if (Timer.getTime() - pd.valid < 1209600 && pd.isOwner((Player) e.getPlayer())) { //14*24*60*60
-                        pd.valid = Timer.getTime() + 2592000; //30*24*60*60
-                        SignProtect.updateSign(s, pd); //автообновление срока за 2 недели до конца
-                        return; //владельцу точно открыть
-                    }
-                    if (!pd.canUse((Player) e.getPlayer())) {
-                        if (e.getPlayer().isOp()) {
-                            e.getPlayer().sendMessage("§eДоступ к сундуку в режиме ОП");
-                        } else {
-                            e.setCancelled(true);
-                            ScreenUtil.sendActionBarDirect((Player) e.getPlayer(), "§cДоступ к сундуку ограничен!");
-                        }
-                        //e.getPlayer().sendMessage("Защищено");
-                    }
-                }
-            }
+        if (b == null || !SignProtect.lockables.contains(b.getType())) return;
+        final Sign s = SignProtect.findBlockProtection(b);
+        if (s == null) return;
+        final ProtectionData pd = ProtectionData.of(s);
+        if (!pd.isValid() || pd.valid == -1) return;
+        final Player pl = (Player) e.getPlayer();
+        if (Timer.secTime() - pd.valid < SignProtect.UPDATE_TIME && pd.isOwner(pl)) {
+            pd.valid = Timer.secTime() + SignProtect.LOCK_TIME;
+            SignProtect.updateSign(s, pd); //автообновление срока за 2 недели до конца
+            return; //владельцу точно открыть
         }
-        //}
-    }
-
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void blockBreak(BlockBreakEvent e) {
-        if (Tag.WALL_SIGNS.isTagged(e.getBlock().getType())) {
-            Sign s = (Sign) e.getBlock().getState();
-            if (s.getPersistentDataContainer().has(key)) {
-                final ProtectionData pd = ProtectionData.of(s);
-//Ostrov.log("blockBreak valid?"+pd.isValid()+" isOwner?"+pd.isOwner(e.getPlayer())+" pd="+pd.toString());
-                if (pd.isValid() && pd.isOwner(e.getPlayer()) && e.getPlayer().isSneaking()) {
-                    final Oplayer op = PM.getOplayer(e.getPlayer());
-                    int curr = 0;
-                    if (op.mysqlData.containsKey("signProtect") && !op.mysqlData.get("signProtect").isEmpty()) {
-                        curr = Integer.parseInt(op.mysqlData.get("signProtect"));
-                        curr--;
-                    }
-                    op.mysqlData.put("signProtect", String.valueOf(curr));
-                } else {
-                    e.setCancelled(true);
-                }
-            }
+        if (pd.canUse(pl)) return;
+        if (ApiOstrov.isStaff(pl)) {
+            pl.sendMessage("§eДоступ к сундуку для Персонала");
             return;
         }
-        if (SignProtect.lockables.contains(e.getBlock().getType())) {
-            if (SignProtect.findBlockProtection(e.getBlock()) != null) {
-                e.setCancelled(true);
-            }
-        }
+        e.setCancelled(true);
+        ScreenUtil.sendActionBarDirect(pl, "§cДоступ к сундуку ограничен!");
     }
 
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void blockBreak(final BlockBreakEvent e) {
+        final Block bl = e.getBlock();
+        if (SignProtect.lockables.contains(bl.getType())) {
+            if (SignProtect.findBlockProtection(bl) == null) return;
+            e.setCancelled(true);
+            return;
+        }
+        if (!SignProtect.SIGNS.contains(bl.getType().asBlockType())) return;
+        final Sign s = (Sign) bl.getState();
+        if (!s.getPersistentDataContainer().has(SignProtect.KEY)) return;
+        final ProtectionData pd = ProtectionData.of(s);
+        final Player pl = e.getPlayer();
+        if (!pd.isValid() || !pd.isOwner(pl)) {
+            e.setCancelled(true);
+            return;
+        }
+        final Oplayer op = PM.getOplayer(pl);
+        int curr = 0;
+        final String spr = op.mysqlData.get("signProtect");
+        if (spr != null && !spr.isEmpty()) {
+            curr = Math.max(NumUtil.intOf(spr, 0) - 1, 0);
+        }
+        op.mysqlData.put("signProtect", String.valueOf(curr));
+        pl.sendMessage(Ostrov.PREFIX + "§eТабличка привата удалена!");
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void blockPlace(BlockPlaceEvent e) {
-        if (Tag.WALL_SIGNS.isTagged(e.getBlockPlaced().getType())) {
-            final Block placed = e.getBlockPlaced();
-            Directional d = (Directional) placed.getBlockData(); //Directional только для WALL_SIGNS, для STANDING_SIGNS=Rotatable
-            final Block attachedTo = placed.getRelative(d.getFacing().getOppositeFace());
-            if (SignProtect.lockables.contains(attachedTo.getType())) {
-                Sign current = SignProtect.findBlockProtection(attachedTo);
-                if (e.getPlayer().isSneaking()) {
-                    if (current == null) {
-                        final Oplayer op = PM.getOplayer(e.getPlayer());
-                        if (op.isGuest) {
-                            e.getPlayer().sendMessage("§5Гости не могут ставить защитные таблички!");
-                            return;
-                        }
-                        Sign s = (Sign) placed.getState();
-                        int curr = 1;
-                        if (op.mysqlData.containsKey("signProtect") && !op.mysqlData.get("signProtect").isEmpty()) {
-                            curr = Integer.parseInt(op.mysqlData.get("signProtect"));
-                            curr++;
-                        }
-                        if (curr >= LIMIT) {
-                            e.getPlayer().sendMessage("§cЛимит приватных табличек! (" + LIMIT + ")");
-                            return;
-                        }
-                        op.mysqlData.put("signProtect", String.valueOf(curr));
-                        SignProtect.updateSign(s, new ProtectionData(e.getPlayer().getName()));
-                    } else {
-                        //e.getPlayer().sendMessage("§6Защита уже установлена!");
-                        ScreenUtil.sendActionBarDirect(e.getPlayer(), "§6Защита уже установлена!");
-                    }
-                }
-            }
-        } else if (SignProtect.lockables.contains(e.getBlock().getType())) {
-            final Oplayer op = PM.getOplayer(e.getPlayer());
-            if (!op.isGuest && (!op.mysqlData.containsKey("signProtect") || op.mysqlData.get("signProtect").isEmpty()) && !Timer.has(e.getPlayer(), "signProtect")) {
-                e.getPlayer().sendMessage(Component.text("§6§k***§r §eЗащити ")
-                    .append(Lang.t(e.getBlock().getType(), e.getPlayer()))
-                    .append(Component.text(" §e- для этого присесть и §bправый клик табличкой! §6§k***"))
-                );
-                Timer.add(e.getPlayer(), "signProtect", 900);
-            }
+    public void blockPlace(final BlockPlaceEvent e) {
+        final Player pl = e.getPlayer();
+        final Block bl = e.getBlock();
+        if (SignProtect.lockables.contains(bl.getType())) {
+            final Oplayer op = PM.getOplayer(pl);
+            if (op.isGuest || (op.mysqlData.containsKey("signProtect") && !op.mysqlData.get("signProtect").isEmpty())
+                || Timer.has(pl, "signProtect")) return;
+            pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "§6<obf>*<!obf> ПКМ Табличкой §e- приват блока ")
+                .append(Lang.t(bl.getType(), pl)).append(TCUtil.form("§e! §6<obf>*")));
+            SignProtect.SIGN_DATA.setFacing(LocUtil.vecToFace(pl.getEyeLocation()
+                .subtract(bl.getLocation().toCenterLocation()).toVector(), false));
+            pl.sendMessage(SignProtect.SIGN_DATA.getFacing().name());
+//            final BlockDisplay sd = pl.getWorld().spawn(bl.getRelative(SIGN_DATA.getFacing()).getLocation(),
+//                BlockDisplay.class, bd -> {bd.setBlock(SIGN_DATA); bd.setVisibleByDefault(false); bd.setInvisible(true);});
+            final BlockDisplay sd = pl.getWorld().spawn(signLoc(bl, SignProtect.SIGN_DATA.getFacing()), BlockDisplay.class,
+                bd -> {bd.setBlock(SignProtect.SIGN_DATA); bd.setVisibleByDefault(false); bd.setInvisible(true);});
+            pl.showEntity(Ostrov.instance, sd);
+            Nms.colorGlow(sd, NamedTextColor.YELLOW, p -> p.getEntityId() == pl.getEntityId());
+            Ostrov.sync(() -> sd.remove(), 80);
+            Timer.add(pl, "signProtect", 900);
+            return;
         }
+
+        if (!SignProtect.SIGNS.contains(bl.getType().asBlockType())) return;
+        final Directional d = (Directional) bl.getBlockData(); //Directional только для WALL_SIGNS, для STANDING_SIGNS=Rotatable
+        final Block attachedTo = bl.getRelative(d.getFacing().getOppositeFace());
+        if (!SignProtect.lockables.contains(attachedTo.getType())) return;
+        if (!pl.isSneaking()) return;
+        final Sign current = SignProtect.findBlockProtection(attachedTo);
+        if (current != null) {
+            ScreenUtil.sendActionBarDirect(pl, "§6Защита уже установлена!");
+            return;
+        }
+        final Oplayer op = PM.getOplayer(pl);
+        if (op.isGuest) {
+            pl.sendMessage("§5Гости не могут ставить защитные таблички!");
+            return;
+        }
+        final Sign s = (Sign) bl.getState();
+        int curr = 1;
+        final String spr = op.mysqlData.get("signProtect");
+        if (spr != null && !spr.isEmpty())
+            curr = NumUtil.intOf(spr, 0) + 1;
+        if (curr > SignProtect.LIMIT) {
+            pl.sendMessage("§cЛимит приватных табличек! (" + SignProtect.LIMIT + ")");
+            return;
+        }
+        op.mysqlData.put("signProtect", String.valueOf(curr));
+        SignProtect.updateSign(s, new ProtectionData(pl.getName()));
     }
 
+    private Location signLoc(final Block bl, final BlockFace bf) {
+        final Location loc = bl.getLocation().toCenterLocation();
+        return new Location(bl.getWorld(), bf.getModZ() * -0.5d + loc.getX(),
+            -0.8d + loc.getY(), bf.getModX() * -0.5d + loc.getZ(),
+            NumUtil.getYaw(new Vector(bf.getModX(), 0, bf.getModZ())), 0f);
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onInventoryMove(InventoryMoveItemEvent e) {
-        Block b = getInventoryBlock(e.getSource());
-        if (b != null && SignProtect.lockables.contains(b.getType())) {
-            Sign s = SignProtect.findBlockProtection(b);
-            if (s != null) {
-                final ProtectionData pd = ProtectionData.of(s);
-                if (pd.isValid()) {
-                    e.setCancelled(true);
-                }
-            }
+    public void onInventoryMove(final InventoryMoveItemEvent e) {
+        final Block src = getInventoryBlock(e.getSource());
+        if (src != null && SignProtect.lockables.contains(src.getType())) {
+            final Sign s = SignProtect.findBlockProtection(src);
+            if (s != null && ProtectionData.of(s).isValid()) e.setCancelled(true);
         }
-        b = getInventoryBlock(e.getDestination());
-        if (b != null && SignProtect.lockables.contains(b.getType())) {
-            Sign s = SignProtect.findBlockProtection(b);
-            if (s != null) {
-                final ProtectionData pd = ProtectionData.of(s);
-                if (pd.isValid()) {
-                    e.setCancelled(true);
-                }
-            }
+        final Block dst = getInventoryBlock(e.getDestination());
+        if (dst != null && SignProtect.lockables.contains(dst.getType())) {
+            final Sign s = SignProtect.findBlockProtection(dst);
+            if (s != null && ProtectionData.of(s).isValid()) e.setCancelled(true);
         }
     }
 
-    private Block getInventoryBlock(final Inventory inventory) {
-        final InventoryHolder holder = inventory.getHolder();
-        if (holder instanceof BlockState) {
-            return ((BlockState) holder).getBlock();
-        }
-        if (holder instanceof DoubleChest) {
-            InventoryHolder leftHolder = ((DoubleChest) holder).getLeftSide();
-            if (leftHolder instanceof BlockState) {
-                return ((BlockState) leftHolder).getBlock();
-            }
-        }
-        return null;
+    private @Nullable Block getInventoryBlock(final Inventory inventory) {
+        return switch (inventory.getHolder()) {
+            case BlockState bs -> bs.getBlock();
+            case DoubleChest dc -> dc.getLeftSide() instanceof
+                final BlockState bs ? bs.getBlock() : null;
+            case null, default -> null;
+        };
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -361,13 +335,11 @@ public class SignProtectLst implements Initiable, Listener {
 
 
     private static boolean isProtected(final Block b) {
-        if (Tag.WALL_SIGNS.isTagged(b.getType())) {
-            Sign s = (Sign) b.getState();
-            return s.getPersistentDataContainer().has(key);
-        }
-        if (SignProtect.lockables.contains(b.getType())) {
+        if (SignProtect.SIGNS.contains(b.getType().asBlockType()))
+            return ((Sign) b.getState())
+                .getPersistentDataContainer().has(SignProtect.KEY);
+        if (SignProtect.lockables.contains(b.getType()))
             return SignProtect.findBlockProtection(b) != null;
-        }
         return false;
     }
 

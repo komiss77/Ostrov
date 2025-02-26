@@ -71,15 +71,18 @@ public class NumUtil {
     }
 
     public static int mulDiff(final int a, final int b) {
-        return a > b ? a / b : b / a;
+        if (a > b) return b == 0 ? Integer.MAX_VALUE : a / b;
+        return a == 0 ? Integer.MAX_VALUE : b / a;
     }
 
     public static float mulDiff(final float a, final float b) {
-        return a > b ? a / b : b / a;
+        if (a > b) return b == 0f ? Float.MAX_VALUE : a / b;
+        return a == 0f ? Float.MAX_VALUE : b / a;
     }
 
     public static double mulDiff(final double a, final double b) {
-        return a > b ? a / b : b / a;
+        if (a > b) return b == 0d ? Double.MAX_VALUE : a / b;
+        return a == 0d ? Integer.MAX_VALUE : b / a;
     }
 
     //Integer.signum

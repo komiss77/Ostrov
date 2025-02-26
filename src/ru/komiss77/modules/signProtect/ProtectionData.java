@@ -10,7 +10,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.utils.StringUtil;
 
 
-class ProtectionData {
+public class ProtectionData {
     public int valid;
     public String owner;
     public List<String> users;
@@ -18,24 +18,22 @@ class ProtectionData {
     public ProtectionData(final String ownerName) {
 //Ostrov.log("new ProtectionData ownerName");
         owner = ownerName;
-        valid = Timer.getTime() + 2592000; //30*24*60*60
+        valid = Timer.secTime() + 2592000; //30*24*60*60
         users = new ArrayList<>();// List.of();
     }
 
     public ProtectionData(final Sign sign) { //для редактора - лист должен быть изменяемый!
-//Ostrov.log("new ProtectionData sign");
-        String data = sign.getPersistentDataContainer().get(SignProtectLst.key, PersistentDataType.STRING);
+        String data = sign.getPersistentDataContainer().get(SignProtect.KEY, PersistentDataType.STRING);
         final int idx1 = data.indexOf(LocalDB.W_SPLIT);
         final int idx2 = data.indexOf(LocalDB.L_SPLIT);
         valid = Integer.parseInt(data.substring(0, idx1));
         owner = data.substring(idx1 + 1, idx2);
         data = data.substring(idx2 + 1);
-//Ostrov.log("idx1="+idx1+" idx2="+idx2+" valid="+valid+" owner="+owner+" data="+data);
-        users = data.length() > 1 ? new ArrayList(List.of(data.split(","))) : new ArrayList<>(); // List.of(data.split(","))  для редактора - лист должен быть изменяемый!
+        users = data.length() > 1 ? new ArrayList<>(List.of(data.split(","))) : new ArrayList<>(); //для редактора - лист должен быть изменяемый!
     }
 
     public boolean isValid() {
-        return valid == -1 || valid > Timer.getTime();
+        return valid == -1 || valid > Timer.secTime();
     }
 
     public boolean isOwner(final Player p) {
@@ -54,14 +52,12 @@ class ProtectionData {
     }
 
     public static ProtectionData of(final Sign sign) {//для одноразовых проверочек, чтобы не плодить экземпляры
-//Ostrov.log("ProtectionData of");
-        String data = sign.getPersistentDataContainer().get(SignProtectLst.key, PersistentDataType.STRING);
+        String data = sign.getPersistentDataContainer().get(SignProtect.KEY, PersistentDataType.STRING);
         final int idx1 = data.indexOf(LocalDB.W_SPLIT);
         final int idx2 = data.indexOf(LocalDB.L_SPLIT);
         pd.valid = Integer.parseInt(data.substring(0, idx1));
         pd.owner = data.substring(idx1 + 1, idx2);
         data = data.substring(idx2 + 1);
-//Ostrov.log("idx1="+idx1+" idx2="+idx2+" valid="+valid+" owner="+owner+" data="+data);
         pd.users = data.length() > 1 ? List.of(data.split(",")) : List.of();
         return pd;
     }

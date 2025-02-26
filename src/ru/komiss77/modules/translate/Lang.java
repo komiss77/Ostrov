@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.destroystokyo.paper.ClientOption;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Bukkit;
@@ -104,7 +105,7 @@ public class Lang {
         }
     }
 
-    //перевод названий предметов,чар,биомов и всего что имеет перевод mojang
+    //перевод названий предметов, чар, биомов и всего что имеет перевод mojang
     public static Component t(final Translatable o, final Player p) {
         final Locale locale = p == null ? RU : p.locale(); //не убирать! расчитано, что иногда приходит с null, так надо!
         return o == null ? err : t(o, locale);
@@ -118,7 +119,7 @@ public class Lang {
             return GlobalTranslator.render(Component.translatable(o), locale);
         } catch (IllegalArgumentException ex) {
             Ostrov.log_warn("Lang t : " + ex.getMessage());
-            return Component.text("§c" + ex.getMessage().substring(0, 20));
+            return Component.text(ex.getMessage().substring(0, 20), NamedTextColor.RED);
         }
         //return Component.text(o.);
     }

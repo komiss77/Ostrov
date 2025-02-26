@@ -15,7 +15,7 @@ import org.bukkit.util.Transformation;
 import org.joml.Math;
 import org.joml.Vector3f;
 import ru.komiss77.modules.items.ItemBuilder;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
@@ -69,12 +69,12 @@ public class DisplayMenu implements InventoryProvider {
 
         its.set(3, ClickableItem.from(new ItemBuilder(ItemType.ENDER_PEARL)
             .name("§5Телепорт к ноге")
-            .lore("§7на локацию " + new WXYZ(dis.getLocation(), false).toString())
+            .lore("§7на локацию " + BVec.of(dis.getLocation()).toString())
             .lore("§8ЛКМ - тп")
             .build(), e -> {
             if (e.getEvent() instanceof InventoryClickEvent) {
                 final Location dl = dis.getLocation();
-                dis.teleport(new WXYZ(p.getLocation()).getCenterLoc());
+                dis.teleport(BVec.of(p.getLocation()).center(dis.getWorld()));
                 dis.setRotation(dl.getYaw(), dl.getPitch());
                 p.closeInventory();
             }
@@ -246,7 +246,9 @@ public class DisplayMenu implements InventoryProvider {
                 }));
 
                 final BlockData bd = bds.getBlock();
-                its.set(13, ClickableItem.from(new ItemBuilder(bd.getMaterial().asItemType())
+                final ItemType tp = bd.getMaterial().asItemType();
+                its.set(13, ClickableItem.from(new ItemBuilder(tp == null
+                    || tp == ItemType.AIR ? ItemType.STONE : tp)
                     .name("§6Замена Блока")
                     .lore("§7ЛКМ §6блоком §7- поменять тип")
                     .lore("§7ПКМ §7- сделать камнем")

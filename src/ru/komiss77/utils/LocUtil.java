@@ -27,16 +27,18 @@ import ru.komiss77.version.Nms;
 //не переименовывать! юзают все плагины!
 public class LocUtil {
 
-    private static final BlockFace[] axis = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-    private static final BlockFace[] radial = {BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH, BlockFace.SOUTH_WEST, BlockFace.WEST, BlockFace.NORTH_WEST};
+    private static final BlockFace[] axial = {BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH, BlockFace.EAST};
+    private static final BlockFace[] radial = {BlockFace.SOUTH, BlockFace.SOUTH_WEST, BlockFace.WEST, BlockFace.NORTH_WEST, BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST};
 
-    public static BlockFace yawToFace(float yaw, boolean useSubCardinalDirections) {
-        if (useSubCardinalDirections) {
-            return radial[Math.round(yaw / 45f) & 0x7].getOppositeFace();
-        }
-        return axis[Math.round(yaw / 90f) & 0x3].getOppositeFace();
+    public static BlockFace yawToFace(final float yaw, final boolean cardinal) {
+        return cardinal ? radial[Math.round(yaw / 45f) & 0x7]
+            : axial[Math.round(yaw / 90f) & 0x3];
     }
 
+    public static BlockFace vecToFace(final Vector dir, final boolean cardinal) {
+        return cardinal ? radial[Math.round(NumUtil.getYaw(dir) / 45f) & 0x7]
+            : axial[Math.round(NumUtil.getYaw(dir) / 90f) & 0x3];
+    }
 
     public static Location stringToLoc(final String loc_string, final boolean autoLoadWorld, final boolean addHalfBlock) {
         if (loc_string == null || loc_string.isEmpty()) {
@@ -131,30 +133,21 @@ public class LocUtil {
         return loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ() + ":" + (int) loc.getYaw() + ":" + (int) loc.getPitch();
     }
 
-    @Deprecated
     public static int getDistance(final Location loc1, final Location loc2) {
-        return (int) Math.sqrt(getDistanceSquared(loc1, loc2));
+        return NumUtil.sqrt(getDistanceSquared(loc1, loc2));
     }
 
     public static int getDistanceSquared(final Location loc1, final Location loc2) {
         if (loc1 == null || loc2 == null || !loc1.getWorld()
-            .getName().equals(loc2.getWorld().getName())) return Integer.MAX_VALUE;
+            .getUID().equals(loc2.getWorld().getUID())) return Integer.MAX_VALUE;
         return NumUtil.square(loc1.getBlockX() - loc2.getBlockX()) +
             NumUtil.square(loc1.getBlockY() - loc2.getBlockY()) +
             NumUtil.square(loc1.getBlockZ() - loc2.getBlockZ());
     }
 
+    @Deprecated
     public static Location getNearestPlayer(final Player p) {
-        Location loc = p.getLocation();
-        int minDistance = Integer.MAX_VALUE;
-        for (final Player pl : p.getWorld().getPlayers()) {
-            final int dst = getDistance(p.getLocation(), pl.getLocation());
-            if (p.getEntityId() != pl.getEntityId() && dst < minDistance) {
-                loc = pl.getLocation();
-                minDistance = dst;
-            }
-        }
-        return loc;
+        return getNearestPlayer(p, Integer.MAX_VALUE).getLocation();
     }
 
     @Deprecated
@@ -174,7 +167,7 @@ public class LocUtil {
         double dS = dst * dst;
         Player fin = null;
         for (final Player e : loc.getWorld().getPlayers()) {
-            final Location el = e.getLocation();
+            final Location el = EntityUtil.center(e);
             final double d = Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
             if (d > dS || which != null && !which.test(e)) continue;
             dS = d; fin = e;
@@ -190,7 +183,7 @@ public class LocUtil {
         final World w = loc.w();
         if (w == null) return null;
         for (final Player e : w.getPlayers()) {
-            final Location el = e.getLocation();
+            final Location el = EntityUtil.center(e);
             final double d = Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
             if (d > dS || which != null && !which.test(e)) continue;
             dS = d; fin = e;
@@ -304,7 +297,7 @@ public class LocUtil {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
-                    final Location el = e.getLocation();
+                    final Location el = EntityUtil.center(e);
                     if (Math.pow(el.getX() - X, 2d) + Math.pow(el.getY() - Y, 2d)
                         + Math.pow(el.getZ() - Z, 2d) > dS) continue;
                     final G ge = ent.cast(e);
@@ -328,7 +321,7 @@ public class LocUtil {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
-                    final Location el = e.getLocation();
+                    final Location el = EntityUtil.center(e);
                     final double d = Math.pow(el.getX() - X, 2d)
                         + Math.pow(el.getY() - Y, 2d) + Math.pow(el.getZ() - Z, 2d);
                     if (d > dS) continue;
@@ -357,7 +350,7 @@ public class LocUtil {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
-                    final Location el = e.getLocation();
+                    final Location el = EntityUtil.center(e);
                     final int dx = el.getBlockX() - X,
                         dy = el.getBlockY() - Y, dz = el.getBlockZ() - Z;
                     if (dx * dx + dy * dy + dz * dz > dS) continue;
@@ -387,7 +380,7 @@ public class LocUtil {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
                 for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
-                    final Location el = e.getLocation();
+                    final Location el = EntityUtil.center(e);
                     final int d = NumUtil.square(el.getBlockX() - X)
                         + NumUtil.square(el.getBlockY() - Y)
                         + NumUtil.square(el.getBlockZ() - Z);

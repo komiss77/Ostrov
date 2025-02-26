@@ -7,8 +7,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.utils.ItemBuilder;
@@ -142,22 +142,13 @@ public class Sedna implements InventoryProvider {
 
         // "§7Информация и управление приватами" ,"§6Левый клик - §bВ этом мире + управление", "§6Правый клик - §6Во всех мирах (только просмотр)"
         if (Ostrov.wg) {
-            content.set(1, 7, ClickableItem.empty(new ItemBuilder(Material.DARK_OAK_FENCE_GATE)
-                    .name("§7Приваты")
-                    .lore("")
-                    .lore("")
-                    .lore("§cНе используется")
-                    .lore("§cна данном сервере.")
-                    .build()
-            ));
-        } else {
             content.set(1, 7, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE_GATE)
-                    .name("§7Приваты")
-                    .lore("")
-                    .lore(Bukkit.getPluginManager().getPlugin("RegionGUI") == null ? "" : "§7ЛКМ - помошник привата")
-                    .lore("§7ПКМ - найти все приваты,")
-                    .lore("§7где вы владелец или житель")
-                    .build(), e -> {
+                .name("§7Приваты")
+                .lore("")
+                .lore(Bukkit.getPluginManager().getPlugin("RegionGUI") == null ? "" : "§7ЛКМ - помошник привата")
+                .lore("§7ПКМ - найти все приваты,")
+                .lore("§7где вы владелец или житель")
+                .build(), e -> {
                 if (e.isLeftClick()) {
                     pm.current = null;
                     p.performCommand("land");
@@ -166,6 +157,15 @@ public class Sedna implements InventoryProvider {
                 }
 
             }));
+        } else {
+            content.set(1, 7, ClickableItem.empty(new ItemBuilder(Material.DARK_OAK_FENCE_GATE)
+                .name("§7Приваты")
+                .lore("")
+                .lore("")
+                .lore("§cНе используется")
+                .lore("§cна данном сервере.")
+                .build()
+            ));
         }
 
 

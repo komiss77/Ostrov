@@ -7,7 +7,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import ru.komiss77.Ostrov;
+import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.StringUtil;
 
@@ -309,6 +311,10 @@ public class BVec implements Cloneable {
     public static BVec of(final Location loc) {
         return new WBVecVals(loc.getWorld().getName(), loc.getBlockX(),
             loc.getBlockY(), loc.getBlockZ(), (byte) loc.getPitch(), (byte) loc.getYaw());
+    }
+
+    public static BVec of(final Entity ent) {
+        return of(EntityUtil.center(ent));
     }
 
     public static BVec parse(final String bVec) {
