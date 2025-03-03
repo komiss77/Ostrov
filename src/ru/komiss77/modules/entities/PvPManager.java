@@ -1221,7 +1221,8 @@ public class PvPManager implements Initiable {
         for (final Map.Entry<PvpFlag, Boolean> en : flags.entrySet()) {
             final PvpFlag f = en.getKey();
             if (f == PvpFlag.enable) continue;
-            Cfg.getConfig().set(f.name(), en.getValue());
+//Ostrov.log_warn("saveConfig f="+f+"="+en.getValue());
+          config.set(f.name(), en.getValue());
         }
 //        Bukkit.getConsoleSender().sendMessage("trying to save pvp config");
         config.saveConfig();

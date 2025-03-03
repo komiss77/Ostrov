@@ -48,24 +48,6 @@ public class TestLst implements Listener {
     public static double getAngleBetweenVectors(int[] vector1, int[] vector2) {
         return Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]);
     }*/
-    /*@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void on(EntityExplodeEvent e) {
-        Ostrov.log_warn("EntityExplode "+e.getEntity().getType()+e.getLocation());
-    }
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void on(BlockExplodeEvent e) {
-        Ostrov.log_warn("BlockExplode "+e.getExplodedBlockState().getType());
-    }
-    @EventHandler( priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void projectileHit( ProjectileHitEvent e) {
-        Ostrov.log_warn("Projectile " + e.getEntity().getType());
-    }
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityDamag(EntityDamageEvent e) {
-        if (e.getEntity().getType() != EntityType.PLAYER) return;
-        Ostrov.log_warn("Dmg=" + e.getDamage() + " cause=" + e.getCause() + " CausingEntity=" + e.getDamageSource().getCausingEntity()
-            + " DirectEntity=" + e.getDamageSource().getDirectEntity());
-    }*/
 
     //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {

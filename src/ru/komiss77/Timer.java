@@ -28,6 +28,7 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
+import ru.komiss77.modules.redis.OsQuery;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
@@ -38,7 +39,7 @@ public class Timer {
 
     private static BukkitTask timer;
     private static BukkitTask playerTimer;
-    private static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0 
+    public static int syncSecondCounter = 1; //начинаем с 1, чтобы сразу не срабатывало %x==0
 
     public static boolean auto_restart, to_restart;
     private static int rstHour, rstMin;
@@ -177,8 +178,12 @@ public class Timer {
 
             @Override
             public void run() {
+                OsQuery.heartBeat(sec);
+                if (sec % 20 == 0) {
+                    OsQuery.request("======= test request sec=" + sec);
+                }
                 try {
-                    RDS.heartbeats();
+                    //RDS.heartbeats();
                     if (sec % 43 == 0) {
                         GM.getGames().stream().forEach((gi -> {
                             gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
@@ -438,7 +443,7 @@ public class Timer {
         return left == 0 ? 0 : left - Timer.getTime();
     }
     @Deprecated
-    public static int getTime() {
+    public static int getTime() { //штам текущей секунды сервера в UNIX time
         return secTime();
     }
 

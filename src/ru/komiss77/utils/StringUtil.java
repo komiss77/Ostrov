@@ -1,5 +1,6 @@
 package ru.komiss77.utils;
 
+import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -121,7 +122,29 @@ public class StringUtil {
         return LOBBY_SET.contains(w.getName());
     }
 
-
+  public static String sha256(final String s) {
+    try {
+      final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      final byte[] hash = digest.digest(s.getBytes("UTF-8"));
+      final StringBuilder hexString = new StringBuilder();
+      for (int i = 0; i < hash.length; i++) {
+        final String hex = Integer.toHexString(0xff & hash[i]);
+        if (hex.length() == 1)
+          hexString.append('0');
+        hexString.append(hex);
+      }
+      return hexString.toString();
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+    //try {
+    //    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    //    byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
+    //    return new String(hash);//Base64.getEncoder().encodeToString(hash);
+    //} catch (NoSuchAlgorithmException ex) {
+    //    return "";
+    //}
+  }
     /*public static String multiReplace(final String str, final Map<String, String> places) {
         final int len = str.length(), ksl = len >> 8;
         final IntHashMap<List<String>> keys = new IntHashMap<>();

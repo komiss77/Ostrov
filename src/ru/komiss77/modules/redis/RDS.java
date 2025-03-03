@@ -118,7 +118,7 @@ public class RDS implements Initiable {
                         }
                     }
 
-                    if (unifiedJedis.hexists("heartbeats", Ostrov.MOT_D)) {
+                   /* if (unifiedJedis.hexists("heartbeats", Ostrov.MOT_D)) {
                         try {
                           //final long stamp = Long.parseLong(unifiedJedis.hget("heartbeats", Ostrov.MOT_D));
                           //final long redisTime = getRedisTime(unifiedJedis);
@@ -131,7 +131,7 @@ public class RDS implements Initiable {
                             }
                         } catch (NumberFormatException ignored) {
                         }
-                    }
+                    }*/
                     return null;
                 }
             }.execute();
@@ -170,7 +170,7 @@ public class RDS implements Initiable {
   [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RedisTask.execute(RedisTask.java:31)
   [14:09:34] [Craft Scheduler Thread - 50 - Ostrov/WARN]: 	at Ostrov.jar//ru.komiss77.modules.redis.RDS.heartbeats(RDS.java:189)
    */
-    public static void heartbeats() {
+   /* public static void heartbeats() {
         //if (redisLst == null) return;
         new RedisTask<Void>() {
             @Override
@@ -203,7 +203,7 @@ public class RDS implements Initiable {
                 return null;
             }
         }.execute();
-    }
+    }*/
 
 
     public static void sendMessage(final String channel, final String message) {
