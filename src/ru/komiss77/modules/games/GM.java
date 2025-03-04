@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -18,7 +20,6 @@ import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
@@ -248,7 +249,7 @@ public final class GM {
                     Ostrov.sync(GM::onWorldsLoadDone);
                 }
             }
-            state = State.COMPLETE;//fromStamp = ApiOstrov.currentTimeSec();
+            state = State.COMPLETE;//fromStamp = Timer.secTime();
 
 //Ostrov.log("fromStamp="+fromStamp);
         } catch (SQLException | NullPointerException | ArrayIndexOutOfBoundsException ex) {
@@ -340,7 +341,7 @@ public final class GM {
             pst.setString(8, line2);
             pst.setString(9, line3);
             pst.setInt(10, players);
-            pst.setInt(11, ApiOstrov.currentTimeSec() + 1); //для  надёжности, пусть прогрузит 2 раза
+            pst.setInt(11, Timer.secTime() + 1); //для  надёжности, пусть прогрузит 2 раза
 
 
         } catch (SQLException e) {
@@ -756,7 +757,7 @@ public final class GM {
       pst.setString(8, line2);
       pst.setString(9, line3);
       pst.setInt(10, players);
-      pst.setInt(11, ApiOstrov.currentTimeSec()+1 ); //для  надёжности, пусть прогрузит 2 раза
+      pst.setInt(11, Timer.secTime()+1 ); //для  надёжности, пусть прогрузит 2 раза
 
 
 

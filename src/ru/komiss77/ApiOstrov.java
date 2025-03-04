@@ -52,8 +52,8 @@ public class ApiOstrov {
 
     @Deprecated // юзаем напрямую
     public static boolean teleportSave(final Player p, final Location feetLoc, final boolean buildSafePlace) {
-      //return MoveUtil.safeTP(p, feetLoc, buildSafePlace);//тестить будем
-      return MoveUtil.safeTP(p, feetLoc);
+        //return MoveUtil.safeTP(p, feetLoc, buildSafePlace);//тестить будем
+        return MoveUtil.safeTP(p, feetLoc);
     }
 
     /**
@@ -90,6 +90,9 @@ public class ApiOstrov {
 
     //@Dep устаревшее, просто пишем обшим образом, типо "при открытии инвентаря" вместо "когда ты открыла инвентарь"
     //в играх очень часто нужно! самое недавнее что делал: в строителях "строил" или "строила" чем заменить одним словом?
+    // ... если на Вы говоришь то "Вы построили", там легко. Но даже если нет, я на Седне сделал без пола, на Ты
+    //вместо "Строила: Дев. Ник", "Постройка Ник"
+    @Deprecated
     public static boolean isFemale(final String name) {
         final Oplayer op = PM.getOplayer(name);
         return op != null && op.gender == PM.Gender.FEMALE;
@@ -166,7 +169,7 @@ public class ApiOstrov {
 
     public static boolean isInParty(final Player p1, final Player p2) {
         return PM.exists(p1.getUniqueId()) && !PM.getOplayer(p1.getUniqueId()).getPartyMembers().contains(p2.getName()) ||
-                PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
+            PM.exists(p2.getUniqueId()) && !PM.getOplayer(p2.getUniqueId()).getPartyMembers().contains(p1.getName());//Ostrov.api_friends!=null && ApiFriends.isInParty(p1,p2);
     }
 
     public static List<String> getPartyPlayers(final Player p) {
@@ -233,7 +236,7 @@ public class ApiOstrov {
                             .clickEvent(ClickEvent.runCommand("/builder")));
                         yield false;
                     }
-            };
+                };
             case null, default -> false;
         };
     }
@@ -251,8 +254,8 @@ public class ApiOstrov {
         targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI) + value);//moneySet(curr+value, send_update);
         if (value > 9 || value < -9) { //по копейкам не уведомляем
             target.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§5Клик - сколько стало?")))
-                    .clickEvent(ClickEvent.runCommand("/money balance")));
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§5Клик - сколько стало?")))
+                .clickEvent(ClickEvent.runCommand("/money balance")));
         } else {
             //?? писать ли что-нибудь??
         }
@@ -306,402 +309,21 @@ public class ApiOstrov {
     }
 
     @Deprecated //use Oplayer.userID
-  public static int generateId() {
-    final String createStamp = String.valueOf(System.currentTimeMillis());
-    return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
-  }
-  // *****************************************************************************
-
-
-  public static int currentTimeSec() {
-    return Timer.getTime();
-  }
-
-  public static void makeWorldEndToWipe(final int afterSecond) {
-    WorldManager.makeWorldEndToWipe(afterSecond);
-  }
-
-
-  //ScreenUtil
-  //*************** всякие титры,бары *********************
-    /*public static void sendTitle(final Player p, final String title, final String subtitle) {
-        sendTitle(p, title, subtitle, 20, 40, 20);
+    public static int generateId() {
+        final String createStamp = String.valueOf(System.currentTimeMillis());
+        return Integer.parseInt(createStamp.substring(createStamp.length() - 8));  //15868 94042329
     }
+    // *****************************************************************************
 
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendTitle(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout) {
-        final Times times = Title.Times.times(Duration.ofMillis(fadein * 50L), Duration.ofMillis(stay * 50L), Duration.ofMillis(fadeout * 50L));
-        sendTitle(p, TCUtils.form(title), TCUtils.form(subtitle), times);
-    }
-
-    public static void sendTitle(final Player p, final Component title, final Component subtitle, final int fadein, final int stay, final int fadeout) {
-        final Times times = Title.Times.times(Duration.ofMillis(fadein * 50L), Duration.ofMillis(stay * 50L), Duration.ofMillis(fadeout * 50L));
-        sendTitle(p, title, subtitle, times);
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendTitle(final Player p, final Component title, final Component subtitle, final Times times) {
-        final Oplayer op = PM.getOplayer(p);
-        final Title t = Title.title(title, subtitle, times);
-        if (op != null) { //на авторизации нет оплеера!
-            if (op.nextTitle > 0) {
-                op.delayTitles.add(t);
-            } else {
-                p.showTitle(t);
-                op.nextTitle = times.fadeIn().toSecondsPart() + times.stay().toSecondsPart() + times.fadeOut().toSecondsPart() + 1;
-            }
-        } else {
-            p.showTitle(t);
-        }
-
-    }
-
-    public static void sendTitleDirect(final Player p, final String title, final String subtitle) {
-        sendTitleDirect(p, title, subtitle, 20, 40, 20);
-    }
-
-    public static void sendTitleDirect(final Player p, final String title, final String subtitle, final int fadein, final int stay, final int fadeout) {
-        final Times times = Title.Times.times(Duration.ofMillis(fadein * 50L), Duration.ofMillis(stay * 50L), Duration.ofMillis(fadeout * 50L));
-        p.showTitle(Title.title(TCUtils.form(title), TCUtils.form(subtitle), times));
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendActionBar(final Player p, final String text) {
-        final Oplayer op = PM.getOplayer(p);
-        if (op != null) { //на авторизации нет оплеера!
-            if (op.nextAb > 0) {
-                op.delayActionbars.add(text);
-            } else {
-                op.nextAb = Oplayer.ACTION_BAR_INTERVAL;
-                p.sendActionBar(TCUtils.form(text));
-            }
-        } else {
-            p.sendActionBar(TCUtils.form(text));
-        }
-    }
-
-    public static void sendActionBarDirect(final Player p, final String text) {
-        if (p != null) {
-            p.sendActionBar(TCUtils.form(text));
-        }
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbar(final Player p, final String text, final int seconds,
-        final BossBar.Color color, final BossBar.Overlay style, final float progress) {
-        final Oplayer op = PM.getOplayer(p);
-        if (op != null) {
-            if (op.barTime > 0) {
-                op.delayBossBars.add(new DelayBossBar(text, seconds, color, style, progress, false));
-            } else {
-                DelayBossBar.apply(op, p, text, seconds, color, style, progress, false);
-            }
-        }
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbarDirect(final Player p, final String text, final int seconds,
-        final BossBar.Color color, final BossBar.Overlay style, final float progress) {
-        final Oplayer op = PM.getOplayer(p);
-        if (op != null) DelayBossBar.apply(op, p, text, seconds, color, style, progress, false);
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbar(final Player p, final String text,
-        final int seconds, final BossBar.Color color, final BossBar.Overlay style) {
-        final Oplayer op = PM.getOplayer(p);
-        if (op != null) {
-            if (op.barTime > 0) {
-                op.delayBossBars.add(new DelayBossBar(text, seconds, color, style, 1f, true));
-            } else {
-                DelayBossBar.apply(op, p, text, seconds, color, style, 1f, true);
-            }
-        }
-    }
-
-    // сообщения сохраняются и выводятся поочерёдно
-    public static void sendBossbarDirect(final Player p, final String text,
-        final int seconds, final BossBar.Color color, final BossBar.Overlay style) {
-        final Oplayer op = PM.getOplayer(p);
-        if (op != null) DelayBossBar.apply(op, p, text, seconds, color, style, 1f, true);
-    }
-
-    public static void sendTabList(final Player p, final String header, final String footer) {
-        p.sendPlayerListHeaderAndFooter(TCUtils.form(header), TCUtils.form(footer));
-    }*/
-  // *****************************************************************************
-
-
-/* StringUtil
-    public static String getPercentBar(final int max, final int current, final boolean withPercent) {
-        if (current < 0 || current > max) return "§8||||||||||||||||||||||||| ";
-//System.out.println("max="+max+" curr="+current);
-        final double percent = (double) current / max * 100;
-        int p10 = (int) (percent * 10);
-        final double percent1d = ((double) p10 / 10); //чтобы не показывало 100
-        int pos = p10 / 40;
-        //StringBuilder sb = new StringBuilder("§a||||||||||||||||||||||||| ");
-        //return sb.insert(pos, "§8").append(percent1d).append("%").toString();
-        if (pos < 2) pos = 2;
-        else if (pos > 26) pos = 26;
-        if (withPercent) {
-            return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").append("§f").append(percent1d).append("%").toString();
-        } else {
-            return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
-        }
-    }*/
-
-
-
-   /* ClassUtil @SuppressWarnings("unchecked")
-    public static <G> G rndElmt(final G... arr) {
-        return arr[Ostrov.random.nextInt(arr.length)];
-    }
-
-    public static <G> G[] shuffle(final G[] ar) {
-        int chs = ar.length >> 2;
-        if (chs == 0) {
-            if (ar.length > 1) {
-                final G ne = ar[0];
-                ar[0] = ar[ar.length - 1];
-                ar[ar.length - 1] = ne;
-            }
-            return ar;
-        }
-        for (int i = ar.length - 1; i > chs; i--) {
-            final int ni = Ostrov.random.nextInt(i);
-            final G ne = ar[ni];
-            ar[ni] = ar[i];
-            ar[i] = ne;
-            chs += ((chs - ni) >> 31) + 1;
-        }
-        return ar;
-    }*/
-
-
-
-    /* MoveUtil
-    public static void moveDeny(final PlayerMoveEvent e) {//блокировка перемещения, для миниигр
-        if (e.getTo().getY() < e.getFrom().getY()) {
-            e.setTo(e.getFrom().add(0, 2, 0));
-        } else {
-            e.setTo(e.getFrom());
-        }
-    }*/
-
-
-
-
-    /* StringUtil
-    public static String toSigFigs(final double n, final byte sf) {
-        final String nm = String.valueOf(n);
-        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
-    }
 
     @Deprecated
-    public static String toSigFigs(final float n, final byte sf) {
-        final String nm = String.valueOf(n);
-        return nm.indexOf('.') + sf + 1 < nm.length() ? nm.substring(0, nm.indexOf('.') + sf + 1) : nm;
-    }*/
-
-
-    //TimeUtil
-    //public static boolean isNewDay() { //после рестарта определить, настал ли новый день
-    //    return Ostrov.newDay;
-    //}
-
-
-    //ентити
-/* EntityUtil
-    public static @Nullable LivingEntity lastDamager(final LivingEntity ent, final boolean owner) {
-        return getDamager(ent.getLastDamageCause(), owner);
+    public static int currentTimeSec() {
+        return Timer.getTime();
     }
 
-    public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
-        if (e instanceof final EntityDamageByEntityEvent ev) {
-            if (ev.getDamager() instanceof Projectile && ((Projectile) ev.getDamager()).getShooter() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
-            } else if (ev.getDamager() instanceof final LivingEntity le) {
-                if (le instanceof final Tameable tm && owner) {
-                    return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-                } else return le;
-            }
-        }
-        return null;
-    }*/
-
-
-    //невостребовано вообще
-    /*public static Connection getLocalConnection() {
-        return LocalDB.getConnection();
+    public static void makeWorldEndToWipe(final int afterSecond) {
+        WorldManager.makeWorldEndToWipe(afterSecond);
     }
-    public static Connection getOstrovConnection() {
-        return OstrovDB.getConnection();
-    }*/
-
-
-
-/* StringUtil
-    private static final String PATTERN_ENG = "[A-Za-z_]";
-    private static final String PATTERN_ENG_NUM = "\\w"; //[A-Za-z0-9_]";
-    private static final String PATTERN_ENG_RUS = "[A-Za-zА-Яа-я_]";
-    private static final String PATTERN_ENG_NUM_RUS = "[A-Za-z0-9А-Яа-я_]";*/
-
-    //невостребовано вообще
-    // public static Initiable getModule(final Module module) {
-    //return Ostrov.getModule(module);
-    // }
-
-
-    //public static boolean hasPermission(final String worldName, final String nik, String perm) {
-    //     final Oplayer op = PM.getOplayer(nik);
-    //     return op != null && Perm.hasPermissions(op, worldName, perm);
-    //  }
-
-
-
-    /* TimeUtil
-    public static String secondToTime(int second) { //c днями и нед!
-        if (second < 0) return "---";
-        final int year = second / 30_758_400; //356*24*60*60
-        second -= year * 30_758_400; //от секунд отнимаем годы
-        final int month = second / 2_678_400; //31*24*60*60
-        second -= month * 2_678_400; //от секунд отнимаем месяцы
-
-        final int week = second / 604_800; //7*24*60*60
-        if (year == 0)
-            second -= week * 604_800; //от секунд отнимаем недели. недели не показываем и не отнимаем, если счёт на года
-
-        final int day = second / 86_400; //24*60*60
-        second -= day * 86_400; //от секунд отнимаем дни
-        final int hour = second / 3600; //60*60
-        second -= hour * 3600;  //от секунд отнимаем часы
-        final int min = second / 60;
-        second -= min * 60; //от секунд отнимаем минуты
-
-        StringBuilder sb = new StringBuilder();
-        if (year > 0) sb.append(year).append("г. ");
-        if (month > 0) sb.append(month).append("мес. ");
-        if (week > 0 && year == 0) sb.append(week).append("нед. ");
-        if (day > 0) sb.append(day).append("д. ");
-        if (year > 0) return sb.toString(); //счёт на года - достаточно до дней
-        if (hour > 0) sb.append(hour).append("ч. ");
-        if (month > 0 || week > 0) return sb.toString(); //счёт на месяца - достаточно до часов
-        if (min > 0) sb.append(min).append("мин. ");
-        if (second > 0) sb.append(second).append("сек. ");
-        return sb.toString();
-    }
-
-    public static String dateFromStamp(final int stamp_in_second) {
-        return Ostrov.dateFromStamp(stamp_in_second);
-    }
-
-    public static String getCurrentHourMin() {
-        return Ostrov.getCurrentHourMin();
-    }*/
-
-
-    /* use StingUtil
-    public static String listToString(final Iterable<?> array, final String splitter) {
-        if (array == null) return "";
-       /* StringBuilder sb=new StringBuilder();
-        array.forEach( (s) -> {
-            sb.append(s).append(splitter);
-        });
-        return sb.toString();
-        return StreamSupport.stream(array.spliterator(), true)
-                .map(Object::toString)
-                .reduce((t, u) -> t + "," + u)
-                .orElse("");
-    }
-
-    @Deprecated
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static String toString(final Collection array, final boolean commaspace) {
-        return toString(array, commaspace ? ", " : ",");
-    }
-
-    public static <E> String toString(final Collection<E> array, final String separator) {
-        if (array == null || array.isEmpty()) return "";
-        return array.stream()
-                .map(E::toString)
-                .reduce((t, u) -> t + separator + u)
-                .orElse("");
-    }
-
-    public static String enumSetToString(final Set<?> enumSet) {
-        StringBuilder sb = new StringBuilder();
-        enumSet.forEach(eNum -> sb.append(eNum.toString()).append(","));
-        return sb.toString();//allowRole;
-    }
-
-
-    public static String nrmlzStr(final String s) {
-        final char[] ss = s.toLowerCase().toCharArray();
-        ss[0] = Character.toUpperCase(ss[0]);
-        for (byte i = (byte) (ss.length - 1); i > 0; i--) {
-            switch (ss[i]) {
-                case '_':
-                    ss[i] = ' ';
-                case ' ':
-                    ss[i + 1] = Character.toUpperCase(ss[i + 1]);
-                    break;
-                default:
-                    break;
-            }
-        }
-        return String.valueOf(ss);
-    }
-    */
-
-    /*use LocUtil
-    public static String stringFromLoc(final Location loc) {
-        return LocationUtil.toString(loc);
-    }
-
-    public static Location locFromString(final String loc_as_string) {
-        return LocationUtil.stringToLoc(loc_as_string, false, true);
-    }
-*/
-
-    /*BlockUtils
-    public static Block getSignAttachedBlock(final Block b) {
-        if (b.getState() instanceof final Sign sign
-                && sign.getBlockData() instanceof final WallSign signData) {
-            return b.getRelative(signData.getFacing().getOppositeFace());
-
-        }
-        return b.getRelative(BlockFace.DOWN);
-    }*/
-
-/* StringUtil
-    public static String[] wrap(final String msg, final int length, final String newLine) {
-        if (msg.length() < 2) return new String[]{msg};
-        final char split = '\n';
-        final String line = split + newLine;
-        return WordUtils.wrap(msg, length, line, false).substring(1).split(line);
-    }
-
-    public static boolean checkString(String message, final boolean allowNumbers, final boolean allowRussian) {
-        return checkString(message, false, allowNumbers, allowRussian);
-    }
-
-    public static boolean checkString(String message, final boolean allowSpace, final boolean allowNumbers, final boolean allowRussian) {
-        if (allowNumbers && allowRussian) {
-            message = message.replaceAll(PATTERN_ENG_NUM_RUS, "");
-        } else if (allowNumbers) {
-            message = message.replaceAll(PATTERN_ENG_NUM, "");
-        } else if (allowRussian) {
-            message = message.replaceAll(PATTERN_ENG_RUS, "");
-        } else {
-            message = message.replaceAll(PATTERN_ENG, "");
-        }
-        return allowSpace ? message.isBlank() : message.isEmpty();
-    }*/
-
-
 }
 
 

@@ -1,12 +1,6 @@
 package ru.komiss77;
 
-import java.sql.ResultSetMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -230,7 +224,7 @@ public class RemoteDB {
             + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
             + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
             + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
-            + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
+            + "',`stamp`='" + Timer.secTime() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
         executePstAsync(Bukkit.getConsoleSender(), querry);*/
 
 
@@ -245,7 +239,7 @@ public class RemoteDB {
                     + "`memory`='"+(int)(Runtime.getRuntime().totalMemory()/1024/1024 )+"',"
                     + "`memoryLimit`='"+(int)(Runtime.getRuntime().maxMemory()/1024/1024)+"',"
                     + "`freeMemory`='"+(int)(Runtime.getRuntime().freeMemory()/1024/1024)+"',"
-                    + "`stamp`='"+ApiOstrov.currentTimeSec()+"'"
+                    + "`stamp`='"+Timer.secTime()+"'"
                     + " WHERE `serverId`='"+Ostrov.server_id+"' ");
             pst.executeUpdate();
 

@@ -1,30 +1,16 @@
 package ru.komiss77.listener;
 
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.commands.TprCmd;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.version.Nms;
 
 
 public class TestLst implements Listener {
@@ -67,14 +53,10 @@ public class TestLst implements Listener {
             + " DirectEntity=" + e.getDamageSource().getDirectEntity());
     }*/
 
-    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-//        Nms.totemPop(p, ItemUtil.nextPage);
-//p.sendMessage("Interact "+Tag.BANNERS.isTagged(e.getClickedBlock().getType()));
         if (!ApiOstrov.canBeBuilder(p)) return;
-        final Oplayer op = PM.getOplayer(p);
-
         final ItemStack inHand = e.getItem();
         if (inHand == null) return;
 
@@ -108,16 +90,9 @@ public class TestLst implements Listener {
                     MoveUtil.teleportSave(p, loc, true);
                 }
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (p.isSneaking()) {
-                    // p.getWorld().createExplosion(e.getClickedBlock().getLocation().add(0,1,0), 5.0f, false, false);
-                } else {
-                    p.sendMessage("TprCmd.runCommand on safeTP");
-                    TprCmd.runCommand(p, p.getWorld(), 1000, true, true, null);
-                }
+                Nms.zoom(p, p.isSneaking() ? 10f : 11f);
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                if (p.isSneaking()) {
-                } else {
-                }
+
             }
         }
 

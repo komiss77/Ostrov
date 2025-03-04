@@ -3,6 +3,7 @@ package ru.komiss77;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import com.google.common.base.Charsets;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -377,17 +378,11 @@ public class OConfigManager {
      * @param file - Config file
      */
     public void saveConfig(String configString, File file) {
-//System.out.println("saveConfig configString="+configString);
-        String configuration = this.prepareConfigString(configString);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(configuration);
-            writer.flush();
-
+        try (final Writer writer = new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8)) {
+            writer.write(prepareConfigString(configString));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @SuppressWarnings("deprecation")

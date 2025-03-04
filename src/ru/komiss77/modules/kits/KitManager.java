@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.*;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TimeUtil;
@@ -272,9 +272,9 @@ public final class KitManager implements Initiable {
     public static int getSecondLetf(final Player player, final Kit kit) {
 //System.out.println("getMinLetf deley="+kit.delayMin+"  lastAccesBelow="+( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) )+
         //" res="+((int) (kit.delayMin*60 - ( Timer.Единое_время()/1000 - PM.Kit_last_acces(player.name(), kit.name) ))) );
-        //return kit.delaySec - Math.ceil( ApiOstrov.currentTimeSec() - PM.Kit_last_acces(player.name(), kit.name)  ) ;
+        //return kit.delaySec - Math.ceil( Timer.secTime() - PM.Kit_last_acces(player.name(), kit.name)  ) ;
         final Oplayer op = PM.getOplayer(player);
-        return kit.delaySec - (ApiOstrov.currentTimeSec() - op.getKitUseStamp(kit.name));
+        return kit.delaySec - (Timer.secTime() - op.getKitUseStamp(kit.name));
     }
 
     public static void giveKit(final Player p, final String kitName, final boolean equipArmor) {

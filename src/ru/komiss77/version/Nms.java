@@ -36,6 +36,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.component.CustomData;
@@ -636,6 +637,19 @@ public class Nms {
     return !Craft.toNMS(pl).isIgnoringFallDamageFromCurrentImpulse();
   }
 
+  public static void zoom(final Player pl, final float zoom) {
+    final Abilities ab = new Abilities();
+    ab.invulnerable = ab.flying = ab.mayfly = ab.instabuild
+        = switch (pl.getGameMode())
+    {case CREATIVE, SPECTATOR -> true; default -> false;};
+    if (zoom > 10f) {
+      final float rev = Math.max(21f-zoom, 1f);
+      ab.setWalkingSpeed(rev * rev * -0.1f);
+    } else ab.setWalkingSpeed(zoom * zoom / 10f);
+    Nms.sendPacket(pl, new ClientboundPlayerAbilitiesPacket(ab));
+  }
+
+  @Deprecated
   public static void setAggro(final Mob le, final boolean aggro) {
     Craft.toNMS(le).setAggressive(aggro);
   }

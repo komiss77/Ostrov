@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.Pathfinder.PathResult;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.util.Vector;
@@ -37,7 +38,7 @@ public class AStarPath {
 
     //	private final int id;
 
-    private WXYZ tgt;
+    private BVec tgt;
     private Node[] steps;
     private int next;
 
@@ -106,7 +107,7 @@ public class AStarPath {
         }
 
         if (steps.length == next) {
-            final PathResult pr = pth.findPath(tgt.getCenterLoc());
+            final PathResult pr = pth.findPath(tgt.center(mb.getWorld()));
             if (pr != null) pth.moveTo(pr, speed);
             delTgt();
             return done = true;
@@ -118,8 +119,7 @@ public class AStarPath {
         final int dst = crr.distSq(lc);
         if (dst == lastDst) {
             if (stuckCnt++ == STUCK_KD) {
-//				Bukkit.broadcast(TCUtils.form("steps=" + steps.length + ", next=" + next));
-                setTgt(new WXYZ(mb.getWorld(), steps[steps.length - 1]));
+                setTgt(steps[steps.length - 1].w(mb.getWorld()));
                 stuckCnt = 0;
                 return done = false;
             }
@@ -174,7 +174,7 @@ public class AStarPath {
 				p.sendBlockChange(crr.getCenterLoc(tgt.w), tgt.w.getBlockData(crr.getCenterLoc(tgt.w)));
 			}
 		}, 10);*/
-        final PathResult pr = pth.findPath(crr.getCenterLoc(tgt.w));
+        final PathResult pr = pth.findPath(crr.center(mb.getWorld()));
         if (pr != null) pth.moveTo(pr, speed);
 
         return done = false;
@@ -192,60 +192,43 @@ public class AStarPath {
     }
 
     @Nullable
+    @Deprecated
     public Location getNextLoc() {
-        final XYZ nxt = next < steps.length ? steps[next] : tgt;
-        return nxt == null ? null : nxt.getCenterLoc(tgt.w);
+        final BVec nxt = next < steps.length ? steps[next] : tgt;
+        if (nxt == null) return null;
+        final World w = tgt.w();
+        return w == null ? null : nxt.center(w);
+    }
+
+    @Nullable
+    public Location getNextLoc(final World w) {
+        final BVec nxt = next < steps.length ? steps[next] : tgt;
+        return nxt == null ? null : w == null ? null : nxt.center(w);
     }
 
     @Slow(priority = 2)
-    public void setTgt(final WXYZ to) {
+    public void setTgt(final BVec to) {
         pth.stopPathfinding();
         nxs = NextState.WALK;
         tgt = to;
         final Mob mb = mrf.get();
         if (mb == null) return;
-        final LinkedList<Node> stps = AStarFinder.findPath(new WXYZ(mb.getLocation()), to, maxNodes, jump);
+        final LinkedList<Node> stps = AStarFinder.findPath(BVec.of(mb.getLocation()), to, maxNodes, jump);
         steps = stps.toArray(non);
         next = 0;
-
-        /*tgt = to;
-        done = null;
-        this.tgtSet++;
-        final int tgtSet = this.tgtSet;
-        move = false;
-        nxs = NextState.WALK;
-        final Mob mb = mrf.get();
-        if (mb == null) return;
-        Ostrov.async(() -> {
-            final LinkedList<Node> stps = AStarFinder.findPath(new WXYZ(mb.getLocation()), to, maxNodes, jump);
-            if (tgtSet != this.tgtSet) {
-                Ostrov.log_warn("Tried setting A* target too frequently");
-                return;
-            }
-            steps = stps.toArray(new Node[0]);
-            next = 0;
-            move = true;
-        });*/
     }
 
     public void delTgt() {
         steps = non;
         next = 0;
         tgt = null;
-        /*if (tgtSet != 0) {
-            steps = non;
-            tgtSet = 0;
-            next = 0;
-            tgt = null;
-            move = false;
-        }*/
     }
 
     public boolean hasTgt() {
         return tgt != null;
     }
 
-    private void jump(final LivingEntity rplc, final Location from, final XYZ curr) {
+    private void jump(final LivingEntity rplc, final Location from, final BVec curr) {
         if (rplc.isOnGround() && jump) {
             pth.stopPathfinding();
             isJump = true;
@@ -258,7 +241,7 @@ public class AStarPath {
             if (abx > max) drv.setX(drv.getX() / abx * max);
             final double abz = Math.abs(drv.getZ());
             if (abz > max) drv.setZ(drv.getZ() / abz * max);
-            final double cft = jmpSpd * 0.18d;
+            final double cft = jmpSpd * 0.175d;
             rplc.setVelocity(new Vector(drv.getX() * cft, Math.min(MAX_dY,
                 dY / jmpSpd * (drv.lengthSquared() * 0.01d + 1d)), drv.getZ() * cft));
         }

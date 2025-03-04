@@ -217,6 +217,7 @@ public class ItemBuilder {
         return flags != null && flags.contains(flag);
     }
 
+    @Deprecated
     public ItemBuilder flags(final boolean on, final ItemFlag... fls) {
         if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
         for (final ItemFlag f : fls) {
@@ -239,6 +240,51 @@ public class ItemBuilder {
             };
             if (sit != null) sit.showInTooltip(!on);
         }
+        return this;
+    }
+
+    public ItemBuilder flags(final ItemFlag... fls) {
+        if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
+        for (final ItemFlag f : fls) {
+            if (!flags.add(f)) continue;
+            final ShownInTooltip<?> sit = switch (f) {
+                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
+                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
+                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
+                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
+                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
+                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
+                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
+                case HIDE_ADDITIONAL_TOOLTIP -> {
+                    set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
+                    yield null;
+                }
+            };
+            if (sit != null) sit.showInTooltip(false);
+        }
+        return this;
+    }
+
+    public ItemBuilder deflag() {
+        for (final ItemFlag f : flags) {
+            final ShownInTooltip<?> sit = switch (f) {
+                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
+                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
+                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
+                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
+                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
+                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
+                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
+                case HIDE_ADDITIONAL_TOOLTIP -> {
+                    reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
+                    yield null;
+                }
+            };
+            if (sit != null) sit.showInTooltip(true);
+        }
+        flags.clear();
         return this;
     }
 

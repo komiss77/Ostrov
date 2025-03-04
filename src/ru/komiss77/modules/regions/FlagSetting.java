@@ -2,26 +2,18 @@ package ru.komiss77.modules.regions;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.protection.flags.*;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.protection.flags.BooleanFlag;
-import com.sk89q.worldguard.protection.flags.DoubleFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.FlagContext;
-import com.sk89q.worldguard.protection.flags.IntegerFlag;
-import com.sk89q.worldguard.protection.flags.InvalidFlagFormat;
-import com.sk89q.worldguard.protection.flags.SetFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.StringFlag;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
@@ -36,30 +28,25 @@ public class FlagSetting {
   public Material iconMat;
   private final FlagInputType inputType;
 
-  public FlagSetting(final Flag f, final String displayname, final Material iconMat, final boolean enabled) {
+  public FlagSetting(final Flag<?> f, final String displayname, final Material iconMat, final boolean enabled) {
     name = f.getName();
     this.displayname = displayname;
     this.iconMat = iconMat;
     this.enabled = enabled;
 
-    if (f instanceof StringFlag) {
-      inputType = FlagInputType.STRING;
-    } else if (f instanceof StateFlag) {
-      inputType = FlagInputType.STATE;
-    } else if (f instanceof SetFlag) { // HashSet
-      inputType = FlagInputType.SET;
-    } else if (f instanceof IntegerFlag) {
-      inputType = FlagInputType.INTEGER;
-    } else if (f instanceof DoubleFlag) {
-      inputType = FlagInputType.DOUBLE;
-    } else if (f instanceof BooleanFlag) {
-      inputType = FlagInputType.BOOLEAN;
-    } else {
-      inputType = FlagInputType.OTHER;
+    switch (f) {
+      case StringFlag ignored -> inputType = FlagInputType.STRING;
+      case StateFlag ignored -> inputType = FlagInputType.STATE;
+      case SetFlag<?> ignored ->  // HashSet
+          inputType = FlagInputType.SET;
+      case IntegerFlag ignored -> inputType = FlagInputType.INTEGER;
+      case DoubleFlag ignored -> inputType = FlagInputType.DOUBLE;
+      case BooleanFlag ignored -> inputType = FlagInputType.BOOLEAN;
+      default -> inputType = FlagInputType.OTHER;
     }
   }
 
-  public static ClickableItem button(final Player p, final Flag f, final ProtectedRegion region, final InventoryContent contents) {
+  public static ClickableItem button(final Player p, final Flag<?> f, final ProtectedRegion region, final InventoryContent contents) {
     final FlagSetting fs = RM.flags.get(f);
     //if (fs == null) {
 
@@ -103,7 +90,7 @@ public class FlagSetting {
         || (p.hasPermission("regiongui.flag." + fs.name) || p.hasPermission("regiongui.flag.all"))
         && !p.hasPermission("-regiongui.flag." + fs.name);
 
-    ItemStack is = new ItemBuilder(mat == null ? Material.GRAY_DYE : mat)
+    ItemStack is = new ItemBuilder((mat == null ? Material.GRAY_DYE : mat).asItemType())
         .name("§7" + fs.displayname)
         .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
         .lore("")
@@ -161,7 +148,7 @@ public class FlagSetting {
   }
 
 
-  private static void switchState(final ProtectedRegion region, final Flag f) {
+  private static void switchState(final ProtectedRegion region, final Flag<?> f) {
     final FlagSetting fs = RM.flags.get(f);
     if (fs == null) {
       return;
@@ -200,7 +187,7 @@ public class FlagSetting {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static String getCurrentValue(final ProtectedRegion region, final Flag f) {
+  public static String getCurrentValue(final ProtectedRegion region, final Flag<?> f) {
     if (!region.getFlags().containsKey(f)) {
       return "§8Неактивен";
     }
@@ -209,39 +196,30 @@ public class FlagSetting {
       return "§8Флага нет в базе";
     }
 //System.out.println( "getCurrentValue flag="+getFlag().getName()+" inputType="+inputType  );
-    switch (fs.inputType) {
-      case BOOLEAN:
-        return (boolean) region.getFlag(f) ? "§2Да" : "§4Нет";
-
-      case STATE:
-        return region.getFlag(f) == StateFlag.State.ALLOW ? "§2Да" : "§4Нет";
-
-      case DOUBLE:
+    return switch (fs.inputType) {
+      case BOOLEAN -> (boolean) region.getFlag(f) ? "§2Да" : "§4Нет";
+      case STATE -> region.getFlag(f) == StateFlag.State.ALLOW ? "§2Да" : "§4Нет";
+      case DOUBLE ->
         //return F.name(new StringBuilder().append((double)region.getFlag((Flag)flag)).toString());
-        return "" + (double) region.getFlag((DoubleFlag) f);
-
-      case INTEGER:
+          "" + (double) region.getFlag((DoubleFlag) f);
+      case INTEGER ->
         //return F.name(new StringBuilder().append((int)region.getFlag((Flag)flag)).toString());
-        return "" + (int) region.getFlag((IntegerFlag) f);
-
-      case STRING:
+          "" + (int) region.getFlag((IntegerFlag) f);
+      case STRING ->
         // return F.name(((String)region.getFlag((Flag)flag)).toString());
-        return (String) region.getFlag(f);
-
-      case SET:
+          (String) region.getFlag(f);
+      case SET -> {
         //return F.format((Iterable)region.getFlag(flag), ",", "none");
         SetFlag<?> var2 = (SetFlag<?>) f;
-        return (String) ((Set) region.getFlag(var2)).stream().collect(Collectors.joining(",", "[", "]"));
-
-      case OTHER:
-      default:
+        yield (String) ((Set) region.getFlag(var2)).stream().collect(Collectors.joining(",", "[", "]"));
+      }
+      default ->
         //return "§8Неопределён";
-        return region.getFlag(f).toString();
-
-    }
+          region.getFlag(f).toString();
+    };
   }
 
-  public static String suggestValue(final ProtectedRegion region, final Flag f) {
+  public static String suggestValue(final ProtectedRegion region, final Flag<?> f) {
 
     final FlagSetting fs = RM.flags.get(f);
     if (fs == null) {

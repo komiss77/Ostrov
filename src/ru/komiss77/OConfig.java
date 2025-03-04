@@ -173,8 +173,7 @@ public class OConfig {
     }
 
     public void saveConfig() {
-        String cfg = this.config.saveToString();
-        Cfg.manager.saveConfig(cfg, this.file);
+        Cfg.manager.saveConfig(config.saveToString(), this.file);
 
     }
 

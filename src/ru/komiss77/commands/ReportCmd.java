@@ -92,11 +92,11 @@ final static String player = "игрок", reason = "причина";
 
                           //вычитывать из локальной копии!!
                           if (pl == null) { //консоль
-              /*if (consoleReportStamp.containsKey(arg[0]) && ApiOstrov.currentTimeSec() - consoleReportStamp.get(arg[0]) < 1800) {
+              /*if (consoleReportStamp.containsKey(arg[0]) && Timer.secTime() - consoleReportStamp.get(arg[0]) < 1800) {
                 cs.sendMessage("§cНа одного игрока консоль может делать один репорт в пол часа");
                 return true;
               }
-              consoleReportStamp.put(arg[0], ApiOstrov.currentTimeSec());*/
+              consoleReportStamp.put(arg[0], Timer.secTime());*/
                             SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
                                 Ostrov.MOT_D, 0, 0, 0, toName, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
                           } else {

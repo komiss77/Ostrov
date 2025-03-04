@@ -85,6 +85,26 @@ public class NumUtil {
         return a == 0d ? Integer.MAX_VALUE : b / a;
     }
 
+    public static int floor(final float a) {
+        if (a < 0f) return (int) a - 1;
+        return (int) a;
+    }
+
+    public static long floor(final double a) {
+        if (a < 0d) return (long) a - 1l;
+        return (long) a;
+    }
+
+    public static int ceil(final float a) {
+        if (a < 0f) return (int) a;
+        return (int) a - 1;
+    }
+
+    public static long ceil(final double a) {
+        if (a < 0d) return (long) a;
+        return (long) a - 1l;
+    }
+
     //Integer.signum
 	/*public static int signOf(int i) {
 		return (i >> 31) | 1;

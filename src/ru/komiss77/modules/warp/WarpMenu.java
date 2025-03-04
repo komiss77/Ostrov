@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
+import ru.komiss77.Timer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.utils.ItemBuilder;
@@ -189,7 +190,7 @@ public class WarpMenu implements InventoryProvider {
                     return;
                 }
 
-                final Warp warp = new Warp(strip, "ostrov", ApiOstrov.currentTimeSec());
+                final Warp warp = new Warp(strip, "ostrov", Timer.secTime());
                 warp.descr = "";
                 warp.setLocation(p.getLocation());
                 warp.system = true;
@@ -269,7 +270,7 @@ public class WarpMenu implements InventoryProvider {
                     return;
                 }
 
-                final Warp warp = new Warp(strip, p.getName(), ApiOstrov.currentTimeSec());
+                final Warp warp = new Warp(strip, p.getName(), Timer.secTime());
                 warp.descr = "";
                 warp.setLocation(p.getLocation());
 

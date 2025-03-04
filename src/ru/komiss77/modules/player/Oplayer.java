@@ -18,10 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
-import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import ru.komiss77.*;
 import ru.komiss77.builder.SetupMode;
 import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
@@ -57,7 +55,7 @@ public class Oplayer {
     public boolean eng; //true - english; false - russian
     public int karmaCalc,
         reputationCalc; //просчитывается в
-    private final int loginTime = ApiOstrov.currentTimeSec();
+    private final int loginTime = Timer.secTime();
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа
     public int tick; //каждые 20 тиков будет вызов secondTick из таймера
@@ -66,7 +64,7 @@ public class Oplayer {
     public final Map<String, String> mysqlData = new HashMap<>();
     public int mysqRecordId = Integer.MIN_VALUE;
 
-    protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
+    protected final EnumMap<Data, String> globalData = new EnumMap<>(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
@@ -107,8 +105,10 @@ public class Oplayer {
     private String tagPreffix = "", tagSuffix = "";
 
     public int pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
-    public boolean mysqlError, allow_fly, firstJoin, resourcepack_locked = true, pvp_allow = true;
-
+    public boolean allow_fly, firstJoin, resourcepack_locked = true, pvp_allow = true;
+    @Deprecated
+    public boolean mysqlError;
+    public LocalDB.Error dbError;
     //служебные
     public int lookSum = 0, lookStamp = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
@@ -219,10 +219,10 @@ public class Oplayer {
             }
         }
 
-        if (dataString.isEmpty() && onlineSecond > 1) {
+        if (globalData.isEmpty() && onlineSecond > 1) {
             if (onlineSecond < 15) {
                 SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
-                ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с прокси..");
+                ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с Остров БД..");
                 return;
             } else if (onlineSecond == 15) {
                 p.sendMessage("§cДанные с прокси не получены, попробуйте перезайти!");
@@ -247,7 +247,7 @@ public class Oplayer {
     }
 
     public int getOnlineSec() {
-        return onlineSecond;//ApiOstrov.currentTimeSec()-loginTime;
+        return onlineSecond;//Timer.secTime()-loginTime;
     }
 
     public Set<String> getPartyMembers() {
@@ -353,7 +353,7 @@ public class Oplayer {
     }
 
     public String getDataString(final Data data) {
-        return dataString.getOrDefault(data, data.def_value);
+        return globalData.getOrDefault(data, data.def_value);
     }
 
     public int getDataInt(final Data data) {
@@ -387,7 +387,7 @@ public class Oplayer {
 
     public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
         if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, e_data.tag, 0, value, "")) {
-            dataString.put(e_data, value);
+            globalData.put(e_data, value);
             return true;
         } else {
             getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
@@ -403,7 +403,7 @@ public class Oplayer {
     public int getStat(final Stat st) {
         int record = stat.getOrDefault(st, 0);
         return switch (st) {
-            case PLAY_TIME -> record + (ApiOstrov.currentTimeSec() - loginTime);
+            case PLAY_TIME -> record + (Timer.secTime() - loginTime);
             case REPUTATION -> reputationCalc;
             case KARMA -> karmaCalc;
             default -> record;
@@ -413,7 +413,7 @@ public class Oplayer {
     public int getDailyStat(final Stat st) {
         int record = dailyStat.getOrDefault(st, 0);
         return switch (st) {
-            case PLAY_TIME -> record + (ApiOstrov.currentTimeSec() - daylyLoginTime);
+            case PLAY_TIME -> record + (Timer.secTime() - daylyLoginTime);
             default -> record;
         };
     }
@@ -471,7 +471,7 @@ public class Oplayer {
 
     public void resetDaylyStat() {
         dailyStat.clear();
-        daylyLoginTime = ApiOstrov.currentTimeSec();
+        daylyLoginTime = Timer.secTime();
     }
 
     public boolean hasFlag(final StatFlag flag) {
@@ -610,7 +610,7 @@ public class Oplayer {
     }
 
     public void setKitUseTimestamp(final String kitName) {
-        kits_use_timestamp.put(kitName, ApiOstrov.currentTimeSec());
+        kits_use_timestamp.put(kitName, Timer.secTime());
         mysqlData.put("kitsUseData", null); //пометить на сохранение
     }
     // public Map <String, Long> GetKitsData() {
@@ -624,7 +624,7 @@ public class Oplayer {
     }
 
     public boolean bungeeDataRecieved() {
-        return !dataString.isEmpty();
+        return !globalData.isEmpty();
     }
 
 
@@ -664,7 +664,7 @@ public class Oplayer {
     }
 
     public boolean hasData(final Data d) {
-        return dataString.containsKey(d) || dataInt.containsKey(d);
+        return globalData.containsKey(d) || dataInt.containsKey(d);
     }
 
     public boolean addBlackList(final String name) { //только локально!! на банжи не изменится!!

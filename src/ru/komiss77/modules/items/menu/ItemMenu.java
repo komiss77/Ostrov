@@ -87,10 +87,13 @@ public class ItemMenu implements InventoryProvider {
         }));
 
         its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
-            .name("§7Имя:§f " + (im.hasDisplayName() ? TCUtil.deform(im.displayName()).replace('§', '&') : "§8(Не Указано)"))
+            .name("§7Имя:<white> " + (im.hasDisplayName() ? im.displayName() : "§8(Не Указано)"))
             .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
             ? TCUtil.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
+            p.sendMessage("m1-" + msg);
             im.displayName(msg.equals("-") ? null : TCUtil.form(msg.replace('&', '§')));
+            p.sendMessage(TCUtil.form(msg.replace('&', '§')));
+            p.sendMessage(im.displayName());
             it.setItemMeta(im);
             reopen(p, its);
         }));

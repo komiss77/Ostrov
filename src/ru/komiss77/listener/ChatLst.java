@@ -65,7 +65,7 @@ public class ChatLst implements Listener {
     static {
         NIK_COLOR = switch (Ostrov.calendar.get(Calendar.MONTH)) {
             case 11, 0, 1 -> "<gradient:sky:blue>";
-            case 2, 3, 4 -> "<gradient:olive:green>";
+            case 2, 3, 4 -> "<gradient:pink:green>";
             case 8, 9, 10 -> "<gradient:beige:gold>";
             default -> "<gradient:apple:dark_aqua>";
         };
@@ -104,12 +104,12 @@ public class ChatLst implements Listener {
         if (senderOp == null) return; //пока так, просто не обрабатываем - или баганёт в авторизации
 
         // проверка молчанки на банжике тоже не будет рассылки
-        final boolean muted = senderOp.getDataInt(Data.MUTE_TO) > Timer.getTime();
+        final boolean muted = senderOp.getDataInt(Data.MUTE_TO) > Timer.secTime();
         if (muted) {
             sender.sendMessage(Component.text("Чат ограничен - сообщения видят только друзья", NamedTextColor.RED)
                     .hoverEvent(HoverEvent.showText(TCUtil.form("§cУ Вас молчанка от §6" + senderOp.getDataString(Data.MUTE_BY)
                             + " §cза §b" + senderOp.getDataString(Data.MUTE_REAS) + "§c, осталось: §e" +
-                            TimeUtil.secondToTime(senderOp.getDataInt(Data.MUTE_TO) - Timer.getTime()))))
+                            TimeUtil.secondToTime(senderOp.getDataInt(Data.MUTE_TO) - Timer.secTime()))))
                     .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
             // sender.sendMessage(TCUtils.format("§cУ Вас молчанка от §6"+senderOp.getDataString(Data.MUTE_BY)
             // 	+" §cза §b"+senderOp.getDataString(Data.MUTE_REAS)+"§c, осталось: §e"+
@@ -120,12 +120,12 @@ public class ChatLst implements Listener {
             //}
             //return;
         }
-        final boolean banned = senderOp.getDataInt(Data.BAN_TO) > Timer.getTime();
+        final boolean banned = senderOp.getDataInt(Data.BAN_TO) > Timer.secTime();
         if (banned) {
             sender.sendMessage(Component.text("Чат ограничен чистилищем - вы забанены", NamedTextColor.RED)
                     .hoverEvent(HoverEvent.showText(TCUtil.form("§cУ Вас бан от §6" + senderOp.getDataString(Data.BAN_BY)
                             + " §cза §b" + senderOp.getDataString(Data.BAN_REAS) + "§c, осталось: §e" +
-                            TimeUtil.secondToTime(senderOp.getDataInt(Data.BAN_TO) - Timer.getTime()))))
+                            TimeUtil.secondToTime(senderOp.getDataInt(Data.BAN_TO) - Timer.secTime()))))
                     .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
             return;
         }

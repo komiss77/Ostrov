@@ -2,6 +2,7 @@ package ru.komiss77.modules.world;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import io.papermc.paper.math.BlockPosition;
 import io.papermc.paper.math.Position;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,7 +14,7 @@ import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.StringUtil;
 
-public class BVec implements Cloneable {
+public class BVec implements BlockPosition, Cloneable {
 
     public static final String SPLIT = StringUtil.SPLIT_1;
 
@@ -21,9 +22,13 @@ public class BVec implements Cloneable {
 
     public int x, y, z;
 
-    private BVec(final int x, final int y, final int z) {
+    protected BVec(final int x, final int y, final int z) {
         this.x = x; this.y = y; this.z = z;
     }
+
+    public int blockX() {return x;}
+    public int blockY() {return y;}
+    public int blockZ() {return z;}
 
     public @Nullable World w() {return null;}
     public @Nullable String wname() {return null;}
@@ -318,16 +323,22 @@ public class BVec implements Cloneable {
     }
 
     public static BVec parse(final String bVec) {
-        final String[] parts = bVec.split(SPLIT);
         BVec bv = of();
+        if (!bVec.contains(SPLIT)) {
+            final XYZ xyz = XYZ.fromString(bVec);
+            if (xyz != null) {
+                Ostrov.log_warn("Parsing BVec " + SPLIT + " from XYZ " + bVec);
+                return of(xyz.worldName, xyz.x, xyz.y, xyz.z);
+            }
+            Ostrov.log_err("Error parsing BVec " + SPLIT + " for " + bVec);
+        }
+        final String[] parts = bVec.split(SPLIT);
         switch (parts.length) {
             case 4:
                 bv = bv.w(parts[3]);
             case 3:
                 bv.z = NumUtil.intOf(parts[2], 0);
-            case 2:
                 bv.y = NumUtil.intOf(parts[1], 0);
-            case 1:
                 bv.x = NumUtil.intOf(parts[0], 0);
                 break;
             default:

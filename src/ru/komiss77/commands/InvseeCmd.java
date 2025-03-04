@@ -126,11 +126,11 @@ public class InvseeCmd implements OCommand {
             switch (type) {
                 case "main":
                     p.openInventory(tgt.getInventory());
-                    tgt.sendMessage(Ostrov.PREFIX + p.getName() + " §aпросматривает твой инвентарь!");
+                    tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой инвентарь.");
                     break;
                 case "ender":
                     p.openInventory(tgt.getEnderChest());
-                    tgt.sendMessage(Ostrov.PREFIX + p.getName() + " §aпросматривает твой эндер-сундук!");
+                    tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой эндер-сундук.");
                     break;
                 case "extra":
                 default:

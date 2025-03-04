@@ -19,10 +19,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
-import ru.komiss77.OConfig;
-import ru.komiss77.Ostrov;
+import ru.komiss77.Timer;
+import ru.komiss77.*;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.regions.menu.FlagsSetupMenu;
 import ru.komiss77.modules.regions.menu.RegionOwnerMenu;
@@ -40,14 +38,14 @@ public final class RM {
   public static final int NO_CLAIM_AREA = 2000;
   public static OConfig cfg;
   public static CaseInsensitiveMap<Template> templates;
-  public static final HashMap<Flag, FlagSetting> flags;
+  public static final HashMap<Flag<?>, FlagSetting> flags;
   private static final Set<String> forbiddenFlags;
   //private static Listener cmdLst;
   public static HashMap<String, PreviewTask> on_wiev;
   public static boolean regenOnDelete;
 
   static {
-    cfg = Cfg.manager.getNewConfig("regionGUI.yml", new String[]{"", "Region GUI config file", ""});
+    cfg = Cfg.manager.config("regionGUI.yml", new String[]{"", "Region GUI config file", ""});
     templates = new CaseInsensitiveMap<>();
     flags = new HashMap<>();
     on_wiev = new HashMap<>();
@@ -129,7 +127,7 @@ public final class RM {
       String path;
       for (String flagName : cfg.getConfigurationSection("flags").getKeys(false)) {
         path = "flags." + flagName + ".";
-        final Flag f = WorldGuard.getInstance().getFlagRegistry().get(flagName);
+        final Flag<?> f = WorldGuard.getInstance().getFlagRegistry().get(flagName);
         if (f == null) {
           Ostrov.log_warn("RegionGui : в WG нет флага " + flagName);
           continue;
@@ -159,7 +157,7 @@ public final class RM {
     return ok;
   }
 
-  public static void saveFlag(final Flag f) {
+  public static void saveFlag(final Flag<?> f) {
     final FlagSetting fs = flags.get(f);
     final String flagPath = "flags." + f.getName() + ".";
     cfg.set(flagPath + "displayname", TCUtil.translateAlternateColorCodes('§', fs.displayname));
@@ -257,7 +255,7 @@ public final class RM {
     final org.bukkit.util.Vector top = t.getMaximumPoint(loc).toVector();//new Vector(down.getBlockX() + size, blockY + claimTemplate.getHeight(), down.getBlockZ() + size); //на 1 меньше, т.к. включая
     final Vector down = t.getMinimumPoint(loc).toVector();//new Vector(blockX - halfSize, blockY - claimTemplate.getDepth(), blockZ - halfSize); //находим нижний угол
 
-    final String regName = p.getName() + "-rgui-" + t.name + "-" + ApiOstrov.currentTimeSec();
+    final String regName = p.getName() + "-rgui-" + t.name + "-" + Timer.secTime();
 
     final ProtectedCuboidRegion region = new ProtectedCuboidRegion(regName,
         BlockVector3.at(top.getBlockX(), top.getBlockY(), top.getBlockZ()),

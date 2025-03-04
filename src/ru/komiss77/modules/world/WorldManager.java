@@ -14,16 +14,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
+import ru.komiss77.*;
 import ru.komiss77.commands.WM;
-import ru.komiss77.Initiable;
-import ru.komiss77.Ostrov;
 import ru.komiss77.hook.DynmapFeatures;
 import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
-import ru.komiss77.OConfig;
 import ru.komiss77.utils.TimeUtil;
 
 
@@ -48,7 +44,7 @@ public class WorldManager implements Initiable {
 
         rt = Runtime.getRuntime();
 
-        config = Cfg.manager.getNewConfig("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""});
+        config = Cfg.manager.config("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""});
         config.addDefault("roundBorder", false);
         config.addDefault("remountDelayTicks", 0);
         config.addDefault("dynmapBorderEnabled", false);
@@ -79,7 +75,7 @@ public class WorldManager implements Initiable {
         buildWorldSuffix = config.getString("buildWorldSuffix", "build");
 
         final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
-        if (worldEndWipeAt > 0 && worldEndWipeAt < ApiOstrov.currentTimeSec()) {
+        if (worldEndWipeAt > 0 && worldEndWipeAt < Timer.secTime()) {
             Cfg.getVariable().set("worldEndMarkToWipe", 0);
             Cfg.getVariable().saveConfig();
 
@@ -102,7 +98,7 @@ public class WorldManager implements Initiable {
     }
 
     public static void makeWorldEndToWipe(final int afterSecond) {
-        Cfg.getVariable().set("worldEndMarkToWipe", ApiOstrov.currentTimeSec() + afterSecond);
+        Cfg.getVariable().set("worldEndMarkToWipe", Timer.secTime() + afterSecond);
         Cfg.getVariable().saveConfig();
         Ostrov.log_warn("Край помечен на вайп через " + TimeUtil.secondToTime(afterSecond));
     }
@@ -227,14 +223,14 @@ public class WorldManager implements Initiable {
             sender.sendMessage(Ostrov.PREFIX + "§e*Название перекодировано в " + translitName);
             world_name = translitName;
         }
-      World world = Bukkit.getWorld(world_name);
-      if (world != null) {
+        World world = Bukkit.getWorld(world_name);
+        if (world != null) {
             sender.sendMessage(Component.text()
                 .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен! §7тп в мир - /ostrov wm tp " + world_name + " <клик"))
                 .hoverEvent(HoverEvent.showText(Component.text("клик - ТП")))
                 .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
                 .build());//spigot().sendMessage(msg);
-        return world;
+            return world;
         }
 
 
@@ -246,8 +242,8 @@ public class WorldManager implements Initiable {
         }
 
         final File configFile = new File(worldFoldersDirectory, "ostrov.cfg");
-      final boolean fromFile = configFile.exists() && !configFile.isDirectory();
-      if (fromFile) {
+        final boolean fromFile = configFile.exists() && !configFile.isDirectory();
+        if (fromFile) {
             //sender.sendMessage(Ostrov.prefix+"§aнайдена конфигурация для мира!");
             final YamlConfiguration yml = YamlConfiguration.loadConfiguration(configFile);
 
@@ -266,22 +262,24 @@ public class WorldManager implements Initiable {
         boolean valid_level_dat = false;
         boolean valid_regions = false;
 
-      //final String regionFolderName = environment == Environment.NORMAL ? "region" : //бывает тип мира указан oдин, а по факту он другой
-      //    environment == Environment.NETHER ? "DIM-1" : "DIM1";
+        //final String regionFolderName = environment == Environment.NORMAL ? "region" : //бывает тип мира указан oдин, а по факту он другой
+        //    environment == Environment.NETHER ? "DIM-1" : "DIM1";
 
         for (final File f : worldFoldersDirectory.listFiles()) {
             if (f.isDirectory()) {
 //Ostrov.log("folder="+f.getName());
-              if (f.listFiles().length != 0) {
-                if (f.getName().equals("region")) {
-                  valid_regions = true;
-                } else if (f.getName().equals("DIM-1")) {
-                  valid_regions = true;
-                  environment = Environment.NETHER;
-                } else if (f.getName().equals("DIM1")) {
-                  valid_regions = true;
-                  environment = Environment.THE_END;
-                }
+                if (f.listFiles().length != 0) {
+                    switch (f.getName()) {
+                        case "region" -> valid_regions = true;
+                        case "DIM-1" -> {
+                            valid_regions = true;
+                            environment = Environment.NETHER;
+                        }
+                        case "DIM1" -> {
+                            valid_regions = true;
+                            environment = Environment.THE_END;
+                        }
+                    }
                 }
 
             } else {
@@ -309,18 +307,18 @@ public class WorldManager implements Initiable {
         }
 
         if (!valid_regions) {
-          sender.sendMessage(Ostrov.PREFIX + "§cв директории " + worldFoldersDirectory.getName() + " нет папки region/DIM-1/DIM1, или она пустая.");
+            sender.sendMessage(Ostrov.PREFIX + "§cв директории " + worldFoldersDirectory.getName() + " нет папки region/DIM-1/DIM1, или она пустая.");
             return null;
         }
 
         //  Timer.lastWorldLoadCountDown = 10;
-      final String param = fromFile ? " (параметры из " + world_name + "/ostrov.cfg -> " + environment.name() + ", " + generator.name() + ")"
-          : " (провайдер: " + environment.name() + ", генератор: " + generator.name() + ")";
+        final String param = fromFile ? " (параметры из " + world_name + "/ostrov.cfg -> " + environment.name() + ", " + generator.name() + ")"
+            : " (провайдер: " + environment.name() + ", генератор: " + generator.name() + ")";
 
         if (sender instanceof ConsoleCommandSender) {
-          Ostrov.log_ok("§fЗагрузка мира " + world_name + param);
+            Ostrov.log_ok("§fЗагрузка мира " + world_name + param);
         } else {
-          sender.sendMessage(Ostrov.PREFIX + "§fЗагрузка мира " + world_name + param);
+            sender.sendMessage(Ostrov.PREFIX + "§fЗагрузка мира " + world_name + param);
         }
         final long currentTimeMillis5 = System.currentTimeMillis();
 

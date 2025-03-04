@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.entities.PvPManager;
@@ -23,17 +24,13 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
-import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.*;
 
 
 public class LocalDB {
 
-
     public static boolean useLocalData = false;
-    private static final boolean PLAYER_DATA_SQL;
+    public static boolean playerData = false;
     private static String url;
 
 
@@ -42,38 +39,16 @@ public class LocalDB {
     public static final String LINE_SPLIT = "∬";
     public static final String WORD_SPLIT = "∫";
 
-    private static final Set<String> fieldsExist;
+    private static final Set<String> fieldsExist = new HashSet<>();
     protected static Connection connection;
     private static boolean tabbleSetupDone;
-
-    static {
-
-        switch (GM.GAME) {
-
-            case LOBBY:
-            case PA:
-                PLAYER_DATA_SQL = false;
-                break;
-
-            case SE:
-            case AR:
-                PLAYER_DATA_SQL = true;
-                break;
-
-            case GLOBAL:
-            default:
-                PLAYER_DATA_SQL = Ostrov.MOT_D.length() > 4;
-                break;
-
-        }
-
-        fieldsExist = new HashSet<>();
-    }
+    private static OConfig online;
 
     //при загрузке делаем синхронно, если нет локального соединения - будет подвисать!
     //при тесте сединения вызывается async из Timer
     public static void init() {
         useLocalData = Cfg.getConfig().getBoolean("local_database.use");
+        playerData = Cfg.getConfig().getBoolean("local_database.player_data");
         String host = Cfg.getConfig().getString("local_database.mysql_host");
         String user = Cfg.getConfig().getString("local_database.mysql_user");
         String passw = Cfg.getConfig().getString("local_database.mysql_passw");
@@ -84,6 +59,9 @@ public class LocalDB {
                 setupTable();
             }
         }
+        if (GM.GAME.type == ServerType.ONE_GAME && GM.GAME == Game.DA)
+            online = Cfg.manager.config("online.yml",
+                new String[]{"--------", "Current players file", "----------"});
     }
 
     //вызывать ASYNC!!
@@ -101,15 +79,6 @@ public class LocalDB {
             connection = null;
         }
     }
-
-
-    // public static void Init () {
-    //     init();
-    // }
-
-    // public static void ReloadVars () {
-    //     init();
-    // }
 
 
     public static void executePstAsync(final CommandSender cs, final String querry) {
@@ -136,19 +105,34 @@ public class LocalDB {
 
     }
 
+    public enum Error {PARSE, DESYNC}
 
     // при PlayerQuitEvent Async, p!=null
     // при onDisable Sync, p может быть null
     public static void saveLocalData(final Player p, final Oplayer op) {
 //Ostrov.log_warn("---saveLocalData useLocalData?"+useLocalData+"  playerDataSQL?"+playerDataSQL);
-        if (!useLocalData || op.mysqlError) return; //op.mysqlData будет null, если при загрузке была ошибка
+        if (!useLocalData) return; //op.mysqlData будет null, если при загрузке была ошибка
         if (op.isGuest) {
             Ostrov.log_warn("Выход гостя " + op.nik + ", данные не сохраняем.");
             return;
         }
 
+        if (op.dbError != null) {
+            Ostrov.log_err("У данных " + op.nik + " ошибка " + op.dbError.name() + "!");
+            return;
+        }
+
+        final String uuid = op.id.toString();
+        if (online != null) {
+            if (!online.contains(uuid)) {
+                Ostrov.log_err("Данные " + op.nik + " уже были сохранены!");
+                return;
+            }
+            online.removeKey(uuid);
+            online.saveConfig();
+        }
+
         final long l = System.currentTimeMillis();
-//Ostrov.log_warn("potion="+potion);
         StringBuilder build = new StringBuilder();
 
         if (!op.mysqlData.containsKey("name"))
@@ -158,7 +142,7 @@ public class LocalDB {
 
         if (GM.GAME.type != ServerType.ARENAS) {
             if (p != null) {
-                if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
+                if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", uuid);
                 if (op.spyOrigin == null) {
                     op.world_positions.put("logoutLoc", LocUtil.toDirString(p.getLocation()));
                     op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(p.getLocation()));
@@ -210,7 +194,7 @@ public class LocalDB {
             op.mysqlData.put("ender", "null");//ender = "null";
             op.mysqlData.put("potion", "null");//potion = "null";
 
-        } else if (PLAYER_DATA_SQL) {
+        } else if (playerData) {
             if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {
                 op.mysqlData.put("inventory", "");
                 op.mysqlData.put("armor", "");
@@ -227,7 +211,7 @@ public class LocalDB {
 
         //1мин=60 1час=3600 1день=86400 1мес=2592000 3мес=7776000 1год=31104000
         //минимум 90 дней
-        op.mysqlData.put("lastActivity", String.valueOf(Timer.getTime()));//final int timeStamp = Timer.getTime();
+        op.mysqlData.put("lastActivity", String.valueOf(Timer.secTime()));//final int timeStamp = Timer.getTime();
         op.mysqlData.put("validTo", String.valueOf(ApiOstrov.getStorageLimit(op)));//final int validTo = ApiOstrov.getStorageLimit(op);
 
 
@@ -340,16 +324,33 @@ public class LocalDB {
             return;
         }
 
-      //ResourcePacksLst.onLoadData(p);
-
+        final String uuid = op.id.toString();
         if (op.isGuest) {
             op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
-            op.mysqlData.put("uuid", p.getUniqueId().toString());
+            op.mysqlData.put("uuid", uuid);
             Ostrov.sync(() -> {
                 Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
             }, 1);
             Ostrov.log_warn("Вход гостя " + op.nik + ", данные не загружаем.");
             return;
+        }
+
+        if (online != null) {
+            if (online.contains(uuid)) {
+                op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
+                op.mysqlData.put("uuid", uuid);
+                op.dbError = Error.DESYNC;
+                ScreenUtil.sendTitleDirect(p, "<red>Ошибка Загрузки!", "<gold>Срочно сообщи об этом администрации!", 40, 1000, 100);
+                p.sendMessage(Ostrov.PREFIX + "§cНапиши нам об ошибке в /discord или /telegram");
+                Ostrov.sync(() -> {
+                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
+                }, 1);
+                Ostrov.log_err("Данные " + op.nik + " уже были загружены!");
+                return;
+            }
+            online.set(uuid, op.nik);
+            Bukkit.getConsoleSender().sendMessage("Ok the config should have\n" + online.getKeys());
+            online.saveConfig();
         }
 
         final long l = System.currentTimeMillis();
@@ -442,7 +443,7 @@ public class LocalDB {
             final ItemStack[] ender;
             final Collection<PotionEffect> potion;
 
-            if (rs.getString("inventory").isEmpty() || !PLAYER_DATA_SQL) {
+            if (rs.getString("inventory").isEmpty() || !playerData) {
                 inventory = null;
             } else {
                 if (rs.getString("inventory").equals("null")) {
@@ -453,7 +454,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("armor").isEmpty() || !PLAYER_DATA_SQL) {
+            if (rs.getString("armor").isEmpty() || !playerData) {
                 armor = null;
             } else {
                 if (rs.getString("armor").equals("error")) {
@@ -464,7 +465,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("ender").isEmpty() || !PLAYER_DATA_SQL) {
+            if (rs.getString("ender").isEmpty() || !playerData) {
                 ender = null;
             } else {
                 if (rs.getString("ender").equals("error")) {
@@ -475,7 +476,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("potion").isEmpty() || !PLAYER_DATA_SQL) {
+            if (rs.getString("potion").isEmpty() || !playerData) {
                 potion = null;
             } else {
                 if (rs.getString("potion").equals("error")) {
@@ -536,9 +537,7 @@ public class LocalDB {
 
             }, 1);
 
-
             rs.close();
-
 
             //Загрузка оффлайн - платежей
             int offlinePayAdd = 0;
@@ -572,7 +571,7 @@ public class LocalDB {
         } catch (SQLException ex) {
 
             Ostrov.log_err("loadLocalData error  " + op.nik + " -> " + ex.getMessage());
-            op.mysqlError = true; //op.mysqlData = null; //c null не будет сохранять при выходе!
+            op.dbError = Error.PARSE; //op.mysqlData = null; //c null не будет сохранять при выходе!
             Ostrov.sync(() -> {
                 op.updTabListName(p);
                 Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
@@ -585,13 +584,7 @@ public class LocalDB {
             } catch (SQLException ex) {
                 Ostrov.log_err("loadLocalData close error - " + ex.getMessage());
             }
-
-            //Ostrov.sync( () -> {
-            //     Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, data, op.mysqldata_loaded));
-            //}, 1 );
-
         }
-
     }
 
 

@@ -9,11 +9,10 @@ import java.util.Set;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Initiable;
-import ru.komiss77.LocalDB;
-import ru.komiss77.Ostrov;
+import ru.komiss77.*;
 import ru.komiss77.modules.DelayTeleport;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.MoveUtil;
@@ -175,7 +174,8 @@ public final class WarpManager implements Initiable {
             return;
         }
         if (w.isPaid() && !ApiOstrov.isLocalBuilder(p, false) && !w.isOwner(p)) {
-            if (ApiOstrov.moneyGetBalance(p.getName()) < w.use_cost) {
+            final Oplayer op = PM.getOplayer(p);
+            if (op.loni() < w.use_cost) {
                 p.sendMessage("§cНедостаточно лони для посещения! Требуется: " + w.use_cost);
                 return;
             }
@@ -277,7 +277,7 @@ public final class WarpManager implements Initiable {
                 pst.setString(2, warp.owner);
                 pst.setString(3, LocUtil.toDirString(warp.getLocation()));
                 pst.setBoolean(4, warp.system);
-                pst.setInt(5, ApiOstrov.currentTimeSec());
+                pst.setInt(5, Timer.secTime());
 
                 pst.executeUpdate();
                 pst.close();

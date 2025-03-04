@@ -1,11 +1,7 @@
 package ru.komiss77.commands;
 
 import java.util.ArrayList;
-import java.util.Set;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -16,161 +12,85 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.inventory.*;
 
 
-public class SpyCmd implements OCommand {
+public class SpyCmd {
 
     //запрос банжи, если есть - разкодировать raw
     //если пустой - выкачать из снапшота БД
 
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
-        final String nameArg = "nameArg";
-        return Commands.literal("spy")
-            .executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof final Player p)) {
-                    cs.sendMessage("§eНе консольная команда!");
-                    return 0;
-                }
+    public SpyCmd() { //новое
+        final String name = "name";
+        new OCmdBuilder("spy", "/spy [игрок]").run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+                cs.sendMessage("§eНе консольная команда!");
+                return 0;
+            }
 
-                final Oplayer op = PM.getOplayer(p);
-                if (!op.isStaff && !ApiOstrov.canBeBuilder(p)) {
-                    p.sendMessage("§cДоступно только персоналу!");
-                    return 0;
-                }
+            final Oplayer op = PM.getOplayer(p);
+            if (!op.isStaff && !ApiOstrov.canBeBuilder(p)) {
+                p.sendMessage("§cДоступно только персоналу!");
+                return 0;
+            }
 
-                SpyMenu.open(p);
-                return Command.SINGLE_SUCCESS;
-            })
-            .then(Resolver.player(nameArg).executes(cntx -> {
-                final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof final Player p)) {
-                    cs.sendMessage("§eНе консольная команда!");
-                    return 0;
-                }
+            SpyMenu.open(p);
+            return Command.SINGLE_SUCCESS;
+        }).then(Resolver.player(name)).run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+                cs.sendMessage("§eНе консольная команда!");
+                return 0;
+            }
 
-                final Oplayer op = PM.getOplayer(p);
-                if (!op.isStaff && !ApiOstrov.canBeBuilder(p)) {
-                    p.sendMessage("§cДоступно только персоналу!");
-                    return 0;
-                }
+            final Oplayer op = PM.getOplayer(p);
+            if (!op.isStaff) {
+                p.sendMessage("§cДоступно только персоналу!");
+                return 0;
+            }
 
-                final Player tgt = Resolver.player(cntx, nameArg);
-                if (tgt == null) {
-                    p.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
-                    return 0;
-                }
+            final Player tgt = Resolver.player(cntx, name);
+            if (tgt == null) {
+                p.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн!");
+                return 0;
+            }
+            if (op.spyOrigin != null) {
+                cs.sendMessage("§cСначала закончи текущее наблюдение!");
+                return 0;
+            }
+            if (p.getEntityId() == tgt.getEntityId()) {
+                cs.sendMessage("§cЗа собой следить не получится!");
+                return 0;
+            }
+            if (tgt.getGameMode() == GameMode.SPECTATOR) {
+                cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
+                return 0;
+            }
 
-                if (op.spyOrigin != null) {
-                    cs.sendMessage("§cСначала закончите текущее наблюдение!");
-                    return 0;
-                }
-                final String targetName = tgt.getName();
-                if (p.getName().equals(targetName)) {
-                    cs.sendMessage("§cЗа собой следить не получится!");
-                    return 0;
-                }
+            final Location loc = p.getLocation().clone();
+            op.spyOldGm = p.getGameMode(); //!! до setGameMode
+            p.setGameMode(GameMode.SPECTATOR);
+            tgt.hidePlayer(Ostrov.instance, p);
+            p.teleport(tgt);
+            Ostrov.sync(() -> {
+                p.setSpectatorTarget(tgt);
+                op.spyOrigin = loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
+                ScreenUtil.sendActionBarDirect(p, "§bПрисесть - закончить наблюдение");
+            }, 5);
+            tgt.sendMessage(Ostrov.PREFIX + "§7За тобой наблюдает Персонал.");
+            op.tag.visible(false);
 
-                if (tgt.getGameMode() == GameMode.SPECTATOR) {
-                    cs.sendMessage("§c" + tgt.getName() + " в режиме зрителя!");
-                    return 0;
-                }
-
-                final Location loc = p.getLocation().clone();
-                op.spyOldGm = p.getGameMode(); //!! до setGameMode
-                p.setGameMode(GameMode.SPECTATOR);
-                tgt.hidePlayer(Ostrov.instance, p);
-                p.teleport(tgt);
-                Ostrov.sync(() -> {
-                    p.setSpectatorTarget(tgt);
-                    op.spyOrigin = loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
-                    ScreenUtil.sendActionBarDirect(p, "§bПриседание - закончить наблюдение");
-                }, 5);
-                //p.setSpectatorTarget(tgt);
-                //op.spyOrigin =loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
-                //tgt.hidePlayer(Ostrov.instance, p);
-                op.tag.visible(false);
-                //final String nameArg = tgt.getName();
-
-              /*  new BukkitRunnable() {
-
-                    @Override
-                    public void run() {
-                        if (!p.isOnline()) {
-                            this.cancel();
-                            return;
-                        }
-                        final Player t = Bukkit.getPlayerExact(targetName); //обновлять каждый раз, после гибели плеер обновляется
-
-                        if (p.isDead() || p.getGameMode() != GameMode.SPECTATOR) {
-                            end();
-                        } else if (t == null || !t.isOnline()) {
-                            p.sendMessage("§6Цель наблюдения покинула сервер.");
-                            end();
-                            //} else if (t.getGameMode() == GameMode.SPECTATOR) {
-                            //    p.sendMessage("§6Цель наблюдения перешла в режим SPECTATOR.");
-                            //     end();
-                        } else if (t.isDead()) {
-                            ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения  §6Ожидаем возрождение цели...");
-                        } else {
-                            //if (p.getSpectatorTarget() == null || !p.getSpectatorTarget().getName().equals(targetName) ) {
-                            //    p.setSpectatorTarget(tgt);
-                            //}
-                            final int distance = LocUtil.getDistance(p.getLocation(), t.getLocation());
-                            if (distance > 5) {
-                                p.teleport(t);
-                            } else if (distance > 2) {
-                                ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §4" + distance);
-                            }
-                            if (distance > 10) {
-                                ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §6" + distance);
-                            } else {
-                                ScreenUtil.sendActionBarDirect(p, "§7ЛКМ - меню наблюдения, дистанция §a" + distance);
-                            }
-                            if (p.getSpectatorTarget()!=null) {
-                                p.setSpectatorTarget(null);
-                            }
-                        }
-                    }
-
-                    private void end() {
-                        //if (p.getGameMode() == GameMode.SPECTATOR) {
-                        //p.setSpectatorTarget(null);
-                        //}
-                        p.teleport(op.spyOrigin == null ? p.getLocation() : op.spyOrigin);
-                        op.spyOrigin = null;
-                        Ostrov.sync(() -> p.setGameMode(oldGamemode), 1);
-                        tgt.showPlayer(Ostrov.instance, p);
-                        //p.resetTitle();
-                        op.tag.visible(true);
-                        this.cancel();
-                    }
-
-                }.runTaskTimer(Ostrov.instance, 3, 11);*/
-
-                return Command.SINGLE_SUCCESS;
-            }))
-            .build();
+            return Command.SINGLE_SUCCESS;
+        }).description("Слежка за игроками").register();
     }
-
-    @Override
-    public Set<String> aliases() {
-        return Set.of();
-    }
-
-    @Override
-    public String description() {
-        return "Слежка за игроками";
-    }
-
 
     public static class SpyMenu implements InventoryProvider {
 
@@ -193,15 +113,6 @@ public class SpyCmd implements OCommand {
             final Oplayer op = PM.getOplayer(p.getUniqueId());
 
             if (op.spyOrigin != null) {
-
-               /*contents.set(2, 3, ClickableItem.of(new ItemBuilder(ItemType.REDSTONE)
-                    .name("§fТП к цели")
-                    .build(), e -> {
-                    if (e.isLeftClick()) {
-                        p.setGameMode(GameMode.CREATIVE); //гм не совпадает - таймер отменит наблюдение сам
-                        Ostrov.sync( () -> reopen(p, contents), 2); //откроет для выбора новой цели
-                    }
-                }));*/
                 contents.set(2, 4, ClickableItem.of(new ItemBuilder(ItemType.REDSTONE)
                     .name("§6Закончить текущее наблюдение")
                     .build(), e -> {
@@ -210,8 +121,6 @@ public class SpyCmd implements OCommand {
                         Ostrov.sync(() -> reopen(p, contents), 2); //откроет для выбора новой цели
                     }
                 }));
-
-
                 return;
             }
 
@@ -220,11 +129,13 @@ public class SpyCmd implements OCommand {
 
             for (final Player pl : Bukkit.getOnlinePlayers()) {
 
-                if (pl.getName().equals(p.getName()) || pl.getGameMode() == GameMode.SPECTATOR || pl.hasPermission("ostrov.spy"))
+                if (pl.getEntityId() == p.getEntityId()
+                    || pl.getGameMode() == GameMode.SPECTATOR)
                     continue;
 
                 final ItemStack icon = new ItemBuilder(ItemType.PLAYER_HEAD)
-                    .name("§f" + pl.getName())
+                    .name("§7Слежка за §e" + pl.getName() + " <dark_gray>(ЛКМ)")
+                    .skullOf(pl)
                     .build();
 
                 menuEntry.add(ClickableItem.of(icon, e -> {
@@ -234,7 +145,6 @@ public class SpyCmd implements OCommand {
                     } else {
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 0.5f, 1);
                     }
-
                 }));
             }
 
@@ -253,7 +163,8 @@ public class SpyCmd implements OCommand {
                 );
             }
 
-            pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(1, 1)).allowOverride(false));
+            pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL,
+                SlotPos.of(1, 1)).allowOverride(false));
         }
     }
 }

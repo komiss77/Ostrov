@@ -23,7 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.NumUtil;
@@ -66,7 +66,8 @@ public class Protocol77 implements Listener {
             "§cротокол ",
             "§cотокол",
             "§cтоко",
-            "§cок"};
+            "§cок",
+            ""};
     private static final String[] text =
         ("""
             public Protocol77(final Player p) {
@@ -234,9 +235,9 @@ public class Protocol77 implements Listener {
                                             for (int z = -dl; z <= dl; z++) {
                                                 if (((NumUtil.abs(x) - dl) >> 31) + ((NumUtil.abs(y) - dl) >> 31)
                                                     + ((NumUtil.abs(z) - dl) >> 31) + 2 < 0) continue;
-                                                final WXYZ cl = new WXYZ(lc).add(x, y, z);
+                                                final BVec cl = BVec.of(lc).add(x, y, z);
                                                 if (Nms.fastType(lc.getWorld(), cl.x, cl.y, cl.z).hasCollision()) {
-                                                    bdm.put(cl.getCenterLoc(), dark ? ClassUtil.rndElmt(bds) : cl.w().getBlockData(cl.x, cl.y, cl.z));
+                                                    bdm.put(cl, dark ? ClassUtil.rndElmt(bds) : cl.w().getBlockData(cl.x, cl.y, cl.z));
                                                 }
                                             }
                                         }

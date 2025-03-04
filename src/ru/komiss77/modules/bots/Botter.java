@@ -22,7 +22,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.AStarPath;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.utils.LocUtil;
 
 public interface Botter {
@@ -101,7 +101,7 @@ public interface Botter {
 
     String name();
 
-    WXYZ getPos();
+    BVec getPos();
 
     void tab(final String prefix, final String affix, final String suffix);
 
@@ -213,13 +213,13 @@ public interface Botter {
             final Location eyel = rplc.getEyeLocation();
             final Vector vc = eyel.getDirection();
 
-            final Player pl = LocUtil.getClsChEnt(new WXYZ(loc, false), 200, Player.class, le -> true);
+            final Player pl = LocUtil.getClsChEnt(BVec.of(loc), 200, Player.class, le -> true);
             if (pl == null) {
                 return;
             }
 
             if (!arp.hasTgt()) {
-                arp.setTgt(new WXYZ(pl.getLocation()));
+                arp.setTgt(BVec.of(pl.getLocation()));
             }
             arp.tickGo(1.5d);
 

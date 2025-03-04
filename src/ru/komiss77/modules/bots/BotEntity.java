@@ -39,7 +39,6 @@ import org.bukkit.util.Vector;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.world.BVec;
-import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.scoreboard.SubTeam;
 import ru.komiss77.utils.ItemUtil;
@@ -455,9 +454,9 @@ public class BotEntity extends ServerPlayer implements Botter {
         return name;
     }
 
-    public WXYZ getPos() {
+    public BVec getPos() {
         final BlockPos bp = this.blockPosition();//dm();
-        return new WXYZ(world, bp.getX(), bp.getY(), bp.getZ());
+        return BVec.of(world, bp.getX(), bp.getY(), bp.getZ());
     }
 
     public BVec pos() {

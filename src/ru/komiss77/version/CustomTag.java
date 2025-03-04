@@ -29,7 +29,6 @@ public class CustomTag {
     private static final byte FLAGS_OCL = /*shadow*/1 & /*background*/ ~4;
     private static final byte FLAGS_STR = (/*shadow*/1 | /*seethrough*/ 2) & /*background*/ ~4;
     private final WeakReference<LivingEntity> taggedLink; //@Nullable может быть содержимое, но не контейнер
-    private final boolean real;
     public final int tagEntityId;
     private final int[] idArray;
     private final double passengerOffset;
@@ -61,7 +60,6 @@ public class CustomTag {
         idArray = new int[]{tagEntityId};
         taggedLink = new WeakReference<>(tagged);//entity;
         passengerOffset = tagged.getHeight(); //= ridingOffset;
-        real = tagged.isValid();
         name = PaperAdventure.asVanilla(TCUtil.form(tagged.getName() + "\n"));
     }
 
@@ -94,24 +92,20 @@ public class CustomTag {
 
     private void sendTrackersPacket(final Packet<?> packet) {
         final LivingEntity tgt = taggedLink.get();
-        if (tgt == null) {
+        if (tgt == null) return;
+        final ClientboundRemoveEntitiesPacket not = killPacket();
+        if (!tgt.isValid()) {
+            for (final Player p : tgt.getWorld().getPlayers()) {
+                Nms.sendPacket(p, canSee.test(p) ? packet : not);
+            }
             return;
         }
-        final ClientboundRemoveEntitiesPacket not = killPacket();
-        if (real) {
-            for (final Player p : tgt.getTrackedBy()) {
-                Nms.sendPacket(p, canSee.test(p) ? packet : not);
-            }
+        for (final Player p : tgt.getTrackedBy()) {
+            Nms.sendPacket(p, canSee.test(p) ? packet : not);
+        }
 
-            if (tgt instanceof final Player pl) {
-//Ostrov.log("CustomTag sendPacket real=true "+pl.getName());
-                Nms.sendPacket(pl, packet);
-            }
-        } else {
-            for (final Player p : tgt.getWorld().getPlayers()) {
-//Ostrov.log("CustomTag sendPacket real=false "+p.getName());
-                Nms.sendPacket(p, canSee.test(p) ? packet : not);
-            }
+        if (tgt instanceof final Player pl) {
+            Nms.sendPacket(pl, packet);
         }
     }
 

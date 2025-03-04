@@ -45,7 +45,7 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
     }
 
     public boolean hasSqlError() {
-        return op.mysqlError;
+        return op.dbError != null;
     }
 
     @Override

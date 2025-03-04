@@ -100,12 +100,7 @@ public class Timer {
         //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
-          //authMode = !Ostrov.MOT_D.equals("nb0"); //для компилатора абсолютно тоже самое, что ниже, только нормально читается
-          if (Ostrov.MOT_D.equals("nb0")) {
-            authMode = false; //на новичках в authMode не работает боссбар!
-          } else {
-            authMode = true;
-          }
+            authMode = !Ostrov.MOT_D.equals("nb0"); //на новичках в authMode не работает боссбар!
         } else if (Ostrov.MOT_D.equals("jail")) { //jail 
             jailMode = true;
         } else {
@@ -298,7 +293,7 @@ public class Timer {
                             + (int) (Runtime.getRuntime().totalMemory() / 1024 / 1024) + "', `memoryLimit`='"
                             + (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "', `freeMemory`='"
                             + (int) (Runtime.getRuntime().freeMemory() / 1024 / 1024)
-                            + "',`stamp`='" + ApiOstrov.currentTimeSec() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
+                            + "',`stamp`='" + Timer.secTime() + "',`ts`= NOW()+0 WHERE `serverId`='" + Ostrov.server_id + "'; ";
                         RemoteDB.executePstAsync(Bukkit.getConsoleSender(), querry);
                     }
 
@@ -458,12 +453,26 @@ public class Timer {
         return MIDNIGHT_STAMP - secTime();
     }
 
+    @Deprecated
     public static long getTimeStamp() {
         //return System.currentTimeMillis() - time_delta;
         return System.currentTimeMillis();
     }
 
+    public static class Test {
+        private final long start;
+        private long last;
+        public Test() {
+            start = System.currentTimeMillis();
+            last = start;
+        }
 
+        public void run(final CommandSender cs, final String msg, final boolean total) {
+            final long now = System.currentTimeMillis();
+            cs.sendMessage(msg + (total ? ", last=" + (now-last) + ", total=" + (now-start) : ", last=" + (now-last)));
+            last = now;
+        }
+    }
 }
 
  

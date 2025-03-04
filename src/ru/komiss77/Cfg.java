@@ -199,18 +199,14 @@ public class Cfg {
         cfg.addDefault("modules.items", false);
         cfg.addDefault("modules.effects", false);
         cfg.addDefault("modules.signProtect", false);
+        cfg.addDefault("modules.save_location_on_world_change", false);
 
-
+        cfg.addDefault("modules.command.tpr", -1, "random teleport. value - cooldown, -1 to disable.");
         cfg.addDefault("modules.command.home.use", false);
-
         cfg.addDefault("modules.command.fly.use", false);
         cfg.addDefault("modules.command.fly.disable_atack_on_fly", false);
         cfg.addDefault("modules.command.fly.fly_off_on_damage", false);
-
         cfg.addDefault("modules.command.tpa", -1);
-        cfg.addDefault("modules.save_location_on_world_change", false);
-        cfg.addDefault("modules.command.tpr", -1, "random teleport. value - cooldown, -1 to disable.");
-
         cfg.addDefault("modules.command.hat", true);
         cfg.addDefault("modules.command.back", false);
         cfg.addDefault("modules.command.settings", false);
@@ -224,13 +220,11 @@ public class Cfg {
         cfg.addDefault("modules.command.speed", false);
         cfg.addDefault("modules.command.pweather", false);
         cfg.addDefault("modules.command.ptime", false);
-
         cfg.addDefault("modules.command.heal", false);
         cfg.addDefault("modules.command.repair", false);
         cfg.addDefault("modules.command.spy", false);
         cfg.addDefault("modules.command.top", false);
         cfg.addDefault("modules.teleport_to_region_in_settings_menu", false);
-
         cfg.addDefault("modules.command.kit", false);
         cfg.addDefault("modules.command.menu", "serv");
 
@@ -264,23 +258,15 @@ public class Cfg {
         cfg.addDefault("ostrov_database.connect", false, c4);
         cfg.addDefault("ostrov_database.auto_reload_permissions", false);
         cfg.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
-      //cfg.addDefault("ostrov_database.mysql_host", "jdbc:mysql://localhost/ostrov");
-      //cfg.addDefault("ostrov_database.mysql_user", "user");
-      //cfg.addDefault("ostrov_database.mysql_passw", "pass");
-        //config.addDefault("ostrov_database.write_server_state_to_bungee_table", false);
-      //cfg.addDefault("ostrov_database.games_info_for_server_menu_load", false);
-      //cfg.addDefault("ostrov_database.games_info_for_server_menu_send", false);
-
 
         String[] c5 = {"---------", "local database", "---------"};
         cfg.addDefault("local_database.use", false, c5);
         cfg.addDefault("local_database.mysql_host", "jdbc:mysql://localhost/server");
         cfg.addDefault("local_database.mysql_user", "user");
         cfg.addDefault("local_database.mysql_passw", "pass");
-
+        cfg.addDefault("local_database.player_data", false);
 
         cfg.saveConfig();
-
 
         variable.addDefault("last_day", getDay());
         variable.saveConfig();

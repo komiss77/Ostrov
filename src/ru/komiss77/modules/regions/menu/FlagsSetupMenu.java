@@ -7,9 +7,9 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.regions.FlagSetting;
 import ru.komiss77.modules.regions.RM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtil;
@@ -29,7 +29,8 @@ public class FlagsSetupMenu implements InventoryProvider {
     RM.flags.entrySet().stream().forEach(es -> {
 
       final FlagSetting fs = es.getValue();
-      ItemStack is = new ItemBuilder(fs.enabled ? (fs.iconMat == null ? Material.LIME_DYE : fs.iconMat) : Material.GRAY_DYE)
+      ItemStack is = new ItemBuilder((fs.enabled ?
+          (fs.iconMat == null ? Material.LIME_DYE : fs.iconMat) : Material.GRAY_DYE).asItemType())
           .name(fs.displayname)
           .lore(fs.enabled ? "§aдоступен§7. ПКМ - §4заблочить" : "§cзаблокирован. ПКМ - §2разблочить")
           .lore("")
