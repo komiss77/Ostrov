@@ -29,7 +29,6 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.redis.OsQuery;
-import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
@@ -199,7 +198,7 @@ public class Timer {
                 }
                 sec++;
             }
-        }.runTaskTimerAsynchronously(Ostrov.instance, 33, 21);
+        }.runTaskTimerAsynchronously(Ostrov.instance, 33, 20);
 
         //обход игроков каждую секунду с разбросом по тикам для распределения нагрузки
         playerTimer = new BukkitRunnable() {

@@ -27,7 +27,7 @@ public class JedisPoolProvider implements Summoner<JedisPooled> {
     public void testConnection() {
         // test connections
         if (jedisPool != null) {
-            try (Jedis jedis = jedisPool.getResource()) {
+            try (final Jedis jedis = jedisPool.getResource()) {
                 // Test the connection to make sure configuration is right
                 jedis.ping(String.valueOf(System.currentTimeMillis()));
 
@@ -64,11 +64,10 @@ public class JedisPoolProvider implements Summoner<JedisPooled> {
 
 
 class NotClosableJedisPooled extends JedisPooled {
-    NotClosableJedisPooled(PooledConnectionProvider provider) {
-        super(provider);
+    NotClosableJedisPooled(final PooledConnectionProvider prv) {
+        super(prv);
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

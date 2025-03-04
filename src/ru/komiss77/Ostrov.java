@@ -26,11 +26,11 @@ import ru.komiss77.listener.*;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.redis.OsQuery;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
-import ru.komiss77.modules.redis.OsQuery;
 
 
 public class Ostrov extends JavaPlugin {
@@ -38,7 +38,7 @@ public class Ostrov extends JavaPlugin {
     public static Ostrov instance;
     public static Registries registries;
     public static LifecycleEventManager<Plugin> mgr;
-  public static OsQuery osQuery;
+    public static OsQuery osQuery;
     public static final Map<String, Initiable> modules;
     public static final Random random;
     public static final String L = "Ł";
@@ -91,7 +91,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         registries = new Registries();
-      osQuery = new OsQuery();
+        osQuery = new OsQuery();
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
@@ -152,9 +152,9 @@ public class Ostrov extends JavaPlugin {
         SHUT_DOWN = true;
         HandlerList.unregisterAll(instance);
         RemoteDB.Disconnect();
-      if (osQuery != null) {
-        osQuery.shutdown();
-      }
+        if (osQuery != null) {
+            osQuery.shutdown();
+        }
         if (MOT_D.length() == 3) return;
         for (final Player p : Bukkit.getOnlinePlayers()) {
             PM.onLeave(p, false);
@@ -244,7 +244,7 @@ public class Ostrov extends JavaPlugin {
 //    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-      logger.info(TCUtil.form(s));
+        logger.info(TCUtil.form(s));
     }
 
     public static void log_ok(String s) {
