@@ -12,6 +12,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.enums.GameState;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.redis.OsQuery;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 
@@ -55,7 +56,10 @@ public final class ArenaInfo {
             .append(line1).append(LocalDB.W_SPLIT)
             .append(line2).append(LocalDB.W_SPLIT)
             .append(line3).append(" ").append(LocalDB.W_SPLIT);
-        RDS.sendMessage("arenadata", sb.toString());
+
+        final String data = sb.toString();
+        RDS.sendMessage("arenadata", data);
+        OsQuery.sendArenaData(data);
     }
 
 
