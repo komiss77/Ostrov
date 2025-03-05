@@ -15,16 +15,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import net.minecraft.network.LocalFrameDecoder;
 import org.bukkit.Bukkit;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.QureyCode;
-import static net.minecraft.network.Connection.LOCAL_WORKER_GROUP;
 
 
 public class OsQuery {
@@ -39,7 +36,7 @@ public class OsQuery {
   private static Bootstrap bs;
 
   static {
-    OUT_ADRDRES = new InetSocketAddress("ostrov77.ru", 7778);
+    OUT_ADRDRES = new InetSocketAddress("ostrov77.ru", 7777);
     workerGroup = new NioEventLoopGroup();
     asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactoryBuilder()
         .setNameFormat("OstrovAuth Async Event Executor - #%d").setDaemon(true).build());
@@ -48,17 +45,6 @@ public class OsQuery {
     template = new byte[]{(byte) 0xAB, (byte) 0xCD, 0x0, port[0], port[1], port[2], port[3]};
   }
 
-    /*
-     1.DelimiterBasedFrameDecoder использует разделитель для определения пакета;
-     2.FixedLengthFrameDecoder использует фиксированную длину для определения пакета;
-     3.LengthFieldBasedFrameDecoder и LengthFieldPrepender используются для добавления поля заголовка при отправке данных, поле заголовка содержит длину пакета.
-
-        pipeline.addLast("splitter", createFrameDecoder(bandwithDebugMonitor, memoryOnly))
-            .addLast(new FlowControlHandler())
-            .addLast(inboundHandlerName(flag), (ChannelHandler)(flag ? new PacketDecoder<>(INITIAL_PROTOCOL) : new UnconfiguredPipelineHandler.Inbound()))
-            .addLast("prepender", createFrameEncoder(memoryOnly))
-            .addLast(outboundHandlerName(flag1), (ChannelHandler)(flag1 ? new PacketEncoder<>(INITIAL_PROTOCOL) : new UnconfiguredPipelineHandler.Outbound()));
-     */
 
   public OsQuery() {
     bs = new Bootstrap()
@@ -70,11 +56,11 @@ public class OsQuery {
             ChannelPipeline pipi = socketChannel.pipeline();
             pipi.addFirst(new Logging()); //кастомный лог в консоль
             pipi.addLast("timeout", new ReadTimeoutHandler(33)); //если находится ниже любого декодера кадров в вашем конвейере (т. е. ближе к сети), — чтение одного байта сбросит таймер
-            //pipi.addLast("framer", new LineBasedFrameDecoder(65535, true, true));
-            //pipi.addFirst(new WebSocket00FrameDecoder());
             //pipi.addFirst(new LoggingHandler(LogLevel.INFO)); //подробный лог в консоль
-            //pipi.addLast("frameDecoder", new DelimiterBasedFrameDecoder(80960, Delimiters.lineDelimiter()));
             //pipi.addLast("decoder", new StringDecoder());//декодирует приходящие данные в строку
+            /* 1.DelimiterBasedFrameDecoder использует разделитель для определения пакета;
+             2.FixedLengthFrameDecoder использует фиксированную длину для определения пакета;
+             3.LengthFieldBasedFrameDecoder и LengthFieldPrepender используются для добавления поля заголовка при отправке данных, поле заголовка содержит длину пакета. */
             pipi.addLast("frameEncoder", new LengthFieldPrepender(2, false)); //https://programmersought.com/article/6426277891/
             pipi.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 2, 0, 2));
             pipi.addLast("decoder", new ByteArrayDecoder());//декодирует приходящие данные в строку
@@ -110,12 +96,6 @@ public class OsQuery {
         }
       });
       channel = future.channel();
-      //if (c.isOpen() && c.isActive() && c.isWritable()) {
-      //  channel= c;
-      //   Ostrov.log_ok("§5OsQuery - подключились к "+OUT_ADRDRES.getAddress().getHostAddress()+":"+OUT_ADRDRES.getPort());
-      // } else {
-      //  Ostrov.log_warn("OsQuery - не удалось подключиться к "+OUT_ADRDRES.getAddress()+":"+OUT_ADRDRES.getPort()+ " -> "+future.cause());
-      //}
     } catch (Exception ex) {
       Ostrov.log_warn("OsQuery init chanel : " + ex.getMessage());
     }
@@ -149,6 +129,7 @@ public class OsQuery {
   }
 
   public static void send(final byte type, final String data) {
+    if (channel == null) return;
     if (type == QureyCode.CHAT_RU || type == QureyCode.CHAT_STRIP) {
       Ostrov.log(type + " len=" + data.length());
     }
@@ -160,6 +141,7 @@ public class OsQuery {
   }
 
   public static void send(final byte type, final String s, @Nullable final Consumer onResponce) {
+    if (channel == null) return;
     if (type == QureyCode.CHAT_RU) {
       Ostrov.log("CHAT_RU len=" + s.length());
     }
