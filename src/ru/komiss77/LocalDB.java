@@ -30,25 +30,40 @@ import ru.komiss77.utils.*;
 public class LocalDB {
 
     public static boolean useLocalData = false;
-    public static boolean playerData = false;
+    public static boolean PLAYER_DATA_SQL = false;
     private static String url;
-
-
     public static final char L_SPLIT = '∬';
     public static final char W_SPLIT = '∫';
     public static final String LINE_SPLIT = "∬";
     public static final String WORD_SPLIT = "∫";
-
-    private static final Set<String> fieldsExist = new HashSet<>();
+    private static final Set<String> fieldsExist;
     protected static Connection connection;
     private static boolean tabbleSetupDone;
     private static OConfig online;
+
+    static {
+        switch (GM.GAME) {
+            case LOBBY:
+            case PA:
+                PLAYER_DATA_SQL = false;
+                break;
+            case SE:
+            case AR:
+                PLAYER_DATA_SQL = true;
+                break;
+            case GLOBAL:
+            default:
+                PLAYER_DATA_SQL = Ostrov.MOT_D.length() > 4;
+                break;
+        }
+        fieldsExist = new HashSet<>();
+    }
 
     //при загрузке делаем синхронно, если нет локального соединения - будет подвисать!
     //при тесте сединения вызывается async из Timer
     public static void init() {
         useLocalData = Cfg.getConfig().getBoolean("local_database.use");
-        playerData = Cfg.getConfig().getBoolean("local_database.player_data");
+        //playerData = Cfg.getConfig().getBoolean("local_database.player_data"); нет, я не хочу теперь лазить по всем конфигам и перепроверять. Работает-не трогаем!
         String host = Cfg.getConfig().getString("local_database.mysql_host");
         String user = Cfg.getConfig().getString("local_database.mysql_user");
         String passw = Cfg.getConfig().getString("local_database.mysql_passw");
@@ -194,7 +209,7 @@ public class LocalDB {
             op.mysqlData.put("ender", "null");//ender = "null";
             op.mysqlData.put("potion", "null");//potion = "null";
 
-        } else if (playerData) {
+        } else if (PLAYER_DATA_SQL) {
             if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {
                 op.mysqlData.put("inventory", "");
                 op.mysqlData.put("armor", "");
@@ -443,7 +458,7 @@ public class LocalDB {
             final ItemStack[] ender;
             final Collection<PotionEffect> potion;
 
-            if (rs.getString("inventory").isEmpty() || !playerData) {
+            if (rs.getString("inventory").isEmpty() || !PLAYER_DATA_SQL) {
                 inventory = null;
             } else {
                 if (rs.getString("inventory").equals("null")) {
@@ -454,7 +469,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("armor").isEmpty() || !playerData) {
+            if (rs.getString("armor").isEmpty() || !PLAYER_DATA_SQL) {
                 armor = null;
             } else {
                 if (rs.getString("armor").equals("error")) {
@@ -465,7 +480,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("ender").isEmpty() || !playerData) {
+            if (rs.getString("ender").isEmpty() || !PLAYER_DATA_SQL) {
                 ender = null;
             } else {
                 if (rs.getString("ender").equals("error")) {
@@ -476,7 +491,7 @@ public class LocalDB {
                 }
             }
 
-            if (rs.getString("potion").isEmpty() || !playerData) {
+            if (rs.getString("potion").isEmpty() || !PLAYER_DATA_SQL) {
                 potion = null;
             } else {
                 if (rs.getString("potion").equals("error")) {

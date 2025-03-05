@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Timer;
 import ru.komiss77.*;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
 import ru.komiss77.events.GroupChangeEvent;
 import ru.komiss77.modules.games.GM;
@@ -39,19 +40,25 @@ public class Perm {
             )
         );
         localPerms.saveConfig();
+        loadLocal();
     }
 
-    public static void loadGroups(final boolean updatePlayerPermissions) {
-
+    private static void loadLocal() {
         defaultPerms.clear();
         for (String group : localPerms.getKeys()) { //дфолтные права будут всегда! загрузать до мускул, или может concurrent!
             if (group.equals("default")) {
                 defaultPerms.addAll(localPerms.getStringList(group));
             }
-//System.out.println("group="+group+" : "+Arrays.toString(localGroupPermissions.get(group).toArray()));
         }
-        loadGroupsDB(updatePlayerPermissions); //2!!! сначала прогрузить allBungeeServersName, или не определяет пермы по серверам
+        if (GM.GAME.type == ServerType.ONE_GAME || Ostrov.MOT_D.equals("home")) {
+            defaultPerms.add("tradesystem.trade");
+            defaultPerms.add("tradesystem.trade.initiate");
+        }
+    }
 
+    public static void loadGroups(final boolean updatePlayerPermissions) {
+        loadLocal();
+        loadGroupsDB(updatePlayerPermissions); //2!!! сначала прогрузить allBungeeServersName, или не определяет пермы по серверам
     }
 
 

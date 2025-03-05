@@ -53,8 +53,7 @@ public class Oplayer {
     public final String nik;
     public final UUID id;
     public boolean eng; //true - english; false - russian
-    public int karmaCalc,
-        reputationCalc; //просчитывается в
+    public int karmaCalc, reputationCalc; //просчитывается в
     private final int loginTime = Timer.secTime();
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа
@@ -63,8 +62,8 @@ public class Oplayer {
     public boolean isStaff; //флаг модератора
     public final Map<String, String> mysqlData = new HashMap<>();
     public int mysqRecordId = Integer.MIN_VALUE;
-
-    protected final EnumMap<Data, String> globalData = new EnumMap<>(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
+    //что это опять за переименования dataString в globalData ???
+    protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
@@ -219,7 +218,7 @@ public class Oplayer {
             }
         }
 
-        if (globalData.isEmpty() && onlineSecond > 1) {
+        if (dataString.isEmpty() && onlineSecond > 1) {
             if (onlineSecond < 15) {
                 SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
                 ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с Остров БД..");
@@ -353,7 +352,7 @@ public class Oplayer {
     }
 
     public String getDataString(final Data data) {
-        return globalData.getOrDefault(data, data.def_value);
+        return dataString.getOrDefault(data, data.def_value);
     }
 
     public int getDataInt(final Data data) {
@@ -387,7 +386,7 @@ public class Oplayer {
 
     public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
         if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, e_data.tag, 0, value, "")) {
-            globalData.put(e_data, value);
+            dataString.put(e_data, value);
             return true;
         } else {
             getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
@@ -624,7 +623,7 @@ public class Oplayer {
     }
 
     public boolean bungeeDataRecieved() {
-        return !globalData.isEmpty();
+        return !dataString.isEmpty();
     }
 
 
@@ -664,7 +663,7 @@ public class Oplayer {
     }
 
     public boolean hasData(final Data d) {
-        return globalData.containsKey(d) || dataInt.containsKey(d);
+        return dataString.containsKey(d) || dataInt.containsKey(d);
     }
 
     public boolean addBlackList(final String name) { //только локально!! на банжи не изменится!!

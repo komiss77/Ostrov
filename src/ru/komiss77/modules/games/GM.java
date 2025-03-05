@@ -21,12 +21,9 @@ import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.*;
-import ru.komiss77.enums.Game;
-import ru.komiss77.enums.GameState;
-import ru.komiss77.enums.ServerType;
-import ru.komiss77.enums.Table;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.BsignLocalArenaClick;
-import ru.komiss77.modules.redis.OsQuery;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -391,7 +388,7 @@ public final class GM {
 
         final String data = sb.toString();
         RDS.sendMessage("arenadata", data);
-        OsQuery.sendArenaData(data);
+        OsQuery.send(QureyCode.GAME_DATA, data);
 
         if (Ostrov.SHUT_DOWN) {
 
