@@ -287,7 +287,7 @@ public class Oplayer {
     public void updTabListName(final Player p) {
         if (Cfg.tablist_name) {
             final String displayName = isGuest ? "§8(Гость) " + beforeName + getDataString(Data.FAMILY) : beforeName + nik;
-            p.playerListName(TCUtil.form(tabPreffix + displayName + tabSuffix));
+            p.playerListName(TCUtil.form(tabPreffix + displayName + "<reset>" + tabSuffix));
         }
     }
 

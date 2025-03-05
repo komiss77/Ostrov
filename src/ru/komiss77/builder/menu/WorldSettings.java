@@ -93,7 +93,7 @@ public class WorldSettings implements InventoryProvider {
                   PM.soundDeny(p);
                   return;
                 }
-                final int amount = Integer.valueOf(msg);
+                final int amount = Integer.parseInt(msg);
                 if (amount < 1 || amount > 1_000_000) {
                   p.sendMessage("§cот 1 до 1000000");
                   PM.soundDeny(p);

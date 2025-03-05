@@ -675,8 +675,8 @@ public enum Section {
                 } else {
                     lore = Arrays.asList(
                             Component.empty(),
-                            Component.text("§7ЛКМ - §fПлатные возможности"),
-                            Component.text("§7ПКМ - §fАдминистрация"),
+                            Component.text("§7ЛКМ - §fВозможности привилегий"),
+                            Component.text("§7ПКМ - §fПерсонал Острова"),
                             Component.empty()
                     );
                 }

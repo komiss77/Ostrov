@@ -1,17 +1,17 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -19,10 +19,10 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class GameMenu implements InventoryProvider {
 
-    private static final ClickableItem rail = ClickableItem.empty(new ItemBuilder(Material.ACTIVATOR_RAIL).name("§0.").build());
-    private static final ClickableItem bubble = ClickableItem.empty(new ItemBuilder(Material.GLOW_LICHEN).name("§0.").build());
-    private static final ClickableItem stone = ClickableItem.empty(new ItemBuilder(Material.LODESTONE).name("§0.").build());
-    private static final ClickableItem slab = ClickableItem.empty(new ItemBuilder(Material.SMOOTH_STONE_SLAB).name("§0.").build());
+    private static final ClickableItem rail = ClickableItem.empty(new ItemBuilder(ItemType.ACTIVATOR_RAIL).name("§0.").build());
+    private static final ClickableItem bubble = ClickableItem.empty(new ItemBuilder(ItemType.GLOW_LICHEN).name("§0.").build());
+    private static final ClickableItem stone = ClickableItem.empty(new ItemBuilder(ItemType.LODESTONE).name("§0.").build());
+    private static final ClickableItem slab = ClickableItem.empty(new ItemBuilder(ItemType.SMOOTH_STONE_SLAB).name("§0.").build());
     public static final String nameEn = "         " + Section.РЕЖИМЫ.item_nameEn;
 
     private boolean mini;
@@ -66,8 +66,8 @@ public class GameMenu implements InventoryProvider {
                 }
             }
 
-            content.set(22, ClickableItem.of(new ItemBuilder(Material.RECOVERY_COMPASS)
-                    .name("§c|e§lБольшие Режимы")
+            content.set(22, ClickableItem.of(new ItemBuilder(ItemType.RECOVERY_COMPASS)
+                    .name("<gradient:apple:dark_aqua><b>БОЛЬШИЕ РЕЖИМЫ")
                     .lore("")
                     .lore("§a§lВыживание")
                     .lore("§9§lКреатив")
@@ -93,20 +93,19 @@ public class GameMenu implements InventoryProvider {
 
                 if (game.menuSlot > 0) {
                     content.set(game.menuSlot, ClickableItem.of(gi.getIcon(op), e -> {
+                        if (gi.count() == 0) return;
                         final ArenaInfo ai = gi.arenas().stream().findAny().get();//gi.arenas.get(0);
-                        if (ai != null) {
-                            if (ai.server.equals(Ostrov.MOT_D)) {//(game == GM.GAME) {
-                                p.sendMessage("§6Вы и так уже на этом сервере!");
-                                return;
-                            }
-                            p.performCommand("server " + ai.server);
+                        if (ai.server.equals(Ostrov.MOT_D)) {//(game == GM.GAME) {
+                            p.sendMessage("§6Вы и так уже на этом сервере!");
+                            return;
                         }
+                        p.performCommand("server " + ai.server);
                     }));
                 }
             }
 
-            content.set(22, ClickableItem.of(new ItemBuilder(Material.RECOVERY_COMPASS)
-                    .name("§a§lМ§d§lИ§c§lН§e§lИ§9§lИ§5§lГ§4§lР§b§lЫ")
+            content.set(22, ClickableItem.of(new ItemBuilder(ItemType.RECOVERY_COMPASS)
+                    .name("§a§lМ§d§lИ§c§lН§e§lИ §9§lИ§5§lГ§4§lР§b§lЫ")
                     .lore("")
                     .lore("§e§lБедВарс")
                     .lore("§4§lГолодные Игры")

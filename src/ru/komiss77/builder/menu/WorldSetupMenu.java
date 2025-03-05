@@ -8,20 +8,21 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.ApiOstrov;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.MoveUtil;
 import ru.komiss77.utils.inventory.*;
 
 
 public class WorldSetupMenu implements InventoryProvider {
 
-    private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build();
+    private static final ItemStack fill = new ItemBuilder(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build();
 
 
     @Override
@@ -47,7 +48,7 @@ public class WorldSetupMenu implements InventoryProvider {
             final String gen = world.getGenerator() == null ? "none" : (world.getGenerator().getClass().getName().contains(".") ? world.getGenerator().getClass().getName().substring(world.getGenerator().getClass().getName().lastIndexOf(".") + 1) : world.getGenerator().getClass().getName());
 
 
-            menuEntry.add(ClickableItem.of(new ItemBuilder(getWorldMat(world))
+            menuEntry.add(ClickableItem.of(new ItemBuilder(getWorldMat(world).asItemType())
                 .name(world.getName())
                 .lore("§b" + world.getEnvironment().name() + "§7, generator: §b" + gen)
                 .lore("§fChunks §7Loaded:§d" + world.getLoadedChunks().length + " §7Ticking:§d" + world.getChunkCount())
@@ -55,8 +56,8 @@ public class WorldSetupMenu implements InventoryProvider {
                 .lore("§fTileEntity§7:§3" + world.getTileEntityCount() + "§7, Tickable:§3" + world.getTickableTileEntityCount())
                 .lore("")
                 .lore("§fЛКМ §7- ТП на точку спавна мира")
-                .lore("§fПКМ §7- энтити")
-                .lore("§fКолёсико §7- настройки мира")
+                .lore("§fПКМ §7- настройки мира")
+                .lore("§fКолёсико §7- энтити")
                 .lore("§4клав.Q - §cвыгрузить мир")
                 .lore("§5===============================")
                 .lore("Центр границы мира: " + world.getWorldBorder().getCenter().getBlockX() + ", " + world.getWorldBorder().getCenter().getBlockY() + ", " + world.getWorldBorder().getCenter().getBlockZ())
@@ -85,7 +86,7 @@ public class WorldSetupMenu implements InventoryProvider {
                 switch (e.getClick()) {
 
                     case LEFT:
-                        ApiOstrov.teleportSave(p, world.getSpawnLocation(), true);//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        MoveUtil.safeTP(p, world.getSpawnLocation());//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                         break;
 
                     case DROP:
@@ -104,10 +105,6 @@ public class WorldSetupMenu implements InventoryProvider {
                         break;
 
                     case RIGHT:
-                        p.performCommand("entity");
-                        break;
-
-                    case MIDDLE:
                         SmartInventory.builder()
                             .id("WorldSettings" + p.getName())
                             .provider(new WorldSettings(world))
@@ -115,6 +112,10 @@ public class WorldSetupMenu implements InventoryProvider {
                             .title("§bНастройки мира " + world.getName())
                             .build()
                             .open(p);
+                        break;
+
+                    case MIDDLE:
+                        p.performCommand("entity");
                         break;
 
 
@@ -184,7 +185,7 @@ public class WorldSetupMenu implements InventoryProvider {
         pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(45);
 
-        contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
+        contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
             p.closeInventory()
         ));
 
