@@ -10,9 +10,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.GameState;
+import ru.komiss77.enums.QureyCode;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.redis.OsQuery;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 
@@ -59,7 +60,7 @@ public final class ArenaInfo {
 
         final String data = sb.toString();
         RDS.sendMessage("arenadata", data);
-        OsQuery.sendArenaData(data);
+        OsQuery.send(QureyCode.GAME_DATA, data);
     }
 
 

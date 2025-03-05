@@ -173,7 +173,7 @@ public class PM {
     //-создать оп сразу, пермишены и прочее зависимое от player пересчитать когда player будет не null, или бывает так:
     public static void bungeeDataHandle(final Player p, final Oplayer op, final String raw) { //всё сразу
 //Ostrov.log_warn("bungeeDataHandle raw="+raw);
-        op.globalData.put(Data.NAME, op.nik);
+        op.dataString.put(Data.NAME, op.nik);
 
         int enumTag;
         String value;
@@ -194,7 +194,7 @@ public class PM {
                             op.dataInt.put(_data, v);
                         }
                     } else {
-                        op.globalData.put(_data, value);
+                        op.dataString.put(_data, value);
                     }
                 }
             } else if (enumTag >= 300 && enumTag <= 599) {
@@ -213,18 +213,18 @@ public class PM {
 
         }
         op.eng = op.getDataInt(Data.LANG) == 1;
-        if (op.globalData.containsKey(Data.FRIENDS) && !op.globalData.get(Data.FRIENDS).isEmpty()) { //друг:сервер, список
-            op.friends.addAll(Arrays.asList(op.globalData.get(Data.FRIENDS).split(","))); //info = name:server:settings
+        if (op.dataString.containsKey(Data.FRIENDS) && !op.dataString.get(Data.FRIENDS).isEmpty()) { //друг:сервер, список
+            op.friends.addAll(Arrays.asList(op.dataString.get(Data.FRIENDS).split(","))); //info = name:server:settings
         }
-        if (op.globalData.containsKey(Data.MISSIONS)) {
-            for (String id : op.globalData.get(Data.MISSIONS).split(";")) {
+        if (op.dataString.containsKey(Data.MISSIONS)) {
+            for (String id : op.dataString.get(Data.MISSIONS).split(";")) {
                 if (NumUtil.isInt(id)) {
                     op.missionIds.add(Integer.valueOf(id));
                 }
             }
         }
-        if (op.globalData.containsKey(Data.BLACK_LIST) && !op.globalData.get(Data.BLACK_LIST).isEmpty()) {
-            op.blackList.addAll(Arrays.asList(op.globalData.get(Data.BLACK_LIST).split(",")));
+        if (op.dataString.containsKey(Data.BLACK_LIST) && !op.dataString.get(Data.BLACK_LIST).isEmpty()) {
+            op.blackList.addAll(Arrays.asList(op.dataString.get(Data.BLACK_LIST).split(",")));
         }
 
         StatManager.recalc(op); //пересчёт статы
@@ -270,10 +270,10 @@ public class PM {
         op.party_members.clear();
         op.party_leader = "";
 //System.out.println("---onPartyRecieved2 PARTY_MEBRERS="+dataString.get(Data.PARTY_MEBRERS));
-        if (op.globalData.containsKey(Data.PARTY_MEBRERS) && !op.globalData.get(Data.PARTY_MEBRERS).isEmpty()) {
+        if (op.dataString.containsKey(Data.PARTY_MEBRERS) && !op.dataString.get(Data.PARTY_MEBRERS).isEmpty()) {
             boolean first = true;
             String[] split;
-            for (String player_and_server : op.globalData.get(Data.PARTY_MEBRERS).split(",")) {
+            for (String player_and_server : op.dataString.get(Data.PARTY_MEBRERS).split(",")) {
                 split = player_and_server.split(":");
                 if (split.length == 2) {
                     if (first) {
@@ -305,10 +305,10 @@ public class PM {
                     }
                     // = !dataInt.containsKey(d) || dataInt.put(d, int2)!=int2;//dataInt.put (_data, int2);
                 } else {
-                    if (op.globalData.containsKey(d)) {
-                        change = !op.globalData.put(d, string1).equals(string1);
+                    if (op.dataString.containsKey(d)) {
+                        change = !op.dataString.put(d, string1).equals(string1);
                     } else {
-                        op.globalData.put(d, string1);
+                        op.dataString.put(d, string1);
                         change = true;
                     }
                     //change =  !dataString.containsKey(d) || !dataString.put(d, string1).equals(string1);//dataString.put (d, string1);
@@ -414,7 +414,7 @@ public class PM {
         }
         int complete = 0;
         E_Pass ePass;
-        for (Data d : op.globalData.keySet()) {
+        for (Data d : op.dataString.keySet()) {
             ePass = E_Pass.fromStrind(d.name());
             if (ePass != null && ePass.editable && !op.getDataString(d).isEmpty()) {
                 complete++;
@@ -426,7 +426,7 @@ public class PM {
     public static Map<E_Pass, String> getPassportData(final Oplayer op, final boolean skipUneditable) { //для паспорта
         final EnumMap<E_Pass, String> result = new EnumMap<>(E_Pass.class);
         E_Pass ePass;
-        for (Data d : op.globalData.keySet()) {
+        for (Data d : op.dataString.keySet()) {
             ePass = E_Pass.fromStrind(d.name());
             if (ePass != null && (!skipUneditable || ePass.editable)) {
                 result.put(ePass, op.getDataString(d));

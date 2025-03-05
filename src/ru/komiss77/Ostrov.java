@@ -18,19 +18,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
-import ru.komiss77.enums.Module;
 import ru.komiss77.enums.*;
+import ru.komiss77.enums.GlobalLogType;
+import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
 import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.listener.*;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.redis.OsQuery;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
+import ru.komiss77.modules.netty.OsQuery;
 
 
 public class Ostrov extends JavaPlugin {
@@ -38,7 +39,7 @@ public class Ostrov extends JavaPlugin {
     public static Ostrov instance;
     public static Registries registries;
     public static LifecycleEventManager<Plugin> mgr;
-    public static OsQuery osQuery;
+  public static OsQuery osQuery;
     public static final Map<String, Initiable> modules;
     public static final Random random;
     public static final String L = "Ł";
@@ -91,7 +92,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         registries = new Registries();
-        osQuery = new OsQuery();
+      osQuery = new OsQuery();
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
@@ -99,17 +100,17 @@ public class Ostrov extends JavaPlugin {
 
         log_ok("§5===== Регистрация каналов Proxy =====");
         for (final Chanell ch : Chanell.values()) {
-            if (ch == Chanell.SKIN && !SkinRestorerHook.USE) continue;
+          if (ch == Chanell.SKIN && !SkinRestorerHook.USE) continue;
             instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
             instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
         }
 
         if (MOT_D.length() == 3) { // для серверов авторизации
-            log_warn("§bРежим Auth (Newbie)");
+          log_warn("§bРежим Auth (Newbie)");
             REGISTER.registerAuth();
             Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), this);
             if (MOT_D.startsWith("nb")) {
-                REGISTER.register(); //подключатся только нужные для nb
+              REGISTER.register(); //подключатся только нужные для nb
             }
             return;
         }
@@ -152,9 +153,9 @@ public class Ostrov extends JavaPlugin {
         SHUT_DOWN = true;
         HandlerList.unregisterAll(instance);
         RemoteDB.Disconnect();
-        if (osQuery != null) {
-            osQuery.shutdown();
-        }
+      if (osQuery != null) {
+        osQuery.shutdown();
+      }
         if (MOT_D.length() == 3) return;
         for (final Player p : Bukkit.getOnlinePlayers()) {
             PM.onLeave(p, false);
@@ -244,42 +245,42 @@ public class Ostrov extends JavaPlugin {
 //    public static final String prefixERR = "§c[§4Остров§c] §7";//"\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001B[31m";
 
     public static void log(String s) {
-        logger.info(TCUtil.form(s));
+      logger.info(TCUtil.form(s));
     }
 
     public static void log_ok(String s) {
-        //if (!windows) { хм, в линуксе тоже цвета грохнулись, используем костыль
-        //  logger.info(s);//logger.info(TCUtil.form(s));
-        //} else {//кринж      цветов в винде не появилось, вернул кодировку консоли. Еще ComponentLogger ставит в начале название плагина, всегда монохромное
+      //if (!windows) { хм, в линуксе тоже цвета грохнулись, используем костыль
+      //  logger.info(s);//logger.info(TCUtil.form(s));
+      //} else {//кринж      цветов в винде не появилось, вернул кодировку консоли. Еще ComponentLogger ставит в начале название плагина, всегда монохромное
         if (s.startsWith("§") && s.length() >= 2) {
-            final String strip = s.substring(2);
-            switch (s.charAt(1)) {
-                case '0' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;232m" + strip;
-                case '1' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[34;1m" + strip;
-                case '2' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;29m" + strip;
-                case '3' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;6m" + strip;
-                case '4' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;1m" + strip;
-                case '5' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;128m" + strip;
-                case '6' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;214m" + strip;
-                case '7' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;241m" + strip;
-                case '8' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;238m" + strip;
-                case '9' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;63m" + strip;
-                case 'a' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[32;1m" + strip;
-                case 'b' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[36;1m" + strip;
-                case 'c' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;9m" + strip;
-                case 'd' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;207m" + strip;
-                case 'e' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[33m" + strip;
-                case 'f' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[37m" + strip;
-                default -> {
-                    Bukkit.getLogger().info(s);
-                    return;
-                }
+          final String strip = s.substring(2);
+          switch (s.charAt(1)) {
+            case '0' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;232m" + strip;
+            case '1' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[34;1m" + strip;
+            case '2' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;29m" + strip;
+            case '3' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;6m" + strip;
+            case '4' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;1m" + strip;
+            case '5' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;128m" + strip;
+            case '6' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;214m" + strip;
+            case '7' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;241m" + strip;
+            case '8' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;238m" + strip;
+            case '9' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;63m" + strip;
+            case 'a' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[32;1m" + strip;
+            case 'b' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[36;1m" + strip;
+            case 'c' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;9m" + strip;
+            case 'd' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[38;5;207m" + strip;
+            case 'e' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[33m" + strip;
+            case 'f' -> s = "\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] \u001b[37m" + strip;
+            default -> {
+              Bukkit.getLogger().info(s);
+              return;
             }
-            Bukkit.getLogger().info(s + "\u001B[0m");
+          }
+          Bukkit.getLogger().info(s + "\u001B[0m");
         } else {
-            Bukkit.getLogger().info("\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] " + s);
+          Bukkit.getLogger().info("\u001b[32;1m[\u001B[38;5;28mОстров\u001b[32;1m] " + s);
         }
-        // }
+      // }
     }
 
     public static void log_warn(String s) {
@@ -287,7 +288,7 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void log_err(String s) {
-        logger.error(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
+      logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
         if (LocalDB.useLocalData && LocalDB.connection != null) {
             try (PreparedStatement pst1 = LocalDB.connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);")) {
                 pst1.setString(1, s);
@@ -298,17 +299,17 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-    @Deprecated
+  @Deprecated
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
     }
 
-    public static void history(final HistoryType type, final Oplayer op, final String msg) {
-        RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
-            "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.getDataString(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
-        ;
-    }
+  public static void history(final HistoryType type, final Oplayer op, final String msg) {
+    RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
+        "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.getDataString(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
+    ;
+  }
 
 
     public static String dateFromStamp(int stamp_in_second) {

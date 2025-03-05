@@ -28,7 +28,7 @@ import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
-import ru.komiss77.modules.redis.OsQuery;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
@@ -100,7 +100,12 @@ public class Timer {
         //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
-            authMode = !Ostrov.MOT_D.equals("nb0"); //на новичках в authMode не работает боссбар!
+            //authMode = !Ostrov.MOT_D.equals("nb0"); //для компилатора абсолютно тоже самое, что ниже, только нормально читается
+            if (Ostrov.MOT_D.equals("nb0")) {
+                authMode = false; //на новичках в authMode не работает боссбар!
+            } else {
+                authMode = true;
+            }
         } else if (Ostrov.MOT_D.equals("jail")) { //jail 
             jailMode = true;
         } else {
@@ -173,9 +178,9 @@ public class Timer {
             @Override
             public void run() {
                 OsQuery.heartBeat(sec);
-                if (sec % 20 == 0) {
-                    OsQuery.request("======= test request sec=" + sec);
-                }
+                //if (sec % 20 == 0) {
+                //    OsQuery.request("======= test request sec=" + sec);
+                //}
                 try {
                     //RDS.heartbeats();
                     if (sec % 43 == 0) {

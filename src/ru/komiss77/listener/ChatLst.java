@@ -24,15 +24,13 @@ import org.bukkit.event.Listener;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
-import ru.komiss77.enums.Chanell;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.ServerType;
-import ru.komiss77.enums.Stat;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.InputButton;
@@ -253,7 +251,7 @@ public class ChatLst implements Listener {
         if (hasRemoved) {
             ScreenUtil.sendActionBarDirect(sender, "§6Некоторые игроки не увидели ваши сообщения - вы в ЧС");
         }
-
+        OsQuery.send(QureyCode.CHAT_STRIP, stripMsg);
     }
 
 
@@ -386,6 +384,8 @@ public class ChatLst implements Listener {
 //SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT_RU);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgEN, Chanell.CHAT_EN);
+            OsQuery.send(QureyCode.CHAT_RU, gsonMsgRU);
+            OsQuery.send(QureyCode.CHAT_EN, gsonMsgEN);
             // }
         }
 
