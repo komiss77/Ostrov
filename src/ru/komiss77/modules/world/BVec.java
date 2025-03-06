@@ -16,7 +16,7 @@ import ru.komiss77.utils.StringUtil;
 
 public class BVec implements BlockPosition, Cloneable {
 
-    public static final String SPLIT = StringUtil.SPLIT_1;
+    public static final StringUtil.Split SPLIT = StringUtil.Split.MEDIUM;
 
     private static final byte[] EIA = {};
 
@@ -107,7 +107,7 @@ public class BVec implements BlockPosition, Cloneable {
     }
     
     public String toString() {
-        return x + SPLIT + y + SPLIT + z;
+        return x + SPLIT.get() + y + SPLIT.get() + z;
     }
 
     public BVec clone() {
@@ -221,7 +221,7 @@ public class BVec implements BlockPosition, Cloneable {
         }
 
         public String toString() {
-            return super.toString() + SPLIT + world;
+            return super.toString() + SPLIT.get() + world;
         }
 
         public BVec clone() {
@@ -324,7 +324,7 @@ public class BVec implements BlockPosition, Cloneable {
 
     public static BVec parse(final String bVec) {
         BVec bv = of();
-        if (!bVec.contains(SPLIT)) {
+        if (SPLIT.index(bVec) < 0) {
             final XYZ xyz = XYZ.fromString(bVec);
             if (xyz != null) {
                 Ostrov.log_warn("Parsing BVec " + SPLIT + " from XYZ " + bVec);
@@ -332,7 +332,7 @@ public class BVec implements BlockPosition, Cloneable {
             }
             Ostrov.log_err("Error parsing BVec " + SPLIT + " for " + bVec);
         }
-        final String[] parts = bVec.split(SPLIT);
+        final String[] parts = SPLIT.split(bVec);
         switch (parts.length) {
             case 4:
                 bv = bv.w(parts[3]);
@@ -343,7 +343,7 @@ public class BVec implements BlockPosition, Cloneable {
                 break;
             default:
                 if (parts.length < 3) {
-                    Ostrov.log_err("BVec " + SPLIT + " parse < 3 for " + bVec + " len=" + parts.length);
+                    Ostrov.log_err("BVec " + SPLIT.name() + " parse < 3 for " + bVec + " len=" + parts.length);
                     return bv;
                 }
                 final byte[] vals = new byte[parts.length - 4];

@@ -1,8 +1,10 @@
 package ru.komiss77.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.World;
@@ -13,14 +15,82 @@ public class StringUtil {
     private static final String PATTERN_ENG_NUM = "\\w"; //[A-Za-z0-9_]";
     private static final String PATTERN_ENG_RUS = "[A-Za-zА-Яа-я_]";
     private static final String PATTERN_ENG_NUM_RUS = "[A-Za-z0-9А-Яа-я_]";
+    @Deprecated
     public static final char CHAR_0 = '¦';
+    @Deprecated
     public static final String SPLIT_0 = "»" + CHAR_0 + "«";
+    @Deprecated
     public static final char CHAR_1 = '↕';
+    @Deprecated
     public static final String SPLIT_1 = "" + CHAR_1;
+    @Deprecated
     public static final char CHAR_2 = '÷';
+    @Deprecated
     public static final String SPLIT_2 = "" + CHAR_2;
+
     public static final char CHAR_NA = '○';
     public static final String NA = String.valueOf(CHAR_NA);
+
+    public enum Split {
+        LARGE("‹¦›", "«︙»", "»¦«"),
+        MEDIUM("‼", "∬", "᠃", "↕"),
+        SMALL("÷", "∫", "¡", "±", "।");
+
+        private final int len;
+        private final String[] chars;
+        private final Pattern pat;
+
+        Split(final String... chars) {
+            this.len = chars[0].length();
+            this.chars = chars;
+            final StringBuilder sb = new StringBuilder();
+            for (final String ch : chars) {
+                if (ch.length() != len) continue;
+                sb.append("|").append(ch);
+            }
+            pat = Pattern.compile(sb.substring(1));
+        }
+
+        Split(final char... chars) {
+            this.len = 1;
+            this.chars = new String[chars.length];
+            for (int i = 0; i != chars.length; i++) {
+                this.chars[i] = String.valueOf(chars[i]);
+            }
+            pat = Pattern.compile("[" + new String(chars) + "]");
+        }
+
+        public String[] split(final String str) {
+            return split(str, false);
+        }
+
+        public String[] split(final String str, final boolean once) {
+            if (once) {
+                final int ix = index(str);
+                return ix < 0 ? new String[]{str}
+                    : new String[]{str.substring(0, ix), str.substring(ix + len)};
+            }
+            return pat.split(str);
+        }
+
+        public int index(final String str) {
+            if (len == 1) {
+                for (final String ch : chars) {
+                    final int ix = str.indexOf(ch.charAt(0));
+                    if (ix < 0) continue; return ix;
+                }
+                return -1;
+            }
+            for (final String ch : chars) {
+                final int ix = str.indexOf(ch);
+                if (ix < 0) continue; return ix;
+            }
+            return -1;
+        }
+
+        public int len() {return len;}
+        public String get() {return chars[0];}
+    }
 
     public static String[] wrap(final String msg, final int length, final String newLine) {
         if (msg.length() < 2) return new String[]{msg};
@@ -125,7 +195,7 @@ public class StringUtil {
   public static String sha256(final String s) {
     try {
       final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      final byte[] hash = digest.digest(s.getBytes("UTF-8"));
+      final byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
       final StringBuilder hexString = new StringBuilder();
       for (int i = 0; i < hash.length; i++) {
         final String hex = Integer.toHexString(0xff & hash[i]);

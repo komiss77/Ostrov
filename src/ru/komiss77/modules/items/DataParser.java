@@ -47,7 +47,7 @@ public class DataParser extends HashMap<DataComponentType.Valued<?>, DataParser.
     }
 
     public interface Parser<D> {
-        String write(final D val, final String... seps);
-        D parse(final String str, final String... seps);
+        String write(final D val);
+        D parse(final String str);
     }
 }

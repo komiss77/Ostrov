@@ -351,46 +351,66 @@ public class Oplayer {
         if (giveTag) beforeName(null, p);
     }
 
+    @Deprecated //непонятно что за DataString?? LocalData?? Proxy Data??
     public String getDataString(final Data data) {
+        return globalStr(data);
+    }
+
+    public String globalStr(final Data data) {
         return dataString.getOrDefault(data, data.def_value);
     }
 
+    @Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data??
     public int getDataInt(final Data data) {
+        return globalInt(data);
+    }
+
+    public int globalInt(final Data data) {
         return dataInt.getOrDefault(data, NumUtil.intOf(data.def_value, 0));
     }
 
-    public boolean setData(final Data e_data, final int value) {  //отправляем на банжи, и обнов.локально
-        int old_val = dataInt.getOrDefault(e_data, 0);
+    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data??
+    public boolean setData(final Data data, final int value) {  //отправляем на банжи, и обнов.локально
+        return globalInt(data, value);
+    }
+
+    public boolean globalInt(final Data data, final int value) {  //отправляем на банжи, и обнов.локально
+        int old_val = dataInt.getOrDefault(data, 0);
         if (old_val == value) {
             return true;
         }
-        if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, e_data.tag, value, "", "")) {
-            dataInt.put(e_data, value);
-            if (e_data == Data.RIL) {
+        if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, data.tag, value, "", "")) {
+            dataInt.put(data, value);
+            if (data == Data.RIL) {
                 if (old_val > value) { //use
                     Ostrov.history(HistoryType.MONEY_REAL_USE, this, "setData RIL old=" + old_val + " new=" + value);
                 } else { //add
                     Ostrov.history(HistoryType.MONEY_REAL_ADD, this, "setData RIL old=" + old_val + " new=" + value);
                 }
 
-            } else if (e_data == Data.LANG) {
+            } else if (data == Data.LANG) {
                 eng = value == 1;
             }
             return true;
         } else {
-            getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
-            Ostrov.log_err("§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
+            getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! data=" + data.toString() + " value=" + value);
+            Ostrov.log_err("§cОшибка синхронизации данных! data=" + data.toString() + " value=" + value);
             return false;
         }
     }
 
-    public boolean setData(final Data e_data, final String value) {  //отправляем на банжи, и обнов.локально
-        if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, e_data.tag, 0, value, "")) {
-            dataString.put(e_data, value);
+    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data??
+    public boolean setData(final Data data, final String value) {  //отправляем на банжи, и обнов.локально
+        return globalStr(data, value);
+    }
+
+    public boolean globalStr(final Data data, final String value) {  //отправляем на банжи, и обнов.локально
+        if (SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, data.tag, 0, value, "")) {
+            dataString.put(data, value);
             return true;
         } else {
-            getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
-            Ostrov.log_err("§cОшибка синхронизации данных! e_data=" + e_data.toString() + " value=" + value);
+            getPlayer().sendMessage(Ostrov.PREFIX + "§cОшибка синхронизации данных! data=" + data.toString() + " value=" + value);
+            Ostrov.log_err("§cОшибка синхронизации данных! data=" + data.toString() + " value=" + value);
             return false;
         }
     }
@@ -410,7 +430,7 @@ public class Oplayer {
     }
 
     public int getDailyStat(final Stat st) {
-        int record = dailyStat.getOrDefault(st, 0);
+        final int record = dailyStat.getOrDefault(st, 0);
         return switch (st) {
             case PLAY_TIME -> record + (Timer.secTime() - daylyLoginTime);
             default -> record;
@@ -509,7 +529,12 @@ public class Oplayer {
         SpigotChanellMsg.sendMessage(getPlayer(), Operation.SET_BUNGEE_DATA, nik, Data.SETTINGS.tag, value, "", "");
     }
 
+    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data??
     public String getTextData(String key) {
+        return globalData(key);
+    }
+
+    public String globalData(String key) {
         final String dataRaw = getDataString(Data.TEXTDATA);
         if (dataRaw.isEmpty()) return "";
         key = key + "。";
@@ -521,24 +546,26 @@ public class Oplayer {
         return "";
     }
 
+    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data??
     public void setTextData(final String key, final String value) {
+        globalData(key, value);
+    }
+
+    public void globalData(final String key, final String value) {
         if (key == null) return;
         final String dataRaw = getDataString(Data.TEXTDATA);
         final HashMap<String, String> data = new HashMap<>();
         if (!dataRaw.isEmpty()) {
             int splitterIndex;
-            for (String s : dataRaw.split("︙")) { //∬ не использовать! конфликт с банжиданными!
+            for (final String s : dataRaw.split("︙")) { //∬ не использовать! конфликт с банжиданными!
                 splitterIndex = s.indexOf("。");
                 if (splitterIndex > 0) {
                     data.put(s.substring(0, splitterIndex), s.substring(splitterIndex + 1));
                 }
             }
         }
-        if (value == null) {
-            data.remove(key);
-        } else {
-            data.put(key, value);
-        }
+        if (value == null) data.remove(key);
+        else data.put(key, value);
         StringBuilder build = new StringBuilder();
         for (String k : data.keySet()) {
             build.append("︙").append(k).append("。").append(data.get(k));

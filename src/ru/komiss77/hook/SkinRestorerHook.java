@@ -30,7 +30,7 @@ import ru.komiss77.utils.inventory.*;
 
 public class SkinRestorerHook {
 
-  public static final boolean USE = false;
+    public static final boolean USE = false;
     protected static final String TEXTURES_NAME;
     private static final Map<Integer, Map<String, String>> cache;
 
@@ -40,21 +40,21 @@ public class SkinRestorerHook {
     }
 
     public static void openGui(final Player p, final int page) {
-      ApiOstrov.executeBungeeCmd(p, "skins");
-      if (1 == 1) return;
+        ApiOstrov.executeBungeeCmd(p, "skins");
+        if (TEXTURES_NAME.length() != 1) return;
         final Map<String, String> skinList = cache.get(page);
         if (skinList == null) {
             requestPage(p, page);
             return;
         }
         SmartInventory
-                .builder()
-                .id(p.getName() + "skins")
-                .provider(new SkinGui(page, skinList))
-                .size(6, 9)
-                .title("§fНастройка скина" + (page == 0 ? "" : " §7стр." + page))
-                .build()
-                .open(p);
+            .builder()
+            .id(p.getName() + "skins")
+            .provider(new SkinGui(page, skinList))
+            .size(6, 9)
+            .title("§fНастройка скина" + (page == 0 ? "" : " §7стр." + page))
+            .build()
+            .open(p);
     }
 
     public static void onMsg(final Player p, final ByteArrayDataInput in) {
@@ -185,8 +185,8 @@ class SkinGui implements InventoryProvider {
         if (skinList.isEmpty()) {
 
             content.add(ClickableItem.empty(new ItemBuilder(ItemType.GLASS_BOTTLE)
-                    .name("§7нет записей!")
-                    .build()
+                .name("§7нет записей!")
+                .build()
             ));
 
         } else {
@@ -199,23 +199,23 @@ class SkinGui implements InventoryProvider {
                 }
                 final String skinName = en.getKey();
                 final ItemStack is = new ItemBuilder(ItemType.PLAYER_HEAD)
-                        .name(skinName)
-                        .lore("ЛКМ - посмотреть на сайте")
-                        .lore("ПКМ - одеть")
-                        .headTexture(en.getValue())
-                        .build();
+                    .name(skinName)
+                    .lore("ЛКМ - посмотреть на сайте")
+                    .lore("ПКМ - одеть")
+                    .headTexture(en.getValue())
+                    .build();
 
                 content.add(ClickableItem.of(is, e -> {
-                            if (e.getClick() == ClickType.LEFT) {
-                                p.closeInventory();
-                                //https://ru.namemc.com/profile/Whaut
-                                p.sendMessage(Component.text("§f§l* Клик сюда - посмотреть на сайте *", NamedTextColor.WHITE)
-                                        .hoverEvent(HoverEvent.showText(Component.text("§f§l* Клик сюда - посмотреть на сайте *")))
-                                        .clickEvent(ClickEvent.openUrl("https://ru.namemc.com/profile/" + skinName)));
-                            } else if (e.getClick() == ClickType.RIGHT) {
-                                SkinRestorerHook.setSkin(p, skinName);
-                            }
-                        })
+                        if (e.getClick() == ClickType.LEFT) {
+                            p.closeInventory();
+                            //https://ru.namemc.com/profile/Whaut
+                            p.sendMessage(Component.text("§f§l* Клик сюда - посмотреть на сайте *", NamedTextColor.WHITE)
+                                .hoverEvent(HoverEvent.showText(Component.text("§f§l* Клик сюда - посмотреть на сайте *")))
+                                .clickEvent(ClickEvent.openUrl("https://ru.namemc.com/profile/" + skinName)));
+                        } else if (e.getClick() == ClickType.RIGHT) {
+                            SkinRestorerHook.setSkin(p, skinName);
+                        }
+                    })
                 );
                 skinCount++;
             }
@@ -223,51 +223,51 @@ class SkinGui implements InventoryProvider {
         }
 
         content.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
-                        .name("§3Скин по нику")
-                        .lore("")
-                        .lore("§7Ввести название")
-                        .lore("§7лицензионного аккаунта")
-                        .lore("")
-                        .build(), "alex", msg -> {
+                .name("§3Скин по нику")
+                .lore("")
+                .lore("§7Ввести название")
+                .lore("§7лицензионного аккаунта")
+                .lore("")
+                .build(), "alex", msg -> {
 
-                    if (msg.length() > 16) {
-                        p.sendMessage("§сНе более 16 символов!");
-                        return;
-                    }
-                    if (!StringUtil.checkString(msg, true, false)) {
-                        p.sendMessage("§сНедопустимые символы! Можно только A-Z/a-z/0-9");
-                        return;
-                    }
-                    SkinRestorerHook.setSkin(p, msg);
+                if (msg.length() > 16) {
+                    p.sendMessage("§сНе более 16 символов!");
+                    return;
                 }
-                )
+                if (!StringUtil.checkString(msg, true, false)) {
+                    p.sendMessage("§сНедопустимые символы! Можно только A-Z/a-z/0-9");
+                    return;
+                }
+                SkinRestorerHook.setSkin(p, msg);
+            }
+            )
         );
 
         final ItemStack is = new ItemBuilder(ItemType.REDSTONE)
-                .name("§6Удалить скин")
-                .build();
+            .name("§6Удалить скин")
+            .build();
 
         content.set(5, 6, ClickableItem.of(is, e -> {
-                    if (e.getClick() == ClickType.LEFT) {
-                        p.closeInventory();
-                        SkinRestorerHook.resetSkin(p);
-                    }
-                })
+                if (e.getClick() == ClickType.LEFT) {
+                    p.closeInventory();
+                    SkinRestorerHook.resetSkin(p);
+                }
+            })
         );
 
         if (page > 0) {
             content.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
-                            -> {
-                        SkinRestorerHook.openGui(p, page - 1);
-                    })
+                    -> {
+                    SkinRestorerHook.openGui(p, page - 1);
+                })
             );
         }
 
         if (page < 999 && skinList.size() == 36) {
             content.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
-                            -> {
-                        SkinRestorerHook.openGui(p, page + 1);
-                    }
+                    -> {
+                    SkinRestorerHook.openGui(p, page + 1);
+                }
             ));
         }
 

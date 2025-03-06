@@ -15,7 +15,6 @@ public class RollManager implements Initiable {
     @Override
     public void reload() {
         Ostrov.log_ok("§2Перебор включен!");
-//        RollTree.loadAll();
     }
 
     @Override
