@@ -2,11 +2,8 @@ package ru.komiss77.utils;
 
 import java.security.MessageDigest;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.World;
 
@@ -24,11 +21,6 @@ public class StringUtil {
     public static final String SPLIT_2 = "" + CHAR_2;
     public static final char CHAR_NA = '○';
     public static final String NA = String.valueOf(CHAR_NA);
-
-  public static void suggester(final SuggestionsBuilder sb, final String starting, final Collection<String> variants) {
-    variants.stream().filter(name -> name.regionMatches(true, 0, starting, 0, starting.length()))
-        .limit(10).forEach(s -> sb.suggest(s));
-  }
 
     public static String[] wrap(final String msg, final int length, final String newLine) {
         if (msg.length() < 2) return new String[]{msg};

@@ -56,22 +56,14 @@ public class Donate implements InventoryProvider {
             content.set(group.inv_slot, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.matchMaterial(group.mat))
                 .name(group.chat_name)
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
-                //.addLore("")
-                    .lore(group.lore)
-                //.addLore("")
-                //.addLore("§f15 дней §7- §b"+group.getPrice(15))
-                //.addLore("§f1 месяц §7- §b"+group.getPrice(31))
-                //.addLore("§f3 месяца §7- §b"+group.getPrice(90))
-                //.addLore("")
-                //.addLore("§7ЛКМ - выбрать длительность")
-                //.addLore("")
+                .lore(group.lore)
                 .build(), "15-180 дней", ammount -> {
                 p.closeInventory();
                 if (!NumUtil.isInt(ammount)) {
                     p.sendMessage("§cДолжно быть число!");
                     return;
                 }
-                final int days = Integer.valueOf(ammount);
+                final int days = Integer.parseInt(ammount);
                 if (days < 15 || days > 180) {
                     p.sendMessage("§cот 15 до 180 дней!");
                     return;
@@ -81,8 +73,6 @@ public class Donate implements InventoryProvider {
                     p.sendMessage("§cНедостаточно рил! (группа " + group.chat_name + " на " + days + "д. стоит " + price + " рил)");
                     return;
                 }
-                //p.performCommand("donate");
-                //op.setData(Data.RIL, op.getDataInt(Data.RIL)-price);
                 ApiOstrov.executeBungeeCmd(p, "group buy " + p.getName() + " " + group.chat_name + " " + days);
             }));
 

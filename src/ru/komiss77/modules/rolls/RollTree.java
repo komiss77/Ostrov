@@ -125,9 +125,9 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         for (final Roll<?> rl : it) rls.put(rl.id, rls.getOrDefault(rl, 0) + 1);
         final StringBuilder sb = new StringBuilder();
         for (final Map.Entry<String, Integer> en : rls.entrySet())
-            sb.append(StringUtil.SPLIT_0).append(en.getValue()).append(StringUtil.SPLIT_1).append(en.getKey());
+            sb.append(StringUtil.Split.LARGE.get()).append(en.getValue()).append(StringUtil.Split.MEDIUM.get()).append(en.getKey());
         if (sb.isEmpty()) return "";
-        return sb.substring(StringUtil.SPLIT_0.length());
+        return sb.substring(StringUtil.Split.LARGE.len());
     }
 
     /*public static void loadAll() {

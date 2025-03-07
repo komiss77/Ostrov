@@ -13,7 +13,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -201,7 +200,7 @@ public class ProfileManager {
                 .id(op.nik + section.name())
                 .provider(new Donate())
                 .size(6, 9)
-                .title(op.eng ? "§c|н§lSupport the project" : "§c|н§lПоддержать проект")
+                .title(op.eng ? "<gradient:red:indigo>§lSupport the project" : "<gradient:red:indigo>§lПоддержать проект")
                 .build()
                 .open(op.getPlayer());
     }

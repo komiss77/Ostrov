@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
@@ -17,6 +19,7 @@ import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 import ru.komiss77.Ostrov;
 import ru.komiss77.events.ScoreWorldRecordEvent;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WXYZ;
 import ru.komiss77.notes.ThreadSafe;
 import ru.komiss77.utils.LocUtil;
@@ -28,7 +31,7 @@ public class ScoreDis {
     protected UUID disp;
 
     private final String score;
-    private final WXYZ loc;
+    private final World w;
     private final int length;
     private final boolean isAsc;
     private final HashMap<String, Integer> stats = new HashMap<>();
@@ -37,15 +40,20 @@ public class ScoreDis {
     private BukkitTask task = null;
 
     private static final double MARGIN = 1d;
+    @Deprecated
     public ScoreDis(final String name, final WXYZ loc, final int length, final boolean isAsc) {
+        this(name, BVec.of(loc.w(), loc.x, loc.y, loc.z), length, isAsc);
+    }
+    public ScoreDis(final String name, final BVec loc, final int length, final boolean isAsc) {
         this.score = name;
-        this.loc = loc;
         this.length = length;
         this.isAsc = isAsc;
-        final Location lc = loc.getCenterLoc();
+        final World tw = loc.w();
+        this.w = tw == null ? Bukkit.getWorlds().getFirst() : tw;
+        final Location lc = loc.center(w);
         lc.getWorld().getChunkAtAsync(lc).thenAccept(ch -> {
             final TextDisplay near = LocUtil.getClsChEnt(lc, MARGIN, TextDisplay.class, null);
-            final TextDisplay td = near == null ? loc.w.spawn(lc, TextDisplay.class) : near;
+            final TextDisplay td = near == null ? w.spawn(lc, TextDisplay.class) : near;
             ScoreManager.lists.put(disp = modify(td), this);
             reanimate(td);
             ch.setForceLoaded(true);
@@ -93,7 +101,7 @@ public class ScoreDis {
             @Override
             public void run() {
                 if (etd == null || !etd.isValid()) {
-                    if (loc.w.getEntity(disp) instanceof final TextDisplay td) etd = td;
+                    if (w.getEntity(disp) instanceof final TextDisplay td) etd = td;
                     return;
                 }
 
@@ -191,7 +199,7 @@ public class ScoreDis {
     }
 
     public @Nullable TextDisplay display() {
-        return loc.w.getEntity(disp) instanceof final TextDisplay td ? td : null;
+        return w.getEntity(disp) instanceof final TextDisplay td ? td : null;
     }
 
     public void remove() {

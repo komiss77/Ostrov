@@ -50,7 +50,7 @@ public final class GM {
 
 
     static {
-        gameSigns = Cfg.manager.getNewConfig("gameSigns.yml", new String[]{"", "Ostrov77 gameSigns config file", ""});
+        gameSigns = Cfg.manager.config("gameSigns.yml", new String[]{"", "Ostrov77 gameSigns config file", ""});
         gameSigns.saveConfig();
         GAME = Game.fromServerName(Ostrov.MOT_D);//Game.GLOBAL
         setLogo(GAME.defaultlogo);
