@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import com.google.common.io.Files;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -25,14 +26,14 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.enums.Game;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.WorldManager;
-import ru.komiss77.utils.ItemBuilder;
-import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
+
 
 //не переименовывать! Острова используют методы copyFile
 public class WM implements OCommand {
@@ -44,6 +45,7 @@ public class WM implements OCommand {
   private static final List<String> subCmd = Arrays.asList("list", "tp", "create",
       "load", "import", "save", "unload", "setspawn", "delete", "backup", "restore");
 
+
   @Override
   public LiteralCommandNode<CommandSourceStack> command() {
 
@@ -54,42 +56,50 @@ public class WM implements OCommand {
         .then(Resolver.string(arg0)
             .suggests((cntx, sb) -> {
               final CommandSender cs = cntx.getSource().getSender();
+              if (GM.GAME == Game.SW || GM.GAME == Game.OB || GM.GAME == Game.AR) { //предложить загрузку островной серии
+                sb.suggest(GM.GAME.name());
+              }
               if (ApiOstrov.isLocalBuilder(cs)) {
-                subCmd.stream()
-                    .filter(c -> c.startsWith(sb.getRemaining()))
-                    .forEach(c -> sb.suggest(c));
+                StringUtil.suggester(sb, sb.getRemaining(), subCmd);
               }
               return sb.buildFuture();
             })
             .executes(executor())//выполнение c 1 аргументом
 
+
             //2 аргумент название мира
-            .then(Resolver.string(arg1)
+            //.then(Commands.argument(arg1, customParser)//.then(Commands.argument(arg1, StringArgumentType.greedyString())//Resolver.greedy(arg1)
+            .then(Commands.argument(arg1, StringArgumentType.string())
+                //.then(Commands.argument(arg1, StringArgumentType.greedyString())
+                //Resolver.greedy(arg1)
                 .suggests((cntx, sb) -> {
+
                   final CommandSender cs = cntx.getSource().getSender();
-                  if (ApiOstrov.isLocalBuilder(cs)) {
-                    final String sub = Comm.arg(sb, 0); //смотрим подкоманду
-                    switch (sub) {
-                      case "tp", "unload", "delete", "save", "fill", "trim", "backup" -> {
-                        Bukkit.getWorlds().stream()
-                            .filter(w -> w.getName().startsWith(sb.getRemaining()))
-                            .forEach(w -> sb.suggest(w.getName()));
-                      }
-                      case "load", "import" -> {
-                        FileFilter worldFolderFilter = (File file) -> {
-                          if (file.isDirectory() && file.listFiles().length >= 2) {
-                            final File[] files = file.listFiles();
-                            for (final File f : files) {
-                              if (f.getName().equals("level.dat")) {
-                                return true;
-                              }
+                  if (!ApiOstrov.isLocalBuilder(cs)) {
+                    return sb.buildFuture();
+                  }
+                  final String sub = Comm.arg(sb, 0); //смотрим подкоманду
+                  switch (sub) {
+                    case "tp", "unload", "delete", "save", "fill", "trim", "backup" -> {
+                      Bukkit.getWorlds().stream()
+                          .filter(w -> w.getName().startsWith(sb.getRemaining()))
+                          .forEach(w -> sb.suggest(w.getName()));
+                    }
+                    case "load", "import" -> {
+                      FileFilter worldFolderFilter = (File file) -> {
+                        if (file.isDirectory() && file.listFiles().length >= 2) {
+                          final File[] files = file.listFiles();
+                          for (final File f : files) {
+                            if (f.getName().equals("level.dat")) {
+                              return true;
                             }
                           }
-                          return false;
-                        };
-
-                        for (File serverWorldFolder : Bukkit.getWorldContainer().listFiles(worldFolderFilter)) {
-                          if (Bukkit.getWorld(serverWorldFolder.getName()) == null) {
+                        }
+                        return false;
+                      };
+                      for (File serverWorldFolder : Bukkit.getWorldContainer().listFiles(worldFolderFilter)) {
+                        if (Bukkit.getWorld(serverWorldFolder.getName()) == null) {
+                          if (serverWorldFolder.getName().toLowerCase().startsWith(sb.getRemaining())) {
                             sb.suggest(serverWorldFolder.getName());
                           }
                         }
@@ -100,18 +110,20 @@ public class WM implements OCommand {
                 })
                 .executes(executor())//выполнение c 2 аргументами
 
+
                 //3 аргумент - Environment
                 .then(Resolver.string(arg2)
                     .suggests((cntx, sb) -> {
                       final CommandSender cs = cntx.getSource().getSender();
-                      if (ApiOstrov.isLocalBuilder(cs)) {
-                        final String a1 = Comm.arg(sb, 0); //смотрим подкоманду
-                        switch (a1) {
-                          case "create", "load", "import":
-                            for (final World.Environment en : World.Environment.values()) {
-                              sb.suggest(en.name());
-                            }
-                        }
+                      if (!ApiOstrov.isLocalBuilder(cs)) {
+                        return sb.buildFuture();
+                      }
+                      final String subCmd = Comm.arg(sb, 0); //смотрим подкоманду
+                      switch (subCmd) {
+                        case "create", "load", "import":
+                          for (final World.Environment en : World.Environment.values()) {
+                            sb.suggest(en.name());
+                          }
                       }
                       return sb.buildFuture();
                     })
@@ -133,16 +145,6 @@ public class WM implements OCommand {
                           return sb.buildFuture();
                         })
                         .executes(executor())//выполнение c 4 аргументами
-
-                        //5 аргумент
-                        .then(Resolver.string(arg4)
-                            .suggests((cntx, sb) -> {
-                              //sb.suggest("пятый");
-                              return sb.buildFuture();
-                            })
-                            .executes(executor())//выполнение c 5 аргументами
-
-                        )
                     )
                 )
             )
@@ -175,6 +177,7 @@ public class WM implements OCommand {
 
       final String sub_command = arg[0].toLowerCase();
       final Player p = cs instanceof Player ? (Player) cs : null;
+
 
       if (sub_command.equals("create")) {
         if (arg.length != 4) {
@@ -631,6 +634,117 @@ class WorldSelectMenu implements InventoryProvider {
 
 
 }
+
+
+
+
+
+
+
+/*
+  @Override
+  public LiteralCommandNode<CommandSourceStack> command() {
+
+    return Commands.literal(COMMAND)
+        .executes(executor())
+        //.then( Commands.argument("", StringArgumentType.greedyString()).suggests() )
+
+        .then(Resolver.greedy("")
+            .suggests( (commandContext, sb) -> {
+              final CommandSender cs = commandContext.getSource().getSender();
+              if (!ApiOstrov.isLocalBuilder(cs)) {
+                return sb.buildFuture();
+              }
+              String[]s = sb.getRemaining().split(" ");
+              int argNum = s.length - 1;
+              String begin;
+              final String input;
+              if (!sb.getRemaining().isBlank() && sb.getRemaining().endsWith(" ")) {
+                argNum++; //отловить начало след.аргумента
+                begin = "";
+                input = sb.getRemaining().substring(0, sb.getRemaining().lastIndexOf(" ")+1); //для правильного составления предложения
+              } else {
+                begin = s[argNum].toLowerCase();
+                input = "";
+              }
+
+//Ostrov.log_warn("input=>"+input+"< input.lengthc="+input.length()+" split.length="+s.length+" last_space?"+input.endsWith(" "));
+//int i = 0;
+//for (String v : s) {
+//  Ostrov.log_warn("s["+i+"]= >"+v+"<");
+//}
+//Ostrov.log_warn("argNum="+argNum+" begin=>"+begin+"<");
+//Ostrov.log_warn("");
+              switch (argNum) {
+                case 0 -> {
+                  StringUtil.suggester(sb, begin, subCmd);
+                }
+                case 1 -> {
+                  final String previous = s[argNum-1].toLowerCase();
+                  switch (previous) {
+                    case "tp", "unload", "delete", "save", "fill", "trim", "backup" -> {
+                      Bukkit.getWorlds().stream()
+                          .filter(w -> w.getName().startsWith(begin))
+                          .forEach(w -> sb.suggest(input+w.getName()));
+                    }
+                    case "load", "import" -> {
+                      FileFilter worldFolderFilter = (File file) -> {
+                        if (file.isDirectory() && file.listFiles().length >= 2) {
+                          final File[] files = file.listFiles();
+                          for (final File f : files) {
+                            if (f.getName().equals("level.dat")) {
+                              return true;
+                            }
+                          }
+                        }
+                        return false;
+                      };
+                      for (File serverWorldFolder : Bukkit.getWorldContainer().listFiles(worldFolderFilter)) {
+                        if (Bukkit.getWorld(serverWorldFolder.getName()) == null) { //мир с таким названием не загружен
+                          if (serverWorldFolder.getName().toLowerCase().startsWith(begin)) {
+                            sb.suggest(input+serverWorldFolder.getName());
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                case 2 -> {
+                  final String subCmd = s[0].toLowerCase();
+                  switch (subCmd) {
+                    case "create", "load", "import":
+                      for (final World.Environment en : World.Environment.values()) {
+                        if (en.name().toLowerCase().startsWith(begin)) {
+                          sb.suggest(input+en.name());
+                        }
+                      }
+                  }
+                }
+                case 3 -> {
+                  final String subCmd = s[0].toLowerCase();
+                  switch (subCmd) {
+                    case "create", "load", "import":
+                      for (final WorldManager.Generator gn : WorldManager.Generator.values()) {
+                        if (gn.name().toLowerCase().startsWith(begin)) {
+                          sb.suggest(input+gn.name());
+                        }
+                      }
+                  }
+                }
+              }
+
+              return sb.buildFuture(); //добавлять input или подменяет всё строку!
+            })
+            .executes(executor())//выполнение c 1 аргументом
+        )
+
+        .build();
+  }
+*/
+
+
+
+
 
 /*
 
