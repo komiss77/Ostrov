@@ -62,11 +62,10 @@ public class Oplayer {
     public boolean isStaff; //флаг модератора
     public final Map<String, String> mysqlData = new HashMap<>();
     public int mysqRecordId = Integer.MIN_VALUE;
-    //что это опять за переименования dataString в globalData ???
-    protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
-    protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранять не надо. сохраняются в банжи
+    protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
-    protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+    protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
     public final Set<Integer> missionIds = new HashSet<>();
     public boolean hasFakeBlock;
     public final HashMap<Long, BlockData> fakeBlock = new HashMap<>();
@@ -351,7 +350,12 @@ public class Oplayer {
         if (giveTag) beforeName(null, p);
     }
 
-    @Deprecated //непонятно что за DataString?? LocalData?? Proxy Data??
+    /**
+     * просто ставим нужные данные из енум DATA, оно само дальше разберётся.
+     *
+     * @param data некие данные игрока
+     * @return строковое значение для строковых данных
+     */
     public String getDataString(final Data data) {
         return globalStr(data);
     }
@@ -360,7 +364,7 @@ public class Oplayer {
         return dataString.getOrDefault(data, data.def_value);
     }
 
-    @Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data??
+    //@Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public int getDataInt(final Data data) {
         return globalInt(data);
     }
@@ -369,7 +373,7 @@ public class Oplayer {
         return dataInt.getOrDefault(data, NumUtil.intOf(data.def_value, 0));
     }
 
-    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data??
+    //@Deprecated //непонятно что за Data?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public boolean setData(final Data data, final int value) {  //отправляем на банжи, и обнов.локально
         return globalInt(data, value);
     }
