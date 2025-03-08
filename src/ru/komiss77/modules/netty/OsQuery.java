@@ -130,9 +130,6 @@ public class OsQuery {
 
   public static void send(final byte type, final String data) {
     if (channel == null) return;
-    if (type == QureyCode.CHAT_RU || type == QureyCode.CHAT_STRIP) {
-      Ostrov.log(type + " len=" + data.length());
-    }
     final byte[] db = data.getBytes();
     byte[] b = Arrays.copyOf(template, template.length + db.length);
     System.arraycopy(db, 0, b, template.length, db.length);
