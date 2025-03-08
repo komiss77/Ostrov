@@ -59,8 +59,8 @@ public class SchemEditorMenu implements InventoryProvider {
 
 
         final boolean selected = sm.min != null && sm.max != null
-            && sm.min.getWorld().getName().equals(sm.max.getWorld().getName())
-            && p.getWorld().getName().equals(sm.min.getWorld().getName());
+            && sm.min.getWorld().getUID().equals(sm.max.getWorld().getUID())
+            && p.getWorld().getUID().equals(sm.min.getWorld().getUID());
 
 
         if (selected) contents.fillRect(1, 1, 4, 4, ClickableItem.empty(fill));
@@ -328,8 +328,8 @@ public class SchemEditorMenu implements InventoryProvider {
                 .name("§2Сохранить")
                 .build(), e -> {
 
-                if (sm.getCuboid().volume() > 2_000_000 || sm.getCuboid().sizeX() > 400 || sm.getCuboid().sizeY() > 400 || sm.getCuboid().sizeZ() > 400) {
-                    p.sendMessage("§cВыделение слишком большое! Объём не более 2млн блоков, каждая сторона не более 400!");
+                if (sm.getCuboid().volume() > 8_000_000 || sm.getCuboid().sizeX() > 400 || sm.getCuboid().sizeY() > 400 || sm.getCuboid().sizeZ() > 400) {
+                    p.sendMessage("§cВыделение слишком большое! Объём не более 8млн блоков, каждая сторона не более 400!");
                     PM.soundDeny(p);
                     return;
                 }
