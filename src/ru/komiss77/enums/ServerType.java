@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum ServerType {
 
     NONE,
+  PROXY,
     REG_OLD,
     REG_NEW,
     LOBBY,
@@ -41,6 +42,8 @@ public enum ServerType {
             } else if (serverName.startsWith("ol")) {
                 return REG_OLD;
             }
+        } else if (serverName.equals("proxy")) {
+          return PROXY;
         }
         return NONE;
     }

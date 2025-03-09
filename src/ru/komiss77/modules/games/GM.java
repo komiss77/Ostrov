@@ -24,6 +24,7 @@ import ru.komiss77.*;
 import ru.komiss77.enums.*;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.netty.OsQuery;
+import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -388,7 +389,7 @@ public final class GM {
 
         final String data = sb.toString();
         RDS.sendMessage("arenadata", data);
-        OsQuery.send(QureyCode.GAME_DATA, data);
+        OsQuery.send(QueryCode.GAME_DATA, data);
 
         if (Ostrov.SHUT_DOWN) {
 

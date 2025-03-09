@@ -28,6 +28,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.enums.*;
 import ru.komiss77.events.ChatPrepareEvent;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
@@ -252,7 +253,7 @@ public class ChatLst implements Listener {
         if (hasRemoved) {
             ScreenUtil.sendActionBarDirect(sender, "§6Некоторые игроки не увидели ваши сообщения - вы в ЧС");
         }
-      OsQuery.send(QureyCode.CHAT_STRIP, senderName + LocalDB.WORD_SPLIT + stripMsg);
+        OsQuery.send(QueryCode.CHAT_STRIP, senderName + LocalDB.WORD_SPLIT + stripMsg);
     }
 
 
@@ -385,8 +386,8 @@ public class ChatLst implements Listener {
 //SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT_RU);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgEN, Chanell.CHAT_EN);
-          OsQuery.send(QureyCode.CHAT_RU, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgRU);
-          OsQuery.send(QureyCode.CHAT_EN, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgEN);
+            OsQuery.send(QueryCode.CHAT_RU, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgRU);
+            OsQuery.send(QueryCode.CHAT_EN, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgEN);
             // }
         }
 

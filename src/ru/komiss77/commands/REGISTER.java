@@ -3,6 +3,7 @@ package ru.komiss77.commands;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.modules.kits.KitCmd;
+import ru.komiss77.modules.netty.RemoteCmd;
 import ru.komiss77.modules.player.mission.MissionCmd;
 
 
@@ -60,6 +61,7 @@ public class REGISTER {
         Ostrov.regCommand(new OcleanCmd());//+ юзаем /oclean. Просто /clean перехватывает прокси!!
         Ostrov.regCommand(new RewardCmd()); //+
         Ostrov.regCommand(new StatCmd()); //+
+        new RemoteCmd(); //+
 
     }
 

@@ -19,9 +19,11 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
-import ru.komiss77.enums.QureyCode;
 
 
 public class OsQuery {
@@ -41,7 +43,7 @@ public class OsQuery {
     asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactoryBuilder()
         .setNameFormat("OstrovAuth Async Event Executor - #%d").setDaemon(true).build());
     port = ByteBuffer.allocate(4).putInt(Bukkit.getPort()).array();
-    hearBeat = new byte[]{(byte) 0xAB, (byte) 0xCD, QureyCode.HEARTBEAT, port[0], port[1], port[2], port[3]};
+    hearBeat = new byte[]{(byte) 0xAB, (byte) 0xCD, QueryCode.HEARTBEAT, port[0], port[1], port[2], port[3]};
     template = new byte[]{(byte) 0xAB, (byte) 0xCD, 0x0, port[0], port[1], port[2], port[3]};
   }
 
@@ -139,7 +141,7 @@ public class OsQuery {
 
   public static void send(final byte type, final String s, @Nullable final Consumer onResponce) {
     if (channel == null) return;
-    if (type == QureyCode.CHAT_RU) {
+    if (type == QueryCode.CHAT_RU) {
       Ostrov.log("CHAT_RU len=" + s.length());
     }
     final byte[] db = s.getBytes();
@@ -159,7 +161,38 @@ public class OsQuery {
     public void channelRead0(ChannelHandlerContext ctx, byte[] data) throws Exception {
       //ByteBuf byteBuf = (ByteBuf) msg;
       //String s = byteBuf.toString(CharsetUtil.UTF_8);//превращаем данные в строку с нужной кодировкой
-      Ostrov.log("ResponceHandler in=" + new String(data));
+      final String responce = new String(data);
+      if (responce.equals("HB")) {
+        //Ostrov.log("§8heartbeat done");
+        return;
+      }
+      final String[] s = responce.split(LocalDB.WORD_SPLIT);
+      if (s.length < 2) {
+        Ostrov.log_warn("TcpHandler Responce length < 2 : " + responce);
+        return;
+      }
+      final String type = s[0];
+      final String sender = s[1];
+      final String msg = s.length >= 3 ? s[2] : "";
+      final CommandSender cs = sender.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(sender);
+      if (cs == null) {
+        Ostrov.log_warn("TcpHandler Responce CommandSender == null");
+        return;
+      }
+      if (type.equals("TEXT")) {
+        cs.sendMessage(msg);
+        return;
+      } else if (type.equals("COMPONENT")) {
+        cs.sendMessage(MiniMessage.miniMessage().deserialize(msg));
+        return;
+      }
+      Ostrov.log("Responce =" + responce);
+      //int idx = responce.indexOf(LocalDB.W_SPLIT);
+      //if (idx>0) {
+      //  final String sender = data_string.substring(0, idx);
+      //  final String cmd = data_string.substring( idx+1);
+      // } else {
+      //}
     }
 
     @Override

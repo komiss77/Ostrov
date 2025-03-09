@@ -86,7 +86,7 @@ final static String player = "игрок", reason = "причина";
                             return 0;
                           }
 
-                          final String rsn = Resolver.string(cntx, reason);
+                          final String reason = Resolver.string(cntx, ReportCmd.reason);
                           final Player pl = cs instanceof Player ? (Player) cs : null;
                           final Player target = Bukkit.getPlayer(toName);
 
@@ -98,10 +98,10 @@ final static String player = "игрок", reason = "причина";
               }
               consoleReportStamp.put(arg[0], Timer.secTime());*/
                             SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
-                                Ostrov.MOT_D, 0, 0, 0, toName, target == null ? "" : LocUtil.toString(target.getLocation()), rsn);
+                                Ostrov.MOT_D, 0, 0, 0, toName, target == null ? "" : LocUtil.toString(target.getLocation()), reason);
                           } else {
                             SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
-                                LocUtil.toString(pl.getLocation()), toName, target == null ? "" : LocUtil.toString(target.getLocation()), rsn, "");
+                                LocUtil.toString(pl.getLocation()), toName, target == null ? "" : LocUtil.toString(target.getLocation()), reason, "");
                           }
                           return Command.SINGLE_SUCCESS;
                         })
