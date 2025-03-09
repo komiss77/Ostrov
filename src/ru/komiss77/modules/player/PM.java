@@ -219,7 +219,7 @@ public class PM {
         if (op.dataString.containsKey(Data.MISSIONS)) {
             for (String id : op.dataString.get(Data.MISSIONS).split(";")) {
                 if (NumUtil.isInt(id)) {
-                    op.missionIds.add(Integer.valueOf(id));
+                    op.missionIds.put(Integer.valueOf(id), false);
                 }
             }
         }

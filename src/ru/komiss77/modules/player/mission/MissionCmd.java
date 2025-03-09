@@ -76,7 +76,7 @@ public class MissionCmd implements OCommand {
                   if (PM.exist(cs.getName())) {
                     final String sub = Comm.arg(sb, 0); //смотрим подкоманду
                     if (sub.equals("deny") || sub.equals("complete")) {
-                      for (final int id : PM.getOplayer(cs.getName()).missionIds) {
+                      for (final int id : PM.getOplayer(cs.getName()).missionIds.keySet()) {
                         sb.suggest(id);
                       }
                     } else if (sub.equals("accept")) {
@@ -228,7 +228,7 @@ public class MissionCmd implements OCommand {
             }
             final Mission mi = MissionManager.missions.get(missionId);
 
-            if (op.missionIds.contains(mi.id)) {
+            if (op.missionIds.containsKey(mi.id)) {
               p.sendMessage("§cМисия уже принята!");
               return 0;
             }
@@ -271,8 +271,8 @@ public class MissionCmd implements OCommand {
 
                 Ostrov.sync(() -> {
                   mi.doing++;
-                  op.missionIds.add(missionId);//обновить missionIds
-                  op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds, ";"));//обновить Data.MISSION
+                  op.missionIds.put(missionId, false);//обновить missionIds
+                  op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds.keySet(), ";"));//обновить Data.MISSION
                   final Title.Times times = Title.Times.times(Duration.ofMillis(20 * 50), Duration.ofMillis(20 * 50), Duration.ofMillis(80 * 50));
                   ScreenUtil.sendTitle(p, Component.text(""), Component.text("Принятие миссии ", NamedTextColor.GRAY).append(mi.displayName()), times);
                   //p.sendMessage("§fВы приняли миссию "+mi.getDisplayName()+"§f, выполните её до "+ApiOstrov.dateFromStamp(mi.validTo));
@@ -391,11 +391,15 @@ public class MissionCmd implements OCommand {
               p.sendMessage("§cМиссия с ИД " + missionId + " не подгружена!");
               return 0;
             }
-            if (!op.missionIds.contains(missionId)) {
+            if (!op.missionIds.containsKey(missionId)) {
               p.sendMessage(Component.text("Вы не выполняли миссию ", NamedTextColor.RED).append(mi.displayName()));
-              //p.sendMessage("§cВы не выполняли миссию "+mi.getDisplayName()+" !");
               return 0;
             }
+            if (op.missionIds.get(missionId)) {
+              p.sendMessage(Component.text("Запрос обрабатывается, дождитесь результата.", NamedTextColor.RED));
+              return 0;
+            }
+            op.missionIds.replace(missionId, true);
 
             Ostrov.async(() -> {
 
@@ -456,7 +460,7 @@ public class MissionCmd implements OCommand {
                     RemoteDB.executePstAsync(p, "UPDATE missions SET doing=doing-1,rewardFund=rewardFund-1 WHERE missionId=" + missionId); //убавить претендента в БД и фонд
                     Ostrov.sync(() -> {
                       op.missionIds.remove(missionId);
-                      op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds, ";"));//обновить Data.MISSION
+                      op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds.keySet(), ";"));//обновить Data.MISSION
                       //награда
                       op.setData(Data.RIL, op.getDataInt(Data.RIL) + mi.reward);
                       op.addStat(Stat.REPUTATION, 1);
@@ -479,7 +483,7 @@ public class MissionCmd implements OCommand {
                     Ostrov.sync(() -> ParticleUtil.spawnRandomFirework(p.getLocation().clone().add(0, 2, 0)), 10);
                     Ostrov.sync(() -> ParticleUtil.spawnRandomFirework(p.getLocation().clone().add(0, 2, 0)), 20);
                   } else {
-                    //op.getPlayer().sendMessage("§cУсловия миссии "+mi.getDisplayName()+ " не выполнены!");
+                    op.missionIds.replace(missionId, false);
                     op.getPlayer().sendMessage(Component.text("Условия миссии ", NamedTextColor.RED)
                         .append(mi.displayName())
                         .append(Component.text(" не выполнены!", NamedTextColor.RED))
@@ -541,6 +545,15 @@ public class MissionCmd implements OCommand {
               p.sendMessage("§cНе может быть миссии с ИД " + arg[1] + "!");
               return 0;
             }
+            if (op.missionIds.remove(missionId)) {//обновить missionIds
+              op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds.keySet(), ";"));//обновить Data.MISSION
+              p.getWorld().playSound(p.getLocation(), Sound.ITEM_TOTEM_USE, .5f, .5f);
+              p.sendMessage("§5Вы отказались от миссии !");
+            } else {
+              p.sendMessage(Component.text("Вы не принимали эту миссию!", NamedTextColor.RED));
+              return 0;
+            }
+
             //отказ - обработка по выполнению запроса к БД?
             RemoteDB.executePstAsync(p, "DELETE FROM missionsProgress WHERE `name`='" + op.nik + "' AND `missionId`='" + missionId + "'");
             //OstrovDB.executePstAsync(p, "DELETE FROM missionsProgress WHERE `recordId`='"'");
@@ -549,11 +562,7 @@ public class MissionCmd implements OCommand {
               MissionManager.missions.get(missionId).doing--;
               Bukkit.getPluginManager().callEvent(new MissionEvent(p, MissionManager.missions.get(missionId).name, MissionEvent.MissionAction.Deny));
             }
-            if (op.missionIds.remove(missionId)) {//обновить missionIds
-              op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds, ";"));//обновить Data.MISSION
-              p.getWorld().playSound(p.getLocation(), Sound.ITEM_TOTEM_USE, .5f, .5f);
-              p.sendMessage("§5Вы отказались от миссии !");
-            }
+
 
           }
         }

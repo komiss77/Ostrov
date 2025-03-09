@@ -105,7 +105,7 @@ public class MissionSelectMenu implements InventoryProvider {
                         //пропускаем
                     }
 
-                } else if (op.missionIds.contains(mi.id)) {// - перенёс в мои миссии
+                } else if (op.missionIds.containsKey(mi.id)) {// - перенёс в мои миссии
 
                     lore.add(Component.empty());
                     lore.add(Component.text("§f**********************"));

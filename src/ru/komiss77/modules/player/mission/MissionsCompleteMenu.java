@@ -67,7 +67,7 @@ public class MissionsCompleteMenu implements InventoryProvider {
 
 
         //final List <ClickableItem> buttons = new ArrayList<>();
-        final List<Integer> ids = new ArrayList<>(op.missionIds);
+        final List<Integer> ids = new ArrayList<>(op.missionIds.keySet());
         //ids.addAll(op.missionIds);
 
 

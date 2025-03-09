@@ -195,7 +195,7 @@ public class MissionManager {
         }
         if (op.missionIds.isEmpty()) return;
         Mission mission;
-        for (final int id : op.missionIds) {
+        for (final int id : op.missionIds.keySet()) {
 //System.out.println("find id "+id);
             mission = missions.get(id);
             if (mission != null) {
