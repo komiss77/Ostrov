@@ -43,6 +43,9 @@ public class BVec implements BlockPosition, Cloneable {
     public BVec wals(final World w, final byte[] vals) {
         return of(w, x, y, z, vals);
     }
+    public BVec wals(final String wname, final byte[] vals) {
+        return of(wname, x, y, z, vals);
+    }
 
     public BVec add(final int x, final int y, final int z) {
         return of(this.x + x, this.y + y, this.z + z);
@@ -291,8 +294,8 @@ public class BVec implements BlockPosition, Cloneable {
 
         public String toString() {
             final StringBuilder sb = new StringBuilder(vals.length << 1);
-            for (final int n : vals) sb.append(SPLIT).append(n);
-            return super.toString() + SPLIT + world + sb.toString();
+            for (final int n : vals) sb.append(SPLIT.get()).append(n);
+            return super.toString() + SPLIT.get() + world + sb.toString();
         }
 
         public BVec clone() {

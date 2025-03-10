@@ -102,12 +102,7 @@ public class BotManager implements Initiable, Listener {
 
     @Override
     public void onDisable() {
-        if (Cfg.bots) {
-            clearBots();
-        }
-        //for (final Player p : Bukkit.getOnlinePlayers()) {
-        //    removePlayer(p);
-        // }
+        clearBots();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
@@ -128,11 +123,15 @@ public class BotManager implements Initiable, Listener {
     public void onWorld(final PlayerChangedWorldEvent e) {
         final Player pl = e.getPlayer();
         //   injectPlayer(pl); //подкидывается в РМ.bungeeDataHandle
-        final UUID id = pl.getWorld().getUID();
+        final UUID nwID = pl.getWorld().getUID();
+        final UUID oldID = e.getFrom().getUID();
         Ostrov.async(() -> {
             for (final Botter be : botByName.values()) {
-                if (be.world().getUID().equals(id)) {
+                final UUID uid = be.world().getUID();
+                if (uid.equals(nwID)) {
                     be.updateAll(pl);
+                } else if (uid.equals(oldID)) {
+                    be.removeAll(pl);
                 }
             }
         }, 4);
@@ -191,7 +190,7 @@ public class BotManager implements Initiable, Listener {
         for (final Entity ent : e.getWorld().getEntities()) {
             if (!(ent instanceof final LivingEntity le)) continue;
             if (ent.getType() != Botter.TYPE
-                || le.getPersistentDataContainer().has(KEY)) continue;
+                || !le.getPersistentDataContainer().has(KEY)) continue;
             final Botter be = botById.get(ent.getEntityId());
             if (be == null) ent.remove();
         }
@@ -202,7 +201,7 @@ public class BotManager implements Initiable, Listener {
         for (final Entity ent : e.getEntities()) {
             if (!(ent instanceof final LivingEntity le)) continue;
             if (ent.getType() != Botter.TYPE
-                || le.getPersistentDataContainer().has(KEY)) continue;
+                || !le.getPersistentDataContainer().has(KEY)) continue;
             final Botter be = botById.get(ent.getEntityId());
             if (be == null) ent.remove();
         }
@@ -247,8 +246,15 @@ public class BotManager implements Initiable, Listener {
 
     public static void clearBots() {
         final Set<Botter> en = new HashSet<>(botById.values());
-        for (final Botter bt : en) {
-            bt.remove();
+        for (final Botter bt : en) bt.remove();
+        for (final World w : Bukkit.getWorlds()) {
+            for (final Entity ent : w.getEntities()) {
+                if (!(ent instanceof final LivingEntity le)) continue;
+                if (ent.getType() != Botter.TYPE
+                    || !le.getPersistentDataContainer().has(KEY)) continue;
+                final Botter be = botById.get(ent.getEntityId());
+                if (be == null) ent.remove();
+            }
         }
     }
 
