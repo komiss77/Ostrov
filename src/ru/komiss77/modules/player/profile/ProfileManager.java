@@ -128,7 +128,7 @@ public class ProfileManager {
                             .id(op.nik + section.name())
                             .title(op.eng ? section.item_nameEn : section.item_nameRu)
                             .provider(new LocalSettings())
-                            .size(6, 9)
+                            .size(3, 9)
                             .build()
                             .open(p);
                 } else {

@@ -341,10 +341,9 @@ public class BuilderMain implements InventoryProvider {
             final ItemStack it = p.getInventory().getItemInOffHand();
             if (ItemUtil.isBlank(it, false)) {
                 p.sendMessage(Ostrov.PREFIX + "§cНужно держать что-то в левой руке!");
-                p.closeInventory();
+                reopen(p, content);
             } else {
-                SmartInventory.builder().id("Item " + p.getName()).provider(new ItemMenu(it.hasItemMeta() ? it : new ItemStack(it)))
-                    .size(3, 9).title("      §6Создание Предмета").build().open(p);
+                ItemMenu.open(p, it.clone());
             }
         }));
 

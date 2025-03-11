@@ -34,7 +34,7 @@ public class Perm {
     static {
         groups = new CaseInsensitiveMap<>();
         defaultPerms = new HashSet<>();
-        localPerms = Cfg.manager.getNewConfig("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
+        localPerms = Cfg.manager.config("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
         localPerms.addDefault("default", Arrays.asList(
                 "chatformat.default"
             )
@@ -83,7 +83,7 @@ public class Perm {
     }
 
     public static int getStorageLimit(final Oplayer op) {
-        return getLimit(op, "storage") <= 90 ? Timer.getTime() + 7776000 : Timer.getTime() + getLimit(op, "storage") * 86400;
+        return getLimit(op, "storage") <= 90 ? Timer.secTime() + 7776000 : Timer.secTime() + getLimit(op, "storage") * 86400;
     }
 
     //вызывается из Timer и loadGroups(выше) async!! useOstrovData и соединение чекать до вызова! 
@@ -98,7 +98,8 @@ public class Perm {
             stmt = RemoteDB.getConnection().createStatement();
             rs = stmt.executeQuery("SELECT * FROM  " + Table.PEX_GROUPS.table_name + " WHERE type != 'off' ;"); //кинуло на home1 attempted  duplicate class definition
             while (rs.next()) {
-                loadedGroup.put(rs.getString("gr"), new Group(rs.getString("gr"), rs.getString("name"), rs.getString("inh"), rs.getString("type"), rs.getInt("price"), rs.getInt("inv_slot"), rs.getString("mat"), rs.getString("group_desc")));
+                loadedGroup.put(rs.getString("gr"), new Group(rs.getString("gr"), rs.getString("name"), rs.getString("inh"),
+                    rs.getString("type"), rs.getInt("price"), rs.getInt("inv_slot"), rs.getString("mat"), rs.getString("group_desc")));
             }
             rs.close();
 

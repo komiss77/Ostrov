@@ -81,7 +81,7 @@ public class PlayerInput implements Listener {
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> onDone, String suggest) {
-        final String sugg = suggest == null ? "" : suggest.replace('§', '&');
+        final String sugg = suggest == null ? "" : suggest.replace('§', '&').replace("<", "\\<");
 //Ostrov.log("PlayerInput get type="+type+" sugg="+sugg);
         XYZ xyz = null;
 
@@ -94,9 +94,9 @@ public class PlayerInput implements Listener {
                     .itemOutput(out)
                     .onClick((slot, stateSnapshot) -> {
                         switch (slot) {
-                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
+                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§').replace("\\<", "<"));
                             case AnvilGUI.Slot.INPUT_RIGHT -> {}
-                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
+                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§').replace("\\<", "<"));
                         }
                         return Arrays.asList(AnvilGUI.ResponseAction.close());
                     })

@@ -33,7 +33,6 @@ import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -108,8 +107,7 @@ public class Oplayer {
     public boolean mysqlError;
     public LocalDB.Error dbError;
     //служебные
-    public int lookSum = 0, lookStamp = Integer.MAX_VALUE;
-    public int afkLeft = Cfg.afk_sec, afkLoc;
+    public int lookSum = 0, afkLeft = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
     public Location spyOrigin;
@@ -153,63 +151,34 @@ public class Oplayer {
 
         if (Cfg.afk) {
             final Location loc = p.getEyeLocation();
-            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch() + (loc.getBlockX() << 20 | loc.getBlockY() << 10 | loc.getBlockZ());
-//Ostrov.log("look="+look+" lookSum="+lookSum+" afkLeft="+afkLeft+" Cfg.afk_sec="+Cfg.afk_sec);
+            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch()
+                + (loc.getBlockX() << 20 | loc.getBlockY() << 10 | loc.getBlockZ());
             if (look != lookSum) { //двигался
                 lookSum = look;
-                if (afkLeft < Cfg.afk_sec) { //таймер уменьшался
-                    afkLeft = Cfg.afk_sec;
-                    if (Cfg.afk_sec - afkLeft > 60) { //были титры афк
-                        ScreenUtil.sendTitleDirect(p, "", "<olive>-=: AFK :=-", 0, 1, 30);
-                    }
+                if (Cfg.afk_sec - afkLeft > 60) { //были титры афк
+                    ScreenUtil.sendTitleDirect(p, "",
+                        "<olive>-=: AFK :=-", 0, 1, 30);
                 }
-            } else { //неподвижен
-                afkLeft--;
-                if (afkLeft == 0) {
-                    p.clearTitle();
-                    if (ApiOstrov.isLocalBuilder(p)) {
-                        p.sendMessage("<dark_gray>Билдер - сброс цикла АФК"); //типа отладка
-                        afkLeft = Cfg.afk_sec;
-                    } else {
-                        p.sendMessage(Ostrov.PREFIX + "Ты уже АФК более " + ((int) Cfg.afk_sec / 60) + " мин!");
-                        ApiOstrov.sendToServer(p, "lobby0", "");
-                        return; //secondTick дальше не выполнять
-                    }
+                afkLeft = Cfg.afk_sec;
+            } else if (afkLeft-- == 0) { //неподвижен
+                p.clearTitle();
+                if (ApiOstrov.isLocalBuilder(p)) {
+                    p.sendMessage(Ostrov.PREFIX + "<dark_gray>Билдер - сброс цикла АФК"); //типа отладка
+                    afkLeft = Cfg.afk_sec;
                 } else {
-                    if (Cfg.afk_sec - afkLeft > 60) { //неподвижен больше минуты
-                        ScreenUtil.sendTitleDirect(p, "", "<beige>-=: AFK :=-", 0, 40, 20);
-                        if (afkLeft < 15) {
-                            ScreenUtil.sendActionBarDirect(p, "<gold>Через <yellow>" + afkLeft + " <gold>сек. переход в лобби");
-                        }
-                    }
+                    p.sendMessage(Ostrov.PREFIX + "Ты уже АФК более " + (Cfg.afk_sec / 60) + " мин!");
+                    ApiOstrov.sendToServer(p, "lobby0", "");
+                    return; //secondTick дальше не выполнять
+                }
+            } else {
+                if (Cfg.afk_sec - afkLeft > 60) { //неподвижен больше минуты
+                    ScreenUtil.sendTitleDirect(p, "",
+                        "<beige>-=: AFK :=-", 0, 40, 20);
+                    if (afkLeft < 15) ScreenUtil.sendActionBarDirect(p,
+                        "<gold>Через <yellow>" + afkLeft + " сек. <gold>переход в лобби!");
                 }
             }
         }
-      /*  if (Cfg.afk_sec > 0 && GM.GAME.type.canAfk()) { //было !GM.GAME.type.canAfk - как-то логика не сходится
-            final Location loc = p.getEyeLocation();
-            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch() + new XYZ(loc).offSet(); //продить объект чтобы вычислить координату))
-            final int time = Timer.secTime();
-            if (look != lookSum) {
-                lookSum = look;
-                if (time - lookStamp > 60) ScreenUtil.sendTitleDirect(p, "",
-                    //"<olive>✨ С Возвращением! ✨", 8, 20, 20);
-                "<olive>-=: AFK :=-", 0, 1, 40); //С Возвращением ну как-то помпезно слишком, типа просто исчезает надпись
-                lookStamp = time;
-            } else {
-                final int afk = time - lookStamp;
-                final int min = afk / 60;
-                if (afk > Cfg.afk_sec) {
-                    if (ApiOstrov.isLocalBuilder(p)) {
-
-                    } else {
-                        p.clearTitle();
-                        p.sendMessage(Ostrov.PREFIX + "Ты уже АФК более " + min + " мин!");
-                        ApiOstrov.sendToServer(p, "lobby0", "");
-                    }
-                } else if (min > 0) ScreenUtil.sendTitleDirect(p, "",
-                    "<beige>-=: AFK :=-", 0, 40, 20);
-            }
-        }*/
 
         if (pvp_time > 0) {
             pvp_time--;
