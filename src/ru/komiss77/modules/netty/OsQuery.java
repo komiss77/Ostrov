@@ -19,11 +19,18 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.TCUtil;
 
 
 public class OsQuery {
@@ -104,6 +111,7 @@ public class OsQuery {
   }
 
   public static void heartBeat(final int secondCounter) {
+//if (channel!=null) Ostrov.log_warn("isOpen?" + channel.isOpen() + " isActive?" + channel.isActive() + " isWritable?" + channel.isWritable()); else Ostrov.log_warn("channel=null");
     if (channel != null && channel.isOpen()) {
       if (secondCounter % 15 == 0) { //раз в 15сек-подробно
         short memTot = (short) (Runtime.getRuntime().totalMemory() >> 20);
@@ -121,13 +129,10 @@ public class OsQuery {
         channel.writeAndFlush(hearBeat);
       }
     } else {
-      //channel.flush();
-      //channel.close();
       if (secondCounter % 15 == 0) {
         connect();
       }
     }
-//if (channel!=null) Ostrov.log_warn("isOpen?" + channel.isOpen() + " isActive?" + channel.isActive() + " isWritable?" + channel.isWritable()); else Ostrov.log_warn("channel=null");
   }
 
   public static void send(final byte type, final String data) {
@@ -153,17 +158,11 @@ public class OsQuery {
 
 
   public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
-    //@Override
-    //public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-    //   super.channelReadComplete(ctx);
-    // }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, byte[] data) throws Exception {
-      //ByteBuf byteBuf = (ByteBuf) msg;
-      //String s = byteBuf.toString(CharsetUtil.UTF_8);//превращаем данные в строку с нужной кодировкой
       final String responce = new String(data);
-      if (responce.equals("HB")) {
-        //Ostrov.log("§8heartbeat done");
+      if (responce.equals("HB")) {//Ostrov.log("§8heartbeat done");
         return;
       }
       final String[] s = responce.split(LocalDB.WORD_SPLIT);
@@ -172,20 +171,32 @@ public class OsQuery {
         return;
       }
       final String type = s[0];
-      final String sender = s[1];
-      final String msg = s.length >= 3 ? s[2] : "";
-      final CommandSender cs = sender.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(sender);
-      if (cs == null) {
-        Ostrov.log_warn("TcpHandler Responce CommandSender == null");
-        return;
+      final String target = s[1];
+      final Component miniMsg = s.length >= 3 ? MiniMessage.miniMessage().deserialize(s[2]) : Component.empty();
+
+
+      //if (cs == null) {
+      //  Ostrov.log_warn("TcpHandler Responce CommandSender == null");
+      //  return;
+      //}
+//Ostrov.log("type="+type);
+      switch (type) {
+        case "MSG" -> {
+          final CommandSender cs = target.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(target);
+          cs.sendMessage(miniMsg);
+          return;
+        }
+        case "MODER" -> {
+          for (Oplayer op : PM.getOplayers()) {
+//Ostrov.log("MODER responce="+responce);
+            if (op.isStaff || ApiOstrov.canBeBuilder(op.getPlayer())) {
+              op.getPlayer().sendMessage(miniMsg);
+            }
+          }
+          return;
+        }
       }
-      if (type.equals("TEXT")) {
-        cs.sendMessage(msg);
-        return;
-      } else if (type.equals("COMPONENT")) {
-        cs.sendMessage(MiniMessage.miniMessage().deserialize(msg));
-        return;
-      }
+
       Ostrov.log("Responce =" + responce);
       //int idx = responce.indexOf(LocalDB.W_SPLIT);
       //if (idx>0) {
@@ -200,6 +211,10 @@ public class OsQuery {
       Ostrov.log_warn("OsQuery TcpHandler exсept : " + cause);
       //cause.printStackTrace();
     }
+    //@Override
+    //public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    //   super.channelReadComplete(ctx);
+    // }
     //@Override
     //public void channelActive(ChannelHandlerContext ctx) throws Exception {
     //  super.channelActive(ctx);

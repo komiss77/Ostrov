@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
 import org.bukkit.GameMode;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.utils.NumUtil;
 
 
@@ -23,6 +24,7 @@ public class Cfg {
     public static boolean tablist_name = false;
     public static boolean scale_health = false;
     public static int afk_sec = -1;
+  public static boolean afk;
 
     //для ServerListener
     public static boolean clear_old_ents;
@@ -100,6 +102,7 @@ public class Cfg {
         clear_old_ents = cfg.getBoolean("world.clear_old_ents");
 
         afk_sec = cfg.getInt("player.afk_min") * 60;
+      afk = afk_sec > 0 && GM.GAME.type.canAfk();
         set_gm = cfg.getBoolean("player.change_gamemode_on_join");
         gm_on_join = GameMode.valueOf(cfg.getString("player.gamemode_set_to"));
         walkspeed_on_join = Float.parseFloat(cfg.getString("player.walkspeed_on_join"));

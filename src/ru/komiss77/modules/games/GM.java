@@ -51,9 +51,9 @@ public final class GM {
 
 
     static {
+        GAME = Game.fromServerName(Ostrov.MOT_D);//самым первым, до обращения к конфигу!!
         gameSigns = Cfg.manager.config("gameSigns.yml", new String[]{"", "Ostrov77 gameSigns config file", ""});
         gameSigns.saveConfig();
-        GAME = Game.fromServerName(Ostrov.MOT_D);//Game.GLOBAL
         setLogo(GAME.defaultlogo);
         games = new EnumMap<>(Game.class);
         for (Game g : Game.values()) {

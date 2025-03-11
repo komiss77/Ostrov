@@ -3,6 +3,7 @@ package ru.komiss77.enums;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import ru.komiss77.Ostrov;
 
 
 public enum ServerType {
@@ -50,8 +51,11 @@ public enum ServerType {
 
     public boolean canAfk() {
         return switch (this) {
-            case NONE, ONE_GAME, REG_OLD, REG_NEW -> false;
-            default -> true;
+          //case NONE, ONE_GAME, REG_OLD, REG_NEW -> false;
+          case ONE_GAME -> true;
+          case NONE -> Ostrov.MOT_D.equals("home"); //для теста
+          //default -> true;
+          default -> false;
         };
     }
 

@@ -1,19 +1,35 @@
 package ru.komiss77.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import ru.komiss77.Ostrov;
 
 //не импортировать ничего от Paper! (юзает прокси)
 public class TimeUtil {
 
+    private static final Date date;
+    private static final SimpleDateFormat ddMMyy_HHmm;  //
+    private static final SimpleDateFormat ddMMyy;
+
+    static {
+        ddMMyy_HHmm = new java.text.SimpleDateFormat("dd.MM.yy HH:mm");
+        ddMMyy = new java.text.SimpleDateFormat("dd.MM.yy");
+        date = new java.util.Date(System.currentTimeMillis());
+    }
 
     public static boolean isNewDay() { //после рестарта определить, настал ли новый день
         return Ostrov.newDay;
     }
 
-    public static String dateFromStamp(final int stamp_in_second) {
-        return Ostrov.dateFromStamp(stamp_in_second);
+    public static String dateFromStamp(final int unixTime) {
+        date.setTime(unixTime * 1000L);
+        return ddMMyy_HHmm.format(date);
     }
 
+    public static String ddMMyy(final int unixTime) {
+        date.setTime(unixTime * 1000L);
+        return ddMMyy.format(date);
+    }
     public static String getCurrentHourMin() {
         return Ostrov.getCurrentHourMin();
     }
