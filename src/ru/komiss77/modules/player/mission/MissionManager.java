@@ -48,7 +48,7 @@ public class MissionManager {
     }
 
     public static int getMin(final Oplayer op) {
-      return (5 + op.getStat(Stat.WD_c)) * 5;
+      return (5 + op.getStat(Stat.WD_count)) * 5;
     }
 
 

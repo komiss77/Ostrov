@@ -21,7 +21,9 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.mission.ProfileWithdrawMenu;
 import ru.komiss77.modules.translate.Lang;
+import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.StringUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -94,63 +96,51 @@ public class ProfileSection implements InventoryProvider {
             .build()
         ));
 
-        final boolean canWitdraw = op.getDataInt(Data.RIL) >= MissionManager.getMin(op);
-        content.set(1, 5, ClickableItem.of(new ItemBuilder(ItemType.GOLD_INGOT)
+        final int from = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
+        content.set(1, 5, ClickableItem.of(new ItemBuilder(ItemType.RAW_GOLD)
             .name(op.eng ? "§6Finances" : "§6Финансы")
             .lore("")
             .lore(op.eng ? "§fAt your disposal:" : "§fВ твоем распоряжении:")
             .lore((op.eng ? "§2Loni: <green>" : "§2Лони: <green>") + op.getDataInt(Data.LONI) + Ostrov.L)
-            .lore(op.eng ? "§aLoni §7- the server's in-game currency." : "§aЛони §7- внутриигровая валюта на проекте.")
-            .lore(op.eng ? "§7It's used for trading, upgrades, etc." : "§7Используются для торговли, прокачки, и т.д.")
+            .lore(op.eng ? "§aLoni <mithril>- the server's in-game currency." : "§aЛони <mithril>- внутриигровая валюта на проекте.")
+            .lore(op.eng ? "<mithril>It's used for trading, upgrades, etc." : "<mithril>Используются для торговли, прокачки, и т.д.")
             .lore("")
             .lore((op.eng ? "<amber>Ril: <yellow>" : "<amber>Рил: <yellow>") + op.getDataInt(Data.RIL) + Ostrov.R)
-            .lore(op.eng ? "§eRil §7- a real money equivalent. Use it to" : "§eРил §7- счёт, приравненный к рублёвому. Используй его")
-            .lore(op.eng ? "§7buy ranks, or withdraw to your phone / card." : "§7для покупки привилегий, или выведи на .")
+            .lore(op.eng ? "§eRil <mithril>- a real money equivalent. Use it to" : "§eРил <mithril>- счёт, приравненный к рублёвому. Используй его")
+            .lore(op.eng ? "<mithril>buy ranks, or withdraw to your phone / card." : "<mithril>для покупки привилегий, или вывода на телефон / карту.")
+            .lore(op.eng ? "<amber><u>Complete missions to earn §eRil" : "§e<u>Рил <amber>можно заработать, выполняя задания!")
             .lore("")
-            .lore(op.eng ? "§aLoni §7- in-game currency" : "§aЛони §7- внутриигровая валюта")
-            .lore(op.eng ? "§7on the project. Is used for" : "§7на проекте. Используется для")
-            .lore(op.eng ? "§7turnover, game actions, etc." : "§7товарооборота, игровых действий и т.д.")
-            .lore("")
-            .lore(op.eng ? "§eRil §7- real money equivalent." : "§eРил §7- счёт, приравненный к рублёвому.")
-            .lore(op.eng ? "§7You can buy privileges with Ryl," : "§7За Рил можно купить привилегии,")
-            .lore(op.eng ? "§7or withdraw to your phone or card." : "§7или вывести на телефон или карту.")
-            .lore(op.eng ? "§7*(subject to certain conditions)" : "§7*(при соблюдении ряда условий)")
-            .lore(op.eng ? "§7Ril can be earned by completing tasks!" : "§7Рил можно заработать, выполняя задания!")
-            .lore("")
-            .lore(op.eng ? "§7LMB - §ftop up your account §eRil" : "§7ЛКМ - §fпополнить счёт §eРил")
-            .lore(op.eng ? "§7RMB - §fwithdrawal requests journal" : "§7ПКМ - §fжурнал заявок на вывод")
-            .lore(canWitdraw ? (op.eng ? "Key.Q - §forder withdrawal" : "§6Клав.Q - §fзаказать вывод") : (op.eng ? "" : "§8§mКлав.Q - заказать вывод"))
-            .lore(canWitdraw ? (op.eng ? "§7Completed withdraws: §f" : "§7Выполнено выводов: §f") + op.getStat(Stat.WD_c) : (op.eng ? "" : "§5Вывод средств возможен от §b") + MissionManager.getMin(op) + " рил")
-            .lore(canWitdraw ? "" : (op.eng ? "§5Calc:  §3(1 + withdraws amm.)*5" : "§5Расчёт:  §3(1 + кол-во выводов)*5"))
-            .lore("")
-            .build(), e -> {
+            .lore(op.eng ? "§7LMB - purchase more §eRil" : "§7ЛКМ - пополнить счёт §eРил")
+            .lore(from > 0 ? (op.eng ? "§8You need <amber>" + from + " §8more <amber>Ril §8to withdraw"
+                : "§8Тебе нужно еще <amber>" + from + " Рил §8для вывода")
+                : (op.eng ? "§7RMB - request a §eRil payout" : "§7ПКМ - заказать вывод §eРил"))
+            .lore(op.eng ? "§7Shift+RMB - your §eRil §7transactions" : "§7Шифт+ПКМ - журнал операций §eРил")
+            .lore("<gray>[" + TCUtil.bind(TCUtil.Input.DROP) + "] - "
+                + (op.eng ? "exchange §eRil §7for §aLoni" : "поменять §eРил §7на §aЛони"))
+            .lore("§81" + Ostrov.R + " -> 50" + Ostrov.R).build(), e -> {
+            final int from_in = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
             switch (e.getClick()) {
-
                 case LEFT:
                     p.closeInventory();
                     ApiOstrov.executeBungeeCmd(p, "money add");
                     break;
-
                 case RIGHT:
-                    pm.openWithdrawalRequest(p, true);
-                    break;
-
-                case DROP:
                     if (op.getDataInt(Data.RIL) >= MissionManager.getMin(op)) {
-                        SmartInventory
-                            .builder()
-                            .id(op.nik + "Миссии")
-                            .type(InventoryType.HOPPER)
+                        SmartInventory.builder().id(op.nik + "Payout").type(InventoryType.HOPPER)
                             .provider(new ProfileWithdrawMenu(op.getDataInt(Data.RIL)))
-                            .title("Новая заявка на вывод Рил")
-                            .build()
-                            .open(p);
+                            .title("<gold><b>Заявка на вывод <yellow>Рил").build().open(p);
                     } else {
                         PM.soundDeny(p);
-                        p.sendMessage("§6Накопите не менее §b" + MissionManager.getMin(op) + " рил§6, чтобы заказать вывод средств!");
+                        p.sendMessage("§6Накопи еще§e" + from_in + " рил§6, чтобы заказать вывод!");
                     }
                     break;
-
+                case SHIFT_RIGHT:
+                    pm.openWithdrawalRequest(p, true);
+                    break;
+                case DROP:
+                    PlayerInput.get(p, 10, 1, 1000,
+                        amt -> p.performCommand("money change " + amt));
+                    break;
                 default:
                     break;
             }

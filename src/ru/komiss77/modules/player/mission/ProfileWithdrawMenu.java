@@ -10,7 +10,6 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
-import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.HistoryType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.games.GM;
@@ -165,8 +164,8 @@ public class ProfileWithdrawMenu implements InventoryProvider {
           Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
                     p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
                     p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
-                    ApiOstrov.addStat(p, Stat.WD_c);
-                    ApiOstrov.addStat(p, Stat.WD_a, ril);
+                    ApiOstrov.addStat(p, Stat.WD_count);
+                    ApiOstrov.addStat(p, Stat.WD_amount, ril);
                 }
         ));
 
