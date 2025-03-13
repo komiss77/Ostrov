@@ -622,7 +622,7 @@ public class Oplayer {
         }
     }
 
-
+    @Deprecated
     public boolean Pvp_is_allow() {
         return pvp_allow;
     }

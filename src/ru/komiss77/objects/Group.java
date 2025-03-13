@@ -14,6 +14,7 @@ public class Group {
     public String name;
     public String chat_name;
     public Type tp;
+    @Deprecated
     public String type;
     public int price_per_day;
     public String group_desc;
@@ -53,10 +54,9 @@ public class Group {
         DONATE, STAFF, OFF;
 
         public static Type get(final String name) {
-            final String lNm = name.toLowerCase();
+            final String lNm = name.toUpperCase();
             for (final Type tp : Type.values()) {
-                if (tp.name().toLowerCase()
-                    .contains(lNm)) return tp;
+                if (tp.name().contains(lNm)) return tp;
             }
             return OFF;
         }
@@ -69,7 +69,7 @@ public class Group {
     }
 
     public boolean isStaff() {
-        return type.equals("staff");
+        return tp == Type.STAFF;
     }
 
     private static List<String> Gen_lore(List<String> current_lore, String text, String text_color) {

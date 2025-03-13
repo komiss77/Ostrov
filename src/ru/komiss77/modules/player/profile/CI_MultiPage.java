@@ -4,27 +4,23 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class CI_MultiPage implements InventoryProvider {
 
 
     private final List<ClickableItem> buttons;
-    private final Material glassMat;
+    private final ItemType glassMat;
     //private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ПРОФИЛЬ.glassMat).name("§8.").build());
 
 
-    public CI_MultiPage(final List<ClickableItem> buttons, final Material glassMat) {
+    public CI_MultiPage(final List<ClickableItem> buttons, final ItemType glassMat) {
         this.buttons = buttons;
         this.glassMat = glassMat;
     }

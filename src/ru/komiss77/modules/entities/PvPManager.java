@@ -1,9 +1,6 @@
 package ru.komiss77.modules.entities;
 
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent;
 import com.google.common.collect.Multimap;
 import org.bukkit.*;
@@ -45,18 +42,16 @@ import ru.komiss77.version.Nms;
 public class PvPManager implements Initiable {
 
     public static OConfig config;
+    public static List<Force> rules = new ArrayList<>();
+    public interface Force {
+        boolean test(final Player pl, final Oplayer op);
+        String msg();
+    }
 
     private static int battle_time;  //после первого удара - заносим обоих в режим боя
     public static int no_damage_on_tp;
     private static final EnumMap<PvpFlag, Boolean> flags;
     private static final Set<PotionEffectType> potion_pvp_type;
-
-    private static Listener damageListener;
-    private static Listener flyListener;
-    private static Listener elytraListener;
-    private static Listener trimListener;
-    private static Listener cmdListener;
-    private static Listener advancedListener;
 
     private static final String PVP_NOTIFY = "§cТы в режиме боя!";
     private static final PotionEffect spd = new PotionEffect(PotionEffectType.HASTE, 2, 255, true, false, false);
@@ -78,19 +73,12 @@ public class PvPManager implements Initiable {
     public static final int DHIT_CLD = 4;
     public static final int BLCK_CLD = 0;
 
-    /*public static final double TRIDENT_DMG = getDefDmg(ItemType.TRIDENT);
-    public static double getDefDmg(final ItemType it) {
-        double d = 1d;
-        for (final AttributeModifier mod : it.getDefaultAttributeModifiers()
-            .get(Attribute.ATTACK_DAMAGE)) {
-            d += switch (mod.getOperation()) {
-                case ADD_NUMBER -> mod.getAmount();
-                case ADD_SCALAR -> mod.getAmount() * d;
-                case MULTIPLY_SCALAR_1 -> (mod.getAmount() + 1d) * d;
-            };
-        }
-        return d;
-    }*/
+    private static Listener damageListener;
+    private static Listener flyListener;
+    private static Listener elytraListener;
+    private static Listener trimListener;
+    private static Listener cmdListener;
+    private static Listener advancedListener;
 
     static {
         flags = new EnumMap<>(PvpFlag.class);
@@ -130,6 +118,25 @@ public class PvPManager implements Initiable {
     @Override
     public void onDisable() {
         Ostrov.log_ok("§6PvP выключено!");
+    }
+
+    public static void addForce(final Force rule) {
+        rules.add(rule);
+        for (final Oplayer op : PM.getOplayers()) {
+            if (op.pvp_allow) continue;
+            final Player p = op.getPlayer();
+            if (p == null || !isForced(p, op, true)) continue;
+            PvPManager.pvpOn(op);
+        }
+    }
+
+    public static boolean isForced(final Player pl, final Oplayer op, final boolean tell) {
+        for (final Force fr : rules) {
+            if (!fr.test(pl, op)) continue;
+            if (tell) pl.sendMessage(fr.msg());
+            return true;
+        }
+        return false;
     }
 
     private static void init() {
@@ -632,7 +639,7 @@ public class PvPManager implements Initiable {
                         if (potion_pvp_type.contains(effect.getType())) {
                             e.getAffectedEntities().stream().forEach((target) -> {
                                 if (target.getType().isAlive() && disablePvpDamage((Entity) e.getPotion().getShooter(), target, EntityDamageEvent.DamageCause.MAGIC)) {
-                                    e.setIntensity(target, 0);
+                                    e.setIntensity(target, 0d);
                                 }
                             });
                         }
@@ -915,7 +922,7 @@ public class PvPManager implements Initiable {
             return false; //если ни один не игрок, пропускаем
         }
 
-        if (target != null && targetOp != null && target.getNoDamageTicks() > 20) { //у жертвы иммунитет
+        if (target != null && target.getNoDamageTicks() > 20) { //у жертвы иммунитет
             final int noDamageTicks = target.getNoDamageTicks() / 20;
             ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aИммунитет к повреждениям  - осталось §f") + noDamageTicks + Lang.t(target, " §a сек.!"));
             if (damager != null) {
@@ -925,28 +932,28 @@ public class PvPManager implements Initiable {
             return true;
         }
 
-        if (damager != null && damagerOp != null && damager.getNoDamageTicks() > 20) { //у нападающего иммунитет
+        if (damager != null && damager.getNoDamageTicks() > 20) { //у нападающего иммунитет
             final int noDamageTicks = damager.getNoDamageTicks() / 20;
             ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ тебя иммунитет к повреждениям и атакам - осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
             return true;
         }
 
         if (damager != null && target != null) {                               //если обаигроки
-            if (!targetOp.pvp_allow) {                         //если у жертвы выкл пвп
+            if (!targetOp.pvp_allow && targetOp.pvp_time < 1 && !isForced(target, targetOp, true)) {                         //если у жертвы выкл пвп
                 ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У Вас выключен режим ПВП!"));
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У тебя выключен режим ПВП!"));
                 return true;
             }
-            if (!damagerOp.pvp_allow) {                         //если у атакующего выкл пвп
+            if (!damagerOp.pvp_allow && damagerOp.pvp_time < 1 && !isForced(damager, damagerOp, true)) {                         //если у атакующего выкл пвп
                 ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У Вас выключен режим ПВП!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У тебя выключен режим ПВП!"));
                 return true;
             }
         }
 
         if (damager != null) { //атакует игрок 
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
-                if (target != null && PM.exists(target) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
+                if (target != null && flags.get(PvpFlag.disable_creative_attack_to_player)) {
                     ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
                     return true;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {

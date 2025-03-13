@@ -593,37 +593,34 @@ public class ItemUtil {
     }
 
     public static int repairAll(final Player p) {
-
         int repaired = 0; //Set <String> repaired = new HashSet<String>() {};
-
-        ItemMeta im;
-        for (final ItemStack item : p.getInventory().getContents()) {
-            if (item != null && !item.getType().isBlock() && item.hasItemMeta() && (item.getItemMeta() instanceof Damageable)) {
-                im = item.getItemMeta();
-                Damageable d = (Damageable) im;
-                if (d.hasDamage()) {
-                    d.setDamage(0);
-                    item.setItemMeta(im);
-                    repaired++;
-                }
-            }
-        }
-
-        for (final ItemStack item : p.getInventory().getArmorContents()) {
-            if (item != null && !item.getType().isBlock() && item.hasItemMeta() && (item.getItemMeta() instanceof Damageable)) {
-                im = item.getItemMeta();
-                Damageable d = (Damageable) im;
-                if (d.hasDamage()) {
-                    d.setDamage(0);
-                    item.setItemMeta(im);
-                    repaired++;
-                }
-            }
+        for (final ItemStack item : p.getInventory()) {
+            if (isBlank(item, false) || !hasDur(item)) continue;
+            setDur(item, maxDur(item));
+            repaired++;
         }
 
         p.updateInventory();
-
         return repaired;
+    }
+
+    public static boolean hasDur(final ItemStack it) {
+        final Integer dmg = it.getData(DataComponentTypes.DAMAGE);
+        return dmg != null && dmg != 0;
+    }
+
+    public static int maxDur(final ItemStack it) {
+        final Integer max = it.getData(DataComponentTypes.MAX_DAMAGE);
+        return max == null ? it.getType().asItemType().getMaxDurability() : max;
+    }
+
+    public static void setDur(final ItemStack it, final int d) {
+        final int max = maxDur(it);
+        if (d == max) {
+            it.unsetData(DataComponentTypes.DAMAGE);
+            return;
+        }
+        it.setData(DataComponentTypes.DAMAGE, Math.max(0, max - d));
     }
 
     @Deprecated

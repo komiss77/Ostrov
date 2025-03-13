@@ -1,21 +1,22 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.WeatherType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.potion.PotionEffectTypeCategory;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
-import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
 import ru.komiss77.enums.StatFlag;
 import ru.komiss77.modules.entities.PvPManager;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
@@ -25,8 +26,7 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 public class LocalSettings implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ВОЗМОЖНОСТИ.glassMat).name("§8.").build());
-    private final ClickableItem c = ClickableItem.empty(new ItemStack(Material.GLOW_LICHEN));
-
+    private static final ItemStack blank = new ItemBuilder(ItemType.GRAY_STAINED_GLASS_PANE).name("<black>.").build();
 
     @Override
     public void onClose(final Player p, final InventoryContent content) {
@@ -43,18 +43,16 @@ public class LocalSettings implements InventoryProvider {
         //final ProfileManager pm = op.menu;
 
         //линия - разделитель
-        content.fillRow(4, fill);
-        content.fillRect(0, 35, c);
+        content.fillRow(0, ClickableItem.empty(blank));
+        content.fillRow(1, fill);
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
-        if (PvPManager.getFlag(PvPManager.PvpFlag.allow_pvp_command)) {
-
-            content.set(1, 1, ClickableItem.of(new ItemBuilder(op.pvp_allow ? Material.DIAMOND_SWORD : Material.SHIELD)
-                .name("§7Разрешение ПВП")
+        if (PvPManager.getFlag(PvPManager.PvpFlag.allow_pvp_command) && !PvPManager.isForced(p, op, false)) {
+            content.set(0, 0, ClickableItem.of(new ItemBuilder(op.pvp_allow ? ItemType.DIAMOND_SWORD : ItemType.SHIELD)
+                .name("§7Настройка ПВП")
                 .lore("")
                 .lore("§7Сейчас:")
                 .lore(op.pvp_allow ? "§6Боец" : "§bПацифист")
@@ -67,88 +65,86 @@ public class LocalSettings implements InventoryProvider {
                 p.performCommand("pvp " + (op.pvp_allow ? "off" : "on"));
                 reopen(p, content);
             }));
-
         } else {
-
-            content.set(1, 1, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
-                .name("§7Разрешение ПВП")
-                .lore("§7Выключено")
-                .lore("§7на этом сервере")
+            content.set(0, 0, ClickableItem.empty(new ItemBuilder(blank)
+                .name("§7Настройка ПВП")
+                .lore("§8Недоступно")
                 .build()
             ));
-
         }
 
 
-        final boolean canFly = ApiOstrov.isLocalBuilder(p) || (Cfg.fly_command && p.hasPermission("ostrov.fly"));
-        final boolean canSpeed = ApiOstrov.isLocalBuilder(p) || (Cfg.speed_command && p.hasPermission("ostrov.speed"));
-//Bukkit.broadcastMessage("fly_command?"+Config.fly_command+" canFly?"+canFly);
-//Bukkit.broadcastMessage("speed_command?"+Config.speed_command+" canSpeed?"+canSpeed);
-        int ammount = (int) (p.getAllowFlight() ? p.getFlySpeed() * 10f : p.getWalkSpeed() * 10f);
-        ammount++;
+        //        final boolean canSpeed = ApiOstrov.isLocalBuilder(p) || (Cfg.speed_command && p.hasPermission("ostrov.speed")); // не имеет пользы
 
-        content.set(1, 3, ClickableItem.of(new ItemBuilder(p.getAllowFlight() ? Material.FEATHER : Material.IRON_BOOTS)
-            .name(p.getAllowFlight() ? "§6Крылья" : "§bНоги")
-            .amount(ammount)
-            .lore("")
-            .lore(canSpeed ? "§7ЛКМ - менять скорость" : (Cfg.speed_command ? "§7нет права §costrov.speed" : "§8Недоступно на этом сервере"))
-            .lore(canFly ? "§7ПКМ - менять режим" : (Cfg.fly_command ? "§7нет права §costrov.fly" : "§8Недоступно на этом сервере"))
-            .build(), e -> {
-            if (e.isLeftClick() && canFly) {
-                float curr;
-                if (p.getAllowFlight()) {
-                    curr = p.getFlySpeed();
-                    curr += 0.1f;
-                    if (curr > 1) curr = 0;
-                    p.setFlySpeed(curr);
-                } else {
-                    curr = p.getWalkSpeed();
-                    curr += 0.1f;
-                    if (curr > 1) curr = 0;
-                    p.setWalkSpeed(curr);
-                }
-                reopen(p, content);
-                return;
-            } else if (e.isRightClick() && canSpeed) {
-                if (p.getAllowFlight()) {
-                    p.setFlying(false);
-                    p.setAllowFlight(false);
-                } else {
+        if (ApiOstrov.isLocalBuilder(p) || (Cfg.fly_command && p.hasPermission("ostrov.fly"))) {
+            if (p.isFlying() || p.getAllowFlight()) {
+                int ammount = (int) (p.getFlySpeed() * 10f) + 1;
+                content.set(0, 1, ClickableItem.of(new ItemBuilder(ItemType.FEATHER).name("<sky>Скорость Полета")
+                    .amount(ammount).lore("").lore("§7ЛКМ: +1 скорость").lore("§7ПКМ: -1 скорость")
+//                .lore(canFly ? "§7ПКМ - менять режим" : (Cfg.fly_command ? "§7Нет права на полет" : "§8Недоступно на этом сервере"))
+                    .build(), e -> {
+                    if (e.isLeftClick()) {
+                        if (p.getAllowFlight()) {
+                            final float curr = p.getFlySpeed() + 0.1f;
+                            p.setFlySpeed(curr > 1f ? 0f : curr);
+                        }/* else {
+                            curr = p.getWalkSpeed();
+                            curr += 0.1f;
+                            if (curr > 1) curr = 0;
+                            p.setWalkSpeed(curr);
+                        }*/
+                        reopen(p, content);
+                        return;
+                    } else if (e.isRightClick()) {
+                        if (p.getAllowFlight()) {
+                            final float curr = p.getFlySpeed() - 0.1f;
+                            p.setFlySpeed(curr < 0f ? 1f : curr);
+                        }/* else {
+                            curr = p.getWalkSpeed();
+                            curr += 0.1f;
+                            if (curr > 1) curr = 0;
+                            p.setWalkSpeed(curr);
+                        }*/
+                        reopen(p, content);
+                        return;
+                    }
+                    PM.soundDeny(p);
+                }));
+            } else {
+                content.set(0, 1, ClickableItem.of(new ItemBuilder(ItemType.ELYTRA)
+                    .name("<sky>Полет").lore("").lore("§7Клик - включить").build(), e -> {
                     p.setAllowFlight(true);
                     p.setFlying(true);
-                }
-                reopen(p, content);
-                return;
+                }));
             }
-            PM.soundDeny(p);
-        }));
+        } else {
+            content.set(0, 1, ClickableItem.empty(new ItemBuilder(blank)
+                .name("§7Полет")
+                .lore("§8Недоступно")
+                .build()
+            ));
+        }
 
 
         if (ApiOstrov.isLocalBuilder(p) || (Cfg.ptime_command && p.hasPermission("ostrov.ptime"))) {
-
-            content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.CLOCK)
-                .name("§7Личное время")
+            content.set(0, 2, ClickableItem.of(new ItemBuilder(ItemType.CLOCK)
+                .name("<olive>Личное Время")
                 .amount(p.isPlayerTimeRelative() && p.getPlayerTimeOffset() > 1000 ? (int) p.getPlayerTimeOffset() / 1000 : 1)
+                .lore("§7Сейчас:" + (p.isPlayerTimeRelative() ? "§eЦиклично" : "§bЗаморожено"))
                 .lore("")
-                .lore("§7Сейчас:")
-                .lore(p.isPlayerTimeRelative() ? "§eМеняется" : "§bЗаморожено")
-                .lore("")
-                .lore(p.isPlayerTimeRelative() ? "§7ЛКМ - заморозить" : "§7ЛКМ - меняться")
-                .lore("§7ПКМ - изменить время")
-                .lore("§7Шифт+ПКМ - сброс")
-                .lore("")
+                .lore("§7ЛКМ - изменить время")
+                .lore(p.isPlayerTimeRelative() ? "§7ПКМ - заморозить" : "§7ПКМ - зациклить")
+                .lore("<mithril>Шифт+Клик - сброс")
                 .build(), e -> {
                 switch (e.getClick()) {
                     case LEFT:
-                        p.setPlayerTime(p.getPlayerTime(), !p.isPlayerTimeRelative());
+                        final long time = p.getPlayerTime() + 2000;
+                        p.setPlayerTime(time > 24000 ? 0 : time, p.isPlayerTimeRelative());
                         break;
                     case RIGHT:
-                        long time = p.getPlayerTime();
-                        time += 2000;
-                        if (time > 24000) time = 0;
-                        p.setPlayerTime(time, p.isPlayerTimeRelative());
+                        p.setPlayerTime(p.getPlayerTime(), !p.isPlayerTimeRelative());
                         break;
-                    case SHIFT_RIGHT:
+                    case SHIFT_LEFT, SHIFT_RIGHT:
                         p.resetPlayerTime();
                         break;
                     default:
@@ -156,37 +152,29 @@ public class LocalSettings implements InventoryProvider {
                 }
                 reopen(p, content);
             }));
-
         } else {
-
-            content.set(1, 5, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
-                .name("§7Личное время")
-                .lore(Cfg.ptime_command ? "§7нет права §costrov.ptime" : "§8Недоступно на этом сервере")
-                //.addLore("§7на этом сервере")
+            content.set(0, 2, ClickableItem.empty(new ItemBuilder(blank)
+                .name("§7Личное Время")
+                .lore("§8Недоступно")
                 .build()
             ));
-
         }
 
 
         if (ApiOstrov.isLocalBuilder(p) || (Cfg.pweather_command && p.hasPermission("ostrov.pweather"))) {
-
-            content.set(1, 7, ClickableItem.of(new ItemBuilder(p.getPlayerWeather() == null ? Material.NAUTILUS_SHELL : p.getPlayerWeather() == WeatherType.CLEAR ? Material.SUNFLOWER : Material.WATER_BUCKET)
-                .name("§7Личная погода")
+            content.set(0, 3, ClickableItem.of(new ItemBuilder(p.getPlayerWeather() == null ? ItemType.NAUTILUS_SHELL : p.getPlayerWeather() == WeatherType.CLEAR ? ItemType.SUNFLOWER : ItemType.WATER_BUCKET)
+                .name("§7Личная Погода")
                 .lore("")
-                .lore("§7ЛКМ - менять")
-                .lore("§7ПКМ - сброс на серверное")
-                .lore("")
+                .lore("§7ЛКМ - поменять")
+                .lore("§7ПКМ - сброс")
                 .build(), e -> {
                 switch (e.getClick()) {
-                    case LEFT:
-                        if (p.getPlayerWeather() == null || p.getPlayerWeather() == WeatherType.CLEAR) {
-                            p.setPlayerWeather(WeatherType.DOWNFALL);
-                        } else {
-                            p.setPlayerWeather(WeatherType.CLEAR);
-                        }
+                    case LEFT, SHIFT_LEFT:
+                        p.setPlayerWeather(p.getPlayerWeather() == null
+                            || p.getPlayerWeather() == WeatherType.CLEAR
+                            ? WeatherType.DOWNFALL : WeatherType.CLEAR);
                         break;
-                    case SHIFT_RIGHT:
+                    case RIGHT, SHIFT_RIGHT:
                         p.resetPlayerWeather();
                         break;
                     default:
@@ -194,155 +182,126 @@ public class LocalSettings implements InventoryProvider {
                 }
                 reopen(p, content);
             }));
-
         } else {
-
-            content.set(1, 7, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
-                .name("§7Личная погода")
-                .lore(Cfg.pweather_command ? "§7нет права §costrov.pweather" : "§8Недоступно на этом сервере")
-                .lore("§7на этом сервере")
+            content.set(0, 3, ClickableItem.empty(new ItemBuilder(blank)
+                .name("§7Личная Погода")
+                .lore("§8Недоступно")
                 .build()
             ));
-
         }
 
 
         if (ApiOstrov.isLocalBuilder(p) || (Cfg.heal_command && p.hasPermission("ostrov.heal"))) {
-
             if (op.pvp_time > 0) {
-                content.set(2, 3, ClickableItem.empty(new ItemBuilder(Material.APPLE)
-                    .name("§7Исцеление")
+                content.set(0, 4, ClickableItem.empty(new ItemBuilder(ItemType.APPLE)
+                    .name("<cardinal>Исцеление")
                     .lore("")
-                    .lore("§eРежим битвы!")
-                    .lore("§6Будет доступно через " + op.pvp_time)
-                    .lore("")
+                    .lore("<red>У тебя режим боя!")
+                    .lore("<gold>Доступно через " + op.pvp_time + " сек")
                     .build()
                 ));
             } else {
-                content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.GOLDEN_APPLE)
-                    .name("§7Исцеление")
+                content.set(0, 4, ClickableItem.of(new ItemBuilder(ItemType.GOLDEN_APPLE)
+                    .name("<cardinal>Исцеление")
                     .lore("")
                     .lore("§7ЛКМ - восстановить здоровье")
-                    .lore("§7и снять порчу.")
-                    .lore("")
+                    .lore("§7и снять вредные эффекты")
                     .build(), e -> {
                     if (p.getHealth() == 0) return;
-                    final double amount = p.getAttribute(Attribute.MAX_HEALTH).getValue() - p.getHealth();
-                    final EntityRegainHealthEvent erhe = new EntityRegainHealthEvent(p, amount, EntityRegainHealthEvent.RegainReason.CUSTOM);
-                    Ostrov.getInstance().getServer().getPluginManager().callEvent(erhe);
-                    double newAmount = p.getHealth() + erhe.getAmount();
-                    if (newAmount > p.getAttribute(Attribute.MAX_HEALTH).getValue())
-                        newAmount = p.getAttribute(Attribute.MAX_HEALTH).getValue();
-                    p.setHealth(newAmount);
+                    final double max = p.getAttribute(Attribute.MAX_HEALTH).getValue();
+                    final double amount = max - p.getHealth();
+                    final EntityRegainHealthEvent erhe = new EntityRegainHealthEvent(p,
+                        amount, EntityRegainHealthEvent.RegainReason.CUSTOM);
+                    Bukkit.getPluginManager().callEvent(erhe);
+                    p.setHealth(Math.min(p.getHealth() + erhe.getAmount(), max));
                     p.setFoodLevel(20);
+                    p.setSaturation(20f);
                     p.setFireTicks(0);
-                    p.getActivePotionEffects().stream().forEach((effect) -> {
-                        p.removePotionEffect(effect.getType());
+                    p.setFreezeTicks(0);
+                    p.getActivePotionEffects().stream().forEach(ef -> {
+                        if (ef.getType().getCategory() == PotionEffectTypeCategory.HARMFUL)
+                            p.removePotionEffect(ef.getType());
                     });
                     reopen(p, content);
                 }));
             }
-
         } else {
-
-            content.set(2, 3, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
+            content.set(0, 4, ClickableItem.empty(new ItemBuilder(blank)
                 .name("§7Исцеление")
-                .lore(Cfg.heal_command ? "§7нет права §costrov.heal" : "§8Недоступно на этом сервере")
+                .lore("§8Недоступно")
                 .build()
             ));
-
         }
 
-
-        // if ( ItemUtils.Need_repair(p) ) 
         if (ApiOstrov.isLocalBuilder(p) || (Cfg.repair_command && p.hasPermission("ostrov.repair"))) {
-
-            if (Timer.has(p, "repair")) {
-                content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
-                    .name("§7Кузня")
+            if (op.pvp_time > 0) {
+                content.set(0, 4, ClickableItem.empty(new ItemBuilder(ItemType.DAMAGED_ANVIL)
+                    .name("<stale>Кузня")
                     .lore("")
-                    .lore("")
-                    .lore("§6Будет доступно через: " + Timer.getLeft(p, "repair"))
-                    .lore("")
-                    .build()
-                ));
-            } else if (op.pvp_time > 0) {
-                content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.DAMAGED_ANVIL)
-                    .name("§7Кузня")
-                    .lore("")
-                    .lore("")
-                    .lore("§eРежим битвы!")
-                    .lore("§6Будет доступно через " + op.pvp_time)
-                    .lore("")
+                    .lore("<red>У тебя режим боя!")
+                    .lore("<gold>Доступно через " + op.pvp_time + " сек")
                     .build()
                 ));
             } else {
-                content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.ANVIL)
-                        .name("§7Кузня")
+                content.set(0, 5, ClickableItem.of(new ItemBuilder(ItemType.ANVIL)
+                        .name("<stale>Кузня")
                         .lore("")
-                        .lore("§7ЛКМ - починка всего")
-                        .lore("§7в инвентаре")
-                        .lore("")
+                        .lore("§7ЛКМ - починка предметов")
+                        .lore("§7в твоем инвентаре")
                         .build(), e -> {
-                        Timer.add(p, "repair", 60);
                         p.sendMessage("§aОтремонтировано предметов: " + ItemUtil.repairAll(p));
-                        //p.sendMessage( "§aОтремонтировано: "+ItemUtils.Repair_all(p).toString().replaceAll("\\[|\\]", "") );
                         reopen(p, content);
                     }
                 ));
             }
-
         } else {
-
-            content.set(2, 5, ClickableItem.empty(new ItemBuilder(Material.GRAY_DYE)
-                .name("§7Кузня")
-                .lore(Cfg.repair_command ? "§7нет права §costrov.repair" : "§8Недоступно на этом сервере")
+            content.set(0, 5, ClickableItem.empty(new ItemBuilder(ItemType.GRAY_STAINED_GLASS_PANE)
+                .name("<stale>Кузня")
+                .lore("§8Недоступно")
                 .build()
             ));
+        }
 
+        if (op.isLocalChat()) {
+            content.set(0, 6, ClickableItem.of(new ItemBuilder(ItemType.CALIBRATED_SCULK_SENSOR)
+                .name("<gold>Чат: <dark_aqua>Все-Серверный")
+                .lore("§7Клик - сделать <aqua>локальным")
+                .lore("")
+                .lore("<yellow>При все-серверном чате:")
+                .lore("<gray>Видно сообщения: игроков со всех режимов,")
+                .lore("<gray>Написанные сообщения: видны всем игрокам")
+                .lore("")
+                .lore("<gray>Для личного сообщения:")
+                .lore("§e/msg ник сообщение")
+                .build(), e -> {
+                op.setLocalChat(false);
+                reopen(p, content);
+            }));
+        } else {
+            content.set(0, 6, ClickableItem.of(new ItemBuilder(ItemType.SCULK_SENSOR)
+                .name("<gold>Чат: <aqua>Локальный")
+                .lore("§7Клик - сделать <dark_aqua>локальным")
+                .lore("")
+                .lore("<yellow>При локальном чате:")
+                .lore("<gray>Видно сообщения: игроков режима " + GM.GAME.displayName + "<gray>,")
+                .lore("<gray>Написанные сообщения: видны только игрокам режима " + GM.GAME.displayName)
+                .lore("")
+                .lore("<gray>Для личного сообщения:")
+                .lore("§e/msg ник сообщение")
+                .build(), e -> {
+                op.setLocalChat(false);
+                reopen(p, content);
+            }));
         }
 
 
-        final boolean local = op.isLocalChat();//= op.hasFlag(StatFlag.LocalChat); //Ostrov.deluxechatPlugin.isLocal(p.getUniqueId().toString());
-        content.set(3, 2, ClickableItem.of(new ItemBuilder(local ? Material.TURTLE_SCUTE : Material.GUNPOWDER)
-                .name("§7Режим чата")
-                .lore(local ? "§7Сейчас: §bлокальный" : "§7Сейчас: §eглобальный")
-                .lore(local ? "§7ЛКМ - сделать глобальным" : "§7ЛКМ - сделать локальным")
-                .lore("§7")
-                .lore("В режиме &bглобальный")
-                .lore("вы получаете сообщения со всех серверов,")
-                .lore("и на всех серверах видят ваши сообщения.")
-                .lore("В режиме &bлокальный")
-                .lore("вы получаете сообщения только")
-                .lore("от игроков с этого сервера,")
-                .lore("Ваши сообщения так же будут")
-                .lore("видны только на этом сервере.")
-                .lore("§7")
-                .lore("§eКомандой /msg ник сообщение")
-                .lore("§eможно начать личный диалог.")
-                .build(), e -> {
-                op.setLocalChat(!local);
-                reopen(p, content);
-            }
-        ));
-
-
-        content.set(3, 6, ClickableItem.of(new ItemBuilder(op.hasFlag(StatFlag.InformatorOff) ? Material.BUCKET : Material.WATER_BUCKET)
-                    .name("§7Сообщения автоинформатора")
-                    .lore("")
-                    .lore("§7сейчас: ")
-                    .lore(op.hasFlag(StatFlag.InformatorOff) ? "§cвыключены" : "§aвключены")
-                    .lore("")
-                    .lore("§7ЛКМ - §eизменить")
-                    .lore("")
-                    .build()
-                , e -> {
-                    op.setFlag(StatFlag.InformatorOff, !op.hasFlag(StatFlag.InformatorOff));
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
-                    reopen(p, content);
-                }
-            )
-        );
+        final boolean inf = op.hasFlag(StatFlag.InformatorOff);
+        content.set(0, 7, ClickableItem.of(new ItemBuilder(inf ? ItemType.BUCKET : ItemType.PUFFERFISH_BUCKET)
+            .lore("").lore("§7Клик - §eизменить").build(), e -> {
+            op.setFlag(StatFlag.InformatorOff, !inf);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 1);
+            reopen(p, content);
+        }));
 
                
         
@@ -381,7 +340,7 @@ public class LocalSettings implements InventoryProvider {
 
         /*
         
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
+        content.set( 5, 8, ClickableItem.of( new ItemBuilder(ItemType.OAK_DOOR).name("Закрыть").build(), e -> 
         {
             p.closeInventory();
         }

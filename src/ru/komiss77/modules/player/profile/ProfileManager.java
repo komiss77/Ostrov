@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -392,7 +393,7 @@ public class ProfileManager {
                         current = SmartInventory
                                 .builder()
                                 .id(op.nik + section.name())
-                                .provider(new CI_MultiPage(buttons, Material.BLACK_STAINED_GLASS_PANE))
+                                .provider(new CI_MultiPage(buttons, ItemType.BLACK_STAINED_GLASS_PANE))
                                 .size(6, 9)
                                 .title("Профиль : Заявки на вывод")
                                 .build()
