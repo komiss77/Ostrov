@@ -3,18 +3,14 @@ package ru.komiss77.modules.player.profile;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.ReportCmd;
 import ru.komiss77.enums.Data;
-import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Stat;
-import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.modules.Pandora;
-import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -25,10 +21,7 @@ import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
 
 
 public class ProfileSection implements InventoryProvider {
@@ -84,23 +77,27 @@ public class ProfileSection implements InventoryProvider {
         final int dailyLvl = op.getDailyStat(Stat.LEVEL);
         final int totalLvl = op.getStat(Stat.LEVEL);
         final int exp = op.getStat(Stat.EXP);
-        content.set(1, 1, ClickableItem.empty(new ItemBuilder(ItemType.CLOCK)
+        content.set(0, 0, ClickableItem.of(new ItemBuilder(ItemType.RECOVERY_COMPASS)
             .name(op.eng ? "§eAccount Data" : "§eИгровые Данные")
             .lore("")
             .lore(Lang.t(p, Stat.LEVEL.desc) + totalLvl + "  " + StringUtil.getPercentBar(totalLvl * 25, exp, true))
-            .lore((op.eng ? "§fIncreased today by: " : "§fПрирост за сегодня: ") + (dailyLvl > 0 ? "§e+" + dailyLvl : "§80"))
-            .lore((op.eng ? "§fExp needed for next level: §a§l" : "§fОпыта до след. уровня: §a§l") + (totalLvl * 25 - exp + 1))
+            .lore((op.eng ? "<mithril>Increased today by: " : "<mithril>Прирост за сегодня: ") + (dailyLvl > 0 ? "§e+" + dailyLvl : "§80"))
+            .lore((op.eng ? "<mithril>Exp needed for next level: §a§l" : "<mithril>Опыта до след. уровня: §a§l") + (totalLvl * 25 - exp + 1))
             .lore("")
             .lore(Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)))
+            .lore("")
+            .lore((op.eng ? "§bReputation: " : "§bРепутация: ") + op.getReputationDisplay())
+            .lore(op.eng ? "<mithril>This indicates account trust" : "<mithril>Это показатель доверия к аккаунту")
+            .lore("")
+            .lore(op.eng ? "§7LMB - §9other accounts tied to your IP" : "§7ЛКМ - §9Другие аккаунты с твоего IP")
             .lore(Pandora.getInfo(op))
-            .build()
-        ));
+            .build(), e -> pm.openAkkauntsDB(p)));
 
         final int from = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
-        content.set(1, 5, ClickableItem.of(new ItemBuilder(ItemType.RAW_GOLD)
+        content.set(0, 1, ClickableItem.of(new ItemBuilder(ItemType.RAW_GOLD)
             .name(op.eng ? "§6Finances" : "§6Финансы")
-            .lore("")
             .lore(op.eng ? "§fAt your disposal:" : "§fВ твоем распоряжении:")
+            .lore("")
             .lore((op.eng ? "§2Loni: <green>" : "§2Лони: <green>") + op.getDataInt(Data.LONI) + Ostrov.L)
             .lore(op.eng ? "§aLoni <mithril>- the server's in-game currency." : "§aЛони <mithril>- внутриигровая валюта на проекте.")
             .lore(op.eng ? "<mithril>It's used for trading, upgrades, etc." : "<mithril>Используются для торговли, прокачки, и т.д.")
@@ -117,7 +114,7 @@ public class ProfileSection implements InventoryProvider {
             .lore(op.eng ? "§7Shift+RMB - your §eRil §7transactions" : "§7Шифт+ПКМ - журнал операций §eРил")
             .lore("<gray>[" + TCUtil.bind(TCUtil.Input.DROP) + "] - "
                 + (op.eng ? "exchange §eRil §7for §aLoni" : "поменять §eРил §7на §aЛони"))
-            .lore("§81" + Ostrov.R + " -> 50" + Ostrov.R).build(), e -> {
+            .lore("§81" + Ostrov.R + " -> 50" + Ostrov.L).build(), e -> {
             final int from_in = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
             switch (e.getClick()) {
                 case LEFT:
@@ -147,19 +144,14 @@ public class ProfileSection implements InventoryProvider {
         }));
 
 
-        content.set(1, 7, ClickableItem.of(new ItemBuilder(ItemType.BEACON)
-            .name(op.eng ? "§bGroups and perms" : "§bГруппы и права")
-            .lore(op.eng ? "§7Detailed information" : "§7Подробная информация")
-            .lore(op.eng ? "§7about your groups" : "§7о ваших группах")
-            .lore(op.eng ? "§7and personal perms." : "§7и личных правах.")
-            .lore((op.eng ? "§fActive groups found: §a" : "§fНайдено активных групп: §a") + op.getGroups().size())
-            .lore(op.eng ? "§7LMB - get data from the DB" : "§7ЛКМ - показать данные из БД")
+        content.set(0, 2, ClickableItem.of(new ItemBuilder(ItemType.EMERALD)
+            .name(op.eng ? "§bGroups and perms" : "§bГруппы и Права")
             .lore("")
-            .lore(op.eng ? "§6Show permissions" : "§6Показать права (пермишены)")
-            .lore(op.eng ? "§7loaded for" : "§7загруженные для")
-            .lore(op.eng ? "§7this server" : "§7этого сервера")
-            .lore(op.eng ? "§7RMB - details" : "§7ПКМ - подробно")
+            .lore(op.eng ? "<mithril>Detailed information about" : "<mithril>Подробная информация о твоих")
+            .lore(op.eng ? "<mithril>your groups on this server" : "<mithril>группах на этом сервере")
+            .lore((op.eng ? "§7LMB - show all groups §3(" : "§7ЛКМ - показать группы §3(") + op.getGroups().size() + ")")
             .lore("")
+            .lore(op.eng ? "§7RMB - show your permissions" : "§7ПКМ - показать права (пермы)")
             .build(), e -> {
             if (e.isLeftClick()) {
                 pm.openGroupsAndPermsDB(p, 0);
@@ -169,7 +161,7 @@ public class ProfileSection implements InventoryProvider {
         }));
 
 
-        final int repu_base = op.getDataInt(Data.REPUTATION);
+        /*final int repu_base = op.getDataInt(Data.REPUTATION);
         final int playDay = op.getStat(Stat.PLAY_TIME) / 86400;
         final int passFill = StatManager.getPassportFill(op);
         final int statFill = op.getStatFill();
@@ -202,9 +194,9 @@ public class ProfileSection implements InventoryProvider {
                 //        op.getPlayer().sendMessage("ppp");
                 //    }
             )
-        );
+        );*/
 
-        final int karma_base = op.getDataInt(Data.KARMA);
+        /*final int karma_base = op.getDataInt(Data.KARMA);
 
         content.set(2, 4, ClickableItem.empty(new ItemBuilder(ItemType.GLOW_BERRIES)
                     .name(op.eng ? "§bKarma" : "§bКарма")
@@ -226,10 +218,10 @@ public class ProfileSection implements InventoryProvider {
                 //        op.getPlayer().sendMessage("ppp");
                 //    }
             )
-        );
+        );*/
 
-
-        if (GM.GAME.type == ServerType.LOBBY) {
+        //TODO скин меню
+        /*if (GM.GAME.type == ServerType.LOBBY) {
             content.set(2, 6, ClickableItem.of(new ItemBuilder(ItemType.PITCHER_PLANT)
                 .name(op.eng ? "§5Change skin" : "§5Сменить скин")
                 .lore("")
@@ -246,7 +238,7 @@ public class ProfileSection implements InventoryProvider {
                 .lore("")
                 .build()
             ));
-        }
+        }*/
 
 
         content.set(3, 1, ClickableItem.of(new ItemBuilder(ItemType.BOOKSHELF)
@@ -271,30 +263,30 @@ public class ProfileSection implements InventoryProvider {
         );
 
 
-        content.set(3, 3, ClickableItem.of(new ItemBuilder(ItemType.PAPER)
+        content.set(0, 3, ClickableItem.of(new ItemBuilder(ItemType.PAPER)
             .name(op.eng ? "§6Reports" : "§6Репорты")
             .lore("")
-            .lore(op.eng ? "§7LMB - §сYour jambs." : "§7ЛКМ - §сВаши косяки.")
-            .lore(op.eng ? "§7Appeal is possible" : "§7Обжалование возможно")
-            .lore(op.eng ? "§7by request in a group." : "§7по заявке в группе.")
-            .lore("")
-            .lore(op.eng ? "§7RMB - §eView recent" : "§7ПКМ - §eПросмотр свежих")
-            .lore(op.eng ? "§7Shows all reports," : "§7Покажет все репорты,")
-            .lore(op.eng ? "submitted to anyone." : "поданные на кого-либо.")
-            .lore("")
-            .lore(op.eng ? "§eMake report" : "§eПодать Жалобу")
-            .lore(op.eng ? "§fyou can use the command" : "§fможно командой")
-            .lore(op.eng ? "§e/report name essence" : "§e/report ник жалоба")
+            .lore(op.eng ? "§7LMB - §сYour jambs." : "§7ЛКМ - §сПроверить свои косяки")
+            .lore(op.eng ? "<mithril>Appeal them in /discord or /telegram"
+                : "<mithril>Обжалуй их в /discord или /telegram")
+            .lore(op.eng ? "§7RMB - §eView recent" : "§7ПКМ - §eРепорты на других игроков")
+            .lore(op.eng ? "<gray>Shift+Click - §6Submit a report" : "<gray>Шифт+Клик - §6подать жалобу")
             .build(), e -> {
-            if (e.isLeftClick()) {
-                ReportCmd.openPlayerReports(p, op, p.getName(), 0);
-            } else if (e.isRightClick()) {
-                ReportCmd.openAllReports(p, op, 0);
+            switch (e.getClick()) {
+                case LEFT:
+                    ReportCmd.openPlayerReports(p, op, p.getName(), 0);
+                    break;
+                case RIGHT:
+                    ReportCmd.openAllReports(p, op, 0);
+                    break;
+                case SHIFT_LEFT, SHIFT_RIGHT:
+                    PlayerInput.get(InputButton.InputType.ANVILL, p, info -> p.performCommand("report " + info), "Ник - Жалоба");
+                    break;
             }
         }));
 
 
-        content.set(3, 5, ClickableItem.of(new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
+        /*content.set(3, 5, ClickableItem.of(new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
                     .name(op.eng ? "§7Ignore - list" : "§7Игнор - лист")
                     .lore("")
                     .lore(op.eng ? "§7You can add" : "§7Вы можете добавить")
@@ -316,20 +308,7 @@ public class ProfileSection implements InventoryProvider {
                     }
                 }
             )
-        );
-
-
-        content.set(3, 7, ClickableItem.of(new ItemBuilder(ItemType.NAME_TAG)
-            .name(op.eng ? "§7Accaunts" : "§7Учётные данные")
-            .lore("")
-            .lore(op.eng ? "§7LMB - find others" : "§7ЛКМ - найти другие")
-            .lore(op.eng ? "§7accounts for your IP," : "§7аккаунты для вашего IP,")
-            .lore(op.eng ? "§7specify how much more" : "§7уточнить сколько еще")
-            .lore(op.eng ? "§7can be created." : "§7можно создать.")
-            .lore("")
-            .build(), e -> {
-            pm.openAkkauntsDB(p);
-        }));
+        );*/
 
         
 

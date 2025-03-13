@@ -691,11 +691,11 @@ public class Oplayer {
     }
 
     public String getKarmaDisplay() {
-        return karmaCalc == 0 ? "§7равновесие" : (karmaCalc > 0 ? "§a" + karmaCalc : "§c" + karmaCalc);
+        return karmaCalc == 0 ? "§7равновесие" : (karmaCalc > 0 ? "§a+" + karmaCalc : "§c" + karmaCalc);
     }
 
     public String getReputationDisplay() {
-        return reputationCalc == 0 ? "§7---" : (reputationCalc > 0 ? "§a" + reputationCalc : "§c" + reputationCalc);
+        return reputationCalc == 0 ? "§8---" : (reputationCalc > 0 ? "§a+" + reputationCalc : "§c" + reputationCalc);
     }
 
     public int getStatFill() {
