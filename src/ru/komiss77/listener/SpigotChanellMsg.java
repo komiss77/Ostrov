@@ -22,6 +22,7 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.OstrovChanelEvent;
 import ru.komiss77.hook.SkinRestorerHook;
+import ru.komiss77.modules.Vote;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
@@ -319,8 +320,13 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                 Friends.onFriendsInfoRecieve(op, s1);
             }
 
+            case VOTE -> {// для результата голосования. Всасывает из таблицы payments
+                Vote.onVote(senderInfo, s1);
+                return;
+            }
+
             case EXECUTE_OSTROV_CMD -> {
-                if (senderInfo.equals("console")) {
+                if (senderInfo.equalsIgnoreCase("console")) {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s1);
                 } else {
                     Player p = Bukkit.getPlayerExact(senderInfo);

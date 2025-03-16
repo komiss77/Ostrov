@@ -64,7 +64,7 @@ public class PartyView implements InventoryProvider {
 
 
             for (final String name : op.party_members.keySet()) {
-
+//Ostrov.log_warn("party_members name="+name);
                 final ItemStack head = new ItemBuilder(Material.PLAYER_HEAD)
                     .name(name)
                     .lore(op.party_leader.equals(name) ? "§aЛидер" : "§7Участник")

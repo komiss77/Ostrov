@@ -37,6 +37,8 @@ import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
+import ru.komiss77.modules.netty.OsQuery;
+import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.BVec;
@@ -152,13 +154,19 @@ public class PlayerLst implements Listener {
         //player modifications
         p.setShieldBlockingDelay(2);
         p.setNoDamageTicks(20);
+      if (Ostrov.USE_NETTY_QUERRY) {
+        OsQuery.send(QueryCode.PLAYER_JOIN, p.getName());
+      }
     }
 
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void PlayerQuit(PlayerQuitEvent e) {
-        e.quitMessage(null);
-        PM.onLeave(e.getPlayer(), true);
+      e.quitMessage(null);
+      PM.onLeave(e.getPlayer(), true);
+      if (Ostrov.USE_NETTY_QUERRY) {
+        OsQuery.send(QueryCode.PLAYER_QUIT, e.getPlayer().getName());
+      }
     }
 
     //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable

@@ -43,7 +43,7 @@ public class RemoteCmd {
 
           return Command.SINGLE_SUCCESS;
         })
-        .description("Ставит префикс")
+        .description("Выполнение команды на bridge")
         .register();
   }
 

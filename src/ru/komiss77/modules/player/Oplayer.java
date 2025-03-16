@@ -108,8 +108,7 @@ public class Oplayer {
     public boolean mysqlError;
     public LocalDB.Error dbError;
     //служебные
-    public int lookSum = 0, lookStamp = Integer.MAX_VALUE;
-    public int afkLeft = Cfg.afk_sec, afkLoc;
+    public int lookSum = 0, afkLeft = Cfg.afk_sec;//предыдущая локация игрока и сколько осталось до пинка, lookStamp = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
     public BukkitTask displayCube; //показ границы выделения
     public Location spyOrigin;
@@ -158,20 +157,20 @@ public class Oplayer {
             if (look != lookSum) { //двигался
                 lookSum = look;
                 if (afkLeft < Cfg.afk_sec) { //таймер уменьшался
-                    afkLeft = Cfg.afk_sec;
                     if (Cfg.afk_sec - afkLeft > 60) { //были титры афк
                         ScreenUtil.sendTitleDirect(p, "", "<olive>-=: AFK :=-", 0, 1, 30);
                     }
+                    afkLeft = Cfg.afk_sec;
                 }
             } else { //неподвижен
                 afkLeft--;
                 if (afkLeft == 0) {
                     p.clearTitle();
                     if (ApiOstrov.isLocalBuilder(p)) {
-                        p.sendMessage("<dark_gray>Билдер - сброс цикла АФК"); //типа отладка
+                        p.sendMessage(TCUtil.form("<dark_gray>Билдер - сброс цикла АФК")); //типа отладка
                         afkLeft = Cfg.afk_sec;
                     } else {
-                        p.sendMessage(Ostrov.PREFIX + "Ты уже АФК более " + ((int) Cfg.afk_sec / 60) + " мин!");
+                        p.sendMessage(Ostrov.PREFIX + "AFK более " + ((int) Cfg.afk_sec / 60) + " мин!");
                         ApiOstrov.sendToServer(p, "lobby0", "");
                         return; //secondTick дальше не выполнять
                     }

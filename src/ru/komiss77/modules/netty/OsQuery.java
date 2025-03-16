@@ -30,6 +30,7 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtil;
 
 
@@ -96,8 +97,9 @@ public class OsQuery {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
           if (future.isSuccess()) {
-            Ostrov.log("§bOsQuery §3- соединяемся с " + OUT_ADRDRES.getAddress().getHostAddress() + ":" + OUT_ADRDRES.getPort());
+            Ostrov.log("§bOsQuery §3- соединились с " + OUT_ADRDRES.getAddress().getHostAddress() + ":" + OUT_ADRDRES.getPort());
             //future.channel().writeAndFlush(Unpooled.buffer().writeByte(5)); // Здесь перенести данные в ByteBuf
+            send(QueryCode.PLAYERS, StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT));
           } else {
             Ostrov.log_err("OsQuery - не удалось начать соединение с " + OUT_ADRDRES.getAddress() + ":" + OUT_ADRDRES.getPort() + " -> " + future.cause());
             future.cause().printStackTrace(System.err);
@@ -125,6 +127,12 @@ public class OsQuery {
             (byte) ((secondCounter >> 24) & 0xff), (byte) ((secondCounter >> 16) & 0xff), (byte) ((secondCounter >> 8) & 0xff), (byte) (secondCounter & 0xff)
         };
         channel.writeAndFlush(data);
+        final String players = StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT);
+//Ostrov.log_warn("players= >"+players+"<");
+        send(QueryCode.PLAYERS, players);
+        if (PM.getOplayersNames().size() != Bukkit.getOnlinePlayers().size()) {
+          Ostrov.log_warn("!!! несоответствие getOplayersNames и getOnlinePlayers !!!");
+        }
       } else { //каждую секунду - кратко
         channel.writeAndFlush(hearBeat);
       }
@@ -160,20 +168,22 @@ public class OsQuery {
   public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, byte[] data) throws Exception {
-      final String responce = new String(data);
-      if (responce.equals("HB")) {//Ostrov.log("§8heartbeat done");
+    public void channelRead0(ChannelHandlerContext ctx, byte[] bytes) throws Exception {
+      final byte type = bytes[0];
+      if (type == QueryCode.HEARTBEAT) {
         return;
       }
-      final String[] s = responce.split(LocalDB.WORD_SPLIT);
-      if (s.length < 2) {
-        Ostrov.log_warn("TcpHandler Responce length < 2 : " + responce);
-        return;
-      }
-      final String type = s[0];
-      final String target = s[1];
-      final Component miniMsg = s.length >= 3 ? MiniMessage.miniMessage().deserialize(s[2]) : Component.empty();
+      final String data = new String(bytes).substring(1);
+      //if (data.equals("HB")) {//Ostrov.log("§8heartbeat done");
+      //  return;
+      //}
 
+      //final String[] s = responce.split(LocalDB.WORD_SPLIT);
+      //if (s.length < 2) {
+      //  Ostrov.log_warn("TcpHandler Responce length < 2 : " + responce);
+      //  return;
+      //}
+      // final String type = s[0];
 
       //if (cs == null) {
       //  Ostrov.log_warn("TcpHandler Responce CommandSender == null");
@@ -181,12 +191,18 @@ public class OsQuery {
       //}
 //Ostrov.log("type="+type);
       switch (type) {
-        case "MSG" -> {
+
+        case QueryCode.MESSAGE -> {
+          final String[] s = data.split(LocalDB.WORD_SPLIT);
+          final String target = s[0];
           final CommandSender cs = target.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(target);
+          final Component miniMsg = MiniMessage.miniMessage().deserialize(s[1]);
           cs.sendMessage(miniMsg);
           return;
         }
-        case "MODER" -> {
+
+        case QueryCode.NOTYFY_MODER -> {
+          final Component miniMsg = MiniMessage.miniMessage().deserialize(data);
           for (Oplayer op : PM.getOplayers()) {
 //Ostrov.log("MODER responce="+responce);
             if (op.isStaff || ApiOstrov.canBeBuilder(op.getPlayer())) {
@@ -195,9 +211,14 @@ public class OsQuery {
           }
           return;
         }
+
+        case QueryCode.GAME_DATA -> {
+          if (Ostrov.MOT_D.equals("home")) Ostrov.log("GAME_DATA = " + data);
+          return;
+        }
       }
 
-      Ostrov.log("Responce =" + responce);
+      //Ostrov.log("unknow Responce = "+type+":"+data);
       //int idx = responce.indexOf(LocalDB.W_SPLIT);
       //if (idx>0) {
       //  final String sender = data_string.substring(0, idx);
@@ -229,7 +250,7 @@ public class OsQuery {
     }
   }
 
-  public void shutdown() {
+  public static void shutdown() {
     workerGroup.shutdownGracefully();
   }
 

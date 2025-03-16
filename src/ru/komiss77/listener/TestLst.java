@@ -4,11 +4,14 @@ package ru.komiss77.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.utils.MoveUtil;
 import ru.komiss77.version.Nms;
 
@@ -35,7 +38,7 @@ public class TestLst implements Listener {
         return Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]);
     }*/
 
-//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.canBeBuilder(p)) return;
@@ -55,24 +58,24 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
                 if (p.isSneaking()) {
-                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
-                    p.sendMessage("safeTP down");
+                    //MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
+                    //p.sendMessage("safeTP down");
                 } else {
-                    MoveUtil.safeTP(p, p.getLocation().clone().add(0, 200, 0));
-                    p.sendMessage("safeTP up");
+                    //MoveUtil.safeTP(p, p.getLocation().clone().add(0, 200, 0));
+                    //p.sendMessage("safeTP up");
                 }
             } else if (e.getAction() == Action.LEFT_CLICK_AIR) {
                 if (p.isSneaking()) {
                     p.sendMessage("§3teleportSave DOWN");
-                    final Location loc = p.getLocation().clone().add(0, -200, 0);
-                    MoveUtil.teleportSave(p, loc, true);
+                    //final Location loc = p.getLocation().clone().add(0, -200, 0);
+                    //MoveUtil.teleportSave(p, loc, true);
                 } else {
                     p.sendMessage("§3teleportSave UP");
-                    final Location loc = p.getLocation().clone().add(0, -200, 0);
-                    MoveUtil.teleportSave(p, loc, true);
+                    //final Location loc = p.getLocation().clone().add(0, -200, 0);
+                    //MoveUtil.teleportSave(p, loc, true);
                 }
             } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                Nms.zoom(p, p.isSneaking() ? 10f : 11f);
+                //Nms.zoom(p, p.isSneaking() ? 10f : 11f);
             } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
             }

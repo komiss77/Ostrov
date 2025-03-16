@@ -138,6 +138,11 @@ public enum Stat {
     SK_biome(424, Game.SK, "§3Открыто биомов§7:§f ", 0, new int[]{10, 100, 250, 500, 1000}, NONE), //new int[] должно быть 5 штук, не удалять!
     //scCreate  scLevel(reach) scSizeWorld(reach) scTrade сделка у торговца
     //Люк Скайблокер  Дарт Скайблокер
+    VOTE_HT(430, Game.LOBBY, "§fголоса  на HotMc: §e", 0, null, NONE), //LOBBY - костыль для показа статы голосования
+    VOTE_MS(431, Game.LOBBY, "§fголоса  на MineServ: §e", 0, null, NONE),
+    VOTE_MR(432, Game.LOBBY, "§fголоса  на MineRating: §e", 0, null, NONE),
+    VOTE_MC(433, Game.LOBBY, "§fголоса  на : §e", 0, null, NONE),
+    VOTE_MT(434, Game.LOBBY, "§fголоса  на McTop: §e", 0, null, NONE),
 
     //аркаим создать приват, добавить друзей, маскировка, поставить 999 блоков
     //GM.thisServerGame.name()+"_region" - при создании

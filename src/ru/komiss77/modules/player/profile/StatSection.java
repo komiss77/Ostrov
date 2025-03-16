@@ -51,10 +51,29 @@ public class StatSection implements InventoryProvider {
 
 
         for (Game game : Game.values()) {
+
+            switch (game) {
+                case GLOBAL, SD, EN, JL, FA -> {
+                    continue;
+                }
+                case LOBBY -> {//LOBBY - костыль для показа статы голосования
+                    final List<String> lore = new ArrayList<>();
+                    for (Stat stat : Stat.values()) {
+                        if (stat.game == game) {
+                            lore.add(stat.desc + op.getStat(stat) + (op.getDailyStat(stat) > 0 ? " §5(+" + op.getDailyStat(stat) + ")" : ""));
+                        }
+                    }
+                    final ItemStack stat_item = new ItemBuilder(Material.GOAT_HORN)
+                        .name("§3Голосовалка")
+                        .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
+                        .lore(lore)
+                        .build();
+                    content.set(game.statSlot, ClickableItem.empty(stat_item));
+                    continue;
+                }
+            }
+
             final List<String> lore = new ArrayList<>();
-
-            if (game == Game.GLOBAL) continue;
-
             for (Stat stat : Stat.values()) {
                 if (stat.game == game) {
 //System.out.println("- stat="+stat.toString()+" len="+op.getStat(stat).length()+" value="+op.getStat(stat));                   
@@ -65,7 +84,7 @@ public class StatSection implements InventoryProvider {
 
             final ItemStack stat_item = new ItemBuilder(Material.matchMaterial(game.mat))
                 .name(Lang.t(p, game.displayName))
-                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
                     .lore(lore)
                 .build();
 
