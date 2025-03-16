@@ -1,13 +1,13 @@
 package ru.komiss77.modules.player.mission;
 
 import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import ru.komiss77.modules.player.PM;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -34,13 +34,11 @@ public class ProfileManageMenu implements InventoryProvider {
     @Override
     public void init(final Player p, final InventoryContent content) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
-        //content.fillRect(0,0,  5,8, ClickableItem.empty(fill));
 
         final Oplayer op = PM.getOplayer(p);
-        //final ProfileManager pm = op.menu;
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -50,7 +48,7 @@ public class ProfileManageMenu implements InventoryProvider {
 
         if (op.isGuest) {
 
-            content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.BARRIER)
+            content.set(0, 4, ClickableItem.empty(new ItemBuilder(ItemType.BARRIER)
                 .name("§7Миссия невыполнима")
                 .lore("")
                 .lore("")
@@ -62,7 +60,7 @@ public class ProfileManageMenu implements InventoryProvider {
 
         } else if ((buttonsCurrent == null || buttonsCurrent.isEmpty()) && (buttonsDone == null || buttonsDone.isEmpty())) {
 
-            content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
+            content.set(0, 4, ClickableItem.empty(new ItemBuilder(ItemType.GLASS_BOTTLE)
                 .name("§7Миссия невыполнима")
                 .lore("")
                 .lore("")

@@ -215,8 +215,8 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
               Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
                 p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
                 p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
-                ApiOstrov.addStat(p, Stat.WD_c);
-                ApiOstrov.addStat(p, Stat.WD_a, ril);
+                ApiOstrov.addStat(p, Stat.WD_count);
+                ApiOstrov.addStat(p, Stat.WD_amount, ril);
 
 
             }));

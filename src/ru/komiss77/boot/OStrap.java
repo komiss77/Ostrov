@@ -133,26 +133,12 @@ public class OStrap implements PluginBootstrap {
 
     @Deprecated
     public static <E extends Keyed> List<E> retrieveAll(final RegistryKey<E> reg) {
+        return getAll(reg);
+    }
+
+    public static <E extends Keyed> List<E> getAll(final RegistryKey<E> reg) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.stream().toList();
-    }
-
-    @Deprecated
-    public static <T extends Keyed> boolean hasTag(final TagKey<T> tk, final T val) {
-        final Registry<T> reg = regOf(val);
-        final TypedKey<T> tp = TypedKey.create(tk.registryKey(), val.key());
-        if (!tags.isEmpty()) {
-            for (final Tag<?> tg : tags.get(tk.registryKey())) {
-                if (has(tg, tp)) return true;
-            }
-        }
-        if (reg == null) return false;
-        return reg.getTag(tk).contains(tp);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Keyed> boolean has(final Tag<T> tag, final TypedKey<?> val) {
-        return tag.contains((TypedKey<T>) val);
     }
 
     private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
@@ -177,8 +163,31 @@ public class OStrap implements PluginBootstrap {
         return tag;
     }
 
+    public static <T extends Keyed> boolean hasTag(final TagKey<T> tk, final T val) {
+        final Registry<T> reg = regOf(val);
+        final TypedKey<T> tp = TypedKey.create(tk.registryKey(), val.key());
+        if (!tags.isEmpty()) {
+            for (final Tag<?> tg : tags.get(tk.registryKey())) {
+                if (has(tg, tp)) return true;
+            }
+        }
+        if (reg == null) return false;
+        return reg.getTag(tk).contains(tp);
+    }
+
     @SuppressWarnings("unchecked")
-    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk, final RegistryKey<T> rk) {
+    private static <T extends Keyed> boolean has(final Tag<T> tag, final TypedKey<?> val) {
+        return tag.contains((TypedKey<T>) val);
+    }
+
+    @Deprecated
+    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk, final RegistryKey<T> ignored) {
+        return getAll(tk);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk) {
+        final RegistryKey<T> rk = tk.registryKey();
         final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(rk);
         if (!tags.isEmpty()) {
             final List<Tag<?>> tags = OStrap.tags.get(tk.registryKey());

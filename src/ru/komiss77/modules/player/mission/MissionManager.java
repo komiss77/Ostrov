@@ -5,25 +5,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.SmartInventory;
 
@@ -48,7 +54,7 @@ public class MissionManager {
     }
 
     public static int getMin(final Oplayer op) {
-      return (5 + op.getStat(Stat.WD_c)) * 5;
+      return (5 + op.getStat(Stat.WD_count)) * 5;
     }
 
 
@@ -65,7 +71,6 @@ public class MissionManager {
         PreparedStatement pst = null;
 
         for (final RecordData rd : recordCopy) {
-
             try {
                 stmt = conn.createStatement();
                 rs = stmt.executeQuery("SELECT `progress` FROM `missionsProgress` WHERE `recordId`='" + rd.recordId + "'; ");
@@ -114,35 +119,7 @@ public class MissionManager {
                         } else { //в стата в строке отсутствует (т.е.прогресса ранее не было)
                             progress = progress + "∫" + rd.customStatName + ":" + rd.value; //(reach тут не интересен-предыдущего значения не было)
                         }
-
                     }
-    
-    
-                       /* if (!progress.isEmpty()) { //
-
-                            final int index1 = progress.indexOf(rd.customStatName); 
-
-                            if (index1>=0) {   //строка со статой есть   //уже есть какой-то прогресс по данной стате
-                                final String left = progress.substring(0, index1);
-                                final int index2 = progress.indexOf("∫", index1);
-                                final String right = index2>0 ? progress.substring(index2) : "";
-                                final String midle = index2>0 ? progress.substring(index1,index2) :  progress.substring(index1);
-    //System.out.println("midle="+midle);
-    //System.out.println("right="+right);
-                                int current = Integer.parseInt(midle.replaceAll("\\D+",""));
-    //System.out.println("current="+current);
-    
-                                current+=rd.add;
-                                progress = left+rd.customStatName+":"+current+right;
-    //System.out.println("progress new="+progress);
-                            } else {
-                                progress = progress+"∫"+rd.customStatName+":"+rd.add;
-                            }
-
-                        } else { //нет прогресса совсем никакого
-                            progress = rd.customStatName+":"+rd.add;
-                        }*/
-
                 }
                 rs.close();
 
@@ -222,7 +199,7 @@ public class MissionManager {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new ProfileManageMenu(null, null))
-                    .size(6, 9)
+                    .size(3, 9)
                     .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
                     .build()
                     .open(op.getPlayer());
@@ -282,13 +259,13 @@ public class MissionManager {
                             //lore.add("§8"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                             //lore.add(Component.empty());
 
-                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.GUNPOWDER)
                                 .name(mission.displayName())
                                     .lore(lore)
                                 .build()
                             ));
 
-                        } else if (Timer.getTime() < mission.activeFrom) { //еще не началась, возможно когда изменили дату начала уже взятой миссии
+                        } else if (Timer.secTime() < mission.activeFrom) { //еще не началась, возможно когда изменили дату начала уже взятой миссии
 
                             lore.add(Component.text("§7Награда: §e" + mission.reward + " рил"));
                             lore.add(Component.text(mission.canComplete <= 0 ? "§7Призовой фонд: §6" + mission.canComplete * mission.reward + " рил" : "§сисчерпан!"));
@@ -298,26 +275,26 @@ public class MissionManager {
                             //lore.add("§7"+TimeUtil.dateFromStamp(rs.getInt("taken")));
                             //lore.add(Component.empty());
                             lore.add(Component.text("§bПланируется, до начала:"));
-                            lore.add(Component.text("§f" + TimeUtil.secondToTime(mission.activeFrom - Timer.getTime())));
+                            lore.add(Component.text("§f" + TimeUtil.secondToTime(mission.activeFrom - Timer.secTime())));
                             lore.add(Component.empty());
                             //lore.add("§7Уровень не менее §6"+mission.level);
                             //lore.add("§7Репутация не менее §6"+mission.reputation);
                             //lore.add(Component.empty());
                             //lore.addAll(Mission.getRequest(mission));
                             //lore.add(Component.empty());
-                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.SUGAR)
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.SUGAR)
                                 .name(mission.displayName())
                                     .lore(lore)
                                 .build()
                             ));
 
-                        } else if (Timer.getTime() > mission.validTo) { //просрочена
+                        } else if (Timer.secTime() > mission.validTo) { //просрочена
 
                             lore.add(Component.empty());
                             lore.add(Component.text("§сПросрочена"));
                             lore.add(Component.empty());
 
-                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(Material.GUNPOWDER)
+                            buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.GUNPOWDER)
                                 .name(mission.displayName())
                                     .lore(lore)
                                 .build()
@@ -336,7 +313,7 @@ public class MissionManager {
                             lore.add(Component.text("§сПри отказе от миссии"));
                             lore.add(Component.text("§cвесь прогресс будет потерян!"));
 
-                            buttonsDone.add(ClickableItem.of(new ItemBuilder(Material.GUNPOWDER)
+                            buttonsDone.add(ClickableItem.of(new ItemBuilder(ItemType.GUNPOWDER)
                                     .name(mission.displayName())
                                     .lore(lore)
                                     .build(), e -> {
@@ -453,7 +430,7 @@ public class MissionManager {
 
                     } else {
 
-                        buttonsCurrent.add(ClickableItem.of(new ItemBuilder(Material.MUSIC_DISC_11)
+                        buttonsCurrent.add(ClickableItem.of(new ItemBuilder(ItemType.MUSIC_DISC_11)
                                 .name("§7ID: §3" + missionId)
                                 .lore("§cМиссия неактивна")
                                 .lore("")
@@ -590,7 +567,7 @@ public class MissionManager {
         try {
             stmt = conn.createStatement();
 
-            rs = stmt.executeQuery(" SELECT * FROM `missions` WHERE " + Timer.getTime() + ">`activeFrom` AND " + Timer.getTime() + "<`validTo`");
+            rs = stmt.executeQuery(" SELECT * FROM `missions` WHERE " + Timer.secTime() + ">`activeFrom` AND " + Timer.secTime() + "<`validTo`");
             while (rs.next()) {
                 final Mission mission = fromResultSet(rs);//new Mission();
                 if (mission.request.isEmpty()) {
@@ -634,14 +611,14 @@ public class MissionManager {
     }
 
 
-    public static Material customStatMat(final String customStatName) {
+    public static ItemType customStatMat(final String customStatName) {
         if (customStatName.length() >= 4) {
             final Game game = Game.fromServerName(customStatName.substring(0, 4));
             if (game != Game.GLOBAL) {
-                return Material.matchMaterial(game.mat);
+                return OStrap.get(Key.key(game.mat.toLowerCase()), ItemType.NAME_TAG);
             }
         }
-        return Material.NAME_TAG;
+        return ItemType.NAME_TAG;
     }
 
 
@@ -665,13 +642,7 @@ public class MissionManager {
         if (mi.nameColor.length() == 1) { //фиксик старого кода в один чар, убрать после обновы всех
             mi.nameColor = "§" + mi.nameColor;
         }
-        //if (!rs.getString("nameColor").isEmpty()) {
-        //    mission.nameColor = TCUtils.getTextColor(rs.getString("nameColor").charAt(0));
-        //    if (mission.nameColor==null) {
-        //        mission.nameColor = NamedTextColor.WHITE;
-        //    }
-        //}
-        mi.mat = Material.matchMaterial(rs.getString("mat"));
+        mi.mat = OStrap.get(Key.key(rs.getString("mat").toLowerCase()), mi.mat);
         mi.level = rs.getInt("level");
         mi.reputation = rs.getInt("reputation");
         mi.reward = rs.getInt("reward");
@@ -680,7 +651,7 @@ public class MissionManager {
         mi.activeFrom = rs.getInt("activeFrom");
         mi.validTo = rs.getInt("validTo");
 
-        if (mi.mat == null) mi.mat = Material.BEDROCK;
+        if (mi.mat == null) mi.mat = ItemType.BEDROCK;
         mi.request = getMapFromString(rs.getString("request"));
         return mi;
     }

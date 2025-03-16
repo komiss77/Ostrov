@@ -5,14 +5,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
@@ -44,7 +44,7 @@ public class Friends {
                 .builder()
                 .id(op.nik + op.menu.section.name())
                 .provider(new PartyView())
-                .size(6, 9)
+                .size(3, 9)
                 .title(op.eng ? Section.КОМАНДА.item_nameEn : Section.КОМАНДА.item_nameRu)
                 .build()
                 .open(op.getPlayer());
@@ -58,7 +58,7 @@ public class Friends {
                 .builder()
                 .id(op.nik + op.menu.section.name())
                 .provider(new PartySettings())
-                .size(6, 9)
+                .size(3, 9)
                 .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Settings" :
                         Section.КОМАНДА.item_nameRu + "§8: Настройки")
                 .build()
@@ -72,7 +72,7 @@ public class Friends {
                 .builder()
                 .id(op.nik + op.menu.section.name())
                 .provider(new PartyFind())
-                .size(6, 9)
+                .size(3, 9)
                 .title(op.eng ? Section.КОМАНДА.item_nameEn + "§8: Invite" :
                         Section.КОМАНДА.item_nameRu + "§8: Добавить")
                 .build()
@@ -97,7 +97,7 @@ public class Friends {
 
         if (op.party_leader.equals(memberName)) {
 
-            if (!op.hasSettings(Settings.Party_SlaveDeny)) {
+            if (!op.hasSettings(Settings.LeaderFollowDeny)) {
 
                 if (memberServer.equals(Ostrov.MOT_D)) {
 
@@ -112,7 +112,7 @@ public class Friends {
 
                 }
 
-            } else if (!op.hasSettings(Settings.Party_LeaderTrackDeny)) {
+            } else if (!op.hasSettings(Settings.LeaderTrackDeny)) {
 
                 if (memberServer.equals(Ostrov.MOT_D)) {
 
@@ -134,51 +134,36 @@ public class Friends {
         if (GM.GAME.type != ServerType.LOBBY) return;
 
         final Oplayer op = PM.getOplayer(p);
-
-        Oplayer targetOp;
         for (Player target : Bukkit.getOnlinePlayers()) {
             //if (target.getName().equals(p.getName())) continue;
-            targetOp = PM.getOplayer(p);
+            final Oplayer targetOp = PM.getOplayer(p);
             if (targetOp != null && !targetOp.nik.equals(op.nik)) {
+                boolean showPl = true, showTgt = true;
                 //друзья
-                if (op.friends.contains(targetOp.nik)) {
-                    if (op.hasSettings(Settings.Fr_ShowFriendDeny)) {
+                if (!op.friends.contains(targetOp.nik)) {
+                    if (op.hasSettings(Settings.HideNonFriends)) {
                         p.hidePlayer(Ostrov.instance, target);
-                    } else {
-                        p.showPlayer(Ostrov.instance, target);
+                        showTgt = false;
                     }
-                    if (targetOp.hasSettings(Settings.Fr_ShowFriendDeny)) {
+                    if (targetOp.hasSettings(Settings.HideNonFriends)) {
                         target.hidePlayer(Ostrov.instance, p);
-                    } else {
-                        target.showPlayer(Ostrov.instance, p);
+                        showPl = false;
                     }
                 }
                 //команда
-                else if (op.party_members.containsKey(targetOp.nik)) {
-                    if (op.hasSettings(Settings.Fr_ShowPartyDeny)) {
+                if (!op.party_members.containsKey(targetOp.nik) && (showTgt || showPl)) {
+                    if (op.hasSettings(Settings.HideNonParty) && showTgt) {
                         p.hidePlayer(Ostrov.instance, target);
-                    } else {
-                        p.showPlayer(Ostrov.instance, target);
+                        showTgt = false;
                     }
-                    if (targetOp.hasSettings(Settings.Fr_ShowPartyDeny)) {
+                    if (targetOp.hasSettings(Settings.HideNonParty) && showPl) {
                         target.hidePlayer(Ostrov.instance, p);
-                    } else {
-                        target.showPlayer(Ostrov.instance, p);
+                        showPl = false;
                     }
                 }
-                //остальные
-                else {
-                    if (op.hasSettings(Settings.Fr_ShowOtherDeny)) {
-                        p.hidePlayer(Ostrov.instance, target);
-                    } else {
-                        p.showPlayer(Ostrov.instance, target);
-                    }
-                    if (targetOp.hasSettings(Settings.Fr_ShowOtherDeny)) {
-                        target.hidePlayer(Ostrov.instance, p);
-                    } else {
-                        target.showPlayer(Ostrov.instance, p);
-                    }
-                }
+
+                if (showTgt) p.showPlayer(Ostrov.instance, target);
+                if (showPl) target.showPlayer(Ostrov.instance, p);
             }
         }
 
@@ -194,7 +179,7 @@ public class Friends {
         Ostrov.sync(() -> SpigotChanellMsg.sendMessage(op.getPlayer(), Operation.GET_FRIENDS_INFO, op.nik), 20); //задержка для анимации))
     }
 
-
+    @Deprecated //это должно быть в меню друзей, для каждого друга
     public static void openFriendsMail(final Oplayer op) {
         op.menu.section = Section.ДРУЗЬЯ;
         op.menu.friendMode = ProfileManager.FriendMode.Письма;
@@ -230,7 +215,7 @@ public class Friends {
                                 .builder()
                                 .id(op.nik + op.menu.section.name())
                                 .provider(new FriendMail(mails))
-                                .size(6, 9)
+                                .size(3, 9)
                                 .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Messages" : Section.ДРУЗЬЯ.item_nameRu + "§8: Письма")
                                 .build()
                                 .open(op.getPlayer());
@@ -251,11 +236,11 @@ public class Friends {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new FriendView(rawData))
-                    .size(6, 9)
+                    .size(3, 9)
                     .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn : Section.ДРУЗЬЯ.item_nameRu)
                     .build()
                     .open(op.getPlayer());
-        }// else p.sendMessage("уже другое меню"); }
+        }
     }
 
     public static void openFriendsSettings(final Oplayer op) {
@@ -265,7 +250,7 @@ public class Friends {
                 .builder()
                 .id(op.nik + op.menu.section.name())
                 .provider(new FriendSettings())
-                .size(6, 9)
+                .size(3, 9)
                 .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Settings" : Section.ДРУЗЬЯ.item_nameRu + "§8: Настройки")
                 .build()
                 .open(op.getPlayer());
@@ -278,7 +263,7 @@ public class Friends {
                 .builder()
                 .id(op.nik + op.menu.section.name())
                 .provider(new FriendFind())
-                .size(6, 9)
+                .size(3, 9)
                 .title(op.eng ? Section.ДРУЗЬЯ.item_nameEn + "§8: Invite" : Section.ДРУЗЬЯ.item_nameRu + "§8: Добавить")
                 .build()
                 .open(op.getPlayer());

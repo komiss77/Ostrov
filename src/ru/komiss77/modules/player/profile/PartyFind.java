@@ -2,23 +2,18 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Settings;
-import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class PartyFind implements InventoryProvider {
@@ -43,7 +38,7 @@ public class PartyFind implements InventoryProvider {
 
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -68,7 +63,7 @@ public class PartyFind implements InventoryProvider {
 
             if (op.party_members.containsKey(find.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.EMERALD)
+                final ItemStack friend_item = new ItemBuilder(ItemType.EMERALD)
                     .name(find.getName())
                     .lore("")
                     .lore("§2Уже в вашей команде")
@@ -79,7 +74,7 @@ public class PartyFind implements InventoryProvider {
 
             } else if (!findOp.party_leader.isEmpty()) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
                     .lore("§2Уже в команде " + findOp.party_leader)
@@ -88,9 +83,9 @@ public class PartyFind implements InventoryProvider {
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.hasSettings(Settings.Party_InviteOtherDeny) && !ApiOstrov.isFriend(op.nik, find.getName())) {
+            } else if (findOp.hasSettings(Settings.InviteOthersDeny) && !ApiOstrov.isFriend(op.nik, find.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
                     .lore("§cПриглашения в команду")
@@ -101,9 +96,9 @@ public class PartyFind implements InventoryProvider {
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.hasSettings(Settings.Party_InviteFriendsDeny) && ApiOstrov.isFriend(op.nik, find.getName())) {
+            } else if (findOp.hasSettings(Settings.InviteFriendsDeny) && ApiOstrov.isFriend(op.nik, find.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
                     .lore("§cПриглашения в команду")
@@ -116,7 +111,7 @@ public class PartyFind implements InventoryProvider {
 
             } else if (op.isBlackListed(p.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
                     .lore("§cВ игноре")
@@ -127,7 +122,7 @@ public class PartyFind implements InventoryProvider {
 
             } else if (findOp.isBlackListed(p.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.WITHER_SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
                     .lore("§cВы занесены в игнор")
@@ -138,7 +133,7 @@ public class PartyFind implements InventoryProvider {
 
             } else if (findOp.partyInvite.contains(p.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(Material.CREEPER_HEAD)
+                final ItemStack friend_item = new ItemBuilder(ItemType.CREEPER_HEAD)
                     .name(find.getName())
                     .lore("")
                     .lore("§6Приглашение уже")
@@ -150,7 +145,7 @@ public class PartyFind implements InventoryProvider {
 
             } else {
 
-                final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
+                final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(find.getName())
                     .lore("")
                     .lore("§aПригласить в команду")
@@ -174,7 +169,7 @@ public class PartyFind implements InventoryProvider {
 
         if (!found) {
 
-            final ItemStack notFound = new ItemBuilder(Material.GLASS_BOTTLE)
+            final ItemStack notFound = new ItemBuilder(ItemType.GLASS_BOTTLE)
                 .name("§7Никого не смогли найти..")
                 .lore("")
                 .lore("§7Поиск ведется в радиусе")
@@ -184,19 +179,19 @@ public class PartyFind implements InventoryProvider {
                 .lore("")
                 .build();
 
-            content.set(13, ClickableItem.of(notFound, e -> {
+            content.set(4, ClickableItem.of(notFound, e -> {
                 reopen(p, content);
             }));
 
         }
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+        pagination.setItemsPerPage(9);
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+            content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -204,7 +199,7 @@ public class PartyFind implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+            content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })

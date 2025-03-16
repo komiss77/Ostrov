@@ -3,30 +3,24 @@ package ru.komiss77.modules.player.mission;
 import java.util.ArrayList;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TimeUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.utils.inventory.*;
 
 
 //настройки миссий билдером
 
 public class MissionSetupMenu implements InventoryProvider {
 
-    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build());
+    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.BLACK_STAINED_GLASS_PANE).name("§8.").build());
     private final List<Mission> missions;
 
 
@@ -45,7 +39,7 @@ public class MissionSetupMenu implements InventoryProvider {
 
         final List<ClickableItem> buttons = new ArrayList<>(missions.size());
         //Stat stat;
-        Material displayMat;
+        ItemType displayMat;
 
 
         for (final Mission mi : missions) {
@@ -73,17 +67,17 @@ public class MissionSetupMenu implements InventoryProvider {
 
 
             //активна сейчас
-            if (Timer.getTime() >= mi.activeFrom && Timer.getTime() < mi.validTo) {
+            if (Timer.secTime() >= mi.activeFrom && Timer.secTime() < mi.validTo) {
                 lore.set(4, Component.text(MissionManager.missions.containsKey(mi.id) ? "§aПодгружена, активна" : "§6Ожижает подгрузки"));
                 displayMat = mi.mat;
             } else {
                 lore.set(4, Component.text(MissionManager.missions.containsKey(mi.id) ? "§dОжижает выгрузки" : "§5неактивна"));
-                displayMat = Material.GRAY_DYE;
+                displayMat = ItemType.GRAY_DYE;
             }
 
             if (mi.canComplete <= 0) {
                 lore.set(2, Component.text("§7Счётчик выполнения §сисчерпан!"));
-                displayMat = Material.REDSTONE;
+                displayMat = ItemType.REDSTONE;
             }
 
             buttons.add(ClickableItem.of(new ItemBuilder(displayMat)
@@ -104,7 +98,7 @@ public class MissionSetupMenu implements InventoryProvider {
         }
 
         buttons.add(ClickableItem.of(
-                        new ItemBuilder(Material.PLAYER_HEAD)
+                        new ItemBuilder(ItemType.PLAYER_HEAD)
                                 .name("§aдобавить")
                                 .headTexture(ItemUtil.Texture.add)
                                 .lore("§7")
@@ -141,7 +135,7 @@ public class MissionSetupMenu implements InventoryProvider {
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
 
-        content.set(5, 0, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
+        content.set(5, 0, ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
                 .headTexture(ItemUtil.Texture.previosPage)
                 .name("§7назад")
                 .build(), e -> {
@@ -153,7 +147,7 @@ public class MissionSetupMenu implements InventoryProvider {
         }));
 
 
-        content.set(5, 2, ClickableItem.of(new ItemBuilder(Material.BOOK)
+        content.set(5, 2, ClickableItem.of(new ItemBuilder(ItemType.BOOK)
                         .name("§7Редактор названий customStat")
                         .build(), e -> {
                     SmartInventory.builder()
@@ -167,47 +161,19 @@ public class MissionSetupMenu implements InventoryProvider {
         ));
 
 
-        content.set(5, 4, ClickableItem.of(new ItemBuilder(Material.REPEATER)
+        content.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.REPEATER)
                         .name("§7Обновить список")
                         .build(), e -> {
                     MissionManager.openMissionsEditMenu(p);
                 }
         ));
 
-        content.set(5, 5, ClickableItem.of(new ItemBuilder(Material.HOPPER_MINECART)
+        content.set(5, 5, ClickableItem.of(new ItemBuilder(ItemType.HOPPER_MINECART)
                         .name("§eПринудительная загрузка из БД")
                         .build(), e -> {
                     p.performCommand("mission forceload");//MissionManager.loadMissions();
                     MissionManager.openMissionsEditMenu(p);
                 }
         ));
-        
-         
-        
-  
-              
-            
-        
-        
-
-
-
-
-
-        
-
-        /*
-        
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
-        {
-            p.closeInventory();
-        }
-        ));
-        
-*/
-
-
     }
-
-
 }

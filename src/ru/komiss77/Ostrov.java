@@ -18,20 +18,19 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
-import ru.komiss77.enums.*;
-import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.enums.Module;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
 import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.listener.*;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
-import ru.komiss77.modules.netty.OsQuery;
 
 
 public class Ostrov extends JavaPlugin {
@@ -43,6 +42,7 @@ public class Ostrov extends JavaPlugin {
     public static final Map<String, Initiable> modules;
     public static final Random random;
     public static final String L = "Ł";
+    public static final String R = "ק";
     public static final String PREFIX = "§2[§aОстров§2] §f";
     public static final String MOT_D;
     public static int server_id = -1;

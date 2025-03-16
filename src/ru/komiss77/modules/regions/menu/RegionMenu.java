@@ -11,18 +11,19 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.regions.RM;
 import ru.komiss77.modules.regions.Template;
 import ru.komiss77.modules.world.Cuboid;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.*;
 
@@ -42,7 +43,7 @@ public class RegionMenu implements InventoryProvider {
   public void init(final Player p, final InventoryContent content) {
     p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
     //линия - разделитель
-    content.fillRow(4, fill);
+    content.fillRow(1, fill);
     //выставить иконки внизу
     for (Section section : Section.values()) {
       content.set(section.slot, Section.getMenuItem(section, op));
@@ -68,7 +69,7 @@ public class RegionMenu implements InventoryProvider {
           t = RM.template(RM.templateName(rg));
           createTime = RM.createTime(rg);
 
-          menuEntry.add(ClickableItem.of(new ItemBuilder(Material.GRAY_BED)
+          menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.GRAY_BED)
               .name("§7Регион §6" + rgCount)
               .lore("§fВы владелец.")
               .lore("")
@@ -97,7 +98,7 @@ public class RegionMenu implements InventoryProvider {
           t = RM.template(RM.templateName(rg));
           createTime = RM.createTime(rg);
 
-          menuEntry.add(ClickableItem.of(new ItemBuilder(Material.GRAY_BED)
+          menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.GRAY_BED)
               .name("§7Регион §6" + rgCount)
               .lore("§fВы пользователь.")
               .lore("")
@@ -182,7 +183,7 @@ public class RegionMenu implements InventoryProvider {
           }
       ));
     } else {
-      menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.TRIAL_KEY)
+      menuEntry.add(ClickableItem.empty(new ItemBuilder(ItemType.TRIAL_KEY)
           .name("§c§mСоздать регион")
           .lore("")
           .lore("§6Вы не можете добавть")
@@ -194,12 +195,12 @@ public class RegionMenu implements InventoryProvider {
     }
 
 
-    pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-    pagination.setItemsPerPage(36);
+    pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+    pagination.setItemsPerPage(9);
 
 
     if (!pagination.isLast()) {
-      content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+      content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
               -> {
             content.getHost().open(p, pagination.next().getPage());
           }
@@ -207,7 +208,7 @@ public class RegionMenu implements InventoryProvider {
     }
 
     if (!pagination.isFirst()) {
-      content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+      content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
               -> {
             content.getHost().open(p, pagination.previous().getPage());
           })

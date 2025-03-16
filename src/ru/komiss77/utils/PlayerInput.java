@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.XYZ;
@@ -59,10 +60,10 @@ public class PlayerInput implements Listener {
                     case AnvilGUI.Slot.OUTPUT -> {
                         final int res = NumUtil.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
                         if (res == Integer.MIN_VALUE) {
-                            p.sendMessage("§cДолжно быть число!");
+                            p.sendMessage(Ostrov.PREFIX + "§cДолжно быть число!");
                             PM.soundDeny(p);
                         } else if (res < min || res > max) {
-                            p.sendMessage("§cот " + min + " до " + max);
+                            p.sendMessage(Ostrov.PREFIX + "§cВыбери кол-во от " + min + " до " + max);
                             PM.soundDeny(p);
                         } else {
                             onDone.accept(res);
@@ -81,7 +82,7 @@ public class PlayerInput implements Listener {
     }
 
     public static void get(final InputType type, final Player p, final Consumer<String> onDone, String suggest) {
-        final String sugg = suggest == null ? "" : suggest.replace('§', '&');
+        final String sugg = suggest == null ? "" : suggest.replace('§', '&').replace("<", "\\<");
 //Ostrov.log("PlayerInput get type="+type+" sugg="+sugg);
         XYZ xyz = null;
 
@@ -94,9 +95,9 @@ public class PlayerInput implements Listener {
                     .itemOutput(out)
                     .onClick((slot, stateSnapshot) -> {
                         switch (slot) {
-                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§'));
+                            case AnvilGUI.Slot.INPUT_LEFT -> onDone.accept(sugg.replace('&', '§').replace("\\<", "<"));
                             case AnvilGUI.Slot.INPUT_RIGHT -> {}
-                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§'));
+                            case AnvilGUI.Slot.OUTPUT -> onDone.accept(stateSnapshot.getText().replace('&', '§').replace("\\<", "<"));
                         }
                         return Arrays.asList(AnvilGUI.ResponseAction.close());
                     })

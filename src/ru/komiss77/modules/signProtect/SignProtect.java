@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.keys.tags.BlockTypeTagKeys;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -30,7 +29,7 @@ public class SignProtect {
     public static final int LIMIT = 10;
     public static final int UPDATE_TIME = 1209600; //14*24*60*60
     public static final int LOCK_TIME = 2592000; //30*24*60*60
-    public static final Set<BlockType> SIGNS = OStrap.getAll(BlockTypeTagKeys.WALL_SIGNS, RegistryKey.BLOCK);
+    public static final Set<BlockType> SIGNS = OStrap.getAll(BlockTypeTagKeys.WALL_SIGNS);
     public static final Predicate<Block> predicate = b -> SIGNS.contains(b.getType().asBlockType());
     public static final Directional SIGN_DATA = BlockType.OAK_WALL_SIGN.createBlockData();
     public static EnumSet<Material> lockables = EnumSet.of(Material.CHEST, Material.TRAPPED_CHEST, Material.FURNACE,

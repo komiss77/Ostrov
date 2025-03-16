@@ -22,12 +22,12 @@ import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.ReportStage;
 import ru.komiss77.listener.SpigotChanellMsg;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.player.profile.ShowReports;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.TimeUtil;
@@ -207,8 +207,8 @@ final static String player = "игрок", reason = "причина";
                             .builder()
                             .id(op.nik + op.menu.section.name())
                             .provider(new ShowReports(reports, page, next))
-                            .size(6, 9)
-                            .title("Профиль : Все репорты")
+                            .size(3, 9)
+                            .title(Section.ПРОФИЛЬ.item_nameRu + "<gray>: Все репорты")
                             .build()
                             .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }
@@ -302,8 +302,8 @@ final static String player = "игрок", reason = "причина";
                             .builder()
                             .id(op.nik + op.menu.section.name())
                             .provider(new ShowReports(reports, page, next))
-                            .size(6, 9)
-                            .title("Профиль : Репорты на " + (toName.equals(op.nik) ? "меня" : toName))
+                            .size(3, 9)
+                            .title(Section.ПРОФИЛЬ.item_nameRu + "<gray>: Репорты на " + (toName.equals(op.nik) ? "меня" : toName))
                             .build()
                             .open(op.getPlayer());
                     }// else p.sendMessage("уже другое меню"); }

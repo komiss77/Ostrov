@@ -1,17 +1,19 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.enums.Data;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.objects.Group;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
@@ -40,7 +42,7 @@ public class Donate implements InventoryProvider {
 
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -49,11 +51,8 @@ public class Donate implements InventoryProvider {
 
 
         for (final Group group : Perm.getGroups()) {
-
-            //final Group group  = OstrovDB.groups.get(groupName);
-
             if (group == null || group.isStaff()) continue;
-            content.set(group.inv_slot, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.matchMaterial(group.mat))
+            content.set(group.inv_slot, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(OStrap.get(Key.key(group.mat.toLowerCase()), ItemType.EMERALD))
                 .name(group.chat_name)
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
                 .lore(group.lore)
@@ -80,7 +79,7 @@ public class Donate implements InventoryProvider {
         }
 
 
-        final ItemStack add = new ItemBuilder(Material.GOLD_INGOT)
+        final ItemStack add = new ItemBuilder(ItemType.GOLD_INGOT)
             .name("§6Пополнить счёт")
             .lore("§7")
             .lore("§7Для оплаты привилегии")
@@ -92,7 +91,7 @@ public class Donate implements InventoryProvider {
             .lore("§fКлик §6- Открыть офф. магазин")
             .build();
 
-        content.set(4, ClickableItem.of(add
+        content.set(8, ClickableItem.of(add
                 , e -> {
                     p.performCommand("donate");
                     //p.closeInventory();

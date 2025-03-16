@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
@@ -18,14 +19,16 @@ import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -857,7 +860,9 @@ public class AnvilGUI {
          * @return The text of the rename field
          */
         public String getText() {
-            return outputItem.hasItemMeta() ? TCUtil.deform(outputItem.getItemMeta().displayName()) : "";
+            final net.kyori.adventure.text.Component name =
+                outputItem.getData(DataComponentTypes.CUSTOM_NAME);
+            return name == null ? "" : TCUtil.deform(name);
         }
     }
 }
@@ -877,7 +882,7 @@ final class CustomAnvil {
 
     // @Override
     public int getNextContainerId(Player player, AnvilContainer container) {
-        return ((AnvilContainer) container).getContainerId();
+        return container.getContainerId();
     }
 
     //@Override
@@ -906,7 +911,7 @@ final class CustomAnvil {
 
     //@Override
     public void setActiveContainer(Player player, AnvilContainer container) {
-        Craft.toNMS(player).containerMenu = (AbstractContainerMenu) container;
+        Craft.toNMS(player).containerMenu = container;
     }
 
     //@Override

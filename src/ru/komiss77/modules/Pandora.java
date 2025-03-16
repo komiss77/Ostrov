@@ -97,11 +97,10 @@ public final class Pandora implements Initiable, Listener {
 
     public static String getInfo(final Oplayer op) {
         if (op.hasDaylyFlag(StatFlag.Pandora))
-            return op.eng ? "§8Pandora is already open today" : "§8Пандора сегодня уже открыта";
+            return op.eng ? "§8Pandora's Box was already open today." : "§8Пандора уже была открыта сегодня.";
         if (op.getDailyStat(Stat.PLAY_TIME) >= DAY_PLAY_TIME_TO_OPEN)
-            return op.eng ? "§eYou can open Pandora Box!" : "§eВы можете открыть Ящик Пандоры!";
-        return (op.eng ? "§6You can open Pandora box through " : "§6До возможности открыть Ящик Пандоры ") + TimeUtil.secondToTime(DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME));
-        //:  ( Pandora.DAY_PLAY_TIME_TO_OPEN-op.getDaylyStat(Stat.PLAY_TIME))<0 ? "§eПандора ждёт открытия" : "§6До"
+            return op.eng ? "§eYou can open Pandora's Box!" : "§eТы можешь открыть Ящик Пандоры!";
+        return (op.eng ? "§6You can open Pandora's Box in " : "§6До открытия Ящика Пандоры: ") + TimeUtil.secondToTime(DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME));
     }
 
 

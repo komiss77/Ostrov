@@ -1,12 +1,12 @@
 package ru.komiss77.modules.netty;
 
+import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -20,8 +20,6 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -30,7 +28,6 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.TCUtil;
 
 
 public class OsQuery {
@@ -144,7 +141,7 @@ public class OsQuery {
     channel.writeAndFlush(b);
   }
 
-  public static void send(final byte type, final String s, @Nullable final Consumer onResponce) {
+  public static void send(final byte type, final String s, @Nullable final Consumer<?> onResponce) {
     if (channel == null) return;
     if (type == QueryCode.CHAT_RU) {
       Ostrov.log("CHAT_RU len=" + s.length());
@@ -160,7 +157,7 @@ public class OsQuery {
   public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, byte[] data) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, byte[] data) {
       final String responce = new String(data);
       if (responce.equals("HB")) {//Ostrov.log("§8heartbeat done");
         return;

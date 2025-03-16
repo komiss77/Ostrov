@@ -1,27 +1,34 @@
 package ru.komiss77.modules.items.menu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.DyedItemColor;
+import io.papermc.paper.datacomponent.item.ItemEnchantments;
+import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.Unbreakable;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Color;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
-import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
-import ru.komiss77.utils.PlayerInput;
-import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
 
 public class ItemMenu implements InventoryProvider {
 
+    private static final StringUtil.Split CLR_SPLIT = StringUtil.Split.SMALL;
     private static final ItemStack[] invIts;
     private final ItemStack it;
 
@@ -62,10 +69,16 @@ public class ItemMenu implements InventoryProvider {
         this.it = it.clone();
     }
 
+    public static void open(final Player pl, final ItemStack it) {
+        SmartInventory.builder().id("Item " + pl.getName()).provider(new ItemMenu(it))
+            .size(3, 9).title("      §6Создание Предмета").build().open(pl);
+    }
+
     @Override
     public void init(final Player p, final InventoryContent its) {
+        p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1f, 0.8f);
+
         final Inventory inv = its.getInventory();
-        final ItemMeta im = it.getItemMeta();
         inv.setContents(invIts);
         inv.setItem(4, it);
         its.set(22, ClickableItem.of(new ItemBuilder(ItemType.HONEYCOMB).name("§aВыдать (ЛКМ) §6/ §eЗаменить (ПКМ) §6Предмет").build(), e -> {
@@ -86,77 +99,95 @@ public class ItemMenu implements InventoryProvider {
             p.closeInventory();
         }));
 
+        final Component dnm = it.getData(DataComponentTypes.CUSTOM_NAME);
         its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
-            .name("§7Имя:<white> " + (im.hasDisplayName() ? im.displayName() : "§8(Не Указано)"))
-            .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(), im.hasDisplayName()
-            ? TCUtil.deform(im.displayName()).replace('§', '&') : "&7Предмет", msg -> {
-            p.sendMessage("m1-" + msg);
-            im.displayName(msg.equals("-") ? null : TCUtil.form(msg.replace('&', '§')));
-            p.sendMessage(TCUtil.form(msg.replace('&', '§')));
-            p.sendMessage(im.displayName());
-            it.setItemMeta(im);
+            .name(TCUtil.form("§7Имя:<reset> ").append(dnm == null ? TCUtil.form("§8(Не Указано)") : dnm))
+            .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(),
+            dnm == null ? "<gray>Предмет" : TCUtil.deform(dnm), msg -> {
+            if (msg.equals("-")) it.resetData(DataComponentTypes.CUSTOM_NAME);
+            else it.setData(DataComponentTypes.CUSTOM_NAME, TCUtil.form(msg));
             reopen(p, its);
         }));
 
         ItemBuilder prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN);
-        if (im.hasLore()) {
-            prep.name("§7Описание:").lore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
-            for (final Component lr : im.lore()) prep.lore("- " + TCUtil.deform(lr).replace('§', '&'));
-        } else {
+        final ItemLore ilr = it.getData(DataComponentTypes.LORE);
+        if (ilr == null || ilr.lines().isEmpty()) {
             prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN).name("§7Описание: §8(Не Указано)")
                 .lore(" ", "§eЛКМ §7- Добавить линию");
+        } else {
+            prep.name("§7Описание:").lore(" ", "§eЛКМ §7- Добавить линию", "§eПКМ §7- Убрать посл. линию");
+            for (final Component lr : ilr.lines()) prep.lore("- " + TCUtil.deform(lr));
         }
 
         its.set(14, ClickableItem.from(prep.build(), e -> {
-            final List<Component> lrs = im.lore();
             if (e.getClick().isLeftClick()) {
                 PlayerInput.get(InputType.ANVILL, p, text -> {
-                    if (lrs == null) {
-                        im.lore(Arrays.asList(TCUtil.form(text)));
+                    if (ilr == null) {
+                        it.setData(DataComponentTypes.LORE,
+                            ItemLore.lore(Arrays.asList(TCUtil.form(text))));
                     } else {
-                        lrs.add(TCUtil.form(text));
-                        im.lore(lrs);
+                        it.setData(DataComponentTypes.LORE, ItemLore.lore()
+                            .lines(ilr.lines()).addLine(TCUtil.form(text)));
                     }
-                    it.setItemMeta(im);
                     reopen(p, its);
                 }, "");
-            } else if (lrs != null && !lrs.isEmpty()) {
-                lrs.removeLast();
-                im.lore(lrs);
-                it.setItemMeta(im);
+                return;
+            }
+            final List<Component> lns = ilr == null
+                ? List.of() : new ArrayList<>(ilr.lines());
+            if (!lns.isEmpty()) {
+                lns.removeLast();
+                it.setData(DataComponentTypes.LORE, ItemLore.lore(lns));
                 reopen(p, its);
             }
         }));
 
-        prep = new ItemBuilder(ItemType.SEA_LANTERN).name("§bСвечение");
-        if (im.hasEnchantmentGlintOverride()) {
-            final boolean glint = im.getEnchantmentGlintOverride();
-            prep.glint(glint);
-            if (glint) {
-                prep.lore(" ", "§aОтдельное свечение,", "§dЛКМ §7- Поменять", "§5ПКМ §7- Сбросить");
-            } else {
-                prep.lore(" ", "§cСвечение выключено,", "§dЛКМ §7- Поменять", "§5ПКМ §7- Сбросить");
-            }
+        prep = new ItemBuilder(ItemType.BOOK).name("§dЗачарования");
+        final boolean ste = ItemUtil.is(it, ItemType.ENCHANTED_BOOK);
+        final ItemEnchantments ies = it.getData(ste
+            ? DataComponentTypes.STORED_ENCHANTMENTS : DataComponentTypes.ENCHANTMENTS);
+        if (ies == null || ies.enchantments().isEmpty()) {
+            prep.lore(" ", "§7Зачарований нет,", "§dЛКМ §7- Выдать");
         } else {
-            prep.lore(" ", "§7Без правил свечения,", "§5ЛКМ §7- Добавить", "§8ПКМ §7- Сбросить");
+            prep.glint(true);
+            prep.lore(" ", "§aЕсть зачарования,", "§dЛКМ §7- Выдать зачар", "§cПКМ §7- Снять все зачары");
+            for (final Map.Entry<Enchantment, Integer> en : ies.enchantments().entrySet()) {
+                prep.enchant(en.getKey(), en.getValue(), ste);
+            }
+        }
+        final Boolean gl = it.getData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE);
+        if (gl == null) {
+            prep.lore(" ", "§8Свечение не указано,", "§5Шифт + ЛКМ §7- Добавить");
+        } else {
+            prep.glint(gl);
+            if (gl) {
+                prep.lore(" ", "§7Свечение §aвключено,",
+                    "§dШифт + ЛКМ §7- Выключить", "§5Шифт + ПКМ §7- Сбросить");
+            } else {
+                prep.lore(" ", "§8Свечение §cвыключено,",
+                    "§dШифт + ЛКМ §7- Включить", "§5Шифт + ПКМ §7- Сбросить");
+            }
         }
         its.set(16, ClickableItem.of(prep.build(), e -> {
             switch (e.getClick()) {
                 case LEFT:
-                case SHIFT_LEFT:
-                    if (im.hasEnchantmentGlintOverride()) {
-                        im.setEnchantmentGlintOverride(im
-                            .getEnchantmentGlintOverride());
-                    } else im.setEnchantmentGlintOverride(true);
-                    it.setItemMeta(im);
-                    reopen(p, its);
+                    SmartInventory.builder().id(p.getName() + " Flags").title("     §лЗачарования")
+                        .provider(new EnchMenu(it)).size(6, 9).build().open(p);
                     break;
                 case RIGHT:
+                    it.resetData(ste ?
+                        DataComponentTypes.STORED_ENCHANTMENTS
+                        : DataComponentTypes.ENCHANTMENTS);
+                    reopen(p, its);
+                    break;
+                case SHIFT_LEFT:
+                    it.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE,
+                        gl == null || !gl);
+                    reopen(p, its);
+                    break;
                 case SHIFT_RIGHT:
-                    if (im.hasEnchantmentGlintOverride()) {
-                        im.setEnchantmentGlintOverride(null);
-                    }
-                    it.setItemMeta(im);
+                    it.resetData(DataComponentTypes
+                        .ENCHANTMENT_GLINT_OVERRIDE);
                     reopen(p, its);
                     break;
                 default:
@@ -164,49 +195,74 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        prep = new ItemBuilder(ItemType.ENCHANTED_BOOK).name("§dЗачарования");
-        if (im.hasEnchants()) {
-            prep.glint(true);
-            prep.lore(" ", "§aЕсть зачарования,", "§dЛКМ §7- Выдать зачар", "§cПКМ §7- Снять все зачары");
-            for (final Map.Entry<Enchantment, Integer> en : im.getEnchants().entrySet()) {
-                prep.enchant(en.getKey(), en.getValue());
+        final Unbreakable ub = it.getData(DataComponentTypes.UNBREAKABLE);
+        its.set(8, ClickableItem.from(new ItemBuilder(ub == null ? ItemType.OBSIDIAN : ItemType.CRYING_OBSIDIAN)
+            .name("§чНеразрушимость").lore(ub == null ? "§7Клик - §dВключить" : "§7Клик - §5выключить").build(), e -> {
+            if (ub != null) {
+                it.resetData(DataComponentTypes.UNBREAKABLE);
+                reopen(p, its);
+                return;
             }
-        } else {
-            prep.lore(" ", "§7Зачарований нет,", "§dЛКМ §7- Выдать зачар", "§8ПКМ §7- Снять все зачары");
-        }
-        its.set(16, ClickableItem.of(prep.build(), e -> {
+            it.setData(DataComponentTypes.UNBREAKABLE, Unbreakable.unbreakable().build());
+            reopen(p, its);
+        }));
+
+        final Key mdl = it.getData(DataComponentTypes.ITEM_MODEL);
+        its.set(10, ClickableItem.from(new ItemBuilder(ItemType.NETHERITE_SCRAP)
+            .name("<sky>Модель - " + (mdl == null ? "<dark_gray>Не указана" : mdl.asMinimalString()))
+            .lore("§7ЛКМ - §9Поставить", "§7ПКМ - §1Сбросить").build(), e -> {
             switch (e.getClick()) {
-                case LEFT:
-                case SHIFT_LEFT:
-                    //TODO enchant menu
-                    it.setItemMeta(im);
+                case LEFT, SHIFT_LEFT:
+                    PlayerInput.get(InputType.ANVILL, p, text -> {
+                        it.setData(DataComponentTypes.ITEM_MODEL, Key.key(text.toLowerCase()));
+                        reopen(p, its);
+                    }, mdl == null ? "" : mdl.asMinimalString());
+                    break;
+                case RIGHT, SHIFT_RIGHT:
+                    it.resetData(DataComponentTypes.ITEM_MODEL);
                     reopen(p, its);
                     break;
-                case RIGHT:
-                case SHIFT_RIGHT:
-                    im.removeEnchantments();
-                    it.setItemMeta(im);
-                    reopen(p, its);
+            }
+        }));
+
+        final DyedItemColor dic = it.getData(DataComponentTypes.DYED_COLOR);
+        its.set(26, ClickableItem.from(new ItemBuilder(ItemType.CAULDRON)
+            .name("<pink>Цвет - " + (dic == null ? "<dark_gray>Не указан" : "<#" + Integer.toHexString(dic.color().asRGB()) + ">Такой"))
+            .lore("§7ЛКМ - §6Изменить", "§7ПКМ - §4Сбросить").build(), e -> {
+            switch (e.getClick()) {
+                case LEFT, SHIFT_LEFT:
+                    final String spl = CLR_SPLIT.get();
+                    final Color clr = dic == null ? Color.fromRGB(0) : dic.color();
+                    PlayerInput.get(InputType.ANVILL, p, text -> {
+                        final String[] csp = CLR_SPLIT.split(text);
+                        if (csp.length != 3) {
+                            p.sendMessage("§cНужно иметь 3 числа, разделеных " + spl);
+                            reopen(p, its);
+                            return;
+                        }
+                        it.setData(DataComponentTypes.DYED_COLOR, DyedItemColor.dyedItemColor(Color
+                            .fromRGB(Math.clamp(NumUtil.intOf(csp[0], 0), 0, 255), Math.clamp(NumUtil.intOf(csp[1], 0), 0, 255),
+                                Math.clamp(NumUtil.intOf(csp[2], 0), 0, 255)), dic == null || dic.showInTooltip()));
+                        reopen(p, its);
+                    }, clr.getRed() + spl + clr.getGreen() + spl + clr.getBlue());
                     break;
-                default:
+                case RIGHT, SHIFT_RIGHT:
+                    it.resetData(DataComponentTypes.DYED_COLOR);
+                    reopen(p, its);
                     break;
             }
         }));
 
         its.set(20, ClickableItem.from(new ItemBuilder(ItemType.ENDER_PEARL).name("§фСкрытые Флаги")
             .lore("§7Клик - редактировать §ффлаги").build(), e -> {
-            if (e.getEvent() instanceof InventoryClickEvent) {
-                SmartInventory.builder().id(p.getName() + " Flags").title("     §фНастройки Флагов")
-                    .provider(new FlagMenu(it)).size(1, 9).build().open(p);
-            }
+            SmartInventory.builder().id(p.getName() + " Flags").title("     §фНастройки Флагов")
+                .provider(new FlagMenu(it)).size(1, 9).build().open(p);
         }));
 
         its.set(24, ClickableItem.from(new ItemBuilder(ItemType.ENDER_EYE).name("§кАттрибуты")
             .lore("§7Клик - редактировать §ксвойства").build(), e -> {
-            if (e.getEvent() instanceof InventoryClickEvent) {
-                SmartInventory.builder().id(p.getName() + " Flags").title("    §кНастройки Аттрибутов")
-                    .provider(new AttrMenu(it)).size(3, 9).build().open(p);
-            }
+            SmartInventory.builder().id(p.getName() + " Flags").title("    §кНастройки Аттрибутов")
+                .provider(new AttrMenu(it)).size(3, 9).build().open(p);
         }));
 
         final ItemType tp = it.getType().asItemType();

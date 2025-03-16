@@ -3,20 +3,22 @@ package ru.komiss77.modules.items.menu;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.inventory.*;
+import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InputButton.InputType;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
 
 import static org.bukkit.attribute.Attribute.*;
 
@@ -32,15 +34,13 @@ public class AttrMenu implements InventoryProvider {
 
     @Override
     public void init(final Player p, final InventoryContent its) {
+        p.playSound(p.getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.8f);
 
         its.fillRow(0, ClickableItem.empty(new ItemBuilder(ItemType.MAGENTA_STAINED_GLASS_PANE).name("<black>.").build()));
 
-        its.set(4, ClickableItem.from(new ItemBuilder(it).lore(" ").lore("§фКлик §7 - подтвердить").build(), e -> {
-            if (e.getEvent() instanceof InventoryClickEvent) {
-                SmartInventory.builder().id("Item " + p.getName()).provider(new ItemMenu(it.hasItemMeta() ? it : new ItemStack(it)))
-                        .size(3, 9).title("      §6Создание Предмета").build().open(p);
-            }
-        }));
+        its.set(4, ClickableItem.from(new ItemBuilder(it).lore(" ")
+            .lore("§фКлик §7 - подтвердить").build(), e -> ItemMenu.open(p, it)));
+
         buildAttr(GRAVITY, 0, p, its);
         buildAttr(FALL_DAMAGE_MULTIPLIER, 1, p, its);
 
@@ -72,7 +72,7 @@ public class AttrMenu implements InventoryProvider {
 
         if (atm == null || atm.isEmpty()) {
             its.set(slot, new InputButton(InputType.ANVILL,
-                new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.key().asString())
+                new ItemBuilder(ItemType.PINK_DYE).name("§7Аттрибут: §к" + at.key().asString())
                     .lore("§7Сейчас: §8не указан").lore("§кКлик §7- изменить").build(), "", msg -> {
                 if (msg.length() > 1) {
                     final double amt;
@@ -111,7 +111,7 @@ public class AttrMenu implements InventoryProvider {
             }));
         } else {
             its.set(slot, new InputButton(InputType.ANVILL,
-                new ItemBuilder(Material.PINK_DYE).name("§7Аттрибут: §к" + at.key().value())
+                new ItemBuilder(ItemType.PINK_DYE).name("§7Аттрибут: §к" + at.key().value())
                     .lore("§7Сейчас: §к" + getAtrStr(atm.iterator().next())).lore("§кКлик §7- изменить").build(),
                 getAtrStr(atm.iterator().next()).substring(2), msg -> {
                 if (msg.length() > 1) {
