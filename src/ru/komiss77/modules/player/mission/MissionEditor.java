@@ -67,7 +67,7 @@ public class MissionEditor implements InventoryProvider {
             if (e.isLeftClick() && e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
                 p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1);
                 //e.setCancelled(true);
-                mi.mat = e.getCursor().getType();
+                mi.mat = e.getCursor().getType().asItemType();
                 mi.changed = true;
                 e.getView().getBottomInventory().addItem(new ItemStack[]{e.getCursor()});
                 e.getView().setCursor(new ItemStack(Material.AIR));
@@ -541,12 +541,12 @@ public class MissionEditor implements InventoryProvider {
 
                 if (mi.id == -1) {
                     RemoteDB.executePstAsync(p, "INSERT INTO `missions` (`name`, `nameColor`, `mat`, `level`, `reputation`, `request`, `reward`, `rewardFund`, `activeFrom`, `validTo`) "
-                            + "VALUES ('" + mi.name + "', '" + mi.nameColor + "', '" + mi.mat.name() + "', '" + mi.level + "', '" + mi.reputation + "', '" + Mission.getRequestString(mi) + "', '" + mi.reward + "', '" + mi.canComplete + "', '" + mi.activeFrom + "', '" + mi.validTo + "');");
+                            + "VALUES ('" + mi.name + "', '" + mi.nameColor + "', '" + mi.mat.key().asMinimalString() + "', '" + mi.level + "', '" + mi.reputation + "', '" + Mission.getRequestString(mi) + "', '" + mi.reward + "', '" + mi.canComplete + "', '" + mi.activeFrom + "', '" + mi.validTo + "');");
                     if (oldid != 0) {
                         RemoteDB.executePstAsync(p, "DELETE FROM `missions` WHERE 'id'='" + oldid + "'; ");
                     }
                 } else {
-                    RemoteDB.executePstAsync(p, "UPDATE `missions` SET `name`='" + mi.name + "', `nameColor`='" + mi.nameColor + "', `mat`='" + mi.mat.name() + "', `level`='" + mi.level + "', `reputation`='" + mi.reputation + "', `request`='" + Mission.getRequestString(mi) + "', `reward`='" + mi.reward + "', `rewardFund`='" + mi.canComplete + "', `activeFrom`='" + mi.activeFrom + "', `validTo`='" + mi.validTo + "' WHERE `missionId`='" + mi.id + "'");
+                    RemoteDB.executePstAsync(p, "UPDATE `missions` SET `name`='" + mi.name + "', `nameColor`='" + mi.nameColor + "', `mat`='" + mi.mat.key().asMinimalString() + "', `level`='" + mi.level + "', `reputation`='" + mi.reputation + "', `request`='" + Mission.getRequestString(mi) + "', `reward`='" + mi.reward + "', `rewardFund`='" + mi.canComplete + "', `activeFrom`='" + mi.activeFrom + "', `validTo`='" + mi.validTo + "' WHERE `missionId`='" + mi.id + "'");
                 }
                 MissionManager.openMissionsEditMenu(p);
             }));

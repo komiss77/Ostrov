@@ -1,17 +1,17 @@
 package ru.komiss77.modules.player.profile;
 
 import org.bukkit.DyeColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Cfg;
 import ru.komiss77.modules.DelayTeleport;
-import ru.komiss77.modules.player.Perm;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -34,25 +34,23 @@ public class HomeMenu implements InventoryProvider {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-      if (!Cfg.home_command) {
-        content.add(ClickableItem.empty(new ItemBuilder(Material.TRIAL_KEY)
-                .name("§c" + Lang.t(p, "Дома отключены на этом сервере!"))
-                .build()
-            )
-        );
-        return;
-      }
+        if (!Cfg.home_command) {
+            content.set(4, ClickableItem.empty(new ItemBuilder(ItemType.TRIAL_KEY)
+                .name(Lang.t(p, "§cДома отключены на этом сервере!"))
+                .build()));
+            return;
+        }
 
         for (final String homeName : op.homes.keySet()) {
 
-            final ItemStack homeIcon = new ItemBuilder(Material.GRAY_BED)
+            final ItemStack homeIcon = new ItemBuilder(ItemType.GRAY_BED)
                 .name(homeName)
                 .lore("")
                 .lore("§7ЛКМ - §aперейти")
@@ -62,27 +60,27 @@ public class HomeMenu implements InventoryProvider {
                 .build();
 
             content.add(ClickableItem.of(homeIcon, e -> {
-              switch (e.getClick()) {
-                case LEFT -> {
-                  p.closeInventory();
-                  DelayTeleport.tp(p, LocUtil.stringToLoc(op.homes.get(homeName), false, false),
-                      3, "§2Дом, милый дом", true, true, DyeColor.GREEN);
-                }
-                case SHIFT_RIGHT -> {
-                  p.closeInventory();
-                  op.homes.put(homeName, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
-                  op.mysqlData.put("homes", null); //пометить на сохранение
-                  p.sendMessage("§2" + Lang.t(p, "Установлена новая позиция для дома ") + homeName);
-                }
-                case DROP -> {
-                  op.homes.remove(homeName);
-                  op.mysqlData.put("homes", null); //пометить на сохранение
-                  p.sendMessage("§4" + Lang.t(p, "Точка дома удалена!"));
-                  reopen(p, content);
-                }
-                default -> {
-                }
-              }
+                    switch (e.getClick()) {
+                        case LEFT -> {
+                            p.closeInventory();
+                            DelayTeleport.tp(p, LocUtil.stringToLoc(op.homes.get(homeName), false, false),
+                                3, "§2Дом, милый дом", true, true, DyeColor.GREEN);
+                        }
+                        case SHIFT_RIGHT -> {
+                            p.closeInventory();
+                            op.homes.put(homeName, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
+                            op.mysqlData.put("homes", null); //пометить на сохранение
+                            p.sendMessage("§2" + Lang.t(p, "Установлена новая позиция для дома ") + homeName);
+                        }
+                        case DROP -> {
+                            op.homes.remove(homeName);
+                            op.mysqlData.put("homes", null); //пометить на сохранение
+                            p.sendMessage("§4" + Lang.t(p, "Точка дома удалена!"));
+                            reopen(p, content);
+                        }
+                        default -> {
+                        }
+                    }
                 }
             ));
         }
@@ -92,7 +90,7 @@ public class HomeMenu implements InventoryProvider {
 
         if (op.homes.size() >= limit) {
 
-            content.add(ClickableItem.empty(new ItemBuilder(Material.TRIAL_KEY)
+            content.add(ClickableItem.empty(new ItemBuilder(ItemType.TRIAL_KEY)
                 .name("§cДобавить дом")
                 .lore("")
                 .lore("§cВы не можете добавть")
@@ -115,95 +113,11 @@ public class HomeMenu implements InventoryProvider {
             }));
 
         }
-
-
     }
-
 
     @Override
     public void onClose(final Player p, final InventoryContent content) {
         PM.getOplayer(p).menu.current = null;
     }
 
-
 }
-
-    /*
-            String home;
-            int limit;
-                case "sethome":
-                    if (op == null) {
-                        sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                        return true;
-                    }
-                    if (!Cfg.home_command) {
-                        p.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
-                        return false;
-                    }
-                    home = "home";
-                    if (arg.length == 1) {                                       //определяем название
-                        if (arg[0].length() > 10) {
-                            p.sendMessage("§c" + Lang.t(p, "Слишком длинное название дома!"));
-                            return false;
-                        }
-                        home = arg[0];
-                    }
-
-                    if (arg.length == 0 && op.homes.size() > 1) { //если не указал дом, но их больше 1 - уточнить какой
-                        final TextComponent.Builder homes = Component.text().content("§b" + Lang.t(p, "Какую точку дома обновить? "));
-                        for (final String homeName : op.homes.keySet()) {
-                            homes.append(Component.text("§b- §e" + homeName + " ")
-                                    .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - обновить точку дома") + " §6" + homeName)))
-                                    .clickEvent(ClickEvent.runCommand("/sethome " + homeName)));
-                        }
-                        sender.sendMessage(homes.build());
-
-                        return false;
-                    }
-                    limit = Perm.getLimit(op, "home");
-                    if (op.homes.containsKey(home)) {      //если есть такой, обновляем
-                        op.homes.put(home, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
-                        op.mysqlData.put("homes", null); //пометить на сохранение
-                        p.sendMessage("§2" + Lang.t(p, "Для дома ") + home + Lang.t(p, " установлена новая позиция."));
-                        return true;
-                    } else if (op.homes.size() >= limit) { //если ставим новый дом, проверяем лимит
-                        p.sendMessage("§c" + Lang.t(p, "Лимит точек дома для вашей группы: ") + limit + ", " + Lang.t(p, "Ваши дома") + ": §6" + StringUtil.listToString(op.homes.keySet(), ","));
-                        p.sendMessage("§c" + Lang.t(p, "Удалите ненужный командой") + " /delhome");
-                        return false;
-                    } else {
-                        op.homes.put(home, LocUtil.toString(p.getLocation()));//PM.OP_SetHome(p, home);
-                        op.mysqlData.put("homes", null); //пометить на сохранение
-                        //if (home.equals("home")) p.setBedSpawnLocation(p.getLocation());
-                        p.sendMessage("§2" + Lang.t(p, "Дом ") + ((home.equals("home")) ? "" : home) + Lang.t(p, " установлен!"));
-                    }
-                    break;
-
-                case "delhome":
-                    if (op == null) {
-                        sender.sendMessage(Ostrov.PREFIX + "§сне консольная команда!");
-                        return true;
-                    }
-                    if (Cfg.home_command) {
-                        if (arg.length == 0 && op.homes.size() > 1) { //если не указал дом, но их больше 1 - уточнить какой
-                            final TextComponent.Builder homes = Component.text().content("§c" + Lang.t(p, "Какой дом удалить? "));
-                            for (final String homeName : op.homes.keySet()) {
-                                homes.append(Component.text("§b- §e" + homeName + " ")
-                                        .hoverEvent(HoverEvent.showText(Component.text("§7" + Lang.t(p, "Клик - удалить точку дома") + " §6" + homeName)))
-                                        .clickEvent(ClickEvent.runCommand("/delhome " + homeName)));
-                            }
-                            sender.sendMessage(homes.build());
-                            return false;
-                        }
-                        home = "home";
-                        if (arg.length == 1) home = arg[0];
-                        if (op.homes.containsKey(home)) {
-                            op.homes.remove(home);
-                            op.mysqlData.put("homes", null); //пометить на сохранение
-                            p.sendMessage("§4" + Lang.t(p, "Точка дома ") + (home.equals("home") ? "" : home) + Lang.t(p, " удалена!"));
-                        } else
-                            p.sendMessage("§c" + Lang.t(p, "Нет такого дома! Ваши дома:") + " §6" + StringUtil.listToString(op.homes.keySet(), ","));
-                        break;
-                    } else p.sendMessage("§c" + Lang.t(p, "Дома отключены на этом сервере!"));
-
-
-     */

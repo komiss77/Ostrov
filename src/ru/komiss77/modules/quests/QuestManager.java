@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.Quest.QuestFrame;
@@ -154,8 +153,9 @@ public class QuestManager implements Initiable {
     //    return false;
     //}
 
-    protected static boolean justGame(Oplayer op) {
-        return op.isGuest || op.hasSettings(Settings.JustGame);
+    @Deprecated
+    protected static boolean justGame(final Oplayer op) {
+        return op.isGuest;
     }
 
 

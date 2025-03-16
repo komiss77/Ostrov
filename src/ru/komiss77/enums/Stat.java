@@ -18,14 +18,14 @@ public enum Stat {
     //600-899 дневная стата
 
     //добавить время для каждой игры
-    PLAY_TIME(300, Game.GLOBAL, "§fОбщее Время Игры: §a", 0, null, NONE), //new int[] должно быть 5 штук, не удалять! //промежуточных сохранений нет, только при выходе (расчёт на входе+текущая сессия)
-    EXP(301, Game.GLOBAL, "§fОпыт: §e", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
-    LEVEL(302, Game.GLOBAL, "§fУровень ОС: §b", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
-    FLAGS(303, Game.GLOBAL, "§8флаги: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
-    REPUTATION(304, Game.GLOBAL, "§8Репутация : ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    PLAY_TIME(300, Game.GLOBAL, "§eОбщее Время Игры: §2", 0, null, NONE), //new int[] должно быть 5 штук, не удалять! //промежуточных сохранений нет, только при выходе (расчёт на входе+текущая сессия)
+    EXP(301, Game.GLOBAL, "§aОпыт: §e", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    LEVEL(302, Game.GLOBAL, "§3Уровень ОС: §b", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    FLAGS(303, Game.GLOBAL, "§9Флаги: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    REPUTATION(304, Game.GLOBAL, "§6Репутация : ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
     KARMA(304, Game.GLOBAL, "§8Карма: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
-    WD_count(305, Game.GLOBAL, "§8Заказы Выводов: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
-    WD_amount(306, Game.GLOBAL, "§8Сумма Выводов: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    WD_count(305, Game.GLOBAL, "§fЗаказы Выводов: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
+    WD_amount(306, Game.GLOBAL, "§fСумма Выводов: ", 0, null, NONE), //new int[] должно быть 5 штук, не удалять!
 
     BW_game(310, Game.BW, "§eРаунды§7:§f ", 2, new int[]{10, 100, 250, 500, 1000}, NONE), //new int[] должно быть 5 штук, не удалять!
     BW_win(311, Game.BW, "§2Победы§7:§f ", 12, new int[]{1, 10, 100, 500, 1000}, ADD),

@@ -3,6 +3,7 @@ package ru.komiss77.utils.inventory;
 import java.util.*;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -215,12 +216,14 @@ public class SmartInventory {
         }
 
         public Builder title(String title) {
-            this.title = TCUtil.form(title);
+            this.title = TCUtil.form(title).shadowColor(ShadowColor
+                .shadowColor(0, 0, 0, 255));
             return this;
         }
 
         public Builder title(Component title) {
-            this.title = title;
+            this.title = title.shadowColor(ShadowColor
+                .shadowColor(0, 0, 0, 255));
             return this;
         }
 

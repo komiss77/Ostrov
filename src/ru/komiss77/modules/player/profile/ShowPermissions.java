@@ -2,20 +2,15 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class ShowPermissions implements InventoryProvider {
@@ -41,7 +36,7 @@ public class ShowPermissions implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -51,14 +46,14 @@ public class ShowPermissions implements InventoryProvider {
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
         for (String group : op.getGroups()) {
-            menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.EMERALD)
+            menuEntry.add(ClickableItem.empty(new ItemBuilder(ItemType.EMERALD)
                 .name("§7Группа §e" + group)
                 .build()));
         }
 
 
         for (String limitName : op.limits.keySet()) {
-            menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.PRISMARINE_CRYSTALS)
+            menuEntry.add(ClickableItem.empty(new ItemBuilder(ItemType.PRISMARINE_CRYSTALS)
                 .name("§7Лимит для §e" + limitName + " §7: §a" + op.limits.get(limitName))
                 .build()));
         }
@@ -73,7 +68,7 @@ public class ShowPermissions implements InventoryProvider {
 
         if (perm.isEmpty()) {
 
-            menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
+            menuEntry.add(ClickableItem.empty(new ItemBuilder(ItemType.GLASS_BOTTLE)
                 .name("§7нет записей с пермишенами!")
                 .build()
             ));
@@ -87,18 +82,18 @@ public class ShowPermissions implements InventoryProvider {
 
 
         for (String s : perm.keySet()) {
-            menuEntry.add(ClickableItem.empty(new ItemBuilder(perm.get(s) ? Material.LIME_DYE : Material.RED_DYE)
+            menuEntry.add(ClickableItem.empty(new ItemBuilder(perm.get(s) ? ItemType.LIME_DYE : ItemType.RED_DYE)
                 .name("§7" + s)
                 .build()));
         }
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+        pagination.setItemsPerPage(9);
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+            content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -106,7 +101,7 @@ public class ShowPermissions implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+            content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })

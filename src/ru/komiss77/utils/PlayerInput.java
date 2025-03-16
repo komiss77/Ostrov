@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.XYZ;
@@ -59,10 +60,10 @@ public class PlayerInput implements Listener {
                     case AnvilGUI.Slot.OUTPUT -> {
                         final int res = NumUtil.intOf(stateSnapshot.getText(), Integer.MIN_VALUE);
                         if (res == Integer.MIN_VALUE) {
-                            p.sendMessage("§cДолжно быть число!");
+                            p.sendMessage(Ostrov.PREFIX + "§cДолжно быть число!");
                             PM.soundDeny(p);
                         } else if (res < min || res > max) {
-                            p.sendMessage("§cот " + min + " до " + max);
+                            p.sendMessage(Ostrov.PREFIX + "§cВыбери кол-во от " + min + " до " + max);
                             PM.soundDeny(p);
                         } else {
                             onDone.accept(res);

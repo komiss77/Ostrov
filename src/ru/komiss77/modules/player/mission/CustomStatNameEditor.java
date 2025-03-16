@@ -1,11 +1,11 @@
 package ru.komiss77.modules.player.mission;
 
 import java.util.ArrayList;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.RemoteDB;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtil;
@@ -14,7 +14,7 @@ import ru.komiss77.utils.inventory.*;
 
 public class CustomStatNameEditor implements InventoryProvider {
 
-    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
+    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.PURPLE_STAINED_GLASS_PANE).name("§8.").build());
 
 
     @Override
@@ -24,16 +24,15 @@ public class CustomStatNameEditor implements InventoryProvider {
         //линия - разделитель
         content.fillRow(4, fill);
 
-
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
         MissionManager.customStatsDisplayNames.keySet().forEach((name) -> {
 
             final boolean showAmmount = MissionManager.customStatsShowAmmount.get(name);
 //Bukkit.broadcastMessage("key="+name+" val="+MissionManager.customStatsDisplayNames.get(name));
-            final Material mat;// = MissionManager.customStatsDisplayNames.containsKey(name) ? MissionManager.customStatMat(name): Material.GUNPOWDER;
+            final ItemType mat;// = MissionManager.customStatsDisplayNames.containsKey(name) ? MissionManager.customStatMat(name): ItemType.GUNPOWDER;
             if (name.equals(TCUtil.strip(MissionManager.customStatsDisplayNames.get(name)))) {
-                mat = Material.GUNPOWDER;
+                mat = ItemType.GUNPOWDER;
             } else {
                 mat = MissionManager.customStatMat(name);
             }
@@ -67,25 +66,6 @@ public class CustomStatNameEditor implements InventoryProvider {
                                     RemoteDB.executePstAsync(p, "UPDATE `customStats` SET `displayName`='" + msg + "' WHERE `name`='" + name + "';");
                                     reopen(p, content);
                                 }, sugg);
-                                    
-                               /* new AnvilGUI.Builder()
-                                        .title("DisplayName для "+name)
-                                        .text(MissionManager.customStatsDisplayNames.get(name).replaceAll("§", "&"))
-                                        .onComplete( (p1, msg) -> {
-                                            msg = msg.replaceAll("&", "§");
-                                            MissionManager.customStatsDisplayNames.put(name, msg);
-                                            RemoteDB.executePstAsync(p, "UPDATE `customStats` SET `displayName`='"+msg+"' WHERE `name`='"+name+"';");
-                                            reopen(p, content);
-                                            return AnvilGUI.Response.text(""); 
-                                        })
-                                        .open(p);*/
-                                /*new AnvilGUI(Ostrov.instance, p, MissionManager.customStatsDisplayNames.get(name).replaceAll("§", "&"), (p1, msg) -> {
-                                    msg = msg.replaceAll("&", "§");
-                                    MissionManager.customStatsDisplayNames.put(name, msg);
-                                    RemoteDB.executePstAsync(p, "UPDATE `customStats` SET `displayName`="+msg+" WHERE `name`='"+name+"';");
-                                    reopen(p, content);
-                                    return null; 
-                                });*/
                                 break;
                             case RIGHT:
                                 MissionManager.customStatsShowAmmount.put(name, !showAmmount);
@@ -110,7 +90,7 @@ public class CustomStatNameEditor implements InventoryProvider {
         final Pagination pagination = content.pagination();
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(36);
 
 
@@ -132,7 +112,7 @@ public class CustomStatNameEditor implements InventoryProvider {
 
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
-        content.set(5, 0, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
+        content.set(5, 0, ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
                 .headTexture(ItemUtil.Texture.previosPage)
                 .name("§7назад")
                 .build(), e -> {
@@ -140,7 +120,7 @@ public class CustomStatNameEditor implements InventoryProvider {
         }));
 
 
-        content.set(5, 2, ClickableItem.empty(new ItemBuilder(Material.PAPER)
+        content.set(5, 2, ClickableItem.empty(new ItemBuilder(ItemType.PAPER)
                 .headTexture(ItemUtil.Texture.previosPage)
                 .name("§7Как добавить?")
                 .lore("§7Для создания ремаппинга")

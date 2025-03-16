@@ -2,24 +2,26 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Material;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class StatSection implements InventoryProvider {
 
-    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.СТАТИСТИКА.glassMat).name("§8.").build());
+//    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.СТАТИСТИКА.glassMat).name("§8.").build());
 
 
     @Override
@@ -38,7 +40,7 @@ public class StatSection implements InventoryProvider {
 
 
         //линия - разделитель
-        content.fillRow(4, fill);
+//        content.fillRow(4, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -63,7 +65,7 @@ public class StatSection implements InventoryProvider {
             }
 
 
-            final ItemStack stat_item = new ItemBuilder(Material.matchMaterial(game.mat))
+            final ItemStack stat_item = new ItemBuilder(OStrap.get(Key.key(game.mat.toLowerCase()), ItemType.GRAY_DYE))
                 .name(Lang.t(p, game.displayName))
                 .flags(ItemFlag.HIDE_ATTRIBUTES)
                     .lore(lore)

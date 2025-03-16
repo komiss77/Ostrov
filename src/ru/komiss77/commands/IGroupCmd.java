@@ -71,7 +71,7 @@ public class IGroupCmd {
                 }
 
                 final String tp = Resolver.string(cntx, type);
-                ItemUtil.giveItemsTo(pl, ig.item(OStrap.get(Key.key(tp), ItemType.AIR)));
+                ItemUtil.giveItemsTo(pl, ig.item(OStrap.get(Key.key(tp.toLowerCase()), ItemType.AIR)));
                 pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выдан предмет " + tp + " группы: " + id));
                 return Command.SINGLE_SUCCESS;
             })

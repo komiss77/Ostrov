@@ -1,15 +1,15 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -34,17 +34,16 @@ public class PartyView implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
         if (op.party_members.isEmpty()) {
 
-            content.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+            content.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
                         .name("§eСоздать свою команду")
                         .lore("§7")
                         .build(), e -> {
@@ -56,16 +55,12 @@ public class PartyView implements InventoryProvider {
                 )
             );
 
-
-            //приглашения ??
-
-
         } else if (op.nik.equals(op.party_leader)) {  //лидер
 
 
             for (final String name : op.party_members.keySet()) {
 
-                final ItemStack head = new ItemBuilder(Material.PLAYER_HEAD)
+                final ItemStack head = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(name)
                     .lore(op.party_leader.equals(name) ? "§aЛидер" : "§7Участник")
                     .lore("")
@@ -98,7 +93,7 @@ public class PartyView implements InventoryProvider {
             }
 
             if (op.party_members.size() < 8) {
-                content.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+                content.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
                             .name("§aпригласить")
                             .lore("")
                             .lore("§7Чтобы отправить приглашение")
@@ -118,7 +113,7 @@ public class PartyView implements InventoryProvider {
 
             for (final String name : op.party_members.keySet()) {
 
-                final ItemStack head = new ItemBuilder(Material.PLAYER_HEAD)
+                final ItemStack head = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(name)
                     .lore(op.party_leader.equals(name) ? "§aЛидер" : "§7Участник")
                     .lore("")

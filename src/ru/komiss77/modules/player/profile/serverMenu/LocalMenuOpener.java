@@ -19,8 +19,8 @@ public class LocalMenuOpener {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new Arcaim())
-                    .size(6, 9)
-                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .size(3, 9)
+                    .title("<gradient:blue:gold>§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;
@@ -31,8 +31,8 @@ public class LocalMenuOpener {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new Daaria())
-                    .size(6, 9)
-                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .size(3, 9)
+                    .title("<gradient:blue:gold>§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;
@@ -43,8 +43,8 @@ public class LocalMenuOpener {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new Sedna())
-                    .size(6, 9)
-                    .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                    .size(3, 9)
+                    .title("<gradient:blue:gold>§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);
                 break;
@@ -56,8 +56,8 @@ public class LocalMenuOpener {
                         .builder()
                         .id(op.nik + op.menu.section.name())
                         .provider(new Daaria())
-                        .size(6, 9)
-                        .title("§9|6§lМеню сервера " + GM.GAME.displayName)
+                        .size(3, 9)
+                        .title("<gradient:blue:gold>§lМеню сервера " + GM.GAME.displayName)
                         .build()
                         .open(p);
                 } else {

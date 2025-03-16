@@ -1,21 +1,15 @@
 package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class IgnoreList implements InventoryProvider {
@@ -42,44 +36,31 @@ public class IgnoreList implements InventoryProvider {
         //final ProfileManager pm = op.menu;
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
         final Pagination pagination = content.pagination();
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
 
         for (final String name : op.getBlackListed()) {
-
-            final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
-                .name(name)
-                .lore("")
-                .lore("§7Лкм - удалить из списка")
-                .lore("")
-                .build();
-
-            menuEntry.add(ClickableItem.of(friend_item, e -> {
-                    op.removeBlackList(name);
-                    ApiOstrov.executeBungeeCmd(p, "ignore del " + name);
-                    reopen(p, content);
-                }
-            ));
-
-
+            menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
+                .name(name + " <dark_gray>(Клик - убрать)").build(), e -> {
+                op.removeBlackList(name);
+                ApiOstrov.executeBungeeCmd(p, "ignore del " + name);
+                reopen(p, content);
+            }));
         }
 
-
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);
-
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+        pagination.setItemsPerPage(9);
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+            content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -87,7 +68,7 @@ public class IgnoreList implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+            content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })

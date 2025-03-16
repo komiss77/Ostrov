@@ -2,15 +2,15 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.enums.Settings;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.PlayerInput;
@@ -26,12 +26,10 @@ public class FriendView implements InventoryProvider {
         this.rawData = rawData;
     }
 
-
     @Override
     public void onClose(final Player p, final InventoryContent content) {
         PM.getOplayer(p).menu.current = null;
     }
-
 
     @Override
     public void init(final Player p, final InventoryContent content) {
@@ -41,33 +39,29 @@ public class FriendView implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
         //final ProfileManager pm = op.menu;
 
-
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
         final HashMap<String, String> server = new HashMap<>(); //друг, сервер:настройки
         final HashMap<String, Integer> settings = new HashMap<>(); //друг, сервер:настройки
 
         String name;
-        int splitterIndex;
+        int index;
         for (String info : rawData.split(",")) {
-            splitterIndex = info.indexOf(":");
-            if (splitterIndex > 0) {
-                name = info.substring(0, splitterIndex);
-                info = info.substring(splitterIndex + 1);
-                splitterIndex = info.indexOf(":");
-                if (splitterIndex > 0) {
-                    server.put(name, info.substring(0, splitterIndex));
-                    settings.put(name, NumUtil.intOf(info.substring(0, splitterIndex), Integer.MIN_VALUE));
-                    info = info.substring(splitterIndex + 1);
-                }
-            }
+            index = info.indexOf(":");
+            if (index < 1) continue;
+            name = info.substring(0, index);
+            info = info.substring(index + 1);
+            index = info.indexOf(":");
+            if (index < 1) continue;
+            server.put(name, info.substring(0, index));
+            settings.put(name, NumUtil.intOf(info
+                .substring(0, index), Integer.MIN_VALUE));
         }
 
 
@@ -78,7 +72,7 @@ public class FriendView implements InventoryProvider {
 
             if (op.isBlackListed(inviteName)) continue;
 
-            final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
+            final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                 .name(inviteName)
                 .headTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDE5NGEyMjM0NWQ5Y2RkZTc1MTY4Mjk5YWQ2MTg3M2JjMTA1ZTNhZTczY2Q2YzlhYzAyYTI4NTI5MWFkMGYxYiJ9fX0=")
                 .lore("§6Предлагает дружить")
@@ -98,64 +92,50 @@ public class FriendView implements InventoryProvider {
                     }
                 }
             ));
-
         }
 
-        int friendSettings;
-        for (String friendName : op.friends) {
-
+        for (final String friendName : op.friends) {
             if (server.containsKey(friendName)) {
-                friendSettings = settings.get(friendName);
-
-                final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
+                final int friendSettings = settings.get(friendName);
+                final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре" : ""))
                     .lore("§7Сервер: §a" + server.get(friendName))
-                    .lore(Settings.hasSettings(friendSettings, Settings.Fr_MsgDeny) ? "§8сообщения отключены" : "§7ЛКМ - §6написать сообщение")
-                    .lore(Settings.hasSettings(friendSettings, Settings.Fr_TeleportDeny) ? "§8запрос на ТП отключён" : "§7ПКМ - §bзапрос на телепорт")
+                    .lore(Settings.hasSettings(friendSettings, Settings.MsgDeny) ? "§8сообщения отключены" : "§7ЛКМ - §6написать сообщение")
+                    .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8запрос на ТП отключён" : "§7ПКМ - §bзапрос на телепорт")
                     .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §6разблокировать" : "")
                     .lore("")
                     .lore("§7Клав Q - §cудалить")
                     .build();
 
                 menuEntry.add(ClickableItem.of(friend_item, e -> {
-                        switch (e.getClick()) {
-
-                            case LEFT:
-                                p.closeInventory();
-                                PlayerInput.get(InputType.CHAT, p, msg -> {
-                                    ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
-                                    //p.performCommand("friend mail "+friendName+" "+msg);
-                                }, "");
-                                return;
-
-                            case SHIFT_LEFT:
-                                ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
-                                op.removeBlackList(friendName);
-                                return;
-
-                            case RIGHT:
-                                p.closeInventory();
-                                ApiOstrov.executeBungeeCmd(p, "friend jump " + friendName);
-                                //p.performCommand("friend jump "+friendName);
-                                return;
-
-                            case DROP:
-                                Friends.delete(p, op, friendName);
-                                reopen(p, content);
-                                return;
-
-                            default:
-                                break;
-
-                        }
-                        PM.soundDeny(p);
+                    switch (e.getClick()) {
+                        case LEFT:
+                            p.closeInventory();
+                            PlayerInput.get(InputType.CHAT, p, msg -> {
+                                ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
+                                //p.performCommand("friend mail "+friendName+" "+msg);
+                            }, "");
+                            return;
+                        case SHIFT_LEFT:
+                            ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
+                            op.removeBlackList(friendName);
+                            return;
+                        case RIGHT:
+                            p.closeInventory();
+                            ApiOstrov.executeBungeeCmd(p, "friend jump " + friendName);
+                            //p.performCommand("friend jump "+friendName);
+                            return;
+                        case DROP:
+                            Friends.delete(p, op, friendName);
+                            reopen(p, content);
+                            return;
+                        default:
+                            break;
                     }
-                ));
-
-
+                    PM.soundDeny(p);
+                }));
             } else {
-
-                final ItemStack friend_item = new ItemBuilder(Material.PLAYER_HEAD)
+                final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре" : ""))
                     .lore("§8оффлайн")
                     .lore("§7ЛКМ - §6написать письмо")
@@ -165,63 +145,53 @@ public class FriendView implements InventoryProvider {
                     .build();
 
                 menuEntry.add(ClickableItem.of(friend_item, e -> {
-                        switch (e.getClick()) {
+                    switch (e.getClick()) {
+                        case DROP:
+                            Friends.delete(p, op, friendName);
+                            reopen(p, content);
+                            break;
 
-                            case DROP:
-                                Friends.delete(p, op, friendName);
-                                reopen(p, content);
-                                break;
+                        case LEFT:
+                            p.closeInventory();
+                            PlayerInput.get(InputType.CHAT, p, msg -> {
+                                ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
+                                //p.performCommand("friend mail "+friendName+" "+msg);
+                            }, "");
+                            break;
 
-                            case LEFT:
-                                p.closeInventory();
-                                PlayerInput.get(InputType.CHAT, p, msg -> {
-                                    ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
-                                    //p.performCommand("friend mail "+friendName+" "+msg);
-                                }, "");
-                                break;
+                        case SHIFT_LEFT:
+                            ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
+                            op.removeBlackList(friendName);
+                            return;
 
-                            case SHIFT_LEFT:
-                                ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
-                                op.removeBlackList(friendName);
-                                return;
-
-                            default:
-                                PM.soundDeny(p);
-                                break;
-                        }
+                        default:
+                            PM.soundDeny(p);
+                            break;
                     }
-                ));
-
+                }));
             }
-
-
         }
 
 
-        menuEntry.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                    .name("§aдобавить")
-                    .lore("§7")
-                    .lore("§7Чтобы отправить предложение")
-                    .lore("§7дружить, встаньте рядом")
-                    .lore("§7и нажмите на эту иконку.")
-                    .lore("§7")
-                    .build(), e -> {
-                    //mode = FriendMode.Поиск;
-                    Friends.openFriendsFind(op);
-                }
-            )
-        );
+        menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
+            .name("§aдобавить")
+            .lore("§7")
+            .lore("§7Чтобы отправить предложение")
+            .lore("§7дружить, встаньте рядом")
+            .lore("§7и нажмите на эту иконку.")
+            .lore("§7")
+            .build(), e -> Friends.openFriendsFind(op)));
 
 
         //  }
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+        pagination.setItemsPerPage(9);
 
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
+            content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -229,7 +199,7 @@ public class FriendView implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
+            content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })

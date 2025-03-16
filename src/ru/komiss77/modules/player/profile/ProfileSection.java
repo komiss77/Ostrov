@@ -85,6 +85,8 @@ public class ProfileSection implements InventoryProvider {
             .lore((op.eng ? "<mithril>Exp needed for next level: §a§l" : "<mithril>Опыта до след. уровня: §a§l") + (totalLvl * 25 - exp + 1))
             .lore("")
             .lore(Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)))
+            .lore((op.eng ? "<mithril>Play time today: §a" : "<mithril>Сегодня наиграно: §a")
+                + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)))
             .lore("")
             .lore((op.eng ? "§bReputation: " : "§bРепутация: ") + op.getReputationDisplay())
             .lore(op.eng ? "<mithril>This indicates account trust" : "<mithril>Это показатель доверия к аккаунту")
@@ -105,15 +107,15 @@ public class ProfileSection implements InventoryProvider {
             .lore((op.eng ? "<amber>Ril: <yellow>" : "<amber>Рил: <yellow>") + op.getDataInt(Data.RIL) + Ostrov.R)
             .lore(op.eng ? "§eRil <mithril>- a real money equivalent. Use it to" : "§eРил <mithril>- счёт, приравненный к рублёвому. Используй его")
             .lore(op.eng ? "<mithril>buy ranks, or withdraw to your phone / card." : "<mithril>для покупки привилегий, или вывода на телефон / карту.")
-            .lore(op.eng ? "<amber><u>Complete missions to earn §eRil" : "§e<u>Рил <amber>можно заработать, выполняя задания!")
+            .lore(op.eng ? "<gold>Complete missions to earn §eRil" : "<gold>Их можно заработать, выполняя миссии!")
             .lore("")
-            .lore(op.eng ? "§7LMB - purchase more §eRil" : "§7ЛКМ - пополнить счёт §eРил")
+            .lore(op.eng ? "§7LMB - §fPurchase more §eRil" : "§7ЛКМ - §fПополнить счёт §eРил")
             .lore(from > 0 ? (op.eng ? "§8You need <amber>" + from + " §8more <amber>Ril §8to withdraw"
                 : "§8Тебе нужно еще <amber>" + from + " Рил §8для вывода")
-                : (op.eng ? "§7RMB - request a §eRil payout" : "§7ПКМ - заказать вывод §eРил"))
-            .lore(op.eng ? "§7Shift+RMB - your §eRil §7transactions" : "§7Шифт+ПКМ - журнал операций §eРил")
-            .lore("<gray>[" + TCUtil.bind(TCUtil.Input.DROP) + "] - "
-                + (op.eng ? "exchange §eRil §7for §aLoni" : "поменять §eРил §7на §aЛони"))
+                : (op.eng ? "§7RMB - §fRequest a §eRil payout" : "§7ПКМ - §fЗаказать вывод §eРил"))
+            .lore(op.eng ? "§7Shift+RMB - §fYour §eRil §7transactions" : "§7Шифт+ПКМ - §fЖурнал операций §eРил")
+            .lore("<gray>" + TCUtil.bind(TCUtil.Input.DROP) + " - "
+                + (op.eng ? "§fExchange §eRil §7for §aLoni" : "§fПоменять §eРил §fна §aЛони"))
             .lore("§81" + Ostrov.R + " -> 50" + Ostrov.L).build(), e -> {
             final int from_in = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
             switch (e.getClick()) {
@@ -149,9 +151,8 @@ public class ProfileSection implements InventoryProvider {
             .lore("")
             .lore(op.eng ? "<mithril>Detailed information about" : "<mithril>Подробная информация о твоих")
             .lore(op.eng ? "<mithril>your groups on this server" : "<mithril>группах на этом сервере")
-            .lore((op.eng ? "§7LMB - show all groups §3(" : "§7ЛКМ - показать группы §3(") + op.getGroups().size() + ")")
-            .lore("")
-            .lore(op.eng ? "§7RMB - show your permissions" : "§7ПКМ - показать права (пермы)")
+            .lore((op.eng ? "§7LMB - §fShow all groups §3(" : "§7ЛКМ - §fПоказать группы §3(") + op.getGroups().size() + ")")
+            .lore(op.eng ? "§7RMB - §fShow your permissions" : "§7ПКМ - §fПоказать права (пермы)")
             .build(), e -> {
             if (e.isLeftClick()) {
                 pm.openGroupsAndPermsDB(p, 0);
@@ -241,36 +242,34 @@ public class ProfileSection implements InventoryProvider {
         }*/
 
 
-        content.set(3, 1, ClickableItem.of(new ItemBuilder(ItemType.BOOKSHELF)
-                    .name(op.eng ? "§7Journal" : "§7Журнал")
-                    .lore("")
-                    .lore(op.eng ? "§7LMB - §fview gere" : "§7ЛКМ - §fпросмотр здесь")
-                    .lore("")
-                    .lore(op.eng ? "§7RMB - §fview in chat" : "§7ПКМ - §fпросмотр в чате")
-                    .lore(op.eng ? "§7(faster)" : "§7(работает быстрее)")
-                    .lore("")
-                    .build()
-                , e -> {
-                    if (e.isLeftClick()) {
-                        pm.openJournal(p, 0);
-                    } else if (e.isRightClick()) {
-                        p.closeInventory();
-                        ApiOstrov.executeBungeeCmd(p, "journal");
-                    }
-
-                }
-            )
-        );
+        content.set(0, 3, ClickableItem.of(new ItemBuilder(ItemType.KNOWLEDGE_BOOK)
+            .name(op.eng ? "<beige>Journal" : "<beige>Журнал")
+            .lore("")
+            .lore(op.eng ? "<mithril>This is a log of your important actions!" : "<mithril>Сдесь записаны твои важные действия!")
+            .lore(op.eng ? "<dark_gray>(online sessions, buying groups, etc.)" : "<dark_gray>(онлайн сесии, покупка привилегий, т.д.)")
+            .lore("")
+            .lore(op.eng ? "§7LMB - §fView in menu" : "§7ЛКМ - §fПоказать в меню")
+            .lore(op.eng ? "§7RMB - §fView in chat" : "§7ПКМ - §fПоказать в чате")
+            .lore(op.eng ? "§8(loads faster)" : "§8(работает быстрее)")
+            .build(), e -> {
+            if (e.isLeftClick()) {
+                pm.openJournal(p, 0);
+            } else if (e.isRightClick()) {
+                p.closeInventory();
+                ApiOstrov.executeBungeeCmd(p, "journal");
+            }
+        }));
 
 
-        content.set(0, 3, ClickableItem.of(new ItemBuilder(ItemType.PAPER)
+        content.set(0, 4, ClickableItem.of(new ItemBuilder(ItemType.PAPER)
             .name(op.eng ? "§6Reports" : "§6Репорты")
             .lore("")
             .lore(op.eng ? "§7LMB - §сYour jambs." : "§7ЛКМ - §сПроверить свои косяки")
             .lore(op.eng ? "<mithril>Appeal them in /discord or /telegram"
                 : "<mithril>Обжалуй их в /discord или /telegram")
+            .lore("")
             .lore(op.eng ? "§7RMB - §eView recent" : "§7ПКМ - §eРепорты на других игроков")
-            .lore(op.eng ? "<gray>Shift+Click - §6Submit a report" : "<gray>Шифт+Клик - §6подать жалобу")
+            .lore(op.eng ? "<gray>Shift+Click - §6Submit a report" : "<gray>Шифт+Клик - §6Подать жалобу")
             .build(), e -> {
             switch (e.getClick()) {
                 case LEFT:
@@ -280,69 +279,32 @@ public class ProfileSection implements InventoryProvider {
                     ReportCmd.openAllReports(p, op, 0);
                     break;
                 case SHIFT_LEFT, SHIFT_RIGHT:
-                    PlayerInput.get(InputButton.InputType.ANVILL, p, info -> p.performCommand("report " + info), "Ник - Жалоба");
+                    PlayerInput.get(InputButton.InputType.ANVILL, p,
+                        name -> PlayerInput.get(InputButton.InputType.ANVILL, p,
+                            reason -> p.performCommand("report " + name + " " + reason),
+                            "Жалоба"), "Ник");
                     break;
             }
         }));
 
 
-        /*content.set(3, 5, ClickableItem.of(new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
-                    .name(op.eng ? "§7Ignore - list" : "§7Игнор - лист")
-                    .lore("")
-                    .lore(op.eng ? "§7You can add" : "§7Вы можете добавить")
-                    .lore(op.eng ? "§7annoying player" : "§7надоедливого игрока")
-                    .lore(op.eng ? "§7into a blacklist" : "§7в Чёрный список")
-                    .lore(op.eng ? "§7by command §b/ignore add <name>" : "§7командой §b/ignore add <ник>")
-                    .lore(op.eng ? "§7Remove from blacklist - command" : "§7Удалить из ЧС - команда")
-                    .lore(op.eng ? "§b/ignore del <name>" : "§b/ignore del <ник>")
-                    .lore(op.eng ? "§7or in the menu on this button." : "§7или в меню на этой кнопке.")
-                    .lore("")
-                    .lore(op.getBlackListed().isEmpty() ? (op.eng ? "§8blacklist is empty" : "§8Список пуст") : (op.eng ? "§7LMB - §fedit" : "§7ЛКМ - §fредактировать"))
-                    .lore("")
-                    .build()
-                , e -> {
-                    if (op.getBlackListed().isEmpty()) {
-                        PM.soundDeny(p);
-                    } else {
-                        pm.openIgnoreList(p);
-                    }
-                }
-            )
-        );*/
-
-        
-
-
-                
-        
-        
-        
-        
-        
-        
-              
-            
-        
-        
-
-
-
-
-
-        
-
-        /*
-        
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(ItemType.OAK_DOOR).name("Закрыть").build(), e -> 
-        {
-            p.closeInventory();
-        }
-        ));
-        
-*/
-
-
+        content.set(0, 5, ClickableItem.of(new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
+            .name(op.eng ? "<stale>Ignore - List" : "<stale>Игнор - Список")
+            .lore("")
+            .lore(op.eng ? "<mithril>You can add annoyoing players" : "<mithril>Можешь добавлять сюда надоедливых")
+            .lore(op.eng ? "<mithril>that spam your chat / dms here!" : "<mithril>игроков, которые спамят в чат / лс!")
+            .lore(op.getBlackListed().isEmpty() ? (op.eng ? "§8Blacklist's empty" : "§8Список пуст")
+                : (op.eng ? "§7LMB - §fOpen" : "§7ЛКМ - §fОткрыть"))
+            .lore(op.eng ? "<stale>The blacklist lasts" : "<stale>Чёрный список длится до")
+            .lore(op.eng ? "<stale>until you log off" : "<stale>твоего выхода с сервера")
+            .lore("")
+            .lore(op.eng ? "§7Add player - §b/ignore <name>" : "§7Добавить - §b/ignore <ник>")
+            .build(), e -> {
+            if (op.getBlackListed().isEmpty()) {
+                PM.soundDeny(p);
+                return;
+            }
+            pm.openIgnoreList(p);
+        }));
     }
-
-
 }
