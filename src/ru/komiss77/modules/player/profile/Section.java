@@ -165,7 +165,7 @@ public enum Section {
                     lore = Arrays.asList(
                         Component.empty(),
                         Component.text("§7Клик - §fВыбор режима"),
-                        Component.text("§или конкретной арены")
+                        Component.text("§fили конкретной арены")
                     );
                 }
                 consumer = e -> {
