@@ -92,12 +92,11 @@ public class GameInfo {
 //                .lore(game.description)
                 .lore("")
                 .lore(getState().displayColor + getState().name())
-                .lore((hasLevel && hasReputation && gameOnline >= 0
+                .lore(hasLevel && hasReputation && gameOnline >= 0
                     ? (op.eng ? "§a🢖 Left Click §с- PLAY" : "§a🢖 Левый Клик §с- ИГРАТЬ")
                     : (op.eng ? "§кNot available!" : "§кНедоступен!"))
-                    + " §7(" + (gameOnline >= 0 ? gameOnline : "§4X") + "§7)")
                 .lore(op.eng ? "§a🢖 Right Click §к- MAPS" : "§a🢖 Правый Клик §к- АРЕНЫ")
-                .lore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : "")
+                .lore((op.eng ? "<beige>Players: <yellow>" : "<beige>Играют: <yellow>") + gameOnline)
                 .lore(stats)
                 .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
 
