@@ -1,6 +1,5 @@
 package ru.komiss77.modules.player.profile;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.entity.Player;
@@ -55,11 +54,11 @@ public class RewardLoni {
             case CS_game -> loniAdd = 10;
             //case CS_hshot -> loniAdd = 3;
             case CS_kill -> loniAdd = 5;
-            case CS_spnrs -> loniAdd = 5;
+            case CS_spnrs -> loniAdd = 4;
             case CS_win -> loniAdd = 10;
 
             case GR_game -> loniAdd = 10;
-            case GR_kill -> loniAdd = 20;
+            case GR_builds -> loniAdd = 20;
             case GR_win -> loniAdd = 20;
 
 //            case KB_abil -> loniAdd = 1; не имба
@@ -67,8 +66,8 @@ public class RewardLoni {
             case KB_kill -> loniAdd = 10;
             case KB_twin -> loniAdd = 20;
 
-            case PA_chpt -> loniAdd = 5;
-            case PA_done -> loniAdd = 20;
+            case PA_chpt -> loniAdd = 2;
+            case PA_done -> loniAdd = 10;
 
             case SW_game -> loniAdd = 10;
             case SW_kill -> loniAdd = 10;
@@ -90,10 +89,10 @@ public class RewardLoni {
             int loni = op.getDataInt(Data.LONI) + loniAdd;
             op.addExp(p, NumUtil.randInt(loniAdd, loniAdd * op.karmaCalc / 100 + loniAdd));
             op.setData(Data.LONI, loni);
-            if (loniAdd >= 5) {
+            if (loniAdd > 10) {
                 //paper версия
-                p.sendMessage(Component.text(Ostrov.PREFIX + "§7Награда за " + Lang.t(p, stat.desc) + " §7-> " + loniAdd + " лони §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(Component.text("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
+                p.sendMessage(TCUtil.form(Ostrov.PREFIX + Lang.t(p, stat.desc) + " §7-> " + loniAdd + Ostrov.L + " §8<клик")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<beige>У тебя §e" + loni + Ostrov.L))).clickEvent(ClickEvent.runCommand("/money balance")));
             }
         }
     }
@@ -102,31 +101,21 @@ public class RewardLoni {
         int loniAdd = 0;
 
         switch (customStatName) {
-            case "Убийство бескроватного" -> {
-                loniAdd = 10;
-            }
-            case "Захват флага" -> {
-                loniAdd = 10;
-            }
-            case "Битва Строителей - 1 место" -> {
-                loniAdd = 40;
-            }
-            case "Битва Строителей - 2 место" -> {
-                loniAdd = 20;
-            }
-            case "Битва Строителей - 3 место" -> {
-                loniAdd = 10;
-            }
+            case "Убийство бескроватного" -> loniAdd = 10;
+            case "Захват флага" -> loniAdd = 10;
+            case "Битва Строителей - 1 место" -> loniAdd = 40;
+            case "Битва Строителей - 2 место" -> loniAdd = 20;
+            case "Битва Строителей - 3 место" -> loniAdd = 10;
         }
 
         if (loniAdd > 0) {
             int loni = op.getDataInt(Data.LONI) + loniAdd;
             op.setData(Data.LONI, loni);
             op.addExp(p, NumUtil.randInt(loniAdd, loniAdd * op.karmaCalc / 100 + loniAdd));
-            if (loniAdd > 4) {
+            if (loniAdd > 10) {
                 //paper версия
-                p.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7Награда за " + customStatName + " §7-> " + loniAdd + " лони §7! §8<клик-баланс")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§fУ вас §e" + loni + " лони"))).clickEvent(ClickEvent.runCommand("/money balance")));
+                p.sendMessage(TCUtil.form(Ostrov.PREFIX + Lang.t(p, customStatName) + " §7-> " + loniAdd + Ostrov.L + " §8<клик")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<beige>У тебя §e" + loni + Ostrov.L))).clickEvent(ClickEvent.runCommand("/money balance")));
             }
         }
 

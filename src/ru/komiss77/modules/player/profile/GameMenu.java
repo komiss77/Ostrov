@@ -56,7 +56,7 @@ public class GameMenu implements InventoryProvider {
                 if (gi == null) continue;
 
                 if (game.menuSlot > 0) {
-                    content.set(game.menuSlot, ClickableItem.of(gi.getIcon(op), e -> {
+                    content.set(game.menuSlot, ClickableItem.of(gi.getIcon(p, op), e -> {
                         if (e.isLeftClick()) {
                             GM.randomPlay(p, game, null);
                         } else if (e.isRightClick()) {
@@ -92,7 +92,7 @@ public class GameMenu implements InventoryProvider {
                 if (gi == null) continue;
 
                 if (game.menuSlot > 0) {
-                    content.set(game.menuSlot, ClickableItem.of(gi.getIcon(op), e -> {
+                    content.set(game.menuSlot, ClickableItem.of(gi.getIcon(p, op), e -> {
                         if (gi.count() == 0) return;
                         final ArenaInfo ai = gi.arenas().stream().findAny().get();//gi.arenas.get(0);
                         if (ai.server.equals(Ostrov.MOT_D)) {//(game == GM.GAME) {

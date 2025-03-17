@@ -2,9 +2,11 @@ package ru.komiss77.modules.games;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
@@ -20,6 +22,7 @@ import ru.komiss77.utils.ItemUtil;
 
 public class GameInfo {
 
+    public static final Stat[] STATS = Stat.values();
     public final Game game;
 
     private int gameOnline; //для одиночек, либо общий онлайн на аренах
@@ -45,13 +48,23 @@ public class GameInfo {
     }
 
 
-    public ItemStack getIcon(final Oplayer op) {
+    public ItemStack getIcon(final Player p, final Oplayer op) {
         final boolean hasLevel = op.getStat(Stat.LEVEL) >= game.level;
         final boolean hasReputation = op.reputationCalc >= game.reputation;
 
+        final List<String> stats = new LinkedList<>();
+        for (final Stat st : STATS) {
+            if (game != st.game) continue;
+            final int val = op.getStat(st);
+            if (val == 0) continue;
+            final int daily = op.getDailyStat(st);
+            stats.add(Lang.t(p, st.desc) + val + (daily > 0 ? " <beige>(+" + daily + ")" : ""));
+        }
+        if (!stats.isEmpty()) stats.addFirst("");
+
         return switch (game.type) {
 
-            case ONE_GAME -> new ItemBuilder(mat.asItemType())
+            case ONE_GAME -> new ItemBuilder(mat.asItemType()).glint(GM.GAME == game)
                 .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
                 .amount(Math.max(Math.min(gameOnline, 60), 1))
                 .lore("")
@@ -62,20 +75,21 @@ public class GameInfo {
                     ? (op.eng ? "§a🢖 Click §с- PLAY" : "§a🢖 Клик §с- ИГРАТЬ")
                     : (op.eng ? "§кNot available!" : "§кНедоступен!"))
                     + " §7(" + (gameOnline >= 0 ? gameOnline : "§4X") + "§7)")
+                .lore(stats)
                 .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
 
-            case LOBBY -> new ItemBuilder(mat.asItemType())
+            case LOBBY -> new ItemBuilder(mat.asItemType()).glint(GM.GAME == game)
                 .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
                 .amount(Math.max(Math.min(gameOnline, 60), 1))
                 .lore("")
                 .lore(getState().displayColor + getState().name())
                 .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
 
-            case ARENAS -> new ItemBuilder(mat.asItemType())
+            case ARENAS -> new ItemBuilder(mat.asItemType()).glint(GM.GAME == game)
                 .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
                 .amount(Math.max(Math.min(gameOnline, 60), 1))
-                .lore("")
-                .lore(game.description)
+//                .lore("")
+//                .lore(game.description)
                 .lore("")
                 .lore(getState().displayColor + getState().name())
                 .lore((hasLevel && hasReputation && gameOnline >= 0
@@ -84,6 +98,7 @@ public class GameInfo {
                     + " §7(" + (gameOnline >= 0 ? gameOnline : "§4X") + "§7)")
                 .lore(op.eng ? "§a🢖 Right Click §к- MAPS" : "§a🢖 Правый Клик §к- АРЕНЫ")
                 .lore(gameOnline >= 0 ? (op.eng ? "§7Players: " : "§7Играют: ") + gameOnline : "")
+                .lore(stats)
                 .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
 
             default -> ItemUtil.air.clone();

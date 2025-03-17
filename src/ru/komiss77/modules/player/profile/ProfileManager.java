@@ -870,7 +870,7 @@ public class ProfileManager {
                         }
                         gi = GM.getGameInfo(g);
                         if (gi != null && g.menuSlot > 0) {
-                            current.setItem(g.menuSlot, gi.getIcon(op));
+                            current.setItem(g.menuSlot, gi.getIcon(p, op));
                         } //обновляем только активные
                     }
 

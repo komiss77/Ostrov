@@ -21,7 +21,10 @@ import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.*;
-import ru.komiss77.enums.*;
+import ru.komiss77.enums.Game;
+import ru.komiss77.enums.GameState;
+import ru.komiss77.enums.ServerType;
+import ru.komiss77.enums.Table;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
@@ -458,13 +461,9 @@ public final class GM {
                         }
                     }
                 }
-                if (arenaInfo == null) {
-                    //p.sendMessage("§cНе найдено арены, подходящей для быстрой игры, попробуйте найти на табличке!");
-                    arenaInfo = gi.arenas().stream().findAny().get();
-                }
-                if (arenaInfo != null) {
-                    arenaName = arenaInfo.arenaName;
-                }
+                //p.sendMessage("§cНе найдено арены, подходящей для быстрой игры, попробуйте найти на табличке!");
+                if (arenaInfo == null) arenaInfo = gi.arenas().stream().findAny().orElse(null);
+                if (arenaInfo != null) arenaName = arenaInfo.arenaName;
             }
         }
 

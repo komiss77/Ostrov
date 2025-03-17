@@ -71,7 +71,6 @@ public class StatSection implements InventoryProvider {
                     .lore(lore)
                 .build();
 
-            //menuEntry.add(ClickableItem.empty(stat_item));
             content.set(game.statSlot, ClickableItem.empty(stat_item));
 
         }                

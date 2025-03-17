@@ -252,8 +252,7 @@ public class BotManager implements Initiable, Listener {
                 if (!(ent instanceof final LivingEntity le)) continue;
                 if (ent.getType() != Botter.TYPE
                     || !le.getPersistentDataContainer().has(KEY)) continue;
-                final Botter be = botById.get(ent.getEntityId());
-                if (be == null) ent.remove();
+                ent.remove();
             }
         }
     }
