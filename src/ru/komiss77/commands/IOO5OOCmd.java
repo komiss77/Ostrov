@@ -2,9 +2,6 @@ package ru.komiss77.commands;
 
 import java.util.Set;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -19,12 +16,12 @@ import ru.komiss77.builder.menu.AdminInv;
 import ru.komiss77.builder.menu.Sounds;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
-import ru.komiss77.hook.SkinRestorerHook;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
@@ -149,7 +146,7 @@ public class IOO5OOCmd {
                     return 0;
                 }
                 final Oplayer op = PM.getOplayer(p);
-                if (op.hasGroup("xpanitely") || op.hasGroup("owner")) {
+                if (Perm.isStaff(op, 2)) {
                     SmartInventory.builder().id("Admin " + cs.getName())
                         .provider(new AdminInv())
                         .size(3, 9)

@@ -2,7 +2,6 @@ package ru.komiss77.modules.protocols;
 
 import java.util.UUID;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
@@ -12,8 +11,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ScreenUtil;
 
 public class Protocol10 implements Listener {
@@ -62,11 +63,16 @@ public class Protocol10 implements Listener {
         active = true;
         pid = p.getUniqueId();
 
-        final Protocol10 pr = this;
+        final PlayerInventory inv = p.getInventory();
+        final ItemStack it = inv.getItem(4);
+        inv.setItem(4, sub);
+        if (!ItemUtil.isBlank(it, false)) {
+            ItemUtil.giveItemsTo(p, it);
+        }
+        inv.setHeldItemSlot(4);
 
         new BukkitRunnable() {
             private int i = 0, li = 0;
-            private final Location lc = p.getLocation();
 
             @Override
             public void run() {
@@ -94,7 +100,7 @@ public class Protocol10 implements Listener {
 
                 if (!active) {
                     for (final Player pl : Bukkit.getOnlinePlayers()) {
-                        pl.playSound(pl.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 2f, 0.6f);
+                        pl.playSound(pl.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 4f, 0.6f);
                         pl.clearTitle();
                     }
                     cancel();

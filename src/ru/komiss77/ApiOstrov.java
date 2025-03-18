@@ -207,7 +207,7 @@ public class ApiOstrov {
         if (cs == null) return false;
         if ((cs instanceof ConsoleCommandSender) || cs.isOp() || cs.hasPermission("builder")) return true;
         final Oplayer op = PM.getOplayer(cs.getName());
-        return op != null && op.hasGroup("owner");
+        return op != null && Perm.isStaff(op, 2);
     }
 
     public static boolean isStaff(final CommandSender cs) {

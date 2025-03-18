@@ -21,8 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.ProtocolCmd;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.world.BVec;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemUtil;
@@ -179,7 +179,7 @@ public class Protocol77 implements Listener {
         Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
         immune = new HashSet<>();
         for (final Player pl : Bukkit.getOnlinePlayers()) {
-            if (PM.getOplayer(pl).hasGroup(ProtocolCmd.grp)) immune.add(pl.getUniqueId());
+            if (Perm.isStaff(PM.getOplayer(pl), 2)) immune.add(pl.getUniqueId());
             final PlayerInventory inv = pl.getInventory();
             final ItemStack it = inv.getItem(4);
             inv.setItem(4, sub);
@@ -253,7 +253,7 @@ public class Protocol77 implements Listener {
                 if (!active) {
                     HandlerList.unregisterAll(pr);
                     for (final Player pl : Bukkit.getOnlinePlayers()) {
-                        pl.playSound(pl.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 2f, 0.6f);
+                        pl.playSound(pl.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 4f, 0.6f);
                         pl.clearTitle();
                     }
                     cancel();

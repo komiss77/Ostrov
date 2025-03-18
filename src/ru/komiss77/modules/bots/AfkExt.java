@@ -11,25 +11,24 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.listener.ChatLst;
-import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.modules.world.BVec;
 
 
 public class AfkExt implements Botter.Extent {
 
-    private final WXYZ loc;
+    private final BVec loc;
 
-    public AfkExt(final WXYZ loc) {
+    public AfkExt(final BVec loc) {
         this.loc = loc;
     }
 
     @Override
     public void create(final Botter bt) {
-        bt.telespawn(null, loc.getCenterLoc());
+        bt.telespawn(null, loc.center(bt.world()));
         bt.tab("", ChatLst.NIK_COLOR, "");
         bt.tag("§3А вот и ", ChatLst.NIK_COLOR, " §2заспавнен");
     }
@@ -89,11 +88,7 @@ public class AfkExt implements Botter.Extent {
 
             final Location loc = rplc.getLocation();
             final Location eyel = rplc.getEyeLocation();
-            final Vector vc = eyel.getDirection();
-
-            vc.normalize();
-
-            bot.move(loc, vc, true);
+            bot.move(loc, eyel.getDirection());
 
         }
 

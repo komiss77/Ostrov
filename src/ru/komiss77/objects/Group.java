@@ -146,9 +146,17 @@ public class Group {
         }
         split.add(sb.toString()); //добавляем, что осталось
 
-
         return split;
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        return o instanceof final Group gr && gr.name.equals(name);
+    }
 }

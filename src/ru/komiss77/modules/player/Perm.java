@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
@@ -20,6 +19,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.Group;
 import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
 
 
@@ -28,17 +28,16 @@ public class Perm {
     private static boolean pathPermissions;
     public static final OConfig localPerms;
     private static final Set<String> defaultPerms;
-    private static Map<String, Group> groups; //название в БД, группа
-
+    private static final Map<String, Group> groups; //название в БД, группа
+    private static final Map<Group.Type, Group[]> typed; //тип в БД, группы
 
     static {
-        groups = new CaseInsensitiveMap<>();
         defaultPerms = new HashSet<>();
-        localPerms = Cfg.manager.config("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере", "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
-        localPerms.addDefault("default", Arrays.asList(
-                "chatformat.default"
-            )
-        );
+        groups = new CaseInsensitiveMap<>();
+        typed = new EnumMap<>(Group.Type.class);
+        localPerms = Cfg.manager.config("default_perms.yml", new String[]{"", "Права по умолчанию на этом сервере",
+            "наследование не учитывается!", "просто чтобы не захламлять БД острова"});
+        localPerms.addDefault("default", Arrays.asList("chatformat.default"));
         localPerms.saveConfig();
         loadLocal();
     }
@@ -147,7 +146,9 @@ public class Perm {
                 }
             }
 
-            groups = loadedGroup; //если в загрузке была ошибка - загруженное не изменится
+            groups.clear();
+            groups.putAll(loadedGroup); //если в загрузке была ошибка - загруженное не изменится
+            fillTyped();//типы групп
 
             if (updatePlayerPermissions) {
                 Ostrov.sync(() -> {
@@ -177,6 +178,48 @@ public class Perm {
 
     }
 
+    private static void fillTyped() {
+        final EnumMap<Group.Type, List<Group>> tps = new EnumMap<>(Group.Type.class);
+        for (final Group.Type tp : Group.Type.values()) tps.put(tp, new ArrayList<>());
+        for (final Group gr : groups.values()) tps.get(gr.tp).add(gr);
+        for (final Map.Entry<Group.Type, List<Group>> en : tps.entrySet())
+            typed.put(en.getKey(), order(en.getValue()));
+    }
+
+    private static Group[] order(final List<Group> grps) {
+        final List<Group> fin = new LinkedList<>();
+        while (true) {
+            Group top = null;
+            for (final Group gr : grps) {
+                if (top != null && gr.inheritance.size() <= top.inheritance.size()) continue;
+                if (!fin.isEmpty() && !fin.getLast().inheritance.contains(gr.name)) continue;
+                top = gr;
+            }
+            if (top == null) break;
+            fin.add(top);
+        }
+        return fin.toArray(new Group[0]);
+    }
+
+    public static boolean isRank(final Oplayer op, final int tier) {
+        return isTier(op, tier, Group.Type.DONATE);
+    }
+
+    public static boolean isStaff(final Oplayer op, final int tier) {
+        return isTier(op, tier, Group.Type.STAFF);
+    }
+
+    private static boolean isTier(final Oplayer op, final int tier, final Group.Type gt) {
+        if (tier < 1) return false;
+        final Group[] grps = typed.get(gt);
+        if (grps == null) return false;
+        for (int i = Math.min(tier, grps.length); i != 0; i--) {
+            final Group gr = grps[i-1];
+            if (gr == null) continue;
+            return op.hasGroup(gr);
+        }
+        return false;
+    }
 
     //вызывается при:
     //- входе на серв
@@ -188,7 +231,7 @@ public class Perm {
         op.isStaff = false;
 
         try {
-            op.groups.clear();
+            op.groupMap.clear();
             op.user_perms.clear();
             op.limits.clear();
             op.chat_group = " ---- ";
@@ -201,7 +244,7 @@ public class Perm {
                 for (String group_name : op.getDataString(Data.USER_GROUPS).split(",")) {                   //добавляем группы игроку
                     final Group group = groups.get(group_name);
                     if (group != null) {
-                        op.groups.add(group_name);
+                        op.groupMap.put(group_name, group);
                         op.user_perms.addAll(group.permissions);
                         op.chat_group = op.chat_group + ", " + group.chat_name;
                         if (group.isStaff()) {
@@ -285,11 +328,11 @@ public class Perm {
             ex.printStackTrace();
         }
 
-        Bukkit.getPluginManager().callEvent(new GroupChangeEvent(p, op.groups));
+        Bukkit.getPluginManager().callEvent(new GroupChangeEvent(p, new HashSet<>(op.groupMap.values())));
 
         if (notify) {
-            p.sendMessage(Component.text("§3Ваши права группы обновились: §6" + op.chat_group + " §8<<< клик-подробно")
-                .hoverEvent(HoverEvent.showText(Component.text("§aклик - открыть показать подробно в меню")))
+            p.sendMessage(TCUtil.form("§3Твои группы обновились: §6" + op.chat_group + " §8<<< клик-подробно")
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§aКлик - показать")))
                 .clickEvent(ClickEvent.runCommand("/operm")));
         }
 
@@ -345,7 +388,7 @@ public class Perm {
             serverName = perm.substring(0, idx); //отделить сервер
 //System.out.println("-- serverName="+serverName+ " this?"+serverName.equals(GM.this_server_name)+" other?"+GM.allBungeeServersName.contains(serverName));
             if (serverName.equalsIgnoreCase(Ostrov.MOT_D)) { //если для этого сервера - отрезать сервер
-                return (perm.substring(idx + 1));//op.user_perms.add(perm.substring(idx+1));
+                return perm.substring(idx + 1);//op.user_perms.add(perm.substring(idx+1));
             } else if (GM.allBungeeServersName.contains(serverName)) { //если начинается с имени другого сервера
                 return null;
             } else {
@@ -358,6 +401,6 @@ public class Perm {
 
     //пермы
     public static boolean canColorChat(final Oplayer op) {
-        return op.hasGroup("hero") || op.hasGroup("supermoder");
+        return isRank(op, 2) || isStaff(op, 2);
     }
 }

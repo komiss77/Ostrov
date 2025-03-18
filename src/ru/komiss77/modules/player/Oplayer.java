@@ -37,6 +37,7 @@ import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
+import ru.komiss77.objects.Group;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
@@ -78,7 +79,8 @@ public class Oplayer {
     public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
 
     //вычисляется из данных прокси
-    public CaseInsensitiveSet groups = new CaseInsensitiveSet();
+//    public CaseInsensitiveSet groups = new CaseInsensitiveSet();
+    public CaseInsensitiveMap<Group> groupMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveSet user_perms = new CaseInsensitiveSet();
     public final EnumMap<CheatType, Integer> cheats = new EnumMap<>(CheatType.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
 
@@ -666,14 +668,20 @@ public class Oplayer {
         return !dataString.isEmpty();
     }
 
-
-    public boolean hasGroup(final String group_name) {
-        if (groups.contains(group_name)) return true;
-        return groups.stream().anyMatch((gr) -> (Perm.getGroup(gr) != null && Perm.getGroup(gr).inheritance.contains(group_name)));
+    public boolean hasGroup(final Group grp) {
+        if (groupMap.containsKey(grp.name)) return true;
+        return groupMap.values().stream().anyMatch(gr -> gr.inheritance.contains(grp.name));
     }
 
+    @Deprecated
+    public boolean hasGroup(final String group) {
+        if (groupMap.containsKey(group)) return true;
+        return groupMap.values().stream().anyMatch(gr -> gr.inheritance.contains(group));
+    }
+
+    @Deprecated
     public Collection<String> getGroups() {
-        return groups;
+        return groupMap.keySet();
     }
 
     public Collection<String> getUserPerms() {
@@ -749,17 +757,17 @@ public class Oplayer {
     }
 
     public String getTopPerm() {
-        if (hasGroup("owner"))
+        if (Perm.isStaff(this, 1))
             return "Создатель";
-        if (hasGroup("xpanitely"))
+        if (Perm.isStaff(this, 2))
             return "Сис-Админ";
-        if (hasGroup("supermoder"))
+        if (Perm.isStaff(this, 5))
             return "Персонал";
-        if (hasGroup("legend"))
+        if (Perm.isRank(this, 1))
             return "Легенда";
-        if (hasGroup("hero"))
+        if (Perm.isRank(this, 2))
             return "Герой";
-        if (hasGroup("warior"))
+        if (Perm.isRank(this, 3))
             return "Воин";
         return "";
     }
