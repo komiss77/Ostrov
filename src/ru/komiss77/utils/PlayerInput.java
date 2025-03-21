@@ -107,8 +107,8 @@ public class PlayerInput implements Listener {
 
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(TCUtil.form("§fНаберите в чате значение " + (sugg.isEmpty() ? "и нажмите Ввод" : "§b>Клик<"))
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§7Клик - подставить '" + sugg + "'")))
+                p.sendMessage(TCUtil.form(Ostrov.PREFIX + "<indigo>Набери значение в чат! <blue>≫ Клик")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form(sugg.isBlank() ? "§7Клик - открыть чат" : "§7Клик - подставить '" + sugg + "'")))
                     .clickEvent(ClickEvent.suggestCommand(sugg)));
             }
 

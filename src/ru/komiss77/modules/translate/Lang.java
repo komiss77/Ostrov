@@ -3,6 +3,7 @@ package ru.komiss77.modules.translate;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -190,15 +191,15 @@ public class Lang {
         }
         //final Request request = rb.setBody("{\"targetLanguageCode\":\"ru\",\"folderId\":\"\",\"texts\":\""+ce.oriStripMsg+"\"}").build();
         final HttpRequest request;
-        if (ce.stripMsgRu != null) {
+        if (ce.strMsgRu != null) {
             request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"en\",\"folderId\":\"" + folderId + "\",\"texts\":\""
-                + ce.stripMsgRu.replace('\\', ' ') + "\"}")).build();
+                + ce.strMsgRu.replace('\\', ' ') + "\"}")).build();
         } else {
             request = rb.POST(HttpRequest.BodyPublishers.ofString("{\"targetLanguageCode\":\"ru\",\"folderId\":\"" + folderId + "\",\"texts\":\""
-                + ce.stripMsgEn.replace('\\', ' ') + "\"}")).build();
+                + ce.strMsgEn.replace('\\', ' ') + "\"}")).build();
         }
 //Ostrov.log("request ="+request);
-        final CompletableFuture<Void> cf = HTTP.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
+        final CompletableFuture<Void> cf = HTTP.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())
             .thenApply(java.net.http.HttpResponse::body)
             //.thenAccept(System.out::println);
             .thenAccept(array -> {
@@ -209,10 +210,10 @@ public class Lang {
                     idx = responce.indexOf("\"");
                     if (idx > 0) {
                         responce = responce.substring(0, idx);
-                        if (ce.stripMsgRu == null) {
-                            ce.stripMsgRu = responce;
+                        if (ce.strMsgRu == null) {
+                            ce.strMsgRu = responce;
                         } else {
-                            ce.stripMsgEn = responce;
+                            ce.strMsgEn = responce;
                         }
                         ChatLst.process(ce);
                         return;
@@ -230,10 +231,10 @@ public class Lang {
     }
 
     private static void abort(final ChatPrepareEvent ce) {
-        if (ce.stripMsgEn == null) {
-            ce.stripMsgEn = ce.stripMsgRu;
+        if (ce.strMsgEn == null) {
+            ce.strMsgEn = ce.strMsgRu;
         } else {
-            ce.stripMsgRu = ce.stripMsgEn;
+            ce.strMsgRu = ce.strMsgEn;
         }
         ChatLst.process(ce);
     }

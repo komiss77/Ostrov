@@ -197,16 +197,14 @@ public class AdvanceCrazy implements IAdvance, Listener {
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         final String qss = op.mysqlData.get("quests");
-        //if (qss == null || qss.isEmpty() || !Cfg.quests) return;
         if (qss == null || qss.isEmpty()) return;
-        final String[] split = qss.split(LocalDB.LINE_SPLIT);
-//      p.sendMessage(Arrays.toString(split));
+        final String[] split = LocalDB.LINE.split(qss);
         int stamp;
         for (String quest : split) {
             if (quest.isEmpty()) continue;
-            final Quest qs = QuestManager.byCode(quest.charAt(0));
+            final Quest qs = Quest.get(quest.charAt(0));
             if (qs == null) continue;
-            final int splitterIndex = quest.indexOf(LocalDB.W_SPLIT);
+            final int splitterIndex = LocalDB.WORD.index(quest);
             if (splitterIndex == 1) {
                 stamp = NumUtil.intOf(quest.substring(splitterIndex + 1), 0);
                 if (stamp > 0) op.quests.put(qs, qs.createPrg(stamp));

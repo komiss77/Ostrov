@@ -400,12 +400,11 @@ public class PM {
 
     public static String getGenderDisplay(final Oplayer op) {
         return switch (op.gender) {
-            case FEMALE -> op.eng ? "§dGirl" : "§dДевочка";
-            case MALE -> op.eng ? "§dBoy" : "§9Мальчик";
-            default -> op.eng ? "§3Unisex" : "§3Бесполое";
+            case FEMALE -> op.eng ? "§dGirl" : "§d✨ Девочка ✨";
+            case MALE -> op.eng ? "§dBoy" : "§9❖ Мальчик ❖";
+            default -> op.eng ? "§3NB" : "§5♠ Обитатель ♠";
         };
     }
-
 
     public static int getPasportFillPercent(final Oplayer op) {
         double max = 0;

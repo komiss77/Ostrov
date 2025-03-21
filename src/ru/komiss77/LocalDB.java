@@ -32,10 +32,16 @@ public class LocalDB {
     public static boolean useLocalData = false;
     public static boolean PLAYER_DATA_SQL = false;
     private static String url;
+    @Deprecated
     public static final char L_SPLIT = '∬';
+    @Deprecated
     public static final char W_SPLIT = '∫';
+    @Deprecated
     public static final String LINE_SPLIT = "∬";
+    @Deprecated
     public static final String WORD_SPLIT = "∫";
+    public static final StringUtil.Split LINE = StringUtil.Split.MEDIUM;
+    public static final StringUtil.Split WORD = StringUtil.Split.SMALL;
     private static final Set<String> fieldsExist;
     protected static Connection connection;
     private static boolean tabbleSetupDone;
@@ -170,7 +176,7 @@ public class LocalDB {
                 }
             }
             for (String posName : op.world_positions.keySet()) {
-                build.append(L_SPLIT).append(posName).append(W_SPLIT).append(op.world_positions.get(posName));
+                build.append(LINE.get()).append(posName).append(WORD.get()).append(op.world_positions.get(posName));
             }
             op.mysqlData.put("positions", build.isEmpty() ? "" : build.substring(1));//final String positions = build.replaceFirst(bigSplit, "");
         } else {
@@ -180,7 +186,7 @@ public class LocalDB {
         if (op.mysqlData.containsKey("homes")) { //при загрузке ключа не будат, добавляется пустой при изменении домов
             build = new StringBuilder();
             for (String home : op.homes.keySet()) { //только при изменении!
-                build.append(L_SPLIT).append(home).append(W_SPLIT).append(op.homes.get(home));
+                build.append(LINE.get()).append(home).append(WORD.get()).append(op.homes.get(home));
             }
             op.mysqlData.put("homes", build.isEmpty() ? "" : build.substring(1));//final String homes = build.replaceFirst(bigSplit, "");
         }
@@ -188,7 +194,7 @@ public class LocalDB {
         if (op.mysqlData.containsKey("kitsUseData")) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
             build = new StringBuilder();
             for (String useTimeStamp : op.kits_use_timestamp.keySet()) {  //только при изменении!
-                build.append(L_SPLIT).append(useTimeStamp).append(W_SPLIT).append(op.kits_use_timestamp.get(useTimeStamp));
+                build.append(LINE.get()).append(useTimeStamp).append(WORD.get()).append(op.kits_use_timestamp.get(useTimeStamp));
             }
             op.mysqlData.put("kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
@@ -196,7 +202,7 @@ public class LocalDB {
         if (!op.quests.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
             build = new StringBuilder();
             for (final Entry<Quest, IProgress> en : op.quests.entrySet()) {  //только при изменении!
-                build.append(L_SPLIT).append(en.getKey().code).append(en.getValue().isDone() ? "" : W_SPLIT + en.getValue().getSave());
+                build.append(LINE.get()).append(en.getKey().code).append(en.getValue().isDone() ? "" : WORD.get() + en.getValue().getSave());
             }
             op.mysqlData.put("quests", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
@@ -420,9 +426,9 @@ public class LocalDB {
             int splitterIndex;
 
             if (!rs.getString("positions").isEmpty()) {
-                split = rs.getString("positions").split(LINE_SPLIT);
+                split = LINE.split(rs.getString("positions"));
                 for (String positionInfo : split) {
-                    splitterIndex = positionInfo.indexOf(W_SPLIT);
+                    splitterIndex = WORD.index(positionInfo);
                     if (splitterIndex > 0) {
                         op.world_positions.put(positionInfo.substring(0, splitterIndex), positionInfo.substring(splitterIndex + 1));
                     }
@@ -430,9 +436,9 @@ public class LocalDB {
             }
 
             if (!rs.getString("homes").isEmpty()) {
-                split = rs.getString("homes").split(LINE_SPLIT); //массив дом+коорд
+                split = LINE.split(rs.getString("homes"));
                 for (String info : split) {
-                    splitterIndex = info.indexOf(W_SPLIT);
+                    splitterIndex = WORD.index(info);
                     if (splitterIndex > 0) {
                         op.homes.put(info.substring(0, splitterIndex), info.substring(splitterIndex + 1));
                     }
@@ -440,10 +446,10 @@ public class LocalDB {
             }
 
             if (!rs.getString("kitsUseData").isEmpty()) {
-                split = rs.getString("kitsUseData").split(LINE_SPLIT);
+                split = LINE.split(rs.getString("kitsUseData"));
                 int stamp;
                 for (String info : split) {
-                    splitterIndex = info.indexOf(W_SPLIT);
+                    splitterIndex = WORD.index(info);
                     if (splitterIndex > 0) {
                         stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
                         if (stamp > 0) {

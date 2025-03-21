@@ -33,8 +33,8 @@ public class StringUtil {
 
     public enum Split {
         LARGE("‹¦›", "«︙»", "»¦«"),
-        MEDIUM("‼", "∬", "᠃", "↕"),
-        SMALL("÷", "∫", "¡", "±", "।");
+        MEDIUM('‼', '∬', '᠃', '⧥', '↕'),
+        SMALL('÷', '∫', '¡', '±', '।');
 
         private final int len;
         private final String[] chars;
