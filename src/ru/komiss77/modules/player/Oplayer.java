@@ -153,8 +153,7 @@ public class Oplayer {
 
         if (Cfg.afk) {
             final Location loc = p.getEyeLocation();
-            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch()
-                + (loc.getBlockX() << 20 | loc.getBlockY() << 10 | loc.getBlockZ());
+            int look = ((int) loc.getYaw() << 1) + (int) loc.getPitch();
             if (look != lookSum) { //двигался
                 lookSum = look;
                 if (Cfg.afk_sec - afkLeft > 60) { //были титры афк
