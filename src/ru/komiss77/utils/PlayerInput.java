@@ -107,7 +107,8 @@ public class PlayerInput implements Listener {
 
             case CHAT -> {
                 p.closeInventory();
-                p.sendMessage(TCUtil.form(Ostrov.PREFIX + "<indigo>Набери значение в чат! <blue>≫ Клик")
+                ScreenUtil.sendTitleDirect(p, "", "<indigo>Набери значение в чат.. ", 8, 16, 8);
+                p.sendMessage(TCUtil.form(Ostrov.PREFIX + "<indigo>Набери значение в чат! " + (sugg.isBlank() ? "" : "<blue>≫ Клик"))
                     .hoverEvent(HoverEvent.showText(TCUtil.form(sugg.isBlank() ? "§7Клик - открыть чат" : "§7Клик - подставить '" + sugg + "'")))
                     .clickEvent(ClickEvent.suggestCommand(sugg)));
             }
@@ -136,10 +137,10 @@ public class PlayerInput implements Listener {
         data.setResult(result);
 
         if (data.type == InputType.CHAT) {
-            p.sendMessage("");
+            /*p.sendMessage("");
             p.sendMessage("§aЗначение получено: ");
             p.sendMessage(TCUtil.form("§f" + data.getResult()));
-            p.sendMessage("");
+            p.sendMessage("");*/
         } else if (data.type == InputType.SIGN) {
             if (data.xyz != null) {
                 final Location loc = data.xyz.getCenterLoc();

@@ -399,8 +399,13 @@ public class Perm {
         }
     }
 
-    //пермы
+    @Deprecated
     public static boolean canColorChat(final Oplayer op) {
         return isRank(op, 2) || isStaff(op, 2);
+    }
+
+    //пермы
+    public static boolean canColorChat(final Player p, final Oplayer op) {
+        return p.isOp() || isRank(op, 2) || isStaff(op, 2);
     }
 }
