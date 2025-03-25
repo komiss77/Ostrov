@@ -151,7 +151,7 @@ public class ProfileSection implements InventoryProvider {
             .lore("")
             .lore(op.eng ? "<mithril>Detailed information about" : "<mithril>Подробная информация о твоих")
             .lore(op.eng ? "<mithril>your groups on this server" : "<mithril>группах на этом сервере")
-            .lore((op.eng ? "§7LMB - §fShow all groups §3(" : "§7ЛКМ - §fПоказать группы §3(") + op.getGroups().size() + ")")
+            .lore((op.eng ? "§7LMB - §fShow all groups §3(" : "§7ЛКМ - §fПоказать группы §3(") + op.groupMap.size() + ")")
             .lore(op.eng ? "§7RMB - §fShow your permissions" : "§7ПКМ - §fПоказать права (пермы)")
             .build(), e -> {
             if (e.isLeftClick()) {
@@ -260,7 +260,6 @@ public class ProfileSection implements InventoryProvider {
             }
         }));
 
-
         content.set(0, 4, ClickableItem.of(new ItemBuilder(ItemType.PAPER)
             .name(op.eng ? "§6Reports" : "§6Репорты")
             .lore("")
@@ -281,8 +280,9 @@ public class ProfileSection implements InventoryProvider {
                 case SHIFT_LEFT, SHIFT_RIGHT:
                     PlayerInput.get(InputButton.InputType.ANVILL, p,
                         name -> PlayerInput.get(InputButton.InputType.ANVILL, p,
-                            reason -> p.performCommand("report " + name + " " + reason),
-                            "Жалоба"), "Ник");
+                            reason -> ApiOstrov.executeBungeeCmd(p,
+                                "report " + name + " " + reason),
+                        "Жалоба"), "Ник");
                     break;
             }
         }));

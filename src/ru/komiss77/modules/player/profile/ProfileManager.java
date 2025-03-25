@@ -471,16 +471,13 @@ public class ProfileManager {
                         break;
                     } else {
                         final HistoryType type = HistoryType.by_action(rs.getString("action"));
-                        buttons.add(ClickableItem.empty(new ItemBuilder(OStrap
-                            .get(Key.key(type.displayMat.toLowerCase()), ItemType.GRAY_DYE))
-                            .name(type.for_chat)
-                            .lore("§7источник : §b" + rs.getString("sender"))
-                            .lore("IP : " + rs.getString("target_ip"))
+                        buttons.add(ClickableItem.empty(new ItemBuilder(type.type)
+                            .name("<aqua>" + type.for_chat)
+                            .lore("§7Источник: <mithril>" + rs.getString("sender"))
+                            .lore("<stale>IP: " + rs.getString("target_ip"))
                             .lore("")
                             .lore(ItemUtil.genLore(null, rs.getString("report"), "§7"))
-                            .lore("")
                             .lore(TimeUtil.dateFromStamp(rs.getInt("data")))
-                            .lore("")
                             .build()
                         ));
                     }
@@ -501,7 +498,7 @@ public class ProfileManager {
                             .title(Section.ПРОФИЛЬ.item_nameRu + "<gray>: Журнал")
                             .build()
                             .open(p);
-                    }// else p.sendMessage("уже другое меню"); }
+                    }
                 }, 0);
 
             } catch (SQLException e) {

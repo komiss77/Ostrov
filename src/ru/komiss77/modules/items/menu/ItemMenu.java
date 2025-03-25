@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Map;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.DyedItemColor;
-import io.papermc.paper.datacomponent.item.ItemEnchantments;
-import io.papermc.paper.datacomponent.item.ItemLore;
-import io.papermc.paper.datacomponent.item.Unbreakable;
+import io.papermc.paper.datacomponent.item.*;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
@@ -21,9 +18,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.modules.player.profile.Skins;
 import ru.komiss77.utils.*;
-import ru.komiss77.utils.inventory.*;
+import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton.InputType;
+import ru.komiss77.utils.inventory.InventoryContent;
+import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.SmartInventory;
 
 
 public class ItemMenu implements InventoryProvider {
@@ -82,31 +83,30 @@ public class ItemMenu implements InventoryProvider {
         inv.setContents(invIts);
         inv.setItem(4, it);
         its.set(22, ClickableItem.of(new ItemBuilder(ItemType.HONEYCOMB).name("§aВыдать (ЛКМ) §6/ §eЗаменить (ПКМ) §6Предмет").build(), e -> {
-            switch (e.getClick()) {
-                case LEFT:
-                case SHIFT_LEFT:
-                    p.getInventory().addItem(it);
-                    p.sendMessage(Ostrov.PREFIX + "Предмет удачно создан!");
-                    break;
-                case RIGHT:
-                case SHIFT_RIGHT:
-                    p.getInventory().setItemInOffHand(it);
-                    p.sendMessage(Ostrov.PREFIX + "Предмет удачно заменен!");
-                    break;
-                default:
-                    break;
+            if (e.isRightClick()) {
+                p.getInventory().setItemInOffHand(it);
+                p.sendMessage(Ostrov.PREFIX + "Предмет удачно заменен!");
+                p.closeInventory();
+                return;
             }
+            p.getInventory().addItem(it);
+            p.sendMessage(Ostrov.PREFIX + "Предмет удачно создан!");
             p.closeInventory();
         }));
 
         final Component dnm = it.getData(DataComponentTypes.CUSTOM_NAME);
-        its.set(12, new InputButton(InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
+        its.set(12, ClickableItem.of(new ItemBuilder(ItemType.NAME_TAG)
             .name(TCUtil.form("§7Имя:<reset> ").append(dnm == null ? TCUtil.form("§8(Не Указано)") : dnm))
-            .lore(" ", "§aКлик §7- Изменить имя", "§c'-' §7уберет имя предмета").build(),
-            dnm == null ? "<gray>Предмет" : TCUtil.deform(dnm), msg -> {
-            if (msg.equals("-")) it.resetData(DataComponentTypes.CUSTOM_NAME);
-            else it.setData(DataComponentTypes.CUSTOM_NAME, TCUtil.form(msg));
-            reopen(p, its);
+            .lore(" ", "§aЛКМ §7- Изменить имя", "§cПКМ §7- Сбросить имя").build(), e -> {
+            if (e.isRightClick()) {
+                it.resetData(DataComponentTypes.CUSTOM_NAME);
+                reopen(p, its);
+                return;
+            }
+            PlayerInput.get(InputType.ANVILL, p, msg -> {
+                it.setData(DataComponentTypes.CUSTOM_NAME, TCUtil.form(msg));
+                reopen(p, its);
+            }, dnm == null ? "<gray>Предмет" : TCUtil.deform(dnm));
         }));
 
         ItemBuilder prep = new ItemBuilder(ItemType.MOJANG_BANNER_PATTERN);
@@ -197,7 +197,7 @@ public class ItemMenu implements InventoryProvider {
 
         final Unbreakable ub = it.getData(DataComponentTypes.UNBREAKABLE);
         its.set(8, ClickableItem.from(new ItemBuilder(ub == null ? ItemType.OBSIDIAN : ItemType.CRYING_OBSIDIAN)
-            .name("§чНеразрушимость").lore(ub == null ? "§7Клик - §dВключить" : "§7Клик - §5выключить").build(), e -> {
+            .name("§чНеразрушимость").lore(ub == null ? "§7Клик - §dВключить" : "§7Клик - §5Выключить").build(), e -> {
             if (ub != null) {
                 it.resetData(DataComponentTypes.UNBREAKABLE);
                 reopen(p, its);
@@ -266,11 +266,36 @@ public class ItemMenu implements InventoryProvider {
         }));
 
         final ItemType tp = it.getType().asItemType();
-        its.set(0, ClickableItem.empty(new ItemBuilder(ItemType.QUARTZ).name("<mithril>Стандарт дата:")
+        its.set(0, ClickableItem.of(new ItemBuilder(ItemType.QUARTZ).name("<mithril>Стандарт дата:")
             .lore(tp.getDefaultDataTypes().stream().map(dt -> {
                 if (dt instanceof final DataComponentType.Valued<?> vdt)
                     return "§7- " + dt.key().asMinimalString() + " > " + tp.getDefaultData(vdt);
                 return "§7- " + dt.key().asMinimalString();
-            }).toList()).build()));
+            }).toList()).build(), e -> {
+            tp.getDefaultDataTypes().forEach(dt ->
+                p.sendMessage(dt instanceof final DataComponentType.Valued<?> vdt
+                    ? tp.getDefaultData(vdt).toString() : dt.key().asMinimalString()));
+        }));
+
+        if (tp == ItemType.PLAYER_HEAD) {
+            final ResolvableProfile rp = it.getData(DataComponentTypes.PROFILE);
+            its.set(6, ClickableItem.of(new ItemBuilder(ItemType.TURTLE_HELMET)
+                .name("<gray>Профиль: " + (rp == null || rp.name() == null ? "§8(Не Указан)" : "<olive>" + rp.name()))
+                .lore(" ", "§aЛКМ §7- Изменить", "§cПКМ §7- Сбросить").build(), e -> {
+                if (e.isRightClick()) {
+                    it.resetData(DataComponentTypes.PROFILE);
+                    reopen(p, its);
+                    return;
+                }
+                PlayerInput.get(InputType.ANVILL, p, msg -> {
+                    Skins.future(msg, pp -> {
+                        it.setData(DataComponentTypes.PROFILE,
+                            ResolvableProfile.resolvableProfile(pp));
+                        reopen(p, its);
+                    });
+                    reopen(p, its);
+                }, dnm == null ? rp == null ? "Name" : rp.name() : TCUtil.deform(dnm));
+            }));
+        }
     }
 }

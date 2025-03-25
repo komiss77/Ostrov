@@ -1,11 +1,9 @@
 package ru.komiss77.modules.bots;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
+import com.mojang.authlib.GameProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -25,14 +23,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.modules.player.profile.Skins;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.IntHashMap;
 
@@ -42,7 +37,6 @@ public class BotManager implements Initiable, Listener {
     public static final NamespacedKey KEY = OStrap.key("bot");
     public static final IntHashMap<Botter> botById = new IntHashMap<>();
     protected static final CaseInsensitiveMap<Botter> botByName = new CaseInsensitiveMap<>();
-    protected static final CaseInsensitiveMap<String[]> skin = new CaseInsensitiveMap<>();
 
     public BotManager() {
 
@@ -271,23 +265,16 @@ public class BotManager implements Initiable, Listener {
         return botByName.get(name);
     }
 
+    @Deprecated
     public static void regSkin(final String name) {
         if (!Cfg.bots) {
             Ostrov.log_warn("BotManager Tried setting skin while the module is off!");
             return;
         }
-        Ostrov.async(() -> {
-            try {
-                final InputStreamReader irn = new InputStreamReader(URI
-                    .create("https://api.mojang.com/users/profiles/minecraft/" + name).toURL().openStream());
-                final String id = (String) ((JSONObject) new JSONParser().parse(irn)).get("id");
+        Skins.future(name);
+    }
 
-                final InputStreamReader tsr = new InputStreamReader(URI
-                    .create("https://sessionserver.mojang.com/session/minecraft/profile/" + id + "?unsigned=false").toURL().openStream());
-                final JSONObject ppt = ((JSONObject) ((JSONArray) ((JSONObject) new JSONParser().parse(tsr)).get("properties")).getFirst());
-                skin.put(name, new String[]{(String) ppt.get("value"), (String) ppt.get("signature")});
-            } catch (NullPointerException | IOException | ParseException e) {
-            }
-        });
+    public static GameProfile profile(final String name) {
+        return Skins.game(Skins.present(name));
     }
 }

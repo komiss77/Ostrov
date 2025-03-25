@@ -2,6 +2,8 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +22,7 @@ import ru.komiss77.utils.inventory.InputButton.InputType;
 public class FriendView implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ДРУЗЬЯ.glassMat).name("§8.").build());
+    public static final String INVITE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDE5NGEyMjM0NWQ5Y2RkZTc1MTY4Mjk5YWQ2MTg3M2JjMTA1ZTNhZTczY2Q2YzlhYzAyYTI4NTI5MWFkMGYxYiJ9fX0=";
     private final String rawData;
 
     FriendView(final String rawData) {
@@ -74,7 +77,7 @@ public class FriendView implements InventoryProvider {
 
             final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                 .name(inviteName)
-                .headTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDE5NGEyMjM0NWQ5Y2RkZTc1MTY4Mjk5YWQ2MTg3M2JjMTA1ZTNhZTczY2Q2YzlhYzAyYTI4NTI5MWFkMGYxYiJ9fX0=")
+                .headTexture(INVITE)
                 .lore("§6Предлагает дружить")
                 .lore("§7ЛКМ - §aпринять")
                 .lore("§7ПКМ - §cотклонить")
@@ -98,7 +101,7 @@ public class FriendView implements InventoryProvider {
             if (server.containsKey(friendName)) {
                 final int friendSettings = settings.get(friendName);
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
-                    .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре" : ""))
+                    .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
                     .lore("§7Сервер: §a" + server.get(friendName))
                     .lore(Settings.hasSettings(friendSettings, Settings.MsgDeny) ? "§8сообщения отключены" : "§7ЛКМ - §6написать сообщение")
                     .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8запрос на ТП отключён" : "§7ПКМ - §bзапрос на телепорт")
@@ -107,6 +110,10 @@ public class FriendView implements InventoryProvider {
                     .lore("§7Клав Q - §cудалить")
                     .build();
 
+                Skins.future(friendName, pp -> {
+                    friend_item.setData(DataComponentTypes.PROFILE,
+                        ResolvableProfile.resolvableProfile(pp));
+                });
                 menuEntry.add(ClickableItem.of(friend_item, e -> {
                     switch (e.getClick()) {
                         case LEFT:
@@ -136,7 +143,7 @@ public class FriendView implements InventoryProvider {
                 }));
             } else {
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
-                    .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре" : ""))
+                    .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
                     .lore("§8оффлайн")
                     .lore("§7ЛКМ - §6написать письмо")
                     .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §6разблокировать" : "")
@@ -144,6 +151,10 @@ public class FriendView implements InventoryProvider {
                     .lore("§7Клав Q - §cудалить")
                     .build();
 
+                Skins.future(friendName, pp -> {
+                    friend_item.setData(DataComponentTypes.PROFILE,
+                        ResolvableProfile.resolvableProfile(pp));
+                });
                 menuEntry.add(ClickableItem.of(friend_item, e -> {
                     switch (e.getClick()) {
                         case DROP:

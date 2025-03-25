@@ -4,6 +4,8 @@ package ru.komiss77.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -35,7 +37,7 @@ public class TestLst implements Listener {
         return Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]);
     }*/
 
-//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.canBeBuilder(p)) return;
@@ -85,6 +87,7 @@ public class TestLst implements Listener {
         }
 
         if (inHand.getType() == Material.DRAGON_BREATH) {
+            p.sendMessage("tx-" + p.getPlayerProfile().getTextures().getSkin());
             p.sendMessage("§8TestListener - interact cancel!");
             if (e.getClickedBlock() != null) {
                 e.setCancelled(true);
