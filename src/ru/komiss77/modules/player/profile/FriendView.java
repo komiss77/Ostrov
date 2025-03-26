@@ -16,6 +16,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.PlayerInput;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.*;
 import ru.komiss77.utils.inventory.InputButton.InputType;
 
@@ -84,15 +85,14 @@ public class FriendView implements InventoryProvider {
                 .build();
 
             menuEntry.add(ClickableItem.of(friend_item, e -> {
-                    if (e.isLeftClick()) {
-                        Friends.add(p, op, inviteName);
-                    } else if (e.isRightClick()) {
+                    if (e.isRightClick()) {
                         p.sendMessage("§6Ник " + inviteName + " занесён в игнор");
-                        ApiOstrov.executeBungeeCmd(p, "ignore add " + inviteName);
+                        ApiOstrov.executeBungeeCmd(p, "ignore " + inviteName);
                         op.friendInvite.remove(inviteName);
-                        //p.performCommand("ignore add "+inviteName);//op.blackList.add(inviteName);
                         reopen(p, content);
+                        return;
                     }
+                    Friends.add(p, op, inviteName);
                 }
             ));
         }
@@ -103,11 +103,11 @@ public class FriendView implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
                     .lore("§7Сервер: §a" + server.get(friendName))
-                    .lore(Settings.hasSettings(friendSettings, Settings.MsgDeny) ? "§8сообщения отключены" : "§7ЛКМ - §6написать сообщение")
-                    .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8запрос на ТП отключён" : "§7ПКМ - §bзапрос на телепорт")
-                    .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §6разблокировать" : "")
+                    .lore(Settings.hasSettings(friendSettings, Settings.MsgDeny) ? "§8Сообщения отключены" : "§7ЛКМ - §6Написать ЛС")
+                    .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8Запрос на ТП отключён" : "§7ПКМ - §bЗапрос на ТП")
+                    .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §eРазблокировать" : "")
                     .lore("")
-                    .lore("§7Клав Q - §cудалить")
+                    .lore("§7" + TCUtil.bind(TCUtil.Input.DROP) + " - §cУдалить")
                     .build();
 
                 Skins.future(friendName, pp -> {
@@ -120,17 +120,15 @@ public class FriendView implements InventoryProvider {
                             p.closeInventory();
                             PlayerInput.get(InputType.CHAT, p, msg -> {
                                 ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
-                                //p.performCommand("friend mail "+friendName+" "+msg);
                             }, "");
                             return;
                         case SHIFT_LEFT:
-                            ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
+                            ApiOstrov.executeBungeeCmd(p, "ignore " + friendName);
                             op.removeBlackList(friendName);
                             return;
                         case RIGHT:
                             p.closeInventory();
                             ApiOstrov.executeBungeeCmd(p, "friend jump " + friendName);
-                            //p.performCommand("friend jump "+friendName);
                             return;
                         case DROP:
                             Friends.delete(p, op, friendName);
@@ -145,8 +143,8 @@ public class FriendView implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
                     .lore("§8оффлайн")
-                    .lore("§7ЛКМ - §6написать письмо")
-                    .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §6разблокировать" : "")
+                    .lore("§7ЛКМ - §6Написать ЛС")
+                    .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §eРазблокировать" : "")
                     .lore("")
                     .lore("§7Клав Q - §cудалить")
                     .build();
@@ -166,12 +164,11 @@ public class FriendView implements InventoryProvider {
                             p.closeInventory();
                             PlayerInput.get(InputType.CHAT, p, msg -> {
                                 ApiOstrov.executeBungeeCmd(p, "friend mail " + friendName + " " + msg);
-                                //p.performCommand("friend mail "+friendName+" "+msg);
                             }, "");
                             break;
 
                         case SHIFT_LEFT:
-                            ApiOstrov.executeBungeeCmd(p, "ignore del " + friendName);
+                            ApiOstrov.executeBungeeCmd(p, "ignore " + friendName);
                             op.removeBlackList(friendName);
                             return;
 
@@ -185,21 +182,11 @@ public class FriendView implements InventoryProvider {
 
 
         menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
-            .name("§aдобавить")
-            .lore("§7")
-            .lore("§7Чтобы отправить предложение")
-            .lore("§7дружить, встаньте рядом")
-            .lore("§7и нажмите на эту иконку.")
-            .lore("§7")
+            .name("§aДобавить").lore("").lore("§6Нужно быть рядом с игроком!")
             .build(), e -> Friends.openFriendsFind(op)));
-
-
-        //  }
-
 
         pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(9);
-
 
         if (!pagination.isLast()) {
             content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
@@ -217,9 +204,8 @@ public class FriendView implements InventoryProvider {
             );
         }
 
-        pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
+        pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL,
+            SlotPos.of(0, 0)).allowOverride(false));
 
     }
-
-
 }

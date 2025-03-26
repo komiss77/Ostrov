@@ -1,7 +1,6 @@
 package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +10,7 @@ import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.inventory.*;
@@ -49,15 +49,11 @@ public class PartyFind implements InventoryProvider {
         final Pagination pagination = content.pagination();
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
-        Oplayer findOp;
         boolean found = false;
-
-        for (final Player find : Bukkit.getOnlinePlayers()) {
-
-            if (find.getName().equals(p.getName())) continue;
-            if (LocUtil.getDistance(p.getLocation(), find.getLocation()) > 30) continue;
-
-            findOp = PM.getOplayer(find);
+        final int id = p.getEntityId();
+        for (final Player find : LocUtil.getChEnts(BVec.of(p),
+            20, Player.class, pl -> pl.getEntityId() != id)) {
+            final Oplayer findOp = PM.getOplayer(find);
             if (findOp == null) continue;
             found = true;
 
@@ -66,8 +62,7 @@ public class PartyFind implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.EMERALD)
                     .name(find.getName())
                     .lore("")
-                    .lore("§2Уже в вашей команде")
-                    .lore("")
+                    .lore("§2Уже с тобой в команде!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
@@ -77,8 +72,7 @@ public class PartyFind implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
-                    .lore("§2Уже в команде " + findOp.party_leader)
-                    .lore("")
+                    .lore("§2Уже в команде " + findOp.party_leader + "!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
@@ -88,10 +82,8 @@ public class PartyFind implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
-                    .lore("§cПриглашения в команду")
-                    .lore("§cот посторонних")
-                    .lore("§cотключены в настройках.")
-                    .lore("")
+                    .lore("§cПриглашения в команду от")
+                    .lore("§cпосторонних отключены!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
@@ -101,21 +93,18 @@ public class PartyFind implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
-                    .lore("§cПриглашения в команду")
-                    .lore("§cот друзей")
-                    .lore("§cотключены в настройках.")
-                    .lore("")
+                    .lore("§cПриглашения в команду от")
+                    .lore("§cдрузей отключены!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
             } else if (op.isBlackListed(p.getName())) {
 
-                final ItemStack friend_item = new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
+                final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
-                    .lore("§cВ игноре")
-                    .lore("")
+                    .lore("§cУ тебя в игноре!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
@@ -125,20 +114,17 @@ public class PartyFind implements InventoryProvider {
                 final ItemStack friend_item = new ItemBuilder(ItemType.WITHER_SKELETON_SKULL)
                     .name(find.getName())
                     .lore("")
-                    .lore("§cВы занесены в игнор")
-                    .lore("")
+                    .lore("§4Ты в игноре!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.partyInvite.contains(p.getName())) {
+            } else if (findOp.friendInvite.contains(p.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(ItemType.CREEPER_HEAD)
                     .name(find.getName())
                     .lore("")
-                    .lore("§6Приглашение уже")
-                    .lore("§6отправлено.")
-                    .lore("")
+                    .lore("§6Приглашение отправлено!")
                     .build();
 
                 menuEntry.add(ClickableItem.empty(friend_item));
@@ -147,15 +133,15 @@ public class PartyFind implements InventoryProvider {
 
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(find.getName())
+                    .skullOf(find)
                     .lore("")
                     .lore("§aПригласить в команду")
-                    .lore("")
                     .build();
 
                 menuEntry.add(ClickableItem.of(friend_item
                         , e -> {
                             if (find.isOnline()) {
-                                Friends.suggestParty(p, op, find);
+                                Friends.suggestParty(p, find);
                                 reopen(p, content);
                             }
                         }
@@ -170,13 +156,10 @@ public class PartyFind implements InventoryProvider {
         if (!found) {
 
             final ItemStack notFound = new ItemBuilder(ItemType.GLASS_BOTTLE)
-                .name("§7Никого не смогли найти..")
-                .lore("")
-                .lore("§7Поиск ведется в радиусе")
-                .lore("§75 блоков.")
+                .name("§7Нет никого рядом..")
+                .lore("§8Радиус: 20 блоков")
                 .lore("")
                 .lore("§7ЛКМ - обновить")
-                .lore("")
                 .build();
 
             content.set(4, ClickableItem.of(notFound, e -> {

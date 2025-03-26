@@ -193,7 +193,9 @@ public class ApiOstrov {
     //@Dep друзья могуть быть на разных серверах, поэтому чекается именно по нику (это как раз к вопросу, зачем в РМ метод getOplayer(ник)
     public static boolean isFriend(final String p1, final String p2) {
         final Oplayer op1 = PM.getOplayer(p1);
-        return op1 != null && op1.friends.contains(p2);
+        if (op1 != null) return op1.friends.contains(p2);
+        final Oplayer op2 = PM.getOplayer(p2);
+        return op2 != null && op2.friends.contains(p1);
     }
     //****************************************************
 
