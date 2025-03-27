@@ -98,7 +98,6 @@ public class AttrMenu implements InventoryProvider {
                 final ItemAttributeModifiers.Builder iamb = ItemAttributeModifiers.itemAttributes();
                 for (final Entry en : ates) iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
                 final EquipmentSlotGroup group = it.getType().getEquipmentSlot().getGroup();
-                iamb.showInTooltip(iams == null || iams.showInTooltip());
                 switch (msg.charAt(0)) {
                     case '+', '-':
                         iamb.addModifier(at, new AttributeModifier(getKey(at, group),//add_value
@@ -129,7 +128,6 @@ public class AttrMenu implements InventoryProvider {
                         if (en.attribute().equals(at)) continue;
                         iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
                     }
-                    iamb.showInTooltip(iams == null || iams.showInTooltip());
                     it.setData(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.build());
                     reopen(p, its);
                     return;
@@ -154,7 +152,6 @@ public class AttrMenu implements InventoryProvider {
                         if (en.attribute().equals(at)) continue;
                         iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
                     }
-                    iamb.showInTooltip(iams == null || iams.showInTooltip());
                     final AttributeModifier mod = prevAtr.modifier();
                     switch (msg.charAt(0)) {
                         case '+', '-':

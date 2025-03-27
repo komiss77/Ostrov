@@ -15,7 +15,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -238,7 +237,7 @@ public class ProfileManager {
                     final ItemType mat = group == null ? ItemType.EMERALD : OStrap.get(Key.key(group.mat.toLowerCase()), ItemType.LEATHER_HELMET);
                     //`family`,`birth`, 
                     buttons.add(ClickableItem.empty(new ItemBuilder(mat)
-                        .flags(ItemFlag.HIDE_ATTRIBUTES)
+                        .hide(DataComponentTypes.ATTRIBUTE_MODIFIERS)
                         .name("§f" + rs.getString("name"))
                         .lore("")
                         .lore(group == null ? rs.getString("parent") : "§e" + group.chat_name)

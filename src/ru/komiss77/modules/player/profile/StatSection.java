@@ -2,10 +2,10 @@ package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.boot.OStrap;
@@ -67,7 +67,7 @@ public class StatSection implements InventoryProvider {
 
             final ItemStack stat_item = new ItemBuilder(OStrap.get(Key.key(game.mat.toLowerCase()), ItemType.GRAY_DYE))
                 .name(Lang.t(p, game.displayName))
-                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .hide(DataComponentTypes.ATTRIBUTE_MODIFIERS)
                     .lore(lore)
                 .build();
 

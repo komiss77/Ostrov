@@ -1,9 +1,9 @@
 package ru.komiss77.modules.player.profile;
 
 import java.util.ArrayList;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.enums.Stat;
@@ -61,7 +61,7 @@ public class AdvSection implements InventoryProvider {
 
             final ItemStack adv_item = new ItemBuilder(mat)
                 .name(Lang.t(p, st.game.displayName) + " : " + Lang.t(p, st.desc))
-                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .hide(DataComponentTypes.ATTRIBUTE_MODIFIERS)
                 .lore("")
                 .lore(level >= 5 ? "§6✪ §e" + StatManager.topAdv(st) + " §6✪" : "")
                 .lore(Lang.t(p, "§fНакоплено : §6") + op.getStat(st))

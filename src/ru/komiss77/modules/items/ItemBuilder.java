@@ -45,7 +45,6 @@ public class ItemBuilder {
     private int amount = 1; //по умолчанию 1, или build() выдаёт AIR!
     private ItemData data = null;
     private PersistentDataContainer pdcs = null;
-    private EnumSet<ItemFlag> flags = null;
 
     public ItemBuilder(final ItemType type) {
         if (type == null || ItemType.AIR.equals(type)) {
@@ -218,84 +217,52 @@ public class ItemBuilder {
         return set(DataComponentTypes.LORE, ItemLore.lore(lores));
     }
 
+    @Deprecated
     private boolean isOn(final ItemFlag flag) {
-        return flags != null && flags.contains(flag);
+        return false;
     }
 
     @Deprecated
     public ItemBuilder flags(final boolean on, final ItemFlag... fls) {
-        if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
-        for (final ItemFlag f : fls) {
-            if (on) if (!flags.add(f)) continue;
-            else if (!flags.remove(f)) continue;
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    if (on) set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    else reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(!on);
-        }
         return this;
     }
 
+    @Deprecated
     public ItemBuilder flags(final ItemFlag... fls) {
-        if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
-        for (final ItemFlag f : fls) {
-            if (!flags.add(f)) continue;
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(false);
-        }
         return this;
     }
 
+    @Deprecated
     public ItemBuilder deflag() {
-        for (final ItemFlag f : flags) {
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(true);
-        }
-        flags.clear();
         return this;
+    }
+
+    public ItemBuilder hideAll(final boolean set) {
+        final TooltipDisplay td = get(DataComponentTypes.TOOLTIP_DISPLAY);
+        if (td == null) {
+            return !set ? this : set(DataComponentTypes.TOOLTIP_DISPLAY,
+                TooltipDisplay.tooltipDisplay().hideTooltip(true).build());
+        }
+        if (td.hideTooltip() == set) return this;
+        if (!set && td.hiddenComponents().isEmpty())
+            return reset(DataComponentTypes.TOOLTIP_DISPLAY);
+        return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+            .hiddenComponents(td.hiddenComponents()).hideTooltip(set).build());
+    }
+
+    public ItemBuilder hide(final DataComponentType... data) {
+        final TooltipDisplay td = get(DataComponentTypes.TOOLTIP_DISPLAY);
+        if (td == null) {
+            return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay
+                .tooltipDisplay().hiddenComponents(Set.of(data)).build());
+        }
+        return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+            .hiddenComponents(td.hiddenComponents()).addHiddenComponents(data).build());
     }
 
     public ItemBuilder trim(final TrimMaterial mat, final TrimPattern pat) {
         return set(DataComponentTypes.TRIM, ItemArmorTrim.itemArmorTrim(
-            new ArmorTrim(mat, pat), !isOn(ItemFlag.HIDE_ARMOR_TRIM)));
+            new ArmorTrim(mat, pat)).build());
     }
 
     public <D> ItemBuilder merge(final DataComponentType.Valued<D> vld, final Onection<D> fun) {
@@ -327,7 +294,7 @@ public class ItemBuilder {
         }
         enchs.put(enchant, level);
         final ItemFlag flag = stored ? ItemFlag.HIDE_STORED_ENCHANTS : ItemFlag.HIDE_ENCHANTS;
-        return set(type, ItemEnchantments.itemEnchantments(enchs, !isOn(flag)));
+        return set(type, ItemEnchantments.itemEnchantments(enchs));
     }
 
     public ItemBuilder disEnchant() {
@@ -335,8 +302,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder unbreak(final boolean set) {
-        return set ? set(DataComponentTypes.UNBREAKABLE, Unbreakable
-            .unbreakable(!isOn(ItemFlag.HIDE_UNBREAKABLE)))
+        return set ? set(DataComponentTypes.UNBREAKABLE)
             : reset(DataComponentTypes.UNBREAKABLE);
     }
 
@@ -368,8 +334,7 @@ public class ItemBuilder {
                 iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
             }
         }
-        return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.addModifier(atr, mod)
-            .showInTooltip(!isOn(ItemFlag.HIDE_ATTRIBUTES)).build());
+        return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.addModifier(atr, mod).build());
     }
 
     public ItemBuilder removeAttribute(final Attribute atr) {
@@ -537,7 +502,7 @@ public class ItemBuilder {
         }
         if (color == null) return reset(DataComponentTypes.DYED_COLOR);
         return set(DataComponentTypes.DYED_COLOR,
-            DyedItemColor.dyedItemColor(color, !isOn(ItemFlag.HIDE_DYE)));
+            DyedItemColor.dyedItemColor(color));
     }
 
     public ItemBuilder basePotion(final @Nullable PotionType pot) {

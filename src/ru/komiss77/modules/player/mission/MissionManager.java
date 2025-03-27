@@ -8,10 +8,8 @@ import java.util.Map;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -54,7 +52,7 @@ public class MissionManager {
     }
 
     public static int getMin(final Oplayer op) {
-      return (5 + op.getStat(Stat.WD_count)) * 5;
+        return (5 + op.getStat(Stat.WD_count)) * 5;
     }
 
 
@@ -261,7 +259,7 @@ public class MissionManager {
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.GUNPOWDER)
                                 .name(mission.displayName())
-                                    .lore(lore)
+                                .lore(lore)
                                 .build()
                             ));
 
@@ -284,7 +282,7 @@ public class MissionManager {
                             //lore.add(Component.empty());
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.SUGAR)
                                 .name(mission.displayName())
-                                    .lore(lore)
+                                .lore(lore)
                                 .build()
                             ));
 
@@ -296,7 +294,7 @@ public class MissionManager {
 
                             buttonsDone.add(ClickableItem.empty(new ItemBuilder(ItemType.GUNPOWDER)
                                 .name(mission.displayName())
-                                    .lore(lore)
+                                .lore(lore)
                                 .build()
                             ));
 
@@ -393,9 +391,8 @@ public class MissionManager {
                                 lore.add(Component.text("§fЛКМ §7- §eЗавершить и получить награду!"));
                                 buttonsCurrent.add(ClickableItem.of(new ItemBuilder(mission.mat)
                                             .name(mission.displayName())
-                                        .lore(lore)
-                                        .enchant(Enchantment.FORTUNE, 1)
-                                            .flags(ItemFlag.HIDE_ENCHANTS)
+                                            .lore(lore)
+                                            .glint(true)
                                             .build(), e -> {
                                             op.getPlayer().performCommand("mission complete " + missionId);
                                         }
@@ -658,7 +655,7 @@ public class MissionManager {
 
 
     protected static boolean canUseCommand(final Player p, final String command) {
-      if (GM.GAME != Game.LOBBY && !Ostrov.debug()) {
+        if (GM.GAME != Game.LOBBY && !Ostrov.debug()) {
             p.sendMessage("§cУправлять миссиями можно только в лобби!");
             return false;
         }

@@ -347,7 +347,8 @@ public class EntityUtil {
             case SMALL_FIREBALL:
             case SNOWBALL:
             case SPECTRAL_ARROW:
-            case POTION:
+            case SPLASH_POTION:
+            case LINGERING_POTION:
             case EXPERIENCE_BOTTLE:
             case TRIDENT:
             case UNKNOWN:

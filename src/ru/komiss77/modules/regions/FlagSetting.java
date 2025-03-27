@@ -5,11 +5,11 @@ import java.util.stream.Collectors;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.protection.flags.*;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -92,7 +92,8 @@ public class FlagSetting {
 
     ItemStack is = new ItemBuilder((mat == null ? Material.GRAY_DYE : mat).asItemType())
         .name("§7" + fs.displayname)
-        .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
+        .hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
+            DataComponentTypes.PROVIDES_TRIM_MATERIAL)
         .lore("")
         .lore(getCurrentValue(region, f))
         .lore("")

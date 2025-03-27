@@ -1,9 +1,9 @@
 package ru.komiss77.modules.player.profile;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
@@ -54,7 +54,7 @@ public class Donate implements InventoryProvider {
             if (group == null || group.isStaff()) continue;
             content.set(group.inv_slot, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(OStrap.get(Key.key(group.mat.toLowerCase()), ItemType.EMERALD))
                 .name(group.chat_name)
-                .flags(ItemFlag.HIDE_ATTRIBUTES)
+                .hide(DataComponentTypes.ATTRIBUTE_MODIFIERS)
                 .lore(group.lore)
                 .build(), "15-180 дней", ammount -> {
                 p.closeInventory();

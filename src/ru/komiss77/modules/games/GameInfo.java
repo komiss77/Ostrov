@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
@@ -76,14 +76,16 @@ public class GameInfo {
                     : (op.eng ? "§кNot available!" : "§кНедоступен!"))
                     + " §7(" + (gameOnline >= 0 ? gameOnline : "§4X") + "§7)")
                 .lore(stats)
-                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
+                .hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
+                    DataComponentTypes.PROVIDES_TRIM_MATERIAL).build();
 
             case LOBBY -> new ItemBuilder(mat.asItemType()).glint(GM.GAME == game)
                 .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
                 .amount(Math.max(Math.min(gameOnline, 60), 1))
                 .lore("")
                 .lore(getState().displayColor + getState().name())
-                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
+                .hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
+                    DataComponentTypes.PROVIDES_TRIM_MATERIAL).build();
 
             case ARENAS -> new ItemBuilder(mat.asItemType()).glint(GM.GAME == game)
                 .name(op.eng ? Lang.t(game.displayName, Lang.EN) : game.displayName)
@@ -98,7 +100,8 @@ public class GameInfo {
                 .lore(op.eng ? "§a🢖 Right Click §к- MAPS" : "§a🢖 Правый Клик §к- АРЕНЫ")
                 .lore((op.eng ? "<beige>Players: <yellow>" : "<beige>Играют: <yellow>") + gameOnline)
                 .lore(stats)
-                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP).build();
+                .hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
+                    DataComponentTypes.PROVIDES_TRIM_MATERIAL).build();
 
             default -> ItemUtil.air.clone();
 
