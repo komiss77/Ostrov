@@ -620,7 +620,7 @@ public class Nms {
     final LevelChunk nmsChunk = ws.getChunkIfLoaded(chunk.getX(), chunk.getZ());
     if (nmsChunk == null) return;
     final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(
-        nmsChunk, ws.getLightEngine(), null, null, true);
+        nmsChunk, ws.getLightEngine(), null, null);
     sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
   }
 

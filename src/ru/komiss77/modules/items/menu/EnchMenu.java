@@ -72,13 +72,13 @@ public class EnchMenu implements InventoryProvider {
                     case LEFT, SHIFT_LEFT:
                         if (em == null) {
                             it.setData(ste ? DataComponentTypes.STORED_ENCHANTMENTS : DataComponentTypes.ENCHANTMENTS,
-                                ItemEnchantments.itemEnchantments(Map.of(en, 1), true));
+                                ItemEnchantments.itemEnchantments(Map.of(en, 1)));
                             reopen(p, its);
                             break;
                         }
                         em.put(en, lvl == null ? 1 : lvl + 1);
                         it.setData(ste ? DataComponentTypes.STORED_ENCHANTMENTS : DataComponentTypes.ENCHANTMENTS,
-                            ItemEnchantments.itemEnchantments(em, ies.showInTooltip()));
+                            ItemEnchantments.itemEnchantments(em));
                         reopen(p, its);
                         break;
                     case RIGHT, SHIFT_RIGHT:
@@ -91,7 +91,7 @@ public class EnchMenu implements InventoryProvider {
                             break;
                         }
                         it.setData(ste ? DataComponentTypes.STORED_ENCHANTMENTS : DataComponentTypes.ENCHANTMENTS,
-                            ItemEnchantments.itemEnchantments(em, ies.showInTooltip()));
+                            ItemEnchantments.itemEnchantments(em));
                         reopen(p, its);
                         break;
                 }

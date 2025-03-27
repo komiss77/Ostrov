@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.*;
+import io.papermc.paper.datacomponent.item.DyedItemColor;
+import io.papermc.paper.datacomponent.item.ItemEnchantments;
+import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
@@ -195,15 +198,15 @@ public class ItemMenu implements InventoryProvider {
             }
         }));
 
-        final Unbreakable ub = it.getData(DataComponentTypes.UNBREAKABLE);
-        its.set(8, ClickableItem.from(new ItemBuilder(ub == null ? ItemType.OBSIDIAN : ItemType.CRYING_OBSIDIAN)
-            .name("§чНеразрушимость").lore(ub == null ? "§7Клик - §dВключить" : "§7Клик - §5Выключить").build(), e -> {
-            if (ub != null) {
+        final boolean unb = it.hasData(DataComponentTypes.UNBREAKABLE);
+        its.set(8, ClickableItem.from(new ItemBuilder(unb ? ItemType.CRYING_OBSIDIAN : ItemType.OBSIDIAN)
+            .name("§чНеразрушимость").lore(unb ? "§7Клик - §5Выключить" : "§7Клик - §dВключить").build(), e -> {
+            if (unb) {
                 it.resetData(DataComponentTypes.UNBREAKABLE);
                 reopen(p, its);
                 return;
             }
-            it.setData(DataComponentTypes.UNBREAKABLE, Unbreakable.unbreakable().build());
+            it.setData(DataComponentTypes.UNBREAKABLE);
             reopen(p, its);
         }));
 
@@ -241,8 +244,9 @@ public class ItemMenu implements InventoryProvider {
                             return;
                         }
                         it.setData(DataComponentTypes.DYED_COLOR, DyedItemColor.dyedItemColor(Color
-                            .fromRGB(Math.clamp(NumUtil.intOf(csp[0], 0), 0, 255), Math.clamp(NumUtil.intOf(csp[1], 0), 0, 255),
-                                Math.clamp(NumUtil.intOf(csp[2], 0), 0, 255)), dic == null || dic.showInTooltip()));
+                            .fromRGB(Math.clamp(NumUtil.intOf(csp[0], 0), 0, 255),
+                                Math.clamp(NumUtil.intOf(csp[1], 0), 0, 255),
+                                Math.clamp(NumUtil.intOf(csp[2], 0), 0, 255))));
                         reopen(p, its);
                     }, clr.getRed() + spl + clr.getGreen() + spl + clr.getBlue());
                     break;

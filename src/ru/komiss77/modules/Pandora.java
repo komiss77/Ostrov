@@ -103,6 +103,7 @@ public final class Pandora implements Initiable, Listener {
         return (op.eng ? "§6You can open Pandora's Box in " : "§6До открытия Ящика Пандоры: ") + TimeUtil.secondToTime(DAY_PLAY_TIME_TO_OPEN - op.getDailyStat(Stat.PLAY_TIME));
     }
 
+    private static final Sound[] SOUNDS = Registry.SOUNDS.stream().toArray(i -> new Sound[i]);
 
     public Pandora() {
         //reload();
@@ -180,7 +181,7 @@ public final class Pandora implements Initiable, Listener {
                 as.setHeadPose(as.getHeadPose().add(0.05, 0.05, 0.05));
 
                 if (tick % 10 == 0) {
-                    figure.name(TCUtil.form(TCUtil.randomColor() + PANDORA_NAME));
+                    figure.name(TCUtil.form(TCUtil.randomColor(true) + PANDORA_NAME));
                 }
 
                 if (tick % 30 == 0) {
@@ -192,9 +193,9 @@ public final class Pandora implements Initiable, Listener {
 
 
                 if (tick % 200 == 0) {
-                    Sound sound = Sound.values()[NumUtil.randInt(0, Sound.values().length - 1)];
+                    final Sound sound = SOUNDS[NumUtil.randInt(0, SOUNDS.length - 1)];
                     if (!sound.toString().startsWith("MUSIC_")) {
-                        as.getWorld().playSound(as.getLocation(), sound, 0.3F, 2);
+                        as.getWorld().playSound(as.getLocation(), sound, 0.3f, 2f);
                     }
                 }
 
