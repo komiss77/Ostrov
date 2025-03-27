@@ -87,23 +87,29 @@ public class Lang {
         }
     }
 
-
-    public static String t(final Player p, final String ruMsg) {
-        final boolean ru = p == null || p.getClientOption(ClientOption.LOCALE).equals("ru_ru");
-        if (ru) {
-            return ruMsg;
-        } else {
-            return translate(ruMsg, EN);
+    public static String t(final Player p, final String ruMsg, final Object... reps) {
+        String tr = t(p, ruMsg);
+        for (int i = 0; i != reps.length; i++) {
+            tr = tr.replace("{" + i + "}", reps[i].toString());
         }
+        return tr;
     }
 
+    public static String t(final Player p, final String ruMsg) {
+        return p == null || p.getClientOption(ClientOption.LOCALE)
+            .equals("ru_ru") ? ruMsg : translate(ruMsg, EN);
+    }
+
+    public static String t(final String ruMsg, final Locale locale, final Object... reps) {
+        String tr = t(ruMsg, locale);
+        for (int i = 0; i != reps.length; i++) {
+            tr = tr.replace("{" + i + "}", reps[i].toString());
+        }
+        return tr;
+    }
 
     public static String t(final String ruMsg, final Locale locale) {
-        if (locale == RU) {
-            return ruMsg;
-        } else {
-            return translate(ruMsg, locale);
-        }
+        return locale == RU ? ruMsg : translate(ruMsg, locale);
     }
 
     //перевод названий предметов, чар, биомов и всего что имеет перевод mojang

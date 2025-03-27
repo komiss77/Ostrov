@@ -922,31 +922,33 @@ public class PvPManager implements Initiable {
             return false; //если ни один не игрок, пропускаем
         }
 
-        if (target != null && target.getNoDamageTicks() > 20) { //у жертвы иммунитет
-            final int noDamageTicks = target.getNoDamageTicks() / 20;
-            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aИммунитет к повреждениям  - осталось §f") + noDamageTicks + Lang.t(target, " §a сек.!"));
+        if (target != null && target.getNoDamageTicks() > 0) { //у жертвы иммунитет
+            final int ndSec = target.getNoDamageTicks() / 20;
+            if (ndSec == 0) return true;
+            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
             if (damager != null) {
-                ScreenUtil.sendActionBarDirect(damager, "§a" + target.getName() + Lang.t(damager, " - иммунитет к повреждениям! Осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ {0} иммунитет еще §2{1} сек§a!", target.getName(), ndSec));
             }
             target.playSound(target.getLocation(), Sound.BLOCK_ANVIL_HIT, 1, 1);
             return true;
         }
 
-        if (damager != null && damager.getNoDamageTicks() > 20) { //у нападающего иммунитет
-            final int noDamageTicks = damager.getNoDamageTicks() / 20;
-            ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ тебя иммунитет к повреждениям и атакам - осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
+        if (damager != null && damager.getNoDamageTicks() > 0) { //у нападающего иммунитет
+            final int ndSec = damager.getNoDamageTicks() / 20;
+            if (ndSec == 0) return true;
+            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
             return true;
         }
 
         if (damager != null && target != null) {                               //если обаигроки
             if (!targetOp.pvp_allow && targetOp.pvp_time < 1 && !isForced(target, targetOp, true)) {                         //если у жертвы выкл пвп
-                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У тебя выключен режим ПВП!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен ПВП!"));
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У тебя выключен ПВП!"));
                 return true;
             }
             if (!damagerOp.pvp_allow && damagerOp.pvp_time < 1 && !isForced(damager, damagerOp, true)) {                         //если у атакующего выкл пвп
-                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У тебя выключен режим ПВП!"));
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен ПВП!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У тебя выключен ПВП!"));
                 return true;
             }
         }
@@ -954,12 +956,12 @@ public class PvPManager implements Initiable {
         if (damager != null) { //атакует игрок 
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
                 if (target != null && flags.get(PvpFlag.disable_creative_attack_to_player)) {
-                    ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
+                    ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака игроков невозможна в креативе!"));
                     return true;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {
                     final EntityUtil.EntityGroup group = EntityUtil.group(targetEntity);
                     if (group != EntityUtil.EntityGroup.UNDEFINED) {
-                        ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на моба в креативе невозможна!"));
+                        ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака мобов невозможна в креативе!"));
                         return true;
                     }
                 }
@@ -971,8 +973,8 @@ public class PvPManager implements Initiable {
         }
 
         if (battle_time > 1) {       //если активен режима боя и хотя бы один игрок
-
             if (damager != null && target != null) {//дерутся два игрока
+                if (damager.getEntityId() == target.getEntityId()) return false;
                 if (!new PlayerPVPEnterEvent(damager, target, cause, true).callEvent()) {
                     return false;
                 }
@@ -986,18 +988,14 @@ public class PvPManager implements Initiable {
                     return false;
                 }
                 pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр 
+            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
                 if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
                     return false;
                 }
                 pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
-            } else {
-                return false;
-            }
+            } else return false;
         }
-
         return false;
-
     }
 
     public static void pvpBeginFor(final Oplayer op, final Player p, final int time) {
