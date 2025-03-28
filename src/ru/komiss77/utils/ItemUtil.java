@@ -663,8 +663,8 @@ public class ItemUtil {
         return item != null && type.equals(item.getType().asItemType());
     }
 
-    public static boolean isBlank(final ItemStack item, final boolean checkMeta) {
-        return item == null || item.getType().isAir() || (checkMeta && item.getDataTypes().isEmpty());
+    public static boolean isBlank(final ItemStack item, final boolean checkData) {
+        return item == null || item.getType().isAir() || (checkData && item.getDataTypes().isEmpty());
     }
 
     public static boolean hasName(final ItemStack is) {

@@ -193,11 +193,11 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     public boolean isParrying(final LivingEntity mb) {
-        return PvPManager.CAN_PARRY.contains(lastType) && useTicks(mb) != 0;
+        return PvPManager.CAN_BLOCK.contains(lastType) && useTicks(mb) != 0;
     }
 
     public void parrying(final LivingEntity mb, final boolean set) {
-        if (PvPManager.CAN_PARRY.contains(item(EquipmentSlot.HAND))) {
+        if (PvPManager.CAN_BLOCK.contains(item(EquipmentSlot.HAND))) {
             if (set) {
                 world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
                 world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);

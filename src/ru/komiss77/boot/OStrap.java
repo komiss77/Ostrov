@@ -23,6 +23,7 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockType;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemType;
@@ -117,6 +118,7 @@ public class OStrap implements PluginBootstrap {
             case final EntityType ignored -> Ostrov.registries.ENTITIES;
             case final Attribute ignored -> Ostrov.registries.ATTRIBS;
             case final Biome ignored -> Ostrov.registries.BIOMES;
+            case final DamageType ignored -> Ostrov.registries.DAMAGES;
             default -> {
                 Ostrov.log_warn("Registry of " + val.getClass().getSimpleName() + " is not defined");
                 yield null;
