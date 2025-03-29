@@ -135,8 +135,8 @@ public class Message {
     }
 
     public Message(final ChatPrepareEvent e) {
+        final Oplayer senderOp = e.getOplayer();
         for (final Part pt : VALUES) {
-            final Oplayer senderOp = e.getOplayer();
             data[pt.ordinal()] = switch (pt) {
                 case SERVER -> GM.GAME.suggestName;
                 case SENDER -> senderOp.isGuest
