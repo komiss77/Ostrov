@@ -2,6 +2,7 @@ package ru.komiss77.boot;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
@@ -119,6 +120,7 @@ public class OStrap implements PluginBootstrap {
             case final Attribute ignored -> Ostrov.registries.ATTRIBS;
             case final Biome ignored -> Ostrov.registries.BIOMES;
             case final DamageType ignored -> Ostrov.registries.DAMAGES;
+            case final DataComponentType ignored -> Ostrov.registries.COMPS;
             default -> {
                 Ostrov.log_warn("Registry of " + val.getClass().getSimpleName() + " is not defined");
                 yield null;

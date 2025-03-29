@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Repairable;
@@ -1044,6 +1045,87 @@ public class ItemUtil {
                 return bld.build();
             }
         });
+        dataParser.put(DataComponentTypes.TOOLTIP_DISPLAY, new DataParser.Parser<TooltipDisplay>() {
+            public String write(final TooltipDisplay val) {
+                final StringBuilder sb = new StringBuilder(String.valueOf(val.hideTooltip()));
+                for (final DataComponentType dtc : val.hiddenComponents()) {
+                    sb.append(seps[1].get()).append(dtc.key().asMinimalString());
+                }
+                return sb.toString();
+            }
+            public TooltipDisplay parse(final String str) {
+                final String[] parts = seps[1].split(str);
+                final TooltipDisplay.Builder bld = TooltipDisplay.tooltipDisplay();
+                if (!ClassUtil.check(parts, 1, true)) return bld.build();
+                bld.hideTooltip(Boolean.parseBoolean(parts[0]));
+                final Set<DataComponentType> dtcs = new HashSet<>();
+                for (int i = 1; i != parts.length; i++) {
+                    dtcs.add(OStrap.get(Key.key(parts[i]), DataComponentTypes.BREAK_SOUND));
+                }
+                return bld.hiddenComponents(dtcs).build();
+            }
+        });
+        dataParser.put(DataComponentTypes.PROFILE, new DataParser.Parser<ResolvableProfile>() {
+            public String write(final ResolvableProfile val) {
+                final StringBuilder sb = new StringBuilder(val.name() == null ? StringUtil.NA : val.name());
+                sb.append(seps[1].get()).append(val.uuid() == null ? StringUtil.NA : val.uuid().toString());
+                for (final ProfileProperty pp : val.properties()) {
+                    final String sig = pp.getSignature();
+                    if (sig == null) sb.append(seps[1].get()).append(String.join(seps[2].get(), pp.getName(), pp.getValue()));
+                    else sb.append(seps[1].get()).append(String.join(seps[2].get(), pp.getName(), pp.getValue(), sig));
+                }
+                return sb.toString();
+            }
+            public ResolvableProfile parse(final String str) {
+                final String[] parts = seps[1].split(str);
+                final ResolvableProfile.Builder bld = ResolvableProfile.resolvableProfile();
+                if (!ClassUtil.check(parts, 2, true)) return bld.build();
+                if (!StringUtil.isNA(parts[0])) bld.name(parts[0]);
+                if (!StringUtil.isNA(parts[1])) bld.uuid(UUID.fromString(parts[1]));
+                final List<ProfileProperty> dtcs = new ArrayList<>();
+                for (int i = 2; i != parts.length; i++) {
+                    final String[] pps = seps[2].split(parts[i]);
+                    if (!ClassUtil.check(pps, 2, true)) return bld.build();
+                    dtcs.add(new ProfileProperty(pps[0], pps[1],
+                        pps.length == 3 ? pps[2] : null));
+                }
+                return bld.addProperties(dtcs).build();
+            }
+        });
+        dataParser.put(DataComponentTypes.BLOCKS_ATTACKS, new DataParser.Parser<BlocksAttacks>() {
+            public String write(final BlocksAttacks val) {
+                return String.join(seps[1].get(), String.valueOf(val.blockDelaySeconds()),
+                    String.valueOf(val.disableCooldownScale()),
+                    val.bypassedBy() == null ? StringUtil.NA : val.bypassedBy().key().asMinimalString(),
+                    val.blockSound() == null ? StringUtil.NA : val.blockSound().asMinimalString(),
+                    val.disableSound() == null ? StringUtil.NA : val.disableSound().asMinimalString());
+            }
+            public BlocksAttacks parse(final String str) {
+                final String[] parts = seps[1].split(str);
+                final BlocksAttacks.Builder bld = BlocksAttacks.blocksAttacks();
+                if (!ClassUtil.check(parts, 5, false)) return bld.build();
+                bld.blockDelaySeconds(NumUtil.floatOf(parts[0], 0f));
+                bld.disableCooldownScale(NumUtil.floatOf(parts[1], 1f));
+                if (!StringUtil.isNA(parts[2])) bld.bypassedBy(TagKey
+                    .create(RegistryKey.DAMAGE_TYPE, Key.key(parts[2])));
+                if (!StringUtil.isNA(parts[3])) bld.blockSound(Key.key(parts[3]));
+                if (!StringUtil.isNA(parts[4])) bld.disableSound(Key.key(parts[4]));
+                return bld.build();
+            }
+        });
+        dataParser.put(DataComponentTypes.WEAPON, new DataParser.Parser<Weapon>() {
+            public String write(final Weapon val) {
+                return val.itemDamagePerAttack()
+                    + seps[1].get() + val.disableBlockingForSeconds();
+            }
+            public Weapon parse(final String str) {
+                final String[] parts = seps[1].split(str, true);
+                final Weapon.Builder bld = Weapon.weapon();
+                if (!ClassUtil.check(parts, 2, false)) return bld.build();
+                return bld.itemDamagePerAttack(NumUtil.intOf(parts[0], 1))
+                    .disableBlockingForSeconds(NumUtil.floatOf(parts[1], 0f)).build();
+            }
+        });
         return dataParser;
     }
 
@@ -1134,7 +1216,12 @@ public class ItemUtil {
 
     private static <D> void append(final ItemStack it, final String data, final DataComponentType.Valued<D> dtc) {
         final DataParser.Parser<D> prs = parsers.get(dtc); if (prs == null) return;
-        it.setData(dtc, prs.parse(data));
+        final D pd = prs.parse(data);
+        if (pd == null) {
+            Ostrov.log_warn("Couldnt parse '" + data + "' for " + dtc.key().asMinimalString());
+            return;
+        }
+        it.setData(dtc, pd);
     }
 
     private static <K extends net.kyori.adventure.key.Keyed> @Nullable String ofKey(final @Nullable K k) {

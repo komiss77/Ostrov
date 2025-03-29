@@ -453,6 +453,17 @@ public class PM {
         return result;
     }
 
+    public static String getStatus(final Oplayer op) {
+        if (op == null) return "§8Оффлайн";
+        final int m = op.globalInt(Data.LONI);
+        if (m < 10) return "<amber>Нищеброд";
+        if (m < 100) return "<amber>Бедняк";
+        if (m < 1000) return "<yellow>Малоимущий";
+        if (m < 10000) return "<yellow>В достатке";
+        if (m < 100000) return "<gold>Хозяин жизни";
+        if (m < 1000000) return "<gold>Богач";
+        return "<beige>Олигарх";
+    }
 
     public enum Gender {
         MALE, FEMALE, NEUTRAL

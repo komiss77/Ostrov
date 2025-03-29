@@ -366,6 +366,7 @@ public class Oplayer {
      * @param data некие данные игрока
      * @return строковое значение для строковых данных
      */
+    @Deprecated
     public String getDataString(final Data data) {
         return globalStr(data);
     }
@@ -374,7 +375,7 @@ public class Oplayer {
         return dataString.getOrDefault(data, data.def_value);
     }
 
-    //@Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
+    @Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public int getDataInt(final Data data) {
         return globalInt(data);
     }
@@ -383,7 +384,7 @@ public class Oplayer {
         return dataInt.getOrDefault(data, NumUtil.intOf(data.def_value, 0));
     }
 
-    //@Deprecated //непонятно что за Data?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
+    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public boolean setData(final Data data, final int value) {  //отправляем на банжи, и обнов.локально
         return globalInt(data, value);
     }

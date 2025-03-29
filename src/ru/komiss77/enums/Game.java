@@ -149,7 +149,7 @@ public enum Game {
     }
 
     //park skyblock не определило
-    public static Game fromServerName(String serverName) { //araim daaria bw01 bb01 sg02
+    public static Game fromServerName(final String serverName) { //araim daaria bw01 bb01 sg02
         if (serverName == null || serverName.isEmpty()) return GLOBAL;
 
         //прямой поиск
@@ -161,11 +161,9 @@ public enum Game {
         //serverName = serverName.toLowerCase();
         //здесь лучше ничего не менять, всё выстрадано долгими отладками и работает норм
         if (serverName.length() == 4) { //bw01 bb01 sg02 обрезать до bw bb sg
-            serverName = serverName.substring(0, 2);
+            game = nameMap.get(serverName.substring(0, 2));
+            if (game != null) return game;
         }
-        game = nameMap.get(serverName);
-//Ostrov.log_warn("2 serverName="+serverName+" game="+game);
-        if (game != null) return game;
 
         if (serverName.startsWith("sedna_")) {
             return SE;
@@ -175,14 +173,10 @@ public enum Game {
     }
 
     public static boolean storeWorldPosition() {
-        switch (GM.GAME) {
-            case AR, DA, MI, SE, FA -> {
-                return true;
-            }
-            default -> {
-                return false;
-            }
-        }
+        return switch (GM.GAME) {
+            case AR, DA, MI, SE, FA -> true;
+            default -> false;
+        };
     }
 
 }

@@ -1,45 +1,29 @@
 package ru.komiss77.listener;
 
-import java.time.Duration;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.destroystokyo.paper.ClientOption;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Chanell;
 import ru.komiss77.enums.Data;
-import ru.komiss77.enums.ServerType;
-import ru.komiss77.enums.Stat;
 import ru.komiss77.events.ChatPrepareEvent;
-import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.netty.Message;
 import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.player.Perm;
-import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.InputButton;
 
@@ -51,10 +35,15 @@ import ru.komiss77.utils.inventory.InputButton;
 
 public class ChatLst implements Listener {
 
-    private static final boolean TRANSLATE_CHAT = false;
+    public static final StringUtil.Split TOP_SPLIT = StringUtil.Split.MEDIUM;
+    public static final String NIK_COLOR = switch (Ostrov.calendar.get(Calendar.MONTH)) {
+        case 11, 0, 1 -> "<gradient:sky:blue>";
+        case 2, 3, 4 -> "<gradient:pink:green>";
+        case 8, 9, 10 -> "<gradient:beige:gold>";
+        default -> "<gradient:apple:dark_aqua>";
+    };
 
-    public static final String NIK_COLOR;
-    private static final TextColor MSG_COLOR;
+    /*private static final TextColor MSG_COLOR;
     private static final HoverEvent<Component> SUGGEST_MUTE_TOOLTIP_RU;
     //private static final TextComponent SUGGEST_BLACKLIST_TOOLTIP_RU;
     private static final HoverEvent<Component> PREFIX_TOOLTIP_RU;
@@ -75,78 +64,25 @@ public class ChatLst implements Listener {
 
     static {
         SPLIT = StringUtil.Split.MEDIUM;
-        NIK_COLOR = switch (Ostrov.calendar.get(Calendar.MONTH)) {
-            case 11, 0, 1 -> "<gradient:sky:blue>";
-            case 2, 3, 4 -> "<gradient:pink:green>";
-            case 8, 9, 10 -> "<gradient:beige:gold>";
-            default -> "<gradient:apple:dark_aqua>";
-        };
         MSG_COLOR = NamedTextColor.GRAY;
         SUGGEST_MUTE_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§кКлик - выдать молчанку"));
         //SUGGEST_BLACKLIST_TOOLTIP_RU = TCUtils.format("§кКлик - кинуть в ЧС");
-        PREFIX_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оХочешь префикс? Жми!!!  §7-=[§я✦§7]"));
-        SUFFIX_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сХочешь суффикс? Жми!!!  §7-=[§я✦§7]"));
+        PREFIX_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оХочешь префикс? Жми!  §7-=[§я✦§7]"));
+        SUFFIX_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сХочешь суффикс? Жми!  §7-=[§я✦§7]"));
         MSG_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("<beige>🢖 Клик §3- Опции"));
         MSG_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("<beige>🢖 Click §3- Options"));
         URL_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§9Клик - перейти по <u>ссылке"));
         URL_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§9Click - open <u>URL"));
         SUGGEST_MUTE_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§кClick - mute player"));
         //SUGGEST_BLACKLIST_TOOLTIP_EN = TCUtils.format("§кClick- add to blackList");
-        PREFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оWant a prefix? Click here!!!  §7-=[§я✦§7]"));
-        SUFFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сWant a suffix? Click here!!!  §7-=[§я✦§7]"));
+        PREFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оWant a prefix? Click here!  §7-=[§я✦§7]"));
+        SUFFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сWant a suffix? Click here!  §7-=[§я✦§7]"));
         DONATE_CLICK_URL = ClickEvent.openUrl("http://www.ostrov77.ru/donate.html");
         FORMATS = new Format[] {new Format("**", "<b>", "</b>"), new Format("*", "<i>", "</i>"),
             new Format("||", "<obf>", "</obf>"), new Format("|", "<obf>", "</obf>"), new Format("~~", "<st>", "</st>"),
             new Format("~", "<st>", "</st>"), new Format("__", "<u>", "</u>"), new Format("_", "<i>", "</i>")};
         OPTIONS = ClickCallback.Options.builder().uses(ClickCallback.UNLIMITED_USES).lifetime(Duration.ofMinutes(8)).build();
-    }
-
-    private static final class Format {
-        private static final char[] RGX_CHARS = {'\\', '.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '(', ')', '|'};
-        static {
-            Arrays.sort(RGX_CHARS);}
-        private final int bgnLen, endLen;
-        private final Pattern pat;
-        private final String bgnTo;
-        private final String endTo;
-
-        private Format(final String bgnOf, final String endOf, final String bgnTo, final String endTo) {
-            this.bgnLen = bgnOf.length(); this.endLen = endOf.length(); this.bgnTo = bgnTo; this.endTo = endTo;
-            this.pat = Pattern.compile(parse(bgnOf) + "(.*?)" + parse(endOf));
-            //\*\*(.*?)\^\^
-            //**star face is here to see^^
-        }
-
-        private Format(final String bound, final String bgnTo, final String endTo) {
-            this.bgnLen = this.endLen = bound.length(); this.bgnTo = bgnTo; this.endTo = endTo;
-            this.pat = Pattern.compile(parse(bound) + "(.*?)" + parse(bound));
-            //\*\*(.*?)\*\*
-            //**star face is here to see**
-        }
-
-        private String parse(final String bound) {
-            final StringBuilder sb = new StringBuilder(bound.length());
-            for (final char c : bound.toCharArray()) {
-                if (Arrays.binarySearch(RGX_CHARS, c) >= 0) sb.append("\\");
-                sb.append(c);
-            }
-            return sb.toString();
-        }
-
-        private String process(final String msg) {
-            final Matcher mt = pat.matcher(msg);
-            final StringBuilder sb = new StringBuilder(msg.length());
-            int end = 0;
-            while (mt.find()) {
-                final int stIx = mt.start();
-                final String grp = mt.group();
-                sb.append(msg, end, stIx).append(bgnTo)
-                    .append(grp, bgnLen, grp.length() - endLen).append(endTo);
-                end = stIx + grp.length();
-            }
-            return sb.append(msg.substring(end)).toString();
-        }
-    }
+    }*/
 
     // на HIGHEST проверяется мут и формируется сообщение для прокси.
     // локальной рассылкой с проверкой ЧС занимается каждая игра самостоятельно на приоритете ниже
@@ -169,26 +105,26 @@ public class ChatLst implements Listener {
         if (senderOp == null) return; //пока так, просто не обрабатываем - или баганёт в авторизации
 
         // проверка молчанки на банжике тоже не будет рассылки
-        final boolean muted = senderOp.getDataInt(Data.MUTE_TO) > Timer.secTime();
+        final boolean muted = senderOp.globalInt(Data.MUTE_TO) > Timer.secTime();
         if (muted) {
             sender.sendMessage(Component.text("Чат ограничен - сообщения видят только друзья", NamedTextColor.RED)
-                .hoverEvent(HoverEvent.showText(TCUtil.form("§cУ Вас молчанка от §6" + senderOp.getDataString(Data.MUTE_BY)
-                    + " §cза §b" + senderOp.getDataString(Data.MUTE_REAS) + "§c, осталось: §e" +
-                    TimeUtil.secondToTime(senderOp.getDataInt(Data.MUTE_TO) - Timer.secTime()))))
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§cМолчанка от §6" + senderOp.globalStr(Data.MUTE_BY)
+                    + " §cдо §b" + senderOp.globalStr(Data.MUTE_REAS) + "§c, осталось: §e" +
+                    TimeUtil.secondToTime(senderOp.globalInt(Data.MUTE_TO) - Timer.secTime()))))
                 .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
         }
-        final boolean banned = senderOp.getDataInt(Data.BAN_TO) > Timer.secTime();
+        final boolean banned = senderOp.globalInt(Data.BAN_TO) > Timer.secTime();
         if (banned) {
-            sender.sendMessage(Component.text("Чат ограничен чистилищем - вы забанены", NamedTextColor.RED)
-                .hoverEvent(HoverEvent.showText(TCUtil.form("§cУ Вас бан от §6" + senderOp.getDataString(Data.BAN_BY)
-                    + " §cза §b" + senderOp.getDataString(Data.BAN_REAS) + "§c, осталось: §e" +
-                    TimeUtil.secondToTime(senderOp.getDataInt(Data.BAN_TO) - Timer.secTime()))))
+            sender.sendMessage(Component.text("Чат ограничен чистилищем - ты в бане", NamedTextColor.DARK_RED)
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§cБан от §6" + senderOp.globalStr(Data.BAN_BY)
+                    + " §cдо §b" + senderOp.globalStr(Data.BAN_REAS) + "§c, осталось: §e" +
+                    TimeUtil.secondToTime(senderOp.globalInt(Data.BAN_TO) - Timer.secTime()))))
                 .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
             return;
         }
 
         //если у игрока в настройках локальны чат - точно не отправляем
-        final String senderName = sender.getName();
+        final String name = sender.getName();
 
         //создадим свой список получателей. У кого отправитель в ЧС, будут отфильтрованы
         final List<Player> list = new ArrayList<>();
@@ -196,14 +132,14 @@ public class ChatLst implements Listener {
         boolean blacklisted = false;
         final Iterator<Audience> it = view.iterator();
         while (it.hasNext()) {
-            if (it.next() instanceof Player playerTo) {
-                if (playerTo.getName().equals(senderName)) continue; //себя не надо в список - в конце отправляется безусловно
-                final Oplayer opTo = PM.getOplayer(playerTo);
+            if (it.next() instanceof Player to) {
+                if (to.getEntityId() == sender.getEntityId()) continue; //себя не надо в список - в конце отправляется безусловно
+                final Oplayer opTo = PM.getOplayer(to);
                 if (opTo == null) {
-                    list.add(playerTo);
+                    list.add(to);
                     continue;
                 }
-                if (opTo.isBlackListed(senderName)) {//пишущий в черном списке
+                if (opTo.isBlackListed(name)) { //пишущий в черном списке
                     it.remove();
                     blacklisted = true;
                     continue;
@@ -212,15 +148,16 @@ public class ChatLst implements Listener {
                     it.remove();
                     continue;
                 }
-                list.add(playerTo);
+                list.add(to);
             }
         }
 
         //кинуть эфент - игра может добавить своё инфо или отменить отправку на прокси, если, например, не в лобби игры
         //игра может поставить gameInfo и фильтрануть ненужных получателей (например, для островного или кланового чата)
-        String strMsg = TCUtil.deform(msg).replace("/<", "<");
 
-        final ChatPrepareEvent ce = new ChatPrepareEvent(sender, senderOp, list, strMsg);
+        final ChatPrepareEvent ce = new ChatPrepareEvent(sender,
+            senderOp, list, TCUtil.deform(msg).replace("/<", "<"));
+        ce.banned = false; ce.muted = muted;
         Bukkit.getPluginManager().callEvent(ce);
 
         if (ce.isCancelled()) {
@@ -228,10 +165,6 @@ public class ChatLst implements Listener {
             return;
         }
         if (!ce.sendProxy() && !ce.showLocal()) return; //игра отменила все отправки - значит рассылает сама
-
-        if (ce.getMessage() != null) {
-            strMsg = ce.getMessage();
-        }
 
         if (ce.showLocal()) { //игра оставила работать дальше по умолчанию - офф стандартный чат
             view.clear();
@@ -241,11 +174,9 @@ public class ChatLst implements Listener {
         //данные примерно в порядке нужности
         //лого сервера - готовый компонент
         //инфо игры - готовый компонент
-        ce.senderName = senderName;
-        ce.banned = false;
-        ce.muted = muted;
-        ce.prefix = senderOp.getDataString(Data.PREFIX);
-        ce.prefix = ce.prefix.isBlank() ? "" : ce.prefix + " <reset>";
+
+        /*ce.name = name;
+        ce.prefix = senderOp.globalStr(Data.PREFIX);
 
         final StringBuilder sb = new StringBuilder();
 
@@ -254,7 +185,7 @@ public class ChatLst implements Listener {
                 sb.append("§6Player is in §eGuet Mode§6!")
                     .append("\n§6Player data is not saved!")
                     .append("\n§3Server: §a").append(Ostrov.MOT_D)
-                    .append((muted ? "\n§4Молчанка: §cYes" : ""))
+                    .append((muted ? "\n§4Muted: §cYes" : ""))
                     .append("\n<gray>Click - <gold>direct message");
             } else {
                 sb.append("§6Игрок в §eГостевом режиме§6!")
@@ -285,14 +216,12 @@ public class ChatLst implements Listener {
                     .append((muted ? "\n§4Молчанка: §cДа" : "\n"))
                     .append("\n<gray>Клик - <gold>личное сообщение");
             }
-            ce.suffix = senderOp.getDataString(Data.SUFFIX);
-            ce.suffix = ce.suffix.isBlank() ? "" : "<reset> " + ce.suffix;
+            ce.suffix = senderOp.globalStr(Data.SUFFIX);
         }
-        ce.playerTooltip = sb.toString();
-
+        ce.playerTooltip = sb.toString();*/
 
         //в переводчике будет дополнено поле оппозитного перевода обязательно!
-        if (TRANSLATE_CHAT) {
+        /*if (TRANSLATE_CHAT) {
             if (!senderOp.eng) {
                 ce.strMsgRu = strMsg; //переводов не требуется
             } else {
@@ -303,18 +232,20 @@ public class ChatLst implements Listener {
             ce.strMsgRu = strMsg;
             ce.strMsgEn = strMsg;
             process(ce);
-        }
+        }*/
 
         if (blacklisted) {
-            ScreenUtil.sendActionBarDirect(sender, "<amber>Игроки, у которых ты в ЧС, не увидят это сообщение");
+            ScreenUtil.sendActionBarDirect(sender, "<amber>Игроки, у которых ты в ЧС, не увидят это сообщение!");
         }
-        OsQuery.send(QueryCode.CHAT_STRIP, senderName + LocalDB.WORD_SPLIT + strMsg);
+
+        if (ce.getMessage() != null) OsQuery.send(QueryCode.CHAT_STRIP,
+            name + LocalDB.WORD_SPLIT + ce.getMessage());
+
+        process(ce);
     }
 
     public static void process(final ChatPrepareEvent ce) {
-
-        final Oplayer sender = ce.getOplayer();
-        final boolean useColorCode = Perm.canColorChat(ce.getPlayer(), sender);
+        /*final boolean useColorCode = Perm.canColorChat(ce.getPlayer(), sender);
 
         final Component[] splitRU = format(ce, false, useColorCode);
         final Component msgRU = splitRU[splitRU.length - 1]; //сообщение возможно с цветами
@@ -369,26 +300,29 @@ public class ChatLst implements Listener {
         bRU.append(Component.text(" " + ARROW + " ", MSG_COLOR))
             .append(msgRU.colorIfAbsent(MSG_COLOR));
         bEN.append(Component.text(" " + ARROW + " ", MSG_COLOR))
-            .append(msgEN.colorIfAbsent(MSG_COLOR));
+            .append(msgEN.colorIfAbsent(MSG_COLOR));*/
 
-        final ServerType serverType = GM.GAME.type;
+        final Message msg = new Message(ce);
+
+//        final ServerType serverType = GM.GAME.type;
         //Ostrov.log_warn("sendProxy?"+ce.sendProxy()+" isLocalChat?"+senderOp.isLocalChat());
         //игра не отменила отправку на прокси - работаем по дефолту:
         //на всех кроме миниигр отправляем,
         //а на минииграх отправляем если в мире лобби
         final Player pl = ce.getPlayer();
+        final Oplayer sender = ce.getOplayer();
         if (!ce.banned && !ce.muted && ce.sendProxy() && !sender.isLocalChat()) {
-            final Component proxyResultRU;
+            /*final Component proxyResultRU;
             final Component proxyResultEN;
             //убрать лишние элементы, пускай ГЛОБАЛЬНЫЕ сообщения будут всегда в формате: [Значек]_<Префикс>_Имя_<Суффикс>_»_(cообщение)
             proxyResultRU = topRU.append(GM.getLogo()).append(bRU.build());
             proxyResultEN = topEN.append(GM.getLogo()).append(bEN.build());
             final String gsonMsgRU = GsonComponentSerializer.gson().serialize(proxyResultRU);
-            final String gsonMsgEN = GsonComponentSerializer.gson().serialize(proxyResultEN);
-            SpigotChanellMsg.sendChat(pl, gsonMsgRU, Chanell.CHAT_RU);
-            SpigotChanellMsg.sendChat(pl, gsonMsgEN, Chanell.CHAT_EN);
-            OsQuery.send(QueryCode.CHAT_RU, pl.getName() + LocalDB.WORD_SPLIT + gsonMsgRU);
-            OsQuery.send(QueryCode.CHAT_EN, pl.getName() + LocalDB.WORD_SPLIT + gsonMsgEN);
+            final String gsonMsgEN = GsonComponentSerializer.gson().serialize(proxyResultEN);*/
+            SpigotChanellMsg.sendChat(pl, msg.toString(), Chanell.CHAT_RU);
+            SpigotChanellMsg.sendChat(pl, msg.toString(), Chanell.CHAT_EN);
+            OsQuery.send(QueryCode.CHAT_RU, msg.toString());
+            OsQuery.send(QueryCode.CHAT_EN, msg.toString());
         }
 
         //если игра не отменила показ на локальном сервере, рассылаем по умолчанию
@@ -396,86 +330,73 @@ public class ChatLst implements Listener {
         //на сервере миниигры - в мире lobby обычный прокси чат, в ГМ3 - чат зрителя, остальыне локальный с простым форматом
         //на больших cерверах простой глобальный
 
-        final Component resultRU;
-        final Component viewerResultRU;
-        final Component resultEN;
-        final Component viewerResultEN;
+        if (!ce.showLocal()) return;
+        //на миниигре подменяем сообщение, если отправитель зритель или в игре
+        /*if (serverType == ServerType.ARENAS && !ApiOstrov.isLocalBuilder(pl)) {
 
-        if (ce.showLocal()) {
-            final Component gi = ce.getViewerGameInfo();
-            final Component logo = gi == null ? GM.getLogo() : GM.getLogo().append(gi);
-            //на миниигре подменяем сообщение, если отправитель зритель или в игре
-            if (serverType == ServerType.ARENAS && !ApiOstrov.isLocalBuilder(pl)) {
+            if (pl.getGameMode() == GameMode.SPECTATOR) { //отправитель в ГМ3 - зритель
 
-                if (pl.getGameMode() == GameMode.SPECTATOR) { //отправитель в ГМ3 - зритель
+                resultRU = TCUtil.form("§8[Зритель] " + ce.senderName + " §7" + ARROW + " ")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Клик - <gold>личное сообщение")))
+                    .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
+                    .append(msgRU);
 
-                    resultRU = TCUtil.form("§8[Зритель] " + ce.senderName + " §7" + ARROW + " ")
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Клик - <gold>личное сообщение")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
-                        .append(msgRU);
+                resultEN = TCUtil.form("§8[Spectator] " + ce.senderName + " §7" + ARROW + " ")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Click - <gold>direct message")))
+                    .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
+                    .append(msgEN);
 
-                    resultEN = TCUtil.form("§8[Spectator] " + ce.senderName + " §7" + ARROW + " ")
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Click - <gold>direct message")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
-                        .append(msgEN);
+            } else if (!StringUtil.isLobby(pl.getWorld())) { //отправитель не в мире лобби - игровое сообщение
 
-                } else if (!StringUtil.isLobby(pl.getWorld())) { //отправитель не в мире лобби - игровое сообщение
-
-                    resultRU = TCUtil.form("§6<§e" + ce.senderName + "§6> §7" + ARROW + " §f")
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Клик - <gold>личное сообщение")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
-                        .append(msgRU);
-                    resultEN = TCUtil.form("§6<§e" + ce.senderName + "§6> §7" + ARROW + " §f")
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Click - <gold>direct message")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
-                        .append(msgEN);
-
-                } else {
-                    resultRU = bRU.build();//GM.getLogo().append(bRU.build());//b.build();
-                    resultEN = bEN.build();//GM.getLogo().append(bEN.build());//b.build();
-                }
-
-                viewerResultRU = topRU.append(logo).append(resultRU);
-                viewerResultEN = topEN.append(logo).append(resultEN);
-
-                //на минииграх - показать подготовленное сообщение всем, кто в одном мире или в лобби
-                final UUID uid = pl.getWorld().getUID();
-                for (final Player p : ce.viewers()) {
-                    if (p.getWorld().getUID().equals(uid) || StringUtil.isLobby(p.getWorld())) {
-                        p.sendMessage(p.getClientOption(ClientOption.LOCALE).equals("ru_ru")
-                            ? viewerResultRU : viewerResultEN);
-                    }
-                }
+                resultRU = TCUtil.form("§6<§e" + ce.senderName + "§6> §7" + ARROW + " §f")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Клик - <gold>личное сообщение")))
+                    .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
+                    .append(msgRU);
+                resultEN = TCUtil.form("§6<§e" + ce.senderName + "§6> §7" + ARROW + " §f")
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<gray>Click - <gold>direct message")))
+                    .clickEvent(ClickEvent.suggestCommand("/msg " + ce.senderName + " "))
+                    .append(msgEN);
 
             } else {
-
                 resultRU = bRU.build();//GM.getLogo().append(bRU.build());//b.build();
                 resultEN = bEN.build();//GM.getLogo().append(bEN.build());//b.build();
+            }
 
-                viewerResultRU = topRU.append(logo).append(resultRU);
-                viewerResultEN = topEN.append(logo).append(resultEN);
+            viewerResultRU = topRU.append(logo).append(resultRU);
+            viewerResultEN = topEN.append(logo).append(resultEN);
 
-                //показать подготовленное сообщение всем, кто остался в эвенте
-                for (Player p : ce.viewers()) {
+            //на минииграх - показать подготовленное сообщение всем, кто в одном мире или в лобби
+            final UUID uid = pl.getWorld().getUID();
+            for (final Player p : ce.viewers()) {
+                if (p.getWorld().getUID().equals(uid) || StringUtil.isLobby(p.getWorld())) {
                     p.sendMessage(p.getClientOption(ClientOption.LOCALE).equals("ru_ru")
                         ? viewerResultRU : viewerResultEN);
                 }
-
             }
 
+        }*/
 
-            //если игра поставила отдельное инфо для отправителя, лепим с этим инфо
-            if (ce.showSelf()) {//если нет, режим сам скинет игроку что надо
-                pl.sendMessage(pl.getClientOption(ClientOption.LOCALE).equals("ru_ru")
-                    ? viewerResultRU : viewerResultEN);
-            }
 
-            //отправить в консоль
-            Bukkit.getConsoleSender().sendMessage(viewerResultRU);
+        final Component viewerResultRU = msg.build(ce, false, false);
+        final Component viewerResultEN = msg.build(ce, false, true);
+
+        //показать подготовленное сообщение всем, кто остался в эвенте
+        for (Player p : ce.viewers()) {
+            p.sendMessage(p.getClientOption(ClientOption.LOCALE).equals("ru_ru")
+                ? viewerResultRU : viewerResultEN);
         }
+
+
+        //если игра поставила отдельное инфо для отправителя, лепим с этим инфо
+        if (ce.showSelf()) {//если нет, режим сам скинет игроку что надо
+            pl.sendMessage(msg.build(ce, true, sender.eng));
+        }
+
+        //отправить в консоль
+        Bukkit.getConsoleSender().sendMessage(viewerResultRU);
     }
 
-    private static Component[] format(final ChatPrepareEvent ce, final boolean eng, final boolean clr) {
+    /*private static Component[] format(final ChatPrepareEvent ce, final boolean eng, final boolean clr) {
         String msg = eng ? ce.strMsgEn : ce.strMsgRu;
         final HoverEvent<Component> url_ttp = eng ? URL_TOOLTIP_EN : URL_TOOLTIP_RU;
         final HoverEvent<Component> msg_ttp = eng ? MSG_TOOLTIP_EN : MSG_TOOLTIP_RU;
@@ -486,7 +407,7 @@ public class ChatLst implements Listener {
         if (!clr) {
             final Component cm = TCUtil.form(msg)
                 .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
-                    .widen(new Message(msg, ce.getOplayer()), Player.class), OPTIONS));
+                    .widen(new Callback(msg, ce.getOplayer()), Player.class), OPTIONS));
             return reply == null ? new Component[]{cm} : new Component[]{TCUtil.form(reply), cm};
         }
         for (final Format frm : FORMATS) msg = frm.process(msg);
@@ -506,7 +427,7 @@ public class ChatLst implements Listener {
             final String sbm = sb.toString();
             mb.append(TCUtil.form(sbm)
                 .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
-                    .widen(new Message(sbm, ce.getOplayer()), Player.class), OPTIONS)));
+                    .widen(new Callback(sbm, ce.getOplayer()), Player.class), OPTIONS)));
             mb.append(Component.text(s, NamedTextColor.BLUE, TextDecoration.UNDERLINED)
                 .hoverEvent(url_ttp).clickEvent(ClickEvent.openUrl(s)));
             sb.setLength(0);
@@ -515,13 +436,13 @@ public class ChatLst implements Listener {
             final String sbm = sb.toString();
             mb.append(TCUtil.form(sbm)
                 .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
-                    .widen(new Message(sbm, ce.getOplayer()), Player.class), OPTIONS)));
+                    .widen(new Callback(sbm, ce.getOplayer()), Player.class), OPTIONS)));
         }
         return reply == null ? new Component[]{mb.build()} : new Component[]{TCUtil.form(reply), mb.build()};
     }
 
     private static final int MAX_LEN = 40;
-    private record Message(String msg, Oplayer sender) implements ClickCallback<Player> {
+    private record Callback(String msg, Oplayer sender) implements ClickCallback<Player> {
         public void accept(final Player pl) {
             final String strip = TCUtil.strip(msg);
             final Oplayer op = PM.getOplayer(pl);
@@ -563,39 +484,26 @@ public class ChatLst implements Listener {
                         }, "Жалоба"), Player.class))))
             }));
         }
-    }
-
-    public static String getStatus(final Oplayer op) {
-        if (op == null) return "§cИгрок Оффлайн";
-        final int m = op.getDataInt(Data.LONI);
-        if (m < 10) return "§6Нищеброд";
-        if (m < 100) return "§6Бедняк";
-        if (m < 1000) return "§6Малоимущий";
-        if (m < 10000) return "§6В достатке";
-        if (m < 100000) return "§6Хозяин жизни";
-        if (m < 1000000) return "§6Богач";
-        return "§6Олигарх";
-    }
+    }*/
 
     //с прокси пришло сообшение от другого сервера по новому каналу
     //приходят 2 волны - на русском и английком
     @Deprecated
-    public static void onProxyChat(final Chanell ch, final int proxyId, final String serverName, final String senderName, final String gsonMsg) {
-        onProxyChat(ch, senderName, gsonMsg);
+    public static void onProxyChat(final Chanell ch, final int proxyId, final String serverName, final String senderName, final String msg) {
+        onProxyChat(ch, senderName, msg);
     }
 
-    public static void onProxyChat(final Chanell ch, final String senderName, final String gsonMsg) {
-        final Component c = GsonComponentSerializer.gson().deserialize(gsonMsg);
+    public static void onProxyChat(final Chanell ch, final String sender, final String msg) {
+        final Component c = new Message(msg).build(ch == Chanell.CHAT_EN);
         for (Player p : Bukkit.getOnlinePlayers()) {
             final Oplayer to = PM.getOplayer(p);
-            if (to != null) {
-                if (to.isBlackListed(senderName)
-                    || to.isLocalChat()) continue;
-                //русским русский чат
-                if (to.eng && ch == Chanell.CHAT_EN) p.sendMessage(c);
-                else //остальным показываем английскую версию
-                    if (!to.eng && ch == Chanell.CHAT_RU) p.sendMessage(c);
-            }
+            if (to == null) continue;
+            if (to.isBlackListed(sender)
+                || to.isLocalChat()) continue;
+            //русским русский чат
+            if (to.eng && ch == Chanell.CHAT_EN) p.sendMessage(c);
+            else //остальным показываем английскую версию
+                if (!to.eng && ch == Chanell.CHAT_RU) p.sendMessage(c);
         }
     }
 }

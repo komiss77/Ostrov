@@ -1,5 +1,6 @@
 package ru.komiss77.boot;
 
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Registry;
@@ -26,11 +27,11 @@ public class Registries {
     public final Registry<Attribute> ATTRIBS;
     public final Registry<Enchantment> ENCHANTS;
     public final Registry<DamageType> DAMAGES;
+    public final Registry<DataComponentType> COMPS;
 
     public Registries() {
         final RegistryAccess rac = RegistryAccess.registryAccess();
         SOUNDS = rac.getRegistry(RegistryKey.SOUND_EVENT);
-
         BIOMES = rac.getRegistry(RegistryKey.BIOME);
         ITEMS = rac.getRegistry(RegistryKey.ITEM);
         BLOCKS = rac.getRegistry(RegistryKey.BLOCK);
@@ -40,6 +41,7 @@ public class Registries {
         ATTRIBS = rac.getRegistry(RegistryKey.ATTRIBUTE);
         ENCHANTS = rac.getRegistry(RegistryKey.ENCHANTMENT);
         DAMAGES = rac.getRegistry(RegistryKey.DAMAGE_TYPE);
+        COMPS = rac.getRegistry(RegistryKey.DATA_COMPONENT_TYPE);
     }
 
 }

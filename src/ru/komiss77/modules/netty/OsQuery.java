@@ -171,12 +171,6 @@ public class OsQuery {
       final String target = s[1];
       final Component miniMsg = s.length >= 3 ? MiniMessage.miniMessage().deserialize(s[2]) : Component.empty();
 
-
-      //if (cs == null) {
-      //  Ostrov.log_warn("TcpHandler Responce CommandSender == null");
-      //  return;
-      //}
-//Ostrov.log("type="+type);
       switch (type) {
         case "MSG" -> {
           final CommandSender cs = target.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(target);
@@ -195,12 +189,6 @@ public class OsQuery {
       }
 
       Ostrov.log("Responce =" + responce);
-      //int idx = responce.indexOf(LocalDB.W_SPLIT);
-      //if (idx>0) {
-      //  final String sender = data_string.substring(0, idx);
-      //  final String cmd = data_string.substring( idx+1);
-      // } else {
-      //}
     }
 
     @Override

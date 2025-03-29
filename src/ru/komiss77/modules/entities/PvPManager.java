@@ -61,19 +61,13 @@ public class PvPManager implements Initiable {
     private static final Set<PotionEffectType> potion_pvp_type;
 
     private static final String PVP_NOTIFY = "§cТы в режиме боя!";
-    private static final PotionEffect HASTE = new PotionEffect(PotionEffectType.HASTE, 2, 255, true, false, false);
-    private static final PotionEffect slw = new PotionEffect(PotionEffectType.MINING_FATIGUE, 32, 255, true, false, false);
+    private static final PotionEffect HASTE = new PotionEffect(PotionEffectType.HASTE,
+        2, 255, true, false, false);
 
+    public static final Set<ItemType> AXES = OStrap.getAll(ItemTypeTagKeys.AXES);
     public static final Set<ItemType> DUAL_HIT = Set.of(ItemType.DIAMOND_SWORD,
         ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.TRIDENT);
-    public static final Set<ItemType> AXES = OStrap.getAll(ItemTypeTagKeys.AXES);
-
-    /*public static final Set<ItemType> CAN_BREAK = Set.of(ItemType.DIAMOND_SWORD,
-        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
-        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
-        ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE, ItemType.MACE,
-        ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE, ItemType.TRIDENT);*/
     public static final Set<ItemType> CAN_BLOCK = Set.of(ItemType.DIAMOND_SWORD,
         ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
