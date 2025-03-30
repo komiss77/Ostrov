@@ -65,7 +65,7 @@ public class Message {
     private static final HoverEvent<Component> MSG_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("<beige>🢖 Click §3- Options"));
     private static final HoverEvent<Component> URL_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§9Клик - перейти по <u>ссылке"));
     private static final HoverEvent<Component> URL_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§9Click - open <u>URL"));
-    private static final HoverEvent<Component> SUGGEST_MUTE_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§кClick - mute player"));
+//    private static final HoverEvent<Component> SUGGEST_MUTE_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§кClick - mute player"));
     private static final HoverEvent<Component> PREFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оWant a prefix? Click here!  §7-=[§я✦§7]"));
     private static final HoverEvent<Component> SUFFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сWant a suffix? Click here!  §7-=[§я✦§7]"));
     private static final ClickEvent DONATE_CLICK_URL = ClickEvent.openUrl("http://www.ostrov77.ru/donate.html");

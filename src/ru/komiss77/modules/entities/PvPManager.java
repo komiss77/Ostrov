@@ -6,7 +6,6 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.BlocksAttacks;
 import io.papermc.paper.datacomponent.item.Weapon;
 import io.papermc.paper.event.player.PlayerShieldDisableEvent;
-import io.papermc.paper.registry.keys.tags.DamageTypeTagKeys;
 import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -29,6 +28,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.*;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.boot.RegTag;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
@@ -73,10 +73,9 @@ public class PvPManager implements Initiable {
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
         ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
         ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
-
     public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
         .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
-        .disableCooldownScale(1.5f).bypassedBy(DamageTypeTagKeys.BYPASSES_SHIELD).build();
+        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).build();
     private static final float MELEE_BREAK_SEC = 2f;
     //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
     //weapon block breaks if !shield || axe
@@ -197,24 +196,17 @@ public class PvPManager implements Initiable {
                     }
                     final Player p = e.getEntity();
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
-                    if (op == null) {
-                        return;
-                    }
-//                    op.last_death = p.getLocation();
-// вайвай, зачем убрал?? ... у игрока сохраняется позиция смерти, 1.19+ p.getLastDeathLocation()
+                    if (op == null) return;
+
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0) {            //дроп инвентаря
                         if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
                             for (final ItemStack is : p.getInventory().getContents()) {
-                                if (!ItemUtil.isBlank(is, false)) {
-                                    if (MenuItemsManager.isSpecItem(is)) {//не лутать менюшки!
-                                        continue;
-                                    }
-                                    p.getWorld().dropItemNaturally(p.getLocation(), is);
-                                }
+                                if (ItemUtil.isBlank(is, false)) continue;
+                                if (MenuItemsManager.isSpecItem(is)) continue; //не лутать менюшки!
+                                p.getWorld().dropItemNaturally(p.getLocation(), is);
                             }
                             p.getInventory().clear();
                             p.updateInventory();
-
                         } else {
                             for (int i = e.getDrops().size() - 1; i >= 0; i--) {
                                 if (MenuItemsManager.isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек

@@ -6,6 +6,7 @@ import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
@@ -16,6 +17,7 @@ import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import io.papermc.paper.registry.tag.Tag;
 import io.papermc.paper.registry.tag.TagKey;
+import io.papermc.paper.tag.PreFlattenTagRegistrar;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -78,6 +80,23 @@ public class OStrap implements PluginBootstrap {
                             .activeSlots(ce.slots()));
                 }
             }));
+
+        final TagMap tagMap = new TagMap();
+        for (final RegTag<?> rt : RegTag.VALUES.values()) tagMap.add(rt);
+        for (final RegTag<?>[] rts : tagMap.values()) regTags(rts, mgr);
+    }
+
+    private <T extends Keyed> void regTags(final RegTag<?>[] rts, final LifecycleEventManager<BootstrapContext> mgr) {
+        if (rts.length == 0) return;
+        @SuppressWarnings("unchecked")
+        final RegTag<T>[] nrts = (RegTag<T>[]) rts;
+        final RegistryKey<T> rk = nrts[0].registryKey();
+        mgr.registerEventHandler(LifecycleEvents.TAGS.preFlatten(rk).newHandler(e -> {
+            final PreFlattenTagRegistrar<T> reg = e.registrar();
+            for (final RegTag<T> rt : nrts) {
+                reg.setTag(rt.tagKey(), rt.entries());
+            }
+        }));
     }
 
     public static <T extends Keyed> RegistryKeySet<T> regSetOf(final Collection<Key> keys, final RegistryKey<T> reg) {
@@ -129,6 +148,29 @@ public class OStrap implements PluginBootstrap {
         return reg == null ? null : (Registry<E>) reg;
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public static <E extends @NotNull Keyed> RegistryKey<E> regKeyOf(final E val) {
+        final RegistryKey<?> reg = switch (val) {
+            case final Sound ignored -> RegistryKey.SOUND_EVENT;
+            case final Enchantment ignored -> RegistryKey.ENCHANTMENT;
+            case final ItemType ignored -> RegistryKey.ITEM;
+            case final BlockType ignored -> RegistryKey.BLOCK;
+            case final TrimMaterial ignored -> RegistryKey.TRIM_MATERIAL;
+            case final TrimPattern ignored -> RegistryKey.TRIM_PATTERN;
+            case final EntityType ignored -> RegistryKey.ENTITY_TYPE;
+            case final Attribute ignored -> RegistryKey.ATTRIBUTE;
+            case final Biome ignored -> RegistryKey.BIOME;
+            case final DamageType ignored -> RegistryKey.DAMAGE_TYPE;
+            case final DataComponentType ignored -> RegistryKey.DATA_COMPONENT_TYPE;
+            default -> {
+                Ostrov.log_warn("Registry of " + val.getClass().getSimpleName() + " is not defined");
+                yield null;
+            }
+        };
+        return reg == null ? null : (RegistryKey<E>) reg;
+    }
+
     public static <E extends Keyed> NamespacedKey keyOf(final E val) {
         final Registry<E> reg = regOf(val);
         final NamespacedKey nk = reg == null ? null : reg.getKey(val);
@@ -146,7 +188,7 @@ public class OStrap implements PluginBootstrap {
     }
 
     private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
-
+    @Deprecated
     public static <T extends Keyed> Tag<T> regTag(final TagKey<T> key, final Collection<T> def) {
         final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(key.registryKey());
         if (reg.hasTag(key)) return reg.getTag(key);
