@@ -201,6 +201,20 @@ public class Perm {
         return fin.toArray(new Group[0]);
     }
 
+    public static Group getPerm(final int tier) {
+        return getTier(tier, Group.Type.DONATE);
+    }
+
+    public static Group getStaff(final int tier) {
+        return getTier(tier, Group.Type.STAFF);
+    }
+
+    private static Group getTier(final int tier, final Group.Type gt) {
+        if (tier < 1) return null;
+        final Group[] grps = typed.get(gt);
+        return grps == null ? null : grps[Math.min(tier, grps.length) - 1];
+    }
+
     public static boolean isRank(final Oplayer op, final int tier) {
         return isTier(op, tier, Group.Type.DONATE);
     }
@@ -239,9 +253,9 @@ public class Perm {
 
             op.user_perms.addAll(defaultPerms);
 
-            if (!op.getDataString(Data.USER_GROUPS).isEmpty()) {                       //если у игрока есть группы
+            if (!op.globalStr(Data.USER_GROUPS).isEmpty()) {                       //если у игрока есть группы
                 op.chat_group = "";
-                for (String group_name : op.getDataString(Data.USER_GROUPS).split(",")) {                   //добавляем группы игроку
+                for (String group_name : op.globalStr(Data.USER_GROUPS).split(",")) {                   //добавляем группы игроку
                     final Group group = groups.get(group_name);
                     if (group != null) {
                         op.groupMap.put(group_name, group);
@@ -263,9 +277,9 @@ public class Perm {
             }
 
 
-            if (!op.getDataString(Data.USER_PERMS).isEmpty()) {                       //если у игрока есть права
+            if (!op.globalStr(Data.USER_PERMS).isEmpty()) {                       //если у игрока есть права
 //System.out.println("--calculatePerms getBungeeData(Data.USER_PERMS)");   
-                for (String perm : op.getDataString(Data.USER_PERMS).split(",")) {
+                for (String perm : op.globalStr(Data.USER_PERMS).split(",")) {
                     perm = thisSertverPermission(perm);
                     if (perm != null) {
                         op.user_perms.add(perm);
@@ -316,8 +330,8 @@ public class Perm {
             }
 
             final int validNew = getStorageLimit(op);
-            if (op.getDataInt(Data.VALID) < validNew) {
-                op.setData(Data.VALID, validNew);
+            if (op.globalInt(Data.VALID) < validNew) {
+                op.globalInt(Data.VALID, validNew);
             }
 
 
