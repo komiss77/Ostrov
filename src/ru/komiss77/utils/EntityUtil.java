@@ -347,7 +347,8 @@ public class EntityUtil {
             case SMALL_FIREBALL:
             case SNOWBALL:
             case SPECTRAL_ARROW:
-            case POTION:
+            case SPLASH_POTION:
+            case LINGERING_POTION:
             case EXPERIENCE_BOTTLE:
             case TRIDENT:
             case UNKNOWN:
@@ -453,7 +454,7 @@ public class EntityUtil {
         final double hd2 = ent.getHeight() * 0.55d;
         final double wd2 = ent.getWidth() * 0.6d;
         final Location loc = center(ent);
-        new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 20d))
+        new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 28d))
             .offset(wd2, hd2, wd2).extra(0d).allPlayers().spawn();
         loc.getWorld().playSound(loc, snd, 1f, pt);
     }
@@ -462,7 +463,7 @@ public class EntityUtil {
         final double hd2 = ent.getHeight() * 0.55d;
         final double wd2 = ent.getWidth() * 0.6d;
         final Location loc = center(ent);
-        final ParticleBuilder pb = new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 20d));
+        final ParticleBuilder pb = new ParticleBuilder(pr).location(loc).count((int) (hd2 * wd2 * 28d));
         if (data != null && pr.getDataType().isAssignableFrom(data.getClass())) pb.data(data);
         pb.offset(wd2, hd2, wd2).extra(0d).allPlayers().spawn();
         loc.getWorld().playSound(loc, snd, 1f, pt);

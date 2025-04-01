@@ -9,6 +9,7 @@ import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.protocols.Protocol10;
 import ru.komiss77.modules.protocols.Protocol77;
 
@@ -17,13 +18,11 @@ public class ProtocolCmd {
     //запрос банжи, если есть - разкодировать raw
     //если пустой - выкачать из снапшота БД
 
-    public static final String grp = "xpanitely";
-
     public ProtocolCmd() { //новое
         final String val = "value";
         new OCmdBuilder("protocol").then(Resolver.integer(val)).suggest(cntx -> {
             if (!(cntx.getSource().getSender() instanceof final Player pl)
-                || !PM.getOplayer(pl).hasGroup(grp)) return Set.of();
+                || !Perm.isStaff(PM.getOplayer(pl), 2)) return Set.of();
             return Set.of("10", "77");
         }, true).run(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
@@ -33,11 +32,11 @@ public class ProtocolCmd {
             }
 
             final Oplayer op = PM.getOplayer(pl);
-
-            if (!op.hasGroup(grp)) {
+            if (!Perm.isStaff(op, 2)) {
                 pl.sendMessage("§cДоступно только персоналу!");
                 return 0;
             }
+
             return switch (Resolver.integer(cntx, val)) {
                 case 77:
                     if (Protocol77.active) {

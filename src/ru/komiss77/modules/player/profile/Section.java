@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
@@ -30,83 +29,83 @@ import ru.komiss77.utils.inventory.ClickableItem;
 public enum Section {
 
     МИНИИГРЫ(
-            45,
-            "<gradient:aqua:apple>§lВыбор Игры",
-            "<gradient:aqua:apple>§lGame Selection",
-            "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
-            Material.LIGHT_BLUE_STAINED_GLASS_PANE
+        18,
+        "<gradient:aqua:apple>§lВыбор Игры",
+        "<gradient:aqua:apple>§lGame Selection",
+        "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
+        ItemType.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     РЕЖИМЫ(
-            45,
-            "<gradient:aqua:apple>§lВыбор Игры",
-            "<gradient:aqua:apple>§lGame Selection",
-            "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
-            Material.LIGHT_BLUE_STAINED_GLASS_PANE
+        18,
+        "<gradient:aqua:apple>§lВыбор Игры",
+        "<gradient:aqua:apple>§lGame Selection",
+        "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
+        ItemType.LIGHT_BLUE_STAINED_GLASS_PANE
     ),
 
     ВОЗМОЖНОСТИ(
-            46,
-            "<gradient:apple:dark_aqua>§lВозможности",
-            "<gradient:apple:dark_aqua>§lAbilities",
-            "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
-            Material.LIME_STAINED_GLASS_PANE
+        19,
+        "<gradient:apple:dark_aqua>§lВозможности",
+        "<gradient:apple:dark_aqua>§lAbilities",
+        "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
+        ItemType.LIME_STAINED_GLASS_PANE
     ),
 
     ПРОФИЛЬ(
-            47,
-            "<gradient:dark_aqua:light_purple>§lПрофиль",
-            "<gradient:dark_aqua:light_purple>§lProfile",
-            "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1",
-            Material.GRAY_STAINED_GLASS_PANE
+        20,
+        "<gradient:dark_aqua:light_purple>§lПрофиль",
+        "<gradient:dark_aqua:light_purple>§lProfile",
+        "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1",
+        ItemType.GRAY_STAINED_GLASS_PANE
     ),
 
-    СТАТИСТИКА(
-            48,
-            "<gradient:light_purple:blue>§lСтатистика",
-            "<gradient:light_purple:blue>§lStatistics",
-            "5b4ddb8abed660825b68b922e22a9558c2f208938bd438eaeaccdc3941",
-            Material.PURPLE_STAINED_GLASS_PANE
-    ),
+    /*СТАТИСТИКА(
+        21,
+        "<gradient:light_purple:blue>§lСтатистика",
+        "<gradient:light_purple:blue>§lStatistics",
+        "5b4ddb8abed660825b68b922e22a9558c2f208938bd438eaeaccdc3941",
+        ItemType.PURPLE_STAINED_GLASS_PANE
+    ),*/
 
     ДОСТИЖЕНИЯ(
-            49,
-            "<gradient:blue:sky>§lДостижения",
-            "<gradient:blue:sky>§lAchievements",
-            "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f",
-            Material.BROWN_STAINED_GLASS_PANE
+        22,
+        "<gradient:blue:sky>§lДостижения",
+        "<gradient:blue:sky>§lAchievements",
+        "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f",
+        ItemType.BROWN_STAINED_GLASS_PANE
     ),
 
     МИССИИ(
-            50,
-            "<gradient:sky:gold>§lМиссии",
-            "<gradient:sky:gold>§lMissions",
-            "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
-            Material.ORANGE_STAINED_GLASS_PANE
+        23,
+        "<gradient:sky:gold>§lМиссии",
+        "<gradient:sky:gold>§lMissions",
+        "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
+        ItemType.ORANGE_STAINED_GLASS_PANE
     ),
 
     ДРУЗЬЯ(
-            51,
-            "§a§lД§d§lр§c§lу§e§lз§9§lь§b§lя",//"§a§lДрузья",
-            "§a§lF§d§lr§c§li§e§le§9§ln§b§ld§3§ls",//"§a§lДрузья",
-            "f3ebdbad610315ce554db4f56cb5ede6ac7ca6aa11cee02e85f94c52131d69",
-            Material.LIME_STAINED_GLASS_PANE
+        24,
+        "§a§lД§d§lр§c§lу§e§lз§9§lь§b§lя",//"§a§lДрузья",
+        "§a§lF§d§lr§c§li§e§le§9§ln§b§ld§3§ls",//"§a§lДрузья",
+        "f3ebdbad610315ce554db4f56cb5ede6ac7ca6aa11cee02e85f94c52131d69",
+        ItemType.LIME_STAINED_GLASS_PANE
     ),
 
     КОМАНДА(
-            52,
-            "<gradient:gold:red>§lКоманда",
-            "<gradient:gold:red>§lParty",
-            "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
-            Material.RED_STAINED_GLASS_PANE
+        25,
+        "<gradient:gold:red>§lКоманда",
+        "<gradient:gold:red>§lParty",
+        "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
+        ItemType.RED_STAINED_GLASS_PANE
     ),
 
     ГРУППЫ(
-            53,
-            "<gradient:red:indigo>§lПривилегии",
-            "<gradient:red:indigo>§lDonations",
-            "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
-            Material.YELLOW_STAINED_GLASS_PANE
+        26,
+        "<gradient:red:indigo>§lПривилегии",
+        "<gradient:red:indigo>§lDonations",
+        "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
+        ItemType.YELLOW_STAINED_GLASS_PANE
     ),
     ;
 
@@ -114,10 +113,10 @@ public enum Section {
     final public String item_nameRu;
     final public String item_nameEn;
     final public String texture;
-    final public Material glassMat;
+    final public ItemType glassMat;
 
 
-    Section(int slot, String item_nameRu, String item_nameEn, String texture, Material glassMat) {
+    Section(int slot, String item_nameRu, String item_nameEn, String texture, ItemType glassMat) {
         this.slot = slot;
         this.item_nameRu = item_nameRu;
         this.item_nameEn = item_nameEn;
@@ -143,9 +142,9 @@ public enum Section {
 
     public static ItemStack getItem(final Section section, final Oplayer op) {
         return new ItemBuilder(ItemType.PLAYER_HEAD)
-                .name(op.eng ? section.item_nameEn : section.item_nameRu)
-                .headTexture(section.texture)
-                .build();
+            .name(op.eng ? section.item_nameEn : section.item_nameRu)
+            .headTexture(section.texture)
+            .build();
     }
 
     public static ClickableItem getMenuItem(final Section section, final Oplayer op) {
@@ -158,315 +157,169 @@ public enum Section {
             case РЕЖИМЫ -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Choise a game or arena"),
-                            Component.empty(),
-                            Component.empty(),
-                            Component.text(op.menu.section == section ? "" : "§7LMB - §fshow games"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Click - §fChoose a gamemode"),
+                        Component.text("§7or a specific arena there")
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Выбор игры или арены"),
-                            Component.empty(),
-                            Component.empty(),
-                            Component.text(op.menu.section == section ? "" : "§7ЛКМ - §fразвернуть режимы"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Клик - §fВыбор режима"),
+                        Component.text("§fили конкретной арены")
                     );
                 }
                 consumer = e -> {
                     if (op.menu.section != section || op.menu.game != null) op.menu.open(op.getPlayer(), section);
                 };
-               /* return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                        .setCustomHeadTexture(section.texture)
-                        .addLore("") //0
-                        .addLore(op.eng ? "":"§7Выбор игры или арены") //1
-                        .addLore("")
-                        .addLore("")
-                        .addLore(op.menu.section==section ? "" : (op.eng ? "":"§7ЛКМ - §fразвернуть режимы"))
-                        .addLore("")
-                        .build(), e -> { //приклике на режимы если открыты арены - сбросить на игры и переоткрыть
-                            if (op.menu.section!=section || op.menu.game!=null) op.menu.open(op.getPlayer(), section);
-                        }
-                );*/
             }
 
 
             case ВОЗМОЖНОСТИ -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7LMB - Local menu"),
-                            Component.empty(),
-                            Component.text("§7RMB - Local settings"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7LMB - §fLocal menu"),
+                        Component.text("§7RMB - §fLocal settings")
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7ЛКМ  - Локальные меню"),
-                            Component.empty(),
-                            Component.text("§7ПКМ - Локальные настройки"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7ЛКМ - §fЛокальные меню"),
+                        Component.text("§7ПКМ - §fЛокальные настройки")
                     );
                 }
                 consumer = e -> {
                     op.menu.openLocalSettings(op.getPlayer(), e.isRightClick());
                 };
-
-               /* return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                        .setCustomHeadTexture(section.texture)
-                        .addLore("")
-                        .addLore(op.eng ? "":"§7ЛКМ  - Локальные меню")
-                        //.addLore(op.menu.section==section ? "" : "§7ЛКМ - §fоткрыть")
-                        .addLore("")
-                        .addLore(op.eng ? "":"§7ПКМ - Локальные настройки")
-                        .build(), e -> { //приклике на режимы если открыты арены - сбросить на игры и переоткрыть
-                            switch (e.getClick()) {
-                                case LEFT -> //if (op.menu.section!=section || op.menu.localSettingsPage)
-                                    op.menu.openLocalMenu(op.getPlayer());
-                                case RIGHT -> //if (op.menu.section!=section || !op.menu.localSettingsPage)
-                                    op.menu.openLocalSettings(op.getPlayer());
-                                case SHIFT_RIGHT -> {
-                                }
-                            }
-                        }
-                );*/
             }
 
             case ПРОФИЛЬ -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),//0
-                            //1 игровое время обновление каждую секунду в ProfileManager
-                            Component.text("§fPlayTime total : §a" + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
-                            //2 наиграно за сегодня обновление каждую секунду в ProfileManager
-                            Component.text(Lang.t(Stat.PLAY_TIME.desc, Lang.EN) + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
-                            Component.text(Lang.t(Stat.LEVEL.desc, Lang.EN) + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
-                            Component.empty(),
-                            Component.text(op.getDataInt(Data.REPORT_C) > 0 ? "§cConsole reports §7: " + op.getDataInt(Data.REPORT_C) : "§8No comments"),
-                            Component.text(op.getDataInt(Data.REPORT_P) > 0 ? "§cPlayer reports §7: " + op.getDataInt(Data.REPORT_P) : "§8No complaints received"),
-                            Component.empty(),
-                            Component.text("§7LMB - §fexpand profile"),
-                            Component.text(op.isGuest ? "§8*Passport not available" : "§7RMB - §fPassport of an Islander"),
-                            Component.text(op.isGuest ? "§8for guests" : "§7Shift+RMB - Get a copy of your passport"),
-                            Component.empty()
+                        Component.empty(),//0
+                        Component.text(Lang.t(Stat.LEVEL.desc, Lang.EN) + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
+                        Component.empty(),
+                        //1 игровое время обновление каждую секунду в ProfileManager
+                        Component.text(Lang.t(Stat.PLAY_TIME.desc, Lang.EN) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
+                        //2 наиграно за сегодня обновление каждую секунду в ProfileManager
+                        Component.text("§6Play time today: §e" + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
+                        Component.empty(),
+                        Component.text("§7LMB - §fShow your profile"),
+                        Component.text(op.isGuest ? "§8Passport Unavailable" : "§7RMB - §3Islander Passport")
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),//0
-                            //1 игровое время обновление каждую секунду в ProfileManager
-                            Component.text(Stat.PLAY_TIME.desc + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
-                            //2 наиграно за сегодня обновление каждую секунду в ProfileManager
-                            Component.text("§fНаиграно за сегодня : §e" + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
-                            Component.text(Stat.LEVEL.desc + op.getStat(Stat.LEVEL) + "  " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
-                            Component.empty(),
-                            Component.text(op.getDataInt(Data.REPORT_C) > 0 ? "§cРепорты консоли §7: " + op.getDataInt(Data.REPORT_C) : "§8Замечаний нет"),
-                            Component.text(op.getDataInt(Data.REPORT_P) > 0 ? "§cРепорты игроков §7: " + op.getDataInt(Data.REPORT_P) : "§8Жалоб не поступало"),
-                            Component.empty(),
-                            Component.text("§7ЛКМ - §fразвернуть профиль"),
-                            Component.text(op.isGuest ? "§8*Паспорт недоступен" : "§7ПКМ - §fПаспорт Островитянина"),
-                            Component.text(op.isGuest ? "§8гостям" : "§7Шифт+ПКМ - Получить копию паспорта"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text(Stat.LEVEL.desc + op.getStat(Stat.LEVEL) + " " + StringUtil.getPercentBar(op.getStat(Stat.LEVEL) * 25, op.getStat(Stat.EXP), true)),
+                        Component.empty(),
+                        //1 игровое время обновление каждую секунду в ProfileManager
+                        Component.text(Stat.PLAY_TIME.desc + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME))),
+                        //2 наиграно за сегодня обновление каждую секунду в ProfileManager
+                        Component.text("§6Сегодня Наиграно: §a" + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME))),
+                        Component.empty(),
+                        Component.text("§7ЛКМ - §fРазвернуть профиль"),
+                        Component.text(op.isGuest ? "§8Паспорт Недоступен" : "§7ПКМ - §3Паспорт Островитянина")
                     );
                 }
                 consumer = e -> {
                     switch (e.getClick()) {
-                        case LEFT ->
-                                op.menu.open(op.getPlayer(), section); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                        case RIGHT ->
-                                op.getPlayer().performCommand("passport edit");//if (!op.isGuest) op.menu.openPassport(op.getPlayer());
-                        case SHIFT_RIGHT -> {
-                            if (!op.isGuest) op.getPlayer().performCommand("passport get");
-                        }
+                        case LEFT -> op.menu.open(op.getPlayer(), section);
+                        case RIGHT -> op.getPlayer().performCommand("passport");
                     }
                 };
-
-                /*return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                        .setCustomHeadTexture(section.texture)
-                        .addLore("") //0
-                        //1 игровое время обновление каждую секунду в ProfileManager
-                        .addLore(Stat.PLAY_TIME.desc+TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)) )
-                        //2 наиграно за сегодня обновление каждую секунду в ProfileManager
-                        .addLore((op.eng ? "":"§fНаиграно за сегодня : §e")+TimeUtil.secondToTime(op.getDaylyStat(Stat.PLAY_TIME)))
-                        .addLore( Stat.LEVEL.desc+op.getStat(Stat.LEVEL) +"  "+ ApiOstrov.getPercentBar(op.getStat(Stat.LEVEL)*25, op.getStat(Stat.EXP), true)  )
-                        .addLore("")
-                        .addLore( op.getDataInt(Data.REPORT_C)>0 ? Data.REPORT_C.desc+op.getDataInt(Data.REPORT_C) : (op.eng ? "":"§8Замечаний нет") )
-                        .addLore( op.getDataInt(Data.REPORT_P)>0 ? Data.REPORT_P.desc+op.getDataInt(Data.REPORT_P) : (op.eng ? "":"§8Жалоб не поступало") )
-                        .addLore("")
-                        .addLore(op.eng ? "":"§7ЛКМ - §fразвернуть профиль")
-                        .addLore(op.isGuest ? (op.eng ? "":"§8*Паспорт недоступен") : (op.eng ? "":"§7ПКМ - §fПаспорт Островитянина"))
-                        .addLore(op.isGuest ? (op.eng ? "":"§8гостям"):(op.eng ? "":"§7Шифт+ПКМ - Получить копию паспорта"))
-                        .addLore("")
-                        .build(), e -> {
-                            switch (e.getClick()) {
-                                case LEFT -> op.menu.open(op.getPlayer(), section); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                                case RIGHT -> {
-                                    if (!op.isGuest) op.menu.openPassport(op.getPlayer());
-                                }
-                                case SHIFT_RIGHT -> {
-                                    if (!op.isGuest) op.getPlayer().performCommand("passport get");
-                                }
-                            }
-                        }
-                );*/
             }
 
-            case СТАТИСТИКА -> {
+            /*case СТАТИСТИКА -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),//0
-                            Component.text("§7Daily stat reset at midnight."),
-                            Component.text("§6Before resetting daily stat:"),
-                            Component.empty(),//3 =до сброса дневной статы= обновление каждую секунду в ProfileManager
-                            Component.empty(),
-                            Component.text(op.menu.section == section ? "" : "§7LMB - §fshow all stat"),
-                            Component.empty(),
-                            Component.text("§fYour Karma: " + op.getKarmaDisplay()),
-                            Component.empty(),
-                            Component.text("§7Karma worse when §cdefeat§7,"),
-                            Component.text("§7and improves with §awin§7."),
-                            Component.text("§7Player with good karma in team"),
-                            Component.text("§7can be very useful!"),
-                            Component.empty()
+                        Component.empty(),//0
+                        Component.text("§7Daily stat reset at midnight."),
+                        Component.text("§6Before resetting daily stat:"),
+                        Component.empty(),//3 =до сброса дневной статы= обновление каждую секунду в ProfileManager
+                        Component.empty(),
+                        Component.text(op.menu.section == section ? "" : "§7LMB - §fshow all stat"),
+                        Component.empty(),
+                        Component.text("§fYour Karma: " + op.getKarmaDisplay()),
+                        Component.empty(),
+                        Component.text("§7Karma worse when §cdefeat§7,"),
+                        Component.text("§7and improves with §awin§7."),
+                        Component.text("§7Player with good karma in team"),
+                        Component.text("§7can be very useful!"),
+                        Component.empty()
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),//0
-                            Component.text("§7Дневня статистика обнуляется в полночь."),
-                            Component.text("§6До сброса дневной статистики:"),
-                            Component.empty(),//3 =до сброса дневной статы= обновление каждую секунду в ProfileManager
-                            Component.empty(),
-                            Component.text(op.menu.section == section ? "" : "§7ЛКМ - §fразвернуть статистику"),
-                            Component.empty(),
-                            Component.text("§fВаша Карма: " + op.getKarmaDisplay()),
-                            Component.empty(),
-                            Component.text("§7Карма ухудшается при §cпроигрышах§7,"),
-                            Component.text("§7и улучшается при §aвыиграшах§7."),
-                            Component.text("§7Игрок с хорошей кармой в команде"),
-                            Component.text("§7может быть весьма полезен!"),
-                            Component.empty()
+                        Component.empty(),//0
+                        Component.text("§7Дневня статистика обнуляется в полночь."),
+                        Component.text("§6До сброса дневной статистики:"),
+                        Component.empty(),//3 =до сброса дневной статы= обновление каждую секунду в ProfileManager
+                        Component.empty(),
+                        Component.text(op.menu.section == section ? "" : "§7ЛКМ - §fразвернуть статистику"),
+                        Component.empty(),
+                        Component.text("§fВаша Карма: " + op.getKarmaDisplay()),
+                        Component.empty(),
+                        Component.text("§7Карма ухудшается при §cпроигрышах§7,"),
+                        Component.text("§7и улучшается при §aвыиграшах§7."),
+                        Component.text("§7Игрок с хорошей кармой в команде"),
+                        Component.text("§7может быть весьма полезен!"),
+                        Component.empty()
                     );
                 }
                 consumer = e -> {
                     if (op.menu.section != section) op.menu.open(op.getPlayer(), section);
                 };
-            }
+            }*/
 
             case ДОСТИЖЕНИЯ -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Your achievements"),
-                            Component.text("§7in various games."),
-                            Component.text("§7Achievements - important"),
-                            Component.text("§7part of development,"),
-                            Component.text("§7for each you get"),
-                            Component.text("§7additional experience."),
-                            Component.text(op.menu.section == section ? "" : "§7LMB - §fshow achievements"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Your achievements in various gamemodes."),
+                        Component.text("§7Completing them grants you experience."),
+                        Component.text(op.menu.section == section ? "" : "§7Click - §fShow achievements")
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Ваши достижения"),
-                            Component.text("§7в различных режимах."),
-                            Component.text("§7Достижения - важная"),
-                            Component.text("§7часть развития,"),
-                            Component.text("§7за каждое Вы получаете"),
-                            Component.text("§7дополнительный опыт."),
-                            Component.text(op.menu.section == section ? "" : "§7ЛКМ - §fразвернуть достижения"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Твои достижения в различных режимах."),
+                        Component.text("§7За их выполнение тебе дается опыт."),
+                        Component.text(op.menu.section == section ? "" : "§7Клик - §fРазвернуть достижения")
                     );
                 }
                 consumer = e -> {
                     if (op.menu.section != section) op.menu.open(op.getPlayer(), section);
                 };
-                /*return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                        .setCustomHeadTexture(section.texture)
-                        .addLore("")
-                        .addLore("§7Ваши достижения")
-                        .addLore("§7в различных режимах.")
-                        .addLore("§7Достижения - важная")
-                        .addLore("§7часть развития,")
-                        .addLore("§7за каждое Вы получаете")
-                        .addLore("§7дополнительный опыт.")
-                        .addLore(op.menu.section==section ? "" : "§7ЛКМ - §fразвернуть достижения")
-                        .addLore("")
-                        .build(), e -> {
-                            if (op.menu.section!=section) op.menu.open(op.getPlayer(), section);
-                        }
-                );*/
             }
 
             case МИССИИ -> {
                 if (op.isGuest) {
                     if (op.eng) {
                         lore = Arrays.asList(
-                                Component.empty(),//0
-                                Component.text("§8Missions not available"),
-                                Component.text("§8in guest mode"),
-                                Component.empty()
+                            Component.empty(),//0
+                            Component.text("§8Not available in guest mode")
                         );
                     } else {
                         lore = Arrays.asList(
-                                Component.empty(),//0
-                                Component.text("§8Миссии недоступны"),
-                                Component.text("§8в гостевом режиме"),
-                                Component.empty()
+                            Component.empty(),//0
+                            Component.text("§8Недоступно в гостевом режиме")
                         );
                     }
                     consumer = null;
                 } else {
                     if (op.eng) {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§7Here you can see missions,"),
-                                Component.text("§7in which you participate"),
-                                Component.text("§7and progress on them."),
-                                Component.empty(),
-                                Component.text("§7To start a new one,"),
-                                Component.text("§7cancel or complete the mission,"),
-                                Component.text("§7contact to §bInspector§7."),
-                                Component.text(op.menu.section == section ? "" : "§7LMB - §fopen"),
-                                Component.empty(),
-                                Component.text("§7You can view all possible"),
-                                Component.text("§7missions (including outdated"),
-                                Component.text("§7and planned) In the journal."),
-                                Component.text("§7RMB - §fJournal \"Mission today\""),
-                                Component.empty()
+                            Component.empty(),
+                            Component.text("§7Complete §3Missions §7to earn §eRil§7!"),
+                            Component.text(op.menu.section == section ? "" : "§7Click - §fAvailable missions")
                         );
                     } else {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§7Здесь вы увидите миссии,"),
-                                Component.text("§7в корорых участвуете"),
-                                Component.text("§7и прогресс по ним."),
-                                Component.empty(),
-                                Component.text("§7Чтобы начать новую,"),
-                                Component.text("§7отменить или завершить миссию,"),
-                                Component.text("§7обратитесь к §bИнспектору§7."),
-                                Component.text(op.menu.section == section ? "" : "§7ЛКМ - §fоткрыть"),
-                                Component.empty(),
-                                Component.text("§7Вы можете просмотреть"),
-                                Component.text("§7 все возможные миссии (в т.ч. прошедшие"),
-                                Component.text("§7и планируемые) в Журнале."),
-                                Component.text("§7ПКМ - §fЖурнал \"Миссия сегодня\""),
-                                Component.empty()
+                            Component.empty(),
+                            Component.text("§7Выполняй §3Миссии §7и получай §eРил§7!"),
+                            Component.text(op.menu.section == section ? "" : "§7Клик - §fДоступные миссии")
                         );
                     }
-                    consumer = e -> {
-                        if (e.isLeftClick()) {
-                            op.menu.open(op.getPlayer(), section);
-                        } else if (e.isRightClick()) {
-                            op.getPlayer().performCommand("mission journal");
-                        }
-                    };
+                    consumer = e -> op.menu.open(op.getPlayer(), section);
                 }
                /* if (op.isGuest) {
                     return ClickableItem.empty(new ItemBuilder(Material.PLAYER_HEAD)
@@ -511,173 +364,89 @@ public enum Section {
                 if (op.isGuest) {
                     if (op.eng) {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§8Friends are unavailable"),
-                                Component.text("§8in guest mode"),
-                                Component.empty()
+                            Component.empty(),//0
+                            Component.text("§8Not available in guest mode")
                         );
                     } else {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§8Друзья недоступны"),
-                                Component.text("§8в гостевом режиме"),
-                                Component.empty()
+                            Component.empty(),//0
+                            Component.text("§8Недоступно в гостевом режиме")
                         );
                     }
                     consumer = null;
                 } else {
+                    final int msg = op.getDataInt(Data.FRIENDS_MSG_OFFLINE);
                     if (op.eng) {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§7Your friends"),
-                                Component.empty(),
-                                Component.text("§7LMB - §fshow/add friends"),
-                                Component.text(op.getDataInt(Data.FRIENDS_MSG_OFFLINE) > 0 ? "§7RMB - §eview mail" : "§8no mail"),
-                                Component.text("§7shift+PCM - §ffriendship settings"),
-                                Component.empty()
+                            Component.empty(),
+                            Component.text("§7LMB - §fShow your friends"),
+                            Component.text(msg > 0 ? "§2New mail (§a" + msg + "§2)!" : "§8(no new mail)"),
+                            Component.text("§7RMB - §fFriend settings")
                         );
                     } else {
                         lore = Arrays.asList(
-                                Component.empty(),
-                                Component.text("§7Ваши Друзья"),
-                                Component.empty(),
-                                Component.text("§7ЛКМ - §fпоказать/добавить друзей"),
-                                Component.text(op.getDataInt(Data.FRIENDS_MSG_OFFLINE) > 0 ? "§7ПКМ - §eпросмотр писем" : "§8писем нет"),
-                                Component.text("§7Шифт+ПКМ - §fнастройки дружбы"),
-                                Component.empty()
+                            Component.empty(),
+                            Component.text("§7ЛКМ - §fТвои друзья"),
+                            Component.text(msg > 0 ? "§2Новые письма (§a" + msg + "§2)!" : "§8(нет новых писем)"),
+                            Component.text("§7ПКМ - §fНастройки дружбы")
                         );
                     }
                     consumer = e -> {
                         switch (e.getClick()) {
-                            case LEFT ->
-                                    Friends.openFriendsMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                            case RIGHT ->
-                                    Friends.openFriendsMail(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                            case SHIFT_RIGHT -> Friends.openFriendsSettings(op);
+                            case LEFT -> Friends.openFriendsMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
+                            case RIGHT -> Friends.openFriendsSettings(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
                         }
                     };
                 }
-
-                
-                
-            /*   if (op.isGuest) {
-                   return ClickableItem.empty(new ItemBuilder(Material.PLAYER_HEAD)
-                           .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                           .setCustomHeadTexture(section.texture)
-                           .addLore("")
-                           .addLore("§8Друзья недоступны")
-                           .addLore("§8в гостевом режиме")
-                           .addLore("")
-                           .build()
-                   );
-               } else {
-                   return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                           .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                           .setCustomHeadTexture(section.texture)
-                           .addLore("")
-                           .addLore("§7Ваши Друзья")
-                           .addLore("")
-                           .addLore("§7ЛКМ - §fпоказать/добавить друзей")
-                           .addLore(op.getDataInt(Data.FRIENDS_MSG_OFFLINE)>0 ? "§7ПКМ - §eпросмотр писем" : "§8ПКМ - просмотр писем")
-                           .addLore("§7Шифт+ПКМ - §fнастройки дружбы")
-                           .addLore("")
-                           .build(), e -> {
-                               switch (e.getClick()) {
-                                   case LEFT -> Friends.openFriendsMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                                   case RIGHT -> Friends.openFriendsMail(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                                   case SHIFT_RIGHT -> Friends.openFriendsSettings(op);
-                               }
-                           }
-                   );
-               }*/
             }
 
             case КОМАНДА -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Party"),
-                            Component.empty(),
-                            Component.text("§7Party must be created"),
-                            Component.text("§7for co-op play."),
-                            Component.text("§7You be in party until leave"),
-                            Component.text("§7party or disconnect."),
-                            Component.empty(),
-                            Component.text("§7LMB - §fmanagement"),
-                            Component.text("§7RMB - §fparty settings"),
-                            Component.empty(),
-                            Component.text("§5Invite crossServer:"),
-                            Component.text("§d/patry invite <name>"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Create a party and play together!"),
+                        Component.text("§7LMB - §fManage party"),
+                        Component.text("§7RMB - §fParty settings"),
+                        Component.empty(),
+                        Component.text("§5Quick invite:"),
+                        Component.text("§d/p <name>"),
+                        Component.empty()
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7Команда"),
-                            Component.empty(),
-                            Component.text("§7Команда создаётся"),
-                            Component.text("§7для совместной игры."),
-                            Component.text("§7Вы будете в команде до выхода"),
-                            Component.text("§7из команды или дисконнекта."),
-                            Component.empty(),
-                            Component.text("§7ЛКМ - §fуправление"),
-                            Component.text("§7ПКМ - §fнастройки команды"),
-                            Component.empty(),
-                            Component.text("§5Пригласить кросСерверно:"),
-                            Component.text("§d/patry invite <ник>"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7Создай команду для совместной игры!"),
+                        Component.text("§7ЛКМ - §fУправление командой"),
+                        Component.text("§7ПКМ - §fНастройки команды"),
+                        Component.empty(),
+                        Component.text("§5Быстрое приглашение:"),
+                        Component.text("§d/p <ник>"),
+                        Component.empty()
                     );
                 }
                 consumer = e -> {
                     switch (e.getClick()) {
-                        case LEFT ->
-                                Friends.openPartyMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                        case RIGHT ->
-                                Friends.openPartySettings(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
+                        case LEFT -> Friends.openPartyMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
+                        case RIGHT -> Friends.openPartySettings(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
                     }
                 };
-             /*  return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                       .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                       .setCustomHeadTexture(section.texture)
-                       .addLore("")
-                       .addLore("§7Команда")
-                       .addLore("")
-                       .addLore("§7Команда создаётся")
-                       .addLore("§7для совместной игры.")
-                       .addLore("§7Вы будете в команде до выхода")
-                       .addLore("§7командой или дисконнекта.")
-                       .addLore("")
-                       .addLore("§7ЛКМ - §fуправление")
-                       .addLore("§7ПКМ - §fнастройки команды")
-                       .addLore("")
-                       .addLore("§5Пригласить кросСерверно:")
-                       .addLore("§d/patry invite <ник>")
-                       .addLore("")
-                       .build(), e -> {
-                           switch (e.getClick()) {
-                               case LEFT -> Friends.openPartyMain(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-                               case RIGHT -> Friends.openPartySettings(op); //открыть безусловно (для обновления списка и выходя из режима поиска)
-
-                           }
-                       }
-               );*/
             }
 
 
             case ГРУППЫ -> {
                 if (op.eng) {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7LMB - §fPaid features"),
-                            Component.text("§7RMB - §fAdministration"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7LMB - §fPaid features"),
+                        Component.text("§7RMB - §fAdministration"),
+                        Component.empty()
                     );
                 } else {
                     lore = Arrays.asList(
-                            Component.empty(),
-                            Component.text("§7ЛКМ - §fВозможности привилегий"),
-                            Component.text("§7ПКМ - §fПерсонал Острова"),
-                            Component.empty()
+                        Component.empty(),
+                        Component.text("§7ЛКМ - §fВозможности привилегий"),
+                        Component.text("§7ПКМ - §fПерсонал Острова"),
+                        Component.empty()
                     );
                 }
                 consumer = e -> {
@@ -686,32 +455,12 @@ public enum Section {
                         case RIGHT -> op.menu.showStaff(op);
                     }
                 };
-               /*return ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
-                       .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                       .setCustomHeadTexture(section.texture)
-                       .addLore("")
-                       .addLore("§7ЛКМ - §fПлатные возможности")
-                       .addLore("§7ПКМ - §fАдминистрация")
-                       .addLore("")
-                       .build(), e -> {
-                           switch (e.getClick()) {
-                               case LEFT -> op.menu.openDonate(op);
-                               case RIGHT -> op.menu.showStaff(op);
-                               default -> {}
-                           }
-                       }
-               );*/
             }
 
 
             default -> {
                 lore = ImmutableList.of();
                 consumer = null;
-                /*return ClickableItem.empty(new ItemBuilder(Material.PLAYER_HEAD)
-                        .name(op.eng ? Lang.t(section.item_name, EnumLang.EN_US) : section.item_name)
-                        .setCustomHeadTexture(section.texture)
-                        //  .addLore( section.lore)
-                        .build());*/
             }
 
         }

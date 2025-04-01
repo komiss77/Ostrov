@@ -24,8 +24,8 @@ public class ProtectionData {
 
     public ProtectionData(final Sign sign) { //для редактора - лист должен быть изменяемый!
         String data = sign.getPersistentDataContainer().get(SignProtect.KEY, PersistentDataType.STRING);
-        final int idx1 = data.indexOf(LocalDB.W_SPLIT);
-        final int idx2 = data.indexOf(LocalDB.L_SPLIT);
+        final int idx1 = LocalDB.WORD.index(data);
+        final int idx2 = LocalDB.LINE.index(data);
         valid = Integer.parseInt(data.substring(0, idx1));
         owner = data.substring(idx1 + 1, idx2);
         data = data.substring(idx2 + 1);
@@ -53,8 +53,8 @@ public class ProtectionData {
 
     public static ProtectionData of(final Sign sign) {//для одноразовых проверочек, чтобы не плодить экземпляры
         String data = sign.getPersistentDataContainer().get(SignProtect.KEY, PersistentDataType.STRING);
-        final int idx1 = data.indexOf(LocalDB.W_SPLIT);
-        final int idx2 = data.indexOf(LocalDB.L_SPLIT);
+        final int idx1 = LocalDB.WORD.index(data);
+        final int idx2 = LocalDB.LINE.index(data);
         pd.valid = Integer.parseInt(data.substring(0, idx1));
         pd.owner = data.substring(idx1 + 1, idx2);
         data = data.substring(idx2 + 1);
@@ -64,7 +64,7 @@ public class ProtectionData {
 
     @Override
     public String toString() {
-        return valid + LocalDB.WORD_SPLIT + owner + LocalDB.LINE_SPLIT + StringUtil.toString(users, ",");
+        return valid + LocalDB.WORD.get() + owner + LocalDB.LINE.get() + StringUtil.toString(users, ",");
     }
 
 }

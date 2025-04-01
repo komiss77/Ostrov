@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +13,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -73,7 +73,7 @@ public class HeadSetup implements InventoryProvider {
 
 
     static {
-        cfg = Cfg.manager.getNewConfig("heads.yml");
+        cfg = Cfg.manager.config("heads.yml");
         headBase = new EnumMap<>(HeadCategory.class);
         headIdx = new EnumMap<>(HeadCategory.class);
         icons = new EnumMap<>(HeadCategory.class);
@@ -178,7 +178,8 @@ public class HeadSetup implements InventoryProvider {
                 is = new ItemBuilder(ItemType.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
                     .name(hc.name())
                     .lore("§7В базе : §3" + (txs == null ? 0 : txs.size()))
-                    .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
+                    .hide(DataComponentTypes.TRIM,
+                        DataComponentTypes.PROVIDES_TRIM_MATERIAL)
                     .build();
                 //is.addUnsafeEnchantment(Enchantment.LUCK, 1);
             } else {

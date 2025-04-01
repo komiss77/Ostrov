@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -15,7 +16,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
@@ -40,10 +40,10 @@ public class BuilderCmd implements OCommand {
 
     static {
         final ItemStack buildMenu = new ItemBuilder(ItemType.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
-            .name("§aМеню билдера")
-            .lore("§6ПКМ на баннер, голову, энтити -")
-            .lore("§e настроить")
-            .flags(true, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
+            .name("§aМеню Билдера")
+            .lore("§6ПКМ на баннер, голову, энтити §e- настроить")
+            .hide(DataComponentTypes.TRIM,
+                DataComponentTypes.PROVIDES_TRIM_MATERIAL)
             .build();
 
         bmi = new MenuItemBuilder("bmi", buildMenu)

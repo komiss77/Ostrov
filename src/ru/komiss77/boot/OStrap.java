@@ -2,9 +2,11 @@ package ru.komiss77.boot;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
@@ -15,6 +17,7 @@ import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import io.papermc.paper.registry.tag.Tag;
 import io.papermc.paper.registry.tag.TagKey;
+import io.papermc.paper.tag.PreFlattenTagRegistrar;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -23,6 +26,7 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockType;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemType;
@@ -76,6 +80,23 @@ public class OStrap implements PluginBootstrap {
                             .activeSlots(ce.slots()));
                 }
             }));
+
+        final TagMap tagMap = new TagMap();
+        for (final RegTag<?> rt : RegTag.VALUES.values()) tagMap.add(rt);
+        for (final RegTag<?>[] rts : tagMap.values()) regTags(rts, mgr);
+    }
+
+    private <T extends Keyed> void regTags(final RegTag<?>[] rts, final LifecycleEventManager<BootstrapContext> mgr) {
+        if (rts.length == 0) return;
+        @SuppressWarnings("unchecked")
+        final RegTag<T>[] nrts = (RegTag<T>[]) rts;
+        final RegistryKey<T> rk = nrts[0].registryKey();
+        mgr.registerEventHandler(LifecycleEvents.TAGS.preFlatten(rk).newHandler(e -> {
+            final PreFlattenTagRegistrar<T> reg = e.registrar();
+            for (final RegTag<T> rt : nrts) {
+                reg.setTag(rt.tagKey(), rt.entries());
+            }
+        }));
     }
 
     public static <T extends Keyed> RegistryKeySet<T> regSetOf(final Collection<Key> keys, final RegistryKey<T> reg) {
@@ -117,12 +138,37 @@ public class OStrap implements PluginBootstrap {
             case final EntityType ignored -> Ostrov.registries.ENTITIES;
             case final Attribute ignored -> Ostrov.registries.ATTRIBS;
             case final Biome ignored -> Ostrov.registries.BIOMES;
+            case final DamageType ignored -> Ostrov.registries.DAMAGES;
+            case final DataComponentType ignored -> Ostrov.registries.COMPS;
             default -> {
                 Ostrov.log_warn("Registry of " + val.getClass().getSimpleName() + " is not defined");
                 yield null;
             }
         };
         return reg == null ? null : (Registry<E>) reg;
+    }
+
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public static <E extends @NotNull Keyed> RegistryKey<E> regKeyOf(final E val) {
+        final RegistryKey<?> reg = switch (val) {
+            case final Sound ignored -> RegistryKey.SOUND_EVENT;
+            case final Enchantment ignored -> RegistryKey.ENCHANTMENT;
+            case final ItemType ignored -> RegistryKey.ITEM;
+            case final BlockType ignored -> RegistryKey.BLOCK;
+            case final TrimMaterial ignored -> RegistryKey.TRIM_MATERIAL;
+            case final TrimPattern ignored -> RegistryKey.TRIM_PATTERN;
+            case final EntityType ignored -> RegistryKey.ENTITY_TYPE;
+            case final Attribute ignored -> RegistryKey.ATTRIBUTE;
+            case final Biome ignored -> RegistryKey.BIOME;
+            case final DamageType ignored -> RegistryKey.DAMAGE_TYPE;
+            case final DataComponentType ignored -> RegistryKey.DATA_COMPONENT_TYPE;
+            default -> {
+                Ostrov.log_warn("Registry of " + val.getClass().getSimpleName() + " is not defined");
+                yield null;
+            }
+        };
+        return reg == null ? null : (RegistryKey<E>) reg;
     }
 
     public static <E extends Keyed> NamespacedKey keyOf(final E val) {
@@ -133,30 +179,16 @@ public class OStrap implements PluginBootstrap {
 
     @Deprecated
     public static <E extends Keyed> List<E> retrieveAll(final RegistryKey<E> reg) {
+        return getAll(reg);
+    }
+
+    public static <E extends Keyed> List<E> getAll(final RegistryKey<E> reg) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
         return rg.stream().toList();
     }
 
-    @Deprecated
-    public static <T extends Keyed> boolean hasTag(final TagKey<T> tk, final T val) {
-        final Registry<T> reg = regOf(val);
-        final TypedKey<T> tp = TypedKey.create(tk.registryKey(), val.key());
-        if (!tags.isEmpty()) {
-            for (final Tag<?> tg : tags.get(tk.registryKey())) {
-                if (has(tg, tp)) return true;
-            }
-        }
-        if (reg == null) return false;
-        return reg.getTag(tk).contains(tp);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Keyed> boolean has(final Tag<T> tag, final TypedKey<?> val) {
-        return tag.contains((TypedKey<T>) val);
-    }
-
     private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
-
+    @Deprecated
     public static <T extends Keyed> Tag<T> regTag(final TagKey<T> key, final Collection<T> def) {
         final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(key.registryKey());
         if (reg.hasTag(key)) return reg.getTag(key);
@@ -177,8 +209,31 @@ public class OStrap implements PluginBootstrap {
         return tag;
     }
 
+    public static <T extends Keyed> boolean hasTag(final TagKey<T> tk, final T val) {
+        final Registry<T> reg = regOf(val);
+        final TypedKey<T> tp = TypedKey.create(tk.registryKey(), val.key());
+        if (!tags.isEmpty()) {
+            for (final Tag<?> tg : tags.get(tk.registryKey())) {
+                if (has(tg, tp)) return true;
+            }
+        }
+        if (reg == null) return false;
+        return reg.getTag(tk).contains(tp);
+    }
+
     @SuppressWarnings("unchecked")
-    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk, final RegistryKey<T> rk) {
+    private static <T extends Keyed> boolean has(final Tag<T> tag, final TypedKey<?> val) {
+        return tag.contains((TypedKey<T>) val);
+    }
+
+    @Deprecated
+    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk, final RegistryKey<T> ignored) {
+        return getAll(tk);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Keyed> Set<T> getAll(final TagKey<T> tk) {
+        final RegistryKey<T> rk = tk.registryKey();
         final Registry<T> reg = RegistryAccess.registryAccess().getRegistry(rk);
         if (!tags.isEmpty()) {
             final List<Tag<?>> tags = OStrap.tags.get(tk.registryKey());

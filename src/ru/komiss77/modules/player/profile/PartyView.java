@@ -1,15 +1,18 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -34,51 +37,49 @@ public class PartyView implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
         if (op.party_members.isEmpty()) {
 
-            content.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                        .name("§eСоздать свою команду")
-                        .lore("§7")
-                        .build(), e -> {
-                        ApiOstrov.executeBungeeCmd(p, "party create");
-                        op.party_leader = op.nik;
-                        op.party_members.put(op.nik, Ostrov.MOT_D);
-                        reopen(p, content);
-                    }
-                )
-            );
-
-
-            //приглашения ??
-
+            content.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
+                .name("§eСоздать Команду")
+                .lore("§7")
+                .build(), e -> {
+                ApiOstrov.executeBungeeCmd(p, "party create");
+                op.party_leader = op.nik;
+                op.party_members.put(op.nik, Ostrov.MOT_D);
+                reopen(p, content);
+            }));
 
         } else if (op.nik.equals(op.party_leader)) {  //лидер
 
-
             for (final String name : op.party_members.keySet()) {
-//Ostrov.log_warn("party_members name="+name);
-                final ItemStack head = new ItemBuilder(Material.PLAYER_HEAD)
+
+                final boolean isLeader = op.party_leader.equals(name);
+                final ItemStack head = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(name)
-                    .lore(op.party_leader.equals(name) ? "§aЛидер" : "§7Участник")
-                    .lore("")
+                    .lore(isLeader ? "§6Лидер" : "§9Участник")
                     .lore("§7Сервер: §a" + op.party_members.get(name))
                     .lore("")
-                    .lore(op.party_leader.equals(name) ? "§7Клав. Q - §cпокинуть команду" : "§7клав.Q - §cвыгнать")
-                    .lore(op.party_leader.equals(name) ? "" : "§7ПКМ - §6передать лидерство")
+                    .lore("§7" + TCUtil.bind(TCUtil.Input.DROP) + (isLeader
+                        ? " - §cПокинуть команду" :  " - §cВыгнать"))
+                    .lore(isLeader ? "" : "§7ПКМ - §6Передать лидерство")
                     .lore("")
                     .build();
 
+                Skins.future(name, pp -> {
+                    head.setData(DataComponentTypes.PROFILE,
+                        ResolvableProfile.resolvableProfile(pp));
+                });
+
                 content.add(ClickableItem.of(head, e -> {
                         if (e.getClick() == ClickType.DROP) {
-                            if (op.party_leader.equals(name)) {
+                            if (isLeader) {
                                 ApiOstrov.executeBungeeCmd(p, "party leave");
                                 op.party_members.clear();
                                 op.party_leader = "";
@@ -98,58 +99,42 @@ public class PartyView implements InventoryProvider {
             }
 
             if (op.party_members.size() < 8) {
-                content.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
-                            .name("§aпригласить")
-                            .lore("")
-                            .lore("§7Чтобы отправить приглашение")
-                            .lore("§7в команду, встаньте рядом")
-                            .lore("§7и нажмите на эту иконку.")
-                            .lore("")
-                            .build(), e -> {
-                            //mode = FriendMode.Поиск;
-                            Friends.openPartyFind(op);
-                        }
-                    )
-                );
+                content.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
+                    .name("§aПригласить").lore("").lore("§6Нужно быть рядом с игроком!")
+                    .build(), e -> Friends.openPartyFind(op)));
             }
 
-        } else {
-
+        } else { //участник
 
             for (final String name : op.party_members.keySet()) {
 
-                final ItemStack head = new ItemBuilder(Material.PLAYER_HEAD)
+                final boolean isLeader = op.party_leader.equals(name);
+                final boolean same = op.nik.equals(name);
+                final ItemStack head = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(name)
-                    .lore(op.party_leader.equals(name) ? "§aЛидер" : "§7Участник")
-                    .lore("")
+                    .lore(isLeader ? "§6Лидер" : "§9Участник")
                     .lore("§7Сервер: §a" + op.party_members.get(name))
                     .lore("")
-                    .lore(op.nik.equals(name) ? "§7Клав. Q - §cпокинуть команду" : "")
-                    .lore("")
+                    .lore(same ? "§7" + TCUtil.bind(TCUtil.Input.DROP)
+                        + " - §cПокинуть команду" : "")
                     .build();
 
-                if (op.nik.equals(name)) {
-                    content.add(ClickableItem.of(head, e -> {
-                        if (e.getClick() == ClickType.DROP) {
-                            ApiOstrov.executeBungeeCmd(p, "party leave");
-                            op.party_members.clear();
-                            op.party_leader = "";
-                            reopen(p, content);
-                        }
-                    }));
-                } else {
-                    content.add(ClickableItem.empty(head));
-                }
+                Skins.future(name, pp -> {
+                    head.setData(DataComponentTypes.PROFILE,
+                        ResolvableProfile.resolvableProfile(pp));
+                });
 
+                if (!same) content.add(ClickableItem.empty(head));
+                else content.add(ClickableItem.of(head, e -> {
+                    if (e.getClick() == ClickType.DROP) {
+                        ApiOstrov.executeBungeeCmd(p, "party leave");
+                        op.party_members.clear();
+                        op.party_leader = "";
+                        reopen(p, content);
+                    }
+                }));
             }
 
         }
-
-
-        //  }
-
-
     }
-
-
 }

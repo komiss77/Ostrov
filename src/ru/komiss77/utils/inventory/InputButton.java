@@ -18,7 +18,7 @@ public class InputButton extends ClickableItem {
     }
 
     public InputButton(final InputType type, final ItemStack icon, final String suggest, final Consumer<String> result) {
-        this(icon, e -> PlayerInput.get(type, (Player) e.getWhoClicked(), inputMsg -> result.accept(inputMsg), suggest));
+        this(icon, e -> PlayerInput.get(type, (Player) e.getWhoClicked(), result, suggest));
     }
 
     public InputButton onRightClick(final Consumer<InventoryClickEvent> consumer) {

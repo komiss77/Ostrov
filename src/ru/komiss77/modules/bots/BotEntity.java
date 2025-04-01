@@ -5,12 +5,9 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import com.destroystokyo.paper.entity.ai.Goal;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.math.FinePosition;
@@ -55,7 +52,6 @@ public class BotEntity extends ServerPlayer implements Botter {
 
     private static final net.minecraft.world.item.ItemStack air
         = net.minecraft.world.item.ItemStack.fromBukkitCopy(ItemUtil.air);
-    private static final String[] empty = new String[]{"", ""};
 
     private final World world;
     private final Extent ext;
@@ -72,7 +68,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     private WeakReference<LivingEntity> rplc;
 
     protected BotEntity(final String name, final World world, final Extent ext) {
-        super(MinecraftServer.getServer(), Craft.toNMS(world), getProfile(name), ClientInformation.createDefault());
+        super(MinecraftServer.getServer(), Craft.toNMS(world), BotManager.profile(name), ClientInformation.createDefault());
         this.name = name;
         this.world = world;
         this.ext = ext;
@@ -90,7 +86,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     protected BotEntity(final String name, final World world, final Function<Botter, Extent> exs) {
-        super(MinecraftServer.getServer(), Craft.toNMS(world), getProfile(name), ClientInformation.createDefault());
+        super(MinecraftServer.getServer(), Craft.toNMS(world), BotManager.profile(name), ClientInformation.createDefault());
         this.name = name;
         this.world = world;
         this.ext = exs.apply(this);
@@ -105,13 +101,6 @@ public class BotEntity extends ServerPlayer implements Botter {
 
         BotManager.botByName.put(name, this);
         ext.create(this);
-    }
-
-    private static GameProfile getProfile(final String name) {
-        final GameProfile gameProfile = new GameProfile(UUID.randomUUID(), name);
-        final String[] skin = BotManager.skin.getOrDefault(name, empty);
-        gameProfile.getProperties().put("textures", new Property("textures", skin[0], skin[1]));
-        return gameProfile;
     }
 
     /*@ApiStatus.Internal
@@ -204,11 +193,11 @@ public class BotEntity extends ServerPlayer implements Botter {
     }
 
     public boolean isParrying(final LivingEntity mb) {
-        return PvPManager.CAN_PARRY.contains(lastType) && useTicks(mb) != 0;
+        return PvPManager.CAN_BLOCK.contains(lastType) && useTicks(mb) != 0;
     }
 
     public void parrying(final LivingEntity mb, final boolean set) {
-        if (PvPManager.CAN_PARRY.contains(item(EquipmentSlot.HAND))) {
+        if (PvPManager.CAN_BLOCK.contains(item(EquipmentSlot.HAND))) {
             if (set) {
                 world.playSound(mb.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
                 world.spawnParticle(Particle.ELECTRIC_SPARK, mb.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
@@ -558,9 +547,8 @@ public class BotEntity extends ServerPlayer implements Botter {
 
     public void move(final Location loc) {
         final Vec3 ps = this.position();
-        this.moveTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+        this.snapTo(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         final Vector vector = new Vector(loc.getX() - ps.x, loc.getY() - ps.y, loc.getZ() - ps.z);
-//        Bukkit.getConsoleSender().sendMessage("dx=" + vector.getX() + " dy=" + vector.getY() + " dz=" + vector.getZ());
         Nms.sendWorldPackets(world, new ClientboundRotateHeadPacket(this, (byte) (loc.getYaw() * 256 / 360)),
             new ClientboundMoveEntityPacket.PosRot(this.hashCode(), (short) (vector.getX() * 4096), (short) (vector.getY() * 4096),
                 (short) (vector.getZ() * 4096), (byte) (loc.getYaw() * 256 / 360), (byte) (loc.getPitch() * 256 / 360), false));

@@ -13,8 +13,10 @@ public class Group {
 
     public String name;
     public String chat_name;
+    public Type tp;
+    @Deprecated
     public String type;
-    public int price_per_month;
+    public int price_per_day;
     public String group_desc;
     public String mat;
     public int inv_slot;
@@ -29,7 +31,7 @@ public class Group {
         this.name = name;
         this.chat_name = chat_name;
         this.type = type;
-        this.price_per_month = price_per_month;
+        this.price_per_day = price_per_month / 30;
         this.inv_slot = inv_slot;
         this.mat = mat;
         this.group_desc = group_desc;
@@ -42,25 +44,33 @@ public class Group {
         lore = Gen_lore(null, group_desc, "§7");
         lore.add("");
         lore.add("§f15 дней §7- §b" + getPrice(15) + " рил");
-        lore.add("§f1 месяц §7- §b" + getPrice(31) + " рил");
+        lore.add("§f1 месяц §7- §b" + getPrice(30) + " рил");
         lore.add("§f3 месяца §7- §b" + getPrice(90) + " рил");
         lore.add("");
         lore.add("§7ЛКМ - выбрать длительность");
-
-        //this.inheritance.addAll(Arrays.asList(inheritance.split(", ")));
-//System.out.println("NEW Group! name="+name+" chat_name="+chat_name+" inheritance="+inheritance+" permissions="+permissions);
     }
 
+    public enum Type {
+        DONATE, STAFF, OFF;
 
+        public static Type get(final String name) {
+            final String lNm = name.toUpperCase();
+            for (final Type tp : Type.values()) {
+                if (tp.name().contains(lNm)) return tp;
+            }
+            return OFF;
+        }
+    }
+
+    private static final int BUFFER = 6;
+    private static final float FACTOR = BUFFER / 30f;
     public int getPrice(final int days) {//больше-дешевле
-        return (int) ((double) price_per_month / 30 * days * (days < 30 ? 1.3 : days < 45 ? 1 : days < 75 ? 0.8 : days < 105 ? 0.7 : days < 165 ? 0.6 : 0.5));
+        return price_per_day * (days - ((int) (days * FACTOR) - BUFFER));
     }
-
 
     public boolean isStaff() {
-        return type.equals("staff");
+        return tp == Type.STAFF;
     }
-
 
     private static List<String> Gen_lore(List<String> current_lore, String text, String text_color) {
         if (text_color == null) text_color = "";
@@ -136,9 +146,17 @@ public class Group {
         }
         split.add(sb.toString()); //добавляем, что осталось
 
-
         return split;
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        return o instanceof final Group gr && gr.name.equals(name);
+    }
 }

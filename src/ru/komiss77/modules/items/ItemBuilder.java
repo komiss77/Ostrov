@@ -13,7 +13,10 @@ import io.papermc.paper.registry.set.RegistrySet;
 import io.papermc.paper.registry.tag.TagKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -27,7 +30,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
+import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.modules.player.profile.Skins;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ItemUtil.Texture;
@@ -40,7 +45,6 @@ public class ItemBuilder {
     private int amount = 1; //по умолчанию 1, или build() выдаёт AIR!
     private ItemData data = null;
     private PersistentDataContainer pdcs = null;
-    private EnumSet<ItemFlag> flags = null;
 
     public ItemBuilder(final ItemType type) {
         if (type == null || ItemType.AIR.equals(type)) {
@@ -213,84 +217,52 @@ public class ItemBuilder {
         return set(DataComponentTypes.LORE, ItemLore.lore(lores));
     }
 
+    @Deprecated
     private boolean isOn(final ItemFlag flag) {
-        return flags != null && flags.contains(flag);
+        return false;
     }
 
     @Deprecated
     public ItemBuilder flags(final boolean on, final ItemFlag... fls) {
-        if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
-        for (final ItemFlag f : fls) {
-            if (on) if (!flags.add(f)) continue;
-            else if (!flags.remove(f)) continue;
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    if (on) set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    else reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(!on);
-        }
         return this;
     }
 
+    @Deprecated
     public ItemBuilder flags(final ItemFlag... fls) {
-        if (flags == null) flags = EnumSet.noneOf(ItemFlag.class);
-        for (final ItemFlag f : fls) {
-            if (!flags.add(f)) continue;
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    set(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(false);
-        }
         return this;
     }
 
+    @Deprecated
     public ItemBuilder deflag() {
-        for (final ItemFlag f : flags) {
-            final ShownInTooltip<?> sit = switch (f) {
-                case HIDE_ENCHANTS -> get(DataComponentTypes.ENCHANTMENTS);
-                case HIDE_ATTRIBUTES -> get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
-                case HIDE_UNBREAKABLE -> get(DataComponentTypes.UNBREAKABLE);
-                case HIDE_DESTROYS -> get(DataComponentTypes.CAN_BREAK);
-                case HIDE_PLACED_ON -> get(DataComponentTypes.CAN_PLACE_ON);
-                case HIDE_DYE -> get(DataComponentTypes.DYED_COLOR);
-                case HIDE_ARMOR_TRIM -> get(DataComponentTypes.TRIM);
-                case HIDE_STORED_ENCHANTS -> get(DataComponentTypes.STORED_ENCHANTMENTS);
-                case HIDE_ADDITIONAL_TOOLTIP -> {
-                    reset(DataComponentTypes.HIDE_ADDITIONAL_TOOLTIP);
-                    yield null;
-                }
-            };
-            if (sit != null) sit.showInTooltip(true);
-        }
-        flags.clear();
         return this;
+    }
+
+    public ItemBuilder hideAll(final boolean set) {
+        final TooltipDisplay td = get(DataComponentTypes.TOOLTIP_DISPLAY);
+        if (td == null) {
+            return !set ? this : set(DataComponentTypes.TOOLTIP_DISPLAY,
+                TooltipDisplay.tooltipDisplay().hideTooltip(true).build());
+        }
+        if (td.hideTooltip() == set) return this;
+        if (!set && td.hiddenComponents().isEmpty())
+            return reset(DataComponentTypes.TOOLTIP_DISPLAY);
+        return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+            .hiddenComponents(td.hiddenComponents()).hideTooltip(set).build());
+    }
+
+    public ItemBuilder hide(final DataComponentType... data) {
+        final TooltipDisplay td = get(DataComponentTypes.TOOLTIP_DISPLAY);
+        if (td == null) {
+            return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay
+                .tooltipDisplay().hiddenComponents(Set.of(data)).build());
+        }
+        return set(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+            .hiddenComponents(td.hiddenComponents()).addHiddenComponents(data).build());
     }
 
     public ItemBuilder trim(final TrimMaterial mat, final TrimPattern pat) {
         return set(DataComponentTypes.TRIM, ItemArmorTrim.itemArmorTrim(
-            new ArmorTrim(mat, pat), !isOn(ItemFlag.HIDE_ARMOR_TRIM)));
+            new ArmorTrim(mat, pat)).build());
     }
 
     public <D> ItemBuilder merge(final DataComponentType.Valued<D> vld, final Onection<D> fun) {
@@ -322,7 +294,7 @@ public class ItemBuilder {
         }
         enchs.put(enchant, level);
         final ItemFlag flag = stored ? ItemFlag.HIDE_STORED_ENCHANTS : ItemFlag.HIDE_ENCHANTS;
-        return set(type, ItemEnchantments.itemEnchantments(enchs, !isOn(flag)));
+        return set(type, ItemEnchantments.itemEnchantments(enchs));
     }
 
     public ItemBuilder disEnchant() {
@@ -330,18 +302,31 @@ public class ItemBuilder {
     }
 
     public ItemBuilder unbreak(final boolean set) {
-        return set ? set(DataComponentTypes.UNBREAKABLE, Unbreakable
-            .unbreakable(!isOn(ItemFlag.HIDE_UNBREAKABLE)))
+        return set ? set(DataComponentTypes.UNBREAKABLE)
             : reset(DataComponentTypes.UNBREAKABLE);
     }
 
     @Deprecated
-    public ItemBuilder attribute(final Attribute att, final double amount, final Operation op) {
-        attribute(att, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
+    public ItemBuilder attribute(final Attribute atr, final double amount, final Operation op) {
+        attribute(atr, amount, op, type.asMaterial().getEquipmentSlot().getGroup());
         return this;
     }
 
-    public ItemBuilder attribute(final Attribute att, final double amount, final Operation op, final EquipmentSlotGroup slotGroup) {
+    @Deprecated
+    public ItemBuilder attribute(final Attribute atr, final double amount, final Operation op, final EquipmentSlotGroup slotGroup) {
+        return attribute(atr, new AttributeModifier(atr.getKey(), amount, op, slotGroup));
+    }
+
+    public ItemBuilder attribute(final AttributeModifier mod) {
+        final Attribute atr = Ostrov.registries.ATTRIBS.get(mod.getKey());
+        if (atr == null) {
+            Ostrov.log_warn("No attribute with key " + mod.getKey().asMinimalString());
+            return this;
+        }
+        return attribute(atr, mod);
+    }
+
+    public ItemBuilder attribute(final Attribute atr, final AttributeModifier mod) {
         final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
         final ItemAttributeModifiers.Builder iamb = ItemAttributeModifiers.itemAttributes();
         if (iams != null) {
@@ -349,17 +334,15 @@ public class ItemBuilder {
                 iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
             }
         }
-        return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.addModifier(att,
-            new AttributeModifier(att.getKey(), amount, op, slotGroup))
-            .showInTooltip(!isOn(ItemFlag.HIDE_ATTRIBUTES)).build());
+        return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.addModifier(atr, mod).build());
     }
 
-    public ItemBuilder removeAttribute(final Attribute att) {
+    public ItemBuilder removeAttribute(final Attribute atr) {
         final ItemAttributeModifiers iams = get(DataComponentTypes.ATTRIBUTE_MODIFIERS);
         if (iams == null) return this;
         final ItemAttributeModifiers.Builder iamb = ItemAttributeModifiers.itemAttributes();
         for (final ItemAttributeModifiers.Entry en : iams.modifiers()) {
-            if (att.equals(en.attribute())) continue;
+            if (atr.equals(en.attribute())) continue;
             iamb.addModifier(en.attribute(), en.modifier(), en.getGroup());
         }
         return set(DataComponentTypes.ATTRIBUTE_MODIFIERS, iamb.build());
@@ -396,12 +379,14 @@ public class ItemBuilder {
             : set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
     }
 
-    public ItemBuilder skullOf(final @Nullable String name) { //хз что вернет)
-        return skullOf(name == null ? null : Bukkit.getOfflinePlayer(name));
+    public ItemBuilder skullOf(final @Nullable String name) {
+        return name == null ? reset(DataComponentTypes.PROFILE) : set(DataComponentTypes.PROFILE,
+            ResolvableProfile.resolvableProfile(Skins.present(name)));
     }
 
     public ItemBuilder skullOf(final @Nullable UUID id) {
-        return skullOf(id == null ? null : Bukkit.getOfflinePlayer(id));
+        return id == null ? reset(DataComponentTypes.PROFILE) : set(DataComponentTypes.PROFILE,
+            ResolvableProfile.resolvableProfile(Skins.present(id)));
     }
 
     public ItemBuilder skullOf(final @Nullable OfflinePlayer pl) {
@@ -517,7 +502,7 @@ public class ItemBuilder {
         }
         if (color == null) return reset(DataComponentTypes.DYED_COLOR);
         return set(DataComponentTypes.DYED_COLOR,
-            DyedItemColor.dyedItemColor(color, !isOn(ItemFlag.HIDE_DYE)));
+            DyedItemColor.dyedItemColor(color));
     }
 
     public ItemBuilder basePotion(final @Nullable PotionType pot) {

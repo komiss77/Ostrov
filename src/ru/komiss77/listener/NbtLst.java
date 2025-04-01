@@ -29,7 +29,7 @@ public class NbtLst {
         metaCopierFactory = new MetaCopierFactory();
     }
 
-    public static void rebuildInventoryContrnt(final Player p) {
+    public static void rebuildInventoryContent(final Player p) {
         ItemStack oldItem;
         for (int i = 0; i < p.getInventory().getContents().length; i++) {
             oldItem = p.getInventory().getContents()[i];

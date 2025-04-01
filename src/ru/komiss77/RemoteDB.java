@@ -190,7 +190,7 @@ public class RemoteDB {
             GM.allBungeeServersName.remove("bungee");
 
             //удалять со штампом старее 10 минут, или обнуляет только что записанные арены!!!
-            pst = connection.prepareStatement("DELETE FROM " + Table.ARENAS.table_name + " WHERE `server`='" + Ostrov.MOT_D + "' AND `stamp` < " + (Timer.getTime() - 600)); //1*60*60
+            pst = connection.prepareStatement("DELETE FROM " + Table.ARENAS.table_name + " WHERE `server`='" + Ostrov.MOT_D + "' AND `stamp` < " + (Timer.secTime() - 600)); //1*60*60
             pst.execute();
 
         } catch (SQLException | NullPointerException ex) {

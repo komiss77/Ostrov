@@ -54,7 +54,7 @@ public class GmCmd {
             .then(Resolver.string(mode))
             .suggest(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
-                if (ApiOstrov.isStaff(cs) || ApiOstrov.canBeBuilder(cs)) {
+                if (ApiOstrov.isStaff(cs) && ApiOstrov.canBeBuilder(cs)) {
                     return Set.of("0", "1", "2", "3", "sv", "cr", "ad", "sp");
                 }
                 return Set.of();
@@ -66,7 +66,7 @@ public class GmCmd {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-                if (!Cfg.gm_command && (!ApiOstrov.isStaff(cs) && !ApiOstrov.canBeBuilder(cs))) {
+                if (!Cfg.gm_command && (!ApiOstrov.isStaff(cs) || !ApiOstrov.canBeBuilder(cs))) {
                     p.sendMessage("§c" + Lang.t(p, "Gm отключёна на этом сервере!"));
                     return 0;
                 }

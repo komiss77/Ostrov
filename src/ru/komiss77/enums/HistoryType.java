@@ -1,45 +1,56 @@
 package ru.komiss77.enums;
 
 
+import org.bukkit.inventory.ItemType;
+
 public enum HistoryType {
 
-    NONE("", "AIR"),
+    NONE("", ItemType.AIR),
 
-    BAN_SET("бан", "BLAZE_POWDER"),
-    UNBAN("разбан", "GHAST_TEAR"),
-    BANIP_SET("бан по IP", "BLAZE_POWDER"),
-    UNBANIP("разбан IP", "GHAST_TEAR"),
-    //BAN_OFFLINE_SET(""),
+    BAN_SET("Бан", ItemType.INK_SAC),
+    UNBAN("Разбан", ItemType.GLOW_INK_SAC),
+    BANIP_SET("Бан по IP", ItemType.ENDER_PEARL),
+    UNBANIP("Разбан IP", ItemType.ENDER_EYE),
+    MUTE_SET("Молчанка", ItemType.BEETROOT_SOUP),
+    UNMUTE("Снятие Молчанки", ItemType.BOWL),
+    KICK("Пинок", ItemType.BLAZE_POWDER),
 
-    MUTE_SET("молчанка", "BLAZE_POWDER"),
-    UNMUTE("снятие молчанки", "GHAST_TEAR"),
+    GROUP_ADD("Добавление Группы", ItemType.RESIN_BRICK),
+    GROUP_TIME_ADD("Продление Группы", ItemType.COPPER_INGOT),
+    GROUP_EXPIRIED("Снятие Группы", ItemType.RESIN_CLUMP),
+    PERMS_ADD("Добавление Права", ItemType.IRON_INGOT),
+    PERMS_TIME_ADD("Продление Права", ItemType.RAW_IRON),
+    PERMS_EXPIRIED("Удаление Права", ItemType.IRON_NUGGET),
+    STAFF_ADD("Получение Должности", ItemType.MAGMA_CREAM),
+    STAFF_DEL("Снятие с Должности", ItemType.SLIME_BALL),
 
-    KICK("пинок", "BLAZE_POWDER"),
+    MONEY_REAL_USE("Затрата Рил", ItemType.RAW_GOLD),
+    MONEY_REAL_ADD("Получение Рил", ItemType.GOLD_NUGGET),
+    MONEY_REAL_WITHDRAW("Заявка на Вывод", ItemType.GOLD_INGOT),
 
-    GROUP_ADD("добавление группы", "EMERALD"),
-    GROUP_TIME_ADD("добавление срока группы", "EMERALD"),
-    GROUP_EXPIRIED("удаление группы", "BUCKET"),
-    PERMS_ADD("добавление права", "EMERALD"),
-    PERMS_TIME_ADD("добавление срока права", "EMERALD"),
-    PERMS_EXPIRIED("удаление права", "BUCKET"),
-    STAFF_ADD("назначение на должность", "EMERALD"),
-    STAFF_DEL("снятие с должности", "BUCKET"),
+    SESSION_INFO("Сессия", ItemType.HONEYCOMB),
+    OS_LVL_UP("Повышение Уровня", ItemType.EXPERIENCE_BOTTLE),
+    PASS_CHANGE("Смена Пароля", ItemType.GLISTERING_MELON_SLICE),
+    MISSION("Выполнение Миссии", ItemType.GUSTER_BANNER_PATTERN),
+    GAMEMODE("Смена Режима", ItemType.TURTLE_HELMET),
 
-    MONEY_REAL_USE("расходование средств", "GOLD_INGOT"),
-    MONEY_REAL_ADD("пополнение счёта", "GOLD_INGOT"),
-  MONEY_REAL_WITHDRAW("заявка на вывод", "GOLD_INGOT"),
-
-    SESSION_INFO("сессия", "GRAY_DYE"),
-    PASS_CHANGE("смена пароля", "MAGENTA_GLAZED_TERRACOTTA"),
+    FRIEND_ADD("Принятие Друга", ItemType.GLOWSTONE_DUST),
+    FRIEND_DEL("Удаление Друга", ItemType.REDSTONE),
+    PARTY_ADD("Добавление в Комманду", ItemType.FERMENTED_SPIDER_EYE),
+    PARTY_DEL("Удаление из Комманды", ItemType.SPIDER_EYE),
     ;
 
 
-    public String for_chat;
-    public String displayMat;
+    public final String for_chat;
+    @Deprecated
+    public final String displayMat;
+    public final ItemType type;
 
-    private HistoryType(final String for_chat, final String displayMat) {
+    HistoryType(final String for_chat, final ItemType type) {
         this.for_chat = for_chat;
-        this.displayMat = displayMat;
+        this.type = type;
+        this.displayMat = type.key()
+            .asMinimalString().toUpperCase();
     }
 
 
@@ -59,16 +70,12 @@ public enum HistoryType {
     }
 
     public HistoryType getSourceType(final HistoryType cmd) {
-        switch (cmd) {
-            case BAN_SET:
-                return UNBAN;
-            case MUTE_SET:
-                return UNMUTE;
-            case BANIP_SET:
-                return UNBANIP;
-            default:
-                return NONE;
-        }
+        return switch (cmd) {
+            case BAN_SET -> UNBAN;
+            case MUTE_SET -> UNMUTE;
+            case BANIP_SET -> UNBANIP;
+            default -> NONE;
+        };
     }
 
 }

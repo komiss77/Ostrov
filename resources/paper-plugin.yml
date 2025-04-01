@@ -12,20 +12,18 @@ dependencies:
   # Let's say that RegistryPlugin registers some data that your plugin needs to use
   # We don't need this during runtime, so it's not required in the server section.
   # However, can be added to both if needed
-  #Matrix:
-  #load: AFTER
-  #required: false
-  #join-classpath: true # Defaults to true
+
+  # load (BEFORE|AFTER|OMIT): Whether the plugin should load before or after your plugin.
+  # required: Whether this plugin is required for your plugin to load.
+  # join-classpath: Whether your plugin should have access to their classpath.
+  # This is used for plugins that need to access other plugins internals directly.
+
   server:
     EasyPayments: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
       load: AFTER
       required: false
       join-classpath: true
     CrazyAdvancementsAPI: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
-      load: AFTER
-      required: false
-      join-classpath: true
-    Matrix: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
       load: AFTER
       required: false
       join-classpath: true
@@ -42,10 +40,6 @@ dependencies:
       required: false
       join-classpath: true
     WorldGuard: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
-      load: AFTER
-      required: false
-      join-classpath: true
-    Skills: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
       load: AFTER
       required: false
       join-classpath: true

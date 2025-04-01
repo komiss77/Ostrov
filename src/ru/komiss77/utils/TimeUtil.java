@@ -66,22 +66,15 @@ public class TimeUtil {
     }
 
     public static String dayOfWeekName(final int dayOfWeekNumber) {
-        switch (dayOfWeekNumber) {
-            case 1:
-                return "вс";
-            case 2:
-                return "пн";
-            case 3:
-                return "вт";
-            case 4:
-                return "ср";
-            case 5:
-                return "чт";
-            case 6:
-                return "пт";
-            default:
-                return "сб";
-        }
+        return switch (dayOfWeekNumber) {
+            case 1 -> "вс";
+            case 2 -> "пн";
+            case 3 -> "вт";
+            case 4 -> "ср";
+            case 5 -> "чт";
+            case 6 -> "пт";
+            default -> "сб";
+        };
     }
 
 }

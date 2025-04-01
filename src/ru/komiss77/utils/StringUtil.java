@@ -32,17 +32,19 @@ public class StringUtil {
     public static final String NA = String.valueOf(CHAR_NA);
 
     public enum Split {
-        LARGE("‹¦›", "«︙»", "»¦«"),
-        MEDIUM("‼", "∬", "᠃", "↕"),
-        SMALL("÷", "∫", "¡", "±", "।");
+        LARGE("<!>", "‹¦›", "«︙»", "»¦«"),
+        MEDIUM("=", '∬', '‼', '᠃', '⧥', '↕'),
+        SMALL(":", '÷', '∫', '¡', '±', '।');
 
         private final int len;
+        private final String reject;
         private final String[] chars;
         private final Pattern pat;
 
-        Split(final String... chars) {
+        Split(final String reject, final String... chars) {
             this.len = chars[0].length();
             this.chars = chars;
+            this.reject = reject;
             final StringBuilder sb = new StringBuilder();
             for (final String ch : chars) {
                 if (ch.length() != len) continue;
@@ -51,7 +53,8 @@ public class StringUtil {
             pat = Pattern.compile(sb.substring(1));
         }
 
-        Split(final char... chars) {
+        Split(final String reject, final char... chars) {
+            this.reject = reject;
             this.len = 1;
             this.chars = new String[chars.length];
             for (int i = 0; i != chars.length; i++) {
@@ -86,6 +89,32 @@ public class StringUtil {
                 if (ix < 0) continue; return ix;
             }
             return -1;
+        }
+
+        public String join(final String s1, final String s2) {
+            final String spl = get();
+            return s1.replace(spl, reject) + spl
+                + s2.replace(spl, reject);
+        }
+
+        public String join(final String... seq) {
+            if (seq.length == 0) return "";
+            final StringBuilder sb = new StringBuilder();
+            final String spl = get();
+            for (final String cs : seq) {
+                sb.append(spl).append(cs.replace(spl, reject));
+            }
+            return sb.substring(spl.length());
+        }
+
+        public String join(final Collection<String> seq) {
+            if (seq.size() == 0) return "";
+            final StringBuilder sb = new StringBuilder();
+            final String spl = get();
+            for (final String cs : seq) {
+                sb.append(spl).append(cs.replace(spl, reject));
+            }
+            return sb.substring(spl.length());
         }
 
         public int len() {return len;}

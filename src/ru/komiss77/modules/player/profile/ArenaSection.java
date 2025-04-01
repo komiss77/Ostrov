@@ -2,21 +2,16 @@ package ru.komiss77.modules.player.profile;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
+import ru.komiss77.utils.inventory.*;
 
 
 public class ArenaSection implements InventoryProvider {
@@ -38,9 +33,8 @@ public class ArenaSection implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
         final ProfileManager pm = op.menu;
 
-
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -64,12 +58,10 @@ public class ArenaSection implements InventoryProvider {
 
             ci[ai.slot] = ClickableItem.of(ai.getIcon(op)
                 , e -> {
-
                     final boolean hasLevel = op.getStat(Stat.LEVEL) >= ai.level;
                     final boolean hasReputation = op.reputationCalc >= ai.reputation;
                     if (hasLevel && hasReputation) {
                         p.performCommand("server " + ai.server + " " + ai.arenaName);
-//Ostrov.log_warn("ArenaSection "+ai.server+" "+ai.arenaName);
                     } else {
                         PM.soundDeny(p);
                     }
@@ -83,13 +75,13 @@ public class ArenaSection implements InventoryProvider {
 
         //final Pagination pagination = content.pagination();
         pagination.setItems(ci);// pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(36);
+        pagination.setItemsPerPage(9);
 
 
         pagination.page(pm.arenaPage);
 
         if (!pagination.isLast()) {
-            content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtil.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
+            content.set(1, 8, ClickableItem.of(new ItemBuilder(ItemUtil.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.next().getPage();
                     content.getHost().open(p, pm.arenaPage);
@@ -98,7 +90,7 @@ public class ArenaSection implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtil.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
+            content.set(1, 0, ClickableItem.of(new ItemBuilder(ItemUtil.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.previous().getPage();
                     content.getHost().open(p, pm.arenaPage);

@@ -1,19 +1,20 @@
 package ru.komiss77.events;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import java.util.Set;
+import ru.komiss77.objects.Group;
 
 
 public class GroupChangeEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final Player p;
-    private final Set<String> new_groups;
+    private final Set<Group> new_groups;
 
-    public GroupChangeEvent(final Player p, final Set<String> new_groups) {
+    public GroupChangeEvent(final Player p, final Set<Group> new_groups) {
         this.p = p;
         this.new_groups = new_groups;
     }
@@ -23,9 +24,12 @@ public class GroupChangeEvent extends Event {
     }
 
     public Set<String> getNewGroups() {
-        return new_groups;
+        return new_groups.stream().map(g -> g.name).collect(Collectors.toSet());
     }
 
+    public Set<Group> getGroups() {
+        return new_groups;
+    }
 
     @Override
     public HandlerList getHandlers() {

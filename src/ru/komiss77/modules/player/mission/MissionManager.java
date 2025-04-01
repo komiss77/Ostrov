@@ -18,7 +18,6 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Stat;
-import ru.komiss77.modules.Vote;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -238,7 +237,6 @@ public class MissionManager {
             final List<ClickableItem> buttonsCurrent = new ArrayList<>();
             final List<ClickableItem> buttonsDone = new ArrayList<>();
 
-          Vote.onMissionMenu(op, buttonsCurrent, buttonsDone);
 //System.out.println("missions="+missions);
 
             try (Statement stmt = RemoteDB.getConnection().createStatement();
@@ -689,15 +687,11 @@ public class MissionManager {
 
 
     protected static boolean canUseCommand(final Player p, final String command) {
-      if (GM.GAME == Game.LOBBY || Ostrov.debug()) {
+      if (GM.GAME != Game.LOBBY && !Ostrov.debug()) {
+            p.sendMessage("§cУправлять миссиями можно только в лобби!");
+            return false;
+        }
         return true;
-      }
-      if (ApiOstrov.isLocalBuilder(p)) {
-        p.sendMessage("§6Управлять миссиями можно только в лобби, но билдер может");
-        return true;
-      }
-      p.sendMessage("§cУправлять миссиями можно только в лобби!");
-      return false;
     }
 
     protected static class RecordData {

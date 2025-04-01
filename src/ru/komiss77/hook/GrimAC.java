@@ -1,44 +1,45 @@
 package ru.komiss77.hook;
 
-import me.rerere.matrix.api.events.PlayerViolationEvent;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import ac.grim.grimac.api.GrimAbstractAPI;
+import ac.grim.grimac.api.events.FlagEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
-import ru.komiss77.enums.CheatType;
-import ru.komiss77.enums.Operation;
-import ru.komiss77.listener.SpigotChanellMsg;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.version.Nms;
 
 
-public class MatrixLst implements Listener {
+public class GrimAC implements Listener {
 
-    //public static final Map<String,Integer> viol = new HashMap<>();
+    public final GrimAbstractAPI api;
 
-
-//    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
-//    public void onViolationCommand(final PlayerViolationCommandEvent e) {
-//Ostrov.log("============ViolationCommand "+e.getPlayer().name()+" "+e.getHackType()+":"+e.getCommand());
-//    }
+    public GrimAC() {
+        final RegisteredServiceProvider<GrimAbstractAPI> prv =
+            Bukkit.getServicesManager().getRegistration(GrimAbstractAPI.class);
+        api = prv == null ? null : prv.getProvider();
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onCheat(final FlagEvent e) {
+        final Oplayer op = PM.getOplayer(e.getUser().getUniqueId());
+        if (op == null) return;
+        //TODO grim API наказания
+    }
+
+    /*@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCheat(final PlayerViolationEvent e) {
         
         
-        /*switch (e.getHackType()) {
+        *//*switch (e.getHackType()) {
             
             case MOVE, JESUS -> {
             }
             default -> {
                 return;
             }
-        }*/
+        }*//*
 
         final Player p = e.getPlayer();
         final Oplayer op = PM.getOplayer(p);
@@ -73,7 +74,7 @@ public class MatrixLst implements Listener {
             op.cheats.put(type, 1);
 //Ostrov.log("cheat "+p.name()+" "+type+":"+1);
         }
-       /* if (!viol.containsKey(p.name())) {
+       *//* if (!viol.containsKey(p.name())) {
             viol.put(p.name(), 1);
         } else {
             int count = viol.get(p.name())+1;
@@ -81,8 +82,8 @@ public class MatrixLst implements Listener {
             if (count==10) {
                 Ostrov.log_warn("пока просто лог : 10 замечаний античита для "+p.name());
             }
-        }*/
-    }
+        }*//*
+    }*/
 
 
     // @EventHandler (priority = EventPriority.MONITOR)

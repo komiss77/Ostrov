@@ -1,15 +1,24 @@
 package ru.komiss77.listener;
 
+import java.lang.ref.WeakReference;
+import com.destroystokyo.paper.ParticleBuilder;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Fireworks;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.command.CommandException;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,9 +33,13 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.enums.Game;
@@ -49,6 +62,7 @@ import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.ScreenUtil;
 import ru.komiss77.utils.StringUtil;
+import ru.komiss77.version.Nms;
 
 
 public class PlayerLst implements Listener {
@@ -68,22 +82,19 @@ public class PlayerLst implements Listener {
         }
     }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onLocalDataLoad(LocalDataLoadEvent e) {
-    if (ResourcePacksLst.use) {
-      ResourcePacksLst.execute(e.getPlayer());
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLocalDataLoad(LocalDataLoadEvent e) {
+        if (ResourcePacksLst.use) {
+            ResourcePacksLst.execute(e.getPlayer());
+        }
     }
-  }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void Command(final PlayerCommandPreprocessEvent e) throws CommandException {
-      final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
-      final String cmd = args[0].toLowerCase();
-//Ostrov.log_warn("PlayerCommandPreprocessEvent cmd="+cmd+" msg="+e.getMessage());
-      final Player p = e.getPlayer();
+        final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
+        final Player p = e.getPlayer();
 
-      if (ApiOstrov.isLocalBuilder(p, false)) {
-//            if (cmd.startsWith("builder") || cmd.startsWith("gm")) return;
+        if (ApiOstrov.isLocalBuilder(p, false)) {
             final Oplayer op = PM.getOplayer(p);
             if (op.setup == null) { //запоминаем только если не активен билдер!
                 op.lastCommand = e.getMessage().replaceFirst("/", "");
@@ -95,7 +106,6 @@ public class PlayerLst implements Listener {
                 if (e.getMessage().contains("claim") || e.getMessage().contains("define")) {
                     e.setCancelled(true);
                     PM.getOplayer(p).menu.openRegions(p);
-                    //e.setMessage("land");
                 }
             }
         }
@@ -114,7 +124,6 @@ public class PlayerLst implements Listener {
             }
         }
     }
-
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(final PlayerJoinEvent e) {
@@ -135,11 +144,7 @@ public class PlayerLst implements Listener {
                 LocalDB.loadLocalData(p.getName());//локальные данные на загрузку независимо от данных с банжи!
             }, 10); //в таком варианте WANT_ARENA_JOIN будет точно после данных с прокси!
 
-        }// else {
-        //    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //длф миниигр, которые не юзают локальную БД
-        //    if (Config.set_gm && !p.isOp()) p.setGameMode(Config.gm_on_join);
-        //    if (Config.walkspeed_on_join > 0) p.setWalkSpeed(Config.walkspeed_on_join);
-        //}
+        }
 
         final String bungeeData = bungeeDataCache.remove(p.getName());
         if (bungeeData != null) { //данные пришли ранее, берём из кэша
@@ -200,25 +205,6 @@ public class PlayerLst implements Listener {
         final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //nameStorage.get(event.getEntity().getUniqueId());
         if (targetOp != null) targetOp.tag.hideTo(p);
     }
-    
-    /*@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void mountEntity(final EntityMountEvent e) {
-        final Oplayer op = PM.getOplayer(e.getMount().getUniqueId()); //UpperName cn = nameStorage.get(event.getMount().getUniqueId());
-        if (op != null) {
-//            op.tag.visible(false);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void dismountEntity(final EntityDismountEvent e) {
-        if (e.getDismounted().getPassengers().size() == 1) {
-            final Oplayer op = PM.getOplayer(e.getDismounted().getUniqueId()); //UpperName cn = nameStorage.get(event.getDismounted().getUniqueId());
-            if (op!=null) {
-                // Run 2 ticks later, we need to ensure that the game sends the packets to update the passengers.
-//                Ostrov.sync(() -> op.tag.visible(true), 2);
-            }
-        }
-    }*/
 
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -371,32 +357,22 @@ public class PlayerLst implements Listener {
         }, 5);
     }
 
-
-  //@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-  //public void onTeleport(final PlayerStartSpectatingEntityEvent e) {
-  //  e.getPlayer().sendMessage("PlayerStartSpectatingEntityEvent");
-  //}
-
-  @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-  public void onSpectateEnd(final PlayerStopSpectatingEntityEvent e) {
-    final Player p = e.getPlayer();
-    final Oplayer op = PM.getOplayer(p);
-    if (op == null) return;
-    if (op.spyOrigin != null && e.getSpectatorTarget().getType() == EntityType.PLAYER) {
-      p.setGameMode(op.spyOldGm);
-      final Location loc = op.spyOrigin;
-      op.spyOrigin = null; //обнулить до ТП или не даст в PlayerTeleportEvent
-      p.teleport(loc);
-      //Ostrov.sync(() -> p.setGameMode(oldGamemode), 1);
-      final Player target = (Player) e.getSpectatorTarget();
-      target.showPlayer(Ostrov.instance, p);
-      op.tag.visible(true);
-      //p.resetTitle();
-      p.sendMessage("§6Наблюдение закончено");
-      //e.setCancelled(true); //шпиону не давать ТП
-      //p.sendMessage("§6В режиме шпиона нельзя вселяться.");
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onSpectateEnd(final PlayerStopSpectatingEntityEvent e) {
+        final Player p = e.getPlayer();
+        final Oplayer op = PM.getOplayer(p);
+        if (op == null) return;
+        if (op.spyOrigin != null && e.getSpectatorTarget().getType() == EntityType.PLAYER) {
+            p.setGameMode(op.spyOldGm);
+            final Location loc = op.spyOrigin;
+            op.spyOrigin = null; //обнулить до ТП или не даст в PlayerTeleportEvent
+            p.teleport(loc);
+            final Player target = (Player) e.getSpectatorTarget();
+            target.showPlayer(Ostrov.instance, p);
+            op.tag.visible(true);
+            p.sendMessage("§6Наблюдение закончено");
+        }
     }
-  }
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onTeleport(final PlayerTeleportEvent e) {//перед тп в другой мир
         if (GM.GAME.type == ServerType.ARENAS || GM.GAME.type == ServerType.LOBBY) return;
@@ -405,11 +381,11 @@ public class PlayerLst implements Listener {
         final Oplayer op = PM.getOplayer(p);
         if (op == null) return;
 
-      if (op.spyOrigin != null) {// && e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
-        e.setCancelled(true); //шпиону не давать ТП
-        p.sendMessage("§6В режиме шпиона нельзя перемещаться");
-        return;
-      }
+        if (op.spyOrigin != null) {// && e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
+            e.setCancelled(true); //шпиону не давать ТП
+            p.sendMessage("§6В режиме шпиона нельзя перемещаться");
+            return;
+        }
         final String world_from = e.getFrom().getWorld().getName();
         final String world_to = e.getTo().getWorld().getName();
 
@@ -423,9 +399,9 @@ public class PlayerLst implements Listener {
             if (PvPManager.no_damage_on_tp > 0) {
                 op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
-          if (Game.storeWorldPosition()) {
-            op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
-          }
+            if (Game.storeWorldPosition()) {
+                op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
+            }
             // сохраняем точку выхода
         }
     }
@@ -439,6 +415,82 @@ public class PlayerLst implements Listener {
         }
     }
 
+
+    public static final double VEL_MUL = 0.025d;
+    public static final double POP_MUL = 0.4d;
+    public static final double ANGLE = 20d;
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void test(final PlayerElytraBoostEvent e) {
+        final Firework fw = e.getFirework();
+        final FireworkMeta fm = fw.getFireworkMeta();
+        final int length = fw.getTicksToDetonate();
+        final int es = fm.getEffectsSize();
+        fw.remove();
+        final Player p = e.getPlayer();
+        if (!usingFirework(p, es)) return;
+        p.playSound(Sound.sound(Key.key("entity.firework_rocket.launch"), Sound.Source.AMBIENT,
+            10f, Ostrov.random.nextFloat() * 0.2f + 0.8f), Sound.Emitter.self());
+        final WeakReference<Player> prf = new WeakReference<>(p);
+        new BukkitRunnable() {
+            final Vector dif = new Vector(Ostrov.random.nextFloat() - 0.5f,
+                Ostrov.random.nextFloat() - 0.5f, Ostrov.random.nextFloat() - 0.5f).multiply(0.8d);
+            int tick = 0;
+            public void run() {
+                final Player pl = prf.get();
+                if (pl == null || !pl.isValid()) {
+                    cancel();
+                    return;
+                }
+
+                final Location loc = pl.getEyeLocation().add(dif);
+                final Vector dir = loc.getDirection();
+                loc.add(dir); loc.add(dir);
+
+                if (!pl.isGliding() || Nms.fastType(pl.getWorld(), BVec.of(loc)).hasCollision()) {
+                    if (es != 0) {
+                        pl.launchProjectile(Firework.class,
+                            new Vector(), f -> f.setFireworkMeta(fm)).detonate();
+                    }
+                    cancel();
+                    return;
+                }
+
+                if (tick++ == length) {
+                    final int es = fm.getEffectsSize();
+                    if (es != 0) {
+                        pl.setNoDamageTicks(4);
+                        pl.launchProjectile(Firework.class, new Vector(),
+                            f -> f.setFireworkMeta(fm)).detonate();
+                        pl.setVelocity(pl.getVelocity().add(dir.rotateAroundNonUnitAxis(
+                            new Vector(-dir.getZ(), 0d, dir.getX()).normalize(), ANGLE)
+                            .multiply((es + 1) * POP_MUL)));
+                    }
+                    cancel();
+                    return;
+                }
+                new ParticleBuilder(Particle.FIREWORK).location(loc)
+                    .receivers(100).count(1).extra(0d).spawn();
+                pl.setVelocity(pl.getVelocity().add(dir.multiply(VEL_MUL)));
+            }
+        }.runTaskTimer(Ostrov.instance, 0, 0);
+    }
+
+    private boolean usingFirework(final Player p, final int size) {
+        final PlayerInventory inv = p.getInventory();
+        final ItemStack hnd = inv.getItemInMainHand();
+        final Fireworks fdh = hnd.getData(DataComponentTypes.FIREWORKS);
+        if (fdh != null && fdh.effects().size() == size) {
+            inv.setItemInMainHand(hnd.subtract());
+            return true;
+        }
+        final ItemStack ofh = inv.getItemInOffHand();
+        final Fireworks fdo = hnd.getData(DataComponentTypes.FIREWORKS);
+        if (fdo != null && fdo.effects().size() == size) {
+            inv.setItemInOffHand(ofh.subtract());
+            return true;
+        }
+        return false;
+    }
 
     //------------------------------------------------------------------------
 

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.translate.Lang;
@@ -16,7 +16,7 @@ import ru.komiss77.utils.TCUtil;
 public class Mission {
 
     int id = -1;
-    Material mat = Material.SPYGLASS;
+    ItemType mat = ItemType.SPYGLASS;
     protected String nameColor = "";
     protected String name = "Новая миссия";
     protected Component displayName;
@@ -25,8 +25,8 @@ public class Mission {
     CaseInsensitiveMap<Integer> request = new CaseInsensitiveMap<>(); //макс 8 требований!!
     int reward = 5;
     int canComplete = 10;
-    int activeFrom = Timer.getTime() + 1 * 60 * 60; //через час
-    int validTo = Timer.getTime() + 25 * 60 * 60; //через сутки и час
+    int activeFrom = Timer.secTime() + 60 * 60; //через час
+    int validTo = Timer.secTime() + 25 * 60 * 60; //через сутки и час
     int doing = 0;
     boolean changed = false;
 
@@ -63,18 +63,6 @@ public class Mission {
             }
         }
         return lore;
-        /*
-        for (String requestName : mission.request.keySet()) {
-            request = mission.request.get(requestName);
-            stat = Stat.fromName(requestName);
-            if (stat==null) {
-                displayName = "§b"+requestName+" §7: §d";
-            } else {
-                displayName = stat.game.displayName+"§7, "+stat.desc+" §7: §d";
-            }
-            lore.add(displayName+"§eнакопите §5"+request);
-        } 
-        */
     }
 
     protected static String getRequestString(final Mission mi) {
@@ -82,9 +70,6 @@ public class Mission {
         for (final Map.Entry<String, Integer> e : mi.request.entrySet()) {
             request.append("∫").append(e.getKey()).append(":").append(e.getValue());
         }
-        //for (String req:map.keySet()) {
-        //    request = request+"∫"+req+":"+map.get(req);
-        //}
         return request.toString().replaceFirst("∫", "");
     }
 

@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.utils.MoveUtil;
@@ -88,6 +89,11 @@ public class TestLst implements Listener {
         }
 
         if (inHand.getType() == Material.DRAGON_BREATH) {
+            final Location loc = p.getEyeLocation();
+            final Vector dir = loc.getDirection();
+            final Vector nd = new Vector(-dir.getZ(), 0d, dir.getX()).normalize();
+            loc.setDirection(dir.rotateAroundNonUnitAxis(nd, 10));
+            p.setRotation(loc.getYaw(), loc.getPitch());
             p.sendMessage("§8TestListener - interact cancel!");
             if (e.getClickedBlock() != null) {
                 e.setCancelled(true);

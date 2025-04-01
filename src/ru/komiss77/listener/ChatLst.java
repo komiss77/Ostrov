@@ -14,7 +14,6 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -387,12 +386,8 @@ public class ChatLst implements Listener {
 //SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgRU, Chanell.CHAT_RU);
             SpigotChanellMsg.sendChat(ce.getPlayer(), gsonMsgEN, Chanell.CHAT_EN);
-
-          final String pref = Ostrov.MOT_D + LocalDB.WORD_SPLIT + ce.getPlayer().getName() + LocalDB.WORD_SPLIT;
-          final String miniRu = MiniMessage.miniMessage().serialize(proxyResultRU);
-          final String miniEn = MiniMessage.miniMessage().serialize(proxyResultEN);
-          OsQuery.send(QueryCode.CHAT_RU, pref + miniRu);
-          OsQuery.send(QueryCode.CHAT_EN, pref + miniEn);
+            OsQuery.send(QueryCode.CHAT_RU, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgRU);
+            OsQuery.send(QueryCode.CHAT_EN, ce.getPlayer().getName() + LocalDB.WORD_SPLIT + gsonMsgEN);
             // }
         }
 

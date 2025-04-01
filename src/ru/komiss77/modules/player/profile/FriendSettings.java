@@ -1,12 +1,12 @@
 package ru.komiss77.modules.player.profile;
 
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.enums.Settings;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
@@ -32,50 +32,32 @@ public class FriendSettings implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
             content.set(section.slot, Section.getMenuItem(section, op));
         }
 
-
         for (final Settings set : Settings.values()) {
-            if (set.tag > 15) break;
+            if (set.tag > 12) break;
             final boolean locked = op.hasSettings(set);
-            content.set(set.menuSlot, ClickableItem.of(new ItemBuilder(locked ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
-                        .name(set.displayName)
-                        .lore(set.description)
-                        .lore("")
-                        .lore("§7Сейчас: " + (locked ? "§4Нет" : "§2Да"))
-                        .lore("")
-                        .lore("§7ЛКМ - менять")
-                        .lore("")
-                        .build(), e -> {
-                        if (e.isLeftClick()) {
-                            op.setSettings(set, !locked);
-                            switch (set) {
-                                case Fr_ShowFriendDeny:
-                                case Fr_ShowPartyDeny:
-                                case Fr_ShowOtherDeny:
-                                    Friends.updateViewMode(p);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            reopen(p, content);
-                        } else {
-                            PM.soundDeny(p);
-                        }
-                    }
-                )
-            );
-
-
+            content.set(set.menuSlot, ClickableItem.of(new ItemBuilder(locked ? ItemType.RED_CONCRETE : ItemType.GREEN_CONCRETE)
+                .name(set.displayName)
+                .lore(set.description)
+                .lore("§7Сейчас: " + (locked ? "§4Нет" : "§2Да"))
+                .lore("")
+                .lore("§7ЛКМ - §fИзменить")
+                .build(), e -> {
+                if (e.isLeftClick()) {
+                    op.setSettings(set, !locked);
+                    if (set == Settings.HideNonFriends)
+                        Friends.updateViewMode(p);
+                    reopen(p, content);
+                } else {
+                    PM.soundDeny(p);
+                }
+            }));
         }
-
-
     }
-
-
 }

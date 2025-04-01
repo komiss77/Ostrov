@@ -1,23 +1,25 @@
 package ru.komiss77.modules.entities;
 
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import com.destroystokyo.paper.event.player.PlayerAttackEntityCooldownResetEvent;
+import java.util.*;
 import com.google.common.collect.Multimap;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.BlocksAttacks;
+import io.papermc.paper.datacomponent.item.Weapon;
+import io.papermc.paper.event.player.PlayerShieldDisableEvent;
+import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Container;
 import org.bukkit.command.CommandException;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.*;
@@ -25,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.*;
+import ru.komiss77.boot.OStrap;
+import ru.komiss77.boot.RegTag;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
@@ -45,11 +49,39 @@ import ru.komiss77.version.Nms;
 public class PvPManager implements Initiable {
 
     public static OConfig config;
+    public static List<Force> rules = new ArrayList<>();
+    public interface Force {
+        boolean test(final Player pl, final Oplayer op);
+        String msg();
+    }
 
     private static int battle_time;  //после первого удара - заносим обоих в режим боя
     public static int no_damage_on_tp;
     private static final EnumMap<PvpFlag, Boolean> flags;
     private static final Set<PotionEffectType> potion_pvp_type;
+
+    private static final String PVP_NOTIFY = "§cТы в режиме боя!";
+    private static final PotionEffect HASTE = new PotionEffect(PotionEffectType.HASTE,
+        2, 255, true, false, false);
+
+    public static final Set<ItemType> AXES = OStrap.getAll(ItemTypeTagKeys.AXES);
+    public static final Set<ItemType> DUAL_HIT = Set.of(ItemType.DIAMOND_SWORD,
+        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
+        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.TRIDENT);
+    public static final Set<ItemType> CAN_BLOCK = Set.of(ItemType.DIAMOND_SWORD,
+        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
+        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
+        ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
+        ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
+    public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
+        .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
+        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).build();
+    private static final float MELEE_BREAK_SEC = 2f;
+    //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
+    //weapon block breaks if !shield || axe
+
+    public static final int DHIT_CLD = 4;
+    public static final int BLCK_CLD = 0;
 
     private static Listener damageListener;
     private static Listener flyListener;
@@ -57,40 +89,6 @@ public class PvPManager implements Initiable {
     private static Listener trimListener;
     private static Listener cmdListener;
     private static Listener advancedListener;
-
-    private static final String PVP_NOTIFY = "§cТы в режиме боя!";
-    private static final PotionEffect spd = new PotionEffect(PotionEffectType.HASTE, 2, 255, true, false, false);
-    private static final PotionEffect slw = new PotionEffect(PotionEffectType.MINING_FATIGUE, 32, 255, true, false, false);
-    private static final HashSet<Integer> noClds = new HashSet<>();
-
-    public static final Set<ItemType> MELEE = Set.of(ItemType.DIAMOND_SWORD,
-        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
-        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.TRIDENT);
-    public static final Set<ItemType> AXES = Set.of(ItemType.NETHERITE_AXE,
-        ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
-        ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
-    public static final Set<ItemType> CAN_PARRY = Set.of(ItemType.DIAMOND_SWORD,
-        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
-        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
-        ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
-        ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
-
-    public static final int DHIT_CLD = 4;
-    public static final int BLCK_CLD = 0;
-
-    /*public static final double TRIDENT_DMG = getDefDmg(ItemType.TRIDENT);
-    public static double getDefDmg(final ItemType it) {
-        double d = 1d;
-        for (final AttributeModifier mod : it.getDefaultAttributeModifiers()
-            .get(Attribute.ATTACK_DAMAGE)) {
-            d += switch (mod.getOperation()) {
-                case ADD_NUMBER -> mod.getAmount();
-                case ADD_SCALAR -> mod.getAmount() * d;
-                case MULTIPLY_SCALAR_1 -> (mod.getAmount() + 1d) * d;
-            };
-        }
-        return d;
-    }*/
 
     static {
         flags = new EnumMap<>(PvpFlag.class);
@@ -130,6 +128,25 @@ public class PvPManager implements Initiable {
     @Override
     public void onDisable() {
         Ostrov.log_ok("§6PvP выключено!");
+    }
+
+    public static void addForce(final Force rule) {
+        rules.add(rule);
+        for (final Oplayer op : PM.getOplayers()) {
+            if (op.pvp_allow) continue;
+            final Player p = op.getPlayer();
+            if (p == null || !isForced(p, op, true)) continue;
+            PvPManager.pvpOn(op);
+        }
+    }
+
+    public static boolean isForced(final Player pl, final Oplayer op, final boolean tell) {
+        for (final Force fr : rules) {
+            if (!fr.test(pl, op)) continue;
+            if (tell) pl.sendMessage(fr.msg());
+            return true;
+        }
+        return false;
     }
 
     private static void init() {
@@ -179,24 +196,17 @@ public class PvPManager implements Initiable {
                     }
                     final Player p = e.getEntity();
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
-                    if (op == null) {
-                        return;
-                    }
-//                    op.last_death = p.getLocation();
-// вайвай, зачем убрал?? ... у игрока сохраняется позиция смерти, 1.19+ p.getLastDeathLocation()
+                    if (op == null) return;
+
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0) {            //дроп инвентаря
                         if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
                             for (final ItemStack is : p.getInventory().getContents()) {
-                                if (!ItemUtil.isBlank(is, false)) {
-                                    if (MenuItemsManager.isSpecItem(is)) {//не лутать менюшки!
-                                        continue;
-                                    }
-                                    p.getWorld().dropItemNaturally(p.getLocation(), is);
-                                }
+                                if (ItemUtil.isBlank(is, false)) continue;
+                                if (MenuItemsManager.isSpecItem(is)) continue; //не лутать менюшки!
+                                p.getWorld().dropItemNaturally(p.getLocation(), is);
                             }
                             p.getInventory().clear();
                             p.updateInventory();
-
                         } else {
                             for (int i = e.getDrops().size() - 1; i >= 0; i--) {
                                 if (MenuItemsManager.isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек
@@ -214,12 +224,9 @@ public class PvPManager implements Initiable {
 
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
                 public void EntityDamageByEntityEvent(final EntityDamageByEntityEvent e) {
-                    if (!e.getEntityType().isAlive()) {
-                        return;   //не обрабатывать урон рамкам, опыту и провее
-                    }            //System.out.println("EDBE: cause="+e.getCause()+" entity="+e.getEntity()+" damager="+e.getDamager());
+                    if (!e.getEntityType().isAlive()) return; //не обрабатывать урон рамкам, опыту и провее
 
                     switch (e.getCause()) {
-                        case DRAGON_BREATH:
                         case ENTITY_ATTACK:
                         case ENTITY_EXPLOSION:
                         case ENTITY_SWEEP_ATTACK:
@@ -250,398 +257,321 @@ public class PvPManager implements Initiable {
                         return;
                     }
 
-                    if (advanced) {
-                        switch (e.getDamager()) {
-                            case Projectile pr://Ostrov.sync(() -> tgt.setNoDamageTicks(-1), 1);
-                                if (e.getDamager() instanceof final Trident tr) {
-                                    double dmg = tr.getDamage();
-                                    final ItemStack tit = tr.getItemStack();
-                                    final int lvl = tit.getEnchantmentLevel(Enchantment.IMPALING);
-                                    if (lvl != 0 && (pr.getWorld().hasStorm()
-                                        || pr.getLocation().getBlock().isLiquid())) {
-                                        dmg += lvl * 2.5d;
-                                    }
-                                    e.setDamage(dmg);
-                                }
-                                break;
-                            case LivingEntity le://Ostrov.sync(() -> tgt.setNoDamageTicks(-1), 1);
-                                if (le.getEquipment() != null) {
-                                    final ItemStack mhd = le.getEquipment().getItemInMainHand();
-                                    final int lvl = mhd.getEnchantmentLevel(Enchantment.IMPALING);
-                                    if (lvl != 0 && (le.getWorld().hasStorm()
-                                        || le.getLocation().getBlock().isLiquid())) {
-                                        e.setDamage(lvl * 2.5d + e.getDamage());
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-
-                        final ItemStack tgtHand;
-                        final LivingEntity target = (LivingEntity) e.getEntity();
-                        if (target.getType() == EntityType.PLAYER) {//# v P
-                            final Player tgtPl = (Player) target;
-                            if (damager instanceof final Player dmgrPl) {//P v P
-                                tgtHand = tgtPl.getInventory().getItemInMainHand();
-                                if (tgtPl.hasCooldown(tgtHand) && CAN_PARRY.contains(tgtHand.getType().asItemType())) {
-                                    tgtPl.getWorld().playSound(tgtPl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                    tgtPl.setCooldown(tgtHand, 0);
-                                    if (!e.isCritical()) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        tgtPl.removePotionEffect(PotionEffectType.MINING_FATIGUE);
-                                        noClds.add(tgtPl.getEntityId());
-                                        tgtPl.swingMainHand();
-                                        tgtPl.attack(dmgrPl);
-                                    }
-                                    return;
-                                }
-
-                                final PlayerInventory inv = dmgrPl.getInventory();
-                                final ItemStack damagerHand = inv.getItemInMainHand();
-                                if (isParying(dmgrPl)) {
-                                    e.setDamage(0d);
-                                    e.setCancelled(true);
-                                    return;
-                                }
-
-                                if (dmgrPl.getAttackCooldown() == 1f && dmgrPl.isSprinting()
-                                    && MELEE.contains(damagerHand.getType().asItemType())) {
-                                    final ItemStack ofh = inv.getItemInOffHand();
-                                    if (ItemUtil.isBlank(ofh, false)) {
-                                        final ItemStack shld = ItemType.SHIELD.createItemStack();
-                                        if (tgtPl.isBlocking() && !tgtPl.hasCooldown(shld)) {
-                                            tgtPl.setCooldown(shld, 40);
-                                            tgtPl.playEffect(EntityEffect.SHIELD_BREAK);
-                                            return;
-//                                                final PlayerInventory ti = tpl.getInventory();
-//                                                final ItemStack ohs = ti.getItemInOffHand();
-//                                                if (ohs != null && ohs.getType() == ItemType.SHIELD) {
-//                                                    VM.getNmsServer().sendFakeEquip(tpl, 40, ItemUtils.air);
-//                                                    Ostrov.sync(() -> ti.setItemInOffHand(ti.getItemInOffHand()), 4);
-//                                                }
-                                        }
-                                    } else if (MELEE.contains(ofh.getType().asItemType())) {
-                                        Ostrov.sync(() -> {
-                                            final ItemStack noh = inv.getItemInOffHand();
-                                            if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
-                                                final ItemStack it = inv.getItemInMainHand().clone();
-                                                target.setNoDamageTicks(-1);
-                                                dmgrPl.addPotionEffect(spd);
-                                                inv.setItemInMainHand(ofh);
-                                                dmgrPl.setSprinting(false);
-                                                dmgrPl.attack(target);
-                                                inv.setItemInOffHand(inv.getItemInMainHand());
-                                                inv.setItemInMainHand(it);
-                                                dmgrPl.removePotionEffect(spd.getType());
-                                                Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
-                                            }
-                                        }, DHIT_CLD);
-                                    }
-                                }
-
-                                Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                    + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
-                            } else {
-                                final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
-                                if (dbe != null) {//B v P
-                                    tgtHand = tgtPl.getInventory().getItemInMainHand();
-                                    if (tgtPl.hasCooldown(tgtHand) && CAN_PARRY.contains(tgtHand.getType().asItemType())) {
-                                        tgtPl.getWorld().playSound(tgtPl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                        tgtPl.setCooldown(tgtHand, 0);
-                                        if (!e.isCritical()) {
-                                            e.setDamage(0d);
-                                            e.setCancelled(true);
-                                            tgtPl.removePotionEffect(PotionEffectType.MINING_FATIGUE);
-                                            noClds.add(tgtPl.getEntityId());
-                                            tgtPl.swingMainHand();
-                                            tgtPl.attack(damager);
-                                        }
-                                        return;
-                                    }
-
-                                    final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                    if (dbe.isParrying(damager)) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        return;
-                                    }
-
-                                    if (hnd != null && CAN_PARRY.contains(hnd.getType().asItemType())
-                                        && damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
-                                        final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                        if (ItemUtil.isBlank(ofh, false)) {
-                                            if (tgtPl.isBlocking()) {
-                                                tgtPl.setCooldown(ItemType.SHIELD.createItemStack(), 40);
-                                                tgtPl.playEffect(EntityEffect.SHIELD_BREAK);
-                                            }
-                                        } else if (MELEE.contains(ofh.getType().asItemType())
-                                            && MELEE.contains(hnd.getType()) && dbe.useTicks(damager) == 0) {
-                                            dbe.startUse(damager, EquipmentSlot.OFF_HAND);
-                                            Ostrov.sync(() -> {
-                                                final LivingEntity ndp = dbe.getEntity();
-                                                if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
-                                                    target.setNoDamageTicks(-1);
-                                                    dbe.attack(damager, target, true);
-                                                    dbe.stopUse(damager);
-                                                }
-                                            }, DHIT_CLD);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            final Botter tbe = Cfg.bots ? BotManager.getBot(target.getEntityId()) : null;
-                            if (tbe != null) {// # v B
-                                if (damager instanceof final Player dmgrPl) {// P v B
-                                    tgtHand = tbe.item(EquipmentSlot.HAND);
-                                    if (tgtHand != null) {
-                                        final Material mt = tgtHand.getType();
-                                        if (tbe.isParrying(target) && MELEE.contains(mt.asItemType())) {
-                                            target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                            tbe.parrying(target, false);
-                                            if (!e.isCritical()) {
-                                                e.setDamage(0d);
-                                                e.setCancelled(true);
-                                                tbe.attack(target, dmgrPl, false);
-                                            }
-                                            return;
-                                        }
-                                    }
-
-                                    final PlayerInventory inv = dmgrPl.getInventory();
-                                    final ItemStack damagerHand = inv.getItemInMainHand();
-                                    if (isParying(dmgrPl)) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        return;
-                                    }
-
-                                    final ItemType handType = damagerHand.getType().asItemType();
-                                    final boolean blocking = tbe.isBlocking(target);
-                                    if (blocking && AXES.contains(handType)) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        tbe.stopUse(target);
-                                        target.getWorld().playSound(target.getLocation(),
-                                            Sound.ITEM_SHIELD_BREAK, 1f, 1f);
-                                        return;
-                                    }
-
-                                    if (dmgrPl.getAttackCooldown() == 1f
-                                        && dmgrPl.isSprinting() && CAN_PARRY.contains(handType)) {
-                                        final ItemStack ofh = inv.getItemInOffHand();
-                                        if (ItemUtil.isBlank(ofh, false)) {
-                                            if (blocking) {
-                                                e.setDamage(0d);
-                                                e.setCancelled(true);
-                                                tbe.stopUse(target);
-                                                target.getWorld().playSound(target.getLocation(),
-                                                    Sound.ITEM_SHIELD_BREAK, 1f, 1f);
-                                                return;
-                                            }
-                                        } else if (MELEE.contains(ofh.getType().asItemType())
-                                            && MELEE.contains(handType) && !blocking) {
-                                            Ostrov.sync(() -> {
-                                                final ItemStack noh = inv.getItemInOffHand();
-                                                if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
-                                                    final ItemStack it = inv.getItemInMainHand().clone();
-                                                    target.setNoDamageTicks(-1);
-                                                    dmgrPl.addPotionEffect(spd);
-                                                    inv.setItemInMainHand(ofh);
-                                                    dmgrPl.setSprinting(false);
-                                                    dmgrPl.attack(target);
-                                                    inv.setItemInOffHand(inv.getItemInMainHand());
-                                                    inv.setItemInMainHand(it);
-                                                    dmgrPl.removePotionEffect(spd.getType());
-                                                    Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
-                                                }
-                                            }, DHIT_CLD);
-                                        }
-                                    }
-
-                                    if (blocking) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        target.getWorld().playSound(target.getLocation(),
-                                            Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
-                                    }
-
-                                    Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
-                                } else {
-                                    final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
-                                    if (dbe != null) {// B v B
-                                        tgtHand = tbe.item(EquipmentSlot.HAND);
-                                        if (tgtHand != null) {
-                                            final Material mt = tgtHand.getType();
-                                            if (tbe.isParrying(target) && MELEE.contains(mt.asItemType())) {
-                                                target.getWorld().playSound(target.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                                                tbe.parrying(target, false);
-                                                if (!e.isCritical()) {
-                                                    e.setDamage(0d);
-                                                    e.setCancelled(true);
-                                                    tbe.attack(target, damager, false);
-                                                }
-                                                return;
-                                            }
-                                        }
-
-                                        final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                        if (dbe.isParrying(damager)) {
-                                            e.setDamage(0d);
-                                            e.setCancelled(true);
-                                            return;
-                                        }
-
-                                        final ItemType handType = hnd == null ?
-                                            ItemType.AIR : hnd.getType().asItemType();
-                                        final boolean blocking = tbe.isBlocking(target);
-                                        if (blocking && AXES.contains(handType)) {
-                                            e.setDamage(0d);
-                                            e.setCancelled(true);
-                                            tbe.stopUse(target);
-                                            target.getWorld().playSound(target.getLocation(),
-                                                Sound.ITEM_SHIELD_BREAK, 1f, 1f);
-                                            return;
-                                        }
-
-                                        if (CAN_PARRY.contains(handType) && damager.getLocation()
-                                            .distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
-                                            final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                            if (ItemUtil.isBlank(ofh, false)) {
-                                                if (blocking) {
-                                                    e.setDamage(0d);
-                                                    e.setCancelled(true);
-                                                    tbe.stopUse(target);
-                                                    target.getWorld().playSound(target.getLocation(),
-                                                        Sound.ITEM_SHIELD_BREAK, 1f, 0.8f);
-                                                    return;
-                                                }
-                                            } else if (MELEE.contains(ofh.getType().asItemType()) && !blocking
-                                                && MELEE.contains(dbe.usedType()) && dbe.useTicks(damager) == 0) {
-                                                dbe.startUse(damager, EquipmentSlot.OFF_HAND);
-                                                Ostrov.sync(() -> {
-                                                    final LivingEntity ndp = dbe.getEntity();
-                                                    if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
-                                                        target.setNoDamageTicks(-1);
-                                                        dbe.attack(damager, target, true);
-                                                        dbe.stopUse(damager);
-                                                    }
-                                                }, DHIT_CLD);
-                                            }
-                                        }
-
-                                        if (blocking) {
-                                            e.setDamage(0d);
-                                            e.setCancelled(true);
-                                            target.getWorld().playSound(target.getLocation(),
-                                                Sound.ITEM_SHIELD_BLOCK, 1f, 0.8f);
-                                        }
-                                    }
-                                }
-                            } else if (target instanceof Mob || target instanceof ArmorStand) {// # v M
-                                final ItemStack shd = target.getEquipment().getItemInOffHand();
-                                if (ItemUtil.is(shd, ItemType.SHIELD) && Ostrov.random.nextBoolean()) {
-                                    target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
-                                    e.setCancelled(true);
-                                    e.setDamage(0);
-                                    return;
-                                }
-
-                                if (damager instanceof final Player dmgrPl) {// P v M
-                                    final PlayerInventory inv = dmgrPl.getInventory();
-                                    final ItemStack hnd = inv.getItemInMainHand();
-                                    if (isParying(dmgrPl)) {
-                                        e.setDamage(0d);
-                                        e.setCancelled(true);
-                                        return;
-                                    }
-
-                                    if (dmgrPl.getAttackCooldown() == 1f && dmgrPl.isSprinting()
-                                        && MELEE.contains(hnd.getType().asItemType())) {
-                                        final ItemStack ofh = inv.getItemInOffHand();
-                                        if (!ItemUtil.isBlank(ofh, false)
-                                            && MELEE.contains(ofh.getType().asItemType())) {
-                                            Ostrov.sync(() -> {
-                                                final ItemStack noh = inv.getItemInOffHand();
-                                                if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
-                                                    final ItemStack it = inv.getItemInMainHand().clone();
-                                                    target.setNoDamageTicks(-1);
-                                                    dmgrPl.addPotionEffect(spd);
-                                                    inv.setItemInMainHand(ofh);
-                                                    dmgrPl.setSprinting(false);
-                                                    dmgrPl.attack(target);
-                                                    inv.setItemInOffHand(inv.getItemInMainHand());
-                                                    inv.setItemInMainHand(it);
-                                                    dmgrPl.removePotionEffect(spd.getType());
-                                                    Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
-                                                }
-                                            }, DHIT_CLD);
-                                        }
-                                    }
-
-                                    Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
-                                        + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
-                                } else {
-                                    final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
-                                    if (dbe != null) {// B v M
-                                        final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
-                                        if (dbe.isParrying(damager)) {
-                                            e.setDamage(0d);
-                                            e.setCancelled(true);
-                                            return;
-                                        }
-
-                                        if (hnd != null && MELEE.contains(hnd.getType().asItemType())
-                                            && damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ) {
-                                            final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
-                                            if (ofh != null && dbe.useTicks(damager) == 0
-                                                && MELEE.contains(ofh.getType().asItemType())) {
-                                                dbe.startUse(damager, EquipmentSlot.OFF_HAND);
-                                                Ostrov.sync(() -> {
-                                                    final LivingEntity ndp = dbe.getEntity();
-                                                    if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
-                                                        target.setNoDamageTicks(-1);
-                                                        dbe.attack(damager, target, true);
-                                                        dbe.stopUse(damager);
-                                                    }
-                                                }, DHIT_CLD);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    if (!advanced) return;
+                    final int lvl;
+                    switch (e.getDamager()) {
+                        case final Trident tr:
+                            final ItemStack tit = tr.getItemStack();
+                            lvl = tit.getEnchantmentLevel(Enchantment.IMPALING);
+                            if (lvl == 0 || (!tr.isInRain() && !tr.isInWater())) break;
+                            e.setDamage(lvl * 2.5d + e.getDamage());
+                            break;
+                        case final LivingEntity le:
+                            if (le.getEquipment() == null) break;
+                            final ItemStack mhd = le.getEquipment().getItemInMainHand();
+                            lvl = mhd.getEnchantmentLevel(Enchantment.IMPALING);
+                            if (lvl == 0 || (!le.isInRain() && !le.isInWater())) break;
+                            e.setDamage(lvl * 2.5d + e.getDamage());
+                            break;
+                        default:
+                            break;
                     }
-                }
 
-                private boolean isParying(final Player dp) {
-                    final PotionEffect pre = dp.getPotionEffect(PotionEffectType.MINING_FATIGUE);
-                    return pre != null && pre.getAmplifier() == slw.getAmplifier();
+                    final ItemStack tgtHand;
+                    final LivingEntity target = (LivingEntity) e.getEntity();
+                    if (target.getType() == EntityType.PLAYER) {//# v P
+                        if (damager instanceof final Player dmgrPl) {//P v P
+
+                            final PlayerInventory inv = dmgrPl.getInventory();
+                            final ItemStack hand = inv.getItemInMainHand();
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
+                            }
+
+                            Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
+
+                            if (dmgrPl.getAttackCooldown() != 1f || !dmgrPl.isSprinting()
+                                || !DUAL_HIT.contains(hand.getType().asItemType())) return;
+
+                            final ItemStack ofh = inv.getItemInOffHand();
+                            if (!DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                            Ostrov.sync(() -> {
+                                final ItemStack noh = inv.getItemInOffHand();
+                                if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
+                                    final ItemStack it = inv.getItemInMainHand().clone();
+                                    target.setNoDamageTicks(-1);
+                                    dmgrPl.addPotionEffect(HASTE);
+                                    inv.setItemInMainHand(ofh);
+                                    dmgrPl.setSprinting(false);
+                                    dmgrPl.attack(target);
+                                    inv.setItemInOffHand(inv.getItemInMainHand());
+                                    inv.setItemInMainHand(it);
+                                    dmgrPl.removePotionEffect(HASTE.getType());
+                                    Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
+                                }
+                            }, DHIT_CLD);
+                        } else {
+                            final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
+                            if (dbe == null) return; //B v P
+
+                            final ItemStack hand = dbe.item(EquipmentSlot.HAND);
+                            final ItemType type = hand == null ? ItemType.AIR : hand.getType().asItemType();
+                            final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    dbe.item(EquipmentSlot.HAND, hand);
+                                }
+                                if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    dbe.item(EquipmentSlot.HAND, hand);
+                                }
+                            }
+
+                            if (hand == null || !DUAL_HIT.contains(type) || damager.getLocation()
+                                .distanceSquared(target.getLocation()) > Botter.DHIT_DST_SQ) return;
+
+                            final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
+                            if (ofh == null || dbe.useTicks(damager) != 0
+                                || !DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                            dbe.startUse(damager, EquipmentSlot.OFF_HAND);
+                            Ostrov.sync(() -> {
+                                final LivingEntity ndp = dbe.getEntity();
+                                if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
+                                    target.setNoDamageTicks(-1);
+                                    dbe.attack(damager, target, true);
+                                    dbe.stopUse(damager);
+                                }
+                            }, DHIT_CLD);
+                        }
+                        return;
+                    }
+
+                    final Botter tbe = Cfg.bots ? BotManager.getBot(target.getEntityId()) : null;
+                    if (tbe != null) {// # v B
+                        if (damager instanceof final Player dmgrPl) {// P v B
+
+                            final PlayerInventory inv = dmgrPl.getInventory();
+                            final ItemStack hand = inv.getItemInMainHand();
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
+                            }
+
+                            final ItemType handType = hand.getType().asItemType();
+                            final boolean blocking = tbe.isBlocking(target);
+                            final ItemStack ofh = inv.getItemInOffHand();
+                            if (blocking) {
+                                if (AXES.contains(handType) || (wpn != null
+                                    && ItemUtil.isBlank(ofh, false)
+                                    && (e.isCritical() || dmgrPl.isSprinting()))) {
+                                    e.setDamage(0d); e.setCancelled(true);
+                                    target.getWorld().playSound(target.getLocation(),
+                                        Sound.ITEM_SHIELD_BREAK, 1f, 1f);
+                                    tbe.stopUse(target);
+                                    return;
+                                }
+                                e.setDamage(0d); e.setCancelled(true);
+                                target.getWorld().playSound(target.getLocation(),
+                                    Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
+                                return;
+                            }
+
+                            Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
+
+                            if (dmgrPl.getAttackCooldown() != 1f || !dmgrPl.isSprinting()
+                                || !DUAL_HIT.contains(hand.getType().asItemType())
+                                || !DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                            Ostrov.sync(() -> {
+                                final ItemStack noh = inv.getItemInOffHand();
+                                if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
+                                    final ItemStack it = inv.getItemInMainHand().clone();
+                                    target.setNoDamageTicks(-1);
+                                    dmgrPl.addPotionEffect(HASTE);
+                                    inv.setItemInMainHand(ofh);
+                                    dmgrPl.setSprinting(false);
+                                    dmgrPl.attack(target);
+                                    inv.setItemInOffHand(inv.getItemInMainHand());
+                                    inv.setItemInMainHand(it);
+                                    dmgrPl.removePotionEffect(HASTE.getType());
+                                    Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
+                                }
+                            }, DHIT_CLD);
+                            return;
+                        }
+
+                        final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
+                        if (dbe == null) return;// B v B
+
+                        final ItemStack hand = dbe.item(EquipmentSlot.HAND);
+                        final ItemType type = hand == null ? ItemType.AIR : hand.getType().asItemType();
+                        final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
+                        if (wpn != null) {
+                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                    .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                    .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                dbe.item(EquipmentSlot.HAND, hand);
+                            }
+                            if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                dbe.item(EquipmentSlot.HAND, hand);
+                            }
+                        }
+
+                        final boolean blocking = tbe.isBlocking(target);
+                        final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
+                        if (blocking) {
+                            if (AXES.contains(type) || (wpn != null && ItemUtil.isBlank(ofh, false)
+                                && damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ)) {
+                                e.setDamage(0d); e.setCancelled(true);
+                                target.getWorld().playSound(target.getLocation(),
+                                    Sound.ITEM_SHIELD_BREAK, 1f, 1f);
+                                tbe.stopUse(target);
+                                return;
+                            }
+                            e.setDamage(0d); e.setCancelled(true);
+                            target.getWorld().playSound(target.getLocation(),
+                                Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
+                            return;
+                        }
+
+                        if (hand == null || !DUAL_HIT.contains(type) || damager.getLocation()
+                            .distanceSquared(target.getLocation()) > Botter.DHIT_DST_SQ
+                            || ofh == null || dbe.useTicks(damager) != 0
+                            || !DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                        dbe.startUse(damager, EquipmentSlot.OFF_HAND);
+                        Ostrov.sync(() -> {
+                            final LivingEntity ndp = dbe.getEntity();
+                            if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
+                                target.setNoDamageTicks(-1);
+                                dbe.attack(damager, target, true);
+                                dbe.stopUse(damager);
+                            }
+                        }, DHIT_CLD);
+                        return;
+                    }
+
+                    if (target instanceof Mob || target instanceof ArmorStand) {// # v M
+                        final ItemStack shd = target.getEquipment().getItemInOffHand();
+                        if (ItemUtil.is(shd, ItemType.SHIELD) && Ostrov.random.nextBoolean()) {
+                            target.getWorld().playSound(target.getLocation(),
+                                Sound.ITEM_SHIELD_BLOCK, 1f, 1f);
+                            e.setDamage(0); e.setCancelled(true);
+                            return;
+                        }
+
+                        if (damager instanceof final Player dmgrPl) {// P v M
+                            final PlayerInventory inv = dmgrPl.getInventory();
+                            final ItemStack hand = inv.getItemInMainHand();
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
+                            }
+
+                            Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
+                                + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
+
+                            if (dmgrPl.getAttackCooldown() != 1f || !dmgrPl.isSprinting()
+                                || !DUAL_HIT.contains(hand.getType().asItemType())) return;
+
+                            final ItemStack ofh = inv.getItemInOffHand();
+                            if (ItemUtil.isBlank(ofh, false)
+                                || !DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                            Ostrov.sync(() -> {
+                                final ItemStack noh = inv.getItemInOffHand();
+                                if (dmgrPl.isValid() && target.isValid() && noh.equals(ofh)) {
+                                    final ItemStack it = inv.getItemInMainHand().clone();
+                                    target.setNoDamageTicks(-1);
+                                    dmgrPl.addPotionEffect(HASTE);
+                                    inv.setItemInMainHand(ofh);
+                                    dmgrPl.setSprinting(false);
+                                    dmgrPl.attack(target);
+                                    inv.setItemInOffHand(inv.getItemInMainHand());
+                                    inv.setItemInMainHand(it);
+                                    dmgrPl.removePotionEffect(HASTE.getType());
+                                    Nms.swing(dmgrPl, EquipmentSlot.OFF_HAND);
+                                }
+                            }, DHIT_CLD);
+                            return;
+                        }
+
+                        final Botter dbe = Cfg.bots ? BotManager.getBot(damager.getEntityId()) : null;
+                        if (dbe == null) return;// B v M
+                        final ItemStack hnd = dbe.item(EquipmentSlot.HAND);
+                        if (hnd == null || !DUAL_HIT.contains(hnd.getType().asItemType())
+                            || !(damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ)) return;
+
+                        final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
+                        if (ofh == null || dbe.useTicks(damager) != 0
+                            || !DUAL_HIT.contains(ofh.getType().asItemType())) return;
+
+                        dbe.startUse(damager, EquipmentSlot.OFF_HAND);
+                        Ostrov.sync(() -> {
+                            final LivingEntity ndp = dbe.getEntity();
+                            if (ndp != null && target.isValid() && dbe.usedHand() == EquipmentSlot.OFF_HAND) {
+                                target.setNoDamageTicks(-1);
+                                dbe.attack(damager, target, true);
+                                dbe.stopUse(damager);
+                            }
+                        }, DHIT_CLD);
+                    }
                 }
 
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
                 public static void onPotionSplash(PotionSplashEvent e) {
-                    if (e.getAffectedEntities().isEmpty() || !(e.getPotion().getShooter() instanceof Player)) {
-                        return;
-                    }
+                    final ThrownPotion pot = e.getPotion();
+                    if (e.getAffectedEntities().isEmpty()
+                        || !(pot.getShooter() instanceof final Player pl)) return;
 
-                    e.getPotion().getEffects().stream().forEach((effect) -> {
-                        if (potion_pvp_type.contains(effect.getType())) {
-                            e.getAffectedEntities().stream().forEach((target) -> {
-                                if (target.getType().isAlive() && disablePvpDamage((Entity) e.getPotion().getShooter(), target, EntityDamageEvent.DamageCause.MAGIC)) {
-                                    e.setIntensity(target, 0);
-                                }
-                            });
-                        }
+                    pot.getEffects().forEach(effect -> {
+                        if (!potion_pvp_type.contains(effect.getType())) return;
+                        e.getAffectedEntities().forEach(target -> {
+                            if (target.getType().isAlive() && disablePvpDamage(pl,
+                                target, EntityDamageEvent.DamageCause.MAGIC))
+                                e.setIntensity(target, 0d);
+                        });
                     });
-                }
-
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public void onCld(final PlayerAttackEntityCooldownResetEvent e) {
-                    e.setCancelled(noClds.remove(e.getPlayer().getEntityId()));
                 }
 
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -657,8 +587,6 @@ public class PvPManager implements Initiable {
             flyListener = new Listener() {
                 @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
                 public void onFly(PlayerToggleFlightEvent e) {
-                    // if ( e.getPlayer().isOp() ) return;
-                    //System.err.println(">>>>
                     final Player p = e.getPlayer();
                     if (battle_time > 1 && PM.inBattle(p.getName())
                         && p.getAllowFlight() && p.isFlying()) {
@@ -804,10 +732,9 @@ public class PvPManager implements Initiable {
                 }
 
                 private static void addAttr(final ItemMeta im, final Attribute at, final ItemStack in, final String name, final EquipmentSlotGroup esg) {
-                    final double mod = ItemUtil.getTrimMod(in, at);
-                    if (mod == 0d) return;
-                    im.addAttributeModifier(at, new AttributeModifier(NamespacedKey
-                        .minecraft(name), mod, AttributeModifier.Operation.MULTIPLY_SCALAR_1, esg));
+                    final double mod = ItemUtil.getTrimMod(in, at); if (mod == 0d) return;
+                    im.addAttributeModifier(at, new AttributeModifier(NamespacedKey.minecraft(name),
+                        mod, AttributeModifier.Operation.MULTIPLY_SCALAR_1, esg));
                 }
             };
             Bukkit.getPluginManager().registerEvents(trimListener, Ostrov.instance);
@@ -817,73 +744,41 @@ public class PvPManager implements Initiable {
             Ostrov.log_ok("§6Активно улучшенное ПВП!");
             advancedListener = new Listener() {
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
-                public void onIntr(final PlayerInteractEvent e) {
-                    final InventoryView iv = e.getPlayer().getOpenInventory();
-                    switch (iv.getType()) {
-                        case CRAFTING, CREATIVE, PLAYER: break;
-                        default:
-                            e.setCancelled(true);
-                            e.setUseInteractedBlock(Event.Result.DENY);
-                            e.setUseItemInHand(Event.Result.DENY);
-                            return;
-                    }
-
-                    switch (e.getAction()) {
-                        case RIGHT_CLICK_BLOCK:
-                            if (e.getClickedBlock().getState() instanceof Container) break;
-                        case RIGHT_CLICK_AIR:
-                            final Player p = e.getPlayer();
-                            final ItemStack it = e.getItem();
-                            if (!ItemUtil.isBlank(it, false)) {
-                                if (e.getHand() == EquipmentSlot.HAND && !p.hasCooldown(it)
-                                    && CAN_PARRY.contains(it.getType().asItemType()) && p.getAttackCooldown() == 1f) {
-                                    final ItemStack ofh = p.getInventory().getItemInOffHand();
-                                    if (ItemUtil.isBlank(ofh, false)) {
-                                        p.getWorld().playSound(p.getEyeLocation(), Sound.BLOCK_AMETHYST_CLUSTER_PLACE, 1f, 0.6f);
-                                        p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK,
-                                            p.getLocation().add(0d, 1.2d, 0d), 24, 0.4d, 0.5d, 0.4d, -0.25d);
-                                        p.addPotionEffect(slw);
-                                        p.setCooldown(it, 36);
-                                        p.getInventory().setItemInMainHand(ItemUtil.air);
-                                        p.getInventory().setItemInMainHand(it);
-                                    }
-                                }
-                            }
+                //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
+                //weapon block breaks if !shield || axe
+                @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
+                public void onCld(final PlayerShieldDisableEvent e) {
+                    final ItemStack blIt = e.getPlayer().getActiveItem();
+                    if (!ItemUtil.is(blIt, ItemType.SHIELD)) return;
+                    switch (e.getDamager()) {
+                        case Player pl:
+                            if (AXES.contains(pl.getInventory()
+                                .getItemInMainHand().getType().asItemType())) break;
+                            if (!ItemUtil.isBlank(pl.getInventory()
+                                .getItemInOffHand(), false)) break;
+                            if (pl.getFallDistance() == 0 && !pl.isSprinting()) break;
+                            e.setCooldown(0); e.setCancelled(true);
                             break;
-                        default:
+                        case LivingEntity le:
+                            final EntityEquipment eq = le.getEquipment();
+                            if (eq == null) break;
+                            if (AXES.contains(eq.getItemInMainHand()
+                                .getType().asItemType())) break;
+                            if (!ItemUtil.isBlank(eq.getItemInOffHand(), false)) break;
+                            e.setCooldown(0); e.setCancelled(true);
                             break;
+                        default: break;
                     }
                 }
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public void onHit(final ProjectileHitEvent e) {
-                    if (e.getHitEntity() instanceof final Player pl) {
-                        final ItemStack hnd = pl.getInventory().getItemInMainHand();
-                        if (pl.hasCooldown(hnd) && CAN_PARRY.contains(hnd.getType().asItemType())) {
-                            e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(-0.6d));
-                            pl.getWorld().playSound(pl.getLocation(), Sound.BLOCK_CHAIN_FALL, 1f, 0.8f);
-                            pl.removePotionEffect(PotionEffectType.MINING_FATIGUE);
-                            pl.setCooldown(hnd, 0);
-                            pl.swingMainHand();
-                            e.setCancelled(true);
-                        }
-                    }
-                }
-
-                @EventHandler
+                @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
                 public void onRes(final EntityResurrectEvent e) {
-                    if (!e.isCancelled() || e.getEntityType() != EntityType.PLAYER) {
-                        return;
-                    }
-                    final Player p = (Player) e.getEntity();
+                    if (!e.isCancelled() || (!(e.getEntity() instanceof final Player p))) return;
                     final PlayerInventory pi = p.getInventory();
                     final int tsl = pi.first(Material.TOTEM_OF_UNDYING);
                     if (tsl != -1) {
                         pi.getItem(tsl).subtract();
                         ApiOstrov.addCustomStat((Player) e.getEntity(), "DA_ttm", 1);
-//            			final ItemStack it = pi.getItemInOffHand();
-//            			it.setAmount(it.getAmount() + 1);
                         e.setCancelled(false);
                     }
                 }
@@ -915,44 +810,46 @@ public class PvPManager implements Initiable {
             return false; //если ни один не игрок, пропускаем
         }
 
-        if (target != null && targetOp != null && target.getNoDamageTicks() > 20) { //у жертвы иммунитет
-            final int noDamageTicks = target.getNoDamageTicks() / 20;
-            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aИммунитет к повреждениям  - осталось §f") + noDamageTicks + Lang.t(target, " §a сек.!"));
+        if (target != null && target.getNoDamageTicks() > 0) { //у жертвы иммунитет
+            final int ndSec = target.getNoDamageTicks() / 20;
+            if (ndSec == 0) return true;
+            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
             if (damager != null) {
-                ScreenUtil.sendActionBarDirect(damager, "§a" + target.getName() + Lang.t(damager, " - иммунитет к повреждениям! Осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ {0} иммунитет еще §2{1} сек§a!", target.getName(), ndSec));
             }
             target.playSound(target.getLocation(), Sound.BLOCK_ANVIL_HIT, 1, 1);
             return true;
         }
 
-        if (damager != null && damagerOp != null && damager.getNoDamageTicks() > 20) { //у нападающего иммунитет
-            final int noDamageTicks = damager.getNoDamageTicks() / 20;
-            ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ тебя иммунитет к повреждениям и атакам - осталось §f") + noDamageTicks + Lang.t(damager, " §a сек.!"));
+        if (damager != null && damager.getNoDamageTicks() > 0) { //у нападающего иммунитет
+            final int ndSec = damager.getNoDamageTicks() / 20;
+            if (ndSec == 0) return true;
+            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
             return true;
         }
 
         if (damager != null && target != null) {                               //если обаигроки
-            if (!targetOp.pvp_allow) {                         //если у жертвы выкл пвп
-                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У Вас выключен режим ПВП!"));
+            if (!targetOp.pvp_allow && targetOp.pvp_time < 1 && !isForced(target, targetOp, true)) {                         //если у жертвы выкл пвп
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен ПВП!"));
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У тебя выключен ПВП!"));
                 return true;
             }
-            if (!damagerOp.pvp_allow) {                         //если у атакующего выкл пвп
-                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен режим ПВП!"));
-                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У Вас выключен режим ПВП!"));
+            if (!damagerOp.pvp_allow && damagerOp.pvp_time < 1 && !isForced(damager, damagerOp, true)) {                         //если у атакующего выкл пвп
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен ПВП!"));
+                ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У тебя выключен ПВП!"));
                 return true;
             }
         }
 
         if (damager != null) { //атакует игрок 
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
-                if (target != null && PM.exists(target) && flags.get(PvpFlag.disable_creative_attack_to_player)) {
-                    ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на игрока в креативе невозможна!"));
+                if (target != null && flags.get(PvpFlag.disable_creative_attack_to_player)) {
+                    ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака игроков невозможна в креативе!"));
                     return true;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {
                     final EntityUtil.EntityGroup group = EntityUtil.group(targetEntity);
                     if (group != EntityUtil.EntityGroup.UNDEFINED) {
-                        ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака на моба в креативе невозможна!"));
+                        ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака мобов невозможна в креативе!"));
                         return true;
                     }
                 }
@@ -964,8 +861,8 @@ public class PvPManager implements Initiable {
         }
 
         if (battle_time > 1) {       //если активен режима боя и хотя бы один игрок
-
             if (damager != null && target != null) {//дерутся два игрока
+                if (damager.getEntityId() == target.getEntityId()) return false;
                 if (!new PlayerPVPEnterEvent(damager, target, cause, true).callEvent()) {
                     return false;
                 }
@@ -979,18 +876,14 @@ public class PvPManager implements Initiable {
                     return false;
                 }
                 pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр 
+            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
                 if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
                     return false;
                 }
                 pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
-            } else {
-                return false;
-            }
+            } else return false;
         }
-
         return false;
-
     }
 
     public static void pvpBeginFor(final Oplayer op, final Player p, final int time) {

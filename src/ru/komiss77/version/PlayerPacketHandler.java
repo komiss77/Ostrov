@@ -98,17 +98,17 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
             //PacketPlayInSetCreativeSlot = ServerboundSetCreativeModeSlotPacket
             net.minecraft.world.item.ItemStack is;
 
-            if (packet instanceof ServerboundContainerClickPacket p) {
-                is = p.getCarriedItem();
+            /*if (packet instanceof ServerboundContainerClickPacket p) {
+                is = p.getCarriedItem(); //TODO fix
                 if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
-                    if (hacked(is, p.getSlotNum())) {
+                    if (hacked(is, p.slotNum())) {
 //                        containerClickItem.set(p, ItemStack.EMPTY);
-                        super.channelRead(chc, new ServerboundContainerClickPacket(p.getContainerId(), p.getStateId(),
-                            p.getSlotNum(), p.getButtonNum(), p.getClickType(), ItemStack.EMPTY, p.getChangedSlots()));
+                        super.channelRead(chc, new ServerboundContainerClickPacket(p.containerId(), p.stateId(),
+                            p.slotNum(), p.buttonNum(), p.clickType(), ItemStack.EMPTY, p.carriedItem()));
                         return;
                     }
                 }
-            } else if (packet instanceof ServerboundSetCreativeModeSlotPacket p) {
+            } else */if (packet instanceof ServerboundSetCreativeModeSlotPacket p) {
                 is = p.itemStack();
                 if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
                     if (hacked(is, p.slotNum())) {
@@ -225,9 +225,9 @@ public class PlayerPacketHandler extends ChannelDuplexHandler {
 
             } else if (packet instanceof ClientboundContainerSetContentPacket p) {
 
-                if (p.getContainerId() == 0) {
-                    is = p.getCarriedItem();
-                    List<ItemStack> items = p.getItems();
+                if (p.containerId() == 0) {
+                    is = p.carriedItem();
+                    List<ItemStack> items = p.items();
                     for (int i = 0; i < items.size(); i++) {
                         is = items.get(i);
                         if (is != null && !is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {

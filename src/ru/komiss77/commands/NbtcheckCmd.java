@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.listener.NbtLst;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.modules.player.Perm;
 
 @Deprecated
 public class NbtcheckCmd implements CommandExecutor {
@@ -25,7 +26,7 @@ public class NbtcheckCmd implements CommandExecutor {
             return true;
         }
 
-        if (!PM.getOplayer(sender.getName()).hasGroup("moder")) {
+        if (!Perm.isStaff(PM.getOplayer(sender.getName()), 4)) {
             sender.sendMessage("§cДоступно только модераторам!");
             return true;
         }

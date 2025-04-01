@@ -84,10 +84,15 @@ public class ServerLst implements Listener {
 //Ostrov.log_warn("=== PluginEnableEvent "+e.getPlugin().getName());
         switch (e.getPlugin().getName()) {
 
-            case "Matrix" -> {
+            case "GrimAC" -> {
+                Bukkit.getPluginManager().registerEvents(new GrimAC(), Ostrov.instance);
+                Ostrov.log_ok("§5Используем GrimAC!");
+            }
+
+            /*case "Matrix" -> {
                 Bukkit.getPluginManager().registerEvents(new MatrixLst(), Ostrov.instance);
                 Ostrov.log_ok("§5Используем Matrix!");
-            }
+            }*/
 
             case "WorldGuard" -> {
                 WGhook.hook(e.getPlugin());
