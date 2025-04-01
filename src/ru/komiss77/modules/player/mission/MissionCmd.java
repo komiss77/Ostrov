@@ -545,7 +545,8 @@ public class MissionCmd implements OCommand {
               p.sendMessage("§cНе может быть миссии с ИД " + arg[1] + "!");
               return 0;
             }
-            if (op.missionIds.remove(missionId)) {//обновить missionIds
+            if (op.missionIds.containsKey(missionId)) {//обновить missionIds - тут не юзать missionIds.remove - возвращает значение
+              op.missionIds.remove(missionId);
               op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds.keySet(), ";"));//обновить Data.MISSION
               p.getWorld().playSound(p.getLocation(), Sound.ITEM_TOTEM_USE, .5f, .5f);
               p.sendMessage("§5Вы отказались от миссии !");

@@ -25,9 +25,14 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
+import ru.komiss77.enums.Game;
+import ru.komiss77.enums.GameState;
+import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.StringUtil;
@@ -193,10 +198,11 @@ public class OsQuery {
       switch (type) {
 
         case QueryCode.MESSAGE -> {
+//if (Ostrov.MOT_D.equals("home")) Ostrov.log("MESSAGE = " + data);
           final String[] s = data.split(LocalDB.WORD_SPLIT);
           final String target = s[0];
           final CommandSender cs = target.equals("CONSOLE") ? Bukkit.getConsoleSender() : Bukkit.getPlayerExact(target);
-          final Component miniMsg = MiniMessage.miniMessage().deserialize(s[1]);
+          final Component miniMsg = s.length > 1 ? MiniMessage.miniMessage().deserialize(s[1]) : Component.empty();
           cs.sendMessage(miniMsg);
           return;
         }
@@ -213,8 +219,50 @@ public class OsQuery {
         }
 
         case QueryCode.GAME_DATA -> {
-          if (Ostrov.MOT_D.equals("home")) Ostrov.log("GAME_DATA = " + data);
+//if (Ostrov.MOT_D.equals("home")) Ostrov.log("GAME_DATA = " + data);
+          final String[] s = data.split(LocalDB.WORD_SPLIT);
+          if (s.length == 9) {
+            final Game game = Game.fromServerName(s[0]);
+            if (game != null) {
+              final GameInfo gi = GM.getGameInfo(game);
+//if (Ostrov.MOT_D.equals("home") && game == Game.HS) Ostrov.log("GAME_DATA game="+game+" data="+data);
+              if (gi != null) {
+                gi.update(s[1], s[2], GameState.valueOf(s[3]), Integer.parseInt(s[4]), s[5], s[6], s[7], s[8]);
+              } else {
+                Ostrov.log_err("RedisLst arenadata GameInfo==null : " + data);
+              }
+            }
+          } else {
+            Ostrov.log_err("RedisLst arenadata msg.length != 9 : " + data);
+          }
           return;
+        }
+
+        case QueryCode.CHAT_RU -> {
+          final String[] s = data.split(LocalDB.WORD_SPLIT);
+          if (s.length >= 3 && Ostrov.MOT_D.equals("home")) {
+            final String server = s[0];
+            final String sender = s[1];
+            final Component miniMsg = MiniMessage.miniMessage().deserialize(s[2]);
+            if (Ostrov.MOT_D.equals("home")) {
+              Player k = Bukkit.getPlayerExact("komiss77");
+              if (k != null) k.sendMessage(miniMsg);
+              Bukkit.getConsoleSender().sendMessage("CHAT_RU " + server + ":" + sender + " -> " + s[2]);
+            }
+//Ostrov.log("CHAT_RU sender= " + sender);
+//Bukkit.getConsoleSender().sendMessage(miniMsg);
+          }
+        }
+
+        case QueryCode.CHAT_EN -> {
+          final String[] s = data.split(LocalDB.WORD_SPLIT);
+          if (s.length >= 3 && Ostrov.MOT_D.equals("home")) {
+            final String server = s[0];
+            final String sender = s[1];
+            final Component miniMsg = MiniMessage.miniMessage().deserialize(s[2]);
+//Ostrov.log("CHAT_EN sender= " + sender);
+//Bukkit.getConsoleSender().sendMessage(miniMsg);
+          }
         }
       }
 

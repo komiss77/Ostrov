@@ -14,7 +14,6 @@ import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.netty.OsQuery;
-import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 
 public final class ArenaInfo {
@@ -59,7 +58,7 @@ public final class ArenaInfo {
             .append(line3).append(" ").append(LocalDB.W_SPLIT);
 
         final String data = sb.toString();
-        RDS.sendMessage("arenadata", data);
+      //RDS.sendMessage("arenadata", data);
         OsQuery.send(QueryCode.GAME_DATA, data);
     }
 

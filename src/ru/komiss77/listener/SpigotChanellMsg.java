@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -22,6 +23,7 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.OstrovChanelEvent;
 import ru.komiss77.hook.SkinRestorerHook;
+import ru.komiss77.modules.DelayTeleport;
 import ru.komiss77.modules.Vote;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
@@ -364,9 +366,10 @@ public class SpigotChanellMsg implements Listener, PluginMessageListener {
                         sender.sendMessage(TCUtil.form("§cТелепорт не удалось завершить: " + event.cause));
                         target.sendMessage(TCUtil.form("§cТелепорт не удалось завершить: " + event.cause));
                     } else {
-                        sender.teleport(target);
-                        sender.sendMessage(TCUtil.form("§6Вы телепортировались к " + target.getName()));
-                        target.sendMessage(TCUtil.form("§6К вам телепортировался " + senderInfo));
+                      DelayTeleport.tp(sender, target.getLocation(), 2, "", true, true, DyeColor.CYAN);
+                      //sender.teleport(target);
+                      sender.sendMessage(TCUtil.form("§6Вы телепортируетесь к " + target.getName()));
+                      target.sendMessage(TCUtil.form("§6К вам телепортируется " + senderInfo));
                     }
                 }
             }

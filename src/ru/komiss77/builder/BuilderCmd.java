@@ -155,13 +155,13 @@ public class BuilderCmd implements OCommand {
             before = sm.before;
             if (sm.displayCube != null && !sm.displayCube.isCancelled()) sm.displayCube.cancel();
             opl.setup = null;
-        }
-        final Player p = Bukkit.getPlayerExact(opl.nik);
-        if (p != null && p.isOnline()) {
+          final Player p = Bukkit.getPlayerExact(opl.nik);
+          if (p != null && p.isOnline()) {
             p.setGameMode(before);
             p.closeInventory();
             bmi.remove(p);//ItemUtils.substractAllItems(p, openBuildMenu.getType());
             Perm.calculatePerms(p, opl, false);
+          }
         }
         //PlayerLst.signCache.remove(name);
     }

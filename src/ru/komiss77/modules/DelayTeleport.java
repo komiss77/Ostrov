@@ -73,7 +73,7 @@ public class DelayTeleport {
                         ScreenUtil.sendActionBarDirect(p, "§e" + Lang.t(p, "Сохраняйте неподвижность") + " : §b" + sec);
                     }
                 }
-            }.runTaskTimer(Ostrov.instance, 0, 20)
+            }.runTaskTimer(Ostrov.instance, 5, 20)
         );
         
         /*check.clear();

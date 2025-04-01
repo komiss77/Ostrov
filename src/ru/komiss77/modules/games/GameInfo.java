@@ -95,9 +95,9 @@ public class GameInfo {
 
     public void update(final String serverName, final String arenaName, final GameState state, final int players,
                        final String line0, final String line1, final String line2, final String line3) {
-//Ostrov.log_warn("GI update "+serverName+" p="+players);
         final ArenaInfo ai = arenas.computeIfAbsent(serverName + arenaName,
             k -> new ArenaInfo(this, serverName, arenaName, 0, -100, Material.BEDROCK, arenas.size()));
+//if (game == Game.HS) Ostrov.log_warn("GI update "+serverName+":"+arenaName+" p="+players+" gameOnline="+gameOnline+" ai.players="+(ai==null?"null":ai.players));
 
         switch (game.type) {
             case ONE_GAME -> {

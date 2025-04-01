@@ -25,7 +25,6 @@ import ru.komiss77.enums.*;
 import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
-import ru.komiss77.modules.redis.RDS;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.utils.LocUtil;
@@ -388,7 +387,7 @@ public final class GM {
             .append(line3).append(" ").append(LocalDB.W_SPLIT);
 
         final String data = sb.toString();
-        RDS.sendMessage("arenadata", data);
+      //RDS.sendMessage("arenadata", data);
         OsQuery.send(QueryCode.GAME_DATA, data);
 
         if (Ostrov.SHUT_DOWN) {
