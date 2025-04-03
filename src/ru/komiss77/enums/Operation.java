@@ -49,6 +49,7 @@ public enum Operation {
     RESET_DAYLY_STAT(39),
     ADD_IGNORE_OSTROV(40), //для пересчёты репутации, чтобы не грузить банжи
     REMOVE_IGNORE_OSTROV(41), //для пересчёты репутации, чтобы не грузить банжи
+    VOTE(42), //послы выдачи награды на прокси за голосование
 
 
     //Друзья      FRIEND_CONNECT не нужен, при переходе с авторизации разошлёт по onServerSwitch

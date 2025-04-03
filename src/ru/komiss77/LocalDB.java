@@ -131,7 +131,7 @@ public class LocalDB {
     // при PlayerQuitEvent Async, p!=null
     // при onDisable Sync, p может быть null
     public static void saveLocalData(final Player p, final Oplayer op) {
-//Ostrov.log_warn("---saveLocalData useLocalData?"+useLocalData+"  playerDataSQL?"+playerDataSQL);
+//Ostrov.log_warn("---saveLocalData useLocalData?"+useLocalData+"  getGameMode="+p.getGameMode());
         if (!useLocalData) return; //op.mysqlData будет null, если при загрузке была ошибка
         if (op.isGuest) {
             Ostrov.log_warn("Выход гостя " + op.nik + ", данные не сохраняем.");
@@ -225,7 +225,7 @@ public class LocalDB {
             }
             op.mysqlData.put("ender", ItemUtil.serialize(p.getEnderChest().getContents()));
             op.mysqlData.put("potion", ItemUtil.seripotlize(p.getActivePotionEffects()));
-
+//Ostrov.log_warn("getSettings="+getSettings(p, op));
             op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
         }
 

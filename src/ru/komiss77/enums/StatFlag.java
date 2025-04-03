@@ -11,6 +11,9 @@ public enum StatFlag {
     LocalChat(4, "Включать локальный чат"),
     MiniGameMenuMode(5, ""),
 
+    //Vote_hotmc(6, ""),
+    // Vote_mctop(7, ""),
+
 
     ;
 

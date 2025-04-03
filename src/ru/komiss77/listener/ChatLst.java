@@ -133,7 +133,8 @@ public class ChatLst implements Listener {
         final Iterator<Audience> it = view.iterator();
         while (it.hasNext()) {
             if (it.next() instanceof Player to) {
-                if (to.getEntityId() == sender.getEntityId()) continue; //себя не надо в список - в конце отправляется безусловно
+                if (to.getEntityId() == sender.getEntityId())
+                    continue; //себя не надо в список - в конце отправляется безусловно
                 final Oplayer opTo = PM.getOplayer(to);
                 if (opTo == null) {
                     list.add(to);
@@ -157,7 +158,8 @@ public class ChatLst implements Listener {
 
         final ChatPrepareEvent ce = new ChatPrepareEvent(sender,
             senderOp, list, TCUtil.deform(msg).replace("/<", "<"));
-        ce.banned = false; ce.muted = muted;
+        ce.banned = false;
+        ce.muted = muted;
         Bukkit.getPluginManager().callEvent(ce);
 
         if (ce.isCancelled()) {

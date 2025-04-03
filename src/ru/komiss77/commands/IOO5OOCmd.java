@@ -26,6 +26,8 @@ import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.utils.inventory.SmartInventory;
+import ru.komiss77.modules.Vote;
+
 
 public class IOO5OOCmd {
 
@@ -64,6 +66,19 @@ public class IOO5OOCmd {
         })
         .description("")
         .register();*/
+
+      new OCmdBuilder("vote")
+          .run(cntx -> {
+            final CommandSender cs = cntx.getSource().getSender();
+            if (!(cs instanceof final Player p)) {
+              cs.sendMessage("§eНе консольная команда!");
+              return 0;
+            }
+            Vote.onCommand(p);
+            return Command.SINGLE_SUCCESS;
+          })
+          .description("Меню голосования")
+          .register();
 
       new OCmdBuilder("rpack") //не переносить в ResourcePacksLst, или пытается грузить дважды, в RegisterCommands и как модуль
           .run(cntx -> {

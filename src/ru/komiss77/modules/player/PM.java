@@ -218,8 +218,10 @@ public class PM {
         }
         if (op.dataString.containsKey(Data.MISSIONS)) {
             for (String id : op.dataString.get(Data.MISSIONS).split(";")) {
-                if (NumUtil.isInt(id)) {
+              try {
                     op.missionIds.put(Integer.valueOf(id), false);
+              } catch (NumberFormatException ex) {
+                Ostrov.log_warn("PM bungeeDataHandle missions " + id + " is not int!");
                 }
             }
         }
@@ -269,11 +271,12 @@ public class PM {
     public static void onPartyRecieved(final Player p, final Oplayer op, final boolean callEvent) { //прилетает при входе, нажатии в меню и обновлении состава на банжи из пати-плагина
         op.party_members.clear();
         op.party_leader = "";
-//System.out.println("---onPartyRecieved2 PARTY_MEBRERS="+dataString.get(Data.PARTY_MEBRERS));
-        if (op.dataString.containsKey(Data.PARTY_MEBRERS) && !op.dataString.get(Data.PARTY_MEBRERS).isEmpty()) {
+      final String partyData = op.dataString.get(Data.PARTY_MEBRERS);
+//Ostrov.log_warn("---onPartyRecieved2 PARTY_MEBRERS="+partyData);
+      if (partyData != null && !partyData.isBlank()) {
             boolean first = true;
             String[] split;
-            for (String player_and_server : op.dataString.get(Data.PARTY_MEBRERS).split(",")) {
+        for (String player_and_server : partyData.split(",")) {
                 split = player_and_server.split(":");
                 if (split.length == 2) {
                     if (first) {
@@ -285,6 +288,7 @@ public class PM {
             }
         }
         Bukkit.getPluginManager().callEvent(new PartyUpdateEvent(p, op.party_leader, op.getPartyMembers()));
+//Ostrov.log_warn("op.party_members="+op.party_members);
     }
 
 

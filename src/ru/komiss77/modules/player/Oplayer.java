@@ -375,7 +375,8 @@ public class Oplayer {
         return dataString.getOrDefault(data, data.def_value);
     }
 
-    @Deprecated //непонятно что за DataInt?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
+    @Deprecated
+    //непонятно что за DataInt?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public int getDataInt(final Data data) {
         return globalInt(data);
     }
@@ -384,7 +385,8 @@ public class Oplayer {
         return dataInt.getOrDefault(data, NumUtil.intOf(data.def_value, 0));
     }
 
-    @Deprecated //непонятно что за Data?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
+    @Deprecated
+    //непонятно что за Data?? LocalData?? Proxy Data?? просто ставим нужные данные из енум DATA, оно само дальше разберётся.
     public boolean setData(final Data data, final int value) {  //отправляем на банжи, и обнов.локально
         return globalInt(data, value);
     }
@@ -646,7 +648,7 @@ public class Oplayer {
     }
 
     public int getKitUseStamp(final String kitName) {
-//System.out.println("+++++++kit "+kits+"   contains "+kit+"?"+this.kits.containsKey(kit)+" value:"+((this.kits.containsKey(kit))?this.kits.get(kit):"0"));    
+//System.out.println("+++++++kit "+kits+"   contains "+kit+"?"+this.kits.containsKey(kit)+" value:"+((this.kits.containsKey(kit))?this.kits.get(kit):"0"));
         return kits_use_timestamp.getOrDefault(kitName, 0);
     }
 
@@ -810,7 +812,7 @@ public class Oplayer {
     }
 }
  /*
-    
+
     //    пол
     public static String genderEnd_Существительное(final String name) {
         final Oplayer op = PM.getOplayer(name);

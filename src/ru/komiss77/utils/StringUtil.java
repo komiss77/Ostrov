@@ -172,7 +172,7 @@ public class StringUtil {
         if (array == null || array.isEmpty()) return "";
         return array.stream()
                 .map(E::toString)
-                .reduce((t, u) -> t + separator + u)
+            .reduce((t, u) -> t + separator + u)
                 .orElse("");
     }
 

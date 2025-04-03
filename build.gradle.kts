@@ -75,7 +75,7 @@ tasks {
   }*/
 
   jar {
-    from(zipTree("libs/jedis-4.3.1.zip"))
+      //from(zipTree("libs/jedis-4.3.1.zip"))
     destinationDirectory.set(layout.buildDirectory)
     archiveFileName.set("Ostrov.jar")
   }

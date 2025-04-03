@@ -18,6 +18,7 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.hook.DynmapHook;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -138,6 +139,7 @@ public class OcleanCmd implements OCommand {
           return 0;
         }
 
+        Collection<String> deleted = new CaseInsensitiveSet();
         Collection<String> validUsers = new CaseInsensitiveSet();
         Map<UUID, String> validUuids = new HashMap<>(); //uuid,name
 
@@ -149,14 +151,21 @@ public class OcleanCmd implements OCommand {
           boolean mysqlError = true; //при ошибке sql validId будет пустой, снесёт всё!!
           try {
 
+            final Statement stmt = LocalDB.getConnection().createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT `name` FROM playerData WHERE `lastActivity`<'" + threeMonthLater + "' AND `validTo`<'" + currentTime + "' ;");
+            while (rs.next()) {
+              deleted.add(rs.getString("name"));
+            }
+            rs.close();
+
             final PreparedStatement prepStmt = LocalDB.getConnection().prepareStatement("DELETE FROM `playerData` " +
                 "WHERE `lastActivity`<'" + threeMonthLater + "' AND `validTo`<'" + currentTime + "' ;");
             prepStmt.executeUpdate();
             prepStmt.close();
 
             //загрузка оставшихся ников
-            final Statement stmt = LocalDB.getConnection().createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT `name`,`uuid` FROM playerData ;");
+            //final Statement stmt = LocalDB.getConnection().createStatement();
+            rs = stmt.executeQuery("SELECT `name`,`uuid` FROM playerData ;");
             while (rs.next()) {
               validUsers.add(rs.getString("name"));
               if (rs.getString("uuid").length() == 36) {
@@ -277,10 +286,12 @@ public class OcleanCmd implements OCommand {
           }
 
           if (Ostrov.wg) {
-            final int deleted = WGhook.purgeDeadRegions(validUsers, validUuids.keySet());
-            cs.sendMessage("§e WG regions - удалено:" + deleted);
+            final int wgCount = WGhook.purgeDeadRegions(validUsers, validUuids.keySet());
+            cs.sendMessage("§e WG regions - удалено:" + wgCount);
           }
-
+          for (String name : deleted) {
+            Ostrov.globalLog(GlobalLogType.WIPE_PLAYER_DATA, cs.getName(), "неактивен >3 мес.");
+          }
         }, 20);
 
 

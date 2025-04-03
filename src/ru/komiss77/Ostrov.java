@@ -38,7 +38,7 @@ public class Ostrov extends JavaPlugin {
     public static Ostrov instance;
     public static Registries registries;
     public static LifecycleEventManager<Plugin> mgr;
-    public static OsQuery osQuery;
+  public static boolean USE_NETTY_QUERRY = true;
     public static final Map<String, Initiable> modules;
     public static final Random random;
     public static final String L = "Ł";
@@ -92,7 +92,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         registries = new Registries();
-      osQuery = new OsQuery();
+      if (USE_NETTY_QUERRY) new OsQuery();
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!
         Timer.init(); //на статичную загрузку не переделать, к таймеру может никто не обращаться!
@@ -150,32 +150,30 @@ public class Ostrov extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        SHUT_DOWN = true;
+      SHUT_DOWN = true;
       HandlerList.unregisterAll(instance);
-        RemoteDB.Disconnect();
-      if (osQuery != null) {
-        osQuery.shutdown();
+      RemoteDB.Disconnect();
+      OsQuery.shutdown();
+      if (MOT_D.length() == 3) return;
+      for (final Player p : Bukkit.getOnlinePlayers()) {
+        PM.onLeave(p, false);
       }
-        if (MOT_D.length() == 3) return;
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-            PM.onLeave(p, false);
-        }
       //if (PM.hasOplayers()) {
       //for (Oplayer op : PM.getOplayers()) {
       //op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!
       //}
       //}
-        if (LocalDB.useLocalData) {
-            LocalDB.Disconnect();
-        }
-        if (RemoteDB.useOstrovData) {
-            RemoteDB.Disconnect();
-        }
+      if (LocalDB.useLocalData) {
+        LocalDB.Disconnect();
+      }
+      if (RemoteDB.useOstrovData) {
+        RemoteDB.Disconnect();
+      }
 
-        modules.values().forEach(
-            (module) -> (module).onDisable()
-        );
-        log_ok("§4Остров выгружен!");
+      modules.values().forEach(
+          (module) -> (module).onDisable()
+      );
+      log_ok("§4Остров выгружен!");
     }
 
 
@@ -299,7 +297,7 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-  @Deprecated
+  //@Deprecated
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");

@@ -11,6 +11,11 @@ public class QueryCode {
   public static final byte CHAT_STRIP = ((byte) 0x04);
   public static final byte CHAT_RU = ((byte) 0x05);
   public static final byte CHAT_EN = ((byte) 0x06);
+  public static final byte PLAYERS = ((byte) 0x07);
+  public static final byte PLAYER_JOIN = ((byte) 0x08);
+  public static final byte PLAYER_QUIT = ((byte) 0x09);
+  public static final byte NOTYFY_MODER = ((byte) 0x0A);
+  public static final byte MESSAGE = ((byte) 0x0B);
 
   public static final short MAGIC_SITE_FIRST = 0xFE;
   public static final short MAGIC_SITE_SECOND = 0xFD;

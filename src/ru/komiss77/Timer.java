@@ -17,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Operation;
+import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
 import ru.komiss77.events.RestartWarningEvent;
 import ru.komiss77.listener.PlayerLst;
@@ -183,13 +184,13 @@ public class Timer {
                 //}
                 try {
                     //RDS.heartbeats();
-                    if (sec % 43 == 0) {
+                    if (sec % 43 == 0) { //заслать данные арен с этого серв без учёта игры (могут быть несколько миниигр на ядре)
                         GM.getGames().stream().forEach((gi -> {
                             gi.arenas().stream().filter(ai -> ai.server.equals(Ostrov.MOT_D)).forEach(ArenaInfo::sendData);
                         }));
                     }
-                    if (Ostrov.server_id > 0 && sec % 10 == 0) {
-                        GameInfo gi = GM.getGameInfo(GM.GAME);
+                    if ((Ostrov.server_id > 0 && sec % 10 == 0) || GM.GAME.type == ServerType.ONE_GAME) { //на диагностике и одиночки
+                        GameInfo gi = GM.getGameInfo(GM.GAME); //взять игру этого ядра
                         if (gi != null) {
                             gi.arenas().stream().findAny().ifPresent(ai -> {
                                 ai.players = Bukkit.getOnlinePlayers().size();
