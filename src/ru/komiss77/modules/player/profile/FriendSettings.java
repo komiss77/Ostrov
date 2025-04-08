@@ -51,7 +51,7 @@ public class FriendSettings implements InventoryProvider {
                 .build(), e -> {
                 if (e.isLeftClick()) {
                     op.setSettings(set, !locked);
-                    if (set == Settings.HideNonFriends)
+                    if (set == Settings.Fr_ShowFriendDeny)
                         Friends.updateViewMode(p);
                     reopen(p, content);
                 } else {

@@ -42,8 +42,7 @@ public class BuilderCmd implements OCommand {
         final ItemStack buildMenu = new ItemBuilder(ItemType.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
             .name("§aМеню Билдера")
             .lore("§6ПКМ на баннер, голову, энтити §e- настроить")
-            .hide(DataComponentTypes.TRIM,
-                DataComponentTypes.PROVIDES_TRIM_MATERIAL)
+            .hide(DataComponentTypes.TRIM, DataComponentTypes.PROVIDES_TRIM_MATERIAL)
             .build();
 
         bmi = new MenuItemBuilder("bmi", buildMenu)

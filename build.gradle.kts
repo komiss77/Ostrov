@@ -1,24 +1,25 @@
-
-
 // for Ant filter
 import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
-
-plugins {
-  `java-library`
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
-//    id("io.papermc.paperweight.userdev") version "2.0.0-beta.1"
-    //id("xyz.jpenilla.run-paper") version "2.3.1"
-}
 
 group = "ru.ostrov77"
 version = "3.1.21.4"
 description = "ostrov77"
 
+
+//https://github.com/PaperMC/paperweight/releases
+plugins {
+  `java-library`
+  id("io.papermc.paperweight.userdev") version "2.0.0-beta.16" //id("io.papermc.paperweight.userdev") version "2.0.0-beta.1"
+  //id("xyz.jpenilla.run-paper") version "2.3.1"
+}
+
+
 dependencies {
+  //paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
   compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.1.1")
-  compileOnly("com.github.grimanticheat:grimapi:master-SNAPSHOT")
+  //compileOnly("com.github.grimanticheat:grimapi:master-SNAPSHOT")
   annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
 }
 
@@ -27,11 +28,11 @@ repositories {
     name = "papermc"
     url = uri("https://repo.papermc.io/repository/maven-public/")
   }
-  maven("https://jitpack.io/") { // Grim API
-    content {
-      includeGroup("com.github.grimanticheat")
-    }
-  }
+  //maven("https://jitpack.io/") { // Grim API
+  //  content {
+  //    includeGroup("com.github.grimanticheat")
+  //  }
+  //}
   mavenCentral()
 }
 
