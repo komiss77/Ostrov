@@ -1,5 +1,6 @@
 package ru.komiss77.modules.world;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -18,6 +18,7 @@ import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
@@ -47,29 +48,30 @@ public class Schematic {
     private Environment createdEnvironment = Environment.NORMAL;
     private Biome createdBiome = Biome.DEEP_OCEAN;
     protected boolean ready; //флаг для вставки - пока false вставлять не начнёт	
-  private int dX, dY, dZ;
-  public int spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch;
+    private int dX, dY, dZ;
+    public int spawnAddX, spawnAddY, spawnAddZ, spawnYaw, spawnPitch;
+    
+    public static final String DEF_PATH = Ostrov.instance.getDataFolder().getPath() + "/schematics";
+    public static final String DEF_EXT = ".schem";
 
     public Schematic(final CommandSender cs, final String name, final String param, final Location min, final Location max, final boolean save) {
-        blockDatas.put(new XYZ("", 0, 1, 2).getSLoc(), Material.BAMBOO_SLAB.createBlockData().toString());
+//        blockDatas.put(new XYZ("", 0, 1, 2).getSLoc(), Material.BAMBOO_SLAB.createBlockData().toString());
         this.name = name;
-        create(cs, name, param, new XYZ(min), new XYZ(max), min, save, Ostrov.instance.getDataFolder() + "/schematics", ".schem", null);
+        create(cs, name, param, BVec.of(min), BVec.of(max), min, save, DEF_PATH, DEF_EXT, null);
     }
 
     public Schematic(final CommandSender cs, final String name, final String param, final Cuboid cuboid, final World world, final boolean save) {
         this.name = name;
-        create(cs, name, param, new XYZ(cuboid.getLowerLocation(world)), new XYZ(cuboid.getHightesLocation(world)),
-            cuboid.getSpawnLocation(world), save, Ostrov.instance.getDataFolder() + "/schematics", ".schem", null);
+        create(cs, name, param, BVec.of(cuboid.getLowerLocation(world)), BVec.of(cuboid.getHightesLocation(world)),
+            cuboid.getSpawnLocation(world), save, DEF_PATH, DEF_EXT, null);
     }
 
     public Schematic(final CommandSender cs, final String name, final String param, final Location min, final Location max, final boolean save, final String folderPath, final String extension, final List<Material> scipOnScan) {
         this.name = name;
-        create(cs, name, param, new XYZ(min), new XYZ(max), min, save, folderPath, extension, scipOnScan);
+        create(cs, name, param, BVec.of(min), BVec.of(max), min, save, folderPath, extension, scipOnScan);
     }
-
-
     //создание с местности -
-    private void create(final CommandSender cs, final String name, final String param, final XYZ min, final XYZ max, final Location spawn, final boolean save, final String folderPath, final String extension, List<Material> scipOnScan) {
+    private void create(final CommandSender cs, final String name, final String param, final BVec min, final BVec max, final Location spawn, final boolean save, final String folderPath, final String extension, List<Material> scipOnScan) {
         final World world = spawn.getWorld();
         ServerLevel worldServer = Craft.toNMS(world);//VM.server().toNMS(world);
 
@@ -102,12 +104,11 @@ public class Schematic {
 
         net.minecraft.world.level.block.state.BlockState nmsBlockState;//BlockData nmsBlockState;
         BlockEntity tileEntity;//TileEntity tileEntity;
-
-        XYZ xyz;
+        @Deprecated
         final Iterator<XYZ> it = cuboid.iteratorXYZ(Rotate.r0);
         while (it.hasNext()) {
-
-            xyz = it.next();
+            @Deprecated
+            final XYZ xyz = it.next();
             mutableBlockPosition.set(xyz.x, xyz.y, xyz.z);
             nmsBlockState = worldServer.getBlockState(mutableBlockPosition);
             mat = nmsBlockState.getBukkitMaterial();
@@ -179,7 +180,15 @@ public class Schematic {
             cs.sendMessage("Bремя: §5" + (System.currentTimeMillis() - l) + " мс.");
             cs.sendMessage("§7=====================================================");
         }
+    }
 
+
+    //создание с местности -
+    @Deprecated
+    private void create(final CommandSender cs, final String name, final String param, final XYZ min, final XYZ max,
+        final Location spawn, final boolean save, final String folderPath, final String extension, List<Material> scipOnScan) {
+        create(cs, name, param, BVec.of(min.worldName, min.x, min.y, min.z),
+            BVec.of(max.worldName, max.x, max.y, max.z), spawn, save, folderPath, extension, scipOnScan);
     }
 
 
@@ -198,7 +207,7 @@ public class Schematic {
 
                 final Inventory inv = inventoryHolder.getInventory();
                 for (final ItemStack is : inv.getContents()) {
-                    sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtil.toString(is, ";")).append(",");
+                    sb.append(is == null || is.getType() == Material.AIR ? "null" : ItemUtil.write(is)).append(",");
                 }
 
                 if (bs instanceof Nameable nameable) {
@@ -225,9 +234,8 @@ public class Schematic {
         Material mat;
         String blockDataAsString;
 
-        try {
-            final Stream<String> lineStream = Files.lines(schemFile.toPath());
-            final List<String> lines = lineStream.collect(Collectors.toList());
+        try (final Stream<String> lns = Files.lines(schemFile.toPath())) {
+            final List<String> lines = lns.toList();
             int version;
             int x, y, z; //для конверсии sLoc
 
@@ -287,23 +295,17 @@ public class Schematic {
                                 xyzOffset = x << 20 | y << 10 | z;  //переконвертировать по новой, как в методе XYZ.offSet()
                             }
                             mat = Material.matchMaterial(lines.get(line + 1));
-                            if (mat != null) {
-                                blocks.put(xyzOffset, mat);
-                                if (!lines.get(line + 2).isEmpty()) {
-                                    blockDataAsString = lines.get(line + 2);
-                                    //фикс - создавал с bds.substring(bds.indexOf("[")+1).replaceFirst("]", "");
-                                    //minecraft:red_sandstone_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]
-                                    if (!blockDataAsString.startsWith("minecraft:")) { //как-то сохранял неправильно, делал фикс
-                                        blockDataAsString = "minecraft:" + mat.name().toLowerCase() + "[" + blockDataAsString + "]";
-                                        //fix = true;
-//Ostrov.log_warn("============"+bd);
-                                    }
-                                    blockDatas.put(xyzOffset, blockDataAsString);
-                                    //blockDatas.put(xyz, Bukkit.createBlockData(bd));
+                            if (mat == null) continue;
+                            blocks.put(xyzOffset, mat);
+                            if (!lines.get(line + 2).isEmpty()) {
+                                blockDataAsString = lines.get(line + 2);
+                                if (!blockDataAsString.startsWith("minecraft:")) { //как-то сохранял неправильно, делал фикс
+                                    blockDataAsString = "minecraft:" + mat.name().toLowerCase() + "[" + blockDataAsString + "]";
                                 }
-                                if (!lines.get(line + 3).isEmpty()) {
-                                    blockStates.put(xyzOffset, lines.get(line + 3));
-                                }
+                                blockDatas.put(xyzOffset, blockDataAsString);
+                            }
+                            if (!lines.get(line + 3).isEmpty()) {
+                                blockStates.put(xyzOffset, lines.get(line + 3));
                             }
                         }
                         break;
@@ -325,8 +327,6 @@ public class Schematic {
                     }
                 }
             }
-
-            lineStream.close();
 
             if (spawnAddX < 0 || spawnAddX > dX) spawnAddX = 0;
             if (spawnAddY < 0 || spawnAddY > dY) spawnAddY = 0;
@@ -376,11 +376,12 @@ public class Schematic {
             lines.add(blockStates.getOrDefault(xyz, ""));
         }
 
-        final File schemFolder = new File((folderPath == null || folderPath.isEmpty()) ? Ostrov.instance.getDataFolder() + "/schematics" : folderPath);
+        final String folder = (folderPath == null || folderPath.isEmpty()) ? DEF_PATH : folderPath;
+        final File schemFolder = new File(folder);
         if (!schemFolder.exists() || !schemFolder.isDirectory()) {
             schemFolder.mkdir();
         }
-        final File schemFile = new File((folderPath == null || folderPath.isEmpty()) ? Ostrov.instance.getDataFolder() + "/schematics" : folderPath, name + ((extension == null || extension.isEmpty()) ? ".schem" : extension));
+        final File schemFile = new File(folder, name + ((extension == null || extension.isEmpty()) ? DEF_EXT : extension));
 
         try {
             if (schemFile.delete()) {
@@ -399,12 +400,21 @@ public class Schematic {
     }
 
     //простая прямая вставка
+    public Cuboid paste(final CommandSender cs, final BVec spawn, final boolean pasteAir) {
+        return paste(cs, spawn, Rotate.r0, pasteAir);
+    }
+
+    @Deprecated
     public Cuboid paste(final CommandSender cs, final WXYZ spawn, final boolean pasteAir) {
         return paste(cs, spawn, Rotate.r0, pasteAir);
     }
 
+    public Cuboid paste(final CommandSender cs, final BVec spawn, final Rotate rotate, final boolean pasteAir) {
+        return WE.paste(cs, this, spawn, rotate, pasteAir);
+    }
+
+    @Deprecated
     public Cuboid paste(final CommandSender cs, final WXYZ spawn, final Rotate rotate, final boolean pasteAir) {
-//if (fix && cs!=null) cs.sendMessage("****** пересохрани схематик!! (просто нажми кнопку сохранить в редакторе)");
         return WE.paste(cs, this, spawn, rotate, pasteAir);
     }
 
@@ -457,17 +467,29 @@ public class Schematic {
         return spawnPitch;
     }
 
-
+    @Deprecated
     public BlockData getBlockData(final XYZ xyzOffset) {
         final String str = blockDatas.get(xyzOffset.offSet());
         return str == null ? null : Bukkit.createBlockData(str);
     }
 
+    public @Nullable BlockData blockData(final BVec offset) {
+        final String str = blockDatas.get(offset.offSet());
+        return str == null ? null : Bukkit.createBlockData(str);
+    }
+
+    public @Nullable BlockData blockData(final BVec offset, final BlockData bd) {
+        final String str = blockDatas.get(offset.offSet());
+        return str == null ? null : Bukkit.createBlockData(str);
+    }
+
+    @Deprecated
     public Material getMaterial(final XYZ shemCoord) {
         final Material mat = blocks.get(shemCoord.offSet());
         return mat == null ? Material.AIR : mat;
     }
 
+    @Deprecated
     public Material setMaterial(final XYZ xyzOffset, final Material mat) {
         final int sLoc = xyzOffset.offSet();
         blockDatas.remove(sLoc);
@@ -475,8 +497,28 @@ public class Schematic {
         return blocks.replace(sLoc, mat);
     }
 
+    public @Nullable BlockType blockType(final BVec offset) {
+        final Material mat = blocks.get(offset.offSet());
+        return mat == null ? BlockType.AIR : mat.asBlockType();
+    }
+
+    public void blockType(final BVec offset, final BlockType bt) {
+        final int sLoc = offset.offSet();
+        final String bds = blockDatas.remove(sLoc);
+        if (bds != null) {
+            final BlockData bd = bt.createBlockData();
+            Bukkit.createBlockData(bds).copyTo(bd);
+            blockDatas.put(sLoc, bd.getAsString());
+        }
+        blockStates.remove(sLoc);
+        @Deprecated
+        final Material mat = bt.asMaterial();
+        blocks.replace(sLoc, mat);
+    }
+
 
     //сравнить схематик с местностью, совмещая точку спавна
+    @Deprecated
     public CompareResult compare(final WXYZ spawn, final Rotate rotate, final boolean ignoreAir) {
 
         final long l = System.currentTimeMillis();
@@ -533,7 +575,7 @@ public class Schematic {
         else return (dX * dY * dZ) - blocks.size();
     }
 
-
+    @Deprecated
     public static class CompareResult {
 
         public final HashMap<XYZ, Material> inWorld; //XYZ, что в мире
@@ -605,5 +647,3 @@ public class Schematic {
     }
 
 }
-
-

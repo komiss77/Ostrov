@@ -100,6 +100,10 @@ public class BVec implements BlockPosition, Cloneable {
         return y >> 31 << 30 ^ x >> 31 << 29 ^ z >> 31 << 28 ^ y << 20 ^ x << 10 ^ z;
     }
 
+    public int offSet() { //координата кубоиде, используется в схематике. НЕ могут быть '-' !!
+        return x << 20 | y << 10 | z;
+    }
+
     public boolean equals(final Object o) {
         if (!(o instanceof BVec bv)) return false;
         return x == bv.x && y == bv.y && z == bv.z;
@@ -328,6 +332,7 @@ public class BVec implements BlockPosition, Cloneable {
     public static BVec parse(final String bVec) {
         BVec bv = of();
         if (SPLIT.index(bVec) < 0) {
+            @Deprecated
             final XYZ xyz = XYZ.fromString(bVec);
             if (xyz != null) {
                 Ostrov.log_warn("Parsing BVec " + SPLIT + " from XYZ " + bVec);

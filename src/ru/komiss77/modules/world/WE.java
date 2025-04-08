@@ -1,24 +1,14 @@
 package ru.komiss77.modules.world;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import java.util.*;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import ru.komiss77.Initiable;
-import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.SetupMode;
 import ru.komiss77.modules.world.Schematic.Rotate;
+import ru.komiss77.objects.CaseInsensitiveMap;
 
 
 //не перемещать!! использует регионГуи
@@ -137,8 +127,12 @@ public class WE implements Initiable {
         schematics.put(sh.getName(), sh);
     }
 
-
+    @Deprecated
     public static Cuboid paste(final CommandSender cs, final Schematic schem, final XYZ spawn, final Rotate rotate, final boolean pasteAir) {
+        return paste(cs, schem, BVec.of(spawn.worldName, spawn.x, spawn.y, spawn.z), rotate, pasteAir);
+    }
+
+    public static Cuboid paste(final CommandSender cs, final Schematic schem, final BVec spawn, final Rotate rotate, final boolean pasteAir) {
         if (schem == null) {
             cs.sendMessage("Schematic==null!!");
             return null;
@@ -146,12 +140,7 @@ public class WE implements Initiable {
         final Cuboid cuboid = new Cuboid(schem);
         cuboid.allign(spawn);
         cuboid.rotate(rotate);
-        World world = null;
-        if (spawn instanceof WXYZ wxyz) {
-            world = wxyz.w;
-        } else {
-            if (spawn.worldName != null && !spawn.worldName.isEmpty()) world = Bukkit.getWorld(spawn.worldName);
-        }
+        World world = spawn.w();
         if (world == null) {
             Ostrov.log_err("Cuboid paste - world==null : " + schem);
             return cuboid;

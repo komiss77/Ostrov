@@ -51,6 +51,7 @@ public class Cuboid {
         }
     }
 
+    @Deprecated
     public Cuboid(final XYZ min, final int sizeX, final int sizeY, final int sizeZ) { //кубоид по локации и размерам
         minX = min.x;
         minY = min.y;
@@ -59,11 +60,19 @@ public class Cuboid {
         maxY = minY + sizeY;
         maxZ = minZ + sizeZ;
     }
+    public Cuboid(final BVec min, final int sizeX, final int sizeY, final int sizeZ) { //кубоид по локации и размерам
+        minX = min.x;
+        minY = min.y;
+        minZ = min.z;
+        maxX = minX + sizeX;
+        maxY = minY + sizeY;
+        maxZ = minZ + sizeZ;
+    }
 
-    public Cuboid(final Location pos1, final int sizeX, final int sizeY, final int sizeZ) { //кубоид по локации и размерам
-        minX = pos1.getBlockX();
-        minY = pos1.getBlockY();
-        minZ = pos1.getBlockZ();
+    public Cuboid(final Location min, final int sizeX, final int sizeY, final int sizeZ) { //кубоид по локации и размерам
+        minX = min.getBlockX();
+        minY = min.getBlockY();
+        minZ = min.getBlockZ();
         maxX = minX + sizeX;
         maxY = minY + sizeY;
         maxZ = minZ + sizeZ;
@@ -90,16 +99,13 @@ public class Cuboid {
     }
 
     //кубоид между двумя XYZ
+    @Deprecated
     public Cuboid(final XYZ min, final XYZ max) {
-        minX = Math.min(min.x, max.x);
-        minY = Math.min(min.y, max.y);
-        minZ = Math.min(min.z, max.z);
-        maxX = Math.max(min.x, max.x);
-        maxY = Math.max(min.y, max.y);
-        maxZ = Math.max(min.z, max.z);
+        this(min, max, null);
     }
 
     //кубоид между двумя локациями + спавн
+    @Deprecated
     public Cuboid(final XYZ min, final XYZ max, final Location spawn) {
         minX = Math.min(min.x, max.x);
         minY = Math.min(min.y, max.y);
@@ -107,24 +113,48 @@ public class Cuboid {
         maxX = Math.max(min.x, max.x);
         maxY = Math.max(min.y, max.y);
         maxZ = Math.max(min.z, max.z);
-        if (spawn != null) {
-            spawnAddX = Math.abs(spawn.getBlockX() - minX);
-            spawnAddY = Math.abs(spawn.getBlockY() - minY);
-            spawnAddZ = Math.abs(spawn.getBlockZ() - minZ);
-            spawnYaw = (int) spawn.getYaw();
-            spawnPitch = (int) spawn.getPitch();
-            if (spawnAddX < 0 || spawnAddX > (maxX - minX)) {
-                spawnAddX = 0;
-            }
-            if (spawnAddY < 0 || spawnAddY > (maxY - minY)) {
-                spawnAddY = 0;
-            }
-            if (spawnAddZ < 0 || spawnAddZ > (maxZ - minZ)) {
-                spawnAddZ = 0;
-            }
-//Ostrov.log("+cuboid spawn="+spawn.x+","+spawn.z+" add="+spawnAddX+","+spawnAddZ);
-        } else {
-//Ostrov.log("+cuboid spawn=null");
+        if (spawn == null) return;
+        spawnAddX = Math.abs(spawn.getBlockX() - minX);
+        spawnAddY = Math.abs(spawn.getBlockY() - minY);
+        spawnAddZ = Math.abs(spawn.getBlockZ() - minZ);
+        spawnYaw = (int) spawn.getYaw();
+        spawnPitch = (int) spawn.getPitch();
+        if (spawnAddX < 0 || spawnAddX > (maxX - minX)) {
+            spawnAddX = 0;
+        }
+        if (spawnAddY < 0 || spawnAddY > (maxY - minY)) {
+            spawnAddY = 0;
+        }
+        if (spawnAddZ < 0 || spawnAddZ > (maxZ - minZ)) {
+            spawnAddZ = 0;
+        }
+    }
+
+    public Cuboid(final BVec min, final BVec max) {
+        this(min, max, null);
+    }
+
+    public Cuboid(final BVec min, final BVec max, final Location spawn) {
+        minX = Math.min(min.x, max.x);
+        minY = Math.min(min.y, max.y);
+        minZ = Math.min(min.z, max.z);
+        maxX = Math.max(min.x, max.x);
+        maxY = Math.max(min.y, max.y);
+        maxZ = Math.max(min.z, max.z);
+        if (spawn == null) return;
+        spawnAddX = Math.abs(spawn.getBlockX() - minX);
+        spawnAddY = Math.abs(spawn.getBlockY() - minY);
+        spawnAddZ = Math.abs(spawn.getBlockZ() - minZ);
+        spawnYaw = (int) spawn.getYaw();
+        spawnPitch = (int) spawn.getPitch();
+        if (spawnAddX < 0 || spawnAddX > (maxX - minX)) {
+            spawnAddX = 0;
+        }
+        if (spawnAddY < 0 || spawnAddY > (maxY - minY)) {
+            spawnAddY = 0;
+        }
+        if (spawnAddZ < 0 || spawnAddZ > (maxZ - minZ)) {
+            spawnAddZ = 0;
         }
     }
 
@@ -142,6 +172,7 @@ public class Cuboid {
     }
 
     //переместить pos1 на локацию с сохранением размеров
+    @Deprecated
     public Cuboid setMinPos(final XYZ min) {
         final int dX = maxX - minX;
         final int dY = maxY - minY;
@@ -155,6 +186,20 @@ public class Cuboid {
         return this;
     }
 
+    public Cuboid minPos(final BVec min) {
+        final int dX = maxX - minX;
+        final int dY = maxY - minY;
+        final int dZ = maxZ - minZ;
+        minX = min.x;
+        minY = min.y;
+        minZ = min.z;
+        maxX = minX + dX;
+        maxY = minY + dY;
+        maxZ = minZ + dZ;
+        return this;
+    }
+
+    @Deprecated
     public Cuboid setMaxPos(final XYZ max) { //переместить кубоид с совмещением точки спавна
         final int spX = minX + spawnAddX;
         final int spY = minY + spawnAddY;
@@ -178,7 +223,45 @@ public class Cuboid {
         return this;
     }
 
+    public Cuboid maxPos(final BVec max) {
+        final int spX = minX + spawnAddX;
+        final int spY = minY + spawnAddY;
+        final int spZ = minZ + spawnAddZ;
+        minX = Math.min(minX, max.x);
+        minY = Math.min(minY, max.y);
+        minZ = Math.min(minZ, max.z);
+        maxX = Math.max(minX, max.x);
+        maxY = Math.max(minY, max.y);
+        maxZ = Math.max(minZ, max.z);
+
+        if (spX > maxX) {
+            spawnAddX = maxX - minX;
+        }
+        if (spY > maxY) {
+            spawnAddY = maxY - minY;
+        }
+        if (spZ > maxZ) {
+            spawnAddZ = maxZ - minZ;
+        }
+        return this;
+    }
+
+    @Deprecated
     public Cuboid allign(final XYZ spawn) { //переместить кубоид с совмещением точки спавна
+        final int dX = maxX - minX;
+        final int dY = maxY - minY;
+        final int dZ = maxZ - minZ;
+        //вычисляем расстояния от угла до точки спавна
+        minX = spawn.x - spawnAddX;
+        minY = spawn.y - spawnAddY;
+        minZ = spawn.z - spawnAddZ;
+        maxX = minX + dX;
+        maxY = minY + dY;
+        maxZ = minZ + dZ;
+        return this;
+    }
+
+    public Cuboid allign(final BVec spawn) { //переместить кубоид с совмещением точки спавна
         final int dX = maxX - minX;
         final int dY = maxY - minY;
         final int dZ = maxZ - minZ;
@@ -229,6 +312,7 @@ public class Cuboid {
         return this;
     }
 
+    @Deprecated
     public Cuboid setSpawn(final WXYZ spawn, final boolean relative) {
         if (relative) {
             spawnAddX = Math.max(0, Math.min(maxX - minX, spawn.x));
@@ -240,6 +324,21 @@ public class Cuboid {
             spawnAddZ = Math.max(minZ, Math.min(maxZ, spawn.z));
         }
         spawnPoint = new Location(spawn.w, minX + spawnAddX,
+            minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
+        return this;
+    }
+
+    public Cuboid spawn(final BVec spawn, final boolean relative) {
+        if (relative) {
+            spawnAddX = Math.max(0, Math.min(maxX - minX, spawn.x));
+            spawnAddY = Math.max(0, Math.min(maxY - minY, spawn.y));
+            spawnAddZ = Math.max(0, Math.min(maxZ - minZ, spawn.z));
+        } else {
+            spawnAddX = Math.max(minX, Math.min(maxX, spawn.x));
+            spawnAddY = Math.max(minY, Math.min(maxY, spawn.y));
+            spawnAddZ = Math.max(minZ, Math.min(maxZ, spawn.z));
+        }
+        spawnPoint = new Location(spawn.w(), minX + spawnAddX,
             minY + spawnAddY, minZ + spawnAddZ, spawnYaw, spawnPitch);
         return this;
     }
@@ -261,7 +360,12 @@ public class Cuboid {
         return this;
     }
 
+    @Deprecated
     public boolean contains(final XYZ loc) {
+        return contains(loc.x, loc.y, loc.z);
+    }
+
+    public boolean contains(final BVec loc) {
         return contains(loc.x, loc.y, loc.z);
     }
 
@@ -476,29 +580,26 @@ public class Cuboid {
                 spawnAddX = sZ;
                 spawnAddZ = dX - sX;
             }
-            case r0 -> {
-            }
         }
-        if (rotate != Rotate.r0) {
-            spawnYaw += rotate.degree;
-            if (spawnYaw > 180) {
-                spawnYaw -= 360;
-            }
+        spawnYaw += rotate.degree;
+        if (spawnYaw > 180) {
+            spawnYaw -= 360;
         }
         return this;
-//Ostrov.log("--rotate2 min="+minX+","+minZ+" max="+maxX+","+maxZ+" spawn="+spawnX+","+spawnZ+" spawnAdd="+sX+","+sZ);     
-//Ostrov.log("--rotate2  "+toString());        
     }
 
+    @Deprecated
     public Iterator<XYZ> iteratorXYZ(final Rotate rotate) {
         return new CuboidIteratorXYZ(rotate);
     }
 
+    @Deprecated
     public Iterator<XYZ> schematicIterator(final Schematic schematic, final Rotate rotate) {
         return new CuboidIteratorXYZ(schematic, rotate);
     }
 
     //делать стенки
+    @Deprecated
     public Set<XYZ> getBorder() {
         final Set<XYZ> border = new HashSet<>();
         //вертикальные линии
@@ -538,6 +639,7 @@ public class Cuboid {
         return border;
     }
 
+    @Deprecated
     private XYZ xyz(final int x, final int y, final int z, final int yaw, final int pitch) {
         final XYZ xyz = new XYZ(null, x, y, z);
         xyz.yaw = yaw;
@@ -546,6 +648,7 @@ public class Cuboid {
     }
 
     //отдаст последовательность XYZ с учётом поворота, не меняя оригинал
+    @Deprecated
     public class CuboidIteratorXYZ implements Iterator<XYZ> {
 
         public final XYZ xyz = new XYZ();
