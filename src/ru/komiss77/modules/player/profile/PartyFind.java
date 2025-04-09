@@ -77,7 +77,7 @@ public class PartyFind implements InventoryProvider {
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.hasSettings(Settings.Party_InviteOtherDeny) && !ApiOstrov.isFriend(op.nik, find.getName())) {
+            } else if (findOp.hasSettings(Settings.InviteOthersDeny) && !ApiOstrov.isFriend(op.nik, find.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())
@@ -88,7 +88,7 @@ public class PartyFind implements InventoryProvider {
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.hasSettings(Settings.Party_InviteFriendsDeny) && ApiOstrov.isFriend(op.nik, find.getName())) {
+            } else if (findOp.hasSettings(Settings.InviteFriendsDeny) && ApiOstrov.isFriend(op.nik, find.getName())) {
 
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())

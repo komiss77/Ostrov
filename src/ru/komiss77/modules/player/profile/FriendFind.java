@@ -62,7 +62,7 @@ public class FriendFind implements InventoryProvider {
 
                 menuEntry.add(ClickableItem.empty(friend_item));
 
-            } else if (findOp.hasSettings(Settings.Fr_InviteDeny)) {
+            } else if (findOp.hasSettings(Settings.InviteDeny)) {
 
                 final ItemStack friend_item = new ItemBuilder(ItemType.SKELETON_SKULL)
                     .name(find.getName())

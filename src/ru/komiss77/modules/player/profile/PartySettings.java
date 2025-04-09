@@ -19,8 +19,8 @@ public class PartySettings implements InventoryProvider {
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Section.ДРУЗЬЯ.glassMat).name("§8.").build());
 
 
-    private static final EnumSet<Settings> partySettings = EnumSet.of(Settings.Party_LeaderTrackDeny,
-        Settings.Party_LeaderFollowDeny, Settings.Party_InviteFriendsDeny, Settings.Party_InviteOtherDeny, Settings.Fr_ShowPartyDeny);
+    private static final EnumSet<Settings> partySettings = EnumSet.of(Settings.LeaderTrackDeny,
+        Settings.LeaderFollowDeny, Settings.InviteFriendsDeny, Settings.InviteOthersDeny, Settings.HideNonParty);
 
     @Override
     public void onClose(final Player p, final InventoryContent content) {
@@ -53,7 +53,7 @@ public class PartySettings implements InventoryProvider {
                 .build(), e -> {
                 if (e.isLeftClick()) {
                     op.setSettings(set, !locked);
-                    if (set == Settings.Fr_ShowPartyDeny)
+                    if (set == Settings.HideNonParty)
                         Friends.updateViewMode(p);
                     reopen(p, content);
                 } else {

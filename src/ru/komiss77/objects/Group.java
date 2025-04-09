@@ -16,7 +16,7 @@ public class Group {
     public Type tp;
     @Deprecated
     public String type;
-    public int price_per_month; //аналогично, юзает прокси. Ничего не переименовываем! только добавляем новое если необходимо
+    public int price_per_day;
     public String group_desc;
     public String mat;
     public int inv_slot;
@@ -31,7 +31,7 @@ public class Group {
         this.name = name;
         this.chat_name = chat_name;
         this.type = type;
-        this.price_per_month = price_per_month;
+        this.price_per_day = price_per_month / 30;
         this.inv_slot = inv_slot;
         this.mat = mat;
         this.group_desc = group_desc;
@@ -65,7 +65,7 @@ public class Group {
     private static final int BUFFER = 6;
     private static final float FACTOR = BUFFER / 30f;
     public int getPrice(final int days) {//больше-дешевле
-        return (int) (((double) price_per_month / 30) * (days - ((int) (days * FACTOR) - BUFFER)));
+        return price_per_day * (days - ((int) (days * FACTOR) - BUFFER));
     }
 
     public boolean isStaff() {
