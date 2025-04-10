@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+//тут нельзя импортить что-то от бакит (енум общий с прокси)!!
 
 public enum Data {
 

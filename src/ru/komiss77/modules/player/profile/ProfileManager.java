@@ -13,6 +13,7 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -470,7 +471,7 @@ public class ProfileManager {
                         break;
                     } else {
                         final HistoryType type = HistoryType.by_action(rs.getString("action"));
-                        buttons.add(ClickableItem.empty(new ItemBuilder(type.type)
+                        buttons.add(ClickableItem.empty(new ItemBuilder(Material.valueOf(type.displayMat).asItemType())
                             .name("<aqua>" + type.for_chat)
                             .lore("§7Источник: <mithril>" + rs.getString("sender"))
                             .lore("<stale>IP: " + rs.getString("target_ip"))

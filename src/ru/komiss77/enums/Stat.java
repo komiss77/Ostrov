@@ -1,14 +1,11 @@
 package ru.komiss77.enums;
 
-//import ru.komiss77.Objects.CaseInsensitiveSet;
-
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import static ru.komiss77.enums.Stat.KarmaChange.*;
 
+//тут нельзя импортить что-то от бакит (енум общий с прокси)!!
 
 public enum Stat {
 

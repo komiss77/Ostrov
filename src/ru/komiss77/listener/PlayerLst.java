@@ -160,7 +160,7 @@ public class PlayerLst implements Listener {
         p.setShieldBlockingDelay(2);
         p.setNoDamageTicks(20);
       if (Ostrov.USE_NETTY_QUERRY) {
-        OsQuery.send(QueryCode.PLAYER_JOIN, p.getName());
+          OsQuery.send(QueryCode.PLAYER_SERVER_JOIN, p.getName());
       }
     }
 
@@ -170,7 +170,7 @@ public class PlayerLst implements Listener {
       e.quitMessage(null);
       PM.onLeave(e.getPlayer(), true);
       if (Ostrov.USE_NETTY_QUERRY) {
-        OsQuery.send(QueryCode.PLAYER_QUIT, e.getPlayer().getName());
+          OsQuery.send(QueryCode.PLAYER_SERVER_QUIT, e.getPlayer().getName());
       }
     }
 
