@@ -17,10 +17,10 @@ plugins {
 dependencies {
   //paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
+  annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
   compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.1.1")
-  //compileOnly("com.github.grimanticheat:grimapi:master-SNAPSHOT")
-  annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
+  compileOnly("com.github.grimanticheat:grimapi:master")
 }
 
 repositories {
@@ -28,11 +28,11 @@ repositories {
     name = "papermc"
     url = uri("https://repo.papermc.io/repository/maven-public/")
   }
-  //maven("https://jitpack.io/") { // Grim API
-  //  content {
-  //    includeGroup("com.github.grimanticheat")
-  //  }
-  //}
+  maven("https://jitpack.io/") { // Grim API
+    content {
+      includeGroup("com.github.grimanticheat")
+    }
+  }
   mavenCentral()
 }
 

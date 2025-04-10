@@ -91,7 +91,7 @@ public class Friends {
         if (op.party_leader.equals(memberName)) {
             final Player pl = op.getPlayer();
             if (pl == null) return;
-            if (!op.hasSettings(Settings.Party_LeaderFollowDeny)) {
+            if (!op.hasSettings(Settings.LeaderFollowDeny)) {
                 if (memberServer.equals(Ostrov.MOT_D)) {
                     pl.sendMessage(PARTY_PREFIX + "§7Лидер §6" + memberName + " §7тоже на сервере §3" + memberServer
                         + (memberArena.isEmpty() ? " §7!" : " §7(§9 " + memberArena + "§7)!"));
@@ -100,7 +100,7 @@ public class Friends {
                         + (memberArena.isEmpty() ? " §7!" : " §7(§9" + memberArena + "§7)!"));
                     pl.performCommand("server " + memberServer + " " + memberArena);
                 }
-            } else if (!op.hasSettings(Settings.Party_LeaderTrackDeny)) {
+            } else if (!op.hasSettings(Settings.LeaderTrackDeny)) {
                 if (memberServer.equals(Ostrov.MOT_D)) {
                     pl.sendMessage(PARTY_PREFIX + " §7Лидер §6" + memberName + " §7тоже на этом сервере!");
                 } else {
@@ -123,22 +123,22 @@ public class Friends {
                 boolean showPl = true, showTgt = true;
                 //друзья
                 if (!op.friends.contains(targetOp.nik)) {
-                    if (op.hasSettings(Settings.Fr_ShowFriendDeny)) {
+                    if (op.hasSettings(Settings.HideNonFriends)) {
                         p.hidePlayer(Ostrov.instance, target);
                         showTgt = false;
                     }
-                    if (targetOp.hasSettings(Settings.Fr_ShowFriendDeny)) {
+                    if (targetOp.hasSettings(Settings.HideNonFriends)) {
                         target.hidePlayer(Ostrov.instance, p);
                         showPl = false;
                     }
                 }
                 //команда
                 if (!op.party_members.containsKey(targetOp.nik) && (showTgt || showPl)) {
-                    if (op.hasSettings(Settings.Fr_ShowPartyDeny) && showTgt) {
+                    if (op.hasSettings(Settings.HideNonParty) && showTgt) {
                         p.hidePlayer(Ostrov.instance, target);
                         showTgt = false;
                     }
-                    if (targetOp.hasSettings(Settings.Fr_ShowPartyDeny) && showPl) {
+                    if (targetOp.hasSettings(Settings.HideNonParty) && showPl) {
                         target.hidePlayer(Ostrov.instance, p);
                         showPl = false;
                     }
