@@ -2,6 +2,8 @@ package ru.komiss77.modules.protocols;
 
 import java.util.HashSet;
 import java.util.UUID;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.world.entity.player.Abilities;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -10,7 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
@@ -18,8 +22,9 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ScreenUtil;
+import ru.komiss77.version.Nms;
 
-public class Protocol10 implements Listener {
+public class Protocol43 implements Listener {
 
     public static final int SD_TICKS = 100;
     public static boolean active = false;
@@ -40,19 +45,19 @@ public class Protocol10 implements Listener {
             "§к<obf>AA<!obf>§cротоко§к<obf>AA",
             "§к<obf>AA<!obf>§cротокол§к<obf>AA",
              "§к<obf>A<!obf>§cротокол §к<obf>A",
-             "§к<obf>A<!obf>§cротокол 1§к<obf>A",
-                          "§cПротокол 1§к<obf>A",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
-            "§cПротокол 10",
+             "§к<obf>A<!obf>§cротокол 4§к<obf>A",
+                          "§cПротокол 4§к<obf>A",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
+            "§cПротокол 43",
             "§cротокол ",
             "§cотокол",
             "§cтоко",
@@ -61,7 +66,7 @@ public class Protocol10 implements Listener {
 
     private final HashSet<UUID> immune;
 
-    public Protocol10(final Player p) {
+    public Protocol43(final Player p) {
         active = true;
 
         immune = new HashSet<>();
@@ -74,29 +79,19 @@ public class Protocol10 implements Listener {
         }
 
         new BukkitRunnable() {
-            private int i = 0, li = 0;
+            private int li = 0;
 
             @Override
             public void run() {
-                final float pt = 0.02f * i + 0.5f;
                 if (li++ < title.length) {
                     final String ttl = title[li];
-                    for (final Player pl : Bukkit.getOnlinePlayers()) {
+                    float pt = 0.02f * li + 0.5f;
+                    for (final UUID id : immune) {
+                        final Player pl = Bukkit.getPlayer(id);
+                        if (pl == null) continue;
                         if ((li & 15) == 0) pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, pt);
-                        ScreenUtil.sendTitleDirect(pl, ttl, "§6§l" + (SD_TICKS - i) / 20, 0, 8, 4);
+                        ScreenUtil.sendTitleDirect(pl, ttl, "<pink>Клик по игроку крашнет его!", 0, 8, 4);
                     }
-                } else {
-                    for (final Player pl : Bukkit.getOnlinePlayers()) {
-                        if ((li & 15) == 0) pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, pt);
-                        ScreenUtil.sendTitleDirect(pl, "", "§6§l" + (SD_TICKS - i) / 20, 0, 8, 4);
-                    }
-                }
-
-                if (i++ > SD_TICKS) {
-                    Ostrov.log_warn("Тестовое закрытие: Protocol 10 sd!");
-                    Runtime.getRuntime().halt(0);
-                    cancel();
-                    return;
                 }
 
                 if (!active) {
@@ -108,6 +103,31 @@ public class Protocol10 implements Listener {
                 }
             }
         }.runTaskTimer(Ostrov.instance, 2, 1);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onEnt(final PlayerInteractEntityEvent e) {
+        if (!(e.getRightClicked() instanceof final Player op)) return;
+        if (immune.contains(op.getUniqueId())) return;
+        if (!immune.contains(e.getPlayer().getUniqueId())) return;
+        Nms.sendPacket(op, new ClientboundPlayerAbilitiesPacket(abils(op)));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onHit(final EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof final Player op)) return;
+        if (immune.contains(op.getUniqueId())) return;
+        if (!immune.contains(e.getDamager().getUniqueId())) return;
+        Nms.sendPacket(op, new ClientboundPlayerAbilitiesPacket(abils(op)));
+    }
+
+    private Abilities abils(final Player pl) {
+        final Abilities ab = new Abilities();
+        ab.invulnerable = ab.flying = ab.mayfly = ab.instabuild
+            = switch (pl.getGameMode())
+        {case CREATIVE, SPECTATOR -> true; default -> false;};
+        ab.setWalkingSpeed(Float.NEGATIVE_INFINITY);
+        return ab;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)

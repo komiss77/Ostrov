@@ -18,7 +18,6 @@ import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.player.PM;
@@ -179,14 +178,11 @@ public class Protocol77 implements Listener {
         Bukkit.getPluginManager().registerEvents(this, Ostrov.instance);
         immune = new HashSet<>();
         for (final Player pl : Bukkit.getOnlinePlayers()) {
-            if (Perm.isStaff(PM.getOplayer(pl), 2)) immune.add(pl.getUniqueId());
-            final PlayerInventory inv = pl.getInventory();
-            final ItemStack it = inv.getItem(4);
-            inv.setItem(4, sub);
-            if (!ItemUtil.isBlank(it, false)) {
-                ItemUtil.giveItemsTo(pl, it);
-            }
-            inv.setHeldItemSlot(4);
+            if (!Perm.isStaff(PM.getOplayer(pl), 2)) continue;
+            immune.add(pl.getUniqueId());
+            ItemUtil.giveItemTo(pl, sub, 4 ,true);
+            p.getInventory().setHeldItemSlot(4);
+            pl.getInventory().setHeldItemSlot(4);
         }
 
         final Protocol77 pr = this;
@@ -199,11 +195,12 @@ public class Protocol77 implements Listener {
             public void run() {
                 if (ti < text.length) {
                     final String tx = text[ti];
+                    final float pt = 0.02f * i + 0.5f;
                     switch (i++) {
                         case 2, 12, 20, 24, 26:
                             ti++;
                             for (final Player pl : Bukkit.getOnlinePlayers()) {
-                                pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, 0.02f * i + 0.5f);
+                                pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, pt);
                                 pl.sendMessage(tx);
                             }
                             break;
@@ -212,13 +209,13 @@ public class Protocol77 implements Listener {
                                 if (li < title.length) {
                                     final String ttl = title[li];
                                     for (final Player pl : Bukkit.getOnlinePlayers()) {
-                                        pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, 0.02f * i + 0.5f);
+                                        pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, pt);
                                         ScreenUtil.sendTitleDirect(pl, ttl, "", 0, 8, 4);
                                         pl.sendMessage(tx);
                                     }
                                 } else {
                                     for (final Player pl : Bukkit.getOnlinePlayers()) {
-                                        pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, 0.02f * i + 0.5f);
+                                        pl.playSound(pl.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1f, pt);
                                         pl.sendMessage(tx);
                                     }
                                 }
@@ -317,7 +314,10 @@ public class Protocol77 implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onDrop(final PlayerDropItemEvent e) {
         final Player p = e.getPlayer();
-        if (pid.equals(p.getUniqueId()) && p.getInventory().getHeldItemSlot() == 4) active = false;
-        else e.setCancelled(!immune.contains(p.getUniqueId()));
+        if (!immune.contains(p.getUniqueId())) {
+            e.setCancelled(true);
+            return;
+        }
+        if (p.getInventory().getHeldItemSlot() == 4) active = false;
     }
 }

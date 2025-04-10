@@ -14,8 +14,8 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.Repairable;
 import io.papermc.paper.datacomponent.item.*;
+import io.papermc.paper.datacomponent.item.Repairable;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import io.papermc.paper.registry.RegistryAccess;
@@ -450,18 +450,18 @@ public class ItemUtil {
         if (isBlank(there, false)) {                                        //если требуемая позиция пустая,
             inv.setItem(pos, item);                                            //ставим предмет и возврат
             return true;
-        } else if (force) {
+        }
+        if (force) {
             inv.setItem(pos, item);                                            //ставим предмет и возврат
             final MenuItem mi = MenuItemsManager.fromItemStack(there);
             if (mi != null && mi.forced) return true;
             giveItemsTo(p, there);
             return true;
-        } else if (compare(there, item, Stat.TYPE, Stat.NAME, Stat.AMOUNT)) {//уже есть в слоту
-            return true;
-        } else {
-            giveItemsTo(p, item);//кидаем предмет рядом
-            return false;
         }
+        //уже есть в слоту
+        if (compare(there, item, Stat.TYPE, Stat.NAME, Stat.AMOUNT)) return true;
+        giveItemsTo(p, item);//кидаем предмет рядом
+        return false;
     }
 
     public static boolean getItems(Player player, int count, Material mat) {

@@ -11,6 +11,7 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.protocols.Protocol10;
+import ru.komiss77.modules.protocols.Protocol43;
 import ru.komiss77.modules.protocols.Protocol77;
 
 public class ProtocolCmd {
@@ -44,6 +45,13 @@ public class ProtocolCmd {
                         yield 0;
                     }
                     new Protocol77(pl);
+                    yield Command.SINGLE_SUCCESS;
+                case 43:
+                    if (Protocol10.active) {
+                        pl.sendMessage(Ostrov.PREFIX + "§cПротокол уже активен!");
+                        yield 0;
+                    }
+                    new Protocol43(pl);
                     yield Command.SINGLE_SUCCESS;
                 case 10:
                     if (Protocol10.active) {
