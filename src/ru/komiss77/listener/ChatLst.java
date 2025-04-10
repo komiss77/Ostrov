@@ -323,8 +323,8 @@ public class ChatLst implements Listener {
             final String gsonMsgEN = GsonComponentSerializer.gson().serialize(proxyResultEN);*/
             SpigotChanellMsg.sendChat(pl, msg.toString(), Chanell.CHAT_RU);
             SpigotChanellMsg.sendChat(pl, msg.toString(), Chanell.CHAT_EN);
-            OsQuery.send(QueryCode.CHAT_RU, msg.toString());
-            OsQuery.send(QueryCode.CHAT_EN, msg.toString());
+            //OsQuery.send(QueryCode.CHAT_RU, msg.toString());
+            //OsQuery.send(QueryCode.CHAT_EN, msg.toString());
         }
 
         //если игра не отменила показ на локальном сервере, рассылаем по умолчанию

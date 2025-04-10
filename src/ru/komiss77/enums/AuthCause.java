@@ -1,6 +1,8 @@
 package ru.komiss77.enums;
 
 
+//тут нельзя импортить что-то от бакит (енум общий с прокси)!!
+
 public enum AuthCause {
 
     ГОСТЬ,
