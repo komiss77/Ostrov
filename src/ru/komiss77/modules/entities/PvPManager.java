@@ -73,9 +73,9 @@ public class PvPManager implements Initiable {
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
         ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
         ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
-  public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
-      .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
-      .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).build();
+    public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
+        .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
+        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).build();
     private static final float MELEE_BREAK_SEC = 2f;
     //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
     //weapon block breaks if !shield || axe
@@ -277,27 +277,26 @@ public class PvPManager implements Initiable {
                             break;
                     }
 
-                    final ItemStack tgtHand;
                     final LivingEntity target = (LivingEntity) e.getEntity();
                     if (target.getType() == EntityType.PLAYER) {//# v P
                         if (damager instanceof final Player dmgrPl) {//P v P
 
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
-                          final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                          if (wpn != null) {
-                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                              hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                  .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                  .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                              inv.setItemInMainHand(hand);
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
                             }
-                            if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                              hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                              inv.setItemInMainHand(hand);
-                            }
-                          }
 
                             Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
                                 + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
@@ -329,19 +328,19 @@ public class PvPManager implements Initiable {
 
                             final ItemStack hand = dbe.item(EquipmentSlot.HAND);
                             final ItemType type = hand == null ? ItemType.AIR : hand.getType().asItemType();
-                          final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
-                          if (wpn != null) {
-                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                              hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                  .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                  .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                              dbe.item(EquipmentSlot.HAND, hand);
+                            final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    dbe.item(EquipmentSlot.HAND, hand);
+                                }
+                                if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    dbe.item(EquipmentSlot.HAND, hand);
+                                }
                             }
-                            if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                              hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                              dbe.item(EquipmentSlot.HAND, hand);
-                            }
-                          }
 
                             if (hand == null || !DUAL_HIT.contains(type) || damager.getLocation()
                                 .distanceSquared(target.getLocation()) > Botter.DHIT_DST_SQ) return;
@@ -369,28 +368,28 @@ public class PvPManager implements Initiable {
 
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
-                          final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                          if (wpn != null) {
-                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                              hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                  .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                  .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                              inv.setItemInMainHand(hand);
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
                             }
-                            if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                              hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                              inv.setItemInMainHand(hand);
-                            }
-                          }
 
                             final ItemType handType = hand.getType().asItemType();
                             final boolean blocking = tbe.isBlocking(target);
                             final ItemStack ofh = inv.getItemInOffHand();
                             if (blocking) {
-                              if (AXES.contains(handType) || (wpn != null && ItemUtil.isBlank(ofh, false)
-                                  && (e.isCritical() || dmgrPl.isSprinting()))
-                              ) {
+                                if (AXES.contains(handType) || (wpn != null && ItemUtil.isBlank(ofh, false)
+                                    && (e.isCritical() || dmgrPl.isSprinting()))
+                                ) {
                                     e.setDamage(0d); e.setCancelled(true);
                                     target.getWorld().playSound(target.getLocation(),
                                         Sound.ITEM_SHIELD_BREAK, 1f, 1f);
@@ -433,26 +432,26 @@ public class PvPManager implements Initiable {
 
                         final ItemStack hand = dbe.item(EquipmentSlot.HAND);
                         final ItemType type = hand == null ? ItemType.AIR : hand.getType().asItemType();
-                      final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
-                      if (wpn != null) {
-                        if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                          hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                              .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                              .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                          dbe.item(EquipmentSlot.HAND, hand);
+                        final Weapon wpn = hand == null ? null : hand.getData(DataComponentTypes.WEAPON);
+                        if (wpn != null) {
+                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                    .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                    .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                dbe.item(EquipmentSlot.HAND, hand);
+                            }
+                            if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                dbe.item(EquipmentSlot.HAND, hand);
+                            }
                         }
-                        if (CAN_BLOCK.contains(type) && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                          hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                          dbe.item(EquipmentSlot.HAND, hand);
-                        }
-                      }
 
                         final boolean blocking = tbe.isBlocking(target);
                         final ItemStack ofh = dbe.item(EquipmentSlot.OFF_HAND);
                         if (blocking) {
-                          if (AXES.contains(type) || (wpn != null && ItemUtil.isBlank(ofh, false)
-                              && damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ)
-                          ) {
+                            if (AXES.contains(type) || (wpn != null && ItemUtil.isBlank(ofh, false)
+                                && damager.getLocation().distanceSquared(target.getLocation()) < Botter.DHIT_DST_SQ)
+                            ) {
                                 e.setDamage(0d); e.setCancelled(true);
                                 target.getWorld().playSound(target.getLocation(),
                                     Sound.ITEM_SHIELD_BREAK, 1f, 1f);
@@ -494,20 +493,20 @@ public class PvPManager implements Initiable {
                         if (damager instanceof final Player dmgrPl) {// P v M
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
-                          final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                          if (wpn != null) {
-                            if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                              hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                  .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                  .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                              inv.setItemInMainHand(hand);
+                            final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                            if (wpn != null) {
+                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                    inv.setItemInMainHand(hand);
+                                }
+                                if (CAN_BLOCK.contains(hand.getType().asItemType())
+                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
+                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                                    inv.setItemInMainHand(hand);
+                                }
                             }
-                            if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                              hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                              inv.setItemInMainHand(hand);
-                            }
-                          }
 
                             Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
                                 + StringUtil.toSigFigs(e.getFinalDamage(), (byte) 1), dmgrPl), 1);
@@ -824,9 +823,10 @@ public class PvPManager implements Initiable {
 
         if (damager != null && damager.getNoDamageTicks() > 0) { //у нападающего иммунитет
             final int ndSec = damager.getNoDamageTicks() / 20;
-            if (ndSec == 0) return true;
-            ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
-            return true;
+            if (ndSec != 0) {
+                ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
+                return true;
+            }
         }
 
         if (damager != null && target != null) {                               //если обаигроки
@@ -1116,7 +1116,7 @@ public class PvPManager implements Initiable {
             final PvpFlag f = en.getKey();
             if (f == PvpFlag.enable) continue;
 //Ostrov.log_warn("saveConfig f="+f+"="+en.getValue());
-          config.set(f.name(), en.getValue());
+            config.set(f.name(), en.getValue());
         }
 //        Bukkit.getConsoleSender().sendMessage("trying to save pvp config");
         config.saveConfig();
