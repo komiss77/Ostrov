@@ -559,7 +559,14 @@ public class PvPManager implements Initiable {
                 }
 
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public static void onPotionSplash(PotionSplashEvent e) {
+                public static void onProj(final ProjectileHitEvent e) {
+                    //попадание было в живчика
+                    if (e.getHitEntity() instanceof final LivingEntity target)
+                        target.setNoDamageTicks(0);
+                }
+
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+                public static void onPot(final PotionSplashEvent e) {
                     final ThrownPotion pot = e.getPotion();
                     if (e.getAffectedEntities().isEmpty()
                         || !(pot.getShooter() instanceof final Player pl)) return;

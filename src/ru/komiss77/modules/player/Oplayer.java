@@ -618,12 +618,12 @@ public class Oplayer {
 
 
     public void setNoDamage(final int seconds, final boolean actionBar) {
-        if (seconds > no_damage) {
-            no_damage = seconds;
-            if (actionBar) {
-                ScreenUtil.sendActionBar(getPlayer(), eng ? "§aYou have invulnerability for " + no_damage + " sec!" : "§aВам дарована неуязвимость на " + no_damage + " сек!");
-            }
-        }
+        if (seconds <= no_damage) return;
+        no_damage = seconds;
+        if (!actionBar) return;
+        ScreenUtil.sendActionBar(getPlayer(), eng
+            ? "§aYou have invulnerability for " + no_damage + " sec!"
+            : "§aУ тебя неуязвимость на " + no_damage + " сек!");
     }
 
     @Deprecated
