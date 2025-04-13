@@ -16,6 +16,8 @@ public class Group {
     public Type tp;
     @Deprecated
     public String type;
+    @Deprecated
+    public int price_per_month = 100000;
     public int price_per_day;
     public String group_desc;
     public String mat;

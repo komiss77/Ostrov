@@ -217,11 +217,6 @@ public class Message {
                     .clickEvent(DONATE_CLICK_URL))
                 .append(Component.space().style(Style.empty()));
         }
-        mb.append(TCUtil.form(ChatLst.NIK_COLOR + name)
-                .hoverEvent(has(Part.PROFILE)
-                    ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
-                .clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
-            .append(Component.space().style(Style.empty()));
 
         mb.append(Component.text(ARROW + " ", MSG_COLOR));
 
@@ -277,11 +272,6 @@ public class Message {
                     .clickEvent(DONATE_CLICK_URL))
                 .append(Component.space().style(Style.empty()));
         }
-        mb.append(TCUtil.form(ChatLst.NIK_COLOR + name)
-                .hoverEvent(has(Part.PROFILE)
-                    ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
-                .clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
-            .append(Component.space().style(Style.empty()));
 
         mb.append(Component.text(ARROW + " ", MSG_COLOR));
 

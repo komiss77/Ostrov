@@ -18,8 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.Timer;
 import ru.komiss77.*;
+import ru.komiss77.Timer;
 import ru.komiss77.builder.SetupMode;
 import ru.komiss77.enums.*;
 import ru.komiss77.listener.ChatLst;
@@ -99,7 +99,7 @@ public class Oplayer {
 
 //    public Location last_death; //p.getLastDeathLocation()
 
-    public String chat_group = " ---- ";
+    public String chat_group = "----";
     private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
     private String tagPreffix = "", tagSuffix = "";
 
