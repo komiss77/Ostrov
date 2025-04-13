@@ -5,27 +5,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 //не менять, классы бакит не импортироапть, использует bauth!
 
-
 public class Group {
-
-    public String name;
-    public String chat_name;
-    public Type tp;
     @Deprecated
     public String type;
     @Deprecated
     public int price_per_month = 100000;
-    public int price_per_day;
-    public String group_desc;
-    public String mat;
-    public int inv_slot;
-    public List<String> lore;
-    public Set<String> permissions;
-    public Set<String> inheritance; //наследуемые группы
 
+
+    public final String name;
+    public final String chat_name;
+    public final String group_desc;
+    public final String mat;
+    public final Type tp;
+    public final int price_per_day;
+    public final int inv_slot;
+    public final Set<String> permissions;
+    public final Set<String> inheritance; //наследуемые группы
+    public final List<String> lore;
 
     //для банжика, не менять на Материал!!
 
@@ -33,6 +31,7 @@ public class Group {
         this.name = name;
         this.chat_name = chat_name;
         this.type = type;
+        this.tp = Type.get(type);
         this.price_per_day = price_per_month / 30;
         this.inv_slot = inv_slot;
         this.mat = mat;

@@ -12,25 +12,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Sound;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.OCommand;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.TCUtil;
@@ -61,15 +54,6 @@ public final class ResourcePacksLst implements Initiable {
         p.sendResourcePacks(request);
 //            pl.setResourcePack(packUuid, link, hash, TCUtil.form("§eУстанови этот пакет ресурсов для игры!"), true);
     }
-
-
-
-
-    //public static void onLoadData(Player p) {
-    //  if (use) {
-    //    Ostrov.sync(() -> execute(p));
-    //  }
-    //}
 
     public static void preDisconnect(final Player p) {
         if (use) {
@@ -239,216 +223,6 @@ public final class ResourcePacksLst implements Initiable {
         formatter.close();
         return frm;
     }
-
-
-//        final boolean block_interact = packsConfig.getBoolean("block_interact");
-//        final boolean block_menu = packsConfig.getBoolean("block_menu");
-                    /*Ostrov.sync(() -> {
-                        if (block_interact) {
-                            Bukkit.getPluginManager().registerEvents(interactLst, Ostrov.getInstance());
-                        }
-                        if (block_menu) {
-                            Bukkit.getPluginManager().registerEvents(inventoryLst, Ostrov.getInstance());
-                        }
-                    }, 0);*/
-
-
-//    private static final Listener rpLst, inventoryLst, interactLst;
-    //  public static final ItemStack lock, key, lobby;
-//    private static String link;
-//    private static byte[] hash;
-//    private static UUID packUuid;
-
-
-  /*  static {
-        key = new ItemStack(Material.GOLDEN_SWORD);
-        ItemMeta im = key.getItemMeta();
-        im.displayName(TCUtil.form("§bНажмите на ключик"));
-        im.setUnbreakable(true);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-        im.setCustomModelData(1);
-        key.setItemMeta(im);
-
-        lock = new ItemStack(Material.GOLDEN_SWORD);
-        im = lock.getItemMeta();
-        im.displayName(TCUtil.form("§bНажмите на ключик"));
-        im.setUnbreakable(true);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
-        im.setCustomModelData(2);
-        lock.setItemMeta(im);
-
-        lobby = new ItemBuilder(Material.CRIMSON_DOOR)
-            .lore("§eВернуться в лобби")
-            .build();
-//        rpLst = new rpLst();
-//        interactLst = new interactLst();
-//        inventoryLst = new inventoryLst();
-    }*/
-
-
-    /*static class rpLst implements Listener {
-
-        @EventHandler(priority = EventPriority.MONITOR)
-        public static void onLoad(final LocalDataLoadEvent e) {
-            e.getPlayer().performCommand(rpCMD);
-        }
-
-        @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-        public static void onPlayerResourcePackStatusEvent(PlayerResourcePackStatusEvent e) {
-            final Player p = e.getPlayer();
-            final Oplayer op = PM.getOplayer(p);
-            switch (e.getStatus()) {
-
-                case ACCEPTED -> op.resourcepack_locked = false;
-
-                case SUCCESSFULLY_LOADED -> pack_ok(e.getPlayer());
-
-                case DECLINED -> {
-                    op.resourcepack_locked = true;
-                    p.sendMessage(TCUtil.form("""
-                            §e*******************************************************************
-                            §4Твой клиент отверг пакет ресурсов. §eСкорее всего, проблема в настройках!
-                            §2>>> §aКлик сюда для решения. §2<<<
-                            §e*******************************************************************
-                            """)
-                        .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для перехода")))
-                        .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ")));
-                }
-
-                case FAILED_DOWNLOAD -> {
-                    op.resourcepack_locked = true;
-                    try {
-                        p.sendMessage(TCUtil.form("""
-                            §e*******************************************************************
-                            §4Твой клиент не загрузил пакет ресурсов. §eСкорее всего, проблема в настройках!
-                            §2>>> §aКлик сюда для ручной загрузки. §2<<<
-                            §e*******************************************************************
-                            """)
-                            .hoverEvent(HoverEvent.showText(TCUtil.form("§5§oНажми для загрузки")))
-                            .clickEvent(ClickEvent.openUrl(pack.uri().toURL())));
-                    } catch (MalformedURLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            }
-        }
-    }
-
-
-    static class interactLst implements Listener {
-        @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-        public static void onInteract(PlayerInteractEvent e) {
-            final Oplayer op = PM.getOplayer(e.getPlayer().getName());
-            //if (op==null) return;
-            if (op.resourcepack_locked) {
-                if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                    e.setCancelled(true);
-                    pack_err((Player) e.getPlayer());
-                }
-            }
-        }
-    }
-
-
-    static class inventoryLst implements Listener {
-        @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-        public static void onInventoryOpen(InventoryOpenEvent e) {
-            //if (Ostrov.isCitizen(e.getPlayer())) return;
-            //if ( !use || !block_menu) return;
-            final Oplayer op = PM.getOplayer(e.getPlayer().getName());
-            //if (op==null) return;
-            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака") || op.menu.isProfileInventory(TCUtil.deform(e.getView().title()))) {
-                return;
-            }
-            if (op.resourcepack_locked) {
-                e.setCancelled(true);
-                Ostrov.sync(() -> openCheckMenu((Player) e.getPlayer()), 1);
-            }
-        }
-
-        @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-        public static void onInvClick(InventoryClickEvent e) {
-            if (!(e.getWhoClicked() instanceof Player)) return;
-            if (e.getInventory().getType() != InventoryType.CHEST) return;
-            if (e.getSlot() < 0 || e.getSlot() > 44 || e.getCurrentItem() == null || e.getCurrentItem().getType().isAir())
-                return;
-
-            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
-                e.setCancelled(true);
-                final Player p = (Player) e.getWhoClicked();
-                final Oplayer op = PM.getOplayer(p);
-                //if (op==null) return;
-                if (e.getCurrentItem().getType() == lobby.getType()) {
-                    ApiOstrov.sendToServer(p, "lobby0", "");
-                    return;
-                }
-
-                if (ItemUtil.compareItem(e.getCurrentItem(), key, true)) {//клик на замок обрабатывать не надо, сработает при InventoryCloseEvent
-                    if (e.getCurrentItem().getItemMeta().hasCustomModelData() && e.getCurrentItem().getItemMeta().getCustomModelData() == key.getItemMeta().getCustomModelData()) {
-                        pack_ok(p);
-                    }
-                }
-                p.closeInventory();
-            }
-        }
-
-        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
-        public static void onInvClose(InventoryCloseEvent e) {
-            final Oplayer op = PM.getOplayer(e.getPlayer().getName());
-            if (op == null) return;
-            if (e.getInventory().getType() != InventoryType.CHEST) return;
-            if (TCUtil.deform(e.getView().title()).equals("§4Проверка Ресурс-пака")) {
-                if (op.resourcepack_locked) {
-                    pack_err((Player) e.getPlayer());
-                }
-            }
-        }
-
-
-    private static void pack_ok(final Player p) {
-        final Oplayer op = PM.getOplayer(p.getName());
-        op.resourcepack_locked = false;
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 1);
-        p.sendMessage("§2Пакет ресурсов установлен!");
-    }
-
-
-    private static void pack_err(final Player p) {
-        p.sendMessage("");
-        try {
-            p.sendMessage(TCUtil.form("§cВы не сможете играть на этом сервере без пакета ресурсов!\n§eЧто делать?:")
-                .append(TCUtil.form("\n§a1: Попытаться еще раз. §5§o>Клик для установки<")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для установки")))
-                    .clickEvent(ClickEvent.runCommand("/rp")))
-                .append(TCUtil.form("\n§a2: Установить вручную. §5§o>Клик для загрузки пакета<")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для установки")))
-                    .clickEvent(ClickEvent.openUrl(pack.uri().toURL())))
-                .append(TCUtil.form("\n§a3: Исправить настройки. §5§o>Клик для перехода<")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("§b§oНажми для перехода")))
-                    .clickEvent(ClickEvent.openUrl("https://youtu.be/dWou50o-aDQ"))));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        p.sendMessage("");
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_SNARE, 1, 1);
-    }
-
-
-    public static void openCheckMenu(final Player p) {
-        if (!use) return; //не открывать менюшку, а то берутся предметы
-        final Inventory rp_check = Bukkit.createInventory(null, 45, TCUtil.form("§4Проверка Ресурс-пака"));
-        for (int i = 0; i < 44; i++) {
-            rp_check.addItem(lock);
-        }
-        rp_check.setItem(ApiOstrov.randInt(0, 43), key);
-        rp_check.setItem(44, lobby);
-        p.openInventory(rp_check);
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-    }*/
-
-
-
-
 }
 
 //https://emn178.github.io/online-tools/sha1_checksum.html

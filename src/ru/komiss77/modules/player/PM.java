@@ -24,6 +24,7 @@ import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
+import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.profile.E_Pass;
@@ -212,7 +213,7 @@ public class PM {
             }
 
         }
-        op.eng = op.getDataInt(Data.LANG) == 1;
+        op.eng = op.globalInt(Data.LANG) == 1;
         if (op.dataString.containsKey(Data.FRIENDS) && !op.dataString.get(Data.FRIENDS).isEmpty()) { //друг:сервер, список
             op.friends.addAll(Arrays.asList(op.dataString.get(Data.FRIENDS).split(","))); //info = name:server:settings
         }
@@ -255,7 +256,7 @@ public class PM {
                     TprCmd.runCommand(p, w, 300, true, true, null);
                 }
                 p.sendMessage(op.eng ? "§cYou are banned and placed in purgatory." : "§cВы забанены и помещены в чистилище.");
-                p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.secTime()));
+                p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.globalInt(Data.BAN_TO) - Timer.secTime()));
                 p.sendMessage(op.eng ? "§cyou can return to the Ostrov." : "§cсможете вернуться на Остров.");
             }
         }
@@ -356,6 +357,7 @@ public class PM {
             return;
         }
         op.preDataSave(p, async);
+        ResourcePacksLst.preDisconnect(p);
         Nms.removePlayerPacketSpy(p);
         BuilderCmd.end(op);
 
@@ -419,7 +421,7 @@ public class PM {
         E_Pass ePass;
         for (Data d : op.dataString.keySet()) {
             ePass = E_Pass.fromStrind(d.name());
-            if (ePass != null && ePass.editable && !op.getDataString(d).isEmpty()) {
+            if (ePass != null && ePass.editable && !op.globalStr(d).isEmpty()) {
                 complete++;
             }
         }
@@ -432,13 +434,13 @@ public class PM {
         for (Data d : op.dataString.keySet()) {
             ePass = E_Pass.fromStrind(d.name());
             if (ePass != null && (!skipUneditable || ePass.editable)) {
-                result.put(ePass, op.getDataString(d));
+                result.put(ePass, op.globalStr(d));
             }
         }
         for (Data d : op.dataInt.keySet()) {
             ePass = E_Pass.fromStrind(d.name());
             if (ePass != null && (!skipUneditable || ePass.editable)) {
-                result.put(ePass, String.valueOf(op.getDataInt(d)));
+                result.put(ePass, String.valueOf(op.globalInt(d)));
             }
         }
         for (Stat st : op.stat.keySet()) {

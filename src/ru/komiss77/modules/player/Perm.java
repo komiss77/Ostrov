@@ -9,8 +9,8 @@ import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import ru.komiss77.Timer;
 import ru.komiss77.*;
+import ru.komiss77.Timer;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
@@ -180,8 +180,10 @@ public class Perm {
 
     private static void fillTyped() {
         final EnumMap<Group.Type, List<Group>> tps = new EnumMap<>(Group.Type.class);
-        for (final Group.Type tp : Group.Type.values()) tps.put(tp, new ArrayList<>());
-        for (final Group gr : groups.values()) tps.get(gr.tp).add(gr);
+        for (final Group gr : groups.values()) {
+            Ostrov.log_ok("Found group " + gr.name + " of type " + gr.tp.name());
+            tps.computeIfAbsent(gr.tp, tp -> new ArrayList<>()).add(gr);
+        }
         for (final Map.Entry<Group.Type, List<Group>> en : tps.entrySet())
             typed.put(en.getKey(), order(en.getValue()));
     }
