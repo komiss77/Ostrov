@@ -104,7 +104,7 @@ public class OsQuery {
           if (future.isSuccess()) {
             Ostrov.log("§bOsQuery §3- соединились с " + OUT_ADRDRES.getAddress().getHostAddress() + ":" + OUT_ADRDRES.getPort());
             //future.channel().writeAndFlush(Unpooled.buffer().writeByte(5)); // Здесь перенести данные в ByteBuf
-            //send(QueryCode.PLAYERS, StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT));
+            send(QueryCode.PLAYERS, StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT));
           } else {
             Ostrov.log_err("OsQuery - не удалось начать соединение с " + OUT_ADRDRES.getAddress() + ":" + OUT_ADRDRES.getPort() + " -> " + future.cause());
             future.cause().printStackTrace(System.err);
@@ -112,7 +112,7 @@ public class OsQuery {
         }
       });
       channel = future.channel();
-    } catch (Exception ex) {
+    } catch (Exception ex) { //не менять бывают разные ошибки
       Ostrov.log_warn("OsQuery init chanel : " + ex.getMessage());
     }
   }
@@ -132,12 +132,12 @@ public class OsQuery {
             (byte) ((secondCounter >> 24) & 0xff), (byte) ((secondCounter >> 16) & 0xff), (byte) ((secondCounter >> 8) & 0xff), (byte) (secondCounter & 0xff)
         };
         channel.writeAndFlush(data);
-        //final String players = StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT);
+        final String players = StringUtil.toString(PM.getOplayersNames(), LocalDB.WORD_SPLIT);
 //Ostrov.log_warn("players= >"+players+"<");
-        //send(QueryCode.PLAYERS, players);
-        if (PM.getOplayersNames().size() != Bukkit.getOnlinePlayers().size()) {
-          Ostrov.log_warn("!!! несоответствие getOplayersNames=" + PM.getOplayersNames().size() + " и getOnlinePlayers=" + Bukkit.getOnlinePlayers().size() + " !!!");
-        }
+        send(QueryCode.PLAYERS, players);
+        //if (PM.getOplayersNames().size() != Bukkit.getOnlinePlayers().size()) {
+        //Ostrov.log_warn("!!! несоответствие getOplayersNames=" + PM.getOplayersNames().size() + " и getOnlinePlayers=" + Bukkit.getOnlinePlayers().size() + " !!!");
+        //}
       } else { //каждую секунду - кратко
         channel.writeAndFlush(hearBeat);
       }
