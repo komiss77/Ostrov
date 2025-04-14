@@ -497,7 +497,7 @@ public class PlayerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onJump(final PlayerJumpEvent e) {
-        if (e.getPlayer().isGliding()) e.getPlayer().setGliding(false);
+        e.getPlayer().setGliding(false);
     }
 
     //------------------------------------------------------------------------
