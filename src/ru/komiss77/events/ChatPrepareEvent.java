@@ -2,6 +2,8 @@ package ru.komiss77.events;
 
 import java.util.List;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
@@ -10,6 +12,7 @@ import ru.komiss77.enums.Stat;
 import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 
 
@@ -21,6 +24,7 @@ public class ChatPrepareEvent extends PlayerEvent {
     private String topData;
     private String proxyInfo;
     private String profileTip;
+    private Component nameInfo; //инфо, которое увидят получатели
     private Component viewerGameInfo; //инфо, которое увидят получатели
     private Component senderGameInfo; //инфо, которое увидит отправитель (можно подставить другие кликЭвенты, например, создать остров а не пригласить
     private boolean sendProxy = true, showLocal = true, showSelf = true;
@@ -86,6 +90,9 @@ public class ChatPrepareEvent extends PlayerEvent {
             }
         }
         this.profileTip = sb.toString();
+        this.nameInfo = TCUtil.form(ChatLst.NIK_COLOR + senderOp.nik)
+            .hoverEvent(HoverEvent.showText(TCUtil.form(profileTip)))
+            .clickEvent(ClickEvent.suggestCommand("/msg " + senderOp.nik + " "));
     }
 
     public Oplayer getOplayer() {
@@ -114,6 +121,14 @@ public class ChatPrepareEvent extends PlayerEvent {
 
     public void profileTip(final String profileTip) {
         this.profileTip = profileTip;
+    }
+
+    public Component nameInfo() {
+        return nameInfo;
+    }
+
+    public void nameInfo(final Component nameInfo) {
+        this.nameInfo = nameInfo;
     }
 
     public Component getViewerGameInfo() {

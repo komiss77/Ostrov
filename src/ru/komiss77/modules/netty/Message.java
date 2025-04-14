@@ -258,13 +258,7 @@ public class Message {
                 .append(Component.space().style(Style.empty()));
         }
 
-        final String name = has(Part.SENDER)
-            ? data(Part.SENDER) : (eng ? "Unknown" : "Нечто");
-        mb.append(TCUtil.form(ChatLst.NIK_COLOR + name)
-                .hoverEvent(has(Part.PROFILE)
-                    ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
-                .clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
-            .append(Component.space().style(Style.empty()));
+        mb.append(ce.nameInfo()).append(Component.space().style(Style.empty()));
 
         if (has(Part.SUFFIX)) {
             mb.append(TCUtil.form(data(Part.SUFFIX))
@@ -276,7 +270,7 @@ public class Message {
         mb.append(Component.text(ARROW + " ", MSG_COLOR));
 
         if (has(Part.MESSAGE)) {
-            mb.append(format(data(Part.MESSAGE), name, eng)
+            mb.append(format(data(Part.MESSAGE), ce.getOplayer().nik, eng)
                 .colorIfAbsent(MSG_COLOR));
         }
         return mb.build();

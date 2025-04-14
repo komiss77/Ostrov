@@ -3,6 +3,7 @@ package ru.komiss77.listener;
 import java.lang.ref.WeakReference;
 import com.destroystokyo.paper.ParticleBuilder;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Fireworks;
@@ -420,7 +421,7 @@ public class PlayerLst implements Listener {
     public static final double POP_MUL = 0.4d;
     public static final double ANGLE = 20d;
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void test(final PlayerElytraBoostEvent e) {
+    public void onBoost(final PlayerElytraBoostEvent e) {
         final Firework fw = e.getFirework();
         final FireworkMeta fm = fw.getFireworkMeta();
         final int length = fw.getTicksToDetonate();
@@ -444,7 +445,7 @@ public class PlayerLst implements Listener {
 
                 final Location loc = pl.getEyeLocation().add(dif);
                 final Vector dir = loc.getDirection();
-                loc.add(dir); loc.add(dir);
+                loc.add(dir).add(dir);
 
                 if (!pl.isGliding() || Nms.fastType(pl.getWorld(), BVec.of(loc)).hasCollision()) {
                     if (es != 0) {
@@ -480,16 +481,23 @@ public class PlayerLst implements Listener {
         final ItemStack hnd = inv.getItemInMainHand();
         final Fireworks fdh = hnd.getData(DataComponentTypes.FIREWORKS);
         if (fdh != null && fdh.effects().size() == size) {
-            inv.setItemInMainHand(hnd.subtract());
+            if (p.getGameMode() != GameMode.CREATIVE)
+                inv.setItemInMainHand(hnd.subtract());
             return true;
         }
         final ItemStack ofh = inv.getItemInOffHand();
         final Fireworks fdo = hnd.getData(DataComponentTypes.FIREWORKS);
         if (fdo != null && fdo.effects().size() == size) {
-            inv.setItemInOffHand(ofh.subtract());
+            if (p.getGameMode() != GameMode.CREATIVE)
+                inv.setItemInOffHand(ofh.subtract());
             return true;
         }
         return false;
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onJump(final PlayerJumpEvent e) {
+        if (e.getPlayer().isGliding()) e.getPlayer().setGliding(false);
     }
 
     //------------------------------------------------------------------------
@@ -566,7 +574,7 @@ public class PlayerLst implements Listener {
                 //EntityVex
                 //утопление
                 //голод
-                case FALL, THORNS, LIGHTNING, DRAGON_BREATH,
+                case FALL, THORNS, LIGHTNING,
                      CONTACT, FIRE, FIRE_TICK, HOT_FLOOR, CRAMMING,
                      DROWNING, STARVATION, LAVA:
                 default:

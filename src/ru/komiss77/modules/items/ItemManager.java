@@ -85,27 +85,6 @@ public class ItemManager implements Initiable, Listener {
         });
     }
 
-    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBreak(final BlockBreakEvent e) {
-        process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onBreak(ess, e);}
-            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onBreak(es, e);}
-        });
-        if (!SpecialItem.exist) return;
-        if (!BlockType.BARRIER.equals(e.getBlock().getType().asBlockType())) return;
-        final ItemStack hnd = e.getPlayer().getInventory().getItemInOffHand();
-        final SpecialItem spi = SpecialItem.get(hnd);
-        if (spi != null) spi.saveAll(hnd);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlace(final BlockPlaceEvent e) {
-        process(e.getPlayer(), new Processor() {
-            public void onMats(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onPlace(ess, e);}
-            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onPlace(es, e);}
-        });
-    }*/
-
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
         if (e.getEntity().getShooter() instanceof final LivingEntity le) {
@@ -115,51 +94,6 @@ public class ItemManager implements Initiable, Listener {
             });
         }
     }
-
-    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerJumpEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerToggleFlightEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerPickupExperienceEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerChangedMainHandEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerStopUsingItemEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerRiptideEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerItemConsumeEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onExtra(final PlayerElytraBoostEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBreak(final PlayerInteractEntityEvent e) {
-        process(e.getPlayer(), extraProc(e));
-    }*/
 
     protected static void process(final Entity ent, final Processor pc) {
         if (ent instanceof final LivingEntity le) {
