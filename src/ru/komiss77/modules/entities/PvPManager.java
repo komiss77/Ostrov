@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.*;
@@ -284,18 +285,11 @@ public class PvPManager implements Initiable {
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
                             final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                            if (wpn != null) {
-                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                                    inv.setItemInMainHand(hand);
-                                }
-                                if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                                    inv.setItemInMainHand(hand);
-                                }
+                            if (wpn != null && wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                    .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                    .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                inv.setItemInMainHand(hand);
                             }
 
                             Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
@@ -369,18 +363,11 @@ public class PvPManager implements Initiable {
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
                             final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                            if (wpn != null) {
-                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                                    inv.setItemInMainHand(hand);
-                                }
-                                if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                                    inv.setItemInMainHand(hand);
-                                }
+                            if (wpn != null && wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                    .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                    .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                inv.setItemInMainHand(hand);
                             }
 
                             final ItemType handType = hand.getType().asItemType();
@@ -494,18 +481,11 @@ public class PvPManager implements Initiable {
                             final PlayerInventory inv = dmgrPl.getInventory();
                             final ItemStack hand = inv.getItemInMainHand();
                             final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
-                            if (wpn != null) {
-                                if (wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
-                                    hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
-                                        .itemDamagePerAttack(wpn.itemDamagePerAttack())
-                                        .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
-                                    inv.setItemInMainHand(hand);
-                                }
-                                if (CAN_BLOCK.contains(hand.getType().asItemType())
-                                    && !hand.hasData(DataComponentTypes.BLOCKS_ATTACKS)) {
-                                    hand.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
-                                    inv.setItemInMainHand(hand);
-                                }
+                            if (wpn != null && wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                                hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                    .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                    .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                                inv.setItemInMainHand(hand);
                             }
 
                             Ostrov.sync(() -> EntityUtil.indicate(target.getEyeLocation(), (e.isCritical() ? "<red>✘" : "<gold>")
@@ -559,13 +539,6 @@ public class PvPManager implements Initiable {
                 }
 
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public static void onProj(final ProjectileHitEvent e) {
-                    //попадание было в живчика
-                    if (e.getHitEntity() instanceof final LivingEntity target)
-                        target.setNoDamageTicks(0);
-                }
-
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
                 public static void onPot(final PotionSplashEvent e) {
                     final ThrownPotion pot = e.getPotion();
                     if (e.getAffectedEntities().isEmpty()
@@ -579,11 +552,6 @@ public class PvPManager implements Initiable {
                                 e.setIntensity(target, 0d);
                         });
                     });
-                }
-
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public void onJoin(final PlayerJoinEvent e) {
-                    e.getPlayer().setShieldBlockingDelay(BLCK_CLD);
                 }
 
             };
@@ -761,7 +729,7 @@ public class PvPManager implements Initiable {
                         case Player pl:
                             if (AXES.contains(pl.getInventory()
                                 .getItemInMainHand().getType().asItemType())) break;
-                            if (!ItemUtil.isBlank(pl.getInventory()
+                            if (ItemUtil.isBlank(pl.getInventory()
                                 .getItemInOffHand(), false)) break;
                             if (pl.getFallDistance() == 0 && !pl.isSprinting()) break;
                             e.setCooldown(0); e.setCancelled(true);
@@ -771,11 +739,42 @@ public class PvPManager implements Initiable {
                             if (eq == null) break;
                             if (AXES.contains(eq.getItemInMainHand()
                                 .getType().asItemType())) break;
-                            if (!ItemUtil.isBlank(eq.getItemInOffHand(), false)) break;
+                            if (ItemUtil.isBlank(eq.getItemInOffHand(), false)) break;
                             e.setCooldown(0); e.setCancelled(true);
                             break;
                         default: break;
                     }
+                }
+
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+                public static void onClick(final PlayerInteractEvent e) {
+                    if (!e.getAction().isRightClick()) return;
+                    final ItemStack it = e.getItem();
+                    final EquipmentSlot hand = e.getHand();
+                    if (it == null || hand == null
+                        || !CAN_BLOCK.contains(it.getType().asItemType())) return;
+                    final PlayerInventory inv = e.getPlayer().getInventory();
+                    if (ItemUtil.is(inv.getItemInOffHand(), ItemType.SHIELD)) {
+                        if (!it.hasData(DataComponentTypes.BLOCKS_ATTACKS)) return;
+                        it.resetData(DataComponentTypes.BLOCKS_ATTACKS);
+                        inv.setItem(hand, it);
+                        return;
+                    }
+                    if (it.hasData(DataComponentTypes.BLOCKS_ATTACKS)) return;
+                    it.setData(DataComponentTypes.BLOCKS_ATTACKS, MELEE_BLOCK);
+                    inv.setItem(hand, it);
+                }
+
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+                public static void onProj(final ProjectileHitEvent e) {
+                    //попадание было в живчика
+                    if (e.getHitEntity() instanceof final LivingEntity target)
+                        target.setNoDamageTicks(0);
+                }
+
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+                public void onJoin(final PlayerJoinEvent e) {
+                    e.getPlayer().setShieldBlockingDelay(BLCK_CLD);
                 }
 
                 @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)

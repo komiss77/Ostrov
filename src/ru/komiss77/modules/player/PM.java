@@ -211,7 +211,6 @@ public class PM {
                     op.dailyStat.put(e_stat, v);
                 }
             }
-
         }
         op.eng = op.globalInt(Data.LANG) == 1;
         if (op.dataString.containsKey(Data.FRIENDS) && !op.dataString.get(Data.FRIENDS).isEmpty()) { //друг:сервер, список

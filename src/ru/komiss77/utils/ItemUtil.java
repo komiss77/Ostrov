@@ -947,8 +947,8 @@ public class ItemUtil {
             public ItemArmorTrim parse(final String str) {
                 final String[] parts = seps[1].split(str);
                 if (!ClassUtil.check(parts, 2, true)) return null;
-                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(OStrap.get(Key.key(parts[parts.length - 1]), TrimMaterial.IRON),
-                    OStrap.get(Key.key(parts[parts.length - 2]), TrimPattern.COAST))).build();
+                return ItemArmorTrim.itemArmorTrim(new ArmorTrim(OStrap.get(Key.key(parts[parts.length - 2]), TrimMaterial.IRON),
+                    OStrap.get(Key.key(parts[parts.length - 1]), TrimPattern.COAST))).build();
             }
         });
         dataParser.put(DataComponentTypes.MAX_DAMAGE, new DataParser.Parser<Integer>() {
