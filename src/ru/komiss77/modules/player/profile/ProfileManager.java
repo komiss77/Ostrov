@@ -910,8 +910,8 @@ public class ProfileManager {
         final ItemLore ilr = is.getData(DataComponentTypes.LORE);
         final List<Component> cmp = ilr == null ?
             new ArrayList<>() : new ArrayList<>(ilr.lines());
-        if (line < cmp.size()) cmp.add(TCUtil.form(value));
-        else cmp.set(line, TCUtil.form(value));
+        if (line < cmp.size()) cmp.set(line, TCUtil.form(value));
+        else cmp.add(TCUtil.form(value));
         is.setData(DataComponentTypes.LORE, ItemLore.lore(cmp));
         current.setItem(slot, is);
     }
