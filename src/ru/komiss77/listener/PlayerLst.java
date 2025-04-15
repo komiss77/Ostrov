@@ -3,7 +3,6 @@ package ru.komiss77.listener;
 import java.lang.ref.WeakReference;
 import com.destroystokyo.paper.ParticleBuilder;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Fireworks;
@@ -18,10 +17,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandException;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,6 +25,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -495,9 +492,13 @@ public class PlayerLst implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onJump(final PlayerJumpEvent e) {
-        e.getPlayer().setGliding(false);
+    private static final double THRESH = 0.1d;
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onGlide(final EntityToggleGlideEvent e) {
+        final Entity ent = e.getEntity();
+        final Vector vec = ent.getVelocity();
+        if (vec.getX() * vec.getX() + vec.getZ() * vec.getZ() < THRESH) return;
+        ent.setVelocity(vec.multiply(THRESH));
     }
 
     //------------------------------------------------------------------------

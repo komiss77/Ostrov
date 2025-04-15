@@ -320,18 +320,10 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void sync(final Runnable runnable) { //use sync ( ()->{} ,1 );
-        if (runnable == null || SHUT_DOWN)
-            return; //SHUT_DOWN для фикса IllegalPluginAccessException: Plugin attempted to register task while disabled
-        if (Bukkit.isPrimaryThread()) {
-            runnable.run();
-        } else {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    runnable.run();
-                }
-            }.runTask(instance);
-        }
+        if (runnable == null || SHUT_DOWN) return;
+        //SHUT_DOWN для фикса IllegalPluginAccessException: Plugin attempted to register task while disabled
+        if (Bukkit.isPrimaryThread()) runnable.run();
+        else Bukkit.getScheduler().runTask(instance, runnable);
     }
 
 

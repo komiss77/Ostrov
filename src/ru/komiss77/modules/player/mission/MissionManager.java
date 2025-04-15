@@ -458,7 +458,7 @@ public class MissionManager {
                                     .builder()
                                     .id(op.nik + op.menu.section.name())
                                     .provider(new ProfileManageMenu(buttonsCurrent, buttonsDone))
-                                    .size(6, 9)
+                                    .size(3, 9)
                                     .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
                                     .build()
                                     .open(op.getPlayer());
