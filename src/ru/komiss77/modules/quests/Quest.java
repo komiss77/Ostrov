@@ -19,7 +19,6 @@ import ru.komiss77.modules.quests.progs.VarProg;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.TCUtil;
 
 public class Quest {
 
@@ -62,8 +61,8 @@ public class Quest {
         this.icon = icon;
         this.amount = amount;
         this.parent = parent == null ? this : parent;
-        this.displayName = TCUtil.toLegacy(displayName);
-        this.description = TCUtil.toLegacy(description);
+        this.displayName = displayName;
+        this.description = description;
         this.backGround = backGround;
         this.vision = vision;
         this.frame = frame;
@@ -93,7 +92,7 @@ public class Quest {
 
     //для квестов где ammount>0
     public int setProg(final Player p, final Oplayer op, final IProgress prg, final boolean silent) {
-        if (QuestManager.justGame(op)) return 0;
+        if (op.isGuest) return 0;
         QuestManager.iAdvance.sendProgress(p, this, prg.getProg(), false);
         if (prg.isDone()) QuestManager.iAdvance.sendComplete(p, this, silent);
         return prg.getProg();
@@ -101,7 +100,7 @@ public class Quest {
 
     //для квестов где ammount>0
     public int updProg(final Player p, final Oplayer op) {
-        if (QuestManager.justGame(op)) return 0;
+        if (op.isGuest) return 0;
         final IProgress prg = op.quests.get(this);
         if (prg != null) return setProg(p, op, prg, true);
         QuestManager.iAdvance.sendProgress(p, this, 0, true);
@@ -114,7 +113,7 @@ public class Quest {
     //ну, естественно он будет завершен, если был получен и не был завершен, что проверяется выше.
     //checkProgress нужен для отладки из меню квестов (чтобы не засылало в updateProgress и не меняло lp.getProgress)
     public boolean complete(final Player p, final Oplayer op, final boolean silent) {
-        if (QuestManager.justGame(op)) return false;
+        if (op.isGuest) return false;
 
         if (!Bukkit.isPrimaryThread()) {
             Ostrov.log_warn("Асинхронный вызов tryCompleteQuest :" + toString() + ", " + p.getName());
@@ -137,7 +136,7 @@ public class Quest {
     }
 
     public boolean addProg(final Player p, final Oplayer op) {
-        if (QuestManager.justGame(op)) return false;
+        if (op.isGuest) return false;
         if (addProg(p, op, 1)) return true;
         if (needs == null) return false;
         final IProgress prg = op.quests.get(this);
@@ -151,7 +150,7 @@ public class Quest {
     }
 
     public boolean addProg(final Player p, final Oplayer op, final int i) {
-        if (QuestManager.justGame(op)) return false;
+        if (op.isGuest) return false;
         final IProgress prg = op.quests.get(this);
         if (prg == null) {
             final IProgress np = createPrg(i);
@@ -167,7 +166,7 @@ public class Quest {
     }
 
     public boolean addProg(final Player p, final Oplayer op, final Comparable<?> obj) {
-        if (QuestManager.justGame(op)) return false;
+        if (op.isGuest) return false;
         final IProgress prg = op.quests.get(this);
         if (prg == null) {
             final IProgress np = createPrg(0);
@@ -187,14 +186,14 @@ public class Quest {
     }
 
     public int getProg(final Oplayer op) {
-        if (QuestManager.justGame(op)) return 0;
+        if (op.isGuest) return 0;
         final IProgress prg = op.quests.get(this);
         if (prg == null) return 0;
         return prg.getProg();
     }
 
     public boolean isComplete(final Oplayer op) {
-        if (QuestManager.justGame(op)) return false;
+        if (op.isGuest) return false;
         final IProgress prg = op.quests.get(this);
         return prg != null && prg.isDone();
     }

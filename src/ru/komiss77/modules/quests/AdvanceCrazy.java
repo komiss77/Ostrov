@@ -110,8 +110,8 @@ public class AdvanceCrazy implements IAdvance, Listener {
         final Advancement adv = adm.get(qst);
         if (adv != null) return adv;
 
-        final AdvancementDisplay dis = new AdvancementDisplay(qst.icon, qst.displayName,
-            qst.description, getFrame(qst), qst.backGround, getVision(qst));
+        final AdvancementDisplay dis = new AdvancementDisplay(qst.icon, TCUtil.form(qst.displayName),
+            TCUtil.form(qst.description), getFrame(qst), qst.backGround, getVision(qst));
         final Advancement ad;
         if (qst.parent.equals(qst)) {
             dis.setCoordinates(qst.dx, qst.dy);
@@ -221,11 +221,11 @@ public class AdvanceCrazy implements IAdvance, Listener {
 
 
     public void sendToast(final Player p, final Quest q) {
-        sendToast(p, q.icon, "§aНовый квест: " + q.displayName, q.frame);
+        sendToast(p, q.icon, "<green>Новый квест: " + q.displayName, q.frame);
     }
 
     public void sendToast(final Player p, final ItemStack it, final String msg, final QuestFrame frm) {
-        new ToastNotification(it, msg, switch (frm) {
+        new ToastNotification(it, TCUtil.form(msg), switch (frm) {
             case CHALLENGE -> AdvancementFrame.CHALLENGE;
             case GOAL -> AdvancementFrame.GOAL;
             default -> AdvancementFrame.TASK;
@@ -261,7 +261,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
         if (ad != null) {
             mgr.setCriteriaProgress(p, ad, progress);
             if (!silent) {
-                ScreenUtil.sendBossbarDirect(p, "§сПрогресс : §f" + q.displayName, 4, q.getBBColor(),
+                ScreenUtil.sendBossbarDirect(p, "§сПрогресс: §f" + q.displayName, 4, q.getBBColor(),
                     BossBar.Overlay.PROGRESS, q.amount == 0 ? 1f : (float) progress / q.amount);
             }
         }
