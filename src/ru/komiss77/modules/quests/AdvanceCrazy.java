@@ -240,6 +240,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     }
 
     public void sendComplete(final Player p, final Quest q, final boolean silent) {
+        Bukkit.getConsoleSender().sendMessage("5");
         final Advancement ad = adm.get(q);
         if (ad != null && new QuestCompleteEvent(p, q).callEvent()) {
             mgr.grantAdvancement(p, ad);

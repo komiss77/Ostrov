@@ -4,17 +4,12 @@ package ru.komiss77.listener;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
-import ru.komiss77.utils.MoveUtil;
-import ru.komiss77.version.Nms;
 
 
 public class TestLst implements Listener {
@@ -39,7 +34,27 @@ public class TestLst implements Listener {
         return Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]);
     }*/
 
-    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    /*private static final Quest qs = new Quest('a', ItemType.ACACIA_BOAT, 0, null, null, "<dark_green>First Advancement",
+        "<gradient:cardinal:apple>Nice description", "block/flowering_azalea_leaves", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
+
+    private static final Quest qs1 = new Quest('b', ItemType.ACACIA_DOOR, 2, null, qs, "<dark_green>Second Advancement",
+        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.HIDDEN, Quest.QuestFrame.CHALLENGE, 0);
+
+    private static final Quest qs2 = new Quest('c', ItemType.ACACIA_FENCE_GATE, 0, null, qs, "<dark_green>3rd Advancement",
+        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.PARENT, Quest.QuestFrame.TASK, 0);
+
+    private static final Quest qs3 = new Quest('d', ItemType.ACACIA_PRESSURE_PLATE, 20, null, qs2, "<dark_green>4th Advancement",
+        "<gradient:cardinal:apple>Nice description", "block/dirt", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
+
+
+
+    private static final Quest qs4 = new Quest('e', ItemType.ACACIA_SLAB, 0, null, null, "<dark_green>5th Advancement",
+        "<gradient:cardinal:apple>Nice description", "block/bedrock", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
+
+    private static final Quest qs5 = new Quest('f', ItemType.ACACIA_LEAVES, 2, null, qs4, "<dark_green>6th Advancement",
+        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.ALWAYS, Quest.QuestFrame.CHALLENGE, 0);*/
+
+//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.canBeBuilder(p)) return;
@@ -50,7 +65,6 @@ public class TestLst implements Listener {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
 
-
             //final Player semen = Bukkit.getPlayerExact("semen");
             //if (semen!=null) {
             //     p.sendMessage("canSee?"+canSee(p, semen));
@@ -59,9 +73,14 @@ public class TestLst implements Listener {
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
                 if (p.isSneaking()) {
+//                    QuestManager.loadQuests();
                     //MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
                     //p.sendMessage("safeTP down");
                 } else {
+                    /*qs.complete(p, PM.getOplayer(p), false);
+                    qs1.addProg(p, PM.getOplayer(p), 5);
+                    qs3.addProg(p, PM.getOplayer(p), 5);
+                    qs5.addProg(p, PM.getOplayer(p), 5);*/
                     //MoveUtil.safeTP(p, p.getLocation().clone().add(0, 200, 0));
                     //p.sendMessage("safeTP up");
                 }
