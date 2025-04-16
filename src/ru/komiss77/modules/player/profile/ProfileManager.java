@@ -461,11 +461,11 @@ public class ProfileManager {
                 stmt = RemoteDB.getConnection().createStatement();
 
                 rs = stmt.executeQuery("SELECT * FROM " + Table.HISTORY.table_name + " WHERE `target` = '"
-                    + p.getName() + "'  ORDER BY `data` DESC LIMIT " + page * 36 + ",37");
+                    + p.getName() + "'  ORDER BY `data` DESC LIMIT " + page * 9 + ",37");
 
                 int count = 0;
                 while (rs.next()) {
-                    if (count == 36) {
+                    if (count == 9) {
                         hasNext = true;
                         break;
                     } else {
