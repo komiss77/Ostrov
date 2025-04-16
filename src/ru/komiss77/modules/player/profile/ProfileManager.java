@@ -887,7 +887,7 @@ public class ProfileManager {
             case ПРОФИЛЬ -> {
                 if (profileMode == ProfileMode.Главное) {
                     //на иконке с часиками
-                    setLine(0, 4, (op.eng ? "<mithril>Play time today: §a" : "<mithril>Сегодня наиграно: §a")
+                    setLine(0, 6, (op.eng ? "<mithril>Play time today: §a" : "<mithril>Сегодня наиграно: §a")
                         + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
                 }
             }
