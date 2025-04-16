@@ -4,10 +4,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.World;
 
 public class StringUtil {
@@ -57,9 +58,7 @@ public class StringUtil {
             this.reject = reject;
             this.len = 1;
             this.chars = new String[chars.length];
-            for (int i = 0; i != chars.length; i++) {
-                this.chars[i] = String.valueOf(chars[i]);
-            }
+            for (int i = 0; i != chars.length; i++) this.chars[i] = String.valueOf(chars[i]);
             pat = Pattern.compile("[" + new String(chars) + "]");
         }
 
@@ -101,9 +100,7 @@ public class StringUtil {
             if (seq.length == 0) return "";
             final StringBuilder sb = new StringBuilder();
             final String spl = get();
-            for (final String cs : seq) {
-                sb.append(spl).append(cs.replace(spl, reject));
-            }
+            for (final String cs : seq) sb.append(spl).append(cs.replace(spl, reject));
             return sb.substring(spl.length());
         }
 
@@ -111,9 +108,7 @@ public class StringUtil {
             if (seq.size() == 0) return "";
             final StringBuilder sb = new StringBuilder();
             final String spl = get();
-            for (final String cs : seq) {
-                sb.append(spl).append(cs.replace(spl, reject));
-            }
+            for (final String cs : seq) sb.append(spl).append(cs.replace(spl, reject));
             return sb.substring(spl.length());
         }
 
@@ -130,7 +125,59 @@ public class StringUtil {
         if (msg.length() < 2) return new String[]{msg};
         final char split = '\n';
         final String line = split + newLine;
-        return WordUtils.wrap(msg, length, line, false).substring(1).split(line);
+        return crap(msg, length, line, " ").substring(1).split(line);
+    }
+
+    public static String crap(final String str, int length, String newLine, String split) {
+        if (str == null) return null;
+        if (newLine == null) newLine = System.lineSeparator();
+        if (length < 1) length = 1;
+        if (StringUtils.isBlank(split)) split = " ";
+        final Pattern patternToWrapOn = Pattern.compile(split);
+        final int inputLineLength = str.length();
+        int offset = 0;
+        final StringBuilder wrappedLine = new StringBuilder(inputLineLength + 32);
+
+        Matcher matcher;
+        while (offset < inputLineLength) {
+            int spaceToWrapAt = -1;
+            matcher = patternToWrapOn.matcher(str.substring(offset,
+                Math.min((int) Math.min(Integer.MAX_VALUE, offset + length + 1L), inputLineLength)));
+            if (matcher.find()) {
+                if (matcher.start() == 0) {
+                    offset += matcher.end();
+                    continue;
+                }
+                spaceToWrapAt = matcher.start() + offset;
+            }
+
+            // only last line without leading spaces is left
+            if (inputLineLength - offset <= length) break;
+            while (matcher.find()) spaceToWrapAt = matcher.start() + offset;
+            if (spaceToWrapAt >= offset) {
+                // normal case
+                wrappedLine.append(str, offset, spaceToWrapAt);
+                wrappedLine.append(newLine);
+                offset = spaceToWrapAt + 1;
+                continue;
+            }
+            // really long word or URL
+            // do not wrap really long word, just extend beyond limit
+            matcher = patternToWrapOn.matcher(str.substring(offset + length));
+            if (matcher.find()) spaceToWrapAt = matcher.start() + offset + length;
+            if (spaceToWrapAt < 0) {
+                wrappedLine.append(str, offset, str.length());
+                offset = inputLineLength;
+                continue;
+            }
+            wrappedLine.append(str, offset, spaceToWrapAt);
+            wrappedLine.append(newLine);
+            offset = spaceToWrapAt + 1;
+        }
+
+        // Whatever is left in line is short enough to just pass through
+        wrappedLine.append(str, offset, str.length());
+        return wrappedLine.toString();
     }
 
     public static boolean checkString(String message, final boolean allowNumbers, final boolean allowRussian) {
@@ -138,15 +185,10 @@ public class StringUtil {
     }
 
     public static boolean checkString(String message, final boolean allowSpace, final boolean allowNumbers, final boolean allowRussian) {
-        if (allowNumbers && allowRussian) {
-            message = message.replaceAll(PATTERN_ENG_NUM_RUS, "");
-        } else if (allowNumbers) {
-            message = message.replaceAll(PATTERN_ENG_NUM, "");
-        } else if (allowRussian) {
-            message = message.replaceAll(PATTERN_ENG_RUS, "");
-        } else {
-            message = message.replaceAll(PATTERN_ENG, "");
-        }
+        if (allowNumbers && allowRussian) message = message.replaceAll(PATTERN_ENG_NUM_RUS, "");
+        else if (allowNumbers) message = message.replaceAll(PATTERN_ENG_NUM, "");
+        else if (allowRussian) message = message.replaceAll(PATTERN_ENG_RUS, "");
+        else message = message.replaceAll(PATTERN_ENG, "");
         return allowSpace ? message.isBlank() : message.isEmpty();
     }
 
@@ -163,17 +205,17 @@ public class StringUtil {
         });
         return sb.toString();*/
         return StreamSupport.stream(array.spliterator(), true)
-                .map(Object::toString)
-                .reduce((t, u) -> t + "," + u)
-                .orElse("");
+            .map(Object::toString)
+            .reduce((t, u) -> t + "," + u)
+            .orElse("");
     }
 
     public static <E> String toString(final Collection<E> array, final String separator) {
         if (array == null || array.isEmpty()) return "";
         return array.stream()
-                .map(E::toString)
+            .map(E::toString)
             .reduce((t, u) -> t + separator + u)
-                .orElse("");
+            .orElse("");
     }
 
     public static String enumSetToString(final Set<?> enumSet) {
@@ -186,7 +228,7 @@ public class StringUtil {
     public static String nrmlzStr(final String s) {
         final char[] ss = s.toLowerCase().toCharArray();
         ss[0] = Character.toUpperCase(ss[0]);
-        for (int i = ss.length - 1; i != 0; i--) {
+        for (int i = ss.length - 1; i != 0; i--)
             switch (ss[i]) {
                 case '_':
                     ss[i] = ' ';
@@ -196,7 +238,6 @@ public class StringUtil {
                 default:
                     break;
             }
-        }
         return String.valueOf(ss);
     }
 
@@ -209,11 +250,9 @@ public class StringUtil {
         int pos = p10 / 40;
         if (pos < 2) pos = 2;
         else if (pos > 26) pos = 26;
-        if (withPercent) {
+        if (withPercent)
             return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").append("§f").append(percent1d).append("%").toString();
-        } else {
-            return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
-        }
+        else return new StringBuilder("§a||||||||||||||||||||||||| ").insert(pos, "§8").toString();
     }
 
     private static final Set<String> NA_SET = Set.of(NA, "na", "null", "NULL", "n/a", "N/A", "none", "NONE");
@@ -226,29 +265,29 @@ public class StringUtil {
         return LOBBY_SET.contains(w.getName());
     }
 
-  public static String sha256(final String s) {
-    try {
-      final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      final byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
-      final StringBuilder hexString = new StringBuilder();
-      for (int i = 0; i < hash.length; i++) {
-        final String hex = Integer.toHexString(0xff & hash[i]);
-        if (hex.length() == 1)
-          hexString.append('0');
-        hexString.append(hex);
-      }
-      return hexString.toString();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
+    public static String sha256(final String s) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
+            final StringBuilder hexString = new StringBuilder();
+            for (int i = 0; i < hash.length; i++) {
+                final String hex = Integer.toHexString(0xff & hash[i]);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        //try {
+        //    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        //    byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
+        //    return new String(hash);//Base64.getEncoder().encodeToString(hash);
+        //} catch (NoSuchAlgorithmException ex) {
+        //    return "";
+        //}
     }
-    //try {
-    //    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-    //    byte[] hash = digest.digest(s.getBytes(StandardCharsets.UTF_8));
-    //    return new String(hash);//Base64.getEncoder().encodeToString(hash);
-    //} catch (NoSuchAlgorithmException ex) {
-    //    return "";
-    //}
-  }
     /*public static String multiReplace(final String str, final Map<String, String> places) {
         final int len = str.length(), ksl = len >> 8;
         final IntHashMap<List<String>> keys = new IntHashMap<>();
