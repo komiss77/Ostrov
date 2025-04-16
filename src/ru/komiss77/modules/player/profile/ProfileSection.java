@@ -95,16 +95,16 @@ public class ProfileSection implements InventoryProvider {
             .lore(Pandora.getInfo(op))
             .build(), e -> pm.openAkkauntsDB(p)));
 
-        final int from = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
+        final int from = MissionManager.getMin(op) - op.globalInt(Data.RIL);
         content.set(0, 1, ClickableItem.of(new ItemBuilder(ItemType.RAW_GOLD)
             .name(op.eng ? "§6Finances" : "§6Финансы")
             .lore(op.eng ? "§fAt your disposal:" : "§fВ твоем распоряжении:")
             .lore("")
-            .lore((op.eng ? "§2Loni: <green>" : "§2Лони: <green>") + op.getDataInt(Data.LONI) + Ostrov.L)
+            .lore((op.eng ? "§2Loni: <green>" : "§2Лони: <green>") + op.globalInt(Data.LONI) + Ostrov.L)
             .lore(op.eng ? "§aLoni <mithril>- the server's in-game currency." : "§aЛони <mithril>- внутриигровая валюта на проекте.")
             .lore(op.eng ? "<mithril>It's used for trading, upgrades, etc." : "<mithril>Используются для торговли, прокачки, и т.д.")
             .lore("")
-            .lore((op.eng ? "<amber>Ril: <yellow>" : "<amber>Рил: <yellow>") + op.getDataInt(Data.RIL) + Ostrov.R)
+            .lore((op.eng ? "<amber>Ril: <yellow>" : "<amber>Рил: <yellow>") + op.globalInt(Data.RIL) + Ostrov.R)
             .lore(op.eng ? "§eRil <mithril>- a real money equivalent. Use it to" : "§eРил <mithril>- счёт, приравненный к рублёвому. Используй его")
             .lore(op.eng ? "<mithril>buy ranks, or withdraw to your phone / card." : "<mithril>для покупки привилегий, или вывода на телефон / карту.")
             .lore(op.eng ? "<gold>Complete missions to earn §eRil" : "<gold>Их можно заработать, выполняя миссии!")
@@ -117,16 +117,16 @@ public class ProfileSection implements InventoryProvider {
             .lore("<gray>" + TCUtil.bind(TCUtil.Input.DROP) + " - "
                 + (op.eng ? "§fExchange §eRil §7for §aLoni" : "§fПоменять §eРил §fна §aЛони"))
             .lore("§81" + Ostrov.R + " -> 50" + Ostrov.L).build(), e -> {
-            final int from_in = MissionManager.getMin(op) - op.getDataInt(Data.RIL);
+            final int from_in = MissionManager.getMin(op) - op.globalInt(Data.RIL);
             switch (e.getClick()) {
                 case LEFT:
                     p.closeInventory();
                     ApiOstrov.executeBungeeCmd(p, "money add");
                     break;
                 case RIGHT:
-                    if (op.getDataInt(Data.RIL) >= MissionManager.getMin(op)) {
+                    if (op.globalInt(Data.RIL) >= MissionManager.getMin(op)) {
                         SmartInventory.builder().id(op.nik + "Payout").type(InventoryType.HOPPER)
-                            .provider(new ProfileWithdrawMenu(op.getDataInt(Data.RIL)))
+                            .provider(new ProfileWithdrawMenu(op.globalInt(Data.RIL)))
                             .title("<gold><b>Заявка на вывод <yellow>Рил").build().open(p);
                     } else {
                         PM.soundDeny(p);

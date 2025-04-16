@@ -843,16 +843,10 @@ public class ProfileManager {
 //if (1==1) return;
 //System.out.println("tick hasContent?"+im.hasContent(p));
         // if (current!=null) { //if (PM.im.hasContent(p)) {
-        if (current == null) {
-            return; //нет открытого раздела - ничего не делаем
-        }        //нет открытого раздела - ничего не делаем
-
-        //подставить игровое время на иконке профиля, если меньше недели
-        if (op.getStat(Stat.PLAY_TIME) < 604800) {
-            setLine(p, Section.ПРОФИЛЬ.slot, 1, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
-        }
+        //нет открытого раздела - ничего не делаем
+        if (current == null) return; //нет открытого раздела - ничего не делаем
         //подставить наиграно за сегодня
-        setLine(p, Section.ПРОФИЛЬ.slot, 2, (op.eng ? "§fPlayTime today : §e" : "§fНаиграно за сегодня : §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
+        setLine(Section.ПРОФИЛЬ.slot, 4, (op.eng ? "§6Play time today: §e" : "§6Сегодня Наиграно: §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
         //поставить время до сброса дневной статы на иконке статы
 //        setLine(p, Section.СТАТИСТИКА.slot, 3, "§3" + TimeUtil.secondToTime(Timer.leftBeforeResetDaily()));
 
@@ -893,10 +887,8 @@ public class ProfileManager {
             case ПРОФИЛЬ -> {
                 if (profileMode == ProfileMode.Главное) {
                     //на иконке с часиками
-                    if (op.getStat(Stat.PLAY_TIME) < 604800) {
-                        setLine(p, 10, 4, Lang.t(p, Stat.PLAY_TIME.desc) + TimeUtil.secondToTime(op.getStat(Stat.PLAY_TIME)));
-                    }
-                    setLine(p, 10, 5, (op.eng ? "§6Play time today: §e" : "§6Сегодня Наиграно: §a") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
+                    setLine(0, 4, (op.eng ? "<mithril>Play time today: §a" : "<mithril>Сегодня наиграно: §a")
+                        + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
                 }
             }
 
@@ -904,9 +896,10 @@ public class ProfileManager {
 
     }
 
-    private void setLine(final Player p, final int slot, final int line, final String value) {
+    private void setLine(final int slot, final int line, final String value) {
         if (current == null || current.getContents().length <= slot) return;
         final ItemStack is = current.getItem(slot);
+        if (is == null) return;
         final ItemLore ilr = is.getData(DataComponentTypes.LORE);
         final List<Component> cmp = ilr == null ?
             new ArrayList<>() : new ArrayList<>(ilr.lines());

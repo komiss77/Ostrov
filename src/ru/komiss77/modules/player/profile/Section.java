@@ -159,7 +159,7 @@ public enum Section {
                     lore = Arrays.asList(
                         Component.empty(),
                         Component.text("§7Click - §fChoose a gamemode"),
-                        Component.text("§7or a specific arena there")
+                        Component.text("§for a specific arena there")
                     );
                 } else {
                     lore = Arrays.asList(
@@ -375,7 +375,7 @@ public enum Section {
                     }
                     consumer = null;
                 } else {
-                    final int msg = op.getDataInt(Data.FRIENDS_MSG_OFFLINE);
+                    final int msg = op.globalInt(Data.FRIENDS_MSG_OFFLINE);
                     if (op.eng) {
                         lore = Arrays.asList(
                             Component.empty(),

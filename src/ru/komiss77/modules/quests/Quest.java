@@ -113,7 +113,6 @@ public class Quest {
     //ну, естественно он будет завершен, если был получен и не был завершен, что проверяется выше.
     //checkProgress нужен для отладки из меню квестов (чтобы не засылало в updateProgress и не меняло lp.getProgress)
     public boolean complete(final Player p, final Oplayer op, final boolean silent) {
-        Bukkit.getConsoleSender().sendMessage("1");
         if (op.isGuest) return false;
 
         if (!Bukkit.isPrimaryThread()) {
@@ -124,18 +123,15 @@ public class Quest {
 //        if (amount > 0) updProg(p, op);
         final IProgress pr = op.quests.get(this);
         if (pr == null) {
-            Bukkit.getConsoleSender().sendMessage("2");
             final IProgress np = createPrg(0);
             op.quests.put(this, np.markDone());
             setProg(p, op, np, silent);
             return true;
         }
-        Bukkit.getConsoleSender().sendMessage("3");
         if (!pr.isDone()) {
             setProg(p, op, pr.markDone(), silent);
             return true;
         }
-        Bukkit.getConsoleSender().sendMessage("4");
         return false;
     }
 
