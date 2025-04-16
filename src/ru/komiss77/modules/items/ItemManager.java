@@ -7,7 +7,10 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -101,9 +104,9 @@ public class ItemManager implements Initiable, Listener {
             final EntityEquipment eq = le.getEquipment();
             if (eq == null) return;
             for (final EquipmentSlot es : EquipmentSlot.values()) {
-                if (!le.canUseEquipmentSlot(es) || (le instanceof Player && switch (es) {
+                if (!le.canUseEquipmentSlot(es) /*|| (le instanceof Player && switch (es) {
                     case BODY, SADDLE -> true; default -> false;
-                })) continue;
+                })*/) continue;
                 final ItemStack is = eq.getItem(es);
                 if (!SpecialItem.exist) {
                     final SpecialItem spi = SpecialItem.get(is);

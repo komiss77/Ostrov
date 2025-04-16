@@ -7,7 +7,6 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -250,9 +249,9 @@ public class EnchantManager implements Initiable, Listener {
         final Map<CustomEnchant, List<EnchData>> active = new HashMap<>();
         final EntityEquipment eq = le.getEquipment();
         for (final EquipmentSlot es : EquipmentSlot.values()) {
-            if (!le.canUseEquipmentSlot(es) || (le instanceof Player && switch (es) {
+            if (!le.canUseEquipmentSlot(es) /*|| (le instanceof Player && switch (es) {
                 case BODY, SADDLE -> true; default -> false;
-            })) continue;
+            })*/) continue;
             final ItemStack it = eq.getItem(es);
             if (!ItemUtil.isBlank(it, true)) {
 
