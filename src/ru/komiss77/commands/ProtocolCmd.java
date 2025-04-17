@@ -24,7 +24,7 @@ public class ProtocolCmd {
         new OCmdBuilder("protocol").then(Resolver.integer(val)).suggest(cntx -> {
             if (!(cntx.getSource().getSender() instanceof final Player pl)
                 || !Perm.isStaff(PM.getOplayer(pl), 2)) return Set.of();
-            return Set.of("10", "77");
+            return Set.of("10", "43", "77");
         }, true).run(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (!(cs instanceof final Player pl)) {

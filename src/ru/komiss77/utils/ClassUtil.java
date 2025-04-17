@@ -15,6 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.regex.Matcher;
+import org.bukkit.Bukkit;
 import ru.komiss77.Ostrov;
 
 
@@ -99,24 +100,34 @@ public class ClassUtil {
         return true;
     }
 
-    public static Class<?>[] getClasses(final File pluginFile, String packageName) {
+    @Deprecated
+    public static Class<?>[] getClasses(final File pluginFile, final String packageName) {
+        return getClasses(pluginFile, packageName, Ostrov.instance.getClass());
+    }
+
+    @Deprecated
+    public static Class<?>[] getClasses(final File pluginFile, final String packageName, final Class<?> loader) {
         final List<Class<?>> classes = new ArrayList<>();
 
         final String packagePrefix = packageName.replace(PKG_SEPARATOR, DIR_SEPARATOR) + '/';
+        Bukkit.getConsoleSender().sendMessage("path-" + packagePrefix);
         try {
             final JarInputStream jarFile = new JarInputStream(new FileInputStream(pluginFile));
+            Bukkit.getConsoleSender().sendMessage("file-" + pluginFile);
             JarEntry jarEntry;
             while (true) {
                 jarEntry = jarFile.getNextJarEntry();
                 if (jarEntry == null) break;
                 final String classPath = jarEntry.getName();
+                Bukkit.getConsoleSender().sendMessage("next-" + classPath);
                 if (classPath.startsWith(packagePrefix) && classPath.endsWith(".class")) {
                     if (!classPath.contains("$")) {
                         final String className = classPath.substring(0, classPath.length() - 6).replace('/', '.');
-
+                        Bukkit.getConsoleSender().sendMessage("nextName-" + className);
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException x) {
+                            x.printStackTrace();
                         }
                     }
                 }
@@ -148,7 +159,7 @@ public class ClassUtil {
         List<String> result = new ArrayList<>();
         Enumeration<JarEntry> entries = pluginJar.entries();
         while (entries.hasMoreElements()) {
-            JarEntry entry = (JarEntry) entries.nextElement();
+            JarEntry entry = entries.nextElement();
             String path = entry.getName();
             if (path.startsWith(folderPath) && entry.getName().endsWith(fileSuffix)) {
                 result.add(entry.getName());

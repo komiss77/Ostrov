@@ -294,24 +294,20 @@ public class LocalDB {
         }
 
 
-        PreparedStatement pst = null;
-        try {
-            pst = connection.prepareStatement(query);
-            pst.executeUpdate();
-            Ostrov.log_ok("§2данные " + op.nik + " сохранены, " + (System.currentTimeMillis() - l) + "мс");
-
-        } catch (SQLException e) {
-
-            Ostrov.log_err("saveLocalData error " + op.nik + " -> " + e.getMessage());
-
-        } finally {
-//System.out.println("!!! .run(oplayers.remove(name)) nik="+nik);  
+        try (final PreparedStatement pst = connection.prepareStatement(query)) {
             try {
-                if (pst != null) pst.close();
-            } catch (SQLException ex) {
-                Ostrov.log_err("saveLocalData close error - " + ex.getMessage());
+                pst.executeUpdate();
+                Ostrov.log_ok("§2данные " + op.nik + " сохранены, " + (System.currentTimeMillis() - l) + "мс");
+
+            } catch (SQLException e) {
+
+                Ostrov.log_err("saveLocalData error " + op.nik + " -> " + e.getMessage());
+
             }
+        } catch (SQLException ex) {
+            Ostrov.log_err("saveLocalData close error - " + ex.getMessage());
         }
+//System.out.println("!!! .run(oplayers.remove(name)) nik="+nik);
 
 
     }
