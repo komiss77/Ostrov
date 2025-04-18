@@ -189,7 +189,7 @@ public class Lang {
 
 
     //в эвенте переводим недостающий язык
-    public static void translateChat(final ChatPrepareEvent ce) {
+  /*  public static void translateChat(final ChatPrepareEvent ce) {
 //Ostrov.log("translateChat apiKey="+apiKey+" folderId="+folderId);
         if (rb == null) {// ключи еще не подгрузились
             abort(ce);
@@ -234,16 +234,16 @@ public class Lang {
                 return null;
             });
         cf.join();
-    }
+    }*/
 
-    private static void abort(final ChatPrepareEvent ce) {
+    /*private static void abort(final ChatPrepareEvent ce) {
         if (ce.strMsgEn == null) {
             ce.strMsgEn = ce.strMsgRu;
         } else {
             ce.strMsgRu = ce.strMsgEn;
         }
         ChatLst.process(ce);
-    }
+    }*/
 
     public static String getTranslate(final String rus) {
         return ruToEng.getOrDefault(rus, "");

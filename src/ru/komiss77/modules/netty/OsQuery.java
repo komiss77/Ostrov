@@ -3,6 +3,7 @@ package ru.komiss77.modules.netty;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -31,6 +32,7 @@ import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
+import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
 import ru.komiss77.modules.player.Oplayer;
@@ -238,8 +240,10 @@ public class OsQuery {
           return;
         }
 
-        /*case QueryCode.CHAT_RU -> {
-          final String[] s = data.split(LocalDB.WORD_SPLIT);
+        case QueryCode.CHAT -> {
+          //Ostrov.log("CHAT data= " + data);
+          ChatLst.show(new Message(data), (Collection<Player>) Bukkit.getOnlinePlayers(), true);
+          /*final String[] s = data.split(LocalDB.WORD_SPLIT);
           if (s.length >= 3 && Ostrov.MOT_D.equals("home")) {
             final String server = s[0];
             final String sender = s[1];
@@ -249,10 +253,9 @@ public class OsQuery {
               if (k != null) k.sendMessage(miniMsg);
               Bukkit.getConsoleSender().sendMessage("CHAT_RU " + server + ":" + sender + " -> " + s[2]);
             }
-//Ostrov.log("CHAT_RU sender= " + sender);
 //Bukkit.getConsoleSender().sendMessage(miniMsg);
-          }
-        }*/
+          }*/
+        }
 
         /*case QueryCode.CHAT_EN -> {
           final String[] s = data.split(LocalDB.WORD_SPLIT);

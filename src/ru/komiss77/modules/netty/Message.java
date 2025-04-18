@@ -179,6 +179,8 @@ public class Message {
         data[part.ordinal()] = str;
     }
 
+    //1-локальная рассылка всем, кроме себя
+    //2-приходит через bridge с другого серв
     public Component build(final boolean eng) {
         final TextComponent.Builder mb = Component.text();
         if (has(Part.TOP_DATA)) {
@@ -203,12 +205,12 @@ public class Message {
                 .append(Component.space().style(Style.empty()));
         }
 
-        final String name = has(Part.SENDER)
+        final String sender = has(Part.SENDER)
             ? data(Part.SENDER) : (eng ? "Unknown" : "Нечто");
-        mb.append(TCUtil.form(ChatLst.NIK_COLOR + name)
+        mb.append(TCUtil.form(ChatLst.NIK_COLOR + sender)
                 .hoverEvent(has(Part.PROFILE)
                     ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
-                .clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
+                .clickEvent(ClickEvent.suggestCommand("/msg " + sender + " ")))
             .append(Component.space().style(Style.empty()));
 
         if (has(Part.SUFFIX)) {
@@ -221,7 +223,7 @@ public class Message {
         mb.append(Component.text(ARROW + " ", MSG_COLOR));
 
         if (has(Part.MESSAGE)) {
-            mb.append(format(data(Part.MESSAGE), name, eng)
+            mb.append(format(data(Part.MESSAGE), sender, eng, false)
                 .colorIfAbsent(MSG_COLOR));
         }
         return mb.build();
@@ -270,13 +272,13 @@ public class Message {
         mb.append(Component.text(ARROW + " ", MSG_COLOR));
 
         if (has(Part.MESSAGE)) {
-            mb.append(format(data(Part.MESSAGE), ce.getOplayer().nik, eng)
+            mb.append(format(data(Part.MESSAGE), ce.getOplayer().nik, eng, self)
                 .colorIfAbsent(MSG_COLOR));
         }
         return mb.build();
     }
 
-    private static Component format(final String msg, final String name, final boolean eng) {
+    private static Component format(final String msg, final String name, final boolean eng, final boolean self) {
         final HoverEvent<Component> url_ttp = eng ? URL_TOOLTIP_EN : URL_TOOLTIP_RU;
         final HoverEvent<Component> msg_ttp = eng ? MSG_TOOLTIP_EN : MSG_TOOLTIP_RU;
         final TextComponent.Builder mb = Component.text();
@@ -301,9 +303,15 @@ public class Message {
         }
         if (!sb.isEmpty()) {
             final String sbm = sb.toString();
-            mb.append(TCUtil.form(sbm)
-                .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
-                    .widen(new Callback(sbm, name), Player.class), OPTIONS)));
+            if (self) {
+                mb.append(TCUtil.form(sbm)
+                    .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
+                        .widen(new CallbackSelf(sbm, name), Player.class), OPTIONS)));
+            } else {
+                mb.append(TCUtil.form(sbm)
+                    .hoverEvent(msg_ttp).clickEvent(ClickEvent.callback(ClickCallback
+                        .widen(new Callback(sbm, name), Player.class), OPTIONS)));
+            }
         }
         return mb.build();
     }
@@ -347,6 +355,21 @@ public class Message {
                     .clickEvent(ClickEvent.callback(ClickCallback.widen(p -> PlayerInput.get(InputButton.InputType.ANVILL, p, rpl -> {
                         //TODO жалобы на чат
                     }, "Жалоба"), Player.class))))
+            }));
+        }
+    }
+
+    private record CallbackSelf(String msg, String name) implements ClickCallback<Player> {
+        public void accept(final Player pl) {
+            final String strip = TCUtil.strip(msg);
+            final Oplayer op = PM.getOplayer(pl);
+            if (op == null) return;
+            pl.openBook(Book.book(TCUtil.form("<dark_aqua>Опции"), Component.text(name), new Component[]{
+                TCUtil.form("<dark_aqua><b><shadow:#000000FF>Опции:<reset>\n\n")
+
+                    .append(TCUtil.form("<dark_green><b><shadow:#000000FF>Настройки чата можно сюда впихнуть\n"))
+
+                    .append(TCUtil.form("<dark_green><b><shadow:#000000FF>а тут выводить личные сообщения несколько последних\n"))
             }));
         }
     }

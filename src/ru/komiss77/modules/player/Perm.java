@@ -181,7 +181,7 @@ public class Perm {
     private static void fillTyped() {
         final EnumMap<Group.Type, List<Group>> tps = new EnumMap<>(Group.Type.class);
         for (final Group gr : groups.values()) {
-            Ostrov.log_ok("Found group " + gr.name + " of type " + gr.tp.name());
+          //Ostrov.log_ok("Found group " + gr.name + " of type " + gr.tp.name()); спамит консоль
             tps.computeIfAbsent(gr.tp, tp -> new ArrayList<>()).add(gr);
         }
         for (final Map.Entry<Group.Type, List<Group>> en : tps.entrySet())
