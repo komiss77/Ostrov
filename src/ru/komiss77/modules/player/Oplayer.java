@@ -663,7 +663,7 @@ public class Oplayer {
 
 
     public @Nullable Player getPlayer() {
-        return Bukkit.getPlayerExact(nik);
+        return Bukkit.getPlayer(id);
     }
 
     public boolean bungeeDataRecieved() {
