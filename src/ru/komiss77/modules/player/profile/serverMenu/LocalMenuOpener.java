@@ -19,7 +19,7 @@ public class LocalMenuOpener {
                     .builder()
                     .id(op.nik + op.menu.section.name())
                     .provider(new Arcaim())
-                    .size(3, 9)
+                    .size(6, 9)
                     .title("<gradient:blue:gold>§lМеню сервера " + GM.GAME.displayName)
                     .build()
                     .open(p);

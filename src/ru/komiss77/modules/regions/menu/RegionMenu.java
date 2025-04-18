@@ -46,7 +46,7 @@ public class RegionMenu implements InventoryProvider {
     content.fillRow(1, fill);
     //выставить иконки внизу
     for (Section section : Section.values()) {
-      content.set(section.slot, Section.getMenuItem(section, op));
+      content.set(2, section.column, Section.getMenuItem(section, op));
     }
 
     final Pagination pagination = content.pagination();

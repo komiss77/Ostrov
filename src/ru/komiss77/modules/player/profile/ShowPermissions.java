@@ -40,7 +40,7 @@ public class ShowPermissions implements InventoryProvider {
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
-            content.set(section.slot, Section.getMenuItem(section, op));
+          content.set(2, section.column, Section.getMenuItem(section, op));
         }
 
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();

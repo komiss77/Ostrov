@@ -51,7 +51,8 @@ public class Daaria implements InventoryProvider {
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
-            content.set(section.slot + 27, Section.getMenuItem(section, op));
+            //content.set(section.slot + 27, Section.getMenuItem(section, op));
+            content.set(3, section.column, Section.getMenuItem(section, op));
         }
 
 

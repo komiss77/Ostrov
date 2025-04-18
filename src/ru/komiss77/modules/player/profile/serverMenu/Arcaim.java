@@ -38,18 +38,18 @@ public class Arcaim implements InventoryProvider {
         //линия - разделитель
         content.fillColumn(0, fill);
         content.fillColumn(8, fill);
-        content.fillRow(1, fill);
+        content.fillRow(4, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
-            content.set(section.slot, Section.getMenuItem(section, op));
+            content.set(5, section.column, Section.getMenuItem(section, op));
         }
 
         final LocalMenuEvent event = (new LocalMenuEvent(p, content));
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 
-
+/*
         content.set(0, 1, ClickableItem.of(new ItemBuilder(ItemType.GRASS_BLOCK)
             .name("§7Миры")
             .lore("")
@@ -181,7 +181,7 @@ public class Arcaim implements InventoryProvider {
             pm.openLocalSettings(p, true);
         }));
 
-
+*/
 
         
      /*

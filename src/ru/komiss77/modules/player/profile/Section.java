@@ -29,7 +29,7 @@ import ru.komiss77.utils.inventory.ClickableItem;
 public enum Section {
 
     МИНИИГРЫ(
-        18,
+        0,//18,
         "<gradient:aqua:apple>§lВыбор Игры",
         "<gradient:aqua:apple>§lGame Selection",
         "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
@@ -37,7 +37,7 @@ public enum Section {
     ),
 
     РЕЖИМЫ(
-        18,
+        0,//18,
         "<gradient:aqua:apple>§lВыбор Игры",
         "<gradient:aqua:apple>§lGame Selection",
         "98daa1e3ed94ff3e33e1d4c6e43f024c47d78a57ba4d38e75e7c9264106",
@@ -45,7 +45,7 @@ public enum Section {
     ),
 
     ВОЗМОЖНОСТИ(
-        19,
+        1,//19,
         "<gradient:apple:dark_aqua>§lВозможности",
         "<gradient:apple:dark_aqua>§lAbilities",
         "be3db27cbd1789310409081ad8c42d690b08961b55cadd45b42d46bca28b8",
@@ -53,7 +53,7 @@ public enum Section {
     ),
 
     ПРОФИЛЬ(
-        20,
+        2,//20,
         "<gradient:dark_aqua:light_purple>§lПрофиль",
         "<gradient:dark_aqua:light_purple>§lProfile",
         "2433b16d98e0d9d335027f23332e208b7c3fff0d7984792ea48c93ca5cbcf1e1",
@@ -69,7 +69,7 @@ public enum Section {
     ),*/
 
     ДОСТИЖЕНИЯ(
-        22,
+        4,//22,
         "<gradient:blue:sky>§lДостижения",
         "<gradient:blue:sky>§lAchievements",
         "cf7cdeefc6d37fecab676c584bf620832aaac85375e9fcbff27372492d69f",
@@ -77,7 +77,7 @@ public enum Section {
     ),
 
     МИССИИ(
-        23,
+        5,//23,
         "<gradient:sky:gold>§lМиссии",
         "<gradient:sky:gold>§lMissions",
         "bf6464a5ba11e1e59f0948a3d95846654253bf2822c6b1c1b3a4a3fd31ba4f",
@@ -85,7 +85,7 @@ public enum Section {
     ),
 
     ДРУЗЬЯ(
-        24,
+        6,//24,
         "§a§lД§d§lр§c§lу§e§lз§9§lь§b§lя",//"§a§lДрузья",
         "§a§lF§d§lr§c§li§e§le§9§ln§b§ld§3§ls",//"§a§lДрузья",
         "f3ebdbad610315ce554db4f56cb5ede6ac7ca6aa11cee02e85f94c52131d69",
@@ -93,7 +93,7 @@ public enum Section {
     ),
 
     КОМАНДА(
-        25,
+        7,//25,
         "<gradient:gold:red>§lКоманда",
         "<gradient:gold:red>§lParty",
         "359d1bbffad5422197b573d501465392feef6dc5d426dcd763efed7893d39d",
@@ -101,7 +101,7 @@ public enum Section {
     ),
 
     ГРУППЫ(
-        26,
+        8,//26,
         "<gradient:red:indigo>§lПривилегии",
         "<gradient:red:indigo>§lDonations",
         "1c8e0cfebc7f9c7e16fbaaae025d1b1d19d5ee633666bcf25fa0b40d5bd21bcd",
@@ -109,15 +109,15 @@ public enum Section {
     ),
     ;
 
-    final public int slot;
+    final public int column;
     final public String item_nameRu;
     final public String item_nameEn;
     final public String texture;
     final public ItemType glassMat;
 
 
-    Section(int slot, String item_nameRu, String item_nameEn, String texture, ItemType glassMat) {
-        this.slot = slot;
+    Section(int column, String item_nameRu, String item_nameEn, String texture, ItemType glassMat) {
+        this.column = column;
         this.item_nameRu = item_nameRu;
         this.item_nameEn = item_nameEn;
         this.texture = texture;
@@ -127,14 +127,16 @@ public enum Section {
 
     public static boolean isProfileIcon(final int slot) {
         for (Section s_ : Section.values()) {
-            if (s_.slot == slot) return true;
+            //хз как это переделать под разные размеры, пока так
+            if (18 + s_.column == slot) return true;
         }
         return false;
     }
 
     public static Section profileBySlot(final int slot) {
         for (Section s_ : Section.values()) {
-            if (s_.slot == slot) return s_;
+            //хз как это переделать под разные размеры, пока так
+            if (18 + s_.column == slot) return s_;
         }
         return null;
     }

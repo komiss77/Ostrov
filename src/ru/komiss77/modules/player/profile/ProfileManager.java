@@ -34,6 +34,7 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.mission.MissionWithdrawViewMenu;
+import ru.komiss77.modules.player.profile.serverMenu.LocalMenuOpener;
 import ru.komiss77.modules.regions.menu.RegionMenu;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.Group;
@@ -56,7 +57,7 @@ public class ProfileManager {
 
     public Oplayer op;
     private BukkitTask loadAnimations;
-    private SmartInventory localMenu;
+    //private SmartInventory localMenu; //не катит, для каждого игрока SmartInventory формируется меню в момент открытия, только как оно узнает что его открывают??
     public Inventory current;
 
     public Section section = Section.РЕЖИМЫ;
@@ -180,7 +181,8 @@ public class ProfileManager {
     }
 
     public void setLocalMenu(final SmartInventory inv) {
-        this.localMenu = inv;
+        //this.localMenu = inv; //не катит, для каждого игрока SmartInventory формируется меню в момент открытия, только как оно узнает что его открывают??
+        //на аркаиме меню похерилось,вернул стары вызов который прекрасно работал
     }
 
     public void openLastSection(final Player p) {
@@ -188,9 +190,10 @@ public class ProfileManager {
     }
 
     public void openLocalMenu(final Player p) {
-        if (localMenu == null)
-            op.menu.openLastSection(p);
-        else localMenu.open(p);
+        //if (localMenu == null)
+        //    op.menu.openLastSection(p);
+        //else localMenu.open(p);
+        LocalMenuOpener.open(p, op);
     }
 
     public void openLocalSettings(final Player p, final boolean settings) {
@@ -845,8 +848,8 @@ public class ProfileManager {
         // if (current!=null) { //if (PM.im.hasContent(p)) {
         //нет открытого раздела - ничего не делаем
         if (current == null) return; //нет открытого раздела - ничего не делаем
-        //подставить наиграно за сегодня
-        setLine(Section.ПРОФИЛЬ.slot, 4, (op.eng ? "§6Play time today: §e" : "§6Сегодня Наиграно: §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
+        //подставить наиграно за сегодня на главной полоске внизу - в разных размерах на разныч строках, пока офф
+        //setLine(Section.ПРОФИЛЬ.slot, 4, (op.eng ? "§6Play time today: §e" : "§6Сегодня Наиграно: §e") + TimeUtil.secondToTime(op.getDailyStat(Stat.PLAY_TIME)));
         //поставить время до сброса дневной статы на иконке статы
 //        setLine(p, Section.СТАТИСТИКА.slot, 3, "§3" + TimeUtil.secondToTime(Timer.leftBeforeResetDaily()));
 
