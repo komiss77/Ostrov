@@ -199,15 +199,11 @@ public class Ostrov extends JavaPlugin {
         WorldManager.autoLoadWorlds(); // 1 !! найти и догрузить миры, помеченные на автозагрузку
         GM.onWorldsLoadDone(); //прописать состояние серверов на таблички
 
-        modules.values().forEach(
-            (module) -> {
-                try {
-                    (module).postWorld();
-                } catch (Exception ex) {
+        modules.values().forEach(module -> {
+                try {module.postWorld();} catch (Exception ex) {
                     log_err("postWorld module " + module + " : " + ex.getMessage());
                 }
-            }
-        );
+            });
 
         new WorldsLoadCompleteEvent().callEvent(); // оповестить остальные плагины
         Ostrov.STARTUP = false;
@@ -297,15 +293,15 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
-    //@Deprecated
+    @Deprecated //GlobalLogType желтенькая
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
-            "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.getTime() + "'); ");
+            "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.secTime() + "'); ");
     }
 
     public static void history(final HistoryType type, final Oplayer op, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
-            "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.getDataString(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
+            "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.globalStr(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
         ;
     }
 
