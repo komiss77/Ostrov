@@ -38,7 +38,7 @@ public class SaveMaticManager implements Initiable {
         });
     }
 
-    public int save(final Cuboid cb, final World w) {
+    public static int save(final Cuboid cb, final World w) {
         if (!Cfg.savematics || sId < 0) {
             Ostrov.log_warn("§6SaveMatics havent loaded yet!");
             return -1;
@@ -54,7 +54,7 @@ public class SaveMaticManager implements Initiable {
         return id;
     }
 
-    public void load(final int id) {
+    public static void load(final int id) {
         if (!Cfg.savematics || id < 0) {
             Ostrov.log_warn("§6SaveMatics wrong format!");
             return;
