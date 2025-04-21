@@ -20,6 +20,7 @@ import ru.komiss77.modules.quests.QuestManager;
 import ru.komiss77.modules.scores.ScoreManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
 import ru.komiss77.modules.warp.WarpManager;
+import ru.komiss77.modules.world.SaveMaticManager;
 import ru.komiss77.modules.world.WE;
 import ru.komiss77.modules.world.WorldManager;
 
@@ -48,6 +49,7 @@ public enum Module {
     items(ItemManager.class),
     pvp(PvPManager.class),
     effects(EffectManager.class),
+    savematics(SaveMaticManager.class),
     ;
 
     public final Class<? extends Initiable> clazz;

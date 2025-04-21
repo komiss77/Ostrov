@@ -11,6 +11,7 @@ import ru.komiss77.builder.menu.EntityWorldMenu;
 import ru.komiss77.events.BuilderMenuEvent;
 import ru.komiss77.modules.world.*;
 import ru.komiss77.modules.world.Schematic.Rotate;
+import ru.komiss77.utils.BlockUtil;
 import ru.komiss77.utils.inventory.SmartInventory;
 import ru.komiss77.version.Nms;
 
@@ -37,6 +38,7 @@ public class SetupMode {
     public Object loacalEditMode; //режим последнего открытого локального меню
 
     public Schematic undo; //для отмены последней вставки
+    @Deprecated
     public WXYZ undoLoc; //локация последней вставки
     public BukkitTask displayCube;
 
@@ -50,10 +52,10 @@ public class SetupMode {
         p.closeInventory();
         //делаем снимок неповёрнутой местности
         if (withContent) {
-            final Schematic copy = new Schematic(p, p.getName() + "_rotate", "", cuboid, p.getWorld(), false);
+            final Schematic copy = new Schematic(null, p.getName() + "_rotate", "", cuboid, p.getWorld(), false);
             clearArea();
             cuboid.rotate(rotate);
-            copy.paste(p, new WXYZ(cuboid.getSpawnLocation(cuboidWorld)), rotate, true);
+            copy.paste(p, BVec.of(cuboid.getSpawnLocation(cuboidWorld)), rotate, true);
         } else {
             cuboid.rotate(rotate);
         }
@@ -79,10 +81,9 @@ public class SetupMode {
     public void clearArea() {
         if (cuboid == null || cuboidWorld == null) return;
         cuboid.getBlocks(cuboidWorld).forEach((b) -> {
-            if (Nms.getFastMat(cuboidWorld, b.getX(), b.getY(), b.getZ()) != Material.AIR) {
-                b.setType(Material.AIR);
+            if (!Nms.fastType(cuboidWorld, b.getX(), b.getY(), b.getZ()).isAir()) {
+                b.setBlockData(BlockUtil.air, false);
             }
-            //if (!b.getType().isAir()) b.setType(Material.AIR);
         });
     }
 
@@ -120,7 +121,7 @@ public class SetupMode {
             if (spawnPoint != null && cuboid != null && !cuboid.contains(spawnPoint)) {
                 spawnPoint = null;
             }
-            cuboid = new Cuboid(new XYZ(min), new XYZ(max), spawnPoint);
+            cuboid = new Cuboid(BVec.of(min), BVec.of(max), spawnPoint);
             cuboidWorld = min.getWorld();
             genBorder(p);
         } else {
@@ -135,6 +136,7 @@ public class SetupMode {
         if (displayCube != null && !displayCube.isCancelled()) displayCube.cancel();
 
         displayCube = new BukkitRunnable() {
+            @Deprecated
             final Set<XYZ> border = cuboid.getBorder();
             final Location particleLoc = new Location(p.getWorld(), 0, 0, 0);
 

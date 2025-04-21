@@ -3,28 +3,19 @@ package ru.komiss77.modules.world;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.builder.BuilderCmd;
-import ru.komiss77.modules.player.PM;
 import ru.komiss77.Ostrov;
+import ru.komiss77.builder.BuilderCmd;
+import ru.komiss77.builder.SetupMode;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
-import ru.komiss77.utils.inventory.Pagination;
-import ru.komiss77.utils.inventory.SlotIterator;
-import ru.komiss77.utils.inventory.SlotPos;
-import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.builder.SetupMode;
+import ru.komiss77.utils.inventory.*;
 
 
 public class SchemMainMenu implements InventoryProvider {
@@ -188,7 +179,7 @@ public class SchemMainMenu implements InventoryProvider {
         }));
 
 
-        pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
+        pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
         pagination.setItemsPerPage(36);
 
 
@@ -327,8 +318,8 @@ public class SchemMainMenu implements InventoryProvider {
             }
             final SetupMode sm = PM.getOplayer(p).setup;
             p.closeInventory();
-            final Cuboid cuboid = schem.paste(p, new WXYZ(p.getLocation()), rotate, pasteAir); //вставка начнётся через тик!
-            sm.undo = new Schematic(p, p.getName() + "_undo", "", cuboid, p.getWorld(), false);
+            final Cuboid cuboid = schem.paste(p, BVec.of(p.getLocation()), rotate, pasteAir); //вставка начнётся через тик!
+            sm.undo = new Schematic(null, p.getName() + "_undo", "", cuboid, p.getWorld(), false);
             sm.undoLoc = new WXYZ(p.getLocation());
             sm.setCuboid(p, cuboid);//checkPosition(p);
             sm.openSchemEditMenu(p, schem.getName());
