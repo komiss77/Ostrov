@@ -302,7 +302,6 @@ public class Ostrov extends JavaPlugin {
     public static void history(final HistoryType type, final Oplayer op, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO " + Table.HISTORY.table_name + " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('" + type.toString() + "','','" + op.nik + "','" + op.globalStr(Data.IP) + "','" + msg + "','" + Timer.secTime() + "',''); ");
-        ;
     }
 
 
