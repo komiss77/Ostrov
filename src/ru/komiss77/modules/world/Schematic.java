@@ -523,6 +523,10 @@ public class Schematic {
         return createdEnvironment;
     }
 
+    public Cuboid getCuboid() { //отдаст дельту между макс и мин (на 1 меньше!)
+        return new Cuboid(this);
+    }
+
     public int getSizeX() { //отдаст дельту между макс и мин (на 1 меньше!)
         return dX + 1;
     }
