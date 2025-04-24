@@ -21,14 +21,20 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
     private final int[] wgts;
     private final int total;
+    private final boolean eq;
 
     private RollTree(final String id, final Roll<?>[] roll,
         final int[] wgts, final int number, final int extra) {
         super(id, roll, number, extra); this.wgts = wgts;
         int total = 0;
-        for (int i = 0; i != wgts.length; i++)
+        boolean eqw = true;
+        for (int i = 0; i != wgts.length; i++) {
+            if (i != 0 && eqw
+                && wgts[i] != wgts[0]) eqw = false;
             total += wgts[i];
+        }
         this.total = total;
+        this.eq = eqw;
     }
 
     public static RollTree get(final String id) {
@@ -38,6 +44,12 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
     @Override
     @Slow(priority = 1)
     protected Roll<?>[] asAmount(final int amt) {
+        if (eq) {
+            final Roll<?>[] rls = new Roll<?>[amt];
+            for (int i = 0; i != amt; i++)
+                rls[i] = ClassUtil.rndElmt(it);
+            return rls;
+        }
         final int[] sar = new int[amt];
         for (int i = 0; i != amt; i++)
             sar[i] = Ostrov.random.nextInt(total);
@@ -58,6 +70,7 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
     public <R> @Nullable R genRoll(final Class<R> cls) {
         if (it.length == 0) return null;
+        if (eq) return genFrom(ClassUtil.rndElmt(it), cls);
         int ttl = 0;
         for (int i = 0; i != wgts.length; i++) {
             final Roll<?> rl = it[i];
