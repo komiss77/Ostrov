@@ -46,8 +46,15 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
     protected Roll<?>[] asAmount(final int amt) {
         if (eq) {
             final Roll<?>[] rls = new Roll<?>[amt];
-            for (int i = 0; i != amt; i++)
-                rls[i] = ClassUtil.rndElmt(it);
+            if (it.length >> 1 > amt) {
+                for (int i = 0; i != amt; i++)
+                    rls[i] = ClassUtil.rndElmt(it);
+                return rls;
+            }
+            final Roll<?>[] its = new Roll<?>[it.length];
+            System.arraycopy(it, 0, its, 0, it.length);
+            ClassUtil.shuffle(its);
+            System.arraycopy(its, 0, rls, 0, amt);
             return rls;
         }
         final int[] sar = new int[amt];
@@ -175,8 +182,18 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
             this.weighed = new ArrayList<>();
         }
 
+        public Builder add(final Roll<?> rl) {
+            weighed.add(new Duo<>(rl.id, 1));
+            return this;
+        }
+
         public Builder add(final Roll<?> rl, final int weight) {
             weighed.add(new Duo<>(rl.id, weight));
+            return this;
+        }
+
+        public Builder add(final String rl) {
+            weighed.add(new Duo<>(rl, 1));
             return this;
         }
 
