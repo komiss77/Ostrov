@@ -173,7 +173,10 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         }
 
         public RollTree build() {
-            return build(weighed.size(), 0);
+            int total = 0;
+            for (final Duo<String, Integer> dw : weighed)
+                total += dw.val();
+            return build(total, 0);
         }
 
         public RollTree build(final int number) {
