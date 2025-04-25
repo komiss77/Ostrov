@@ -21,14 +21,20 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
     private final int[] wgts;
     private final int total;
+    private final boolean eq;
 
     private RollTree(final String id, final Roll<?>[] roll,
         final int[] wgts, final int number, final int extra) {
         super(id, roll, number, extra); this.wgts = wgts;
         int total = 0;
-        for (int i = 0; i != wgts.length; i++)
+        boolean eqw = true;
+        for (int i = 0; i != wgts.length; i++) {
+            if (i != 0 && eqw
+                && wgts[i] != wgts[0]) eqw = false;
             total += wgts[i];
+        }
         this.total = total;
+        this.eq = eqw;
     }
 
     public static RollTree get(final String id) {
@@ -38,6 +44,19 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
     @Override
     @Slow(priority = 1)
     protected Roll<?>[] asAmount(final int amt) {
+        if (eq) {
+            final Roll<?>[] rls = new Roll<?>[amt];
+            if (it.length >> 1 > amt) {
+                for (int i = 0; i != amt; i++)
+                    rls[i] = ClassUtil.rndElmt(it);
+                return rls;
+            }
+            final Roll<?>[] its = new Roll<?>[it.length];
+            System.arraycopy(it, 0, its, 0, it.length);
+            ClassUtil.shuffle(its);
+            System.arraycopy(its, 0, rls, 0, amt);
+            return rls;
+        }
         final int[] sar = new int[amt];
         for (int i = 0; i != amt; i++)
             sar[i] = Ostrov.random.nextInt(total);
@@ -58,6 +77,7 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
 
     public <R> @Nullable R genRoll(final Class<R> cls) {
         if (it.length == 0) return null;
+        if (eq) return genFrom(ClassUtil.rndElmt(it), cls);
         int ttl = 0;
         for (int i = 0; i != wgts.length; i++) {
             final Roll<?> rl = it[i];
@@ -162,8 +182,18 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
             this.weighed = new ArrayList<>();
         }
 
+        public Builder add(final Roll<?> rl) {
+            weighed.add(new Duo<>(rl.id, 1));
+            return this;
+        }
+
         public Builder add(final Roll<?> rl, final int weight) {
             weighed.add(new Duo<>(rl.id, weight));
+            return this;
+        }
+
+        public Builder add(final String rl) {
+            weighed.add(new Duo<>(rl, 1));
             return this;
         }
 
@@ -173,7 +203,10 @@ public class RollTree extends Roll<Roll<? extends @Nullable Object>[]> {
         }
 
         public RollTree build() {
-            return build(weighed.size(), 0);
+            int total = 0;
+            for (final Duo<String, Integer> dw : weighed)
+                total += dw.val();
+            return build(total, 0);
         }
 
         public RollTree build(final int number) {

@@ -65,6 +65,7 @@ public class ClassUtil {
 
     @SuppressWarnings("unchecked")
     public static <G> G rndElmt(final G... arr) {
+        if (arr.length == 0) return null;
         return arr[Ostrov.random.nextInt(arr.length)];
     }
 

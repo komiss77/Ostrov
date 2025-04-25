@@ -74,6 +74,7 @@ public class Cfg {
     public static boolean entities;
     public static boolean effects;
     public static boolean signProtect;
+    public static boolean savematics;
     //public static boolean quests; //как бы лишнее. какой-то плагин обратился - значит нужны. если нет адванскрези, будет работать заглушка
 
     static {
@@ -147,6 +148,7 @@ public class Cfg {
         items = cfg.getBoolean("modules.items");
         effects = cfg.getBoolean("modules.effects");
         signProtect = cfg.getBoolean("modules.signProtect");
+        savematics = cfg.getBoolean("modules.savematics");
     }
 
 
@@ -202,6 +204,7 @@ public class Cfg {
         cfg.addDefault("modules.items", false);
         cfg.addDefault("modules.effects", false);
         cfg.addDefault("modules.signProtect", false);
+        cfg.addDefault("modules.savematics", false);
         cfg.addDefault("modules.save_location_on_world_change", false);
 
         cfg.addDefault("modules.command.tpr", -1, "random teleport. value - cooldown, -1 to disable.");
