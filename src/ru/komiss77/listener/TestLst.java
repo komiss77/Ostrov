@@ -1,15 +1,21 @@
 package ru.komiss77.listener;
 
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.MusicInstrument;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.modules.items.ItemBuilder;
 
 
 public class TestLst implements Listener {
@@ -54,7 +60,7 @@ public class TestLst implements Listener {
     private static final Quest qs5 = new Quest('f', ItemType.ACACIA_LEAVES, 2, null, qs4, "<dark_green>6th Advancement",
         "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.ALWAYS, Quest.QuestFrame.CHALLENGE, 0);*/
 
-//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void test(final PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         if (!ApiOstrov.canBeBuilder(p)) return;
@@ -64,7 +70,9 @@ public class TestLst implements Listener {
         if (inHand.getType() == Material.WOODEN_PICKAXE) {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
-
+          ItemStack is = new ItemBuilder(ItemType.GOAT_HORN).set(
+              DataComponentTypes.INSTRUMENT, MusicInstrument.DREAM_GOAT_HORN).build();
+          p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
             //final Player semen = Bukkit.getPlayerExact("semen");
             //if (semen!=null) {
             //     p.sendMessage("canSee?"+canSee(p, semen));
