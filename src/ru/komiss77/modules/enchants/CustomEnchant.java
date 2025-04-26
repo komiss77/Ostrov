@@ -242,6 +242,10 @@ public abstract class CustomEnchant implements Keyed {
 
     public abstract List<EnchData> act(final Event e, final List<EnchData> data);
 
+    private boolean reg = false;
+    public boolean isReg() {return reg;}
+    public void setReg() {reg = true;}
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

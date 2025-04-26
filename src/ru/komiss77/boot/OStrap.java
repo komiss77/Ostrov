@@ -1,6 +1,7 @@
 package ru.komiss77.boot;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
@@ -10,9 +11,6 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
-import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
-import io.papermc.paper.registry.event.RegistryEvents;
-import io.papermc.paper.registry.event.WritableRegistry;
 import io.papermc.paper.registry.set.RegistryKeySet;
 import io.papermc.paper.registry.set.RegistrySet;
 import io.papermc.paper.registry.tag.Tag;
@@ -37,16 +35,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.enchants.CustomEnchant;
-import ru.komiss77.modules.enchants.EnchantManager;
-import ru.komiss77.utils.TCUtil;
 
 
 public class OStrap implements PluginBootstrap {
 
     public static final String space = "ostrov";
-    private static final RegistryKeySet<ItemType>
-        noIts = RegistrySet.keySet(RegistryKey.ITEM);
 
     public static NamespacedKey key(final String key) {
         final int ix = key.indexOf(':');
@@ -59,31 +52,19 @@ public class OStrap implements PluginBootstrap {
         return new NamespacedKey(key.namespace(), key.value());
     }
 
+    private static LifecycleEventManager<BootstrapContext> mgr;
+
     @Override
-    public void bootstrap(@NotNull BootstrapContext cntx) {
-        final @NotNull LifecycleEventManager<BootstrapContext> mgr = cntx.getLifecycleManager();
-        mgr.registerEventHandler(RegistryEvents.ENCHANTMENT
-            .freeze().newHandler(e -> {
-                EnchantManager.init();
-                final @NonNull WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
-                for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
-                    rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
-                        b -> b.description(TCUtil.form(ce.name()))
-                            .primaryItems(ce.isInTable() ? ce.targets() : noIts)
-                            .supportedItems(ce.isInTable() ? noIts : ce.targets())
-                            .anvilCost(ce.anvilCost())
-                            .maxLevel(ce.maxLevel())
-                            .weight(ce.weight())
-                            .exclusiveWith(ce.conflicts())
-                            .minimumCost(ce.minCost())
-                            .maximumCost(ce.maxCost())
-                            .activeSlots(ce.slots()));
-                }
-            }));
+    public void bootstrap(final BootstrapContext cntx) {
+        mgr = cntx.getLifecycleManager();
 
         final TagMap tagMap = new TagMap();
         for (final RegTag<?> rt : RegTag.VALUES.values()) tagMap.add(rt);
         for (final RegTag<?>[] rts : tagMap.values()) regTags(rts, mgr);
+    }
+
+    public static void strap(final Consumer<LifecycleEventManager<BootstrapContext>> mcn) {
+        if (mgr != null) mcn.accept(mgr);
     }
 
     private <T extends Keyed> void regTags(final RegTag<?>[] rts, final LifecycleEventManager<BootstrapContext> mgr) {

@@ -101,8 +101,8 @@ public class Ostrov extends JavaPlugin {
         log_ok("§5===== Регистрация каналов Proxy =====");
         for (final Chanell ch : Chanell.values()) {
             if (ch == Chanell.SKIN && !SkinRestorerHook.USE) continue;
-            instance.getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
-            instance.getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
+            getServer().getMessenger().registerOutgoingPluginChannel(instance, ch.name);
+            getServer().getMessenger().registerIncomingPluginChannel(instance, ch.name, new SpigotChanellMsg());
         }
 
         if (MOT_D.length() == 3) { // для серверов авторизации

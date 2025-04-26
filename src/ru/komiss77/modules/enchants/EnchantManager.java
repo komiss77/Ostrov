@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
+import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
+import io.papermc.paper.registry.event.RegistryEvents;
+import io.papermc.paper.registry.event.WritableRegistry;
+import io.papermc.paper.registry.set.RegistryKeySet;
+import io.papermc.paper.registry.set.RegistrySet;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
@@ -14,14 +21,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.EquipmentSlotGroup;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TCUtil;
 
 public class EnchantManager implements Initiable, Listener {
 
@@ -71,8 +77,28 @@ public class EnchantManager implements Initiable, Listener {
     }
   };*/
 
-    public static void init() {
-        //doesnt actually do shit
+    private static final RegistryKeySet<ItemType>
+        noIts = RegistrySet.keySet(RegistryKey.ITEM);
+    public static void register() {
+        OStrap.strap(mgr -> mgr.registerEventHandler(RegistryEvents.ENCHANTMENT
+            .freeze().newHandler(e -> {
+                final WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
+                for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
+                    if (ce.isReg()) continue;
+                    rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
+                        b -> b.description(TCUtil.form(ce.name()))
+                            .primaryItems(ce.isInTable() ? ce.targets() : noIts)
+                            .supportedItems(ce.isInTable() ? noIts : ce.targets())
+                            .anvilCost(ce.anvilCost())
+                            .maxLevel(ce.maxLevel())
+                            .weight(ce.weight())
+                            .exclusiveWith(ce.conflicts())
+                            .minimumCost(ce.minCost())
+                            .maximumCost(ce.maxCost())
+                            .activeSlots(ce.slots()));
+                    ce.setReg();
+                }
+            })));
     }
 
     public EnchantManager() {
