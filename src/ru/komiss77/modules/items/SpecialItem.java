@@ -2,10 +2,7 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
-import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -21,8 +18,7 @@ import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
-import ru.komiss77.modules.world.WXYZ;
-import ru.komiss77.modules.world.XYZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.ItemUtil;
@@ -33,16 +29,16 @@ public abstract class SpecialItem implements Keyed {
 
     private static final String CON_NAME = "specials.yml";
     private static final NamespacedKey DATA = OStrap.key("special");
-    private static final XYZ DEF_SPAWN = new WXYZ(Bukkit.getWorlds().getFirst(), 0, 100, 0);
+    private static final BVec DEF_SPAWN = BVec.of(Bukkit.getWorlds().getFirst(), 0, 100, 0);
 
     public static boolean exist = false;
 
-    public static final XYZ SPAWN = getSpawnLoc();
+    public static final BVec SPAWN = getSpawnLoc();
 
-    private static XYZ getSpawnLoc() {
+    private static BVec getSpawnLoc() {
         final OConfig irc = Cfg.manager.config(CON_NAME, true);
         if (irc.contains("spawn")) {
-            final XYZ spawn = XYZ.fromString(irc.getString("spawn"));
+            final BVec spawn = BVec.parse(irc.getString("spawn"));
             if (spawn != null) return spawn;
         }
         irc.set("spawn", DEF_SPAWN.toString());
@@ -57,7 +53,7 @@ public abstract class SpecialItem implements Keyed {
     private WeakReference<Entity> own;
     private boolean crafted;
     private boolean dropped;
-    private @Nullable WXYZ lastLoc;
+    private @Nullable BVec lastLoc;
 
     public SpecialItem(final ItemStack it) {
         this.name = this.getClass().getSimpleName();
@@ -67,11 +63,16 @@ public abstract class SpecialItem implements Keyed {
         final OConfig irc = Cfg.manager.config(CON_NAME, true);
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
-        final XYZ loc = XYZ.fromString(irc.getString(name + ".loc"));
+        if (!irc.contains(name)) {
+            this.item = it;
+            return;
+        }
+        final BVec loc = BVec.parse(irc.getString(name + ".loc"));
         this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
         final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
-        lastLoc = loc == null ? null : new WXYZ(loc);
-        if (lastLoc != null) spawn(lastLoc.getCenterLoc(), curr);
+        lastLoc = loc == null ? null : BVec.of(loc);
+        final World w = lastLoc == null ? null : lastLoc.w();
+        if (lastLoc != null && w != null) spawn(lastLoc.center(w), curr);
 
         VALUES.put(name, this);
         exist = true;
@@ -93,7 +94,7 @@ public abstract class SpecialItem implements Keyed {
         return item;
     }
 
-    public @Nullable WXYZ loc() {
+    public @Nullable BVec loc() {
         return switch (own.get()) {
             case null -> lastLoc;
             case final Entity le -> {
@@ -104,7 +105,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void loc(final Location lc) {
-        lastLoc = new WXYZ(lc);
+        lastLoc = BVec.of(lc);
     }
 
     protected void destroy() {

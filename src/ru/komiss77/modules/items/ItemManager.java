@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -200,9 +201,12 @@ public class ItemManager implements Initiable, Listener {
                 }
 
                 if (si.loc() == null) continue;
-                final Location loc = si.loc().getCenterLoc();
+                final World w = si.loc().w();
+                if (w == null) continue;
+                final Location loc = si.loc().center(w);
                 if (isInPrivateWG(loc)) {
-                    si.spawn(SpecialItem.SPAWN.getCenterLoc(), it.getItemStack());
+                    final World sw = SpecialItem.SPAWN.w();
+                    if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
                     it.remove();
                 } else si.apply(it);
             }
