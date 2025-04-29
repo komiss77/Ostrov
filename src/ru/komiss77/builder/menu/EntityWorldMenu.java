@@ -65,7 +65,7 @@ public class EntityWorldMenu implements InventoryProvider {
             final IntHashMap<Chunk> map = new IntHashMap<>();
 
             for (final Chunk chunk : c.getChunks(p.getWorld())) {
-                if (!chunk.isLoaded() || !chunk.isEntitiesLoaded()) continue;
+              if (!chunk.isEntitiesLoaded()) continue; //!chunk.isLoaded() -ушло в кубоид
                 map.put(LocUtil.cLoc(chunk), chunk);
 
                 for (final Entity e : chunk.getEntities()) {

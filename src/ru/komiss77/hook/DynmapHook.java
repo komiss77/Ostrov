@@ -1,34 +1,18 @@
 package ru.komiss77.hook;
 
-
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredListener;
-import org.dynmap.DynmapCore;
-import org.dynmap.MapManager;
-import org.dynmap.bukkit.DynmapPlugin;
-import org.dynmap.bukkit.helper.BukkitWorld;
-import org.dynmap.common.DynmapListenerManager.EventType;
-import org.dynmap.storage.MapStorage;
-import org.dynmap.storage.mysql.MySQLMapStorage;
-import ru.komiss77.Ostrov;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
+import org.dynmap.DynmapCore;
+import org.dynmap.DynmapWorld;
+import org.dynmap.bukkit.DynmapPlugin;
+import ru.komiss77.Ostrov;
+import ru.komiss77.enums.Game;
+import ru.komiss77.modules.games.GM;
 
 
 //https://github.com/webbukkit/dynmap
@@ -40,196 +24,96 @@ import java.util.Set;
 public class DynmapHook {
 
     private static final Set<String> purged;
-
-    private static DynmapPlugin dp;
-    private static DynmapCore core;
-    private static Method getWorld;
-    private static Method getConnection;
-    private static Method releaseConnection;
+  public static final NamespacedKey MAP = new NamespacedKey(Ostrov.instance, "dynmap");
 
     static {
         purged = new HashSet<>();
-        //dp = (DynmapPlugin) Bukkit.getPluginManager().getPlugin("dynmap");
     }
-    //static final DynmapAPI api = (DynmapAPI)Bukkit.getPluginManager().getPlugin("dynmap"); ;
-    //static final MarkerAPI markerapi = api.getMarkerAPI();
-    //static final MarkerSet set =  markerapi.createMarkerSet("factions.markerset", "Кланы", null, false);
-    //static final MarkerIcon baseIcon = markerapi.getMarkerIcon("tower"); 
 
-
-    /*  public static void createMaps() {
-  //Ostrov.log_warn(" ------------- updateMaps ");
-          Ostrov.async( ()-> {
-              DynmapFactions.updateFactions();
-          }, 5*20);
-      }
-
-      public static void updateBaseIcon(final Faction f) {
-          Ostrov.async( ()-> {
-              DynmapFactions.drawFactionBaseIcon(f, DynmapFactions.getDescription(f));
-          }, 1);
-      }
-
-      public static void updateFactionArea(final Faction f) {
-          Ostrov.async( ()-> {
-              DynmapFactions.drawFactionArea(f, DynmapFactions.getDescription(f));
-          }, 1);
-      }
-
-      public static void wipe(final int factionID) {
-          Ostrov.async( ()-> {
-              DynmapFactions.wipe(factionID);
-          }, 1);
-      }
-  */
+  //из PluginEnableEvent - основные миры уже подгружены
     public static void hook(final Plugin plugin) {
-        dp = (DynmapPlugin) plugin;
-        try {
-            final Field coreField = dp.getClass().getDeclaredField("core");
-            coreField.setAccessible(true);
-            core = (DynmapCore) coreField.get(dp);
-//Ostrov.log("DynmapHook core = "+core);
-            getWorld = dp.getClass().getDeclaredMethod("getWorld", World.class);
-
-            final MapStorage storage = core.getDefaultMapStorage();
-            if (storage instanceof final MySQLMapStorage sql) {
-                getConnection = sql.getClass().getDeclaredMethod("getConnection");
-                getConnection.setAccessible(true);
-                releaseConnection = sql.getClass().getDeclaredMethod("releaseConnection", java.sql.Connection.class, boolean.class);
-                releaseConnection.setAccessible(true);
-            } else {
-                Ostrov.log_warn("DynmapHook : хранилище НЕ MySql!");
-                return;
-            }
-
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException |
-                 NoSuchMethodException ex) {
-            Ostrov.log_err("DynmapHook hook : " + ex.getMessage());
-            ex.printStackTrace();
-            core = null;
-            return;
-        }
-
-        core.playerfacemgr = null;
-        core.skinUrlProvider = null;
-
-        RegisteredListener rl;
-        final Iterator<RegisteredListener> it = HandlerList.getRegisteredListeners(dp).iterator();
-        while (it.hasNext()) {
-            rl = it.next();
-
-            boolean disable = true;
-
-            final Listener lst = rl.getListener();
-//Ostrov.log("RegisteredListener="+lst.getClass().name()+" priority="+rl.getPriority());
-
-            Method[] methods = lst.getClass().getDeclaredMethods();
-            for (Method m : methods) {
-//Ostrov.log("Method="+m.name());
-                switch (m.getName()) {
-                    case "onPlayerJoin",
-                         "onPlayerQuit",
-                         //"onWorldUnload", - делаем отдельный эвент
-                         "onBlockPlace",
-                         "onBlockBreak",
-                         "onChunkPopulate",
-                         "onPluginEnabled" -> disable = false;
-                }
-            }
-
-            if (disable) {
-                HandlerList.unregisterAll(lst);
-//Ostrov.log("------- выкл");
-            }
-        }
-
-        Listener worldTrigger = new Listener() {
-            // @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-            // public void onWorldLoad(WorldLoadEvent event) {
-            //      BukkitWorld w = getWorld(event.getWorld());
-            //     if(core.processWorldLoad(w))    /* Have core process load first - fire event listeners if good load after */
-            //         core.listenerManager.processWorldEvent(EventType.WORLD_LOAD, w);
-            //  }
-            @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-            public void onWorldUnload(final WorldUnloadEvent event) {
-                final BukkitWorld w = getWorld(event.getWorld());
-                if (w != null) {
-                    core.listenerManager.processWorldEvent(EventType.WORLD_UNLOAD, w);
-                    w.setWorldUnloaded();
-                    core.processWorldUnload(w);
-                }
-            }
-
-        };
-        Bukkit.getPluginManager().registerEvents(worldTrigger, Ostrov.instance);
 
         Ostrov.dynmap = true;
+
+      switch (GM.GAME) {
+        case MI, AR, OB, SK -> {
+          for (World w : Bukkit.getWorlds()) {
+            onWorldLoad(w);
+          }
+        }
+        default -> {
+          if (Ostrov.MOT_D.equals("home")) {
+            for (World w : Bukkit.getWorlds()) {
+              onWorldLoad(w);
+            }
+          }
+        }
+      }
+
+
+
         Ostrov.log_ok("§bНайден и пропатчен Dynmap!");
-        //for (RegisteredListener rl : HandlerList.getRegisteredListeners(dp)) {
-        //for (int i = 0; i < hl.getRegisteredListeners().length; i++) {
-        //for (RegisteredListener rl : HandlerList.getRegisteredListeners(dynmap)) {
-        //for (RegisteredListener rl : WorldLoadEvent.getHandlerList().getRegisteredListeners(dynmap)) {
-        //RegisteredListener rl = hl.getRegisteredListeners()[i];
-//Ostrov.log_warn("rl="+rl.getListener().getClass().name()+" plugin="+rl.getPlugin().name()+" priority="+rl.getPriority());
-        //   if (rl.getPlugin().name().equals("dynmap")) {
-//Ostrov.log_warn("------");
-        //if (rl.getListener() instanceof )
-        // }
-        // }
-        //}
-        //WorldLoadEvent.getHandlerList().
-
 
     }
 
-    public static BukkitWorld getWorld(final World w) {
-        try {
-            return (BukkitWorld) getWorld.invoke(dp, w); //dp.getWorld(world);
-        } catch (NullPointerException | IllegalAccessException | IllegalArgumentException |
-                 InvocationTargetException ex) {
-            Ostrov.log_warn("DynmapHook getWorld : " + ex.getMessage());
-            return null;
+  //PluginEnableEvent - hook
+  //ServerLst-onWorldLoaded
+  public static void onWorldLoad(World w) {
+    switch (GM.GAME) {
+      case Game.MI -> show(w, w.getName());
+      case AR, OB, SK -> {
+        if (w.getName().equals("world")) {
+          show(w, w.getName());
         }
+      }
+      default -> {
+        if (Ostrov.MOT_D.equals("home")) {
+          show(w, w.getName());
+        }
+      }
+    }
     }
 
-    public static void show(final World world, final String displayName) {
+  public static void show(final World w, final String displayName) {
 //Ostrov.log_ok(" ========= showWorld "+world.name());
-        if (core == null) {
-            Ostrov.log_warn("dynmap show " + world.getName() + " : core == null!");
-            return;
-        }
+    w.getPersistentDataContainer().set(MAP, PersistentDataType.BOOLEAN, true);
 
-        final BukkitWorld bw = getWorld(world);
-        if (bw == null) {
-            Ostrov.log_warn("dynmap show " + world.getName() + " : BukkitWorld = null!");
-            return;
-        }
-        bw.showborder = false;
-        bw.setTitle(displayName);
-        if (core.processWorldLoad(bw)) { //dp.showWorld(bw);  // Have core process load first - fire event listeners if good load after
-            core.listenerManager.processWorldEvent(EventType.WORLD_LOAD, bw);
-        }
-        //try {
+    DynmapWorld dw = DynmapPlugin.bukkitWorld(w.getName());
+    if (dw == null) {
+      dw = new DynmapWorld(w);
+      DynmapPlugin.world_by_name.put(w.getName(), dw);
+      DynmapCore.updateConfigHashcode();
+      DynmapCore.mapManager.activateWorld(dw);
+    } else {
+      DynmapCore.mapManager.loadWorld(dw);
+    }
+    dw.showborder = false;
+    dw.setTitle(displayName);
+    Ostrov.log_warn("dynmap show " + w.getName());
 
-        //} catch (NullPointerException | IllegalArgumentException  ex) {
-        //    Ostrov.log_warn("DynmapHook show : "+ex.getMessage());
-        // }
     }
 
-    public MapManager getMapManager() {
-        return core == null ? null : core.mapManager;
-    }
 
     public static void purge(final String worldName) {
         //если мир не прошкл по WorldUnloadEvent, динмап будет снова писать файлы!
         //чистить только когда мир выгружен!
 
-        if (core == null) {
-            Ostrov.log_warn("dynmap purge core == null!");
+      //   if (core == null) {
+      //      return;
+      //   }
+      final World w = Bukkit.getWorld(worldName);
+      if (w == null) {
+        Ostrov.log_warn("dynmap purge " + worldName + " : не загружен!");
             return;
-        }
+      }
+      if (!w.getPersistentDataContainer().has(MAP)) {
+        Ostrov.log_warn("dynmap purge - мир никогда не показывался");
+        return;
+      }
+      w.getPersistentDataContainer().remove(MAP);
 
-        if (getConnection == null || releaseConnection == null) {
+
+     /*    if (getConnection == null || releaseConnection == null) {
             Ostrov.log_warn("DynmapHook hook : хранилище НЕ MySql!");
             return;
         }
@@ -302,8 +186,10 @@ public class DynmapHook {
                     purged.remove(worldName);
                 }
             }
-        }, 0);
+        }, 0);*/
     }
+
+
     
     
  /*   public static void purge(final String worldname) {
@@ -325,3 +211,156 @@ Ostrov.log_warn(" ========= purge "+worldname);
 
 
 }
+
+
+//  private static DynmapPlugin dp;
+//  private static DynmapCore core;
+//private static Method getWorld;
+//private static Method getConnection;
+//private static Method releaseConnection;
+
+
+//static final DynmapAPI api = (DynmapAPI)Bukkit.getPluginManager().getPlugin("dynmap"); ;
+//static final MarkerAPI markerapi = api.getMarkerAPI();
+//static final MarkerSet set =  markerapi.createMarkerSet("factions.markerset", "Кланы", null, false);
+//static final MarkerIcon baseIcon = markerapi.getMarkerIcon("tower");
+
+  /*      dp = (DynmapPlugin) plugin;
+        try {
+            final Field coreField = dp.getClass().getDeclaredField("core");
+            coreField.setAccessible(true);
+            core = (DynmapCore) coreField.get(dp);
+//Ostrov.log("DynmapHook core = "+core);
+            getWorld = dp.getClass().getDeclaredMethod("getWorld", World.class);
+
+            final MapStorage storage = core.getDefaultMapStorage();
+            if (storage instanceof final MySQLMapStorage sql) {
+                getConnection = sql.getClass().getDeclaredMethod("getConnection");
+                getConnection.setAccessible(true);
+                releaseConnection = sql.getClass().getDeclaredMethod("releaseConnection", java.sql.Connection.class, boolean.class);
+                releaseConnection.setAccessible(true);
+            } else {
+                Ostrov.log_warn("DynmapHook : хранилище НЕ MySql!");
+                return;
+            }
+
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException |
+                 NoSuchMethodException ex) {
+            Ostrov.log_err("DynmapHook hook : " + ex.getMessage());
+            ex.printStackTrace();
+            core = null;
+            return;
+        }
+
+        core.playerfacemgr = null;
+        core.skinUrlProvider = null;
+
+        RegisteredListener rl;
+        final Iterator<RegisteredListener> it = HandlerList.getRegisteredListeners(dp).iterator();
+        while (it.hasNext()) {
+            rl = it.next();
+
+            boolean disable = true;
+
+            final Listener lst = rl.getListener();
+//Ostrov.log("RegisteredListener="+lst.getClass().name()+" priority="+rl.getPriority());
+
+            Method[] methods = lst.getClass().getDeclaredMethods();
+            for (Method m : methods) {
+//Ostrov.log("Method="+m.name());
+                switch (m.getName()) {
+                    case "onPlayerJoin",
+                         "onPlayerQuit",
+                         //"onWorldUnload", - делаем отдельный эвент
+                         "onBlockPlace",
+                         "onBlockBreak",
+                         "onChunkPopulate",
+                         "onPluginEnabled" -> disable = false;
+                }
+            }
+
+            if (disable) {
+                HandlerList.unregisterAll(lst);
+//Ostrov.log("------- выкл");
+            }
+        }
+
+        Listener worldTrigger = new Listener() {
+            // @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+            // public void onWorldLoad(WorldLoadEvent event) {
+            //      BukkitWorld w = getWorld(event.getWorld());
+            //     if(core.processWorldLoad(w))    /* Have core process load first - fire event listeners if good load after
+            //         core.listenerManager.processWorldEvent(EventType.WORLD_LOAD, w);
+            //  }
+            @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+            public void onWorldUnload(final WorldUnloadEvent event) {
+                final BukkitWorld w = getWorld(event.getWorld());
+                if (w != null) {
+                    core.listenerManager.processWorldEvent(EventType.WORLD_UNLOAD, w);
+                    w.setWorldUnloaded();
+                    core.processWorldUnload(w);
+                }
+            }
+
+        };
+        Bukkit.getPluginManager().registerEvents(worldTrigger, Ostrov.instance);
+*/
+
+//for (RegisteredListener rl : HandlerList.getRegisteredListeners(dp)) {
+//for (int i = 0; i < hl.getRegisteredListeners().length; i++) {
+//for (RegisteredListener rl : HandlerList.getRegisteredListeners(dynmap)) {
+//for (RegisteredListener rl : WorldLoadEvent.getHandlerList().getRegisteredListeners(dynmap)) {
+//RegisteredListener rl = hl.getRegisteredListeners()[i];
+//Ostrov.log_warn("rl="+rl.getListener().getClass().name()+" plugin="+rl.getPlugin().name()+" priority="+rl.getPriority());
+//   if (rl.getPlugin().name().equals("dynmap")) {
+//Ostrov.log_warn("------");
+//if (rl.getListener() instanceof )
+// }
+// }
+//}
+//WorldLoadEvent.getHandlerList().
+
+
+
+
+    /*  public static void createMaps() {
+  //Ostrov.log_warn(" ------------- updateMaps ");
+          Ostrov.async( ()-> {
+              DynmapFactions.updateFactions();
+          }, 5*20);
+      }
+
+      public static void updateBaseIcon(final Faction f) {
+          Ostrov.async( ()-> {
+              DynmapFactions.drawFactionBaseIcon(f, DynmapFactions.getDescription(f));
+          }, 1);
+      }
+
+      public static void updateFactionArea(final Faction f) {
+          Ostrov.async( ()-> {
+              DynmapFactions.drawFactionArea(f, DynmapFactions.getDescription(f));
+          }, 1);
+      }
+
+      public static void wipe(final int factionID) {
+          Ostrov.async( ()-> {
+              DynmapFactions.wipe(factionID);
+          }, 1);
+      }
+  */
+
+
+// public MapManager getMapManager() {
+//    return core == null ? null : core.mapManager;
+// }
+
+
+   /* public static BukkitWorld getWorld(final World w) {
+        try {
+            return (BukkitWorld) getWorld.invoke(dp, w); //dp.getWorld(world);
+        } catch (NullPointerException | IllegalAccessException | IllegalArgumentException |
+                 InvocationTargetException ex) {
+            Ostrov.log_warn("DynmapHook getWorld : " + ex.getMessage());
+            return null;
+        }
+    }*/

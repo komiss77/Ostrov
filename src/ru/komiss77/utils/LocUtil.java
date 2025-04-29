@@ -295,6 +295,7 @@ public class LocUtil {
         final World w = loc.getWorld();
         for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
+              if (!w.isChunkLoaded(cx, cz)) continue;
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
                     final Location el = EntityUtil.center(e);
@@ -319,6 +320,7 @@ public class LocUtil {
         G fin = null;
         for (int cx = (int) (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (int) (Z - dst) >> 4; cz <= mnZ; cz++) {
+              if (!w.isChunkLoaded(cx, cz)) continue;
                 for (final Entity e : w.getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
                     final Location el = EntityUtil.center(e);
@@ -348,6 +350,7 @@ public class LocUtil {
         final int mnX = (X + dst) >> 4, mnZ = (Z + dst) >> 4;
         for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
+              if (!w.isChunkLoaded(cx, cz)) continue;
                 for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
                     final Location el = EntityUtil.center(e);
@@ -378,6 +381,7 @@ public class LocUtil {
         G fin = null;
         for (int cx = (X - dst) >> 4; cx <= mnX; cx++) {
             for (int cz = (Z - dst) >> 4; cz <= mnZ; cz++) {
+              if (!w.isChunkLoaded(cx, cz)) continue;
                 for (final Entity e : loc.w().getChunkAt(cx, cz).getEntities()) {
                     if (!ent.isInstance(e)) continue;
                     final Location el = EntityUtil.center(e);

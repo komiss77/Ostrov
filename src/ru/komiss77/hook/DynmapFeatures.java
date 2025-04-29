@@ -45,11 +45,6 @@ public class DynmapFeatures {
         // make sure DynMap version is new enough to include circular markers
         try {
             Class.forName("org.dynmap.markers.CircleMarker");
-
-            // for version 0.35 of DynMap, CircleMarkers had just been introduced and were bugged (center position always 0,0)
-            if (api.getDynmapVersion().startsWith("0.35-")) {
-                throw new ClassNotFoundException();
-            }
         } catch (ClassNotFoundException ex) {
             Ostrov.log_ok("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
             return;
