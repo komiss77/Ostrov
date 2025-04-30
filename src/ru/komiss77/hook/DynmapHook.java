@@ -1,5 +1,9 @@
 package ru.komiss77.hook;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Bukkit;
@@ -9,7 +13,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapCore;
 import org.dynmap.DynmapWorld;
+import org.dynmap.MapManager;
+import org.dynmap.MarkersComponent;
 import org.dynmap.bukkit.DynmapPlugin;
+import org.dynmap.storage.MapStorage;
+import org.dynmap.storage.MySQLMapStorage;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.modules.games.GM;
@@ -20,14 +28,19 @@ import ru.komiss77.modules.games.GM;
 //https://www.spigotmc.org/resources/liveatlas-alternative-map-ui-dynmap-pl3xmap-squaremap.86939/
 //https://github.com/webbukkit/dynmap/wiki/Dynmap-with-Nginx
 
+// TODO
+// показать спавн
+// на островке зум карты побольше
+// название мира показывать как ник
+// убрать пещерный вид
 
 public class DynmapHook {
 
-    private static final Set<String> purged;
+  //private static final Set<String> purged;
   public static final NamespacedKey MAP = new NamespacedKey(Ostrov.instance, "dynmap");
 
     static {
-        purged = new HashSet<>();
+      //purged = new HashSet<>();
     }
 
   //из PluginEnableEvent - основные миры уже подгружены
@@ -78,17 +91,23 @@ public class DynmapHook {
 //Ostrov.log_ok(" ========= showWorld "+world.name());
     w.getPersistentDataContainer().set(MAP, PersistentDataType.BOOLEAN, true);
 
-    DynmapWorld dw = DynmapPlugin.bukkitWorld(w.getName());
+    DynmapWorld dw = DynmapPlugin.dw(w);
     if (dw == null) {
-      dw = new DynmapWorld(w);
-      DynmapPlugin.world_by_name.put(w.getName(), dw);
+      dw = DynmapPlugin.addWorld(w);//new DynmapWorld(w);
+      //DynmapPlugin.world_by_name.put(w.getName(), dw);
+      //DynmapPlugin.world_by_name.put(dw.dynmapName(), dw);
+      dw.showborder = false;
+      dw.setTitle(displayName);
+      if (!w.getName().equals(displayName)) { //так будет на островах
+        dw.setExtraZoomOutLevels(4);
+      }
       DynmapCore.updateConfigHashcode();
       DynmapCore.mapManager.activateWorld(dw);
+      MarkersComponent.addUpdateWorld(dw, dw.getSpawnLocation());
     } else {
       DynmapCore.mapManager.loadWorld(dw);
     }
-    dw.showborder = false;
-    dw.setTitle(displayName);
+    //dw.
     Ostrov.log_warn("dynmap show " + w.getName());
 
     }
@@ -112,6 +131,59 @@ public class DynmapHook {
       }
       w.getPersistentDataContainer().remove(MAP);
 
+      DynmapWorld dw = DynmapPlugin.removeWorld(w);
+      if (dw == null) {
+        Ostrov.log_warn("dynmap purge - DynmapWorld = null");
+        return;
+      }
+
+      MapManager.cancelRender(dw.dynmapName, Bukkit.getConsoleSender());
+      MapManager.purgeQueue(Bukkit.getConsoleSender(), dw.dynmapName);
+
+      if (dw.storage instanceof final MySQLMapStorage sql) {
+        Ostrov.async(() -> {
+          //Ostrov.log_warn(" ========= purge "+worldName);
+          boolean err = false;
+          Connection c = null;
+          try {
+            c = sql.getConnection();
+            Statement stmt = c.createStatement();
+            final Set<Integer> ids = new HashSet<>();
+            ResultSet rs = stmt.executeQuery("SELECT `id` FROM `Maps` WHERE `WorldID`='" + dw.dynmapName + "';");
+            while (rs.next()) {
+              ids.add(rs.getInt("id"));
+            }
+            rs.close();
+
+
+            if (ids.isEmpty()) {
+              Ostrov.log_ok("dynmap purge " + worldName + " : записей в Maps не найдено");
+              return;
+            }
+
+            stmt.executeUpdate("DELETE FROM `StandaloneFiles` WHERE `FileName`='dynmap_" + dw.dynmapName + ".json' ;");
+            stmt.executeUpdate("DELETE FROM `MarkerFiles` WHERE `FileName`='" + dw.dynmapName + "' ;");
+            stmt.executeUpdate("DELETE FROM `Maps` WHERE `WorldID`='" + dw.dynmapName + "' ;");
+
+            for (int id : ids) {
+              stmt.executeUpdate("DELETE FROM `Tiles` WHERE `MapID`='" + id + "' ;");
+            }
+
+            Ostrov.log_ok("dynmap purge " + worldName + " : удалено " + ids.size() + " карт");
+
+            //stmt.close();
+
+          } catch (SQLException ex) {
+            Ostrov.log_err("purge " + worldName + " : " + ex.getMessage());
+            err = true;
+          } catch (MapStorage.StorageShutdownException e) {
+            throw new RuntimeException(e);
+          } finally {
+            if (c != null) sql.releaseConnection(c, err);
+            //purged.remove(worldName);
+          }
+        }, 0);
+      }
 
      /*    if (getConnection == null || releaseConnection == null) {
             Ostrov.log_warn("DynmapHook hook : хранилище НЕ MySql!");

@@ -296,7 +296,7 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
 
 
   public void setChunks(DynmapWorld dw, List<DynmapChunk> chunks) {
-    this.link = new WeakReference<>(Bukkit.getWorld(dw.getName()));
+    this.link = dw.worldLink;//new WeakReference<>(dw.world());
     super.setChunks(dw, chunks);
   }
 
