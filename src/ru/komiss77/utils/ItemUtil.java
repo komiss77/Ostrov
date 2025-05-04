@@ -2035,7 +2035,7 @@ public class ItemUtil {
         //   case EGG, : return true;
         //  default: return false;
         //}
-        return type.name().endsWith("_EGG");
+      return type.name().endsWith("_SPAWN_EGG"); // EntityUtil typeFromEgg : DRAGON_EGG не конвертируется в EntityType!
     }
 
   @Deprecated

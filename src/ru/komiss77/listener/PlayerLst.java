@@ -40,8 +40,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
-import ru.komiss77.enums.Game;
-import ru.komiss77.enums.ServerType;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.entities.PvPManager;
@@ -85,6 +84,19 @@ public class PlayerLst implements Listener {
         if (ResourcePacksLst.use) {
             ResourcePacksLst.execute(e.getPlayer());
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onGameMode(PlayerGameModeChangeEvent e) {
+        final Player p = e.getPlayer();
+        if (ApiOstrov.canBeBuilder(p)) return;
+        if (GM.GAME == Game.AR || GM.GAME == Game.JL) return;
+        final Oplayer op = PM.getOplayer(p);
+        if (op == null || op.isStaff) return;
+        RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
+            " (`action`,`sender`,`target`,`report`,`data`,`note`) VALUES ('"
+            + HistoryType.GAMEMODE.name() + "','" + Ostrov.MOT_D + "','" + op.nik
+            + "','old=" + p.getPreviousGameMode().name() + "','" + Timer.secTime() + "','new=" + e.getNewGameMode().name() + "');");
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

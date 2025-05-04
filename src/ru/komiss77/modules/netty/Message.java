@@ -205,9 +205,12 @@ public class Message {
                 .append(Component.space().style(Style.empty()));
         }
 
+      if (!has(Part.SENDER)) Ostrov.log_warn("Message SENDER-null : " + toString());
+
         final String sender = has(Part.SENDER)
             ? data(Part.SENDER) : (eng ? "Unknown" : "Нечто");
-        mb.append(TCUtil.form(ChatLst.NIK_COLOR + sender)
+
+      mb.append(TCUtil.form(ChatLst.NIK_COLOR + sender)
                 .hoverEvent(has(Part.PROFILE)
                     ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
                 .clickEvent(ClickEvent.suggestCommand("/msg " + sender + " ")))

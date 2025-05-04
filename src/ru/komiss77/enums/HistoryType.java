@@ -3,47 +3,49 @@ package ru.komiss77.enums;
 
 public enum HistoryType {
 
-    NONE("", "AIR"),
+  NONE("", "AIR", 0),
 
-    BAN_SET("Бан", "INK_SAC"),
-    UNBAN("Разбан", "GLOW_INK_SAC"),
-    BANIP_SET("Бан по IP", "ENDER_PEARL"),
-    UNBANIP("Разбан IP", "ENDER_EYE"),
-    MUTE_SET("Молчанка", "BEETROOT_SOUP"),
-    UNMUTE("Снятие Молчанки", "BOWL"),
-    KICK("Пинок", "BLAZE_POWDER"),
+  BAN_SET("Бан", "INK_SAC", -5),
+  UNBAN("Разбан", "GLOW_INK_SAC", 4),
+  BANIP_SET("Бан по IP", "ENDER_PEARL", -10),
+  UNBANIP("Разбан IP", "ENDER_EYE", 9),
+  MUTE_SET("Молчанка", "BEETROOT_SOUP", -1),
+  UNMUTE("Снятие Молчанки", "BOWL", 0),
+  KICK("Пинок", "BLAZE_POWDER", -1),
 
-    GROUP_ADD("Добавление Группы", "RESIN_BRICK"),
-    GROUP_TIME_ADD("Продление Группы", "COPPER_INGOT"),
-    GROUP_EXPIRIED("Снятие Группы", "RESIN_CLUMP"),
-    PERMS_ADD("Добавление Права", "IRON_INGOT"),
-    PERMS_TIME_ADD("Продление Права", "RAW_IRON"),
-    PERMS_EXPIRIED("Удаление Права", "IRON_NUGGET"),
-    STAFF_ADD("Получение Должности", "MAGMA_CREAM"),
-    STAFF_DEL("Снятие с Должности", "SLIME_BALL"),
+  GROUP_ADD("Добавление Группы", "RESIN_BRICK", 1),
+  GROUP_TIME_ADD("Продление Группы", "COPPER_INGOT", 1),
+  GROUP_EXPIRIED("Снятие Группы", "RESIN_CLUMP", 0),
+  PERMS_ADD("Добавление Права", "IRON_INGOT", 0),
+  PERMS_TIME_ADD("Продление Права", "RAW_IRON", 1),
+  PERMS_EXPIRIED("Удаление Права", "IRON_NUGGET", 0),
+  STAFF_ADD("Получение Должности", "MAGMA_CREAM", 1),
+  STAFF_DEL("Снятие с Должности", "SLIME_BALL", -1),
 
-    MONEY_REAL_USE("Затрата Рил", "RAW_GOLD"),
-    MONEY_REAL_ADD("Получение Рил", "GOLD_NUGGET"),
-    MONEY_REAL_WITHDRAW("Заявка на Вывод", "GOLD_INGOT"),
+  MONEY_REAL_USE("Затрата Рил", "RAW_GOLD", 1),
+  MONEY_REAL_ADD("Получение Рил", "GOLD_NUGGET", 1),
+  MONEY_REAL_WITHDRAW("Заявка на Вывод", "GOLD_INGOT", 1),
 
-    SESSION_INFO("Сессия", "HONEYCOMB"),
-    OS_LVL_UP("Повышение Уровня", "EXPERIENCE_BOTTLE"),
-    PASS_CHANGE("Смена Пароля", "GLISTERING_MELON_SLICE"),
-    MISSION("Выполнение Миссии", "GUSTER_BANNER_PATTERN"),
-    GAMEMODE("Смена Режима", "TURTLE_HELMET"),
+  SESSION_INFO("Сессия", "HONEYCOMB", 0),
+  OS_LVL_UP("Повышение Уровня", "EXPERIENCE_BOTTLE", 1),
+  PASS_CHANGE("Смена Пароля", "GLISTERING_MELON_SLICE", 0),
+  MISSION("Выполнение Миссии", "GUSTER_BANNER_PATTERN", 1),
+  GAMEMODE("Смена Режима", "TURTLE_HELMET", 0),
 
-    FRIEND_ADD("Принятие Друга", "GLOWSTONE_DUST"),
-    FRIEND_DEL("Удаление Друга", "REDSTONE"),
-    PARTY_ADD("Добавление в Комманду", "FERMENTED_SPIDER_EYE"),
-    PARTY_DEL("Удаление из Комманды", "SPIDER_EYE"),
+  FRIEND_ADD("Принятие Друга", "GLOWSTONE_DUST", 1),
+  FRIEND_DEL("Удаление Друга", "REDSTONE", -1),
+  PARTY_ADD("Добавление в Комманду", "FERMENTED_SPIDER_EYE", 0),
+  PARTY_DEL("Удаление из Комманды", "SPIDER_EYE", 0),
     ;
 
     public final String for_chat;
     public final String displayMat;
+  public final int repChange;
 
-    HistoryType(final String for_chat, final String type) {
+  HistoryType(final String for_chat, final String type, final int repChange) {
         this.for_chat = for_chat;
         this.displayMat = type;
+    this.repChange = repChange;
     }
 
     public static HistoryType by_action(final String as_string) {

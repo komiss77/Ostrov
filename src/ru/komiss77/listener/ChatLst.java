@@ -70,12 +70,12 @@ public class ChatLst implements Listener {
                     TimeUtil.secondToTime(senderOp.globalInt(Data.MUTE_TO) - Timer.secTime()))))
                 .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
         }
-        final boolean banned = senderOp.globalInt(Data.BAN_TO) > Timer.secTime();
+      final boolean banned = senderOp.globalInt(Data.JAILED) > 0;//Timer.secTime();
         if (banned) {
             sender.sendMessage(Component.text("Чат ограничен чистилищем - ты в бане", NamedTextColor.DARK_RED)
                 .hoverEvent(HoverEvent.showText(TCUtil.form("§cБан от §6" + senderOp.globalStr(Data.BAN_BY)
                     + " §cдо §b" + senderOp.globalStr(Data.BAN_REAS) + "§c, осталось: §e" +
-                    TimeUtil.secondToTime(senderOp.globalInt(Data.BAN_TO) - Timer.secTime()))))
+                    TimeUtil.secondToTime(senderOp.globalInt(Data.JAILED))))) //- Timer.secTime()
                 .clickEvent(ClickEvent.openUrl("https://discord.com/channels/646762127335489540/679455910283706388")));
             return;
         }

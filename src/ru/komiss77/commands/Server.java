@@ -14,7 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
@@ -188,8 +187,8 @@ public class Server implements OCommand {
           return 0;
         }
 
-        if (op.getDataInt(Data.BAN_TO) > 0) {
-          p.sendMessage("§cВы сможете покинуть чистилище через " + TimeUtil.secondToTime(op.getDataInt(Data.BAN_TO) - Timer.getTime()));
+        if (op.getDataInt(Data.JAILED) > 0) {
+          p.sendMessage("§cВы сможете покинуть чистилище через " + TimeUtil.secondToTime(op.getDataInt(Data.JAILED)));// - Timer.getTime()));
           return 0;
         }
 

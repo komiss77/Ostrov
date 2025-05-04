@@ -33,7 +33,9 @@ import ru.komiss77.commands.Comm;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.HistoryType;
 import ru.komiss77.enums.Stat;
+import ru.komiss77.enums.Table;
 import ru.komiss77.events.MissionEvent;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
@@ -414,10 +416,11 @@ public class MissionCmd implements OCommand {
                 stmt = conn.createStatement();
                 rs = stmt.executeQuery("SELECT `progress` FROM `missionsProgress` WHERE `recordId`='" + mi.getRecordID(op.nik) + "' AND `completed`='0';");
 
-                String progress = null;
+                final String progress;
                 if (rs.next()) {
                   progress = rs.getString("progress");
-//System.out.println("progress="+progress);
+                } else {
+                  progress = null;
                 }
                 rs.close();
 
@@ -463,7 +466,7 @@ public class MissionCmd implements OCommand {
                       op.setData(Data.MISSIONS, StringUtil.listToString(op.missionIds.keySet(), ";"));//обновить Data.MISSION
                       //награда
                       op.setData(Data.RIL, op.getDataInt(Data.RIL) + mi.reward);
-                      op.addStat(Stat.REPUTATION, 1);
+                      //op.addStat(Stat.REPUTATION, 1); добавит на прокси за миссию
                       op.addStat(Stat.EXP, 10);
                       p.sendMessage(" ");
                       final String rc = TCUtil.randomColor();
@@ -478,6 +481,12 @@ public class MissionCmd implements OCommand {
                       p.getWorld().playSound(p.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_5, 1, 1);
                       Bukkit.getPluginManager().callEvent(new MissionEvent(p, mi.name, MissionEvent.MissionAction.Complete));
                       ParticleUtil.spawnRandomFirework(p.getLocation().clone().add(0, 2, 0));
+
+                      RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
+                          " (`action`, `sender`, `target`, `target_ip`, `report`, `data`, `note`) VALUES ('"
+                          + HistoryType.MISSION.name() + "','" + Ostrov.MOT_D + "','" + op.nik + "','" + op.getDataString(Data.IP)
+                          + "','missionId=" + missionId + "','" + Timer.secTime() + "','progress=" + progress + "') ");
+
                     }, 0);
                     ParticleUtil.display(p.getLocation());
                     Ostrov.sync(() -> ParticleUtil.spawnRandomFirework(p.getLocation().clone().add(0, 2, 0)), 10);

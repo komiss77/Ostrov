@@ -53,10 +53,11 @@ public enum Data {
     VALID(134, "Данные хранятся до", "", true, Table.USER, true, true, -1),//
     TEXTDATA(135, "Разные данные", "", false, Table.USER, true, true, -1),//
     LANG(136, "Язык", "0", true, Table.USER, true, true, -1),//
+    JAILED(137, "Время в чистилище", "0", true, Table.USER, true, true, -1),//сохраняется командой ban
 
     USER_PERMS(150, "", "", false, Table.PEX_USER_PERMS, true, false, -1),//удаляется перед сохранением
 
-    BAN_TO(160, "ban", "-1", true, Table.JUDGEMENT, true, false, -1),//сохраняется командой ban
+    @Deprecated BAN_T0(160, "ban", "-1", true, Table.JUDGEMENT, true, false, -1),//сохраняется командой ban
     BAN_BY(161, "banby", "", false, Table.JUDGEMENT, true, false, -1),//сохраняется командой ban
     BAN_REAS(162, "banreas", "", false, Table.JUDGEMENT, true, false, -1),//сохраняется командой ban
     MUTE_TO(163, "mute", "-1", true, Table.JUDGEMENT, true, false, -1),//сохранять в saveUser не надо - сохраняется командой mute
@@ -83,7 +84,7 @@ public enum Data {
     public final Table table;
     public final boolean send_to_ostrov;
     public final boolean saveToDb;
-    public final byte passSeq;
+    public final byte passSeq; //слот в паспорте
 
     Data(final int tag, final String desc, final String defValue, final boolean isInt, final Table table, final boolean sendToProxy, final boolean saveToDb, final int passSeq) {
         this.tag = tag;
