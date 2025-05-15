@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.builder.menu.WorldSetupMenu;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -49,7 +50,7 @@ public class WorldCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Перемещение между марами")
-        .register();
+        .register(Ostrov.mgr);
 
   }
 }

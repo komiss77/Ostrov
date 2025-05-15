@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.translate.Lang;
@@ -30,21 +31,13 @@ public class GmCmd {
                     return 0;
                 }
                 switch (p.getGameMode()) {
-                    case CREATIVE:
+                    case CREATIVE, SPECTATOR:
                         p.setGameMode(GameMode.SURVIVAL);
                         p.sendMessage("§e" + Lang.t(p, "Установлено выживание!"));
                         break;
-                    case SURVIVAL:
+                    case SURVIVAL, ADVENTURE:
                         p.setGameMode(GameMode.CREATIVE);
                         p.sendMessage("§e" + Lang.t(p, "Установлен креатив!"));
-                        break;
-                    case ADVENTURE:
-                        p.setGameMode(GameMode.CREATIVE);
-                        p.sendMessage("§e" + Lang.t(p, "Установлен креатив!"));
-                        break;
-                    case SPECTATOR:
-                        p.setGameMode(GameMode.SURVIVAL);
-                        p.sendMessage("§e" + Lang.t(p, "Установлено выживание!"));
                         break;
                 }
                 return Command.SINGLE_SUCCESS;
@@ -83,7 +76,7 @@ public class GmCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меняет режим игры")
-            .register();
+            .register(Ostrov.mgr);
     }
 
 }

@@ -387,7 +387,7 @@ public class OcleanCmd implements OCommand {
             })
         .description("Очистка данных")
         //.aliases("очистка")
-        .register();
+        .register(Ostrov.mgr);
     }*/
 }
     

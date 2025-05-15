@@ -89,7 +89,7 @@ public class SpyCmd {
             op.tag.visible(false);
 
             return Command.SINGLE_SUCCESS;
-        }).description("Слежка за игроками").register();
+        }).description("Слежка за игроками").register(Ostrov.mgr);
     }
 
     public static class SpyMenu implements InventoryProvider {

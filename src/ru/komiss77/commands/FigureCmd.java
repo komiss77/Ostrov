@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.modules.figures.MenuMain;
 import ru.komiss77.utils.inventory.SmartInventory;
@@ -33,6 +34,6 @@ public class FigureCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Фигуры")
-        .register();
+        .register(Ostrov.mgr);
   }
 }

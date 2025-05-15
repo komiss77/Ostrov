@@ -101,6 +101,6 @@ public final class PvpCmd {
                 default:
                     return 0;
             }
-        }).description("Вкл/Выкл ПВП Режим").register();
+        }).description("Вкл/Выкл ПВП Режим").register(Ostrov.mgr);
     }
 }

@@ -177,7 +177,6 @@ public class Ostrov extends JavaPlugin {
     }
 
 
-
     public static void regCommand(final OCommand cmd) {
         mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(cmd.command(), cmd.description(), cmd.aliases());

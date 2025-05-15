@@ -104,6 +104,6 @@ public class CraftCmd {
                 };
             })
             .description("Редактор крафтов")
-            .register();
+            .register(Ostrov.mgr);
     }
 }

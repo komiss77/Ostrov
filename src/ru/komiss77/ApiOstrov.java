@@ -253,13 +253,11 @@ public class ApiOstrov {
      */
     public static void moneyChange(final Player target, final int value, final String source) {
         final Oplayer targetOp = PM.getOplayer(target.getUniqueId());
-        targetOp.setData(Data.LONI, targetOp.getDataInt(Data.LONI) + value);//moneySet(curr+value, send_update);
+        targetOp.globalInt(Data.LONI, targetOp.globalInt(Data.LONI) + value);
         if (value > 9 || value < -9) { //по копейкам не уведомляем
-            target.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<клик-баланс")
-                .hoverEvent(HoverEvent.showText(TCUtil.form("§5Клик - сколько стало?")))
+            target.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7" + (value > 9 ? "Поступление" : "Расход") + " средств: " + source + " §7-> " + (value > 9 ? "§2" : "§4") + value + " " + Ostrov.L + " §7! §8<баланс")
+                .hoverEvent(HoverEvent.showText(TCUtil.form("§5Клик §7- сколько стало?")))
                 .clickEvent(ClickEvent.runCommand("/money balance")));
-        } else {
-            //?? писать ли что-нибудь??
         }
     }
 

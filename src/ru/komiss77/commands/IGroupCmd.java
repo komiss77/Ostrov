@@ -76,6 +76,6 @@ public class IGroupCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Выдает предметы из группы")
-            .register();
+            .register(Ostrov.mgr);
     }
 }

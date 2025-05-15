@@ -14,9 +14,11 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.OCommand;
 import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.utils.TCUtil;
 
@@ -128,7 +130,12 @@ public class OCmdBuilder {
         return this;
     }
 
+    @Deprecated
     public void register() {
+        register(Ostrov.mgr);
+    }
+
+    public void register(final LifecycleEventManager<Plugin> mgr) {
         final CommandNode<CommandSourceStack> node = construct();
         if (last == null) origin = (LiteralCommandNode<CommandSourceStack>) node;
         else last.addChild(node);
@@ -142,16 +149,8 @@ public class OCmdBuilder {
         for (final String als : aliases)
             convs.add(TransLiter.reLayOut(als));
         convs.add(TransLiter.reLayOut(name));
-        Ostrov.regCommand(new OCommand() {
-            public LiteralCommandNode<CommandSourceStack> command() {
-                return origin;
-            }
-            public Set<String> aliases() {
-                return convs;
-            }
-            public String description() {
-                return desc;
-            }
+        mgr.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(origin, desc, convs);
         });
     }
 

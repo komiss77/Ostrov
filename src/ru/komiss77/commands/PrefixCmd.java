@@ -42,7 +42,7 @@ public class PrefixCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Ставит префикс")
-            .register();
+            .register(Ostrov.mgr);
     }
 /*
     @Override //старое

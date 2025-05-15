@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.plugin.bootstrap.BootstrapContext;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.registry.RegistryKey;
 import io.papermc.paper.registry.TypedKey;
 import io.papermc.paper.registry.data.EnchantmentRegistryEntry;
@@ -20,12 +23,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.*;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
-import ru.komiss77.boot.OStrap;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -77,28 +80,26 @@ public class EnchantManager implements Initiable, Listener {
     }
   };*/
 
-    private static final RegistryKeySet<ItemType>
-        noIts = RegistrySet.keySet(RegistryKey.ITEM);
-    public static void register() {
-        OStrap.strap(mgr -> mgr.registerEventHandler(RegistryEvents.ENCHANTMENT
-            .freeze().newHandler(e -> {
-                final WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
-                for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
-                    if (ce.isReg()) continue;
-                    rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
-                        b -> b.description(TCUtil.form(ce.name()))
-                            .primaryItems(ce.isInTable() ? ce.targets() : noIts)
-                            .supportedItems(ce.isInTable() ? noIts : ce.targets())
-                            .anvilCost(ce.anvilCost())
-                            .maxLevel(ce.maxLevel())
-                            .weight(ce.weight())
-                            .exclusiveWith(ce.conflicts())
-                            .minimumCost(ce.minCost())
-                            .maximumCost(ce.maxCost())
-                            .activeSlots(ce.slots()));
-                    ce.setReg();
-                }
-            })));
+    private static final RegistryKeySet<ItemType> noIts = RegistrySet.keySet(RegistryKey.ITEM);
+    public static void register(final LifecycleEventManager<BootstrapContext> mgr) {
+        mgr.registerEventHandler(RegistryEvents.ENCHANTMENT.freeze().newHandler(e -> {
+            final WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
+            for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
+                if (ce.isReg()) continue;
+                rg.register(TypedKey.create(RegistryKey.ENCHANTMENT, ce.getKey()),
+                    b -> b.description(TCUtil.form(ce.name()))
+                        .primaryItems(ce.isInTable() ? ce.targets() : noIts)
+                        .supportedItems(ce.isInTable() ? noIts : ce.targets())
+                        .anvilCost(ce.anvilCost())
+                        .maxLevel(ce.maxLevel())
+                        .weight(ce.weight())
+                        .exclusiveWith(ce.conflicts())
+                        .minimumCost(ce.minCost())
+                        .maximumCost(ce.maxCost())
+                        .activeSlots(ce.slots()));
+                ce.setReg();
+            }
+        }));
     }
 
     public EnchantManager() {
@@ -153,9 +154,18 @@ public class EnchantManager implements Initiable, Listener {
         enchAct(e.getPlayer(), e);
     }
 
+
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onInt(final PlayerInteractEvent e) {
         enchAct(e.getPlayer(), e);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onAnvil (final PrepareAnvilEvent e) {
+        final ItemStack it = e.getResult();
+        if (ItemUtil.isBlank(it, false)) return;
+        it.resetData(DataComponentTypes.REPAIR_COST);
     }
 
   /*@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

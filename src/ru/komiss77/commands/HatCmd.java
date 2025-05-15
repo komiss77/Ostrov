@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.komiss77.Cfg;
+import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.TCUtil;
@@ -61,6 +62,6 @@ public class HatCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Надеть шляпу")
-            .register();
+            .register(Ostrov.mgr);
     }
 }

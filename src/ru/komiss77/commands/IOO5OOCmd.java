@@ -18,6 +18,7 @@ import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.DelayTeleport;
+import ru.komiss77.modules.Vote;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -26,7 +27,6 @@ import ru.komiss77.modules.player.profile.Section;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.utils.inventory.SmartInventory;
-import ru.komiss77.modules.Vote;
 
 
 public class IOO5OOCmd {
@@ -44,7 +44,7 @@ public class IOO5OOCmd {
             return Command.SINGLE_SUCCESS;
           })
           .description("Установить скин")
-          .register();*/
+          .register(Ostrov.mgr);*/
 
     /*new OCmdBuilder("тест")
         .then(Commands.argument("арг", StringArgumentType.greedyString()).executes(cntx -> {
@@ -53,7 +53,7 @@ public class IOO5OOCmd {
           return Command.SINGLE_SUCCESS;
         })).suggest(cntx -> Set.of("стандарт"), false)
         .description("тест комм")
-        .register();
+        .register(Ostrov.mgr);
 
     new OCmdBuilder("xxx")
         .run(cntx -> {
@@ -65,7 +65,7 @@ public class IOO5OOCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("")
-        .register();*/
+        .register(Ostrov.mgr);*/
 
       new OCmdBuilder("vote")
           .run(cntx -> {
@@ -78,7 +78,7 @@ public class IOO5OOCmd {
             return Command.SINGLE_SUCCESS;
           })
           .description("Меню голосования")
-          .register();
+          .register(Ostrov.mgr);
 
       new OCmdBuilder("rpack") //не переносить в ResourcePacksLst, или пытается грузить дважды, в RegisterCommands и как модуль
           .run(cntx -> {
@@ -92,7 +92,7 @@ public class IOO5OOCmd {
           })
           .description("Установить ресурс-пак")
           .aliases("rp")
-          .register();
+          .register(Ostrov.mgr);
 
       new OCmdBuilder("givemenu")
           .run(cntx -> {
@@ -105,7 +105,7 @@ public class IOO5OOCmd {
             return Command.SINGLE_SUCCESS;
           })
           .description("Получить часики")
-          .register();
+          .register(Ostrov.mgr);
 
         new OCmdBuilder("tps")
             .run(cntx -> {
@@ -121,7 +121,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Нагрузка на сервер")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("serv")
             .run(cntx -> {
@@ -134,7 +134,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Меню серверов")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("land")
             .run(cntx -> {
@@ -151,7 +151,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Помошник привата")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("admin")
             .run(cntx -> {
@@ -173,7 +173,7 @@ public class IOO5OOCmd {
                 return 0;
             })
             .description("Открывает меню Абьюзера")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("home")
             .run(cntx -> {
@@ -191,7 +191,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Управление точками дома")
-            .register();
+            .register(Ostrov.mgr);
 
         final String act = "action";
         new OCmdBuilder("menu")
@@ -222,7 +222,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("серверное меню")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("settings")
             .run(cntx -> {
@@ -240,7 +240,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Личные настройки")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("profile")
             .run(cntx -> {
@@ -259,7 +259,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Открывает Профиль")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("sound")
             .run(cntx -> {
@@ -282,7 +282,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Sound player")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("lobby")
             .run(cntx -> {
@@ -296,7 +296,7 @@ public class IOO5OOCmd {
             })
             .aliases("hub")
             .description("Перейти в лобби")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("tpaccept")
             .run(cntx -> {
@@ -341,7 +341,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Принять запрос на Телепорт")
-            .register();
+            .register(Ostrov.mgr);
 
 
         new OCmdBuilder("top")
@@ -362,7 +362,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Телепорт вверх")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("spawn")
             .run(cntx -> {
@@ -383,7 +383,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Переместиться на спавн")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("back")
             .run(cntx -> {
@@ -413,7 +413,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Вернуться на точку гибели")
-            .register();
+            .register(Ostrov.mgr);
 
         new OCmdBuilder("biome")
             .run(cntx -> {
@@ -427,7 +427,7 @@ public class IOO5OOCmd {
                 return Command.SINGLE_SUCCESS;
             })
             .description("Узнать биом")
-            .register();
+            .register(Ostrov.mgr);
 
 
 

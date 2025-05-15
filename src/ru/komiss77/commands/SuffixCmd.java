@@ -43,7 +43,7 @@ public class SuffixCmd {
         })
         .description("Ставит суффикс")
         //.aliases("")
-        .register();
+        .register(Ostrov.mgr);
   }
 /*
     @Override

@@ -62,6 +62,6 @@ public class ProtocolCmd {
                     yield Command.SINGLE_SUCCESS;
                 default: yield 0;
             };
-        }).description("Протокол").register();
+        }).description("Протокол").register(Ostrov.mgr);
     }
 }

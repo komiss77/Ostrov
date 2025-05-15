@@ -1,29 +1,12 @@
 package ru.komiss77.modules.netty;
 
-import java.util.Set;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
-import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
-import ru.komiss77.enums.Data;
-import ru.komiss77.enums.Operation;
-import ru.komiss77.listener.SpigotChanellMsg;
-import ru.komiss77.modules.player.Oplayer;
-import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.TCUtil;
 
 
 public class RemoteCmd {
@@ -44,7 +27,7 @@ public class RemoteCmd {
           return Command.SINGLE_SUCCESS;
         })
         .description("Выполнение команды на bridge")
-        .register();
+        .register(Ostrov.mgr);
   }
 
 

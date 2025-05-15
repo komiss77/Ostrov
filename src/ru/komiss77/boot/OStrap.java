@@ -1,7 +1,6 @@
 package ru.komiss77.boot;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
@@ -52,19 +51,13 @@ public class OStrap implements PluginBootstrap {
         return new NamespacedKey(key.namespace(), key.value());
     }
 
-    private static LifecycleEventManager<BootstrapContext> mgr;
-
     @Override
     public void bootstrap(final BootstrapContext cntx) {
-        mgr = cntx.getLifecycleManager();
+        final LifecycleEventManager<BootstrapContext> mgr = cntx.getLifecycleManager();
 
         final TagMap tagMap = new TagMap();
         for (final RegTag<?> rt : RegTag.VALUES.values()) tagMap.add(rt);
         for (final RegTag<?>[] rts : tagMap.values()) regTags(rts, mgr);
-    }
-
-    public static void strap(final Consumer<LifecycleEventManager<BootstrapContext>> mcn) {
-        if (mgr != null) mcn.accept(mgr);
     }
 
     private <T extends Keyed> void regTags(final RegTag<?>[] rts, final LifecycleEventManager<BootstrapContext> mgr) {
@@ -165,7 +158,7 @@ public class OStrap implements PluginBootstrap {
 
     public static <E extends Keyed> List<E> getAll(final RegistryKey<E> reg) {
         final Registry<E> rg = RegistryAccess.registryAccess().getRegistry(reg);
-        return rg.stream().toList();
+        return rg.stream().collect(Collectors.toList());
     }
 
     private static final Map<RegistryKey<? extends Keyed>, List<Tag<? extends @NotNull Keyed>>> tags = new HashMap<>();
