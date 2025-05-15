@@ -513,9 +513,16 @@ public class Cuboid {
         int x2 = maxX() & ~0xf;
         int z1 = minZ() & ~0xf;
         int z2 = maxZ() & ~0xf;
+        int cx, cz;
         for (int x = x1; x <= x2; x += 16) {
             for (int z = z1; z <= z2; z += 16) {
-                res.add(world.getChunkAt(x >> 4, z >> 4));
+                cx = x >> 4;
+                cz = z >> 4;
+                //fix [Paper Watchdog Thread/ERROR] Chunk wait task info below:  [ChunkTaskScheduler] Chunk wait: [( 60,63) in 'world2']
+                // NewChunkHolder{ currentChunkStatus=INACCESSIBLE, pendingChunkStatus=INACCESSIBLE, is_unload_safe=ticket_level, killed=false
+                if (world.isChunkLoaded(cx, cz)) { // ? world.isChunkGenerated(cx, cz)
+                    res.add(world.getChunkAt(cx, cz));
+                }
             }
         }
         return res;

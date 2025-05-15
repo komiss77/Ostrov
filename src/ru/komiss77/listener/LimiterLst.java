@@ -489,6 +489,8 @@ public final class LimiterLst implements Initiable, Listener {
         @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
         public void onHangingPlace(HangingPlaceEvent e) {
 //Ostrov.log_warn("onHangingPlace "+e.getItemStack().getType());
+          if (e.getItemStack() == null)
+            return; //Cannot invoke ItemStack.getType()" because the return value of HangingPlaceEvent.getItemStack()" is null
             final BlockStateType limittype = BlockStateType.getType(e.getItemStack().getType());
 //Ostrov.log_warn("can limittype="+limittype+(limittype==null?"":limittype.limit));
             if (limittype != null && limittype.limit > 0) {

@@ -208,7 +208,7 @@ public class Timer {
 
         //обход игроков каждую секунду с разбросом по тикам для распределения нагрузки
         playerTimer = new BukkitRunnable() {
-            int banLeft;
+          int jailed;
             int syncTick;
 
             @Override
@@ -227,21 +227,26 @@ public class Timer {
                 }
 
                 if (!authMode) {
-                    PM.getOplayers().stream().forEach((op) -> {
+                  PM.getOplayers().stream().forEach(op -> {
                                 op.tick++;
                                 if (op.tick == 20) {
                                     op.tick = 0;
                                     op.secondTick();
                                     if (jailMode && !op.isStaff) {
                                         //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
-                                        banLeft = op.getDataInt(Data.BAN_TO) - getTime();
-                                        if (banLeft <= 0) {
+                                      jailed = op.getDataInt(Data.JAILED);// - getTime();
+                                      if (jailed > 0) {
+                                        jailed--;
+                                      }
+                                      op.setData(Data.JAILED, jailed);
+                                      if (jailed <= 0) {
                                             ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
                                         } else {
                                             op.score.getSideBar().setTitle("§4Чистилище");
                                             op.score.getSideBar().update(9, "§7До разбана:");
-                                            op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(banLeft));
+                                        op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(jailed));
                                         }
+
                                     }
                                 }
                             }

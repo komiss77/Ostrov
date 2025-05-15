@@ -162,6 +162,9 @@ public class ServerLst implements Listener {
         }
 
         Land.load(w);
+        if (Ostrov.dynmap) {
+            DynmapHook.onWorldLoad(w);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

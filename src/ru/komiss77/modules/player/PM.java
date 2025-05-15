@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
-import ru.komiss77.Timer;
 import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
@@ -255,7 +254,7 @@ public class PM {
                     TprCmd.runCommand(p, w, 300, true, true, null);
                 }
                 p.sendMessage(op.eng ? "§cYou are banned and placed in purgatory." : "§cВы забанены и помещены в чистилище.");
-                p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.globalInt(Data.BAN_TO) - Timer.secTime()));
+              p.sendMessage((op.eng ? "§cAfter §f" : "§cЧерез §f") + TimeUtil.secondToTime(op.globalInt(Data.JAILED)));// - Timer.secTime()));
                 p.sendMessage(op.eng ? "§cyou can return to the Ostrov." : "§cсможете вернуться на Остров.");
             }
         }
