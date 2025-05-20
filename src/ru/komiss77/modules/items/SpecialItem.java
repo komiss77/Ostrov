@@ -56,7 +56,7 @@ public abstract class SpecialItem implements Keyed {
     private @Nullable BVec lastLoc;
 
     public SpecialItem(final ItemStack it) {
-        this.name = this.getClass().getSimpleName();
+        this.name = this.getClass().getSimpleName().toLowerCase();
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);

@@ -98,38 +98,35 @@ public class ItemManager implements Initiable, Listener {
     }
 
     protected static void process(final Entity ent, final Processor pc) {
-        if (ent instanceof final LivingEntity le) {
-            final HashMap<ItemGroup, List<EquipmentSlot>> cmp = new HashMap<>();
-            final EntityEquipment eq = le.getEquipment();
-            if (eq == null) return;
-            for (final EquipmentSlot es : EquipmentSlot.values()) {
-                if (!le.canUseEquipmentSlot(es) /*|| (le instanceof Player && switch (es) {
-                    case BODY, SADDLE -> true; default -> false;
-                })*/) continue;
-                final ItemStack is = eq.getItem(es);
-                if (!SpecialItem.exist) {
-                    final SpecialItem spi = SpecialItem.get(is);
-                    if (spi != null) {
-                        pc.onSpec(es, spi);
-                        continue;
-                    }
-                }
-                if (!ItemGroup.exist || ItemUtil.isBlank(is, true)) continue;
-                final ItemGroup cm = ItemGroup.get(is);
-                if (cm == null) continue;
-                final List<EquipmentSlot> ess = cmp.get(cm);
-                if (ess == null) {
-                    final List<EquipmentSlot> nes = new ArrayList<>();
-                    nes.add(es);
-                    cmp.put(cm, nes);
-                } else {
-                    ess.add(es);
+        if (!(ent instanceof final LivingEntity le)) return;
+        final HashMap<ItemGroup, List<EquipmentSlot>> cmp = new HashMap<>();
+        final EntityEquipment eq = le.getEquipment();
+        if (eq == null) return;
+        for (final EquipmentSlot es : EquipmentSlot.values()) {
+            if (!le.canUseEquipmentSlot(es)) continue;
+            final ItemStack is = eq.getItem(es);
+            if (SpecialItem.exist) {
+                final SpecialItem spi = SpecialItem.get(is);
+                if (spi != null) {
+                    pc.onSpec(es, spi);
+                    continue;
                 }
             }
-            if (!ItemGroup.exist) return;
-            for (final Map.Entry<ItemGroup, List<EquipmentSlot>> en : cmp.entrySet()) {
-                pc.onGroup(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
+            if (!ItemGroup.exist || ItemUtil.isBlank(is, true)) continue;
+            final ItemGroup cm = ItemGroup.get(is);
+            if (cm == null) continue;
+            final List<EquipmentSlot> ess = cmp.get(cm);
+            if (ess == null) {
+                final List<EquipmentSlot> nes = new ArrayList<>();
+                nes.add(es);
+                cmp.put(cm, nes);
+            } else {
+                ess.add(es);
             }
+        }
+        if (!ItemGroup.exist) return;
+        for (final Map.Entry<ItemGroup, List<EquipmentSlot>> en : cmp.entrySet()) {
+            pc.onGroup(en.getValue().toArray(new EquipmentSlot[0]), en.getKey());
         }
     }
 
