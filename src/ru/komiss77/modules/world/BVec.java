@@ -100,6 +100,8 @@ public class BVec implements BlockPosition, Cloneable {
         return y >> 31 << 30 ^ x >> 31 << 29 ^ z >> 31 << 28 ^ y << 20 ^ x << 10 ^ z;
     }
 
+    public long thick() {return (((long) x & 67108863l) << 38) | ((long) y & 4095l) | (((long) z & 67108863l) << 12);}
+
     public int offSet() { //координата кубоиде, используется в схематике. НЕ могут быть '-' !!
         return x << 20 | y << 10 | z;
     }
@@ -134,66 +136,6 @@ public class BVec implements BlockPosition, Cloneable {
     public static BVec of(final Position ps) {
         return new BVec(ps.blockX(), ps.blockY(), ps.blockZ());
     }
-
-    /*private static class BVecDir extends BVec {
-        private final int pit, yaw;
-        protected BVecDir(final int x, final int y, final int z, final int pit, final int yaw) {
-            super(x, y, z);
-            this.pit = pit;
-            this.yaw = yaw;
-        }
-
-        public int pit() {return pit;}
-        public BVec pit(final int pit) {
-            return of(x, y, z, pit, yaw);
-        }
-        public int yaw() {return yaw;}
-        public BVec yaw(final int yaw) {
-            return of(x, y, z, pit, yaw);
-        }
-
-        public BVec add(final int x, final int y, final int z) {
-            return of(this.x + x, this.y + y, this.z + z, pit, yaw);
-        }
-
-        public BVec add(final BVec bv) {
-            return of(this.x + bv.x, this.y + bv.y, this.z + bv.z, pit, yaw);
-        }
-
-        public BVec mul(final int m) {
-            return of(this.x * m, this.y * m, this.z * m, pit, yaw);
-        }
-
-        public BVec mul(final float m) {
-            return of((int) (x * m), (int) (y * m), (int) (z * m), pit, yaw);
-        }
-
-        public BVec w(final String wname) {
-            return of(wname, x, y, z, pit, yaw);
-        }
-        public BVec w(final World w) {
-            return of(w, x, y, z, pit, yaw);
-        }
-
-        public boolean equals(final Object o) {
-            if (!(o instanceof BVecDir bv)) return false;
-            return super.equals(bv) && pit == bv.pit && yaw == bv.yaw;
-        }
-
-        public String toString() {
-            return super.toString() + SPLIT + pit + SPLIT + yaw;
-        }
-
-        @Override
-        public BVec clone() {
-            final BVec cln = super.clone();
-            return BVec.of(cln.x, cln.y, cln.z, pit, yaw);
-        }
-    }
-
-    public static BVec of(final int x, final int y, final int z, final int pit, final int yaw) {
-        return new BVecDir(x, y, z, pit, yaw);
-    }*/
 
     private static class WBVec extends BVec {
         private final String world;

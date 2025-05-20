@@ -209,6 +209,7 @@ public class ItemUtil {
         return -1;
     }
 
+    @Deprecated
     public static int getCusomModelData(final ItemStack is) {
         if (is != null && is.hasItemMeta() && is.getItemMeta().hasCustomModelData()) {
             return is.getItemMeta().getCustomModelData();
@@ -665,7 +666,10 @@ public class ItemUtil {
     }
 
     public static boolean isBlank(final ItemStack item, final boolean checkData) {
-        return item == null || item.getType().isAir() || (checkData && item.getDataTypes().isEmpty());
+        if (item == null) return true;
+        final ItemType tp = item.getType().asItemType();
+        if (tp == ItemType.AIR) return true;
+        return checkData && item.getDataTypes().size() > tp.getDefaultDataTypes().size();
     }
 
     public static boolean hasName(final ItemStack is) {
@@ -1148,14 +1152,11 @@ public class ItemUtil {
         }
         final PersistentDataContainerView pdc = is.getPersistentDataContainer();
         if (pdc.isEmpty()) return res.toString();
-        final PDC.Data data = new PDC.Data();
-        for (final NamespacedKey k : pdc.getKeys()) {
-            final String s = pdc.get(k, PersistentDataType.STRING);
-            if (s == null) continue; data.add(k, s);
-        }
-        final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
-        if (prs == null) return res.toString();
-        res.append(StringUtil.Split.LARGE.get()).append(PDC.ID).append(StringUtil.Split.MEDIUM.get()).append(prs.write(data));
+        try {
+            res.append(StringUtil.Split.LARGE.get()).append(PDC.ID)
+            .append(StringUtil.Split.MEDIUM.get())
+            .append(Base64Coder.encode(pdc.serializeToBytes()));
+        } catch (IOException e) {}
         return res.toString();
     }
 
@@ -1190,9 +1191,14 @@ public class ItemUtil {
                     continue;
                 }
                 if (PDC.ID.equals(dsp[0])) {
-                    final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
-                    if (prs == null) continue;
-                    Nms.setCustomData(it, prs.parse(dsp[1]));
+                    it.editPersistentDataContainer(pdc -> {
+                        try {pdc.readFromBytes(Base64Coder.decode(dsp[1]));}
+                        catch (IOException | IllegalArgumentException e) {
+                            Ostrov.log_warn("Couldnt parse pdc of " + dsp[1] + ", trying old");
+                            final DataParser.Parser<PDC.Data> prs = parsers.get(DataParser.PDC_TYPE);
+                            if (prs != null) Nms.setCustomData(it, prs.parse(dsp[1]));
+                        }
+                    });
                     continue;
                 }
                 if (Registry.DATA_COMPONENT_TYPE.get(Key.key(dsp[0]))

@@ -20,7 +20,7 @@ import ru.komiss77.utils.TCUtil;
 public class IGroupCmd {
 
     public IGroupCmd() { //новое
-        final String group = "group", type = "type";
+        final String group = "группа", type = "тип";
         new OCmdBuilder("igroup", "/igroup [группа] <предмет>")
             .then(Resolver.string(group)).suggest(cntx -> ItemGroup.values().stream()
                 .map(g -> g.key().value()).collect(Collectors.toSet()), true).run(cntx -> {

@@ -30,6 +30,7 @@ public class REGISTER {
         new SuffixCmd(); //+
         new GmCmd(); //++
         new IGroupCmd();//++
+        new ISpecCmd();//++
         new SpyCmd(); //+
         new ProtocolCmd(); //+
         new PvpCmd();

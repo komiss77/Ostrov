@@ -557,7 +557,10 @@ public class ItemBuilder {
         if (amount < 1) return ItemUtil.air.clone();
         final ItemStack item = type.createItemStack(amount);
         if (data != null) data.addTo(item);
-        if (pdcs != null) Nms.setCustomData(item, pdcs);
+        if (pdcs != null) {
+            Nms.setCustomData(item, pdcs);
+            item.editPersistentDataContainer(pdc -> pdcs.copyTo(pdc, true));
+        }
         return item;
     }
 }

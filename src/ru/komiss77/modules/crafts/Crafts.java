@@ -17,8 +17,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.RecipeChoice.ExactChoice;
@@ -26,6 +32,7 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.ItemUtil;
@@ -226,21 +233,6 @@ public final class Crafts implements Initiable, Listener {
     public record Craft(Recipe rec, Predicate<Player> canSee) {}
 
     @EventHandler
-    public void onCraft(final InventoryClickEvent e) {
-        if (e.getClickedInventory() instanceof CraftingInventory) {
-            if (e.getSlotType() != InventoryType.SlotType.RESULT) return;
-            final ItemStack fin = e.getCurrentItem();
-            final SpecialItem si = SpecialItem.get(fin);
-            if (si == null || !si.crafted()) return;
-            e.setResult(Event.Result.DENY);
-            e.setCurrentItem(ItemUtil.air);
-            for (final HumanEntity he : e.getViewers()) {
-                he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
-            }
-        }
-    }
-
-    @EventHandler
     public void onRecipe(final PrepareItemCraftEvent e) {
         final Recipe rc = e.getRecipe();
         if (rc == null) return;
@@ -250,7 +242,7 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack[] mtx = e.getInventory().getMatrix();
                 if (src == null) {
                     for (final ItemStack it : mtx) {
-                        if (ItemUtil.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
+                        if (ItemUtil.isBlank(it, true) || !ItemManager.isCustom(it)) continue;
                         e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
@@ -284,7 +276,7 @@ public final class Crafts implements Initiable, Listener {
                 final ItemStack[] mtx = e.getInventory().getMatrix();
                 if (src == null) {
                     for (final ItemStack it : mtx) {
-                        if (ItemUtil.isBlank(it, true) || !it.getItemMeta().hasCustomModelData()) continue;
+                        if (ItemUtil.isBlank(it, true) || !ItemManager.isCustom(it)) continue;
                         e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
@@ -357,7 +349,7 @@ public final class Crafts implements Initiable, Listener {
             final CookingRecipe<?> src = Crafts.getRecipe(((Keyed) rc).getKey(), CookingRecipe.class);
             final ItemStack ti = e.getSource();
             if (src == null) {
-                if (ItemUtil.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
+                if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
                 e.setTotalCookTime(Integer.MAX_VALUE);
             }
         }
@@ -367,32 +359,28 @@ public final class Crafts implements Initiable, Listener {
     public void onCamp(final PrepareSmithingEvent e) {
         final SmithingInventory si = e.getInventory();
         final Recipe rc = si.getRecipe();
-        if (rc == null) return;
-        if (rc instanceof Keyed) {
-            if (rc instanceof SmithingRecipe) {
-                final SmithingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), SmithingRecipe.class);
-                final ItemStack ti = si.getInputMineral();
-                if (src == null) {
-                    if (ItemUtil.isBlank(ti, true) || !ti.getItemMeta().hasCustomModelData()) return;
-                    si.setResult(ItemUtil.air);
-                } else {
-                    if (src.getAddition().test(ti)) return;
-                    si.setResult(ItemUtil.air);
-                }
-            }
+        if (!(rc instanceof SmithingRecipe)) return;
+        final SmithingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), SmithingRecipe.class);
+        final ItemStack ti = si.getInputMineral();
+        if (src == null) {
+            if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
+            si.setResult(ItemUtil.air);
+        } else {
+            if (src.getAddition().test(ti)) return;
+            si.setResult(ItemUtil.air);
         }
     }
 
     @EventHandler
     public void onSCut(final PlayerStonecutterRecipeSelectEvent e) {
         final StonecuttingRecipe rc = e.getStonecuttingRecipe();
-        final StonecuttingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), StonecuttingRecipe.class);
+        final StonecuttingRecipe src = Crafts.getRecipe(rc.getKey(), StonecuttingRecipe.class);
         final StonecutterInventory sci = e.getStonecutterInventory();
+        final ItemStack ti = sci.getInputItem();
         if (src == null) {
-            if (ItemUtil.isBlank(sci.getInputItem(), true) ||
-                !sci.getInputItem().getItemMeta().hasCustomModelData()) return;
-        } else {
-            if (src.getInputChoice().test(sci.getInputItem())) return;
+            if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
+        } else if (ti != null) {
+            if (src.getInputChoice().test(ti)) return;
         }
         sci.setResult(ItemUtil.air);
         e.setCancelled(true);

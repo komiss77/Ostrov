@@ -111,13 +111,15 @@ public class Nms {
 
   //ЛКМ и ПКМ на фейковый блок будут игнорироваться! Еще можно будет добавить подмену блока при получении чанка
   public static void fakeBlock(final Player p, final Location loc, final BlockData bd) {
-    final long l = LocUtil.asLong(loc);
-    fakeBlock(p, l, bd);
+    fakeBlock(p, LocUtil.asLong(loc), bd);
   }
 
+  @Deprecated
   public static void fakeBlock(final Player p, final XYZ xyz, final BlockData bd) {
-    final long l = xyz.asLong();
-    fakeBlock(p, l, bd);
+    fakeBlock(p, xyz.asLong(), bd);
+  }
+  public static void fakeBlock(final Player p, final BVec loc, final BlockData bd) {
+    fakeBlock(p, loc.thick(), bd);
   }
 
   public static void fakeBlock(final Player p, final long l, final BlockData bd) {
@@ -201,7 +203,7 @@ public class Nms {
     });
   }
 
-
+  @Deprecated
   public static void signInput(final Player p, final String suggest, final XYZ signXyz) { //suggest придёт с '&'
     //final BlockData bd = Material.OAK_SIGN.createBlockData();
     mutableBlockPosition.set(signXyz.x, signXyz.y, signXyz.z);
@@ -288,8 +290,10 @@ public class Nms {
     }
   }
 
+  @Deprecated
   public static void setCustomData(final ItemStack it, final PersistentDataContainerView data) {
-    if (it == null || data.isEmpty() || !(data instanceof final PaperPersistentDataContainerView pd)) return;
+    it.editPersistentDataContainer(pdc -> data.copyTo(pdc, true));
+    /*if (it == null || data.isEmpty() || !(data instanceof final PaperPersistentDataContainerView pd)) return;
     final DataComponentPatch.Builder builder = DataComponentPatch.builder();
     final Map<String, Tag> tags = new HashMap<>();
     for (final NamespacedKey nk : pd.getKeys()) {
@@ -305,7 +309,7 @@ public class Nms {
     builder.set(DataComponents.CUSTOM_DATA, CustomData.of(ct));
     if (it instanceof final CraftItemStack cit) {
       cit.handle.applyComponents(builder.build());
-    }
+    }*/
   }
 
   @Deprecated
@@ -620,7 +624,7 @@ public class Nms {
     final LevelChunk nmsChunk = ws.getChunkIfLoaded(chunk.getX(), chunk.getZ());
     if (nmsChunk == null) return;
     final ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(
-        nmsChunk, ws.getLightEngine(), null, null);
+        nmsChunk, ws.getLightEngine(), null, null, true);
     sendPacket(p, packet);//toNMS(p).c.a(packet);//sendPacket(p, packet);
   }
 

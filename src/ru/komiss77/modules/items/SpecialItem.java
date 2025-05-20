@@ -63,17 +63,17 @@ public abstract class SpecialItem implements Keyed {
         final OConfig irc = Cfg.manager.config(CON_NAME, true);
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
-        if (!irc.contains(name)) {
-            this.item = it;
-            return;
-        }
-        final BVec loc = BVec.parse(irc.getString(name + ".loc"));
-        this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
-        final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
-        lastLoc = loc == null ? null : BVec.of(loc);
-        final World w = lastLoc == null ? null : lastLoc.w();
-        if (lastLoc != null && w != null) spawn(lastLoc.center(w), curr);
+        if (irc.contains(name)) {
+            final BVec loc = BVec.parse(irc.getString(name + ".loc"));
+            this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
+            final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
+            lastLoc = loc == null ? null : BVec.of(loc);
+            final World w = lastLoc == null ? null : lastLoc.w();
+            if (lastLoc != null && w != null) spawn(lastLoc.center(w), curr);
+        } else this.item = it;
 
+        item.editPersistentDataContainer(pdc ->
+            pdc.set(DATA, PersistentDataType.STRING, name));
         VALUES.put(name, this);
         exist = true;
     }

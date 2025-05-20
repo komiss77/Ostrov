@@ -8,20 +8,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
+import org.bukkit.entity.*;
+import org.bukkit.event.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +28,7 @@ import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TCUtil;
 
 
 public class ItemManager implements Initiable, Listener {
@@ -255,11 +253,33 @@ public class ItemManager implements Initiable, Listener {
         si.destroy();
     }
 
+    @EventHandler
+    public void onCraft(final InventoryClickEvent e) {
+        if (!(e.getClickedInventory() instanceof CraftingInventory)) return;
+        if (e.getSlotType() != InventoryType.SlotType.RESULT) return;
+        final ItemStack fin = e.getCurrentItem();
+        final SpecialItem si = SpecialItem.get(fin);
+        if (si == null) return;
+        if (si.crafted()) {
+            e.setResult(Event.Result.DENY);
+            e.setCurrentItem(ItemUtil.air);
+            for (final HumanEntity he : e.getViewers()) {
+                he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
+            }
+            return;
+        }
+        si.obtain(e.getWhoClicked(), fin);
+    }
+
     protected interface Processor extends GroupProc, SpecProc {}
     public interface GroupProc {
         void onGroup(final EquipmentSlot[] ess, final ItemGroup cm);
     }
     public interface SpecProc {
         void onSpec(final EquipmentSlot es, final SpecialItem si);
+    }
+
+    public static boolean isCustom(final ItemStack it) {
+        return ItemGroup.get(it) != null || SpecialItem.get(it) != null;
     }
 }

@@ -20,7 +20,6 @@ import ru.komiss77.boot.OStrap;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.Onection;
 import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.version.Nms;
 
 public abstract class ItemGroup implements Keyed {
 
@@ -53,9 +52,8 @@ public abstract class ItemGroup implements Keyed {
         }
         for (final ItemStack it : its) {
             if (ItemUtil.isBlank(it, false)) continue;
-            final PDC.Data pdc = new PDC.Data();
-            pdc.add(KEY, key().value());
-            Nms.setCustomData(it, pdc);
+            it.editPersistentDataContainer(pdc ->
+                pdc.set(KEY, PersistentDataType.STRING, key().value()));
             final List<Data<?>> datas = data();
             if (datas != null) for (final Data<?> p : datas) p.merge(it);
             mits.put(it.getType().asItemType(), it);
