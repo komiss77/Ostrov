@@ -237,71 +237,83 @@ public final class Crafts implements Initiable, Listener {
         final Recipe rc = e.getRecipe();
         if (rc == null) return;
         if (!e.isRepair() && rc instanceof Keyed) {
-            if (rc instanceof ShapedRecipe) {
-                final ShapedRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), ShapedRecipe.class);
-                final ItemStack[] mtx = e.getInventory().getMatrix();
-                if (src == null) {
-                    for (final ItemStack it : mtx) {
-                        if (ItemUtil.isBlank(it, true) || !ItemManager.isCustom(it)) continue;
+            switch (rc) {
+                case ComplexRecipe cxr -> {
+                    for (final ItemStack it : e.getInventory().getMatrix()) {
+                        if (!ItemManager.isCustom(it)) continue;
                         e.getInventory().setResult(ItemUtil.air);
                         return;
                     }
-                } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-8 2x3-4 3x2-4 3x3-2 магия крч
-                    final Collection<RecipeChoice> rcs = src.getChoiceMap().values();
-                    rcs.removeIf(c -> c == null);
-                    for (final ItemStack it : mtx) {
-                        if (!ItemUtil.isBlank(it, false)) {
-                            final Iterator<RecipeChoice> rci = rcs.iterator();
-                            while (rci.hasNext()) {
-                                if (rci.next().test(it)) {
-                                    rci.remove();
+                }
+                case ShapedRecipe shr -> {
+                    final ShapedRecipe src = Crafts.getRecipe(shr.getKey(), ShapedRecipe.class);
+                    final ItemStack[] mtx = e.getInventory().getMatrix();
+                    if (src == null) {
+                        for (final ItemStack it : mtx) {
+                            if (!ItemManager.isCustom(it)) continue;
+                            e.getInventory().setResult(ItemUtil.air);
+                            return;
+                        }
+                    } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-8 2x3-4 3x2-4 3x3-2 магия крч
+                        final Collection<RecipeChoice> rcs = src.getChoiceMap().values();
+                        rcs.removeIf(c -> c == null);
+                        for (final ItemStack it : mtx) {
+                            if (!ItemUtil.isBlank(it, false)) {
+                                final Iterator<RecipeChoice> rci = rcs.iterator();
+                                while (rci.hasNext()) {
+                                    if (rci.next().test(it)) {
+                                        rci.remove();
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        final CraftingInventory inv = e.getInventory();
+                        if (rcs.size() != 0) {
+                            inv.setResult(ItemUtil.air);
+                            Bukkit.removeRecipe(src.getKey());
+                            final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
+                            if (pl == null) return;
+                            inv.setResult(Bukkit.craftItem(ClassUtil.scale(mtx, 3, 3), pl.getWorld(), (Player) pl));
+                            Bukkit.addRecipe(src);
+                        }
+                    }
+                }
+                case ShapelessRecipe slr -> {
+                    final ShapelessRecipe src = Crafts.getRecipe(slr.getKey(), ShapelessRecipe.class);
+                    final ItemStack[] mtx = e.getInventory().getMatrix();
+                    if (src == null) {
+                        for (final ItemStack it : mtx) {
+                            if (!ItemManager.isCustom(it)) continue;
+                            e.getInventory().setResult(ItemUtil.air);
+                            return;
+                        }
+                    } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-4 2x3-4 3x2-4 3x3-2 магия крч
+                        final List<RecipeChoice> rcs = src.getChoiceList();
+                        for (final ItemStack ti : mtx) {
+                            final Iterator<RecipeChoice> ri = rcs.iterator();
+                            while (ri.hasNext()) {
+                                final RecipeChoice chs = ri.next();
+                                if ((chs == null && ItemUtil.isBlank(ti, false)) || chs.test(ti)) {
+                                    ri.remove();
                                     break;
                                 }
                             }
                         }
-                    }
 
-                    final CraftingInventory inv = e.getInventory();
-                    if (rcs.size() != 0) {
-                        inv.setResult(ItemUtil.air);
-                        Bukkit.removeRecipe(src.getKey());
-                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
-                        if (pl == null) return;
-                        inv.setResult(Bukkit.craftItem(ClassUtil.scale(mtx, 3, 3), pl.getWorld(), (Player) pl));
-                        Bukkit.addRecipe(src);
-                    }
-                }
-            } else if (rc instanceof ShapelessRecipe) {
-                final ShapelessRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), ShapelessRecipe.class);
-                final ItemStack[] mtx = e.getInventory().getMatrix();
-                if (src == null) {
-                    for (final ItemStack it : mtx) {
-                        if (ItemUtil.isBlank(it, true) || !ItemManager.isCustom(it)) continue;
-                        e.getInventory().setResult(ItemUtil.air);
-                        return;
-                    }
-                } else {//1x1-9 2x1-12 1x2-6 3x1-6 1x3-3 2x2-4 2x3-4 3x2-4 3x3-2 магия крч
-                    final List<RecipeChoice> rcs = src.getChoiceList();
-                    for (final ItemStack ti : mtx) {
-                        final Iterator<RecipeChoice> ri = rcs.iterator();
-                        while (ri.hasNext()) {
-                            final RecipeChoice chs = ri.next();
-                            if ((chs == null && ItemUtil.isBlank(ti, false)) || chs.test(ti)) {
-                                ri.remove();
-                                break;
-                            }
+                        final CraftingInventory inv = e.getInventory();
+                        if (rcs.size() != 0) {
+                            inv.setResult(ItemUtil.air);
+                            Bukkit.removeRecipe(src.getKey());
+                            final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
+                            if (pl == null) return;
+                            inv.setResult(Bukkit.craftItem(ClassUtil.scale(mtx, 3, 3), pl.getWorld(), (Player) pl));
+                            Bukkit.addRecipe(src);
                         }
                     }
-
-                    final CraftingInventory inv = e.getInventory();
-                    if (rcs.size() != 0) {
-                        inv.setResult(ItemUtil.air);
-                        Bukkit.removeRecipe(src.getKey());
-                        final HumanEntity pl = e.getViewers().isEmpty() ? null : e.getViewers().getFirst();
-                        if (pl == null) return;
-                        inv.setResult(Bukkit.craftItem(ClassUtil.scale(mtx, 3, 3), pl.getWorld(), (Player) pl));
-                        Bukkit.addRecipe(src);
-                    }
+                }
+                default -> {
                 }
             }
 
@@ -349,7 +361,7 @@ public final class Crafts implements Initiable, Listener {
             final CookingRecipe<?> src = Crafts.getRecipe(((Keyed) rc).getKey(), CookingRecipe.class);
             final ItemStack ti = e.getSource();
             if (src == null) {
-                if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
+                if (!ItemManager.isCustom(ti)) return;
                 e.setTotalCookTime(Integer.MAX_VALUE);
             }
         }
@@ -363,12 +375,11 @@ public final class Crafts implements Initiable, Listener {
         final SmithingRecipe src = Crafts.getRecipe(((Keyed) rc).getKey(), SmithingRecipe.class);
         final ItemStack ti = si.getInputMineral();
         if (src == null) {
-            if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
-            si.setResult(ItemUtil.air);
-        } else {
+            if (!ItemManager.isCustom(ti)) return;
+        } else if (ti != null) {
             if (src.getAddition().test(ti)) return;
-            si.setResult(ItemUtil.air);
         }
+        si.setResult(ItemUtil.air);
     }
 
     @EventHandler
@@ -378,7 +389,7 @@ public final class Crafts implements Initiable, Listener {
         final StonecutterInventory sci = e.getStonecutterInventory();
         final ItemStack ti = sci.getInputItem();
         if (src == null) {
-            if (ItemUtil.isBlank(ti, true) || !ItemManager.isCustom(ti)) return;
+            if (!ItemManager.isCustom(ti)) return;
         } else if (ti != null) {
             if (src.getInputChoice().test(ti)) return;
         }

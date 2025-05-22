@@ -3,9 +3,7 @@ package ru.komiss77;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.kyori.adventure.text.Component;
@@ -26,10 +24,10 @@ import ru.komiss77.modules.Informator;
 import ru.komiss77.modules.games.ArenaInfo;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.player.mission.MissionManager;
-import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.TimeUtil;
 import ru.komiss77.version.Nms;
@@ -53,6 +51,7 @@ public class Timer {
     private static final AtomicBoolean lockQuery = new AtomicBoolean(false);
     private static final AtomicBoolean lockSecond = new AtomicBoolean(false);
     private static final Map<Integer, RemoteDB.Qinfo> map;
+    private static final List<Task> tasks;
     private static int count;
 
     static {
@@ -64,6 +63,29 @@ public class Timer {
         Ostrov.calendar.set(Calendar.SECOND, 0);
         MIDNIGHT_STAMP = (int) (Ostrov.calendar.getTimeInMillis() / 1000);
         map = new HashMap<>();
+        tasks = new LinkedList<>();
+    }
+
+    private static final class Task {
+        private final Pred fin;
+        private final String id;
+        private final int period;
+        private int tries;
+
+        private Task(final Pred fin, final String id, final int period, final int tries) {
+            this.fin = fin;
+            this.id = id;
+            this.period = period;
+            this.tries = tries;
+        }
+    }
+    public interface Pred {boolean test();}
+    public static void task(final Pred fin, final String id, final int period) {
+        task(fin, id, period, Integer.MAX_VALUE);
+    }
+    public static void task(final Pred fin, final String id, final int period, final int tries) {
+        if (fin.test()) return;
+        tasks.add(new Task(fin, id, period, tries));
     }
 
     public static void init() {
@@ -101,12 +123,7 @@ public class Timer {
         //if (timerAsync != null) timerAsync.cancel();
 
         if (Ostrov.MOT_D.length() == 3) { //pay, авторизация
-            //authMode = !Ostrov.MOT_D.equals("nb0"); //для компилатора абсолютно тоже самое, что ниже, только нормально читается
-            if (Ostrov.MOT_D.equals("nb0")) {
-                authMode = false; //на новичках в authMode не работает боссбар!
-            } else {
-                authMode = true;
-            }
+            authMode = !Ostrov.MOT_D.equals("nb0"); //на новичках в authMode не работает боссбар!
         } else if (Ostrov.MOT_D.equals("jail")) { //jail 
             jailMode = true;
         } else {
@@ -208,7 +225,7 @@ public class Timer {
 
         //обход игроков каждую секунду с разбросом по тикам для распределения нагрузки
         playerTimer = new BukkitRunnable() {
-          int jailed;
+            int jailed;
             int syncTick;
 
             @Override
@@ -227,35 +244,37 @@ public class Timer {
                 }
 
                 if (!authMode) {
-                  PM.getOplayers().stream().forEach(op -> {
-                                op.tick++;
-                                if (op.tick == 20) {
-                                    op.tick = 0;
-                                    op.secondTick();
-                                    if (jailMode && !op.isStaff) {
-                                        //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
-                                      jailed = op.getDataInt(Data.JAILED);// - getTime();
-                                      if (jailed > 0) {
-                                        jailed--;
-                                      }
-                                      op.setData(Data.JAILED, jailed);
-                                      if (jailed <= 0) {
-                                            ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
-                                        } else {
-                                            op.score.getSideBar().setTitle("§4Чистилище");
-                                            op.score.getSideBar().update(9, "§7До разбана:");
-                                        op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(jailed));
-                                        }
-
-                                    }
-                                }
-                            }
-                    );
+                    PM.getOplayers().forEach(op -> {
+                        op.tick++;
+                        if (op.tick != 20) return;
+                        op.tick = 0;
+                        op.secondTick();
+                        if (!jailMode || op.isStaff) return;
+                        //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
+                        jailed = op.globalInt(Data.JAILED);// - getTime();
+                        if (jailed > 0) jailed--;
+                        op.globalInt(Data.JAILED, jailed);
+                        if (jailed <= 0) {
+                            ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
+                            return;
+                        }
+                        op.score.getSideBar().setTitle("§4Чистилище");
+                        op.score.getSideBar().update(9, "§7До разбана:");
+                        op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(jailed));
+                    });
                 }
 
+                if (!tasks.isEmpty()) {
+                    tasks.removeIf(ts -> {
+                        if (syncTick % ts.period != 0) return false;
+                        if (ts.tries-- < 0) {
+                            Ostrov.log_warn("Task " + ts.id + " timed out!");
+                            return true;
+                        }
+                        return ts.fin.test();
+                    });
+                }
                 syncTick++;
-
-
             }
         }.runTaskTimer(Ostrov.instance, 20, 1);
 
@@ -417,7 +436,7 @@ public class Timer {
         cd.put(p.getName().hashCode() ^ type.hashCode(), secTime() + seconds);
     }
 
-  public static void del(final Player p, final String type) { //вроде не работает, чекнуть потом
+    public static void del(final Player p, final String type) { //вроде не работает, чекнуть потом
         cd.remove(p.getName().hashCode() ^ type.hashCode());
     }
 

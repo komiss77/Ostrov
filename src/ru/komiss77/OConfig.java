@@ -174,7 +174,6 @@ public class OConfig {
 
     public void saveConfig() {
         Cfg.manager.saveConfig(config.saveToString(), this.file);
-
     }
 
     public Set<String> getKeys() {

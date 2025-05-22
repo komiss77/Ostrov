@@ -153,6 +153,7 @@ public class PM {
         return op;
     }
 
+    @Deprecated
     public static Oplayer remove(final String nik) {
         Oplayer op = oplayersByName.remove(nik);
         if (op != null) {
@@ -349,7 +350,7 @@ public class PM {
 
 
     public static void onLeave(final Player p, final boolean async) {
-        final Oplayer op = remove(p.getName());
+        final Oplayer op = remove(p.getUniqueId());
         if (op == null) {
             Ostrov.log_warn("PlayerQuitEvent : Oplayer == null!");
             return;

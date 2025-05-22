@@ -1,9 +1,6 @@
 package ru.komiss77.modules.items;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,6 +11,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
@@ -58,6 +56,16 @@ public class ItemManager implements Initiable, Listener {
         Ostrov.log_ok("§6Предметы выключены!");
     }
 
+    private static final Set<DamageType> DESTROY = Set.of(DamageType.OUT_OF_WORLD, DamageType.OUTSIDE_BORDER);
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onRemove(final EntityRemoveEvent e) {
+        if (e.getEntity() instanceof final Item ie
+            && ie.getLocation().getBlockY() < ie.getWorld().getMinHeight()) {
+            final SpecialItem si = SpecialItem.get(ie.getItemStack());
+            if (si != null) si.destroy();
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
         process(e.getEntity(), new Processor() {
@@ -71,11 +79,15 @@ public class ItemManager implements Initiable, Listener {
             });
         }
 
-        if (e.getEntity() instanceof final Item ie &&
-            DamageType.OUT_OF_WORLD.equals(e.getDamageSource().getDamageType())) {
+        if (e.getEntity() instanceof final Item ie) {
             final SpecialItem si = SpecialItem.get(ie.getItemStack());
-            if (si == null) return;
-            si.destroy();
+            if (si != null) {
+                if (DESTROY.contains(e.getDamageSource().getDamageType())) {
+                    si.destroy();
+                    return;
+                }
+                e.setDamage(0d);
+            }
         }
     }
 
@@ -132,19 +144,28 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(final EntityDropItemEvent e) {
-        final Item drop = e.getItemDrop();
+        onDrop(e, e.getItemDrop());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDrop(final PlayerDropItemEvent e) {
+        onDrop(e, e.getItemDrop());
+    }
+
+    private static void onDrop(final Cancellable e, final Item drop) {
         final ItemStack it = drop.getItemStack();
         final SpecialItem si = SpecialItem.get(it);
         if (si == null) return;
         if (!si.crafted()) {
             drop.remove();
             e.setCancelled(true);
-            Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+            SpecialItem.info("Uncrafted " + si.name() + " removed!");
             return;
         }
         if (si.dropped()) {
             drop.remove();
-            Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+            e.setCancelled(true);
+            SpecialItem.info("Undropped " + si.name() + " removed!");
             return;
         }
         si.apply(drop);
@@ -159,13 +180,13 @@ public class ItemManager implements Initiable, Listener {
         if (!si.crafted()) {
             drop.remove();
             e.setCancelled(true);
-            Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+            SpecialItem.info("Uncrafted " + si.name() + " removed!");
             return;
         }
         if (!si.dropped()) {
             drop.remove();
             e.setCancelled(true);
-            Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+            SpecialItem.info("Undropped " + si.name() + " removed!");
             return;
         }
 
@@ -181,30 +202,35 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onLoad(final EntitiesLoadEvent e) {
         for (final Entity en : e.getEntities()) {
-            if (en instanceof final Item it) {
-                final SpecialItem si = SpecialItem.get(it);
-                if (si == null) continue;
-                if (!si.crafted()) {
-                    it.remove();
-                    Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
-                    continue;
-                }
-                if (!si.dropped()) {
-                    it.remove();
-                    Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
-                    continue;
-                }
-
-                if (si.loc() == null) continue;
-                final World w = si.loc().w();
-                if (w == null) continue;
-                final Location loc = si.loc().center(w);
-                if (isInPrivateWG(loc)) {
-                    final World sw = SpecialItem.SPAWN.w();
-                    if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
-                    it.remove();
-                } else si.apply(it);
+            if (!(en instanceof final Item it)) continue;
+            final SpecialItem si = SpecialItem.get(it);
+            if (si == null) continue;
+            if (!si.crafted()) {
+                it.remove();
+                SpecialItem.info("Uncrafted " + si.name() + " removed!");
+                continue;
             }
+            if (!si.dropped()) {
+                it.remove();
+                SpecialItem.info("Undropped " + si.name() + " removed!");
+                continue;
+            }
+
+            if (si.own() instanceof final Item ii && ii.isValid()
+                && ii.getEntityId() != it.getEntityId()) {
+                it.remove();
+                SpecialItem.info("Duplicate " + si.name() + " removed!");
+                continue;
+            }
+            if (si.loc() == null) continue;
+            final World w = si.loc().w();
+            if (w == null) continue;
+            final Location loc = si.loc().center(w);
+            if (isInPrivateWG(loc)) {
+                final World sw = SpecialItem.SPAWN.w();
+                if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
+                it.remove();
+            } else si.apply(it);
         }
     }
 
@@ -220,12 +246,12 @@ public class ItemManager implements Initiable, Listener {
                 if (si == null) continue;
                 if (!si.crafted()) {
                     it.remove();
-                    Ostrov.log_warn("Uncrafted SpecialItem " + si.name() + " removed!");
+                    SpecialItem.info("Uncrafted " + si.name() + " removed!");
                     continue;
                 }
                 if (!si.dropped()) {
                     it.remove();
-                    Ostrov.log_warn("Duplicate SpecialItem " + si.name() + " removed!");
+                    SpecialItem.info("Undropped " + si.name() + " removed!");
                     continue;
                 }
 
@@ -277,6 +303,7 @@ public class ItemManager implements Initiable, Listener {
     }
 
     public static boolean isCustom(final ItemStack it) {
-        return ItemGroup.get(it) != null || SpecialItem.get(it) != null;
+        return it != null && ((ItemGroup.exist && ItemGroup.get(it) != null)
+            || (SpecialItem.exist && SpecialItem.get(it) != null));
     }
 }

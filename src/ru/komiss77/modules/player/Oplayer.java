@@ -793,13 +793,11 @@ public class Oplayer {
     @OverrideMe
     public void preDataSave(final Player p, final boolean async) {
         final SpecialItem si = SpecialItem.get(p);
-        if (si != null) {
-            for (final ItemStack it : p.getInventory()) {
-                if (it != null && si.equals(SpecialItem.get(it))) {
-                    si.apply(p.getWorld().dropItem(p.getLocation(), it));
-                    it.setAmount(0);
-                }
-            }
+        if (si == null) return;
+        for (final ItemStack it : p.getInventory()) {
+            if (it == null || !si.equals(SpecialItem.get(it))) continue;
+            si.apply(p.getWorld().dropItem(p.getLocation(), it));
+            it.setAmount(0);
         }
     }
 

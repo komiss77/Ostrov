@@ -2,6 +2,7 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -17,11 +18,14 @@ import org.bukkit.persistence.PersistentDataType;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
+import ru.komiss77.Timer;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.world.BVec;
 import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.TCUtil;
 
 public abstract class SpecialItem implements Keyed {
 
@@ -64,12 +68,18 @@ public abstract class SpecialItem implements Keyed {
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
         if (irc.contains(name)) {
-            final BVec loc = BVec.parse(irc.getString(name + ".loc"));
             this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
             final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
-            lastLoc = loc == null ? null : BVec.of(loc);
-            final World w = lastLoc == null ? null : lastLoc.w();
-            if (lastLoc != null && w != null) spawn(lastLoc.center(w), curr);
+            lastLoc = BVec.parse(irc.getString(name + ".loc"));
+            if (lastLoc != null) {
+                Timer.task(() -> {
+                    if (lastLoc == null) return true;
+                    final World w = lastLoc.w();
+                    if (w == null) return false;
+                    spawn(lastLoc.center(w), curr);
+                    return true;
+                }, "spec", 5, 10);
+            }
         } else this.item = it;
 
         item.editPersistentDataContainer(pdc ->
@@ -94,11 +104,15 @@ public abstract class SpecialItem implements Keyed {
         return item;
     }
 
+    public Entity own() {
+        return own.get();
+    }
+
     public @Nullable BVec loc() {
         return switch (own.get()) {
             case null -> lastLoc;
-            case final Entity le -> {
-                loc(le.getLocation());
+            case final Entity e -> {
+                loc(EntityUtil.center(e));
                 yield lastLoc;
             }
         };
@@ -109,46 +123,44 @@ public abstract class SpecialItem implements Keyed {
     }
 
     protected void destroy() {
-        if (crafted) {
-            dropped = false;
-            crafted = false;
-            switch (own.get()) {
-                case null: break;
-                case final Item le:
-                    le.remove();
-                    break;
-                case final Player le:
-                    for (final ItemStack it : le.getInventory()) {
-                        if (it != null && this.equals(get(it))) {
-                            it.setAmount(0);
-                        }
+        if (!crafted) return;
+        info("Destroyed " + name);
+        dropped = false;
+        crafted = false;
+        switch (own.get()) {
+            case null: break;
+            case final Item le:
+                le.remove();
+                break;
+            case final Player le:
+                for (final ItemStack it : le.getInventory()) {
+                    if (it != null && this.equals(get(it))) {
+                        it.setAmount(0);
                     }
-                    break;
-                default:
-            }
-            lastLoc = null;
-            own = new WeakReference<>(null);
-            save(item);
+                }
+                break;
+            default:
         }
+        lastLoc = null;
+        own = new WeakReference<>(null);
+        save(item);
     }
 
     public void spawn(final Location loc, final ItemStack it) {
-        if (!loc.isChunkLoaded()) {
-            loc.getWorld().getChunkAtAsync(loc).thenAccept(ch -> {
-                for (final Entity e : ch.getEntities()) {
-                    if (e instanceof final Item ie && this.equals(get(ie.getItemStack()))) {
-                        e.remove();
-                    }
-                }
+        info("Spawning " + name + " at " + BVec.of(loc).toString());
+        loc.getWorld().getChunkAtAsync(loc).thenAccept(ch -> {
+            for (final Entity e : ch.getEntities()) {
+                if (e instanceof final Item ie
+                    && this.equals(get(ie.getItemStack()))) e.remove();
+            }
 
-                loc.getWorld().dropItem(loc, it, this::apply);
-            });
-        }
+            loc.getWorld().dropItem(loc, it, this::apply);
+        });
     }
 
     public Item apply(final Item it) {
-        crafted = true;
-        dropped = true;
+        info(name + " applied to item at " + BVec.of(it).toString());
+        crafted = true; dropped = true;
         it.setGlowing(true);
         it.setWillAge(false);
         it.setGravity(false);
@@ -160,6 +172,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void obtain(final LivingEntity le, final ItemStack it) {
+        info(le.getName() + " obtained " + name);
         crafted = true;
         dropped = false;
         own = new WeakReference<>(le);
@@ -170,16 +183,22 @@ public abstract class SpecialItem implements Keyed {
     public void save(final ItemStack curr) {
         Ostrov.async(() -> {
             final OConfig irc = Cfg.manager.config(CON_NAME, true);
+            boolean full = false;
+            if (irc.getString(name + ".org").isEmpty()) {
+                irc.set(name + ".org", ItemUtil.write(item));
+                full = true;
+            }
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            irc.set(name + ".curr", curr);
+            irc.set(name + ".curr", ItemUtil.write(curr));
 
             irc.set(name + ".dropped", dropped);
             irc.set(name + ".crafted", crafted);
             irc.saveConfig();
+            info("Config for " + name + " saved, full=" + full);
         });
     }
 
-    public void saveAll(final ItemStack curr) {
+    /*public void saveAll(final ItemStack curr) {
         Ostrov.async(() -> {
             final OConfig irc = Cfg.manager.config(CON_NAME, true);
             irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
@@ -188,9 +207,10 @@ public abstract class SpecialItem implements Keyed {
 
             irc.set(name + ".dropped", dropped);
             irc.set(name + ".crafted", crafted);
+            Ostrov.log_warn("CONFIG SAVE2");
             irc.saveConfig();
         });
-    }
+    }*/
 
     protected abstract void onAttack(final EquipmentSlot es, final EntityDamageByEntityEvent e);
 
@@ -232,12 +252,15 @@ public abstract class SpecialItem implements Keyed {
         return null;
     }
 
-    public static void process(final Entity ent, final ItemManager.SpecProc prc) {
+    private static final ComponentLogger LOGGER = ComponentLogger.logger("OS-SI");
+    public static void info(final String msg) {LOGGER.info(TCUtil.form(msg));}
+
+    /*public static void process(final Entity ent, final ItemManager.SpecProc prc) {
         ItemManager.process(ent, new ItemManager.Processor() {
             public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {
                 prc.onSpec(es, si);
             }
         });
-    }
+    }*/
 }
