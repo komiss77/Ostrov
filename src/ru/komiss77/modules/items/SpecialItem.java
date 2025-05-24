@@ -123,7 +123,6 @@ public abstract class SpecialItem implements Keyed {
 
     public void loc(final Location lc) {
         lastLoc = BVec.of(lc);
-        save(item);
     }
 
     protected void destroy() {
