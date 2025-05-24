@@ -2,6 +2,8 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
@@ -15,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
@@ -73,7 +76,7 @@ public abstract class SpecialItem implements Keyed {
             lastLoc = BVec.parse(irc.getString(name + ".loc"));
             if (lastLoc != null) {
                 Timer.task(() -> {
-                    if (lastLoc == null) return true;
+                    if (lastLoc == null || own() != null) return true;
                     final World w = lastLoc.w();
                     if (w == null) return false;
                     spawn(lastLoc.center(w), curr);
@@ -120,11 +123,12 @@ public abstract class SpecialItem implements Keyed {
 
     public void loc(final Location lc) {
         lastLoc = BVec.of(lc);
+        save(item);
     }
 
     protected void destroy() {
         if (!crafted) return;
-        info("Destroyed " + name);
+        info("Destroyed item");
         dropped = false;
         crafted = false;
         switch (own.get()) {
@@ -147,7 +151,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void spawn(final Location loc, final ItemStack it) {
-        info("Spawning " + name + " at " + BVec.of(loc).toString());
+        info("Spawning item");
         loc.getWorld().getChunkAtAsync(loc).thenAccept(ch -> {
             for (final Entity e : ch.getEntities()) {
                 if (e instanceof final Item ie
@@ -159,12 +163,14 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public Item apply(final Item it) {
-        info(name + " applied to item at " + BVec.of(it).toString());
+        info("Item applied");
         crafted = true; dropped = true;
         it.setGlowing(true);
         it.setWillAge(false);
         it.setGravity(false);
         it.setPickupDelay(20);
+        it.setCanMobPickup(false);
+        it.setVelocity(new Vector());
         own = new WeakReference<>(it);
         loc(it.getLocation());
         save(it.getItemStack());
@@ -172,7 +178,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void obtain(final LivingEntity le, final ItemStack it) {
-        info(le.getName() + " obtained " + name);
+        info(le.getName() + " obtained item");
         crafted = true;
         dropped = false;
         own = new WeakReference<>(le);
@@ -194,8 +200,14 @@ public abstract class SpecialItem implements Keyed {
             irc.set(name + ".dropped", dropped);
             irc.set(name + ".crafted", crafted);
             irc.saveConfig();
-            info("Config for " + name + " saved, full=" + full);
+            info("Config saved, full=" + full);
         });
+    }
+
+    private static final ComponentLogger LOGGER = ComponentLogger.logger("OS-SI");
+    public void info(final String msg) {
+        LOGGER.info(TCUtil.form(msg + "\n" + name + ": craft="
+            + crafted + " drop=" + dropped + " loc=" + loc()));
     }
 
     /*public void saveAll(final ItemStack curr) {
@@ -243,7 +255,7 @@ public abstract class SpecialItem implements Keyed {
     }
 
     @OverrideMe
-    public static @Nullable SpecialItem get(final Entity own) {
+    public static @Nullable SpecialItem get(final Item own) {
         for (final SpecialItem si : VALUES.values()) {
             final Entity ent = si.own.get();
             if (ent != null && ent.getEntityId() == own.getEntityId())
@@ -252,8 +264,16 @@ public abstract class SpecialItem implements Keyed {
         return null;
     }
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger("OS-SI");
-    public static void info(final String msg) {LOGGER.info(TCUtil.form(msg));}
+    @OverrideMe
+    public static List<SpecialItem> owned(final LivingEntity own) {
+        final List<SpecialItem> sis = new ArrayList<>();
+        for (final SpecialItem si : VALUES.values()) {
+            final Entity ent = si.own.get();
+            if (ent != null && ent.getEntityId() == own.getEntityId())
+                sis.add(si);
+        }
+        return sis;
+    }
 
     /*public static void process(final Entity ent, final ItemManager.SpecProc prc) {
         ItemManager.process(ent, new ItemManager.Processor() {

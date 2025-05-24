@@ -14,6 +14,7 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
@@ -33,16 +34,12 @@ import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.modules.translate.Lang;
-import ru.komiss77.notes.OverrideMe;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.objects.DelayBossBar;
 import ru.komiss77.objects.Group;
 import ru.komiss77.scoreboard.CustomScore;
-import ru.komiss77.utils.NumUtil;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.utils.TCUtil;
-import ru.komiss77.utils.TimeUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.version.CustomTag;
 import ru.komiss77.version.Nms;
 
@@ -774,7 +771,6 @@ public class Oplayer {
         return "";
     }
 
-
     public boolean isLocalChat() {
         return hasFlag(StatFlag.LocalChat);
     }
@@ -790,12 +786,27 @@ public class Oplayer {
     /**
      * Выполняется перед сохранением данных
      */
-    @OverrideMe
     public void preDataSave(final Player p, final boolean async) {
-        final SpecialItem si = SpecialItem.get(p);
-        if (si == null) return;
+        final List<SpecialItem> sis = SpecialItem.owned(p);
+        if (sis.isEmpty()) return;
         for (final ItemStack it : p.getInventory()) {
-            if (it == null || !si.equals(SpecialItem.get(it))) continue;
+            if (ItemUtil.isBlank(it, false)) continue;
+            final SpecialItem si = SpecialItem.get(it);
+            if (si == null) continue;
+            if (!sis.remove(si)) {
+                it.setAmount(0);
+                si.info("Duplicate item removed!");
+                return;
+            }
+            if (si.dropped()) {
+                if (!(si.own() instanceof final Item ii)) {
+                    it.setAmount(0);
+                    si.info("Dropped item removed!");
+                    return;
+                }
+                ii.remove();
+                si.info("Duplicate item removed!");
+            }
             si.apply(p.getWorld().dropItem(p.getLocation(), it));
             it.setAmount(0);
         }
@@ -804,27 +815,7 @@ public class Oplayer {
     /**
      * Выполняется после сохранения данных
      */
-    @OverrideMe
     public void postDataSave(final Player p, final boolean async) {
 
     }
 }
- /*
-
-    //    пол
-    public static String genderEnd_Существительное(final String name) {
-        final Oplayer op = PM.getOplayer(name);
-        if (op!=null) {
-            return switch (TCUtils.strip(op.getDataString(Data.GENDER)).toLowerCase()) {
-                case "девочка" -> "а";
-                case "бесполоe", "гермафродит" -> "о";
-                default -> "";
-            };
-        } else return "";
-    }
-
-    public static boolean isFemale(final String name) {
-        final Oplayer op = PM.getOplayer(name);
-        return op!=null && TCUtils.strip(op.getDataString(Data.GENDER)).equalsIgnoreCase("девочка");
-    }
-*/

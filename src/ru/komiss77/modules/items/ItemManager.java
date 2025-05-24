@@ -144,29 +144,31 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(final EntityDropItemEvent e) {
-        onDrop(e, e.getItemDrop());
+        onDrop(e.getItemDrop());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(final PlayerDropItemEvent e) {
-        onDrop(e, e.getItemDrop());
+        onDrop(e.getItemDrop());
     }
 
-    private static void onDrop(final Cancellable e, final Item drop) {
+    private static void onDrop(final Item drop) {
         final ItemStack it = drop.getItemStack();
         final SpecialItem si = SpecialItem.get(it);
         if (si == null) return;
         if (!si.crafted()) {
             drop.remove();
-            e.setCancelled(true);
-            SpecialItem.info("Uncrafted " + si.name() + " removed!");
+            si.info("Uncrafted item removed!");
             return;
         }
         if (si.dropped()) {
-            drop.remove();
-            e.setCancelled(true);
-            SpecialItem.info("Undropped " + si.name() + " removed!");
-            return;
+            if (!(si.own() instanceof final Item ii)) {
+                drop.remove();
+                si.info("Undropped item removed!");
+                return;
+            }
+            ii.remove();
+            si.info("Duplicate item removed!");
         }
         si.apply(drop);
     }
@@ -180,13 +182,13 @@ public class ItemManager implements Initiable, Listener {
         if (!si.crafted()) {
             drop.remove();
             e.setCancelled(true);
-            SpecialItem.info("Uncrafted " + si.name() + " removed!");
+            si.info("Uncrafted item removed!");
             return;
         }
         if (!si.dropped()) {
             drop.remove();
             e.setCancelled(true);
-            SpecialItem.info("Undropped " + si.name() + " removed!");
+            si.info("Undropped item removed!");
             return;
         }
 
@@ -203,25 +205,28 @@ public class ItemManager implements Initiable, Listener {
     public void onLoad(final EntitiesLoadEvent e) {
         for (final Entity en : e.getEntities()) {
             if (!(en instanceof final Item it)) continue;
-            final SpecialItem si = SpecialItem.get(it);
+            final SpecialItem si = SpecialItem.get(it.getItemStack());
             if (si == null) continue;
+            si.info("Loaded an item!");
+
             if (!si.crafted()) {
                 it.remove();
-                SpecialItem.info("Uncrafted " + si.name() + " removed!");
-                continue;
-            }
-            if (!si.dropped()) {
-                it.remove();
-                SpecialItem.info("Undropped " + si.name() + " removed!");
+                si.info("Uncrafted item removed!");
                 continue;
             }
 
-            if (si.own() instanceof final Item ii && ii.isValid()
-                && ii.getEntityId() != it.getEntityId()) {
+            if (si.own() instanceof final Item ii) {
+                if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
+                    it.remove();
+                    si.info("Duplicate item removed!");
+                    continue;
+                }
+            } else if (!si.dropped()) {
                 it.remove();
-                SpecialItem.info("Duplicate " + si.name() + " removed!");
+                si.info("Undropped item removed!");
                 continue;
             }
+
             if (si.loc() == null) continue;
             final World w = si.loc().w();
             if (w == null) continue;
@@ -241,23 +246,32 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onUnLoad(final EntitiesUnloadEvent e) {
         for (final Entity en : e.getEntities()) {
-            if (en instanceof final Item it) {
-                final SpecialItem si = SpecialItem.get(it);
-                if (si == null) continue;
-                if (!si.crafted()) {
-                    it.remove();
-                    SpecialItem.info("Uncrafted " + si.name() + " removed!");
-                    continue;
-                }
-                if (!si.dropped()) {
-                    it.remove();
-                    SpecialItem.info("Undropped " + si.name() + " removed!");
-                    continue;
-                }
+            if (!(en instanceof final Item it)) continue;
+            final SpecialItem si = SpecialItem.get(it.getItemStack());
+            if (si == null) continue;
+            si.info("Unloaded an item!");
 
-                it.setVelocity(new Vector());
-                si.loc(it.getLocation());
+            if (!si.crafted()) {
+                it.remove();
+                si.info("Uncrafted item removed!");
+                continue;
             }
+
+            if (si.own() instanceof final Item ii) {
+                if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
+                    it.remove();
+                    si.info("Duplicate item removed!");
+                    continue;
+                }
+            } else if (!si.dropped()) {
+                it.remove();
+                si.info("Undropped item removed!");
+                continue;
+            }
+
+            it.setVelocity(new Vector());
+            si.loc(it.getLocation());
+            si.save(it.getItemStack());
         }
     }
 
@@ -265,7 +279,6 @@ public class ItemManager implements Initiable, Listener {
     public void onHopper(final InventoryPickupItemEvent e) {
         final SpecialItem si = SpecialItem.get(e.getItem().getItemStack());
         if (si == null) return;
-        e.getItem().setPickupDelay(20);
         e.setCancelled(true);
     }
 
@@ -292,6 +305,23 @@ public class ItemManager implements Initiable, Listener {
             return;
         }
         si.obtain(e.getWhoClicked(), fin);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onPick(final InventoryClickEvent e) {
+        switch (e.getView().getTopInventory().getType()) {
+            case PLAYER, CREATIVE, CRAFTING: return;
+        }
+        final HumanEntity he = e.getWhoClicked();
+        final ItemStack it = switch (e.getClick()) {
+            case NUMBER_KEY -> he.getInventory().getItem(e.getHotbarButton());
+            case SWAP_OFFHAND -> he.getInventory().getItemInOffHand();
+            default -> e.getCurrentItem();
+        };
+        if (SpecialItem.get(it) == null) return;
+        he.sendMessage(TCUtil
+            .form(Ostrov.PREFIX + "<red>Нельзя передвигать реликвии!"));
+        e.setResult(Event.Result.DENY);
     }
 
     protected interface Processor extends GroupProc, SpecProc {}

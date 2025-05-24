@@ -285,30 +285,26 @@ public class EnchantManager implements Initiable, Listener {
         final Map<CustomEnchant, List<EnchData>> active = new HashMap<>();
         final EntityEquipment eq = le.getEquipment();
         for (final EquipmentSlot es : EquipmentSlot.values()) {
-            if (!le.canUseEquipmentSlot(es) /*|| (le instanceof Player && switch (es) {
-                case BODY, SADDLE -> true; default -> false;
-            })*/) continue;
+            if (!le.canUseEquipmentSlot(es)) continue;
             final ItemStack it = eq.getItem(es);
-            if (!ItemUtil.isBlank(it, true)) {
+            if (ItemUtil.isBlank(it, false)) continue;
 
-                for (final Map.Entry<Enchantment, Integer> en : it.getEnchantments().entrySet()) {
-                    final Enchantment ench = en.getKey();
-                    final CustomEnchant ce = CustomEnchant.get(ench.getKey());
-                    if (ce == null) continue;
+            for (final Map.Entry<Enchantment, Integer> en : it.getEnchantments().entrySet()) {
+                final Enchantment ench = en.getKey();
+                final CustomEnchant ce = CustomEnchant.get(ench.getKey());
+                if (ce == null) continue;
 
-                    for (final EquipmentSlotGroup gr : ench.getActiveSlotGroups()) {
-                        if (gr.test(es)) {
-                            final List<EnchData> eds = active.get(ce);
-                            if (eds == null) {
-                                final List<EnchData> neds = new ArrayList<>();
-                                neds.add(new EnchData(es, it, en.getValue()));
-                                active.put(ce, neds);
-                            } else {
-                                eds.add(new EnchData(es, it, en.getValue()));
-                            }
-                            break;
-                        }
+                for (final EquipmentSlotGroup gr : ench.getActiveSlotGroups()) {
+                    if (!gr.test(es)) continue;
+                    final List<EnchData> eds = active.get(ce);
+                    if (eds == null) {
+                        final List<EnchData> neds = new ArrayList<>();
+                        neds.add(new EnchData(es, it, en.getValue()));
+                        active.put(ce, neds);
+                    } else {
+                        eds.add(new EnchData(es, it, en.getValue()));
                     }
+                    break;
                 }
             }
         }
