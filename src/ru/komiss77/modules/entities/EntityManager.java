@@ -80,13 +80,12 @@ public class EntityManager implements Initiable, Listener {
     public void onSpawn(final CreatureSpawnEvent e) {
         final Entity ent = e.getEntity();
         final CustomEntity he = CustomEntity.get(ent);
-        if (he == null) {
-            for (final CustomEntity ce : custom.values()) {
-                if (ce.getEntClass().isAssignableFrom(ent.getClass())
-                    && ce.canBe(ent, e.getSpawnReason())) {
-                    ce.apply(ent);
-                    break;
-                }
+        if (he != null) return;
+        for (final CustomEntity ce : custom.values()) {
+            if (ce.getEntClass().isInstance(ent)
+                && ce.canBe(ent, e.getSpawnReason())) {
+                ce.apply(ent);
+                break;
             }
         }
     }

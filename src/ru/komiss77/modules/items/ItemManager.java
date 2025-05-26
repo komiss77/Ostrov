@@ -144,15 +144,15 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(final EntityDropItemEvent e) {
-        onDrop(e.getItemDrop());
+        onDrop(e.getEntity(), e.getItemDrop());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDrop(final PlayerDropItemEvent e) {
-        onDrop(e.getItemDrop());
+        onDrop(e.getPlayer(), e.getItemDrop());
     }
 
-    private static void onDrop(final Item drop) {
+    private static void onDrop(final Entity ent, final Item drop) {
         final ItemStack it = drop.getItemStack();
         final SpecialItem si = SpecialItem.get(it);
         if (si == null) return;
@@ -161,6 +161,14 @@ public class ItemManager implements Initiable, Listener {
             si.info("Uncrafted item removed!");
             return;
         }
+
+        if (si.own() instanceof LivingEntity le
+            && le.getUniqueId() != ent.getUniqueId()) {
+            drop.remove();
+            si.info("Duplicate item removed!");
+            return;
+        }
+
         if (si.dropped()) {
             if (!(si.own() instanceof final Item ii)) {
                 drop.remove();
@@ -171,6 +179,7 @@ public class ItemManager implements Initiable, Listener {
             si.info("Duplicate item removed!");
         }
         si.apply(drop);
+        si.info("Dropped item!");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -199,6 +208,7 @@ public class ItemManager implements Initiable, Listener {
         }
 
         si.obtain(e.getEntity(), it);
+        si.info(e.getEntity().getName() + " picked up item!");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -207,7 +217,6 @@ public class ItemManager implements Initiable, Listener {
             if (!(en instanceof final Item it)) continue;
             final SpecialItem si = SpecialItem.get(it.getItemStack());
             if (si == null) continue;
-            si.info("Loaded an item!");
 
             if (!si.crafted()) {
                 it.remove();
@@ -236,6 +245,7 @@ public class ItemManager implements Initiable, Listener {
                 if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
                 it.remove();
             } else si.apply(it);
+            si.info("Loaded in item!");
         }
     }
 
@@ -249,7 +259,6 @@ public class ItemManager implements Initiable, Listener {
             if (!(en instanceof final Item it)) continue;
             final SpecialItem si = SpecialItem.get(it.getItemStack());
             if (si == null) continue;
-            si.info("Unloaded an item!");
 
             if (!si.crafted()) {
                 it.remove();
@@ -272,6 +281,7 @@ public class ItemManager implements Initiable, Listener {
             it.setVelocity(new Vector());
             si.loc(it.getLocation());
             si.save(it.getItemStack());
+            si.info("Unloaded item out!");
         }
     }
 

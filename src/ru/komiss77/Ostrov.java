@@ -292,6 +292,14 @@ public class Ostrov extends JavaPlugin {
         }
     }
 
+    public static void log_bools(String s, boolean... bls) {
+        final StringBuilder sb = new StringBuilder(s);
+        for (final boolean bl : bls) {
+            sb.append(" ").append(bl);
+        }
+        logger.warn(TCUtil.form(sb.toString()));
+    }
+
     @Deprecated //GlobalLogType желтенькая
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),

@@ -34,6 +34,7 @@ import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
 import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -204,16 +205,20 @@ public class PvPManager implements Initiable {
                             for (final ItemStack is : p.getInventory().getContents()) {
                                 if (ItemUtil.isBlank(is, false)) continue;
                                 if (MenuItemsManager.isSpecItem(is)) continue; //не лутать менюшки!
+                                final SpecialItem si = SpecialItem.get(is);
+                                if (si != null) {p.dropItem(is); continue;}
                                 p.getWorld().dropItemNaturally(p.getLocation(), is);
                             }
                             p.getInventory().clear();
                             p.updateInventory();
                         } else {
-                            for (int i = e.getDrops().size() - 1; i >= 0; i--) {
-                                if (MenuItemsManager.isSpecItem(e.getDrops().get(i))) {  //отменить лут менюшек
-                                    e.getDrops().remove(i);
-                                }
-                            }
+                            e.getDrops().removeIf(ii -> {
+                                if (ItemUtil.isBlank(ii, false)) return false;
+                                if (MenuItemsManager.isSpecItem(ii)) return true;
+                                final SpecialItem si = SpecialItem.get(ii);
+                                if (si != null) {p.dropItem(ii); return true;}
+                                return false;
+                            });
                             //ничего не надо, выпадет само!
                         }
 

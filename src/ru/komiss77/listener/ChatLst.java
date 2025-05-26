@@ -24,7 +24,6 @@ import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.player.Perm;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.*;
 import ru.komiss77.utils.inventory.InputButton;
@@ -229,11 +228,11 @@ public class ChatLst implements Listener {
                 langCache.put(locale, c);
             }
             //p.sendMessage(c);
-            if (Perm.isStaff(to, 1)) {
+            /*if (Perm.isStaff(to, 1)) {
                 p.sendMessage(TCUtil.form(bridge ? "<dark_gray>--- Отладка-сообщение через bridge ---" : "<dark_gray>--- Отладка-локальное сообщение ---"));
                 p.sendMessage(c);
                 p.sendMessage(TCUtil.form("<dark_gray>----------"));
-            }
+            }*/
         }
     }
 }

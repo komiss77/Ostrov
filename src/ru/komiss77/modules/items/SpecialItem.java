@@ -20,7 +20,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
-import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.world.BVec;
@@ -38,12 +37,17 @@ public abstract class SpecialItem implements Keyed {
     private static final NamespacedKey DATA = OStrap.key("special");
     private static final BVec DEF_SPAWN = BVec.of(Bukkit.getWorlds().getFirst(), 0, 100, 0);
 
-    public static boolean exist = false;
-
     public static final BVec SPAWN = getSpawnLoc();
 
+    public static boolean exist = false;
+    private static OConfig config = null;
+    public static OConfig config() {
+        if (config == null) config = Cfg.manager.config(CON_NAME, true);
+        return config;
+    }
+
     private static BVec getSpawnLoc() {
-        final OConfig irc = Cfg.manager.config(CON_NAME, true);
+        final OConfig irc = config();
         if (irc.contains("spawn")) {
             final BVec spawn = BVec.parse(irc.getString("spawn"));
             if (spawn != null) return spawn;
@@ -67,7 +71,7 @@ public abstract class SpecialItem implements Keyed {
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);
-        final OConfig irc = Cfg.manager.config(CON_NAME, true);
+        final OConfig irc = config();
         crafted = irc.getBoolean(name + ".crafted", false);
         dropped = irc.getBoolean(name + ".dropped", false);
         if (irc.contains(name)) {
@@ -162,7 +166,6 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public Item apply(final Item it) {
-        info("Item applied");
         crafted = true; dropped = true;
         it.setGlowing(true);
         it.setWillAge(false);
@@ -177,7 +180,6 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void obtain(final LivingEntity le, final ItemStack it) {
-        info(le.getName() + " obtained item");
         crafted = true;
         dropped = false;
         own = new WeakReference<>(le);
@@ -186,21 +188,18 @@ public abstract class SpecialItem implements Keyed {
     }
 
     public void save(final ItemStack curr) {
-        Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME, true);
-            boolean full = false;
-            if (irc.getString(name + ".org").isEmpty()) {
-                irc.set(name + ".org", ItemUtil.write(item));
-                full = true;
-            }
-            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            irc.set(name + ".curr", ItemUtil.write(curr));
+        final OConfig irc = config();
+        boolean full = false;
+        if (irc.getString(name + ".org").isEmpty()) {
+            irc.set(name + ".org", ItemUtil.write(item));
+            full = true;
+        }
+        irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
+        irc.set(name + ".curr", ItemUtil.write(curr));
 
-            irc.set(name + ".dropped", dropped);
-            irc.set(name + ".crafted", crafted);
-            irc.saveConfig();
-            info("Config saved, full=" + full);
-        });
+        irc.set(name + ".dropped", dropped);
+        irc.set(name + ".crafted", crafted);
+        irc.saveConfig();
     }
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger("OS-SI");
@@ -208,20 +207,6 @@ public abstract class SpecialItem implements Keyed {
         LOGGER.info(TCUtil.form(msg + "\n" + name + ": craft="
             + crafted + " drop=" + dropped + " loc=" + loc()));
     }
-
-    /*public void saveAll(final ItemStack curr) {
-        Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME, true);
-            irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
-            irc.set(name + ".org", ItemUtil.write(item));
-            irc.set(name + ".curr", curr);
-
-            irc.set(name + ".dropped", dropped);
-            irc.set(name + ".crafted", crafted);
-            Ostrov.log_warn("CONFIG SAVE2");
-            irc.saveConfig();
-        });
-    }*/
 
     protected abstract void onAttack(final EquipmentSlot es, final EntityDamageByEntityEvent e);
 
@@ -273,13 +258,4 @@ public abstract class SpecialItem implements Keyed {
         }
         return sis;
     }
-
-    /*public static void process(final Entity ent, final ItemManager.SpecProc prc) {
-        ItemManager.process(ent, new ItemManager.Processor() {
-            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {}
-            public void onSpec(final EquipmentSlot es, final SpecialItem si) {
-                prc.onSpec(es, si);
-            }
-        });
-    }*/
 }

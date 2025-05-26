@@ -60,7 +60,7 @@ public class ServerLst implements Listener {
         if (GM.GAME == Game.AR || GM.GAME == Game.DA || GM.GAME == Game.MI) {
             if (e.getEntityType() == EntityType.ENDER_DRAGON && e.getEntity().getWorld().getEnvironment() == World.Environment.THE_END) {
                 ApiOstrov.makeWorldEndToWipe(3 * 24 * 60 * 60);
-                Bukkit.broadcast(TCUtil.form("§bДракон побеждён, и край будет воссоздан через 3 дня!"));
+                Bukkit.broadcast(TCUtil.form(Ostrov.PREFIX + "§bДракон побеждён, и край будет воссоздан через 3 дня!"));
             }
         }
     }

@@ -71,8 +71,7 @@ public abstract class CustomEntity implements Keyed {
 //    goal(e);
     }
 
-    protected abstract boolean canBe(final Entity ent,
-                                     final CreatureSpawnEvent.SpawnReason reason);
+    protected abstract boolean canBe(final Entity ent, final CreatureSpawnEvent.SpawnReason reason);
 
     protected abstract void modify(final Entity ent);
 

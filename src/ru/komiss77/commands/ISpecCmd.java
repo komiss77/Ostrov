@@ -40,6 +40,7 @@ public class ISpecCmd {
                 ItemUtil.giveItemsTo(pl, si.item());
                 si.obtain(pl, si.item());
                 pl.sendMessage(TCUtil.form(Ostrov.PREFIX + "Выданы предметы группы: " + id));
+                si.info(pl.getName() + " obtained item with commands!");
                 return Command.SINGLE_SUCCESS;
             }).description("Выдает Реликвии!").register(Ostrov.mgr);
     }

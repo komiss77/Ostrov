@@ -25,6 +25,7 @@ import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
@@ -364,9 +365,11 @@ public class PM {
         if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {      //если удрал во время боя
             final List<ItemStack> drop = new ArrayList<>();
             for (ItemStack is : p.getInventory().getContents()) {
-                if (is != null && !MenuItemsManager.isSpecItem(is)) {
-                    drop.add(is.clone());
-                }
+                if (is == null) continue;
+                if (MenuItemsManager.isSpecItem(is)) continue;
+                final SpecialItem si = SpecialItem.get(is);
+                if (si != null) {p.dropItem(is); continue;}
+                drop.add(is.clone());
             }
 
 

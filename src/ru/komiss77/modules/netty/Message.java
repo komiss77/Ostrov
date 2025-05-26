@@ -65,7 +65,7 @@ public class Message {
     private static final HoverEvent<Component> MSG_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("<beige>🢖 Click §3- Options"));
     private static final HoverEvent<Component> URL_TOOLTIP_RU = HoverEvent.showText(TCUtil.form("§9Клик - перейти по <u>ссылке"));
     private static final HoverEvent<Component> URL_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§9Click - open <u>URL"));
-//    private static final HoverEvent<Component> SUGGEST_MUTE_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§кClick - mute player"));
+    //    private static final HoverEvent<Component> SUGGEST_MUTE_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§кClick - mute player"));
     private static final HoverEvent<Component> PREFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §оWant a prefix? Click here!  §7-=[§я✦§7]"));
     private static final HoverEvent<Component> SUFFIX_TOOLTIP_EN = HoverEvent.showText(TCUtil.form("§7[§я✦§7]=-  §сWant a suffix? Click here!  §7-=[§я✦§7]"));
     private static final ClickEvent DONATE_CLICK_URL = ClickEvent.openUrl("http://www.ostrov77.ru/donate.html");
@@ -205,12 +205,12 @@ public class Message {
                 .append(Component.space().style(Style.empty()));
         }
 
-      if (!has(Part.SENDER)) Ostrov.log_warn("Message SENDER-null : " + toString());
+        if (!has(Part.SENDER)) Ostrov.log_warn("Message SENDER-null : " + toString());
 
         final String sender = has(Part.SENDER)
             ? data(Part.SENDER) : (eng ? "Unknown" : "Нечто");
 
-      mb.append(TCUtil.form(ChatLst.NIK_COLOR + sender)
+        mb.append(TCUtil.form(ChatLst.NIK_COLOR + sender)
                 .hoverEvent(has(Part.PROFILE)
                     ? HoverEvent.showText(TCUtil.form(data(Part.PROFILE))) : null)
                 .clickEvent(ClickEvent.suggestCommand("/msg " + sender + " ")))

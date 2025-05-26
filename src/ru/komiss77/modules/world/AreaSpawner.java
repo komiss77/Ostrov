@@ -43,7 +43,7 @@ public abstract class AreaSpawner {
         return Ostrov.random.nextFloat() * MAX_SHF - MAX_SHF_D2;
     }
 
-    public abstract <E extends LivingEntity> SpawnCondition condition(final BVec loc);
+    public abstract SpawnCondition condition(final BVec loc);
 
     public static final SpawnCondition NONE = new SpawnCondition(0, CreatureSpawnEvent.SpawnReason.DEFAULT);
     public static final SpawnCondition DEFAULT = new SpawnCondition(1, CreatureSpawnEvent.SpawnReason.NATURAL);
