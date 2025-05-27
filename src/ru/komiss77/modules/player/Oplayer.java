@@ -787,7 +787,7 @@ public class Oplayer {
      * Выполняется перед сохранением данных
      */
     public void preDataSave(final Player p, final boolean async) {
-        final List<SpecialItem> sis = SpecialItem.owned(p);
+        final List<SpecialItem> sis = SpecialItem.getAll(p);
         if (sis.isEmpty()) return;
         for (final ItemStack it : p.getInventory()) {
             if (ItemUtil.isBlank(it, false)) continue;
@@ -809,6 +809,7 @@ public class Oplayer {
             }
             si.apply(p.getWorld().dropItem(p.getLocation(), it));
             it.setAmount(0);
+            si.info("Dropped item on logout!");
         }
     }
 

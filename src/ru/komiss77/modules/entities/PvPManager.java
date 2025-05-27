@@ -7,6 +7,7 @@ import io.papermc.paper.datacomponent.item.BlocksAttacks;
 import io.papermc.paper.datacomponent.item.Weapon;
 import io.papermc.paper.event.player.PlayerShieldDisableEvent;
 import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
+import net.kyori.adventure.util.TriState;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -19,10 +20,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -191,39 +189,31 @@ public class PvPManager implements Initiable {
 
             damageListener = new Listener() {
 
-                @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
                 public void PlayerDeath(final PlayerDeathEvent e) {
-                    if (e.getEntity().getType() != EntityType.PLAYER) {
-                        return;
-                    }
                     final Player p = e.getEntity();
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
                     if (op == null) return;
-
-                    if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0) {            //дроп инвентаря
-                        if (p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
-                            for (final ItemStack is : p.getInventory().getContents()) {
-                                if (ItemUtil.isBlank(is, false)) continue;
-                                if (MenuItemsManager.isSpecItem(is)) continue; //не лутать менюшки!
-                                final SpecialItem si = SpecialItem.get(is);
-                                if (si != null) {p.dropItem(is); continue;}
-                                p.getWorld().dropItemNaturally(p.getLocation(), is);
-                            }
-                            p.getInventory().clear();
-                            p.updateInventory();
-                        } else {
-                            e.getDrops().removeIf(ii -> {
-                                if (ItemUtil.isBlank(ii, false)) return false;
-                                if (MenuItemsManager.isSpecItem(ii)) return true;
-                                final SpecialItem si = SpecialItem.get(ii);
-                                if (si != null) {p.dropItem(ii); return true;}
-                                return false;
-                            });
-                            //ничего не надо, выпадет само!
-                        }
-
-                        p.sendMessage("§c" + Lang.t(p, "Ваши вещи достались победителю!"));
+                    //дроп инвентаря
+                    if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0
+                        && p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
+                        for (final ItemStack is : p.getInventory().getContents()) e.getDrops().add(is);
+                        p.getInventory().clear(); p.updateInventory();
+                        p.sendMessage("§c" + Lang.t(p, "Твой лут достался победителю!"));
                     }
+                    //ничего не надо, выпадет само!
+                    e.getDrops().removeIf(ii -> {
+                        if (ItemUtil.isBlank(ii, false)) return false;
+                        if (MenuItemsManager.isSpecItem(ii)) return true;
+                        final SpecialItem si = SpecialItem.get(ii);
+                        if (si != null) {
+                            final Item nsi = p.dropItem(ii, false, null);
+                            if (nsi == null) return true;
+                            if (!new PlayerDropItemEvent(p, nsi).callEvent()) nsi.remove();
+                            return true;
+                        }
+                        return false;
+                    });
 
                     pvpEndFor(op, p);
                 }
@@ -258,9 +248,13 @@ public class PvPManager implements Initiable {
                         return;
                     }
 
-                    if (battle_time > 0 && disablePvpDamage(damager, e.getEntity(), e.getCause())) {
-                        e.setCancelled(true);
-                        return;
+                    if (battle_time > 0) {
+                        switch (disablePvpDamage(damager, e.getEntity(), e.getCause())) {
+                            case TRUE:
+                                e.setDamage(0);
+                                e.setCancelled(true);
+                            case NOT_SET: return;
+                        }
                     }
 
                     if (!advanced) return;
@@ -553,7 +547,7 @@ public class PvPManager implements Initiable {
                         if (!potion_pvp_type.contains(effect.getType())) return;
                         e.getAffectedEntities().forEach(target -> {
                             if (target.getType().isAlive() && disablePvpDamage(pl,
-                                target, EntityDamageEvent.DamageCause.MAGIC))
+                                target, EntityDamageEvent.DamageCause.MAGIC) == TriState.TRUE)
                                 e.setIntensity(target, 0d);
                         });
                     });
@@ -801,7 +795,7 @@ public class PvPManager implements Initiable {
 
     }
 
-    private static boolean disablePvpDamage(final Entity atackEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
+    private static TriState disablePvpDamage(final Entity atackEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
 //System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");        
 
         Player damager = null;
@@ -818,25 +812,25 @@ public class PvPManager implements Initiable {
         }
 
         if (damager == null && target == null) {
-            return false; //если ни один не игрок, пропускаем
+            return TriState.FALSE; //если ни один не игрок, пропускаем
         }
 
         if (target != null && target.getNoDamageTicks() > 0) { //у жертвы иммунитет
             final int ndSec = target.getNoDamageTicks() / 20;
-            if (ndSec == 0) return true;
+            if (ndSec == 0) return TriState.NOT_SET;
             ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
             if (damager != null) {
                 ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§aУ {0} иммунитет еще §2{1} сек§a!", target.getName(), ndSec));
             }
             target.playSound(target.getLocation(), Sound.BLOCK_ANVIL_HIT, 1, 1);
-            return true;
+            return TriState.TRUE;
         }
 
         if (damager != null && damager.getNoDamageTicks() > 0) { //у нападающего иммунитет
             final int ndSec = damager.getNoDamageTicks() / 20;
             if (ndSec != 0) {
                 ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§aУ тебя иммунитет еще §2{0} сек§a!", ndSec));
-                return true;
+                return TriState.TRUE;
             }
         }
 
@@ -844,12 +838,12 @@ public class PvPManager implements Initiable {
             if (!targetOp.pvp_allow && targetOp.pvp_time < 1 && !isForced(target, targetOp, true)) {                         //если у жертвы выкл пвп
                 ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У цели выключен ПВП!"));
                 ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У тебя выключен ПВП!"));
-                return true;
+                return TriState.TRUE;
             }
             if (!damagerOp.pvp_allow && damagerOp.pvp_time < 1 && !isForced(damager, damagerOp, true)) {                         //если у атакующего выкл пвп
                 ScreenUtil.sendActionBarDirect(target, Lang.t(target, "§2У нападающего выключен ПВП!"));
                 ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§2У тебя выключен ПВП!"));
-                return true;
+                return TriState.TRUE;
             }
         }
 
@@ -857,45 +851,45 @@ public class PvPManager implements Initiable {
             if (damager.getGameMode() == GameMode.CREATIVE && !damager.isOp()) {
                 if (target != null && flags.get(PvpFlag.disable_creative_attack_to_player)) {
                     ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака игроков невозможна в креативе!"));
-                    return true;
+                    return TriState.TRUE;
                 } else if (flags.get(PvpFlag.disable_creative_attack_to_mobs)) {
                     final EntityUtil.EntityGroup group = EntityUtil.group(targetEntity);
                     if (group != EntityUtil.EntityGroup.UNDEFINED) {
                         ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака мобов невозможна в креативе!"));
-                        return true;
+                        return TriState.TRUE;
                     }
                 }
             }
             if (flags.get(PvpFlag.block_fly_on_pvp_mode) && damager.isFlying() && !damager.isOp()) {
                 ScreenUtil.sendActionBarDirect(damager, Lang.t(damager, "§cАтака в полёте невозможна!"));
-                return true;
+                return TriState.TRUE;
             }
         }
 
-        if (battle_time > 1) {       //если активен режима боя и хотя бы один игрок
-            if (damager != null && target != null) {//дерутся два игрока
-                if (damager.getEntityId() == target.getEntityId()) return false;
-                if (!new PlayerPVPEnterEvent(damager, target, cause, true).callEvent()) {
-                    return false;
-                }
-                if (!new PlayerPVPEnterEvent(target, damager, cause, false).callEvent()) {
-                    return false;
-                }
-                pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
-                pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-            } else if (target != null && atackEntity instanceof Monster) {//жертва игрок нападает монстр
-                if (!new PlayerPVPEnterEvent(target, null, cause, false).callEvent()) {
-                    return false;
-                }
-                pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-            } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
-                if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
-                    return false;
-                }
-                pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
-            } else return false;
-        }
-        return false;
+        //если активен режима боя и хотя бы один игрок
+        if (battle_time <= 1) return TriState.FALSE;
+        if (damager != null && target != null) {//дерутся два игрока
+            if (damager.getEntityId() == target.getEntityId()) return TriState.FALSE;
+            if (!new PlayerPVPEnterEvent(damager, target, cause, true).callEvent()) {
+                return TriState.FALSE;
+            }
+            if (!new PlayerPVPEnterEvent(target, damager, cause, false).callEvent()) {
+                return TriState.FALSE;
+            }
+            pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
+            pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
+        } else if (target != null && atackEntity instanceof Monster) {//жертва игрок нападает монстр
+            if (!new PlayerPVPEnterEvent(target, null, cause, false).callEvent()) {
+                return TriState.FALSE;
+            }
+            pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
+        } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
+            if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
+                return TriState.FALSE;
+            }
+            pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
+        } else return TriState.FALSE;
+        return TriState.FALSE;
     }
 
     public static void pvpBeginFor(final Oplayer op, final Player p, final int time) {

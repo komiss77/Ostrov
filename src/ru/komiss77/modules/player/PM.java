@@ -25,7 +25,6 @@ import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
-import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
@@ -367,8 +366,6 @@ public class PM {
             for (ItemStack is : p.getInventory().getContents()) {
                 if (is == null) continue;
                 if (MenuItemsManager.isSpecItem(is)) continue;
-                final SpecialItem si = SpecialItem.get(is);
-                if (si != null) {p.dropItem(is); continue;}
                 drop.add(is.clone());
             }
 

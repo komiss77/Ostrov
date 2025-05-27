@@ -189,10 +189,8 @@ public abstract class SpecialItem implements Keyed {
 
     public void save(final ItemStack curr) {
         final OConfig irc = config();
-        boolean full = false;
         if (irc.getString(name + ".org").isEmpty()) {
             irc.set(name + ".org", ItemUtil.write(item));
-            full = true;
         }
         irc.set(name + ".loc", lastLoc == null ? null : lastLoc.toString());
         irc.set(name + ".curr", ItemUtil.write(curr));
@@ -233,13 +231,14 @@ public abstract class SpecialItem implements Keyed {
 
     @OverrideMe
     public static @Nullable SpecialItem get(final ItemStack it) {
-        if (it == null) return null;
+        if (it == null || !exist) return null;
         final String nm = it.getPersistentDataContainer().get(DATA, PersistentDataType.STRING);
         return nm == null ? null : VALUES.get(nm);
     }
 
     @OverrideMe
     public static @Nullable SpecialItem get(final Item own) {
+        if (own == null || !exist) return null;
         for (final SpecialItem si : VALUES.values()) {
             final Entity ent = si.own.get();
             if (ent != null && ent.getEntityId() == own.getEntityId())
@@ -249,8 +248,9 @@ public abstract class SpecialItem implements Keyed {
     }
 
     @OverrideMe
-    public static List<SpecialItem> owned(final LivingEntity own) {
+    public static List<SpecialItem> getAll(final LivingEntity own) {
         final List<SpecialItem> sis = new ArrayList<>();
+        if (own == null || !exist) return sis;
         for (final SpecialItem si : VALUES.values()) {
             final Entity ent = si.own.get();
             if (ent != null && ent.getEntityId() == own.getEntityId())

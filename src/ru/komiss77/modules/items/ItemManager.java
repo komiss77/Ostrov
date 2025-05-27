@@ -25,6 +25,8 @@ import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
 import ru.komiss77.hook.WGhook;
+import ru.komiss77.modules.entities.PvPManager;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 
@@ -45,8 +47,16 @@ public class ItemManager implements Initiable, Listener {
         HandlerList.unregisterAll(this);
         if (!Cfg.items) return;
 
-        Ostrov.log_ok("§2Предметы включены!");
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
+        PvPManager.addForce(new PvPManager.Force() {
+            public boolean test(final Player pl, final Oplayer op) {
+                return !SpecialItem.getAll(pl).isEmpty();
+            }
+            public String msg() {
+                return "§6Наличие реликвий не позволит откл. пвп!";
+            }
+        });
+        Ostrov.log_ok("§2Предметы включены!");
     }
 
     @Override
@@ -178,6 +188,7 @@ public class ItemManager implements Initiable, Listener {
             ii.remove();
             si.info("Duplicate item removed!");
         }
+
         si.apply(drop);
         si.info("Dropped item!");
     }
@@ -207,8 +218,22 @@ public class ItemManager implements Initiable, Listener {
             return;
         }
 
+        if (si.own() instanceof final Item ii
+            && ii.getEntityId() != drop.getEntityId()) {
+            drop.remove();
+            e.setCancelled(true);
+            si.info("Duplicate item removed!");
+            return;
+        }
+
         si.obtain(e.getEntity(), it);
         si.info(e.getEntity().getName() + " picked up item!");
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTeleport(final EntityTeleportEvent e) {
+        if (e.getTo() == null) return;
+        onLoad(new EntitiesLoadEvent(e.getTo().getChunk(), List.of(e.getEntity())));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
