@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.BlocksAttacks;
 import io.papermc.paper.datacomponent.item.Weapon;
+import io.papermc.paper.datacomponent.item.blocksattacks.DamageReduction;
 import io.papermc.paper.event.player.PlayerShieldDisableEvent;
 import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import net.kyori.adventure.util.TriState;
@@ -73,9 +74,12 @@ public class PvPManager implements Initiable {
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
         ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
         ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
+    public static final List<DamageReduction> BLOCK_REDS = ItemType.SHIELD
+        .getDefaultData(DataComponentTypes.BLOCKS_ATTACKS).damageReductions();
     public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
         .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
-        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).build();
+        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).damageReductions(BLOCK_REDS).build();
+    //List.of(DamageReduction.damageReduction().horizontalBlockingAngle(90f).base(0f).factor(1f).build())
     private static final float MELEE_BREAK_SEC = 2f;
     //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
     //weapon block breaks if !shield || axe
@@ -728,9 +732,8 @@ public class PvPManager implements Initiable {
                         case Player pl:
                             if (AXES.contains(pl.getInventory()
                                 .getItemInMainHand().getType().asItemType())) break;
-                            if (ItemUtil.isBlank(pl.getInventory()
-                                .getItemInOffHand(), false)) break;
-                            if (pl.getFallDistance() == 0 && !pl.isSprinting()) break;
+                            if (ItemUtil.isBlank(pl.getInventory().getItemInOffHand(), false)
+                                && (pl.getFallDistance() != 0 || pl.isSprinting())) break;
                             e.setCooldown(0); e.setCancelled(true);
                             break;
                         case LivingEntity le:
@@ -795,15 +798,15 @@ public class PvPManager implements Initiable {
 
     }
 
-    private static TriState disablePvpDamage(final Entity atackEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
+    private static TriState disablePvpDamage(final Entity damagerEntity, final Entity targetEntity, final EntityDamageEvent.DamageCause cause) {
 //System.out.println("pvp attack_entity="+attack_entity+" type="+"   target_entity="+target_entity+" type=");        
 
         Player damager = null;
         Player target = null;
 
-        final Oplayer damagerOp = PM.getOplayer(atackEntity.getUniqueId());
-        if (damagerOp != null) {//if (atackEntity.getType() == EntityType.PLAYER && damagerOp != null) { - раз есть Oplayer, значит точно игрок
-            damager = (Player) atackEntity;
+        final Oplayer damagerOp = PM.getOplayer(damagerEntity.getUniqueId());
+        if (damagerOp != null) {//if (damagerEntity.getType() == EntityType.PLAYER && damagerOp != null) { - раз есть Oplayer, значит точно игрок
+            damager = (Player) damagerEntity;
         }
 
         final Oplayer targetOp = PM.getOplayer(targetEntity.getUniqueId());
@@ -878,12 +881,12 @@ public class PvPManager implements Initiable {
             }
             pvpBeginFor(damagerOp, damager, battle_time);//damagerOp.pvpBattleModeBegin(battle_time);
             pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-        } else if (target != null && atackEntity instanceof Monster) {//жертва игрок нападает монстр
+        } else if (target != null && damagerEntity instanceof Enemy) {//жертва игрок нападает монстр
             if (!new PlayerPVPEnterEvent(target, null, cause, false).callEvent()) {
                 return TriState.FALSE;
             }
             pvpBeginFor(targetOp, target, battle_time);//targetOp.pvpBattleModeBegin(battle_time);
-        } else if (damager != null && targetEntity instanceof Monster) {//нападает игрок жертва монстр
+        } else if (damager != null && targetEntity instanceof Enemy) {//нападает игрок жертва монстр
             if (!new PlayerPVPEnterEvent(damager, null, cause, true).callEvent()) {
                 return TriState.FALSE;
             }
