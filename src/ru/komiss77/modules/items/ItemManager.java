@@ -1,25 +1,25 @@
 package ru.komiss77.modules.items;
 
 import java.util.*;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
@@ -107,16 +107,19 @@ public class ItemManager implements Initiable, Listener {
             public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onInteract(ess, e);}
             public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onInteract(es, e);}
         });
+
+        final SpecialItem si = SpecialItem.get(e.getItem());
+        if (si == null || e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        e.setUseInteractedBlock(Event.Result.DENY);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShoot(final ProjectileLaunchEvent e) {
-        if (e.getEntity().getShooter() instanceof final LivingEntity le) {
-            process(le, new Processor() {
-                public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onShoot(ess, e);}
-                public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onShoot(es, e);}
-            });
-        }
+        if (!(e.getEntity().getShooter() instanceof final LivingEntity le)) return;
+        process(le, new Processor() {
+            public void onGroup(final EquipmentSlot[] ess, final ItemGroup cm) {cm.onShoot(ess, e);}
+            public void onSpec(final EquipmentSlot es, final SpecialItem si) {si.onShoot(es, e);}
+        });
     }
 
     protected static void process(final Entity ent, final Processor pc) {
@@ -168,29 +171,33 @@ public class ItemManager implements Initiable, Listener {
         if (si == null) return;
         if (!si.crafted()) {
             drop.remove();
-            si.info("Uncrafted item removed!");
+            si.info("DROP: Uncrafted item removed!");
             return;
         }
 
         if (si.own() instanceof LivingEntity le
             && le.getUniqueId() != ent.getUniqueId()) {
             drop.remove();
-            si.info("Duplicate item removed!");
+            si.info("DROP: Duplicate item removed!");
             return;
         }
 
         if (si.dropped()) {
             if (!(si.own() instanceof final Item ii)) {
                 drop.remove();
-                si.info("Undropped item removed!");
+                si.info("DROP: Undropped item removed!");
                 return;
             }
             ii.remove();
-            si.info("Duplicate item removed!");
+            si.info("DROP: Duplicate item removed!");
         }
 
-        si.apply(drop);
-        si.info("Dropped item!");
+        si.info("DROP: Dropped item!");
+        if (isInPrivateWG(drop.getLocation())) {
+            final World sw = SpecialItem.SPAWN.w();
+            if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), drop.getItemStack());
+            drop.remove();
+        } else si.apply(drop);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -202,13 +209,13 @@ public class ItemManager implements Initiable, Listener {
         if (!si.crafted()) {
             drop.remove();
             e.setCancelled(true);
-            si.info("Uncrafted item removed!");
+            si.info("PICK: Uncrafted item removed!");
             return;
         }
         if (!si.dropped()) {
             drop.remove();
             e.setCancelled(true);
-            si.info("Undropped item removed!");
+            si.info("PICK: Undropped item removed!");
             return;
         }
 
@@ -222,12 +229,12 @@ public class ItemManager implements Initiable, Listener {
             && ii.getEntityId() != drop.getEntityId()) {
             drop.remove();
             e.setCancelled(true);
-            si.info("Duplicate item removed!");
+            si.info("PICK: Duplicate item removed!");
             return;
         }
 
         si.obtain(e.getEntity(), it);
-        si.info(e.getEntity().getName() + " picked up item!");
+        si.info("PICK: " + e.getEntity().getName() + " picked up item!");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -245,22 +252,23 @@ public class ItemManager implements Initiable, Listener {
 
             if (!si.crafted()) {
                 it.remove();
-                si.info("Uncrafted item removed!");
+                si.info("LOAD: Uncrafted item removed!");
                 continue;
             }
 
             if (si.own() instanceof final Item ii) {
                 if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
                     it.remove();
-                    si.info("Duplicate item removed!");
+                    si.info("LOAD: Duplicate item removed!");
                     continue;
                 }
             } else if (!si.dropped()) {
                 it.remove();
-                si.info("Undropped item removed!");
+                si.info("LOAD: Undropped item removed!");
                 continue;
             }
 
+            si.info("LOAD: Loaded in item!");
             if (si.loc() == null) continue;
             final World w = si.loc().w();
             if (w == null) continue;
@@ -270,11 +278,10 @@ public class ItemManager implements Initiable, Listener {
                 if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
                 it.remove();
             } else si.apply(it);
-            si.info("Loaded in item!");
         }
     }
 
-    private static boolean isInPrivateWG(final Location loc) {
+    public static boolean isInPrivateWG(final Location loc) {
         return Ostrov.wg && WGhook.getRegionsOnLocation(loc).size() != 0;
     }
 
@@ -287,27 +294,39 @@ public class ItemManager implements Initiable, Listener {
 
             if (!si.crafted()) {
                 it.remove();
-                si.info("Uncrafted item removed!");
+                si.info("UNL: Uncrafted item removed!");
                 continue;
             }
 
             if (si.own() instanceof final Item ii) {
                 if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
                     it.remove();
-                    si.info("Duplicate item removed!");
+                    si.info("UNL: Duplicate item removed!");
                     continue;
                 }
             } else if (!si.dropped()) {
                 it.remove();
-                si.info("Undropped item removed!");
+                si.info("UNL: Undropped item removed!");
                 continue;
             }
 
             it.setVelocity(new Vector());
             si.loc(it.getLocation());
             si.save(it.getItemStack());
-            si.info("Unloaded item out!");
+            si.info("UNL: Unloaded item out!");
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntity(final PlayerInteractEntityEvent e) {
+        switch (e.getRightClicked().getType()) {
+            case GLOW_ITEM_FRAME, ITEM_FRAME: break;
+            default: return;
+        }
+        final SpecialItem si = SpecialItem.get(e.getPlayer()
+            .getInventory().getItem(e.getHand()));
+        if (si == null) return;
+        e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -318,34 +337,30 @@ public class ItemManager implements Initiable, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onItemBreak(final PlayerItemBreakEvent e) {
+    public void onIBreak(final PlayerItemBreakEvent e) {
         final SpecialItem si = SpecialItem.get(e.getBrokenItem());
         if (si == null) return;
         si.destroy();
     }
 
-    @EventHandler
-    public void onCraft(final InventoryClickEvent e) {
-        if (!(e.getClickedInventory() instanceof CraftingInventory)) return;
-        if (e.getSlotType() != InventoryType.SlotType.RESULT) return;
-        final ItemStack fin = e.getCurrentItem();
-        final SpecialItem si = SpecialItem.get(fin);
-        if (si == null) return;
-        if (si.crafted()) {
-            e.setResult(Event.Result.DENY);
-            e.setCurrentItem(ItemUtil.air);
-            for (final HumanEntity he : e.getViewers()) {
-                he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
-            }
-            return;
-        }
-        si.obtain(e.getWhoClicked(), fin);
-    }
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void onPick(final InventoryClickEvent e) {
-        switch (e.getView().getTopInventory().getType()) {
-            case PLAYER, CREATIVE, CRAFTING: return;
+    public void onClick(final InventoryClickEvent e) {
+        if (e.getSlotType() == InventoryType.SlotType.RESULT) {
+            if (!(e.getClickedInventory() instanceof CraftingInventory)) return;
+            final ItemStack fin = e.getCurrentItem();
+            final SpecialItem si = SpecialItem.get(fin);
+            if (si == null) return;
+            if (si.crafted()) {
+                e.setResult(Event.Result.DENY);
+                e.setCurrentItem(ItemUtil.air);
+                for (final HumanEntity he : e.getViewers()) {
+                    he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
+                }
+                return;
+            }
+            si.info("CRAFT: " + e.getWhoClicked().getName() + " crafted item!");
+            si.obtain(e.getWhoClicked(), fin);
+            return;
         }
         final HumanEntity he = e.getWhoClicked();
         final ItemStack it = switch (e.getClick()) {
@@ -353,10 +368,24 @@ public class ItemManager implements Initiable, Listener {
             case SWAP_OFFHAND -> he.getInventory().getItemInOffHand();
             default -> e.getCurrentItem();
         };
-        if (SpecialItem.get(it) == null) return;
-        he.sendMessage(TCUtil
-            .form(Ostrov.PREFIX + "<red>Нельзя передвигать реликвии!"));
-        e.setResult(Event.Result.DENY);
+        final ItemStack cr = e.getCursor();
+        /*Ostrov.log_bools("try", e.getClick().isLeftClick(), ItemUtil.is(cr, ItemType.BUNDLE), ItemUtil.is(it, ItemType.BUNDLE),
+            it != null, cr.hasData(DataComponentTypes.DAMAGE), it.hasData(DataComponentTypes.DAMAGE));*/
+        if (e.getClick().isLeftClick() && (ItemUtil.is(cr, ItemType.BUNDLE) || ItemUtil.is(it, ItemType.BUNDLE))
+            && it != null && (cr.hasData(DataComponentTypes.DAMAGE) || it.hasData(DataComponentTypes.DAMAGE))) {
+            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Нельзя класть это в мешок!"));
+            e.setResult(Event.Result.DENY);
+            return;
+        }
+        final Inventory inv = e.getView().getTopInventory();
+        switch (inv.getType()) {
+            case PLAYER, CREATIVE, CRAFTING, ENCHANTING, ANVIL: return;
+        }
+        if (SpecialItem.get(it) != null) {
+            he.sendMessage(TCUtil
+                .form(Ostrov.PREFIX + "<red>Нельзя передвигать реликвии!"));
+            e.setResult(Event.Result.DENY);
+        }
     }
 
     protected interface Processor extends GroupProc, SpecProc {}

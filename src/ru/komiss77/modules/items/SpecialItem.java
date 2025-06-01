@@ -2,8 +2,8 @@ package ru.komiss77.modules.items;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
@@ -248,8 +248,8 @@ public abstract class SpecialItem implements Keyed {
     }
 
     @OverrideMe
-    public static List<SpecialItem> getAll(final LivingEntity own) {
-        final List<SpecialItem> sis = new ArrayList<>();
+    public static Set<SpecialItem> getAll(final LivingEntity own) {
+        final Set<SpecialItem> sis = new HashSet<>();
         if (own == null || !exist) return sis;
         for (final SpecialItem si : VALUES.values()) {
             final Entity ent = si.own.get();

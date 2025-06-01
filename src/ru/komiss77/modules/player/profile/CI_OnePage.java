@@ -36,7 +36,7 @@ public class CI_OnePage implements InventoryProvider {
 
         //линия - разделитель
         final ClickableItem fill = ClickableItem.empty(new ItemBuilder(glassMat).name("§8.").build());
-        content.fillRow(4, fill);
+        content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {

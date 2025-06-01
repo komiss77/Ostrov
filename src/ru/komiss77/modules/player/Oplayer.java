@@ -12,10 +12,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitTask;
@@ -27,6 +24,7 @@ import ru.komiss77.listener.ChatLst;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.items.ItemManager;
 import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.player.PM.Gender;
 import ru.komiss77.modules.player.mission.MissionManager;
@@ -787,29 +785,48 @@ public class Oplayer {
      * Выполняется перед сохранением данных
      */
     public void preDataSave(final Player p, final boolean async) {
-        final List<SpecialItem> sis = SpecialItem.getAll(p);
+        final Set<SpecialItem> sis = SpecialItem.getAll(p);
         if (sis.isEmpty()) return;
+        final Location loc = EntityUtil.center(p);
         for (final ItemStack it : p.getInventory()) {
             if (ItemUtil.isBlank(it, false)) continue;
             final SpecialItem si = SpecialItem.get(it);
             if (si == null) continue;
             if (!sis.remove(si)) {
                 it.setAmount(0);
-                si.info("Duplicate item removed!");
+                si.info("OP: Inventory item removed!");
                 return;
             }
+
+            if (!si.crafted()) {
+                it.setAmount(0);
+                si.info("OP: Uncrafted item removed!");
+                return;
+            }
+
+            if (si.own() instanceof LivingEntity le
+                && le.getUniqueId() != p.getUniqueId()) {
+                it.setAmount(0);
+                si.info("OP: Duplicate item removed!");
+                return;
+            }
+
             if (si.dropped()) {
                 if (!(si.own() instanceof final Item ii)) {
                     it.setAmount(0);
-                    si.info("Dropped item removed!");
+                    si.info("OP: Undropped item removed!");
                     return;
                 }
                 ii.remove();
-                si.info("Duplicate item removed!");
+                si.info("OP: Duplicate item removed!");
             }
-            si.apply(p.getWorld().dropItem(p.getLocation(), it));
+
+            si.info("OP: Dropped item!");
+            if (ItemManager.isInPrivateWG(loc)) {
+                final World sw = SpecialItem.SPAWN.w();
+                if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it);
+            } else si.apply(p.getWorld().dropItem(loc, it, si::apply));
             it.setAmount(0);
-            si.info("Dropped item on logout!");
         }
     }
 

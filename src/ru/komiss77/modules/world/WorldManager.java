@@ -226,7 +226,7 @@ public class WorldManager implements Initiable {
         World world = Bukkit.getWorld(world_name);
         if (world != null) {
             sender.sendMessage(Component.text()
-                .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен! §7тп в мир - /ostrov wm tp " + world_name + " <клик"))
+                .append(Component.text(Ostrov.PREFIX + "§eЭтот мир уже загружен!\n§7тп в мир - /ostrov wm tp " + world_name + " <клик"))
                 .hoverEvent(HoverEvent.showText(Component.text("клик - ТП")))
                 .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
                 .build());//spigot().sendMessage(msg);

@@ -50,7 +50,7 @@ public final class PvpCmd {
             }
             pl.sendMessage(msg);//p.sendMessage("§2ПВП выключен!");
             return Command.SINGLE_SUCCESS;
-        }).then(Resolver.integer(act)).suggest(cntx -> {
+        }).then(Resolver.string(act)).suggest(cntx -> {
             final CommandSender cs = cntx.getSource().getSender();
             if (!(cs instanceof final Player pl)) return Set.of();
             if (!ApiOstrov.isStaff(pl)) return Set.of("on", "off");
@@ -72,7 +72,7 @@ public final class PvpCmd {
                     PvPManager.pvpOn(op);
                     pl.sendMessage(Lang.t(pl, "§4ПВП включен!"));
                     return Command.SINGLE_SUCCESS;
-                case "of":
+                case "off":
                     if (!PvPManager.getFlag(PvPManager.PvpFlag.allow_pvp_command)) {
                         pl.sendMessage(Lang.t(pl, "§cУправление режимом ПВП отключено!"));
                         return 0;

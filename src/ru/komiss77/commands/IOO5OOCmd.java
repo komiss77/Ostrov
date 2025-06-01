@@ -373,9 +373,9 @@ public class IOO5OOCmd {
                 }
                 if (Cfg.spawn_command) {
                     if (WarpManager.exist("spawn")) {
-                        DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                        DelayTeleport.tp(p, WarpManager.getWarp("spawn").getLocation().toCenterLocation(), 3, Lang.t(p, "Перемещяем тебя на спавн.."), true, true, DyeColor.GREEN);
                     } else {
-                        DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Вы перемещены на спавн"), true, true, DyeColor.GREEN);
+                        DelayTeleport.tp(p, Bukkit.getWorlds().getFirst().getSpawnLocation(), 3, Lang.t(p, "Перемещяем тебя на спавн.."), true, true, DyeColor.GREEN);
                     }
                 } else {
                     p.sendMessage("§c" + Lang.t(p, "spawn отключёна на этом сервере!"));
