@@ -35,11 +35,11 @@ public class AdvSection implements InventoryProvider {
 
 
         //линия - разделитель
-        content.fillRow(1, fill);
+      content.fillRow(4, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
-            content.set(2, section.column, Section.getMenuItem(section, op));
+          content.set(5, section.column, Section.getMenuItem(section, op));
         }
 
 
@@ -76,10 +76,10 @@ public class AdvSection implements InventoryProvider {
         }
 
         pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
-        pagination.setItemsPerPage(9);
+      pagination.setItemsPerPage(36);
 
         if (!pagination.isLast()) {
-            content.set(1, 8, ClickableItem.of(ItemUtil.nextPage, e
+          content.set(4, 8, ClickableItem.of(ItemUtil.nextPage, e
                     -> {
                     content.getHost().open(p, pagination.next().getPage());
                 }
@@ -87,13 +87,13 @@ public class AdvSection implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(1, 0, ClickableItem.of(ItemUtil.previosPage, e
+          content.set(4, 0, ClickableItem.of(ItemUtil.previosPage, e
                     -> {
                     content.getHost().open(p, pagination.previous().getPage());
                 })
             );
         }
 
-        pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
+      pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, 0, 0).allowOverride(false));
     }
 }

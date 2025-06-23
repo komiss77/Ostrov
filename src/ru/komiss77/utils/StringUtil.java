@@ -2,10 +2,13 @@ package ru.komiss77.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -224,6 +227,12 @@ public class StringUtil {
         return sb.toString();//allowRole;
     }
 
+  public static Collection fromString(final String array, String splitter) {
+    if (array == null || array.isBlank()) return Collections.EMPTY_LIST;
+    if (splitter == null || splitter.isBlank()) splitter = ",";
+    final String[] split = array.split(splitter);
+    return Arrays.stream(split).collect(Collectors.toList());
+  }
 
     public static String nrmlzStr(final String s) {
         final char[] ss = s.toLowerCase().toCharArray();

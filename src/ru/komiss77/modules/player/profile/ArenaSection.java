@@ -34,11 +34,11 @@ public class ArenaSection implements InventoryProvider {
         final ProfileManager pm = op.menu;
 
         //линия - разделитель
-        content.fillRow(1, fill);
+      content.fillRow(4, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
-          content.set(2, section.column, Section.getMenuItem(section, op));
+          content.set(5, section.column, Section.getMenuItem(section, op));
         }
 
 
@@ -75,13 +75,13 @@ public class ArenaSection implements InventoryProvider {
 
         //final Pagination pagination = content.pagination();
         pagination.setItems(ci);// pagination.setItems(menuEntry.toArray(new ClickableItem[menuEntry.size()]));
-        pagination.setItemsPerPage(9);
+      pagination.setItemsPerPage(36);
 
 
         pagination.page(pm.arenaPage);
 
         if (!pagination.isLast()) {
-            content.set(1, 8, ClickableItem.of(new ItemBuilder(ItemUtil.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
+          content.set(4, 8, ClickableItem.of(new ItemBuilder(ItemUtil.nextPage).name(Game.getGamePageTitle(pm.arenaPage + 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.next().getPage();
                     content.getHost().open(p, pm.arenaPage);
@@ -90,7 +90,7 @@ public class ArenaSection implements InventoryProvider {
         }
 
         if (!pagination.isFirst()) {
-            content.set(1, 0, ClickableItem.of(new ItemBuilder(ItemUtil.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
+          content.set(4, 0, ClickableItem.of(new ItemBuilder(ItemUtil.previosPage).name(Game.getGamePageTitle(pm.arenaPage - 1)).build(), e
                     -> {
                     pm.arenaPage = pagination.previous().getPage();
                     content.getHost().open(p, pm.arenaPage);

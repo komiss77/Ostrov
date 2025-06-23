@@ -336,7 +336,7 @@ public class ArcaimLst implements Listener {
         return regs.size() == 0;
     }
 
-    @EventHandler
+  // @EventHandler сейчас кидает в пустоту
     public void onFirst(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
         if (op.firstJoin) {

@@ -1,26 +1,27 @@
 package ru.komiss77.modules.player.profile.serverMenu;
 
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.ItemFlag;
 import ru.komiss77.Ostrov;
-import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.player.profile.Section;
+import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
 public class Daaria implements InventoryProvider {
 
-//    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.SCULK_VEIN).name("§8.").build());
-    private static final ClickableItem glass = ClickableItem.empty(new ItemBuilder(ItemType.GREEN_STAINED_GLASS_PANE).name("§0.").build());
-    private static final ClickableItem main = ClickableItem.empty(new ItemBuilder(ItemType.LIME_STAINED_GLASS_PANE).name("Экономика").build());
-    private static final ClickableItem regions = ClickableItem.empty(new ItemBuilder(ItemType.LIME_STAINED_GLASS_PANE).name("Приваты").build());
-    private static final ClickableItem homes = ClickableItem.empty(new ItemBuilder(ItemType.LIME_STAINED_GLASS_PANE).name("Дома").build());
-    private static final ClickableItem settings = ClickableItem.empty(new ItemBuilder(ItemType.LIME_STAINED_GLASS_PANE).name("Настройки").build());
+    private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.SCULK_VEIN).name("§8.").build());
+    private static final ClickableItem main = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("Экономика").build());
+    private static final ClickableItem regions = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("Приваты").build());
+    private static final ClickableItem homes = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("Дома").build());
+    private static final ClickableItem settings = ClickableItem.empty(new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("Настройки").build());
 
 
     @Override
@@ -37,67 +38,58 @@ public class Daaria implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
         final ProfileManager pm = op.menu;
 
-        content.fillRow(1, glass);
+        //линия - разделитель
+    /*    content.set(0,0, main);
+        content.set(0,8, main);
+        content.set(1,0, regions);
+        content.set(1,8, regions);
+        content.set(2,0, homes);
+        content.set(2,8, homes);
+        content.set(3,0, settings);
+        content.set(3,8, settings);*/
+        content.fillRect(0, 0, 4, 8, fill);
+
         //выставить иконки внизу
         for (Section section : Section.values()) {
-            content.set(2, section.column, Section.getMenuItem(section, op));
+            //content.set(section.slot + 27, Section.getMenuItem(section, op));
+            content.set(5, section.column, Section.getMenuItem(section, op));
         }
 
-        if (Ostrov.wg) {
-            content.set(0, 0, ClickableItem.of(new ItemBuilder(ItemType.OAK_FENCE)
-                .name("§eРегионы")
-                .lore("§fУправление регионами.")
-                .glint(true)
-                .build(), e -> {
-                pm.openRegions(p);
-            }));
-        } else {
-            content.set(0, 0, ClickableItem.empty(new ItemBuilder(ItemType.OAK_FENCE)
-                .name("§c§mРегионы")
-                .lore("§cНет WG!")
-                .glint(true)
-                .build()));
-        }
 
-        content.set(0, 2, ClickableItem.of(new ItemBuilder(ItemType.WHITE_BED)
-            .name("§eДома")
+        content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
+            .name("§eВарпы")
             .lore("")
-            .lore("§eТвои точки дома.")
+            .lore("§7Варпы сервера,игроков")
+            .lore("§7и администрации.")
+            .lore("")
             .build(), e -> {
-            pm.openHomes(p);
+            //p.closeInventory();
+            pm.current = null;
+            p.performCommand("warp");
         }));
 
-        content.set(0, 4, ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
+        content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
             .name("§7Спавн")
             .lore("")
             .lore("§7Переход на спавн")
+            .lore("")
             .build(), e -> {
             pm.current = null;
             p.closeInventory();
             p.performCommand("spawn");
         }));
 
-        content.set(0, 6, ClickableItem.of(new ItemBuilder(ItemType.DIAMOND)
-            .name("§eРынок")
-            .lore("")
-            .lore("§7Покупка и продажа")
-            .lore("§7предметов по расценке.")
-            .build(), e -> {
-            p.performCommand("market");
-        }));
 
-        content.set(0, 8, ClickableItem.of(new ItemBuilder(ItemType.BOOKSHELF)
-            .name("§eВарпы")
+        content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.REPEATER)
+            .name("§bМеню личных настроек")
             .lore("")
-            .lore("§7Варпы сервера, игроков")
-            .lore("§7и администрации.")
+            .lore("")
             .build(), e -> {
-            pm.current = null;
-            p.performCommand("warp");
+            pm.openLocalSettings(p, true);
         }));
 
 
-     /*   content.set(0, 4, ClickableItem.of(new ItemBuilder(ItemType.COBWEB)
+     /*   content.set(0, 4, ClickableItem.of(new ItemBuilder(Material.COBWEB)
             .name("§fВыбор сервера")
             .addLore("")
             .addLore("§fМеню выбора сервера")
@@ -107,7 +99,7 @@ public class Daaria implements InventoryProvider {
             }));
         
 
-        content.set(0, 6, ClickableItem.of(new ItemBuilder(ItemType.DAYLIGHT_DETECTOR)
+        content.set(0, 6, ClickableItem.of(new ItemBuilder(Material.DAYLIGHT_DETECTOR)
             .name("§eТП к игрокам")
             .addLore("")
             .addLore("Телепорт к игрокам")
@@ -116,7 +108,7 @@ public class Daaria implements InventoryProvider {
                 p.performCommand("tpa");//pm.openTPA(p);
             }));
         
-        content.set(0, 7, ClickableItem.of(new ItemBuilder(ItemType.COMPASS)
+        content.set(0, 7, ClickableItem.of(new ItemBuilder(Material.COMPASS)
             .name("§eRandom ТП")
             .addLore("")
             .addLore("§7ТП куда подальше")
@@ -130,9 +122,26 @@ public class Daaria implements InventoryProvider {
         
 */
 
+        if (Ostrov.wg) {
+            content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE)
+                .name("§eРегионы")
+                .lore("§fУправление регионами.")
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .flags(ItemFlag.HIDE_ENCHANTS)
+                .build(), e -> {
+                pm.openRegions(p);
+            }));
+        } else {
+            content.set(2, 1, ClickableItem.empty(new ItemBuilder(Material.OAK_FENCE)
+                .name("§c§mРегионы")
+                .lore("§cНет WG!")
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .flags(ItemFlag.HIDE_ENCHANTS)
+                .build()));
+        }
 
 
-       /*  content.set(2, 3, ClickableItem.of(new ItemBuilder(ItemType.YELLOW_BED)
+       /*  content.set(2, 3, ClickableItem.of(new ItemBuilder(Material.YELLOW_BED)
             .name("§eВернуться в свой регион")
                 //.lore("§7Дом любимый дом.")
                 //.lore("§7Создание, удаление,")
@@ -146,7 +155,7 @@ public class Daaria implements InventoryProvider {
         }));
 
 
-       content.set(2, 5, ClickableItem.of(new ItemBuilder(ItemType.RED_BED)
+       content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.RED_BED)
             .name("§eВернуться домой")
             .lore("")
             .lore("§7Дом любимый дом")
@@ -158,8 +167,17 @@ public class Daaria implements InventoryProvider {
         }));*/
 
 
+        content.set(2, 5, ClickableItem.of(new ItemBuilder(Material.WHITE_BED)
+            .name("§eДома")
+            //.lore("")
+            //.lore("§eУправление точками дома")
+            //.lore("")
+            .build(), e -> {
+            pm.openHomes(p);
+        }));
 
-        /*content.set(3, 2, ClickableItem.of(new ItemBuilder(ItemType.ENDER_CHEST)
+
+        content.set(3, 2, ClickableItem.of(new ItemBuilder(Material.ENDER_CHEST)
             .name("§aНаборы")
             .lore("")
             .lore("§7Меню наборов.")
@@ -168,16 +186,17 @@ public class Daaria implements InventoryProvider {
             //p.closeInventory();
             pm.current = null;
             p.performCommand("kit");
-        }));*/
+        }));
 
 
-        /*content.set(3, 4, ClickableItem.of(new ItemBuilder(ItemType.DIAMOND_PICKAXE)
+        content.set(3, 4, ClickableItem.of(new ItemBuilder(Material.DIAMOND_PICKAXE)
             .name("§6Работы")
             .lore("")
             .lore("§7ЛКМ - меню работ")
             .lore("§7Чтобы уволиться с работы,")
             .lore("§7наберите команду")
             .lore("§b/jobs leave §7название_работы")
+            .lore("§7")
             .build(), e -> {
             if (e.isLeftClick()) {
                 pm.current = null;
@@ -185,11 +204,25 @@ public class Daaria implements InventoryProvider {
             } else {
 
             }
-        }));*/
+
+        }));
 
 
+        content.set(3, 6, ClickableItem.of(new ItemBuilder(Material.DIAMOND)
+            .name("§eРынок")
+            .lore("")
+            //.addLore("§cПлагин для рынка")
+            //.addLore("§cпеределывают.")
+            .lore("")
+            .build(), e -> {
+            //p.closeInventory();
+            //PM.soundDeny(p);
+            p.performCommand("market");
+            //pm.current = null;
+            //p.performCommand("ah");
+        }));
 
-     /*   content.set(2,6, ClickableItem.of(new ItemBuilder(ItemType.DIAMOND_AXE)
+     /*   content.set(2,6, ClickableItem.of(new ItemBuilder(Material.DIAMOND_AXE)
             .name("§7/ah sell цена")
             .addLore("")
             .addLore("§7Чтобы продать товар")
@@ -204,7 +237,7 @@ public class Daaria implements InventoryProvider {
 
         // if (Ostrov.deluxeChat) {
     /*        final boolean local = op.isLocalChat();//op.hasFlag(StatFlag.LocalChat); //final boolean local = Ostrov.deluxechatPlugin.isLocal(p.getUniqueId().toString());
-            content.set(3,5, ClickableItem.of(new ItemBuilder( local ? ItemType.SCUTE : ItemType.GUNPOWDER)
+            content.set(3,5, ClickableItem.of(new ItemBuilder( local ? Material.SCUTE : Material.GUNPOWDER)
                 .name("§7Режим чата")
                 .addLore(local ? "§7Сейчас: §bлокальный" : "§7Сейчас: §eглобальный")
                 .addLore( local ? "§7ЛКМ - сделать глобальным" : "§7ЛКМ - сделать локальным" )
@@ -236,7 +269,7 @@ public class Daaria implements InventoryProvider {
         */
         
 
-   /*     content.set(3, 7, ClickableItem.of(new ItemBuilder(ItemType.FIRE_CORAL)
+   /*     content.set(3, 7, ClickableItem.of(new ItemBuilder(Material.FIRE_CORAL)
             .name("§cВыход")
             .addLore("")
             .addLore("")
@@ -323,7 +356,7 @@ public class Daaria implements InventoryProvider {
 
         /*
         
-        content.set( 5, 8, ClickableItem.of( new ItemBuilder(ItemType.OAK_DOOR).name("Закрыть").build(), e -> 
+        content.set( 5, 8, ClickableItem.of( new ItemBuilder(Material.OAK_DOOR).name("Закрыть").build(), e -> 
         {
             p.closeInventory();
         }

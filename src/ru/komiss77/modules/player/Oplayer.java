@@ -50,6 +50,7 @@ public class Oplayer {
     public boolean eng; //true - english; false - russian
     public int karmaCalc, reputationCalc; //просчитывается в
     private final int loginTime = Timer.secTime();
+  public boolean makeToRemove; //метка для OsPlayerDataStorage, чтобы отличить выход и автосохранение
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа
     public int tick; //каждые 20 тиков будет вызов secondTick из таймера
@@ -64,8 +65,8 @@ public class Oplayer {
     public final Map<Integer, Boolean> missionIds = new HashMap<>(); //true-обрабатывается (блокировать операции)
     public boolean hasFakeBlock;
     public final HashMap<Long, BlockData> fakeBlock = new HashMap<>();
-    public final CustomScore score;
-    public final CustomTag tag;
+  public CustomScore score;
+  public CustomTag tag;
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
@@ -127,9 +128,12 @@ public class Oplayer {
     public Oplayer(final HumanEntity p) {
         nik = p.getName();
         id = p.getUniqueId();
-        menu = new ProfileManager(this);
         firstJoin = (isGuest = nik.startsWith("guest_"));
-        score = new CustomScore((Player) p);
+    }
+
+  public void postJoin(final Player p) {
+    menu = new ProfileManager(this);
+    score = new CustomScore(p);
         tag = new CustomTag(p);
         tag.visible(true);
         tag.seeThru(true);

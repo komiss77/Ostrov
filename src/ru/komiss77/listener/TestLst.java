@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemType;
 import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.utils.ItemUtil;
 
 
 public class TestLst implements Listener {
@@ -70,9 +71,9 @@ public class TestLst implements Listener {
         if (inHand.getType() == Material.WOODEN_PICKAXE) {
             e.setCancelled(true);
             p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
-          ItemStack is = new ItemBuilder(ItemType.GOAT_HORN).set(
-              DataComponentTypes.INSTRUMENT, MusicInstrument.DREAM_GOAT_HORN).build();
-          p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
+          //ItemStack is = new ItemBuilder(ItemType.GOAT_HORN).set(
+          //    DataComponentTypes.INSTRUMENT, MusicInstrument.DREAM_GOAT_HORN).build();
+          // p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
             //final Player semen = Bukkit.getPlayerExact("semen");
             //if (semen!=null) {
             //     p.sendMessage("canSee?"+canSee(p, semen));
@@ -80,6 +81,9 @@ public class TestLst implements Listener {
             //}
 
             if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+              ItemStack is = ItemUtil.parse("enchanted_book:1 <> enchant:mending:1");
+              p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
+              p.sendMessage("parse");
                 if (p.isSneaking()) {
 //                    QuestManager.loadQuests();
                     //MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
@@ -93,12 +97,15 @@ public class TestLst implements Listener {
                     //p.sendMessage("safeTP up");
                 }
             } else if (e.getAction() == Action.LEFT_CLICK_AIR) {
+              ItemStack is = ItemUtil.parseItem("enchanted_book:1 <> enchant:mending:1", "<>");
+              p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
+              p.sendMessage("parseItem");
                 if (p.isSneaking()) {
-                    p.sendMessage("§3teleportSave DOWN");
+                  // p.sendMessage("§3teleportSave DOWN");
                     //final Location loc = p.getLocation().clone().add(0, -200, 0);
                     //MoveUtil.teleportSave(p, loc, true);
                 } else {
-                    p.sendMessage("§3teleportSave UP");
+                  //p.sendMessage("§3teleportSave UP");
                     //final Location loc = p.getLocation().clone().add(0, -200, 0);
                     //MoveUtil.teleportSave(p, loc, true);
                 }

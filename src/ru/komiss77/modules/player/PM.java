@@ -350,10 +350,13 @@ public class PM {
 
 
     public static void onLeave(final Player p, final boolean async) {
-        final Oplayer op = remove(p.getUniqueId());
+        final Oplayer op = getOplayer(p);//remove(p.getUniqueId());
         if (op == null) {
             Ostrov.log_warn("PlayerQuitEvent : Oplayer == null!");
             return;
+        }
+        if (async) {
+            op.makeToRemove = true; //async только при PlayerQuitEvent
         }
         op.preDataSave(p, async);
         ResourcePacksLst.preDisconnect(p);

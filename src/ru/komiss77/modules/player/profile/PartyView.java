@@ -12,8 +12,11 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.utils.PlayerInput;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
+import ru.komiss77.utils.inventory.InputButton;
 import ru.komiss77.utils.inventory.InventoryContent;
 import ru.komiss77.utils.inventory.InventoryProvider;
 
@@ -55,8 +58,11 @@ public class PartyView implements InventoryProvider {
                 op.party_members.put(op.nik, Ostrov.MOT_D);
                 reopen(p, content);
             }));
+          return;
+        }
 
-        } else if (op.nik.equals(op.party_leader)) {  //лидер
+
+      if (op.nik.equals(op.party_leader)) {  //лидер
 
             for (final String name : op.party_members.keySet()) {
 
@@ -99,8 +105,11 @@ public class PartyView implements InventoryProvider {
             }
 
             if (op.party_members.size() < 8) {
-                content.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
-                    .name("§aПригласить").lore("").lore("§6Нужно быть рядом с игроком!")
+              content.add(ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
+                  .name("§aПригласить")
+                  .headTexture(ItemUtil.Texture.add)
+                  .lore("")
+                  .lore("§6Нужно быть рядом с игроком!")
                     .build(), e -> Friends.openPartyFind(op)));
             }
 
@@ -136,5 +145,16 @@ public class PartyView implements InventoryProvider {
             }
 
         }
+
+      content.add(ClickableItem.of(new ItemBuilder(ItemType.OAK_HANGING_SIGN)
+              .name("§6Сообщение команде")
+              .build(), e -> {
+            p.closeInventory();
+            PlayerInput.get(InputButton.InputType.CHAT, p, msg -> ApiOstrov.executeBungeeCmd(p, "party msg " + msg), "");
+          }
+      ));
+
+
+
     }
 }

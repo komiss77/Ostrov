@@ -38,6 +38,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.enums.*;
@@ -93,10 +94,11 @@ public class PlayerLst implements Listener {
         if (GM.GAME == Game.AR || GM.GAME == Game.JL) return;
         final Oplayer op = PM.getOplayer(p);
         if (op == null || op.isStaff) return;
+        //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
         RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
             " (`action`,`sender`,`target`,`report`,`data`,`note`) VALUES ('"
             + HistoryType.GAMEMODE.name() + "','" + Ostrov.MOT_D + "','" + op.nik
-            + "','old=" + p.getPreviousGameMode().name() + "','" + Timer.secTime() + "','new=" + e.getNewGameMode().name() + "');");
+            + "','old=" + (p.getPreviousGameMode() == null ? "" : p.getPreviousGameMode().name()) + "','" + Timer.secTime() + "','new=" + e.getNewGameMode().name() + "');");
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
@@ -136,11 +138,47 @@ public class PlayerLst implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(final PlayerJoinEvent e) {
+    public void onSpawnLocation(final PlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
+        final Player p = e.getPlayer();
+        final Oplayer op = PM.getOplayer(p);
+        if (op.world_positions.containsKey("logoutLoc")) {
+            final Location spawn = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
+            if (spawn != null) { //если мир не загружен, то тоже выдаст null
+                e.setSpawnLocation(spawn);
+//Ostrov.log_warn("PlayerSpawnLocationEvent setSpawnLocation "+op.world_positions.get("logoutLoc"));
+            }
+        } else {
+//Ostrov.log_warn("PlayerSpawnLocationEvent logoutLoc = null");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerJoin(final PlayerJoinEvent e) { //после OsPlayerDataStorage
         e.joinMessage(null);
         final Player p = e.getPlayer();
         //LOCALE тут не получить!!! ловить PlayerLocaleChangeEvent
-        final Oplayer op = PM.createOplayer(p);
+        final Oplayer op;// = PM.getOplayer(p);
+
+        //if (PM.exists(p)) { //данные уже прогружены из файла
+        op = PM.getOplayer(p);
+        //  if (LocalDB.useLocalData) {
+        //    op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
+        //   op.mysqlData.put("uuid", p.getUniqueId().toString());
+        //   Ostrov.sync(() -> {
+        //       op.postJoin(p); //некоторые вещи не ставятся в момент загрузки из файла
+        //       Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null));
+        //    }, 10);
+        //}
+        //} else { //из файла не загружался - берём из мускул
+        //op = PM.createOplayer(p);
+        op.postJoin(p);
+        if (LocalDB.useLocalData) {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
+            Ostrov.async(() -> {
+                LocalDB.loadLocalData(p.getName());//локальные данные на загрузку независимо от данных с банжи!
+            }, 10); //в таком варианте WANT_ARENA_JOIN будет точно после данных с прокси!
+        }
+        //}
 
         if (GM.GAME == Game.JL) {
             ScreenUtil.sendTabList(p, "§4ЧИСТИЛИЩЕ", "");
@@ -148,13 +186,6 @@ public class PlayerLst implements Listener {
             ScreenUtil.sendTabList(p, "", "");//!! перед loadLocalData, или сбрасывает то, что поставила игра
         }
 
-        if (LocalDB.useLocalData) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
-            Ostrov.async(() -> {
-                LocalDB.loadLocalData(p.getName());//локальные данные на загрузку независимо от данных с банжи!
-            }, 10); //в таком варианте WANT_ARENA_JOIN будет точно после данных с прокси!
-
-        }
 
         final String bungeeData = bungeeDataCache.remove(p.getName());
         if (bungeeData != null) { //данные пришли ранее, берём из кэша
@@ -176,10 +207,11 @@ public class PlayerLst implements Listener {
 
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void PlayerQuit(PlayerQuitEvent e) {
+    public void PlayerQuit(PlayerQuitEvent e) { //до OsPlayerDataStorage
+//Ostrov.log_warn("PlayerQuitEvent "+e.getPlayer().getName());
       e.quitMessage(null);
       PM.onLeave(e.getPlayer(), true);
-      if (Ostrov.USE_NETTY_QUERRY) {
+        if (Ostrov.USE_NETTY_QUERRY) {
           OsQuery.send(QueryCode.PLAYER_SERVER_QUIT, e.getPlayer().getName());
       }
     }

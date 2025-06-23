@@ -42,31 +42,30 @@ public class EntityCmd implements Listener, OCommand {
             }
 
             if (!ApiOstrov.isLocalBuilder(p)) {//просмотр доступен всем - зачем? это нигде не используется вроде
-                p.sendMessage("§cДоступно только персоналу!");
-                return 0;
+              SmartInventory          //скайблок,ванблок,аркаим, да и на других может пригодиться
+                  .builder()
+                  .id("EntityMain" + p.getName())
+                  .provider(new EntityWorldView(List.of(p.getWorld()), -1))
+                  .size(3, 9)
+                  .title("§2Сущности " + p.getWorld().getName())
+                  .build()
+                  .open(p);
+              //p.sendMessage("§cДоступно только персоналу!");
+              return 0;
             }
 
-            final Oplayer op = PM.getOplayer(p);
-            if (op.setup == null) {
-                op.setup = new SetupMode(p);
-            }
+          final Oplayer op = PM.getOplayer(p);
+          if (op.setup == null) {
+            op.setup = new SetupMode(p);
+          }
 
-            PM.getOplayer(p).setup.openEntityWorldMenu(p, p.getWorld(), -1);
-            /*SmartInventory
-                .builder()
-                .id("EntityMain" + p.getName())
-                .provider(new EntityWorldView(List.of(p.getWorld()), -1))
-                .size(3, 9)
-                .title("§2Сущности " + p.getWorld().getName())
-                .build()
-                .open(p);*/
+          PM.getOplayer(p).setup.openEntityWorldMenu(p, p.getWorld(), -1);
 
             return Command.SINGLE_SUCCESS;
         }).build();
     }
 
-    //для скайблока - перенос в скайблок пж, не мусорим Остров
-    @Deprecated
+  //для скайблока - перенос в скайблок пж, не мусорим Остров  //там есть нмс вещи, остров для этого и нужен
     public static void openByWorldList(final Player p, final List<World> worlds) {
         SmartInventory
             .builder()
@@ -89,7 +88,6 @@ public class EntityCmd implements Listener, OCommand {
     }
 }
 
-@Deprecated
 class EntityServerView implements InventoryProvider {
 
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(ItemType.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
@@ -183,7 +181,6 @@ class EntityServerView implements InventoryProvider {
 
 }
 
-@Deprecated
 class EntityWorldView implements InventoryProvider {
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
     private int radius;
@@ -344,7 +341,6 @@ class EntityWorldView implements InventoryProvider {
 
 }
 
-@Deprecated
 class EntityGroupView implements InventoryProvider {
     private static final ClickableItem fill = ClickableItem.empty(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).name("§8.").build());
     private final World world;
@@ -471,7 +467,6 @@ class EntityGroupView implements InventoryProvider {
 
 }
 
-@Deprecated
 class EntityTypeView implements InventoryProvider {
 
 

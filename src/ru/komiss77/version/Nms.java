@@ -3,10 +3,14 @@ package ru.komiss77.version;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Predicate;
 import com.mojang.brigadier.tree.RootCommandNode;
+import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import io.netty.channel.Channel;
@@ -34,6 +38,8 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedPlayerList;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Abilities;
@@ -46,6 +52,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
 import org.bukkit.block.BlockType;
@@ -511,14 +518,12 @@ public class Nms {
           }
       );
 
-    } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException |
-             SecurityException ex) { //NoSuchFieldException | SecurityException | IllegalAccessException ex) {
-      Ostrov.log_warn("nms Server pathServer : " + ex.getMessage());
+    } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+      Ostrov.log_warn("nms Server pathServer RootCommandNode : " + ex.getMessage());
     }
 
     SpigotConfig.belowZeroGenerationInExistingChunks = false;
     SpigotConfig.restartOnCrash = false;
-    SpigotConfig.disablePlayerDataSaving = true;
     SpigotConfig.movedWronglyThreshold = 1.6;//Double.MAX_VALUE;
     SpigotConfig.movedTooQuicklyMultiplier = 10;//Double.MAX_VALUE;
     SpigotConfig.sendNamespaced = false;//Bukkit.spigot().getConfig().s
@@ -530,15 +535,17 @@ public class Nms {
     SpigotConfig.restartMessage = "§4Перезагрузка...";
 
     switch (GM.GAME) {
-      case AR, DA, OB, SK, SG, MI -> {
+      case DA, AR, MI, SK, OB -> {
         SpigotConfig.disableAdvancementSaving = false;
         SpigotConfig.disabledAdvancements = Collections.emptyList();
         SpigotConfig.disableStatSaving = false;
+        SpigotConfig.disablePlayerDataSaving = false;
       }
       default -> {
         SpigotConfig.disableAdvancementSaving = true;
         SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");
         SpigotConfig.disableStatSaving = true;
+        SpigotConfig.disablePlayerDataSaving = true;
       }
     }
 
@@ -556,7 +563,51 @@ public class Nms {
       Ostrov.log_err("не удалось изменить timings : " + ex.getMessage());
     }
 
+    if (SpigotConfig.disablePlayerDataSaving == false) {
+      final DedicatedServer dedicatedServer = Craft.toNMS();
+      final DedicatedPlayerList dedicatedPlayerList = dedicatedServer.getPlayerList();
+      final PlayerDataStorage oldPds = dedicatedPlayerList.playerIo;
+      try {
+        final Field dataFixerField = oldPds.getClass().getDeclaredField("fixerUpper");
+        dataFixerField.setAccessible(true);
+        final DataFixer fixerUpper = (DataFixer) dataFixerField.get(oldPds);
+        dataFixerField.setAccessible(false);
+        //osPds.playerDir = oldPds.getPlayerDir();
+        final OsPlayerDataStorage osPds = new OsPlayerDataStorage(dedicatedServer.storageSource, fixerUpper);//dedicatedPlayerList.playerIo;
+        //dedicatedServer.playerDataStorage = osPds;
+        //dedicatedPlayerList.playerIo = osPds;
+        final Field playerIoField = dedicatedPlayerList.getClass().getField("playerIo"); //getDeclaredField-без наслодования
+        playerIoField.setAccessible(true);
+        playerIoField.set(dedicatedPlayerList, osPds);
+        playerIoField.setAccessible(false);
+        final Field playerDataStorageField = dedicatedServer.getClass().getField("playerDataStorage");
+        playerDataStorageField.setAccessible(true);
+        playerDataStorageField.set(dedicatedServer, osPds);
+        playerDataStorageField.setAccessible(false);
+      } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+        Ostrov.log_warn("nms Server pathServer PlayerDataStorage : " + ex.getMessage());
+        ex.printStackTrace();
+      }
+    }
+
     Ostrov.log_ok("§bСервер сконфигурирован, отключено ванильных команд: " + vanilaCommandToDisable.size());
+  }
+
+  private static void makeStaticFinalFieldWritable(Field field) {
+    try {
+      var lookup = MethodHandles.privateLookupIn(field.getClass(), MethodHandles.lookup());
+      var modifiersHandle = lookup.findVarHandle(field.getClass(), "modifiers", int.class);
+      var modifiers = field.getModifiers();
+      modifiersHandle.set(field, modifiers & ~Modifier.FINAL);
+
+      var rootHandle = lookup.findVarHandle(field.getClass(), "root", Field.class);
+      var root = (Field) rootHandle.get(field);
+      if (root != null && root != field) {
+        makeStaticFinalFieldWritable(root);
+      }
+    } catch (IllegalAccessException | NoSuchFieldException e) {
+      throw new Error(e);
+    }
   }
 
 

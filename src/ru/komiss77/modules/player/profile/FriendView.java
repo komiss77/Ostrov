@@ -181,8 +181,11 @@ public class FriendView implements InventoryProvider {
         }
 
 
-        menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
-            .name("§aДобавить").lore("").lore("§6Нужно быть рядом с игроком!")
+      menuEntry.add(ClickableItem.of(new ItemBuilder(ItemType.PLAYER_HEAD)
+          .name("§aДобавить")
+          .headTexture(ItemUtil.Texture.add)
+          .lore("")
+          .lore("§6Нужно быть рядом с игроком!")
             .build(), e -> Friends.openFriendsFind(op)));
 
         pagination.setItems(menuEntry.toArray(new ClickableItem[0]));

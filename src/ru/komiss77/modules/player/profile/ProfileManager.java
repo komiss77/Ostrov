@@ -165,7 +165,7 @@ public class ProfileManager {
                 .id(op.nik + section.name())
                 .title(op.eng ? section.item_nameEn : section.item_nameRu)
                 .provider(new AdvSection())
-                .size(3, 9)
+                .size(6, 9)
                 .build()
                 .open(p);
 

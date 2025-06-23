@@ -28,7 +28,11 @@ public class CustomScore extends SubTeam {
         p.setScoreboard(ownerBoard);
 
         for (final World w : Bukkit.getWorlds()) send(w);
-        for (final Oplayer op : PM.getOplayers()) op.score.send(p);
+      for (final Oplayer op : PM.getOplayers()) {
+        if (!op.nik.equals(p.getName())) {
+          op.score.send(p);
+        }
+      }
     }
 
 

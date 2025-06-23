@@ -1619,7 +1619,8 @@ public class ItemUtil {
                         if (subArg.length == 2) {
                             final Enchantment enchant = OStrap.retrieve(RegistryKey.ENCHANTMENT, Key.key(subArg[0]));
                             if (enchant != null) {
-                                builder.enchant(enchant, NumUtil.intOf(subArg[1], 1));
+                              //builder.enchant(enchant, NumUtil.intOf(subArg[1], 1));
+                              builder.enchant(enchant, NumUtil.intOf(subArg[1], 1), mat == ItemType.ENCHANTED_BOOK); //фикс-кривые книги на починку скайблок
                             } else {
                                 Ostrov.log_warn("Декодер enchant : §7строка >§f" + asString + "§7<, нет таких чар §f" + arg);
                             }
@@ -2061,12 +2062,12 @@ public class ItemUtil {
     }
 
 
-    public static @Nullable ItemStack[] deserialize(final String data) {
+  public static @Nullable ItemStack[] deserialize(final String base64) {
         try {
-            return ItemStack.deserializeItemsFromBytes(Base64Coder.decodeLines(data));
+          return ItemStack.deserializeItemsFromBytes(Base64Coder.decodeLines(base64));
         } catch (RuntimeException e) {
             Ostrov.log_warn("Failed deserializing items, trying older method");
-            return itemsFromBase64(data);
+          return itemsFromBase64(base64);
         }
     }
 
