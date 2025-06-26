@@ -10,14 +10,18 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StrictJsonParser;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -247,9 +251,9 @@ public class AnvilGUI {
      * @throws IllegalArgumentException when json is null
      * @see Builder#jsonTitle(String)
      */
-    public void setJsonTitle(String json, boolean preserveRenameText) {
-        setTitle(WRAPPER.jsonChatComponent(json), preserveRenameText);
-    }
+    //public void setJsonTitle(String json, boolean preserveRenameText) {
+    //    setTitle(WRAPPER.jsonChatComponent(json), preserveRenameText);
+    //}
 
     /**
      * Updates the title of the AnvilGUI to the new one.
@@ -576,10 +580,10 @@ public class AnvilGUI {
          * @return The {@link Builder} instance
          * @throws IllegalArgumentException if the title is null
          */
-        public Builder jsonTitle(String json) {
-            this.titleComponent = WRAPPER.jsonChatComponent(json);
-            return this;
-        }
+        //public Builder jsonTitle(String json) {
+        //     this.titleComponent = WRAPPER.jsonChatComponent(json);
+        //    return this;
+        //}
 
         /**
          * Sets the {@link ItemStack} to be put in the first slot
@@ -722,9 +726,9 @@ public class AnvilGUI {
          * @throws IllegalArgumentException when json is null
          * @see Builder#jsonTitle(String)
          */
-        static ResponseAction updateJsonTitle(String json, boolean preserveRenameText) {
-            return (anvilGUI, player) -> anvilGUI.setJsonTitle(json, preserveRenameText);
-        }
+        //static ResponseAction updateJsonTitle(String json, boolean preserveRenameText) {
+        //    return (anvilGUI, player) -> anvilGUI.setJsonTitle(json, preserveRenameText);
+        //}
 
         /**
          * Open another inventory
@@ -934,9 +938,19 @@ final class CustomAnvil {
     }
 
     //@Override
-    public Object jsonChatComponent(String json) {
-        return Component.Serializer.fromJson(json, RegistryAccess.EMPTY);
-    }
+    //public Object jsonChatComponent(String json) {
+    //try {
+    //    return ComponentSerialization.CODEC
+    //        .parse(RegistryAccess.EMPTY.createSerializationContext(JsonOps.INSTANCE), jsonElement)
+    //        .resultOrPartial(string -> LOGGER.warn("Failed to parse resource pack prompt '{}': {}", json, string))
+    //        .orElse(null);
+    //} catch (Exception var2) {
+    //    LOGGER.warn("Failed to parse resource pack prompt '{}'", json, var2);
+    // }
+    //JsonElement jsonElement = StrictJsonParser.parse(json);
+    //return jsonElement;
+    //return Component.Serializer.fromJson(json, RegistryAccess.EMPTY);
+    //}
 
     protected static class AnvilContainer extends AnvilMenu {
         public AnvilContainer(Player player, int containerId, Component guiTitle) {

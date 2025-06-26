@@ -165,7 +165,7 @@ public class MenuFinded implements InventoryProvider {
                             FigureManager.deleteFigure(figure);
                             reopen(p, contents);
                         } else {
-                            p.playSound(p.getLocation(), Sound.ENTITY_LEASH_KNOT_PLACE, 0.5f, 0.85f);
+                          p.playSound(p.getLocation(), Sound.ENTITY_CAT_HISS, 0.5f, 0.85f);
                         }
                         reopen(p, contents);
                     });

@@ -317,7 +317,7 @@ public class SchemEditorMenu implements InventoryProvider {
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1, 5);
                     } else {
                         reopen(p, contents);
-                        p.playSound(p.getLocation(), Sound.ENTITY_LEASH_KNOT_PLACE, 0.5f, 0.85f);
+                      p.playSound(p.getLocation(), Sound.ENTITY_CAT_HISS, 0.5f, 0.85f);
                     }
                 });
                 //reopen(p, contents);

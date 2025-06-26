@@ -15,12 +15,12 @@ plugins {
 
 
 dependencies {
-  paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.6-R0.1-SNAPSHOT")
 //  paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
   compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
   annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-  compileOnly("com.github.grimanticheat:grimapi:master")
+    //compileOnly("com.github.grimanticheat:grimapi:master")
 }
 
 repositories {

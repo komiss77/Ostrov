@@ -82,7 +82,8 @@ public class EnchantManager implements Initiable, Listener {
 
     private static final RegistryKeySet<ItemType> noIts = RegistrySet.keySet(RegistryKey.ITEM);
     public static void register(final LifecycleEventManager<BootstrapContext> mgr) {
-        mgr.registerEventHandler(RegistryEvents.ENCHANTMENT.freeze().newHandler(e -> {
+      //mgr.registerEventHandler(RegistryEvents.ENCHANTMENT.freeze().newHandler(e -> {
+      mgr.registerEventHandler(RegistryEvents.ENCHANTMENT.compose().newHandler(e -> {
             final WritableRegistry<Enchantment, EnchantmentRegistryEntry.Builder> rg = e.registry();
             for (final CustomEnchant ce : CustomEnchant.VALUES.values()) {
                 if (ce.isReg()) continue;

@@ -20,6 +20,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import com.google.gson.*;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -38,16 +39,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.FileNameDateFormatter;
-import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.PlayerDataStorage;
+import net.minecraft.world.level.storage.*;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.slf4j.Logger;
 import ru.komiss77.*;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.GM;
@@ -69,6 +70,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
   private static Field statField;
   private static final Gson GSON;
   private static final DateTimeFormatter FORMATTER = FileNameDateFormatter.create();
+  private static final Logger LOGGER = LogUtils.getLogger();
 
   static {
     GSON = new GsonBuilder().create();
@@ -96,31 +98,50 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
   }
 
 
-  public Optional<CompoundTag> load(Player nmsPlayer) {
+  public Optional<ValueInput> load(Player nmsPlayer, ProblemReporter problemReporter) {//public Optional<CompoundTag> load(Player nmsPlayer) {
     if (nmsPlayer instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
       org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer = serverPlayer.getBukkitEntity();
       final Oplayer op = PM.createOplayer(craftPlayer); //создать обязательно тут
 
-      PlayerAdvancements adv = serverPlayer.getAdvancements();
       try { //для гостей делайм файл-заглушку
+        PlayerAdvancements adv = serverPlayer.getAdvancements();
         final String advFileName = op.isGuest ? "guest_adv.json" : nmsPlayer.getScoreboardName() + "_adv.json";
         final File advFile = new File(dataDir, advFileName);
+        if (!advFile.exists() && !op.isGuest) {
+          final Path oldPath = (Path) playerSavePath.get(adv);
+          final File oldAdvFile = new File(oldPath.toString());
+          if (oldAdvFile.exists() && oldAdvFile.isFile()) {
+            Ostrov.log_warn("OsPlayerDataStorage adv load : копируем старый файл");
+            Files.copy(oldPath, advFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+          }
+        }
         playerSavePath.set(adv, advFile.toPath());
         adv.reload(serverPlayer.getServer().getAdvancements());
         //Path path = (Path) playerSavePath.get(adv);
 //Ostrov.log_warn("OsPlayerDataStorage adv load : Path="+path.toString());
         final String statFileName = op.isGuest ? "guest_stat.json" : nmsPlayer.getScoreboardName() + "_stat.json";
         final File statFile = new File(dataDir, statFileName);
+        if (!statFile.exists() && !op.isGuest) {
+          final ServerStatsCounter oldStats = serverPlayer.getStats();
+          if (oldStats != null) {
+            final File oldStatFolder = serverPlayer.getServer().getWorldPath(LevelResource.PLAYER_STATS_DIR).toFile();
+            File oldStatFile = new File(oldStatFolder, serverPlayer.getUUID().toString() + ".json");
+            if (oldStatFile.exists()) {
+              Ostrov.log_warn("OsPlayerDataStorage stats load : копируем старый файл");
+              Files.copy(oldStatFile.toPath(), statFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            }
+          }
+        }
         final ServerStatsCounter serverStatsCounter = new ServerStatsCounter(serverPlayer.getServer(), statFile);
         statField.set(serverPlayer, serverStatsCounter);
 
-      } catch (NullPointerException | IllegalAccessException | IllegalArgumentException ex) {
+      } catch (IOException | NullPointerException | IllegalAccessException | IllegalArgumentException ex) {
         Ostrov.log_warn("OsPlayerDataStorage adv load : " + ex.getMessage());
         ex.printStackTrace();
       }
 
-
-      return load(nmsPlayer.getName().getString(), nmsPlayer.getStringUUID()).map(tag -> {
+      return this.load(nmsPlayer.getName().getString(), nmsPlayer.getStringUUID(), problemReporter).map((tag) -> {
+        //return load(nmsPlayer.getName().getString(), nmsPlayer.getStringUUID()).map(tag -> {
         // Only update first played if it is older than the one we have
         //long modified = new File(dataDir, nmsPlayer.getStringUUID() + ".dat").lastModified();
         long modified = new File(dataDir, nmsPlayer.getName() + ".dat").lastModified();
@@ -177,11 +198,12 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
         }
 
 //Ostrov.log_warn("mysqlData= "+op.mysqlData);
-        nmsPlayer.load(tag); // From below
-
+        //nmsPlayer.load(tag); // From below
+        final ValueInput valueInput = TagValueInput.create(problemReporter, nmsPlayer.registryAccess(), tag);
+        nmsPlayer.load(valueInput);
         Ostrov.log_ok("§2file данные " + op.nik + " загружны");
 
-        return tag;
+        return valueInput;//tag;
 
       });
     } else {
@@ -189,16 +211,17 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     }
   }
 
-  public Optional<CompoundTag> load(String name, String uuid) {
+  public Optional<CompoundTag> load(String name, String uuid, ProblemReporter problemReporter) {
+    //public Optional<CompoundTag> load(String name, String uuid) {
     Optional<CompoundTag> optional = load(name, uuid, ".dat");
     if (optional.isEmpty()) {
       backup(name, uuid, ".dat");
     }
-    return optional.or(() -> load(name, uuid, ".dat_old")).map(compoundTag -> { // CraftBukkit
+    return optional.or(() -> this.load(name, uuid, ".dat_old")).map(compoundTag -> { // CraftBukkit
       int dataVersion = NbtUtils.getDataVersion(compoundTag, -1);
-      compoundTag = DataFixTypes.PLAYER.updateToCurrentVersion(this.fixerUpper, compoundTag, dataVersion);
-      // player.load(compoundTag); // CraftBukkit - handled above
-      return compoundTag;
+      //compoundTag = DataFixTypes.PLAYER.updateToCurrentVersion(this.fixerUpper, compoundTag, dataVersion);
+      compoundTag = ca.spottedleaf.dataconverter.minecraft.MCDataConverter.convertTag(ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry.PLAYER, compoundTag, dataVersion, ca.spottedleaf.dataconverter.minecraft.util.Version.getCurrentVersion()); // Paper - rewrite data conversion system
+      return compoundTag; // CraftBukkit - handled above
     });
   }
 
@@ -219,9 +242,12 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
       Ostrov.log_warn("OsPlayerDataStorage Выход гостя " + op.nik + ", данные не сохраняем.");
       return;
     }
-    try {
-      CompoundTag tag = player.saveWithoutId(new CompoundTag());
 
+    try {
+      ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER);
+      TagValueOutput tagValueOutput = TagValueOutput.createWithContext(scopedCollector, player.registryAccess());
+      player.saveWithoutId(tagValueOutput);//CompoundTag tag = player.saveWithoutId(new CompoundTag());
+      CompoundTag tag = tagValueOutput.buildResult();
       // for (Map.Entry<String,String> en : op.mysqlData.entrySet()) {
       //   tag.putString("os_" + en.getKey(), en.getValue());
       // }

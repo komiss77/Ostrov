@@ -230,7 +230,7 @@ public class MenuSetup implements InventoryProvider {
                         player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 5);
                         FigureManager.deleteFigure(figure);
                     } else {
-                        player.playSound(player.getLocation(), Sound.ENTITY_LEASH_KNOT_PLACE, 0.5f, 0.85f);
+                      player.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 0.5f, 0.85f);
                     }
                 });
             }
