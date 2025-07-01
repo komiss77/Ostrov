@@ -194,15 +194,15 @@ public class LocalDB {
                 build.append(LINE.get()).append(useTimeStamp).append(WORD.get()).append(op.kits_use_timestamp.get(useTimeStamp));
             }
             op.mysqlData.put("kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
-        }
+        }*/
 
         if (!op.quests.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
-            build = new StringBuilder();
+            StringBuilder build = new StringBuilder();
             for (final Entry<Quest, IProgress> en : op.quests.entrySet()) {  //только при изменении!
                 build.append(LINE.get()).append(en.getKey().code).append(en.getValue().isDone() ? "" : WORD.get() + en.getValue().getSave());
             }
             op.mysqlData.put("quests", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
-        }*/
+        }
 
         /*if (p == null) {
             op.mysqlData.put("settings", "");//settings = "";
@@ -224,7 +224,11 @@ public class LocalDB {
             op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
         }*/
 
-        op.mysqlData.put("settings", "file"); //сохранение по новой схеме-данные в файле
+        if (PLAYER_DATA_SQL) {
+            op.mysqlData.put("settings", "file"); //сохранение по новой схеме-данные в файле
+        } else {
+            op.mysqlData.put("settings", ""); //в лобби нужен мускул но не нужен файл
+        }
         op.mysqlData.put("homes", ""); //очистить старые данные, убрать когда всё мигрирует
         op.mysqlData.put("positions", ""); //очистить старые данные, убрать когда всё мигрирует
         op.mysqlData.put("inventory", ""); //очистить старые данные, убрать когда всё мигрирует
@@ -412,6 +416,24 @@ public class LocalDB {
                 op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
             if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
             op.mysqRecordId = rs.getInt("id");
+
+            final String qss = op.mysqlData.get("quests");
+            if (qss != null && !qss.isEmpty()) {
+                final String[] split = LINE.split(qss);
+                int stamp;
+                for (String quest : split) {
+                    if (quest.isEmpty()) continue;
+                    final Quest qs = Quest.get(quest.charAt(0));
+                    if (qs == null) continue;
+                    final int splitterIndex = WORD.index(quest);
+                    if (splitterIndex == 1) {
+                        stamp = NumUtil.intOf(quest.substring(splitterIndex + 1), 0);
+                        if (stamp > 0) op.quests.put(qs, qs.createPrg(stamp));
+                    } else {
+                        op.quests.put(qs, qs.createPrg(0).markDone());
+                    }
+                }
+            }
 
             if (file) {
                 Ostrov.log_warn("Данные " + op.nik + " уже подгружены из файла.");

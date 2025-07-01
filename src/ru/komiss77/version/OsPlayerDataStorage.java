@@ -191,9 +191,9 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
                 }
               }
             }
-            case "os_quests" -> {
-              op.mysqlData.put("quests", tag.getString("os_quests").get());
-            }
+            //case "os_quests" -> {
+            //  op.mysqlData.put("quests", tag.getString("os_quests").get());
+            //}
           }
         }
 
@@ -236,7 +236,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     }
 //Ostrov.log_warn("OsPlayerDataStorage save "+name+" makeToRemove="+op.makeToRemove);
     //if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot
-    if (!LocalDB.useLocalData) return;
+    if (!LocalDB.useLocalData || !LocalDB.PLAYER_DATA_SQL) return;
 
     if (op.isGuest) {
       Ostrov.log_warn("OsPlayerDataStorage Выход гостя " + op.nik + ", данные не сохраняем.");
@@ -294,13 +294,13 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
         tag.putString("os_kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
       }
 
-      if (!op.quests.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
+      /*if (!op.quests.isEmpty()) { //всегда в мускул
         build = new StringBuilder();
         for (final Map.Entry<Quest, IProgress> en : op.quests.entrySet()) {  //только при изменении!
           build.append(LocalDB.LINE.get()).append(en.getKey().code).append(en.getValue().isDone() ? "" : LocalDB.WORD.get() + en.getValue().getSave());
         }
         tag.putString("os_quests", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
-      }
+      }*/
 
       Path path = dataDir.toPath();
       Path path1 = Files.createTempFile(path, player.getScoreboardName() + "-", ".dat");

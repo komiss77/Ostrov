@@ -38,6 +38,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.spigotmc.SpigotConfig;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
@@ -139,6 +140,8 @@ public class PlayerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSpawnLocation(final PlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
+        if (SpigotConfig.disablePlayerDataSaving)
+            return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
         final Player p = e.getPlayer();
         final Oplayer op = PM.getOplayer(p);
         if (op.world_positions.containsKey("logoutLoc")) {
@@ -157,10 +160,9 @@ public class PlayerLst implements Listener {
         e.joinMessage(null);
         final Player p = e.getPlayer();
         //LOCALE тут не получить!!! ловить PlayerLocaleChangeEvent
-        final Oplayer op;// = PM.getOplayer(p);
+        final Oplayer op = PM.exists(p) ? PM.getOplayer(p) : PM.createOplayer(p); //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
 
         //if (PM.exists(p)) { //данные уже прогружены из файла
-        op = PM.getOplayer(p);
         //  if (LocalDB.useLocalData) {
         //    op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
         //   op.mysqlData.put("uuid", p.getUniqueId().toString());

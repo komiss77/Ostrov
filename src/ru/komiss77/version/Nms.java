@@ -541,6 +541,12 @@ public class Nms {
         SpigotConfig.disableStatSaving = false;
         SpigotConfig.disablePlayerDataSaving = false;
       }
+      case LOBBY -> {
+        SpigotConfig.disableAdvancementSaving = true;
+        SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");
+        SpigotConfig.disableStatSaving = true;
+        SpigotConfig.disablePlayerDataSaving = false;
+      }
       default -> {
         SpigotConfig.disableAdvancementSaving = true;
         SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");

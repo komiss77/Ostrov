@@ -196,7 +196,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onQsLoad(final LocalDataLoadEvent e) {
         final Oplayer op = e.getOplayer();
-        final String qss = op.mysqlData.get("quests");
+      /*  final String qss = op.mysqlData.get("quests");
         if (qss == null || qss.isEmpty()) return;
         final String[] split = LocalDB.LINE.split(qss);
         int stamp;
@@ -209,7 +209,7 @@ public class AdvanceCrazy implements IAdvance, Listener {
                 stamp = NumUtil.intOf(quest.substring(splitterIndex + 1), 0);
                 if (stamp > 0) op.quests.put(qs, qs.createPrg(stamp));
             } else op.quests.put(qs, qs.createPrg(0).markDone());
-        }
+        }*/
 
         QuestManager.showForPl(e.getPlayer(), op);
     }
