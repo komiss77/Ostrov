@@ -1,30 +1,37 @@
-package ru.komiss77.hook;
+package ru.komiss77.modules.trade;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Ostrov;
+import ru.komiss77.*;
 import ru.komiss77.enums.Game;
 import ru.komiss77.events.FigureClickEvent;
 import ru.komiss77.modules.games.GM;
+import ru.komiss77.modules.world.XYZ;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.ScreenUtil;
 
 
-public class TradeLst implements Listener {
-
-    //private final HashMap <String,BukkitTask> trades;
+public class Trade {
+/*
+    public static boolean use;
     //private final int minLevel = 25;
     //private final int LevelRange = 250;
 
-    private BukkitTask tradeTask;
-    private String p1Name = "";
+    private static BukkitTask preTradeTask;
+
+
+
+    private static String p1Name;// = "";
     //private static final List<TradeInventory> tradeInventories = new ArrayList<>();
    /* protected static final List<Integer> activeSlots = Arrays.asList(0, 1, 2, 3, 9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39);
     
@@ -33,12 +40,34 @@ public class TradeLst implements Listener {
     protected static final ItemStack wait = new ItemBuilder(Material.GRAY_DYE).name("§7Ждём предложение.").build();
     protected static final ItemStack ready = new ItemBuilder(Material.LIME_DYE).name("§2Предложение сделано").build();
     protected static final ItemStack notReady = new ItemBuilder(Material.RED_DYE).name("§4Нет подтверждения").build();
-    protected static final ItemStack done = new ItemBuilder(Material.LIGHT_BLUE_DYE).name("§b > Обмен выполнен <").build();*/
-
+    protected static final ItemStack done = new ItemBuilder(Material.LIGHT_BLUE_DYE).name("§b > Обмен выполнен <").build();*
 
     //NoSelfTrade + оба на одном острове
     //MinLevel
     //разница уровней
+
+    @Override
+    public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
+        reload();
+    }
+
+    @Override
+    public void onDisable() {
+    }
+
+    @Override
+    public void reload() {
+        //use = config.getBoolean("use");
+        if (preTradeTask != null) preTradeTask.cancel();
+
+        HandlerList.unregisterAll(this);
+        if (!use) {
+            Ostrov.log_ok("§eОбменник выключен.");
+            return;
+        }
+        Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
+        Ostrov.log_ok("§2Обменник активен");
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onTrade(FigureClickEvent e) { //сработает при клике на торговца
@@ -47,6 +76,19 @@ public class TradeLst implements Listener {
 
         final Location traderLocation = e.getFigure().getEntity().getLocation();
         final Player p = e.getPlayer();
+
+        if (p.getGameMode() == GameMode.SPECTATOR) {
+            p.sendMessage("§6В вашем игровом режиме обмен невозможен.");
+            //MESSAGEUTILS.sendLang(sender, "request.disallowed-gamemode", replacements);
+            return;
+        }
+
+        for (TradeSession ts : trades) {
+            if (ts.isTrader(p)) {
+                p.sendMessage("§eВы уже ведёте обмен");
+                return;
+            }
+        }
 
         //NoSelfTrade
         if (p1Name.equals(p.getName())) { 
@@ -61,27 +103,23 @@ public class TradeLst implements Listener {
         }
 
 
-        if (p1Name.isEmpty()) { //первый участник
+        if (p1Name == null) { //первый участник
 
-            p.sendMessage("§aТорговец приветствует Вас, кто же второй участник обмена??");
             p1Name = p.getName();
+            p.sendMessage("§aТорговец приветствует Вас, кто же второй участник обмена??");
 
-            tradeTask = new BukkitRunnable() {
+            preTradeTask = new BukkitRunnable() {
                 private int sec = 5;
-
                 @Override
                 public void run() {
                     if (p == null ||
                             !p.isOnline() ||
                             p.isDead() ||
                             !p.getWorld().getName().equals(traderLocation.getWorld().getName()) ||
-                            LocUtil.getDistance(p.getLocation(), traderLocation) > 30
-                    ) {
+                            LocUtil.getDistance(p.getLocation(), traderLocation) > 30) {
                         reset();
                         return;
                     }
-
-
                     sec--;
                     if (sec == 0) {
                         ScreenUtil.sendActionBarDirect(p, "§cВторой участник не нашелся, торговец отменил сделку.");
@@ -90,31 +128,30 @@ public class TradeLst implements Listener {
                     }
                     ScreenUtil.sendActionBarDirect(p, "§eЖдём второго участника обмена §7: §f" + sec);
                 }
-
                 private void reset() {
                     this.cancel();
                     p1Name = "";
                 }
-
             }.runTaskTimer(Ostrov.instance, 1, 20);
 
 
         } else {
 
-
             final Player p1 = Bukkit.getPlayer(p1Name); //первый участник
 
             if (p1 == null || LocUtil.getDistance(p1.getLocation(), traderLocation) > 30) {
                 p.sendMessage("§eГде же первый участник??..");
-                resetTrade();
+                resetPreTrade();
                 return;
             }
 
             ApiOstrov.moneyChange(p1, -1, "Оплата торговцу");
             ApiOstrov.moneyChange(p, -1, "Оплата торговцу");
 
-            p.performCommand("trade " + p1Name);
-            Ostrov.sync(() -> p1.performCommand("trade accept " + p.getName()), 5);
+            TradeSession ts = new TradeSession(p1, p, new XYZ(traderLocation));
+            trades.add(ts);
+           // p.performCommand("trade " + p1Name);
+           // Ostrov.sync(() -> p1.performCommand("trade accept " + p.getName()), 5);
             //p1.performCommand("trade accept "+p.name());
             //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.name(), p.getUniqueId(), true);
             //TradeSystem.getInstance().getTradeManager().startTrade(p1, p, p.name(), true);
@@ -124,7 +161,7 @@ public class TradeLst implements Listener {
 
             //final TradeInventory tradeInventory = new TradeInventory(p1, p);
             //tradeInventories.add(tradeInventory);
-            resetTrade();
+            resetPreTrade();
 
             if (GM.GAME == Game.SK) {
                 ApiOstrov.addCustomStat(p, "scTrade");
@@ -139,12 +176,12 @@ public class TradeLst implements Listener {
     }
 
 
-    private void resetTrade() {
-        if (tradeTask != null) tradeTask.cancel();
+    private void resetPreTrade() {
+        if (preTradeTask != null) preTradeTask.cancel();
         p1Name = "";
     }
     
-    
+   */
     
      /* 
     private static TradeInventory getTradeInventory(final Player p) {

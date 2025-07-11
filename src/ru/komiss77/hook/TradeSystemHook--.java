@@ -1,9 +1,10 @@
 package ru.komiss77.hook;
-
+/*
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.trade.TradeLst;
 
 
 public class TradeSystemHook {
@@ -24,3 +25,4 @@ public class TradeSystemHook {
 
 
 }
+*/

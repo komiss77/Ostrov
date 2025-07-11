@@ -108,7 +108,7 @@ public class ServerLst implements Listener {
 
             case "EasyPayments" -> EasyPaymentsHook.hook(e.getPlugin());
 
-            case "TradeSystem" -> TradeSystemHook.hook(e.getPlugin());
+          //case "TradeSystem" -> TradeSystemHook.hook(e.getPlugin());
         }
 
     }

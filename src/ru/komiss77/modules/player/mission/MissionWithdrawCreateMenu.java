@@ -193,8 +193,8 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
                     PM.soundDeny(p);
                     return;
                 }
-                final int amount = Integer.parseInt(msg);
-                if (amount < min || amount > MissionManager.WITHDRAW_MAX) {
+              final int withdrav = Integer.parseInt(msg);
+              if (withdrav < min || withdrav > MissionManager.WITHDRAW_MAX) {
                     p.sendMessage("§cСумма для вывод от " + min + " до " + MissionManager.WITHDRAW_MAX + " рил!");
                     PM.soundDeny(p);
                     reopen(p, content);
@@ -203,20 +203,20 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
 
                 final int current = op.getDataInt(Data.RIL);
-                if (current < ril) {
-                    p.sendMessage("§cНа счету нет " + amount + " рил!");
+              if (current < withdrav) {
+                p.sendMessage("§cНа счету нет " + withdrav + " рил!");
                     return;
                 }
 
-                op.setData(Data.RIL, current - ril);
+              op.setData(Data.RIL, current - withdrav);
                 RemoteDB.executePstAsync(p,
-                    "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + ril + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
+                    "INSERT INTO `withdraw` (name,summ,time,passPhone,passNote) VALUES ('" + op.nik + "', '" + withdrav + "', '" + Timer.getTime() + "', '" + op.getDataString(Data.PHONE) + "', '" + op.getDataString(Data.NOTES) + "'); "
                 );
-              Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + ril + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
-                p.sendMessage("§aЗаявка на вывод §b" + ril + " рил §aзарегистрирована.");
+              Ostrov.history(HistoryType.MONEY_REAL_WITHDRAW, op, "заявка на вывод " + withdrav + ". Было " + current + " стало " + op.getDataInt(Data.RIL));
+              p.sendMessage("§aЗаявка на вывод §b" + withdrav + " рил §aзарегистрирована.");
                 p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1, 1);
                 ApiOstrov.addStat(p, Stat.WD_count);
-                ApiOstrov.addStat(p, Stat.WD_amount, ril);
+              ApiOstrov.addStat(p, Stat.WD_amount, withdrav);
 
 
             }));
