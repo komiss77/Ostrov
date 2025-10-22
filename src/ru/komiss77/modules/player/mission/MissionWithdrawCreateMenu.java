@@ -42,7 +42,7 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
         boolean can = true;
         final int min = MissionManager.getMin(op);
 
-        if (ril < min || ril > MissionManager.WITHDRAW_MAX) {
+      if (ril < min) {// || ril > MissionManager.WITHDRAW_MAX) {
 
           content.set(2, 2, ClickableItem.empty(new ItemBuilder(Material.MAGENTA_DYE)
                 .name("§5Вывод средств возможен от §b" + min + " до " + MissionManager.WITHDRAW_MAX + "рил")
@@ -63,6 +63,8 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
                 .lore("")
                 .lore("§fУ Вас §e" + ril + " §fрил.")
                 .lore("")
+                .lore("§7Максимальная сумма")
+                .lore("§7для одного вывода : §6" + MissionManager.WITHDRAW_MAX + "рил")
                 .build()
             ));
 
@@ -179,8 +181,8 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
                 .lore("")
                 .lore("§eОбратите внимание на технически")
                 .lore("§eдоступные способы перевода:")
-                .lore("§f- §нКиви")
-                .lore("§f- §нЯндекс Кошелёк")
+                //.lore("§f- §нКиви")
+                //.lore("§f- §нЯндекс Кошелёк")
                 .lore("§f- §нномер телефона на +7 (Россия)")
                 .lore("§f- §нномер банковской карты")
                 .lore("")

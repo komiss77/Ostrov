@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.games.GM;
 
 
 public enum ServerType {
@@ -50,6 +51,11 @@ public enum ServerType {
     }
 
     public boolean canAfk() {
+      switch (GM.GAME) {
+        case SK, OB -> { //удалите антиафк на скайблоке, никто не играет, какой смысл в том что его поставили
+          return false;
+        }
+      }
         return switch (this) {
           //case NONE, ONE_GAME, REG_OLD, REG_NEW -> false;
           case ONE_GAME -> true;

@@ -201,7 +201,7 @@ public class RegionOwnerMenu implements InventoryProvider {
       ParticleUtil.BorderDisplay(p,
           new XYZ(BukkitAdapter.adapt(p.getWorld(), region.getMinimumPoint())),
           new XYZ(BukkitAdapter.adapt(p.getWorld(), region.getMaximumPoint())),
-          true);
+          false);
     }));
 
 

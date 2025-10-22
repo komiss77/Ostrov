@@ -9,18 +9,18 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
@@ -36,10 +36,10 @@ import ru.komiss77.utils.EntityUtil.EntityGroup;
 import ru.komiss77.utils.inventory.*;
 
 
-public final class LimiterLst implements Initiable, Listener {
+public final class LimiterLst implements Initiable {
 
     private static final OConfig cfg;
-    private static final Listener interactLst, chunkLst, spawnLst, blockLst;
+  private static final Listener limiterLst, chunkLst, spawnLst, blockLst;
     private static final EnumMap<limiterFlag, Boolean> flags;
     private static final EnumMap<EntityGroup, Integer> groupsLimit;
     private static final EnumMap<EntityType, Integer> entityTypeLimit;
@@ -52,7 +52,7 @@ public final class LimiterLst implements Initiable, Listener {
         }
         groupsLimit = new EnumMap<>(EntityGroup.class);
         entityTypeLimit = new EnumMap<>(EntityType.class);
-        interactLst = new interactLst();
+      limiterLst = new limiterLst();
         chunkLst = new chunkLst();
         spawnLst = new spawnLst();
         blockLst = new blockLst();
@@ -73,11 +73,19 @@ public final class LimiterLst implements Initiable, Listener {
 
 
     public enum limiterFlag {
-        enable, oneMinecartPerPlayer, oneBoatPerPlayer, checkChunkOnLoad, blockStateLimiter, watchHandingSpawn;
+      enable, oneVehicleTypePerPlayer,
+      //oneMinecartPerPlayer, oneBoatPerPlayer,
+      checkChunkOnLoad, blockStateLimiter, watchHandingSpawn;
     }
 
     @Override
     public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
+      if (!flags.get(limiterFlag.checkChunkOnLoad)) return;
+      for (World w : Bukkit.getWorlds()) {
+        for (final Chunk chunk : w.getLoadedChunks()) {
+          checkChunk(null, chunk);
+        }
+      }
     }
 
     @Override
@@ -86,7 +94,7 @@ public final class LimiterLst implements Initiable, Listener {
 
     @Override
     public void reload() {
-        HandlerList.unregisterAll(interactLst);
+      HandlerList.unregisterAll(limiterLst);
         HandlerList.unregisterAll(blockLst);
         HandlerList.unregisterAll(chunkLst);
         HandlerList.unregisterAll(spawnLst);
@@ -96,7 +104,7 @@ public final class LimiterLst implements Initiable, Listener {
                 try {
                     flags.put(limiterFlag.valueOf(f), cfg.getBoolean("flags." + f));
                 } catch (IllegalArgumentException | NullPointerException ex) {
-                    Ostrov.log_err("LimiterLst reload flags : " + ex.getMessage());
+                  Ostrov.log_warn("LimiterLst устаревший флаг, обнови нстройки : " + ex.getMessage());
                 }
             });
         }
@@ -138,7 +146,7 @@ public final class LimiterLst implements Initiable, Listener {
             });
         }
 
-        Bukkit.getPluginManager().registerEvents(interactLst, Ostrov.getInstance());
+      Bukkit.getPluginManager().registerEvents(limiterLst, Ostrov.getInstance());
         if (flags.get(limiterFlag.watchHandingSpawn)) {
             Bukkit.getPluginManager().registerEvents(spawnLst, Ostrov.getInstance());
         }
@@ -148,6 +156,7 @@ public final class LimiterLst implements Initiable, Listener {
         if (flags.get(limiterFlag.blockStateLimiter)) {
             Bukkit.getPluginManager().registerEvents(blockLst, Ostrov.getInstance());
         }
+      postWorld();
         Ostrov.log_ok("§2Лимитер активен!");
     }
 
@@ -172,110 +181,136 @@ public final class LimiterLst implements Initiable, Listener {
     }
 
 
-    static class interactLst implements Listener {
+  static class limiterLst implements Listener {
+
         @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
         public void onInteract(PlayerInteractEvent e) {
-            if (e.getAction() == Action.PHYSICAL || e.getItem() == null) {
+          if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getItem() == null) {
                 return;
             }
+
+          //if (e.getAction() == Action.RIGHT_CLICK_BLOCK && (mat == Material.FIREWORK_ROCKET || mat == Material.FIREWORK_STAR)) {
+          //    final Player p = e.getPlayer();
+          //    p.setCooldown(mat, 15);
+          //if (Timer.has(e.getPlayer(), "firework")) {
+          //    e.setUseItemInHand(Event.Result.DENY);
+          //    ScreenUtil.sendActionBarDirect(e.getPlayer(), "§eЧуть помедленнее!");
+          //} else {
+          //    Timer.add(e.getPlayer(), "firework", 1);
+          //}
+          //}
+
+          // if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             final Material mat = e.getItem().getType();
+          final Player p = e.getPlayer();
+          if (mat == Material.FIREWORK_ROCKET || mat == Material.FIREWORK_STAR) {
+            p.setCooldown(mat, 15);
+            return;
+            //if (Timer.has(e.getPlayer(), "firework")) {
+            //    e.setUseItemInHand(Event.Result.DENY);
+            //    ScreenUtil.sendActionBarDirect(e.getPlayer(), "§eЧуть помедленнее!");
+            //} else {
+            //    Timer.add(e.getPlayer(), "firework", 1);
+            //}
+          }
+          //final Oplayer op = PM.getOplayer(e.getPlayer());
 
-            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && (mat == Material.FIREWORK_ROCKET || mat == Material.FIREWORK_STAR)) {
-                if (Timer.has(e.getPlayer(), "firework")) {
-                    e.setUseItemInHand(Event.Result.DENY);
-                    ScreenUtil.sendActionBarDirect(e.getPlayer(), "§eЧуть помедленнее!");
-                } else {
-                    Timer.add(e.getPlayer(), "firework", 1);
-                }
+          if (flags.get(limiterFlag.watchHandingSpawn) && ItemUtil.isSpawnEgg(mat)) {
+            final EntityType et = EntityUtil.typeFromEgg(mat);
+            final String res = fastCheck(e.getClickedBlock().getLocation(), et);
+            if (res != null) {
+              if (ApiOstrov.isLocalBuilder(p, false)) {
+                p.sendMessage("Лимитер:" + res + ", билдера пропускаем.");
+                return;
+              }
+              e.setUseItemInHand(Event.Result.DENY);
+              p.sendMessage(res);
             }
-
-            if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                final Player p = e.getPlayer();
-                if (ApiOstrov.isLocalBuilder(p, false)) {
-                    return;
-                }
-                final Oplayer op = PM.getOplayer(e.getPlayer());
-
-                if (flags.get(limiterFlag.watchHandingSpawn) && ItemUtil.isSpawnEgg(mat)) {
-                    final EntityType et = EntityUtil.typeFromEgg(mat);
-                    final String res = fastCheck(e.getClickedBlock().getLocation(), et);
-                    if (res != null) {
-                        e.setUseItemInHand(Event.Result.DENY);
-                        p.sendMessage(res);
-                    }
-                    return;
-                }
-
-                Entity entity = null;
-//Ostrov.log_warn("isMineCart?"+ItemUtils.isMineCart(mat));
-                if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
-                    e.setUseItemInHand(Event.Result.DENY);
-                    if (Timer.has(p, "vehicle")) {
-                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
-                        return;
-                    }
-                    Timer.add(p, "vehicle", 2);
-
-                    EntityType mineType = EntityType.MINECART;
-                    switch (mat) {
-                        case CHEST_MINECART -> mineType = EntityType.CHEST_MINECART;
-                        case FURNACE_MINECART -> mineType = EntityType.FURNACE_MINECART;
-                        case TNT_MINECART -> mineType = EntityType.TNT_MINECART;
-                        case HOPPER_MINECART -> mineType = EntityType.HOPPER_MINECART;
-                        //MINECART_COMMAND и MINECART_MOB_SPAWNER будут обычными MINECART
-                    }
-                    //if (Tag.RAILS.isTagged(e.getClickedBlock().getType())) {
-                    entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), mineType, SpawnReason.CUSTOM);
-                    if (op.minecart != null && op.minecart.get() != null) {
-                        op.minecart.get().remove();
-                    }
-                    op.minecart = new WeakReference<>(entity);
-
-                } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
-                    e.setUseItemInHand(Event.Result.DENY);
-                    if (Timer.has(p, "vehicle")) {
-                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
-                        return;
-                    }
-                    Timer.add(p, "vehicle", 2);
-
-                    EntityType boatType = Tag.ITEMS_CHEST_BOATS.isTagged(mat) ? EntityType.OAK_CHEST_BOAT : EntityType.OAK_BOAT;
-                    entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), boatType, SpawnReason.CUSTOM);
-                    /*switch (mat) {
-                        case OAK_BOAT -> ((Boat) entity).setBoatType(Type.OAK);
-                        case DARK_OAK_BOAT -> ((Boat) entity).setBoatType(Type.DARK_OAK);
-                        case ACACIA_BOAT -> ((Boat) entity).setBoatType(Type.ACACIA);
-                        case BIRCH_BOAT -> ((Boat) entity).setBoatType(Type.BIRCH);
-                        case SPRUCE_BOAT -> ((Boat) entity).setBoatType(Type.SPRUCE);
-                        case JUNGLE_BOAT -> ((Boat) entity).setBoatType(Type.JUNGLE);
-                        case CHERRY_BOAT -> ((Boat) entity).setBoatType(Type.CHERRY);
-                        case MANGROVE_BOAT -> ((Boat) entity).setBoatType(Type.MANGROVE);
-                    }*/
-                    if (op.boat != null && op.boat.get() != null) {
-                        op.boat.get().remove();
-                    }
-                    op.boat = new WeakReference<>(entity);
-                }
-
-                if (entity != null) {
-                    if (p.getInventory().getItemInMainHand().getType() == mat) {
-                        p.getInventory().setItemInMainHand(ItemUtil.air);
-                    } else {
-                        p.getInventory().setItemInOffHand(ItemUtil.air);
-                    }
-                }
-            } //end RIGHT_CLICK_BLOCK
+            return;
+          }
+          // } //end RIGHT_CLICK_BLOCK
         }
 
-    /*@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent e) {
-      if (e.getInventory().getType() == InventoryType.DISPENSER && flags.get(limiterFlag.block_egg_dispence) && e.getCurrentItem() != null) {
-        if (e.getCurrentItem().getType().name().endsWith("_EGG")) {
-          e.setCancelled(true);
-          Lang.sendMessage((Player) e.getWhoClicked(), "§cНа данном сервере запрещён спавн мобов через раздатчик!");
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onQuit(PlayerQuitEvent e) {
+      final Oplayer op = PM.getOplayer(e.getPlayer());
+//Ostrov.log_warn("LIMITER onQuit oneVehicleTypePerPlayer="+flags.get(limiterFlag.oneVehicleTypePerPlayer)+" limiter.size="+op.limiter.size());
+      if (flags.get(limiterFlag.oneVehicleTypePerPlayer)) {
+        for (WeakReference<Entity> wr : op.limiter.values()) {
+          if (wr.get() != null) {
+            wr.get().remove();
+//Ostrov.log_warn("oneVehicleTypePerPlayer remove on quit "+wr.get().getType());
+                    }
         }
       }
-    }*/
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlace(final EntityPlaceEvent e) { //лодка вагонетка стойка для брони
+      final Entity en = e.getEntity();
+//Ostrov.log_warn("EntityPlaceEvent "+e.getEntity().getType()+" p="+(p==null?"null":p.getName()));
+      if (flags.get(limiterFlag.oneVehicleTypePerPlayer) && en instanceof Vehicle) {
+        final Player p = e.getPlayer();
+        if (p == null) {
+          Ostrov.log_warn("oneVehicleTypePerPlayer, p==null, cancel");
+          e.setCancelled(true);
+          return;
+        }
+        final Oplayer op = PM.getOplayer(p);//p==null ? null : PM.getOplayer(p);
+        if (op.limiter.containsKey(en.getType())) {
+          final WeakReference<Entity> wr = op.limiter.replace(en.getType(), new WeakReference<>(en));
+          if (wr.get() != null) {
+            wr.get().remove();
+            p.sendMessage("§6Одна " + en.getType() + " на игрока, старую убрали.");
+                    }
+        } else {
+          op.limiter.put(en.getType(), new WeakReference<>(en));
+//Ostrov.log_warn("oneVehicleTypePerPlayer store "+en.getType()+" p="+(p==null?"null":p.getName()));
+        }
+      }
+        }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onProjectileHit(final ProjectileHitEvent e) {
+      //Projectile pj = e.getEntity();
+//Ostrov.log_warn("onProjectileHit item=" + e.getEntityType());
+      final String res = fastCheck(e.getEntity().getLocation(), e.getEntityType());
+      if (res != null) {
+        e.setCancelled(true);
+      }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onItemSpawn(final ItemSpawnEvent e) {
+      final String reas = fastCheck(e.getLocation(), e.getEntityType());
+      if (reas != null) {
+        //Ostrov.log_warn("ItemSpawnEvent cancel : " + reas);
+        e.setCancelled(true);
+      }// else {
+      //Ostrov.log_warn("ItemSpawnEvent " + ((Item) e.getEntity()).getItemStack().getType());
+      // }
+    }
+
+    //AreaEffectCloudApplyEvent
+
+    //@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onProjectileLaunch(final ProjectileLaunchEvent e) {
+      //Ostrov.log_warn("onProjectileLaunch item=" + e.getEntityType());
+        }
+
+    //@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onVehicleCreate(final VehicleCreateEvent e) {
+      //Vehicle v = e.getVehicle();
+      //Ostrov.log_warn("onVehicleCreate v=" + v.getVehicle().getType());
+    }
+
+    //@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFireworkExplode(final FireworkExplodeEvent e) {
+      //e.getEntity().
+    }
+
 
         @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
         public void onDispense(final BlockDispenseEvent e) {
@@ -295,11 +330,25 @@ public final class LimiterLst implements Initiable, Listener {
                     cancel = true;//e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), e.getItem());
                     //e.setItem(ItemUtils.air);
                 }
-            } else if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
-                cancel = true;//e.setCancelled(true);
-            } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
+            } else if (flags.get(limiterFlag.oneVehicleTypePerPlayer) && (mat.name().endsWith("MINECART") || mat.name().endsWith("BOAT"))) {
                 cancel = true;//e.setCancelled(true);
             }
+          // else if (flags.get(limiterFlag.oneVehicleTypePerPlayer) && ItemUtil.isMineCart(mat)) {
+          //    cancel = true;//e.setCancelled(true);
+          // } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
+          //   cancel = true;//e.setCancelled(true);
+          //}
+            /*final String res = fastCheck(e.), e.getEntityType());
+            if (res != null) {
+                e.setCancelled(true);
+                if (e.getSpawnReason().name().startsWith("BUILD_")) {
+                    final Player find = LocUtil.getNearestPlayer(e.getLocation(), 10);
+                    if (find != null) {
+                        find.sendMessage(res);
+                    }
+                }
+            }*/
+          //Ostrov.log_warn("onDispense " + mat + " cancel=" + cancel);
             if (cancel) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), e.getItem());
                 e.setItem(ItemUtil.air);
@@ -307,7 +356,8 @@ public final class LimiterLst implements Initiable, Listener {
         }
     }
 
-    static class chunkLst implements Listener {
+
+  static class chunkLst implements Listener {
         @EventHandler
         public void onChunkLoad(ChunkLoadEvent e) {
             //if (flags.get(limiterFlag.checkChunkOnLoad)) {по флагу подключается листенер
@@ -397,6 +447,7 @@ public final class LimiterLst implements Initiable, Listener {
     static class spawnLst implements Listener {
         @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
         public void onCreatureSpawnEvent(CreatureSpawnEvent e) {
+//Ostrov.log_warn("CreatureSpawnEvent "+e.getEntityType()+" wath?"+flags.get(limiterFlag.watchHandingSpawn));
             if (!flags.get(limiterFlag.watchHandingSpawn)) {
                 return;
             }
@@ -422,22 +473,33 @@ public final class LimiterLst implements Initiable, Listener {
 //When an entity is spawned as a result of the entity it is being perched on jumping or being damaged
                      DROWNED, //When a creature is spawned by another entity drowning
                      SHEARED, //When a cow is spawned by shearing a mushroom cow
-                     EXPLOSION,
-                     //When an entity is spawned as a result of an explosion. Like an area effect cloud from a creeper or a dragon fireball
                      RAID, //When an entity is spawned as part of a raid
                      PATROL, //When an entity is spawned as part of a patrol
-                     BEEHIVE, //When a bee is released from a beehive/bee nest
                      PIGLIN_ZOMBIFIED, //When a piglin is converted to a zombified piglin.
                      SPELL, //When an entity is created by a cast spell.
                      FROZEN, //When an entity is shaking in Powder Snow and a new entity spawns.
                      METAMORPHOSIS, //When a tadpole converts to a frog
-                     DUPLICATION //When an Allay duplicate itself
+                     DUPLICATION, //When an Allay duplicate itself
+                     TRIAL_SPAWNER,
+                     OMINOUS_ITEM_SPAWNER
                     -> {
+//Ostrov.log_warn("---bypass");
                     return;
                 }
-                case EGG, BUILD_IRONGOLEM, BUILD_SNOWMAN, BUILD_WITHER,
-                     DISPENSE_EGG, SPAWNER_EGG, SPAWNER, DEFAULT -> {
+              case EGG,
+                   BUILD_IRONGOLEM,
+                   BUILD_SNOWMAN,
+                   BUILD_WITHER,
+                   DISPENSE_EGG,
+                   SPAWNER_EGG,
+                   SPAWNER,
+                   DEFAULT,
+                   EXPLOSION,
+//When an entity is spawned as a result of an explosion. Like an area effect cloud from a creeper or a dragon fireball
+                   BEEHIVE, //When a bee is released from a beehive/bee nest
+                   BUCKET -> {
                     final String res = fastCheck(e.getLocation(), e.getEntityType());
+//Ostrov.log_warn("fastCheck="+res);
                     if (res != null) {
                         e.setCancelled(true);
                         if (e.getSpawnReason().name().startsWith("BUILD_")) {
@@ -518,36 +580,12 @@ public final class LimiterLst implements Initiable, Listener {
             }
 
         }
-
-   /*   private static boolean can (final Player p, final Chunk c, final Material mat) {
-        final BlockStateType limittype = BlockStateType.getType(mat);
-Ostrov.log_warn("can limittype="+limittype+(limittype==null?"":limittype.limit));
-        if (limittype != null && limittype.limit > 0) {
-          if (ApiOstrov.isLocalBuilder(p, false) || p.hasPermission("ostrov.limiter.ignore")) {
-            return true;
-          }
-          int count = 0;
-          for (final BlockState blockState : c.getTileEntities()) {
-Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getType(blockState.getType())+" count="+count);
-            if (BlockStateType.getType(blockState.getType()) == limittype) {
-              count++;
-              if (count > limittype.limit) {
-                p.sendMessage("§6Лимит " + limittype.displayName + " в чанке: §e" + limittype.limit);
-                return false;
-//Ostrov.log_ok("§eBlockPlaceEvent cancel p=" + e.getPlayer().getName() + " size=" + e.getBlock().getChunk().getTileEntities().length + " mat=" + blockState.getType().toString() + " type=" + limittype.toString() + " count=" + count);
-              }
-            }
-          }
-        }
-        return true;
-      }*/
-
     }
 
 
     private static String fastCheck(final Location loc, final EntityType type) {
         final EntityGroup group = EntityUtil.group(type);
-//Ostrov.log_warn("SPAWN --------- "+group+" "+type);
+//Ostrov.log_warn("fastCheck --------- "+group+" "+type);
         if (!groupsLimit.containsKey(group) && !entityTypeLimit.containsKey(type)) {
             return null;
         }
@@ -938,6 +976,69 @@ Ostrov.log_warn("can blockState="+blockState.getType()+":"+BlockStateType.getTyp
 
 
 
+
+
+
+
+
+             /*   Entity entity = null;
+//Ostrov.log_warn("isMineCart?"+ItemUtils.isMineCart(mat));
+                if (flags.get(limiterFlag.oneMinecartPerPlayer) && ItemUtil.isMineCart(mat)) {
+                    e.setUseItemInHand(Event.Result.DENY);
+                    if (Timer.has(p, "vehicle")) {
+                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
+                        return;
+                    }
+                    Timer.add(p, "vehicle", 2);
+
+                    EntityType mineType = EntityType.MINECART;
+                    switch (mat) {
+                        case CHEST_MINECART -> mineType = EntityType.CHEST_MINECART;
+                        case FURNACE_MINECART -> mineType = EntityType.FURNACE_MINECART;
+                        case TNT_MINECART -> mineType = EntityType.TNT_MINECART;
+                        case HOPPER_MINECART -> mineType = EntityType.HOPPER_MINECART;
+                        //MINECART_COMMAND и MINECART_MOB_SPAWNER будут обычными MINECART
+                    }
+                    //if (Tag.RAILS.isTagged(e.getClickedBlock().getType())) {
+                    entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), mineType, SpawnReason.CUSTOM);
+                    if (op.minecart != null && op.minecart.get() != null) {
+                        op.minecart.get().remove();
+                    }
+                    op.minecart = new WeakReference<>(entity);
+
+                } else if (flags.get(limiterFlag.oneBoatPerPlayer) && (Tag.ITEMS_BOATS.isTagged(mat) || Tag.ITEMS_CHEST_BOATS.isTagged(mat))) {
+                    e.setUseItemInHand(Event.Result.DENY);
+                    if (Timer.has(p, "vehicle")) {
+                        ScreenUtil.sendActionBarDirect(p, Lang.t(p, "§eПодождите ") + Timer.getLeft(p, "vehicle") + Lang.t(p, " сек.!"));
+                        return;
+                    }
+                    Timer.add(p, "vehicle", 2);
+
+                    EntityType boatType = Tag.ITEMS_CHEST_BOATS.isTagged(mat) ? EntityType.OAK_CHEST_BOAT : EntityType.OAK_BOAT;
+                    entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), boatType, SpawnReason.CUSTOM);
+                    /*switch (mat) {
+                        case OAK_BOAT -> ((Boat) entity).setBoatType(Type.OAK);
+                        case DARK_OAK_BOAT -> ((Boat) entity).setBoatType(Type.DARK_OAK);
+                        case ACACIA_BOAT -> ((Boat) entity).setBoatType(Type.ACACIA);
+                        case BIRCH_BOAT -> ((Boat) entity).setBoatType(Type.BIRCH);
+                        case SPRUCE_BOAT -> ((Boat) entity).setBoatType(Type.SPRUCE);
+                        case JUNGLE_BOAT -> ((Boat) entity).setBoatType(Type.JUNGLE);
+                        case CHERRY_BOAT -> ((Boat) entity).setBoatType(Type.CHERRY);
+                        case MANGROVE_BOAT -> ((Boat) entity).setBoatType(Type.MANGROVE);
+                    }/
+                    if (op.boat != null && op.boat.get() != null) {
+                        op.boat.get().remove();
+                    }
+                    op.boat = new WeakReference<>(entity);
+                }
+
+                if (entity != null) {
+                    if (p.getInventory().getItemInMainHand().getType() == mat) {
+                        p.getInventory().setItemInMainHand(ItemUtil.air);
+                    } else {
+                        p.getInventory().setItemInOffHand(ItemUtil.air);
+                    }
+                }*/
 
 
     /*

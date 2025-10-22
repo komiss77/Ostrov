@@ -3,7 +3,6 @@ package ru.komiss77.modules.translate;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -22,8 +21,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
-import ru.komiss77.events.ChatPrepareEvent;
-import ru.komiss77.listener.ChatLst;
 import ru.komiss77.modules.games.GM;
 
 //https://github.com/DeepLcom/deepl-java?tab=readme-ov-file

@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import ru.komiss77.LocalDB;
 import ru.komiss77.modules.player.Oplayer;
 
 
@@ -45,7 +46,7 @@ public class LocalDataLoadEvent extends Event implements Cancellable {
     }
 
     public boolean hasSqlError() {
-        return op.dbError != null;
+      return op.mysqlDataState == LocalDB.MysqlDataState.ERROR;
     }
 
     @Override

@@ -46,6 +46,11 @@ public class ApiOstrov {
             Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(target, arena));
         } else {
             ResourcePacksLst.preDisconnect(target);
+          if (server.startsWith("sedna_") && !server.equalsIgnoreCase("sedna_wastes")) {
+            target.sendMessage("§eДля смены подсервера Седны используй мировое меню");
+            target.performCommand("skill world");
+            return;
+          }
             SpigotChanellMsg.sendMessage(target, Operation.SEND_TO_ARENA, target.getName(), 0, 0, server, arena);
         }
     }

@@ -15,6 +15,7 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.RewardType;
+import ru.komiss77.hook.EasyPaymentsHook;
 import ru.komiss77.listener.SpigotChanellMsg;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.Perm;
@@ -118,6 +119,12 @@ public class RewardCmd implements OCommand {
 
   private static Command<CommandSourceStack> tryReward() {
     return cntx -> {
+      //EasyPayment выполняется через чтение его данных из мускул
+      if (EasyPaymentsHook.shopTask != null) {
+        Ostrov.log_warn("tryReward : команды EasyPayment выполняем через запросы в БД");
+        return Command.SINGLE_SUCCESS;
+      }
+
       final CommandSender cs = cntx.getSource().getSender();
       //if (!ApiOstrov.isLocalBuilder(cs)) { уже проверяется в начале
       //  cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");

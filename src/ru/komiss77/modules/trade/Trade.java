@@ -1,24 +1,5 @@
 package ru.komiss77.modules.trade;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-import ru.komiss77.*;
-import ru.komiss77.enums.Game;
-import ru.komiss77.events.FigureClickEvent;
-import ru.komiss77.modules.games.GM;
-import ru.komiss77.modules.world.XYZ;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.ScreenUtil;
 
 
 public class Trade {

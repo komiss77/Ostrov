@@ -19,6 +19,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Operation;
 import ru.komiss77.enums.ReportStage;
 import ru.komiss77.listener.SpigotChanellMsg;
@@ -80,16 +81,22 @@ final static String player = "игрок", reason = "причина";
                             })
                         .executes(cntx -> {
                           final CommandSender cs = cntx.getSource().getSender();
-                          final String toName = Resolver.string(cntx, player);
+                          String toName = Resolver.string(cntx, player);
                           if (toName.equalsIgnoreCase(cs.getName())) {
                             cs.sendMessage("§cНа себя жалобы не принимаются!");
                             return 0;
                           }
+                          Oplayer op = PM.getOplayer(toName);
+                          if (op != null && op.isGuest) {
+                            toName = op.globalStr(Data.IP);
+                            //  cs.sendMessage("§cНа гостей жалобы не принимаются!");
+                            //  return 0;
+                          }
 
-                          final String reason = Resolver.string(cntx, ReportCmd.reason);
                           final Player pl = cs instanceof Player ? (Player) cs : null;
                           final Player target = Bukkit.getPlayer(toName);
 
+                          final String reason = Resolver.string(cntx, ReportCmd.reason);
                           //вычитывать из локальной копии!!
                           if (pl == null) { //консоль
               /*if (consoleReportStamp.containsKey(arg[0]) && Timer.secTime() - consoleReportStamp.get(arg[0]) < 1800) {
@@ -100,6 +107,11 @@ final static String player = "игрок", reason = "причина";
                             SpigotChanellMsg.sendMessage(Bukkit.getOnlinePlayers().stream().findAny().get(), Operation.REPORT_SERVER,
                                 Ostrov.MOT_D, 0, 0, 0, toName, target == null ? "" : LocUtil.toString(target.getLocation()), reason);
                           } else {
+                            op = PM.getOplayer(pl);
+                            if (op != null && op.isGuest) {
+                              cs.sendMessage("§cГости не могут подавать жалобы!");
+                              return 0;
+                            }
                             SpigotChanellMsg.sendMessage(pl, Operation.REPORT_PLAYER, pl.getName(), 0, 0, 0, Ostrov.MOT_D,
                                 LocUtil.toString(pl.getLocation()), toName, target == null ? "" : LocUtil.toString(target.getLocation()), reason, "");
                           }

@@ -23,6 +23,7 @@ import ru.komiss77.hook.DynmapHook;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.objects.CaseInsensitiveSet;
 import ru.komiss77.utils.LocUtil;
+import ru.komiss77.version.OsPlayerDataStorage;
 
 
 public class OcleanCmd implements OCommand {
@@ -208,9 +209,9 @@ public class OcleanCmd implements OCommand {
 
           if (mysqlError) return;
 
-          File dataDir = new File(Bukkit.getWorldContainer().getPath() + File.separator
-              + Bukkit.getWorlds().getFirst().getName() + File.separator + "playerdata");
-          if (dataDir.isDirectory()) {
+          File dataDir = OsPlayerDataStorage.dataDir;//new File(Bukkit.getWorldContainer().getPath() + File.separator
+          // + Bukkit.getWorlds().getFirst().getName() + File.separator + "playerdata");
+          /*if (dataDir.isDirectory()) { //удаление по uuid
             int dot;
             UUID uuid;
 
@@ -230,9 +231,37 @@ public class OcleanCmd implements OCommand {
               }
             }
             cs.sendMessage("§e playerDataFile - удалено:" + count);
+          }*/
+          //удаление по новой системе OsPlayerDataStorage
+          if (dataDir.isDirectory()) {
+            int dot;
+            String name;
+
+            File[] files = dataDir.listFiles();
+            File pdFile;
+            int count = 0;
+
+            for (int i = 0; i < files.length; i++) {//for (File f : dataDir.listFiles()) {
+              pdFile = files[i];
+              if (pdFile.length() == 0) {
+                pdFile.delete();
+                continue;
+              }
+              dot = pdFile.getName().indexOf(".");
+              if (dot > 0) {
+                name = pdFile.getName().substring(0, dot);
+                name.replaceFirst("_stat", "");
+                name.replaceFirst("_adv", "");
+                if (!validUsers.contains(name)) { //имя удалёно из базы
+                  pdFile.delete();
+                  if (pdFile.getName().endsWith(".dat")) count++; //считаем только удаление .dat файла
+                }
+              }
+            }
+            cs.sendMessage("§e playerDataFile - удалено:" + count);
           }
 
-
+//оставить, пока не перенесёт всю стату в OsPlayerDataStorage
           dataDir = new File(Bukkit.getWorldContainer().getPath() + File.separator
               + Bukkit.getWorlds().getFirst().getName() + File.separator + "advancements");
           if (dataDir.isDirectory()) {

@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.komiss77.Ostrov;
@@ -14,13 +16,20 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.utils.NumUtil;
 
-
+//ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginStateModel isPlayersSyncActive() возвращать false
 public class EasyPaymentsHook {
 
-  private static BukkitTask shopTask;
+  public static BukkitTask shopTask;
 
   public static void hook(Plugin ep) {
-    HandlerList.unregisterAll(ep);
+    HandlerList.unregisterAll(ep);  //не откл. листенеров - пишет не играл на сервере
+    /*Listener ls;
+    for (RegisteredListener rl : HandlerList.getRegisteredListeners(ep)) {
+      ls = rl.getListener();
+      if (ls instanceof CommandPreProcessListener) {
+        HandlerList.unregisterAll(ls);
+      }
+    }*/
     Ostrov.log_warn("§eОбнаружен EasyPayments, отключен от эвентов.");
 
     //чистить только при старте, или потом не распознаёт ник

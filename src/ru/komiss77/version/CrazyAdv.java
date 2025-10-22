@@ -22,7 +22,6 @@ import eu.endercentral.crazy_advancements.NameKey;
 import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.advancement.AdvancementFlag;
 import eu.endercentral.crazy_advancements.advancement.ToastNotification;
-import ru.komiss77.Ostrov;
 
 //https://github.com/ZockerAxel/CrazyAdvancementsAPI
 //https://github.com/Romindous/AdvanceAPI/tree/master

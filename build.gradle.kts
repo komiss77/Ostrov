@@ -15,7 +15,7 @@ plugins {
 
 
 dependencies {
-  paperweight.paperDevBundle("1.21.7-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
 //  paperweight.paperDevBundle("1.21.5-no-moonrise-SNAPSHOT")
   compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")

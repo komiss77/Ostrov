@@ -77,10 +77,12 @@ public class MoveUtil {
 
     private static final Set<BlockType> WATERS = Set.of(BlockType.WATER, BlockType.BUBBLE_COLUMN);
     public static boolean safeTP(final Player p, final Location feetLoc) {
+//Ostrov.log_warn("safeTP feetLoc="+feetLoc);
         final Location finLoc;
         final World w = feetLoc.getWorld();
-        final BVec loc = new LocFinder(BVec.of(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
-        if (loc == null) {
+      final BVec bVec = new LocFinder(BVec.of(feetLoc), SAFE_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
+//Ostrov.log_warn("1 BVec="+bVec);
+      if (bVec == null) {
             final BVec alc = new LocFinder(BVec.of(feetLoc), AIR_CHECK).find(LocFinder.DYrect.BOTH, MAX_DST, 1);
             if (alc == null) return false;
 
@@ -103,34 +105,40 @@ public class MoveUtil {
             return true;
         }
 
-        finLoc = loc.center(w);
-        final Block b = finLoc.getBlock();
-        if (!b.getType().isAir()) {
+      finLoc = bVec.center(w);
+      final BlockType upHead = Nms.fastType(w, bVec.x, bVec.y + 2, bVec.z);
+      final Block feetBlock = finLoc.getBlock();
+      if (upHead != BlockType.AIR) { //если надо головой блок, то тэпешит с дамажем
+        finLoc.setY(finLoc.getBlockY());
+      }
+//Ostrov.log_warn("2 upHead="+upHead+" finLoc="+feetBlock.getType()+":"+finLoc);
+      if (!feetBlock.getType().isAir()) {
             tpCorrect(p, finLoc);
             return true;
         }
 
-        final Block rb = b.getRelative(BlockFace.DOWN);
+      final Block rb = feetBlock.getRelative(BlockFace.DOWN);
         if (WATERS.contains(rb.getType().asBlockType())
             || (rb.getBlockData() instanceof final Waterlogged wl && wl.isWaterlogged())) {
-            if (isDrySolid(Nms.fastData(loc.w(), loc.x, loc.y - 2, loc.z))) {
+          if (isDrySolid(Nms.fastData(bVec.w(), bVec.x, bVec.y - 2, bVec.z))) {
                 tpCorrect(p, finLoc);
                 return true;
             }
-            BlockUtil.set(b, BlockType.LILY_PAD, false);
+          BlockUtil.set(feetBlock, BlockType.LILY_PAD, false);
             new BukkitRunnable() {
                 final WeakReference<Player> prf = new WeakReference<>(p);
                 public void run() {
                     final Player pl = prf.get();
                     if (pl == null || !pl.isOnline() || pl.isDead()
-                        || BVec.of(b).distAbs(pl.getLocation()) > 3) {
-                        BlockUtil.set(b, BlockType.AIR, false);
+                        || BVec.of(feetBlock).distAbs(pl.getLocation()) > 3) {
+                      BlockUtil.set(feetBlock, BlockType.AIR, false);
                         this.cancel();
                     }
                 }
             }.runTaskTimer(Ostrov.instance, 30, 10);
         }
 
+//Ostrov.log_warn("3 tpCorrect="+feetBlock.getType()+":"+finLoc);
         tpCorrect(p, finLoc);
         return true;
     }

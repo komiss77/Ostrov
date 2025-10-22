@@ -246,21 +246,23 @@ public class Timer {
                 if (!authMode) {
                     PM.getOplayers().forEach(op -> {
                         op.tick++;
-                        if (op.tick != 20) return;
+                      if (op.tick == 20) { //return не ставить!!!! пропустит остальное
                         op.tick = 0;
                         op.secondTick();
-                        if (!jailMode || op.isStaff) return;
-                        //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
-                        jailed = op.globalInt(Data.JAILED);// - getTime();
-                        if (jailed > 0) jailed--;
-                        op.globalInt(Data.JAILED, jailed);
-                        if (jailed <= 0) {
+                        if (jailMode && !op.isStaff) {//return;
+                          //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));
+                          jailed = op.globalInt(Data.JAILED);// - getTime();
+                          if (jailed > 0) jailed--;
+                          op.globalInt(Data.JAILED, jailed);
+                          if (jailed <= 0) {
                             ApiOstrov.sendToServer(op.getPlayer(), "lobby0", "");
                             return;
+                          }
+                          op.score.getSideBar().setTitle("§4Чистилище");
+                          op.score.getSideBar().update(9, "§7До разбана:");
+                          op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(jailed));
                         }
-                        op.score.getSideBar().setTitle("§4Чистилище");
-                        op.score.getSideBar().update(9, "§7До разбана:");
-                        op.score.getSideBar().update(8, "§e" + TimeUtil.secondToTime(jailed));
+                      }
                     });
                 }
 

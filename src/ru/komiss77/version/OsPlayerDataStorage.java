@@ -2,60 +2,44 @@ package ru.komiss77.version;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import com.google.gson.*;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
-import net.minecraft.FileUtil;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.*;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.util.CraftLocation;
 import org.slf4j.Logger;
 import ru.komiss77.*;
+import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.modules.quests.Quest;
-import ru.komiss77.modules.quests.progs.IProgress;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.NumUtil;
 
@@ -64,16 +48,36 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
   //PlayerAdvancements - подменяется путь при загрузке
   //ServerStatsCounter - сохраняется в нужный файл, загрузка -
 
+  public static OsPlayerDataStorage instance;
   public static File dataDir;
   private static Method toJsonMethod;
   private static Field playerSavePath;
   private static Field statField;
-  private static final Gson GSON;
+  //private static final Gson GSON;
   private static final DateTimeFormatter FORMATTER = FileNameDateFormatter.create();
   private static final Logger LOGGER = LogUtils.getLogger();
 
   static {
-    GSON = new GsonBuilder().create();
+    //GSON = new GsonBuilder().create();
+    if (GM.GAME == Game.SE) {
+      //Path parent = Bukkit.getWorldContainer().toPath().getParent();
+      //dataDir = new File(parent.toString() + File.separator + "sedna"+ File.separator + "playerdata");
+      //dataDir = new File(".."+File.separator+Bukkit.getWorldContainer().getPath() + File.separator + "sedna" + File.separator + "playerdata");
+      dataDir = new File(".." + File.separator + Bukkit.getWorldContainer().getPath());
+//Ostrov.log_warn(GM.GAME+" parent ========== "+dataDir.getAbsolutePath());
+      dataDir = new File(dataDir.getPath() + File.separator + "sedna");
+//Ostrov.log_warn(GM.GAME+" sedna ========== "+dataDir.getAbsolutePath());
+      if (!dataDir.exists()) {
+        dataDir.mkdir();
+      }
+      dataDir = new File(dataDir.getPath() + File.separator + "playerdata");
+//Ostrov.log_warn(GM.GAME+" playerdata ========== "+dataDir.getAbsolutePath());
+    } else {
+      dataDir = new File(Bukkit.getWorldContainer().getPath() + File.separator + "playerdata");
+    }
+    if (!dataDir.exists()) {
+      dataDir.mkdir();
+    }
     try {
       toJsonMethod = ServerStatsCounter.class.getDeclaredMethod("toJson");
       toJsonMethod.setAccessible(true);
@@ -91,10 +95,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 
   public OsPlayerDataStorage(LevelStorageSource.LevelStorageAccess levelStorageAccess, DataFixer fixerUpper) {
     super(levelStorageAccess, fixerUpper);
-    dataDir = new File(Bukkit.getWorldContainer().getPath() + File.separator + "playerdata");
-    if (!dataDir.exists()) {
-      dataDir.mkdir();
-    }
+    instance = this;
   }
 
 
@@ -225,18 +226,32 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     });
   }
 
+  public void save(org.bukkit.entity.Player bukkitPlayer) {
+    save(Craft.toNMS(bukkitPlayer));
+  }
 
-  public void save(Player player) { //после PlayerQuitEvent, учесть автосохраннение
+
+  // 1) после PlayerQuitEvent  2)при автосохраннении
+  //седна - при переходе на подсервер сохранить и удалить оплеер, на другие сервера-просто выход (сохранит штатно)
+  public void save(Player player) {
     final String name = player.getName().getString();
-    org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer = (CraftPlayer) player.getBukkitEntity();
-    final Oplayer op = PM.getOplayer(craftPlayer);//remove(p.getUniqueId());
-    if (op.makeToRemove) {//if (op==null) { //при выключении серв. вызывается дважды - сервером для сохранения и при PlayerQuitEvent, когда ор уже нет.
-      //Ostrov.log_warn("OsPlayerDataStorage op = null! "+name);
-      PM.remove(craftPlayer);
+    //org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer = (CraftPlayer) player.getBukkitEntity();
+    final Oplayer op = PM.getOplayer(player.getUUID());//remove(p.getUniqueId());
+    if (op == null) { //op.makeToRemove) {//if (op==null) { //при выключении серв. вызывается дважды - сервером для сохранения и при PlayerQuitEvent, когда ор уже нет.
+      if (GM.GAME == Game.SE || Bukkit.getPluginManager().getPlugin("Skills") != null) {
+        Ostrov.log_ok("OsPlayerDataStorage sedna : данные " + name + " уже сохранены."); //седна при смене мира сохраняет до выхода
+      } else {
+        Ostrov.log_warn("OsPlayerDataStorage op = null! " + name);
+      }
+      return;//PM.remove(player.getUUID());
+    }
+    if (op.makeToRemove) {
+      PM.remove(player.getUUID());
     }
 //Ostrov.log_warn("OsPlayerDataStorage save "+name+" makeToRemove="+op.makeToRemove);
     //if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot
-    if (!LocalDB.useLocalData || !LocalDB.PLAYER_DATA_SQL) return;
+    //if (!LocalDB.useLocalData || !LocalDB.PLAYER_DATA_SQL) return;
+    if (!LocalDB.useLocalData) return;
 
     if (op.isGuest) {
       Ostrov.log_warn("OsPlayerDataStorage Выход гостя " + op.nik + ", данные не сохраняем.");
@@ -256,7 +271,8 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 
       if (GM.GAME.type != ServerType.ARENAS) {
         if (op.spyOrigin == null) {
-          op.world_positions.put("logoutLoc", LocUtil.toDirString(craftPlayer.getLocation()));
+          //op.world_positions.put("logoutLoc", LocUtil.toDirString(craftPlayer.getLocation()));
+          op.world_positions.put("logoutLoc", LocUtil.toDirString(CraftLocation.toBukkit(player.position(), player.level().getWorld(), player.getBukkitYaw(), player.getXRot())));
           //op.mysqlData.put(craftPlayer.getWorld().getName(), LocUtil.toDirString(craftPlayer.getLocation()));
         } else {
           op.world_positions.put("logoutLoc", LocUtil.toDirString(op.spyOrigin));
@@ -308,6 +324,8 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
       Path path2 = path.resolve(name + ".dat");//path.resolve(player.getStringUUID() + ".dat");
       Path path3 = path.resolve(name + ".dat_old");//path.resolve(player.getStringUUID() + ".dat_old");
       Util.safeReplaceFile(path2, path1, path3);
+//!!!!! иногда плодит Kiska_Iriska-13787188185244301435.dat
+
 
     } catch (Exception ex) {
       Ostrov.log_warn("OsPlayerDataStorage Failed to save player data for " + name + ":" + ex.getMessage()); // Paper - Print exception

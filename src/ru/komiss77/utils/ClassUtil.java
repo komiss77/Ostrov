@@ -101,30 +101,30 @@ public class ClassUtil {
         return true;
     }
 
-    @Deprecated
+  //@Deprecated - работает, но надо прописать доступ к классам в paper-plugin.yml
     public static Class<?>[] getClasses(final File pluginFile, final String packageName) {
         return getClasses(pluginFile, packageName, Ostrov.instance.getClass());
     }
 
-    @Deprecated
+  //@Deprecated - работает, но надо прописать доступ к классам в paper-plugin.yml
     public static Class<?>[] getClasses(final File pluginFile, final String packageName, final Class<?> loader) {
         final List<Class<?>> classes = new ArrayList<>();
 
         final String packagePrefix = packageName.replace(PKG_SEPARATOR, DIR_SEPARATOR) + '/';
-        Bukkit.getConsoleSender().sendMessage("path-" + packagePrefix);
+//Bukkit.getConsoleSender().sendMessage("path-" + packagePrefix);
         try {
             final JarInputStream jarFile = new JarInputStream(new FileInputStream(pluginFile));
-            Bukkit.getConsoleSender().sendMessage("file-" + pluginFile);
+//Bukkit.getConsoleSender().sendMessage("file-" + pluginFile);
             JarEntry jarEntry;
             while (true) {
                 jarEntry = jarFile.getNextJarEntry();
                 if (jarEntry == null) break;
                 final String classPath = jarEntry.getName();
-                Bukkit.getConsoleSender().sendMessage("next-" + classPath);
+//Bukkit.getConsoleSender().sendMessage("next-" + classPath);
                 if (classPath.startsWith(packagePrefix) && classPath.endsWith(".class")) {
                     if (!classPath.contains("$")) {
                         final String className = classPath.substring(0, classPath.length() - 6).replace('/', '.');
-                        Bukkit.getConsoleSender().sendMessage("nextName-" + className);
+//Bukkit.getConsoleSender().sendMessage("nextName-" + className);
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException x) {

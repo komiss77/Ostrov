@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -535,7 +534,7 @@ public class Nms {
     SpigotConfig.restartMessage = "§4Перезагрузка...";
 
     switch (GM.GAME) {
-      case DA, AR, MI, SK, OB -> {
+      case DA, AR, MI, SK, OB, SE -> {
         SpigotConfig.disableAdvancementSaving = false;
         SpigotConfig.disabledAdvancements = Collections.emptyList();
         SpigotConfig.disableStatSaving = false;
@@ -783,6 +782,7 @@ public class Nms {
   }
 
   public static void sendPacket(final Player p, final Packet<?> packet) {
+//Ostrov.log_warn("sendPacket "+packet.getClass().getName());
     Craft.toNMS(p).connection.send(packet);
   }
 

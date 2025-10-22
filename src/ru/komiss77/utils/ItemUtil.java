@@ -65,7 +65,7 @@ import ru.komiss77.version.Nms;
 import static org.bukkit.attribute.Attribute.*;
 
 /*
-	SPEED  СКОРОСТЬ
+	  SPEED  СКОРОСТЬ
     SLOWNESS  МЕДЛЕННОСТЬ
     HASTE  УСКОРЕНИЕ
     MINING FATIGUE  УСТАЛОСТЬ ОТ ДОБЫЧИ
@@ -102,7 +102,7 @@ import static org.bukkit.attribute.Attribute.*;
     RAID OMEN  ПРЕДЗНАМЕНИЕ РЕЙДА
     WIND CHARGED  ЗАРЯЖЕННОСТЬ ВЕТРОМ
     WEAVING  ТКАЧЕСТВО
-    OOZING  СОЧАЩИЙ
+    OOZING  появление двух слизней среднего размера после смерти существа
     INFESTED  ЗАРАЖЕННЫЙ
  */
 

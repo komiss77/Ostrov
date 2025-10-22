@@ -57,7 +57,7 @@ public class Oplayer {
     public final boolean isGuest;
     public boolean isStaff; //флаг модератора
     public final Map<String, String> mysqlData = new HashMap<>();
-    public int mysqRecordId = Integer.MIN_VALUE;
+  //public Integer mysqRecordId;// = Integer.MIN_VALUE;
     protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранять не надо. сохраняются в банжи
     protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
     protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
@@ -101,9 +101,9 @@ public class Oplayer {
 
     public int pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
     public boolean allow_fly, firstJoin, resourcepack_locked = true, pvp_allow = true;
-    @Deprecated
-    public boolean mysqlError;
-    public LocalDB.Error dbError;
+  //@Deprecated
+  //public boolean mysqlError;
+  public LocalDB.MysqlDataState mysqlDataState = LocalDB.MysqlDataState.NONE;
     //служебные
     public int lookSum = 0, afkLeft = Integer.MAX_VALUE;
     public SetupMode setup; //для билдеров
@@ -122,8 +122,9 @@ public class Oplayer {
     public float progress;
     public final List<DelayBossBar> delayBossBars = new ArrayList<>();
     public final List<Title> delayTitles = new ArrayList<>();
-    public WeakReference<Entity> minecart;
-    public WeakReference<Entity> boat; //для лимитера
+  //public WeakReference<Entity> minecart;
+  //public WeakReference<Entity> boat; //для лимитера
+  public EnumMap<EntityType, WeakReference<Entity>> limiter = new EnumMap<>(EntityType.class);
 
     public Oplayer(final HumanEntity p) {
         nik = p.getName();
@@ -149,6 +150,16 @@ public class Oplayer {
             Ostrov.log_warn("Oplayer " + nik + " secondTick : Player==null!");
             return;
         }
+
+      if (dataString.isEmpty() && onlineSecond > 1) {
+        if (onlineSecond < 15) {
+          SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
+          ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с прокси..");
+          return;
+        } else if (onlineSecond == 15) {
+          p.sendMessage("§cДанные с прокси не получены, попробуйте перезайти!");
+        }
+      }
 
         if (Cfg.afk) {
             final Location loc = p.getEyeLocation();
@@ -223,16 +234,6 @@ public class Oplayer {
             } else if (timeBar) {
                 final float time = barMaxTime > 0 ? (float) barTime / (float) barMaxTime : 0f;
                 bossbar.progress(time > 1f ? 1f : Math.max(time, 0f));
-            }
-        }
-
-        if (dataString.isEmpty() && onlineSecond > 1) {
-            if (onlineSecond < 15) {
-                SpigotChanellMsg.sendMessage(p, Operation.RESEND_RAW_DATA, nik);
-                ScreenUtil.sendActionBarDirect(p, "§5Ожидание данных с Остров БД..");
-                return;
-            } else if (onlineSecond == 15) {
-                p.sendMessage("§cДанные с прокси не получены, попробуйте перезайти!");
             }
         }
 

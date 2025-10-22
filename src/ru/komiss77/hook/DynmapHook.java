@@ -19,7 +19,6 @@ import org.dynmap.bukkit.DynmapPlugin;
 import org.dynmap.storage.MapStorage;
 import org.dynmap.storage.MySQLMapStorage;
 import ru.komiss77.Ostrov;
-import ru.komiss77.enums.Game;
 import ru.komiss77.modules.games.GM;
 
 
@@ -49,7 +48,7 @@ public class DynmapHook {
         Ostrov.dynmap = true;
 
       switch (GM.GAME) {
-        case MI, AR, OB, SK -> {
+        case DA, MI, AR, OB, SK -> {
           for (World w : Bukkit.getWorlds()) {
             onWorldLoad(w);
           }
@@ -73,7 +72,7 @@ public class DynmapHook {
   //ServerLst-onWorldLoaded
   public static void onWorldLoad(World w) {
     switch (GM.GAME) {
-      case Game.MI -> show(w, w.getName());
+      case MI, DA -> show(w, w.getName());
       case AR, OB, SK -> {
         if (w.getName().equals("world")) {
           show(w, w.getName());

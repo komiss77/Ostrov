@@ -1,10 +1,17 @@
 package ru.komiss77.utils.inventory;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.Ostrov;
+import ru.komiss77.modules.items.ItemData;
 
 //@SuppressWarnings({ "unchecked" })
 public class ClickableItem {
@@ -20,8 +27,42 @@ public class ClickableItem {
     private Predicate<Player> canSee = null, canClick = null;
     private ItemStack notVisibleFallBackItem = null;
 
+  private static final DataComponentType[] h = {
+      DataComponentTypes.ATTRIBUTE_MODIFIERS
+  };
+
+  private static final Set<DataComponentType> hide = Set.of(h);
+
     protected ClickableItem(ItemStack item, Consumer<?> consumer, boolean legacy) {
         this.item = item;
+        /*if (item != null && !item.isEmpty()) {
+            ItemData data = ItemData.of(item);
+            if (data != null) {//data = new ItemData();
+                //TooltipDisplay td = data.get(DataComponentTypes.TOOLTIP_DISPLAY);
+                TooltipDisplay td = item.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+                if (td != null) {
+                    //td = TooltipDisplay.tooltipDisplay().hiddenComponents(hide).build();
+                //} else {
+                    TooltipDisplay.Builder b = TooltipDisplay.tooltipDisplay().hiddenComponents(td.hiddenComponents());
+                    Set <DataComponentType> set = new HashSet<>();
+                    for (DataComponentType dt : Ostrov.registries.COMPS) {
+                        set.add(dt);
+Ostrov.log_warn("hide ="+dt.key());
+                        b.addHiddenComponents(dt);
+                    }
+                    td = b.build();
+                    //td = TooltipDisplay.tooltipDisplay().hiddenComponents(td.hiddenComponents()).addHiddenComponents(h).build();
+                    //td = TooltipDisplay.tooltipDisplay().hiddenComponents(td.hiddenComponents()).addHiddenComponents(h).build();
+                    data.put(DataComponentTypes.TOOLTIP_DISPLAY, td);
+                    data.addTo(item);
+                }
+                //if (td != null) {
+                    //td.hiddenComponents().add(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+                    //data.put(DataComponentTypes.TOOLTIP_DISPLAY, td);
+                    //data.addTo(item);
+                //}
+            }
+        }*/
         this.consumer = consumer;
         this.legacy = legacy;
     }
@@ -125,7 +166,7 @@ public class ClickableItem {
      */
     public ItemStack getItem(Player player) {
         if (canSee == null || canSee.test(player)) {
-            return this.item;
+          return item;
         } else {
             return this.notVisibleFallBackItem;
         }

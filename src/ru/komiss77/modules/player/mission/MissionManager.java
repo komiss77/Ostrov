@@ -191,7 +191,7 @@ public class MissionManager {
         if (inProfile) {
             op.menu.section = Section.МИССИИ;
 
-            if (op.isGuest) {
+          //if (op.isGuest) { открыть сразу всем, или на время анимации овиден кусок старого большого меню
                 //System.out.println("rawData="+rawData);
                 op.menu.current = SmartInventory
                     .builder()
@@ -201,8 +201,8 @@ public class MissionManager {
                     .title(op.eng ? Section.МИССИИ.item_nameEn : Section.МИССИИ.item_nameRu)
                     .build()
                     .open(op.getPlayer());
-                return;
-            }
+          //return;
+          //}
             //profileMode = ProfileManager.ProfileMode.АккаунтыБД;
             op.menu.runLoadAnimations();
         }

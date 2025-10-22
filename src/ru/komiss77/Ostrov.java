@@ -1,5 +1,6 @@
 package ru.komiss77;
 
+import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
+import ru.komiss77.commands.WM;
 import ru.komiss77.enums.*;
 import ru.komiss77.enums.Module;
 import ru.komiss77.events.WorldsLoadCompleteEvent;
@@ -86,6 +88,16 @@ public class Ostrov extends JavaPlugin {
         //Cfg.init(); // 1 !  загрузится само при первом обращении
         Nms.pathServer();
         Nms.chatFix();
+      final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
+      if (worldEndWipeAt > 0 && worldEndWipeAt < Timer.secTime()) { //удалять мир в onLoad, при WorldManager миры уже загружены!
+        Cfg.getVariable().set("worldEndMarkToWipe", 0);
+        Cfg.getVariable().saveConfig();
+
+        final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath() + "/world_the_end");
+        WM.deleteFile(endWorldFolder);
+        //seed ??
+        Ostrov.log_warn("Край обнулён.");
+      }
     }
 
 
@@ -118,7 +130,7 @@ public class Ostrov extends JavaPlugin {
         log_ok("§5===== Регистрация слушателей : onEnable =====");
         Bukkit.getPluginManager().registerEvents(new ChatLst(), instance);
         Bukkit.getPluginManager().registerEvents(new SpigotChanellMsg(), instance); //в режиме AUTH инициализация дубль выше
-        Bukkit.getPluginManager().registerEvents(new ServerLst(), instance);
+      Bukkit.getPluginManager().registerEvents(new ServerLst(), instance); //миры уже будут загружены!
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
         Bukkit.getPluginManager().registerEvents(new TestLst(), instance);

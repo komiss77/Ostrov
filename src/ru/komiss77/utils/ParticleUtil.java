@@ -280,10 +280,10 @@ public class ParticleUtil {
             }
         }.runTaskTimerAsynchronously(Ostrov.instance, 10, 25);
 
-        if (tpToCenter && !cuboid.contains(p.getLocation())) {
-            final Location center = cuboid.getCenter(p.getLocation());
-            p.teleport(center);
-        }
+      //if (tpToCenter && !cuboid.contains(p.getLocation())) {
+      //    final Location center = cuboid.getCenter(p.getLocation());
+      //    p.teleport(center);
+      //}
     }
 
 

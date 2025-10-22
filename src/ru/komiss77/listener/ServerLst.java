@@ -32,6 +32,11 @@ import ru.komiss77.version.Nms;
 
 public class ServerLst implements Listener {
 
+  public ServerLst() { //b onEnable миры уже будут загружены!! обойти вручную
+    for (final World w : Bukkit.getWorlds()) {
+      onWorldLoad(w);
+    }
+  }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDisable(PluginDisableEvent e) { //надо отловить SHUT_DOWN, т.к. зависимые плагины отгружаются первыми!!
@@ -133,7 +138,10 @@ public class ServerLst implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onWorldLoaded(final WorldLoadEvent e) {
-        final World w = e.getWorld();
+      onWorldLoad(e.getWorld());
+    }
+
+  public static void onWorldLoad(final World w) {
         WorldManager.tryRestoreFill(w.getName());
 
         if (GM.GAME.type == ServerType.LOBBY) {
@@ -159,12 +167,31 @@ public class ServerLst implements Listener {
             w.setGameRule(GameRule.SPAWN_RADIUS, 0);
             w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
             Ostrov.log_ok("Настройки мира " + w.getName() + " инициализированы для лобби или миниигры");
+          return;
         }
 
         Land.load(w);
         if (Ostrov.dynmap) {
             DynmapHook.onWorldLoad(w);
         }
+    if (w.getEnvironment() == World.Environment.THE_END && WorldManager.regenEnder()) {
+      //есть недостаток-после пересоздания мира дракона не будет, пока кто-то на зайдёт в мир.
+      //миру будет вайпиться пока дракон не заспавнится при входе. Пока todo
+      //DragonBattle db = w.getEnderDragonBattle();
+//Ostrov.log_warn("-DragonBattle getEnderDragon="+db.getEnderDragon()+" ph="+db.getRespawnPhase());
+      boolean dragon = false;
+      for (Entity en : w.getEntities()) {
+//Ostrov.log_warn("--en="+en.getType().name());
+        if (en.getType() == EntityType.ENDER_DRAGON) {
+          dragon = true;
+          break;
+        }
+      }
+      if (!dragon) {
+        Ostrov.log_warn("§bДракон при загрузке не найден");
+        ApiOstrov.makeWorldEndToWipe(3 * 24 * 60 * 60);
+      }
+    }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

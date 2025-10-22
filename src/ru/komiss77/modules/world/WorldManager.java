@@ -16,7 +16,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import ru.komiss77.*;
 import ru.komiss77.commands.WM;
+import ru.komiss77.enums.Game;
 import ru.komiss77.hook.DynmapFeatures;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.translate.TransLiter;
 import ru.komiss77.modules.wordBorder.WorldFillTask;
 import ru.komiss77.modules.wordBorder.WorldTrimTask;
@@ -37,11 +39,9 @@ public class WorldManager implements Initiable {
     private static int remountDelayTicks = 0;
     public static int fillAutosaveFrequency = 30;
     public static int fillMemoryTolerance = 500;
-    private static Runtime rt;
+  private static final Runtime rt;
 
-
-    public WorldManager() {
-
+  static {
         rt = Runtime.getRuntime();
 
         config = Cfg.manager.config("worldManager.yml", new String[]{"", "Ostrov worldManager config file", ""});
@@ -54,7 +54,9 @@ public class WorldManager implements Initiable {
         config.addDefault("buildWorldSuffix", "build");
         config.addDefault("autoload_worlds", Arrays.asList("some_world"));
         config.saveConfig();
+  }
 
+  public WorldManager() {
         WorldManager.this.reload();
     }
 
@@ -74,7 +76,7 @@ public class WorldManager implements Initiable {
         fillMemoryTolerance = config.getInt("fillMemoryTolerance", 500);
         buildWorldSuffix = config.getString("buildWorldSuffix", "build");
 
-        final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
+        /*final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
         if (worldEndWipeAt > 0 && worldEndWipeAt < Timer.secTime()) {
             Cfg.getVariable().set("worldEndMarkToWipe", 0);
             Cfg.getVariable().saveConfig();
@@ -83,7 +85,7 @@ public class WorldManager implements Initiable {
             WM.deleteFile(endWorldFolder);
             //seed ??
             Ostrov.log_warn("Край обнулён.");
-        }
+        }*/
 //Ostrov.log("----------------- "+config.getConfigurationSection("fillTask"));
 
         DynmapFeatures.setup();
@@ -97,7 +99,16 @@ public class WorldManager implements Initiable {
         if (fillTask != null && fillTask.valid()) fillTask.cancel();
     }
 
+  public static boolean regenEnder() {
+    return GM.GAME == Game.AR || GM.GAME == Game.DA || GM.GAME == Game.MI;
+  }
+
     public static void makeWorldEndToWipe(final int afterSecond) {
+      int curr = Cfg.getVariable().getInt("worldEndMarkToWipe");
+      if (curr > Timer.secTime()) {
+        Ostrov.log_warn("Край уже будет вайпнут " + TimeUtil.dateFromStamp(curr));
+        return;
+      }
         Cfg.getVariable().set("worldEndMarkToWipe", Timer.secTime() + afterSecond);
         Cfg.getVariable().saveConfig();
         Ostrov.log_warn("Край помечен на вайп через " + TimeUtil.secondToTime(afterSecond));

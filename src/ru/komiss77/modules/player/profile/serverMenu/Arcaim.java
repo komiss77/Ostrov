@@ -1,11 +1,9 @@
 package ru.komiss77.modules.player.profile.serverMenu;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemType;
-import ru.komiss77.Cfg;
 import ru.komiss77.events.LocalMenuEvent;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;

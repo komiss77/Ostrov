@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
@@ -60,6 +61,10 @@ public class FriendView implements InventoryProvider {
             index = info.indexOf(":");
             if (index < 1) continue;
             name = info.substring(0, index);
+          if (name.length() > 16) { //java.lang.IllegalArgumentException: Name cannot be longer than 16 characters
+            Ostrov.log_err("FriendView name.length() > 16 : " + info);
+            continue;
+          }
             info = info.substring(index + 1);
             index = info.indexOf(":");
             if (index < 1) continue;
@@ -142,7 +147,7 @@ public class FriendView implements InventoryProvider {
             } else {
                 final ItemStack friend_item = new ItemBuilder(ItemType.PLAYER_HEAD)
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
-                    .lore("§8оффлайн")
+                    .lore("§8оффлайн или скрылся")
                     .lore("§7ЛКМ - §6Написать ЛС")
                     .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §eРазблокировать" : "")
                     .lore("")

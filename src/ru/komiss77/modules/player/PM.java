@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.spigotmc.SpigotConfig;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
@@ -350,7 +351,7 @@ public class PM {
 
 
     public static void onLeave(final Player p, final boolean async) {
-        final Oplayer op = getOplayer(p);//remove(p.getUniqueId());
+      final Oplayer op = SpigotConfig.disablePlayerDataSaving ? remove(p.getUniqueId()) : getOplayer(p); //при disablePlayerDataSaving не удалится оплеер
         if (op == null) {
             Ostrov.log_warn("PlayerQuitEvent : Oplayer == null!");
             return;
@@ -377,7 +378,7 @@ public class PM {
                 p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
             }
         }
-        if (op.dbError == null && !op.mysqlData.isEmpty() && LocalDB.useLocalData) {
+      if (op.mysqlDataState != LocalDB.MysqlDataState.ERROR && !op.mysqlData.isEmpty() && LocalDB.useLocalData) {
             if (async) {
                 Ostrov.async(() -> LocalDB.saveLocalData(p, op), 0); //op.mysqlData не должна быть пустой, если загружало!
             } else {

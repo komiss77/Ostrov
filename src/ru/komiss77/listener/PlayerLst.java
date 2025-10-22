@@ -12,10 +12,7 @@ import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.command.CommandException;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -57,10 +54,7 @@ import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.LocFinder;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
-import ru.komiss77.utils.ItemUtil;
-import ru.komiss77.utils.LocUtil;
-import ru.komiss77.utils.ScreenUtil;
-import ru.komiss77.utils.StringUtil;
+import ru.komiss77.utils.*;
 import ru.komiss77.version.Nms;
 
 
@@ -92,7 +86,7 @@ public class PlayerLst implements Listener {
     public void onGameMode(PlayerGameModeChangeEvent e) {
         final Player p = e.getPlayer();
         if (ApiOstrov.canBeBuilder(p)) return;
-        if (GM.GAME == Game.AR || GM.GAME == Game.JL) return;
+      if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
         final Oplayer op = PM.getOplayer(p);
         if (op == null || op.isStaff) return;
         //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
@@ -138,10 +132,9 @@ public class PlayerLst implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.HIGH)
     public void onSpawnLocation(final PlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
-        if (SpigotConfig.disablePlayerDataSaving)
-            return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
+    if (SpigotConfig.disablePlayerDataSaving) return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
         final Player p = e.getPlayer();
         final Oplayer op = PM.getOplayer(p);
         if (op.world_positions.containsKey("logoutLoc")) {
@@ -457,6 +450,13 @@ public class PlayerLst implements Listener {
         for (final Player pl : p.getWorld().getPlayers()) {
             PM.getOplayer(pl).tag.showTo(p);
         }
+      if (p.getWorld().getEnvironment() == World.Environment.THE_END && WorldManager.regenEnder()) {
+        int curr = Cfg.getVariable().getInt("worldEndMarkToWipe");
+//Ostrov.log_warn("curr="+curr+(curr > Timer.secTime()?"msg" : "no"));
+        if (curr > Timer.secTime()) {
+          p.sendMessage(TCUtil.form("Дракон пал, но он воскреснет " + TimeUtil.dateFromStamp(curr)));
+        }
+      }
     }
 
 

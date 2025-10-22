@@ -122,6 +122,7 @@ public class Quest {
         //перед завершением квестов со счётчиками обновить прогресс
 //        if (amount > 0) updProg(p, op);
         final IProgress pr = op.quests.get(this);
+//Ostrov.log_warn("complete "+displayName+" prg="+(pr==null?"null" : "done?"+pr.isDone()));
         if (pr == null) {
             final IProgress np = createPrg(0);
             op.quests.put(this, np.markDone());
@@ -195,6 +196,7 @@ public class Quest {
     public boolean isComplete(final Oplayer op) {
         if (op.isGuest) return false;
         final IProgress prg = op.quests.get(this);
+//Ostrov.log_warn("isComplete "+displayName+" prg="+(prg==null?"null" : "done?"+prg.isDone()));
         return prg != null && prg.isDone();
     }
 

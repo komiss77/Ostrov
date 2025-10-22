@@ -27,7 +27,7 @@ public class CustomTag {
 
     //    public static final boolean SELF_VIEW = true; //удобно для отладки видеть свой тэг //пускай всегда будет вкл, пока что, чтоб люди видели как выглядит их тег
     private static final byte FLAGS_OCL = /*shadow*/1 & /*background*/ ~4;
-    private static final byte FLAGS_STR = (/*shadow*/1 | /*seethrough*/ 2) & /*background*/ ~4;
+  private static final byte FLAGS_STR = (/*shadow*/1 | /*seethrough*/ 2) & /*background*/ ~4;
     private final WeakReference<LivingEntity> taggedLink; //@Nullable может быть содержимое, но не контейнер
     public final int tagEntityId;
     private final int[] idArray;
@@ -61,6 +61,7 @@ public class CustomTag {
         taggedLink = new WeakReference<>(tagged);//entity;
         passengerOffset = tagged.getHeight(); //= ridingOffset;
         name = PaperAdventure.asVanilla(TCUtil.form(tagged.getName() + "\n"));
+//Ostrov.log("CustomTag tagEntityId="+tagEntityId);
     }
 
     //Can contain \n for >1 lines
@@ -71,16 +72,19 @@ public class CustomTag {
     }
 
     public void seeThru(final boolean see) {
+//Ostrov.log_warn("seeThru "+see+" visible="+visible);
         this.seeThru = see;
         if (visible) sendTrackersPacket(syncPacket());
     }
 
     public void visible(final boolean visible) {
+//Ostrov.log_warn("visible "+visible);
         this.visible = visible;
         sendTrackersPacket(visible ? spawnPacket() : killPacket());
     }
 
     public void canSee(final Predicate<Player> canSee) {
+//Ostrov.log_warn("canSee "+canSee);
         this.canSee = canSee;
         if (visible) sendTrackersPacket(spawnPacket());
     }
@@ -92,9 +96,14 @@ public class CustomTag {
 
     private void sendTrackersPacket(final Packet<?> packet) {
         final LivingEntity tgt = taggedLink.get();
-        if (tgt == null) return;
+      if (tgt == null) {
+//Ostrov.log_warn("sendTrackersPacket tgt=null");
+        return;
+      }
+//Ostrov.log_warn("sendTrackersPacket tgt="+tgt.getName());
         final ClientboundRemoveEntitiesPacket not = killPacket();
         if (!tgt.isValid()) {
+//Ostrov.log_warn("== !tgt.isValid()");
             for (final Player p : tgt.getWorld().getPlayers()) {
                 Nms.sendPacket(p, canSee.test(p) ? packet : not);
             }
@@ -117,10 +126,12 @@ public class CustomTag {
     }
 
     public void hideTo(final Player p) {
+//Ostrov.log_warn("hideTo "+p.getName());
         Nms.sendPacket(p, killPacket());
     }
 
     public ClientboundBundlePacket spawnPacket() {
+//Ostrov.log_warn("spawnPacket");
         final LivingEntity tgt = taggedLink.get();
         if (tgt == null) {
             return new ClientboundBundlePacket(List.of());
@@ -161,15 +172,18 @@ public class CustomTag {
 
 
     public ClientboundSetEntityDataPacket syncPacket() {
+//Ostrov.log_warn("syncPacket "+tagEntityId);
         return new ClientboundSetEntityDataPacket(tagEntityId,
             List.of(ofData(DATA_TEXT_ID, name), ofData(DATA_LINE_WIDTH_ID, 1000),
                 ofData(DATA_STYLE_FLAGS_ID, seeThru ? FLAGS_STR : FLAGS_OCL),
-                ofData(DATA_TEXT_OPACITY_ID, (byte) (seeThru ? 0 : -80)),
+                ofData(DATA_TEXT_OPACITY_ID, (byte) (seeThru ? -80 : 0)), //было перепутано - появлялось с приседанием
+                //ofData(DATA_TEXT_OPACITY_ID, (byte)  -80),
                 ofData(DATA_BACKGROUND_COLOR_ID, 1))
         );
     }
 
     public ClientboundRemoveEntitiesPacket killPacket() {
+//Ostrov.log_warn("killPacket "+tagEntityId);
         return new ClientboundRemoveEntitiesPacket(tagEntityId);
     }
 
