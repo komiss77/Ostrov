@@ -31,25 +31,25 @@ public class HatCmd {
                     return 0;
                 }
 
-                if (pl.getInventory().getHelmet() != null) {
+              if (!pl.getInventory().getHelmet().isEmpty()) {
                     pl.sendMessage("§6Сначала нужно снять шлем!");
                     return 0;
                 }
 
                 final ItemStack is = pl.getInventory().getItemInMainHand();
 
-                if (is.getType().isAir() || !is.getType().isBlock()) {
+              if (is.isEmpty()) {
                     pl.sendMessage("§6Возьмите одеваемый блок в руку!");
                     return 0;
                 }
 
                 if (!is.getType().isBlock()) {
-                    pl.sendMessage("§6Одеть можно только блок!");
+                  pl.sendMessage("§6Надеть можно только блок!");
                     return 0;
                 }
 
                 if (is.getAmount() > 1) {
-                    pl.sendMessage("§6Одеть можно только отдельный блок (колл-во =1)!");
+                  pl.sendMessage("§6Надеть можно только отдельный блок (колл-во =1)!");
                     return 0;
                 }
 
@@ -57,7 +57,7 @@ public class HatCmd {
                 pl.getInventory().setHelmet(is);
                 pl.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 
-                pl.sendMessage(TCUtil.form("§aВы одели ").append(Lang.t(is.getType(), pl)).append(TCUtil.form(" на голову!")));
+              pl.sendMessage(TCUtil.form("§aВы надели ").append(Lang.t(is.getType(), pl)).append(TCUtil.form(" на голову!")));
 
                 return Command.SINGLE_SUCCESS;
             })

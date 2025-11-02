@@ -163,13 +163,13 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onDisable() {
         SHUT_DOWN = true;
+      for (final Player p : Bukkit.getOnlinePlayers()) {
+        PM.onLeave(p, false);
+      }
         HandlerList.unregisterAll(instance);
         RemoteDB.Disconnect();
         OsQuery.shutdown();
         if (MOT_D.length() == 3) return;
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-            PM.onLeave(p, false);
-        }
         //if (PM.hasOplayers()) {
         //for (Oplayer op : PM.getOplayers()) {
         //op.onLeave(op.getPlayer(), false);//LocalDB.saveLocalData(op.getPlayer(), op); //сохранить синхронно!!

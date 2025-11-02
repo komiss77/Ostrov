@@ -108,10 +108,10 @@ public class AnalyticsCmd implements OCommand {
                     //получаем отсортированный список начиная с утра понедельника, 5 недель назад
                     rs = stmt.executeQuery("SELECT sience,PLAY_TIME FROM `userData` LEFT JOIN `stats` ON `userData`.`userid` = `stats`.`userId`  WHERE `sience`>'" + fiveWeeksAgo + "' ORDER BY `sience` ASC"); //ASC
 
-                    int accauntCounter = 0; //колл-во регистраций суточное
-                    int plyTimeCounter = 0; //игровое время суточное
-                    int accauntTotal = 0; //общее колл-во регистраций за период
-                    int plyTimeTotal = 0; //общее игровое время за период
+                  int newAccauntDayly = 0; //новых акк за сутки
+                  int newAccDaylyPlyTime = 0; //игровое время суточное
+                  int newAccauntPeriod = 0; //общее колл-во регистраций за период
+                  int newAccPeriodPlyTime = 0; //общее игровое время за период
                     int playTimeAverage; //среднее игровое время за сутки
                     int sience;  //дата регистрации аккаунта
                     int playtime; //игровое время аккаунта
@@ -142,10 +142,10 @@ public class AnalyticsCmd implements OCommand {
 
                         if (sience < dayEndStamp && !rs.isLast()) { //время регистрации меньше конца дня - добавляем счётчики.
                             // без rs.isLast не показывало последний день. с ним теряет один аккаунт, но показывает.
-                            accauntCounter++; //подсчёт новых аккаунтов
-                            accauntTotal++; //подсчёт новых аккаунтов
-                            plyTimeCounter += rs.getInt("PLAY_TIME"); //и суммы игрового времени
-                            plyTimeTotal += rs.getInt("PLAY_TIME"); //и суммы игрового времени
+                          newAccauntDayly++; //подсчёт новых аккаунтов
+                          newAccauntPeriod++; //подсчёт новых аккаунтов
+                          newAccDaylyPlyTime += rs.getInt("PLAY_TIME"); //и суммы игрового времени
+                          newAccPeriodPlyTime += rs.getInt("PLAY_TIME"); //и суммы игрового времени
 
                             if (playtime > 21600) { //больше 6 часов
                                 more6hour++;
@@ -163,7 +163,7 @@ public class AnalyticsCmd implements OCommand {
 
                         } else {
 
-                            playTimeAverage = accauntCounter > 0 ? plyTimeCounter / accauntCounter : 0; //вычисление среднего игрового времени за сутки
+                          playTimeAverage = newAccauntDayly > 0 ? newAccDaylyPlyTime / newAccauntDayly : 0; //вычисление среднего игрового времени за сутки
 
                             if (playTimeAverage > 3600) {  //60*60
                                 mat = Material.NETHERITE_HELMET;
@@ -178,7 +178,7 @@ public class AnalyticsCmd implements OCommand {
                             } else {
                                 mat = Material.LEATHER_HELMET;
                             }
-                            int amm = accauntCounter / 10; //колл-во аккаунтов делим на 10 для нагладности
+                          int amm = newAccauntDayly / 10; //колл-во аккаунтов делим на 10 для нагладности
                             if (amm < 1) amm = 1;
                             else if (amm > 64) amm = 64; //фильтрик
 //Bukkit.broadcastMessage("playTimeAverage="+playTimeAverage+" mat="+mat+" amm="+amm);
@@ -203,24 +203,25 @@ public class AnalyticsCmd implements OCommand {
                                     .amount(amm)
                                     .name("§f" + calendar.get(Calendar.DATE) + "." + (calendar.get(Calendar.MONTH) + 1) + ", " + TimeUtil.dayOfWeekName(calendar.get(Calendar.DAY_OF_WEEK)))
                                     //.addLore("§7")
-                                    .lore("§7Новых акк.: §b" + accauntCounter + " §7, Гостей: §e" + guestCount)
                                     .lore("§5незарегались: §d" + nonRegCount + " §5(попыток:§d" + nonRegTry + "§5)")
-                                    .lore("§7Новички наиграли: §6" + (plyTimeCounter / 60 / 60) + "ч.")
-                                    //.addLore("§6"+((int)plyTimeCounter/60/60)+"ч.")
+                                .lore(" §7, Гостей: §e" + guestCount)
+                                .lore("§7Новых акк.: §b" + newAccauntDayly + "§7, с " + begin + ": §b" + newAccauntPeriod)
+                                .lore("§7Новички наиграли: §6" + (newAccDaylyPlyTime / 60 / 60) + "ч.")
+                                //.addLore("§6"+((int)newAccDaylyPlyTime/60/60)+"ч.")
                                     //.addLore("§7")
-                                    .lore("§7Игровое время:")
+                                .lore("§7Удержание новичков:")
                                     .lore("§a>6 часов: §7" + more6hour)
                                     .lore("§2>3 часов: §7" + more3hour)
                                     .lore("§3>1 часа: §7" + more1hour)
                                     .lore("§6>15 минут: §7" + more15min)
                                     .lore("§4>5 минут: §7" + more5min)
                                     .lore("§cменее 5 минут: §7" + less5min)
-                                    .lore("§7")
+                                .lore("")
                                     .lore("§7Среднее игровое время за день: ")
                                     .lore("§3" + TimeUtil.secondToTime(playTimeAverage))
-                                    .lore("§7новых с " + begin + ": §b" + accauntTotal)
-                                    .lore("§7наиграно с " + begin + ": §6" + (plyTimeTotal / 60 / 60) + "ч.")
-                                    //.addLore("§6"+((int)plyTimeTotal/60/60)+"ч.")
+                                //.lore("§7новых с " + begin + ": §b" + newAccauntPeriod)
+                                .lore("§7наиграно с " + begin + ": §6" + (newAccPeriodPlyTime / 60 / 60) + "ч.")
+                                //.addLore("§6"+((int)newAccPeriodPlyTime/60/60)+"ч.")
                                     .lore("")
                                     .flags(ItemFlag.HIDE_ATTRIBUTES)
                                     //.addLore("§7ПКМ - разобраться на месте")
@@ -228,8 +229,8 @@ public class AnalyticsCmd implements OCommand {
                                     .build()
                             ));
 
-                            accauntCounter = 0; //сброс суточного счётчика аккаунтов
-                            plyTimeCounter = 0; //сброс суточного счётчика игрового времени
+                          newAccauntDayly = 0; //сброс суточного счётчика аккаунтов
+                          newAccDaylyPlyTime = 0; //сброс суточного счётчика игрового времени
                             more6hour = 0; //сброс диапазонов
                             more3hour = 0;
                             more1hour = 0;
@@ -242,7 +243,7 @@ public class AnalyticsCmd implements OCommand {
                             calendar.add(Calendar.DATE, 1);//dayEnd+=24*60*60; //переключаемся на конец след.дня
                             dayEndStamp = (int) (calendar.getTimeInMillis() / 1000);//calendar.setTimeInMillis(dayEnd*1000); //переводи календарь для иконок
                             dayBeginStamp = dayEndStamp - 86399;
-//Bukkit.broadcastMessage("accauntCounter="+accauntCounter+" dayEnd="+dayEnd);
+//Bukkit.broadcastMessage("newAccauntDayly="+newAccauntDayly+" dayEnd="+dayEnd);
 
                         }
 

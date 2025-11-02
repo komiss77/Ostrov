@@ -4,6 +4,8 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 голосовой чат https://hangar.papermc.io/henkelmax/SimpleVoiceChat
 !!!!Генератор при создании мира пишет No key layers in Map Like[{}], в меню пишет генератор ноне
 
+логический баг аналитики: учитывает PLAY_TIME из статы, а оно могло прирасти за период
+
 миссии - примечание при создании заявки + при ошибке редактировать или написать сообщ.администрации
 
 лимитер спавн снежков, избавиться от PlayerInteractEvent

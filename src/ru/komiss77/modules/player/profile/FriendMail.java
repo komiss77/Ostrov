@@ -45,7 +45,7 @@ public class FriendMail implements InventoryProvider {
         final Oplayer op = PM.getOplayer(p);
 
         //линия - разделитель
-        content.fillRow(4, fill);
+      content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {

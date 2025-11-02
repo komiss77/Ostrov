@@ -42,6 +42,18 @@ import ru.komiss77.modules.world.WXYZ;
 
 public class GameApi {
 
+/*
+  public static void resetTargetGoals(final org.bukkit.entity.Mob mob) {
+Ostrov.log_warn("resetTargetGoals "+mob.getType());
+    net.minecraft.world.entity.Mob nmsMob = Craft.toNMS(mob);
+    for (WrappedGoal wg : nmsMob.targetSelector.getAvailableGoals() ) {
+Ostrov.log_warn("wg="+wg);
+      if (wg.getGoal() instanceof TargetGoal tg) {
+        wg.stop();
+Ostrov.log_warn("stop!");
+      }
+    }
+  }*/
 
   //отлом из net.minecraft.world.entity.Mob public boolean doHurtTarget(ServerLevel level, Entity source) 1612
   public static void attack(final org.bukkit.entity.LivingEntity source, final List<org.bukkit.entity.Entity> entitys) {

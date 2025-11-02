@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
+import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Settings;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
@@ -102,6 +103,8 @@ public class FriendView implements InventoryProvider {
             ));
         }
 
+      final boolean hasEmail = op.globalInt(Data.FRIENDS_MSG_OFFLINE) > 0;
+
         for (final String friendName : op.friends) {
             if (server.containsKey(friendName)) {
                 final int friendSettings = settings.get(friendName);
@@ -109,9 +112,9 @@ public class FriendView implements InventoryProvider {
                     .name(friendName + (op.isBlackListed(friendName) ? "§7, §cв игноре!" : ""))
                     .lore("§7Сервер: §a" + server.get(friendName))
                     .lore(Settings.hasSettings(friendSettings, Settings.MsgDeny) ? "§8Сообщения отключены" : "§7ЛКМ - §6Написать ЛС")
-                    .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8Запрос на ТП отключён" : "§7ПКМ - §bЗапрос на ТП")
-                    .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §eРазблокировать" : "")
-                    .lore("")
+                    .lore(hasEmail ? "§7ПКМ - открыть письма" : "")
+                    .lore(Settings.hasSettings(friendSettings, Settings.TeleportDeny) ? "§8Запрос на ТП отключён" : "§7Шифт+ПКМ - §bЗапрос на ТП")
+                    .lore(op.isBlackListed(friendName) ? "§7Шифт+ЛКМ - §eРазблокировать" : "")
                     .lore("§7" + TCUtil.bind(TCUtil.Input.DROP) + " - §cУдалить")
                     .build();
 
@@ -132,6 +135,9 @@ public class FriendView implements InventoryProvider {
                             op.removeBlackList(friendName);
                             return;
                         case RIGHT:
+                          Friends.openFriendsMail(op);
+                          break;
+                      case SHIFT_RIGHT:
                             p.closeInventory();
                             ApiOstrov.executeBungeeCmd(p, "friend jump " + friendName);
                             return;
@@ -150,7 +156,7 @@ public class FriendView implements InventoryProvider {
                     .lore("§8оффлайн или скрылся")
                     .lore("§7ЛКМ - §6Написать ЛС")
                     .lore(op.isBlackListed(friendName) ? "§7Шфт+ЛКМ - §eРазблокировать" : "")
-                    .lore("")
+                    .lore(hasEmail ? "§7ПКМ - показать письма" : "")
                     .lore("§7Клав Q - §cудалить")
                     .build();
 
@@ -172,10 +178,14 @@ public class FriendView implements InventoryProvider {
                             }, "");
                             break;
 
+                      case RIGHT:
+                        Friends.openFriendsMail(op);
+                        break;
+
                         case SHIFT_LEFT:
                             ApiOstrov.executeBungeeCmd(p, "ignore " + friendName);
                             op.removeBlackList(friendName);
-                            return;
+                          break;
 
                         default:
                             PM.soundDeny(p);

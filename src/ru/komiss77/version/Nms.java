@@ -209,7 +209,7 @@ public class Nms {
     });
   }
 
-  @Deprecated
+  @Deprecated //Player#openVirtualSign to open unplaced signs (changes via UncheckedSignChangeEvent)
   public static void signInput(final Player p, final String suggest, final XYZ signXyz) { //suggest придёт с '&'
     //final BlockData bd = Material.OAK_SIGN.createBlockData();
     mutableBlockPosition.set(signXyz.x, signXyz.y, signXyz.z);

@@ -56,13 +56,13 @@ public class PvPManager implements Initiable {
         String msg();
     }
 
-    private static int battle_time;  //после первого удара - заносим обоих в режим боя
+    public static int battle_time;  //после первого удара - заносим обоих в режим боя
     public static int no_damage_on_tp;
-    private static final EnumMap<PvpFlag, Boolean> flags;
-    private static final Set<PotionEffectType> potion_pvp_type;
+    public static final EnumMap<PvpFlag, Boolean> flags;
+    public static final Set<PotionEffectType> potion_pvp_type;
 
-    private static final String PVP_NOTIFY = "§cТы в режиме боя!";
-    private static final PotionEffect HASTE = new PotionEffect(PotionEffectType.HASTE,
+    public static final String PVP_NOTIFY = "§cТы в режиме боя!";
+    public static final PotionEffect HASTE = new PotionEffect(PotionEffectType.HASTE,
         2, 255, true, false, false);
 
     public static final Set<ItemType> AXES = OStrap.getAll(ItemTypeTagKeys.AXES);
@@ -80,7 +80,7 @@ public class PvPManager implements Initiable {
         .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
         .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).damageReductions(BLOCK_REDS).build();
     //List.of(DamageReduction.damageReduction().horizontalBlockingAngle(90f).base(0f).factor(1f).build())
-    private static final float MELEE_BREAK_SEC = 2f;
+    public static final float MELEE_BREAK_SEC = 2f;
     //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
     //weapon block breaks if !shield || axe
 

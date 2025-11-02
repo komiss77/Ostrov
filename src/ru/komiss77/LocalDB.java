@@ -381,7 +381,7 @@ public class LocalDB {
                 Ostrov.sync(() -> {
                     Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
                 }, 1);
-                Ostrov.log_ok("Игрок " + op.nik + " не записан в БД.");
+              Ostrov.log_ok(op.nik + " : первый вход (firstJoin)");
                 return;
             }
 
