@@ -342,7 +342,7 @@ public class ArcaimLst implements Listener {
         if (op.firstJoin) {
             final Player p = e.getPlayer();
             p.setGameMode(GameMode.SURVIVAL);
-            op.firstJoin = false;
+            //op.firstJoin = false;
             Ostrov.sync(() -> {
                 if (!p.isValid() || !p.isOnline()) return;
                 final Location loc = new Location(p.getWorld(), 130, 73, -281);

@@ -100,7 +100,8 @@ public class Oplayer {
     private String tagPreffix = "", tagSuffix = "";
 
     public int pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
-    public boolean allow_fly, firstJoin, resourcepack_locked = true, pvp_allow = true;
+  public boolean allow_fly, resourcepack_locked = true, pvp_allow = true;
+  public boolean firstJoin = true; //false поставится если есть запись в мускул ИЛИ файл с данными
   //@Deprecated
   //public boolean mysqlError;
   public LocalDB.MysqlDataState mysqlDataState = LocalDB.MysqlDataState.NONE;

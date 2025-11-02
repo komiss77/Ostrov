@@ -376,16 +376,18 @@ public class LocalDB {
           //op.mysqlData.put("uuid", p.getUniqueId().toString());
 
             if (!rs.next()) { //нет записи в БД - уходим на эвент
-                op.firstJoin = true;
+              //op.firstJoin = true;
               op.mysqlDataState = MysqlDataState.NEW_RECORD;
                 Ostrov.sync(() -> {
                     Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
                 }, 1);
-              Ostrov.log_ok(op.nik + " : первый вход (firstJoin)");
+              if (op.firstJoin) { //мог быть файл с данными, тогда firstJoin поставится false в OsPlayerDataStorage
+                Ostrov.log_ok(op.nik + " : первый вход (firstJoin)");
+              }
                 return;
             }
 
-            op.firstJoin = false;
+          op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
 
             final ResultSetMetaData rmeta = rs.getMetaData();
           //final Set<String> nonEmptyFields = new HashSet<>();

@@ -99,10 +99,11 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
   }
 
 
-  public Optional<ValueInput> load(Player nmsPlayer, ProblemReporter problemReporter) {//public Optional<CompoundTag> load(Player nmsPlayer) {
+  public Optional<ValueInput> load(Player nmsPlayer, ProblemReporter problemReporter) {
     if (nmsPlayer instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
       org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer = serverPlayer.getBukkitEntity();
       final Oplayer op = PM.createOplayer(craftPlayer); //создать обязательно тут
+      if (!op.isGuest) op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
 
       try { //для гостей делайм файл-заглушку
         PlayerAdvancements adv = serverPlayer.getAdvancements();
