@@ -378,11 +378,11 @@ public class PM {
                 p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
             }
         }
-      if (op.mysqlDataState != LocalDB.MysqlDataState.ERROR && !op.mysqlData.isEmpty() && LocalDB.useLocalData) {
+        if (LocalDB.useLocalData) {
             if (async) {
-                Ostrov.async(() -> LocalDB.saveLocalData(p, op), 0); //op.mysqlData не должна быть пустой, если загружало!
+                Ostrov.async(() -> LocalDB.saveLocalData(op), 0); //op.mysqlData не должна быть пустой, если загружало!
             } else {
-                LocalDB.saveLocalData(p, op);
+                LocalDB.saveLocalData(op);
             }
         }
         op.tag.visible(false);

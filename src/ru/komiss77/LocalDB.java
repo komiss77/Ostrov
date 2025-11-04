@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.entities.PvPManager;
-import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.Quest;
@@ -20,85 +19,41 @@ import ru.komiss77.utils.*;
 
 public class LocalDB {
 
-    public static boolean useLocalData = false;
-    public static boolean PLAYER_DATA_SQL = false;
+  public static boolean useLocalData = false; //ставится в PathServer, раньше было из конфига local_database.use
     private static String url;
-    @Deprecated
-    public static final char L_SPLIT = '∬';
-    @Deprecated
-    public static final char W_SPLIT = '∫';
-    @Deprecated
-    public static final String LINE_SPLIT = "∬";
-    @Deprecated
-    public static final String WORD_SPLIT = "∫";
+  public static final StringUtil.Split WORD = StringUtil.Split.SMALL;
     public static final StringUtil.Split LINE = StringUtil.Split.MEDIUM;
-    public static final StringUtil.Split WORD = StringUtil.Split.SMALL;
-    private static final Set<String> fieldsExist;
+  private static final Set<String> fieldsExist = new HashSet<>();
+  ;
     protected static Connection connection;
     private static boolean tabbleSetupDone;
-    private static OConfig online;
 
-    static {
-        switch (GM.GAME) {
-            case LOBBY:
-            case PA:
-                PLAYER_DATA_SQL = false;
-                break;
-            case SE:
-              PLAYER_DATA_SQL = false; //сохраняет в файл. мускул только для статистики
-              break;
-            case AR:
-                PLAYER_DATA_SQL = true;
-                break;
-            case GLOBAL:
-            default:
-                PLAYER_DATA_SQL = Ostrov.MOT_D.length() > 4;
-                break;
-        }
-        fieldsExist = new HashSet<>();
-    }
+  public enum MysqlDataState {NONE, NEW_RECORD, LOADED, ERROR}
+
+  //может когда-то потом переделать, пока слишком удобно и быстро
+  public static final char L_SPLIT = '∬';
+  public static final char W_SPLIT = '∫';
+  public static final String LINE_SPLIT = "∬";
+  public static final String WORD_SPLIT = "∫";
+
 
     //при загрузке делаем синхронно, если нет локального соединения - будет подвисать!
     //при тесте сединения вызывается async из Timer
     public static void init() {
-        useLocalData = Cfg.getConfig().getBoolean("local_database.use");
-        //playerData = Cfg.getConfig().getBoolean("local_database.player_data"); нет, я не хочу теперь лазить по всем конфигам и перепроверять. Работает-не трогаем!
         String host = Cfg.getConfig().getString("local_database.mysql_host");
         String user = Cfg.getConfig().getString("local_database.mysql_user");
         String passw = Cfg.getConfig().getString("local_database.mysql_passw");
         url = host + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=" + user + "&password=" + passw;
         if (useLocalData) {
-            connect();//connection = GetConnection();
+          connect();
             if (connection != null) {
                 setupTable();
             }
         }
-        //if (GM.GAME.type == ServerType.ONE_GAME && GM.GAME == Game.DA)
-        //    online = Cfg.manager.config("online.yml",
-        //         new String[]{"--------", "Current players file", "----------"});
     }
-
-    //вызывать ASYNC!!
-    protected static void connect() {
-        final long l = System.currentTimeMillis();
-        Disconnect();
-        Ostrov.log_ok("§6MySQL - создаём local подключение..."); //не ставить log_err, или зацикливает!!!
-
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(url);
-            Ostrov.log_ok("§6MySQL - local подключение создано за " + (System.currentTimeMillis() - l) + "мс.");
-        } catch (SQLException | ClassNotFoundException e) {
-            Ostrov.log_warn("§cMySql: соединение с базой local  не удалось, " + (System.currentTimeMillis() - l) + "мс. -> " + e.getMessage()); //не ставить log_err, или зацикливает!!!
-            connection = null;
-        }
-    }
-
 
     public static void executePstAsync(final CommandSender cs, final String querry) {
-
         if (!useLocalData || connection == null) return;
-
         Ostrov.async(() -> {
             PreparedStatement pst = null;
             try {
@@ -114,17 +69,14 @@ public class LocalDB {
                     Ostrov.log_err("LocalDB executePst close " + ex.getMessage());
                 }
             }
-
         }, 0);
-
     }
 
-  public enum MysqlDataState {NONE, NEW_RECORD, LOADED, ERROR}
 
     // при PlayerQuitEvent Async, p!=null
     // при onDisable Sync, p может быть null
-    public static void saveLocalData(final Player p, final Oplayer op) {
-//Ostrov.log_warn("---saveLocalData useLocalData?"+useLocalData+"  getGameMode="+p.getGameMode());
+    public static void saveLocalData(final Oplayer op) {
+//Ostrov.log_warn("---saveLocalData useLocalData?"+useLocalData+" conn?"+(connection==null?"null":"ok"+" isGuest?"+op.isGuest)+" mysqlDataState="+op.mysqlDataState);
 //if (1==1) return; //заглушка, ничего не сохраняем
         if (!useLocalData) return; //op.mysqlData будет null, если при загрузке была ошибка
         if (op.isGuest) {
@@ -137,62 +89,7 @@ public class LocalDB {
             return;
         }
 
-        //final String uuid = op.id.toString();
-        /*if (online != null) {
-            if (!online.contains(uuid)) {
-                Ostrov.log_err("Данные " + op.nik + " уже были сохранены!");
-                return;
-            }
-            online.removeKey(uuid);
-            online.saveConfig();
-        }*/
-
         final long l = System.currentTimeMillis();
-        //StringBuilder build = new StringBuilder();
-
-      //if (!op.mysqlData.containsKey("name")) op.mysqlData.put("name", op.nik); //подстраховки - плагины могли очистить mysqlData
-      //if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", op.id.toString()); //подстраховки - плагины могли очистить mysqlData
-      //if (!op.mysqlData.containsKey("id") && op.mysqRecordId > Integer.MIN_VALUE) {
-      //     op.mysqlData.put("id", String.valueOf(op.mysqRecordId));
-      //}
-
-        /*if (GM.GAME.type != ServerType.ARENAS) {
-            if (p != null) {
-                if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", uuid);
-                if (op.spyOrigin == null) {
-                    op.world_positions.put("logoutLoc", LocUtil.toDirString(p.getLocation()));
-                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(p.getLocation()));
-                } else {
-                    op.world_positions.put("logoutLoc", LocUtil.toDirString(op.spyOrigin));
-                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(op.spyOrigin));
-                }
-                if (p.getRespawnLocation() != null) {
-                    op.world_positions.put("bedspawnLoc", LocUtil.toString(p.getRespawnLocation()));
-                }
-            }
-            for (String posName : op.world_positions.keySet()) {
-                build.append(LINE.get()).append(posName).append(WORD.get()).append(op.world_positions.get(posName));
-            }
-            op.mysqlData.put("positions", build.isEmpty() ? "" : build.substring(1));//final String positions = build.replaceFirst(bigSplit, "");
-        } else {
-            op.mysqlData.put("positions", "");
-        }
-
-        if (op.mysqlData.containsKey("homes")) { //при загрузке ключа не будат, добавляется пустой при изменении домов
-            build = new StringBuilder();
-            for (String home : op.homes.keySet()) { //только при изменении!
-                build.append(LINE.get()).append(home).append(WORD.get()).append(op.homes.get(home));
-            }
-            op.mysqlData.put("homes", build.isEmpty() ? "" : build.substring(1));//final String homes = build.replaceFirst(bigSplit, "");
-        }
-
-        if (op.mysqlData.containsKey("kitsUseData")) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
-            build = new StringBuilder();
-            for (String useTimeStamp : op.kits_use_timestamp.keySet()) {  //только при изменении!
-                build.append(LINE.get()).append(useTimeStamp).append(WORD.get()).append(op.kits_use_timestamp.get(useTimeStamp));
-            }
-            op.mysqlData.put("kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
-        }*/
 
         if (!op.quests.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
             StringBuilder build = new StringBuilder();
@@ -202,44 +99,10 @@ public class LocalDB {
             op.mysqlData.put("quests", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
 
-        /*if (p == null) {
-            op.mysqlData.put("settings", "");//settings = "";
-            op.mysqlData.put("inventory", "null");//inventory = "null";
-            op.mysqlData.put("armor", "null");//armor = "null";
-            op.mysqlData.put("ender", "null");//ender = "null";
-            op.mysqlData.put("potion", "null");//potion = "null";
-
-        } else if (PLAYER_DATA_SQL) {
-            if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {
-                op.mysqlData.put("inventory", "");
-                op.mysqlData.put("armor", "");
-            } else {
-                op.mysqlData.put("inventory", ItemUtil.serialize(p.getInventory().getContents()));
-                op.mysqlData.put("armor", ItemUtil.serialize(p.getInventory().getArmorContents()));
-            }
-            op.mysqlData.put("ender", ItemUtil.serialize(p.getEnderChest().getContents()));
-            op.mysqlData.put("potion", ItemUtil.seripotlize(p.getActivePotionEffects()));
-            op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
-        }*/
-
-//if (PLAYER_DATA_SQL) {
-      //   op.mysqlData.put("settings", "file"); //сохранение по новой схеме-данные в файле
-//} else {
-      //   op.mysqlData.put("settings", ""); //в лобби нужен мускул но не нужен файл
-//}
-//op.mysqlData.put("homes", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("positions", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("inventory", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("armor", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("ender", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("potion", ""); //очистить старые данные, убрать когда всё мигрирует
-//op.mysqlData.put("kitsUseData", "");  //очистить старые данные, убрать когда всё мигрирует
-
         //1мин=60 1час=3600 1день=86400 1мес=2592000 3мес=7776000 1год=31104000
         //минимум 90 дней
         op.mysqlData.put("lastActivity", String.valueOf(Timer.secTime()));//final int timeStamp = Timer.getTime();
         op.mysqlData.put("validTo", String.valueOf(ApiOstrov.getStorageLimit(op)));//final int validTo = ApiOstrov.getStorageLimit(op);
-
 
         final StringBuilder sb;
         final String query;
@@ -264,14 +127,6 @@ public class LocalDB {
         } else { //создаём новую запись
           op.mysqlData.put("name", op.nik);
           op.mysqlData.put("uuid", op.id.toString());
-            //if (!op.mysqlData.containsKey("settings")) op.mysqlData.put("settings", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("homes")) op.mysqlData.put("homes", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("positions")) op.mysqlData.put("positions", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("inventory")) op.mysqlData.put("inventory", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("armor")) op.mysqlData.put("armor", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("ender")) op.mysqlData.put("ender", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("potion")) op.mysqlData.put("potion", ""); //нет дефолтного значения в табл.
-            //if (!op.mysqlData.containsKey("kitsUseData")) op.mysqlData.put("kitsUseData", ""); //нет дефолтного значения в табл.
             sb = new StringBuilder("INSERT INTO `playerData` (");
             final StringBuilder values = new StringBuilder(" VALUES (");
 
@@ -307,20 +162,6 @@ public class LocalDB {
     }
 
 
-    private static boolean addField(final String fieldName) {
-        try (final Statement stm = connection.createStatement()) {
-            //ALTER TABLE `playerData` ADD `ааа` VARCHAR(2) NOT NULL DEFAULT '' AFTER `validTo`;
-            //connection.createStatement().executeUpdate( "ALTER TABLE `playerData` ADD COLUMN `"+fieldName+"` text NOT NULL;" );
-            stm.executeUpdate("ALTER TABLE `playerData` ADD COLUMN `" + fieldName + "` VARCHAR(1024) NOT NULL DEFAULT '';");
-            fieldsExist.add(fieldName);
-            Ostrov.log_ok("§5Модификация таблицы `playerData` добавление столбца : " + fieldName);
-            return true;
-        } catch (SQLException ex) {
-            Ostrov.log_err("Модификация таблицы `playerData`, добавление столбца : " + fieldName + " : " + ex.getMessage());
-            return false;
-        }
-    }
-
     //нужно для миниигр, они сохраняют/получают данные через op.mysqlData
     //вызывается PlayerJoinEvent ASYNC через 5 тиков!
     public static void loadLocalData(final String name) {
@@ -335,10 +176,7 @@ public class LocalDB {
             return;
         }
 
-      //final String uuid = op.id.toString();
         if (op.isGuest) {
-          //op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
-          //op.mysqlData.put("uuid", uuid);
             Ostrov.sync(() -> {
                 Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
             }, 1);
@@ -346,34 +184,12 @@ public class LocalDB {
             return;
         }
 
-        /*if (online != null) {
-            if (online.contains(uuid)) {
-                op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
-                op.mysqlData.put("uuid", uuid);
-                op.dbError = Error.DESYNC;
-                ScreenUtil.sendTitleDirect(p, "<red>Ошибка Загрузки!", "<gold>Срочно сообщи об этом администрации!", 40, 1000, 100);
-                p.sendMessage(Ostrov.PREFIX + "§cНапиши нам об ошибке в /discord или /telegram");
-                Ostrov.sync(() -> {
-                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
-                }, 1);
-                Ostrov.log_err("Данные " + op.nik + " уже были загружены!");
-                return;
-            }
-            online.set(uuid, op.nik);
-            Bukkit.getConsoleSender().sendMessage("Ok the config should have\n" + online.getKeys());
-            online.saveConfig();
-        }*/
-
         final long l = System.currentTimeMillis();
 
         ResultSet rs = null;
-
         try (final Statement stmt = LocalDB.getConnection().createStatement()) {
 
             rs = stmt.executeQuery("SELECT * FROM `playerData` WHERE `name` = '" + op.nik + "' LIMIT 1");
-
-          //op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
-          //op.mysqlData.put("uuid", p.getUniqueId().toString());
 
             if (!rs.next()) { //нет записи в БД - уходим на эвент
               //op.firstJoin = true;
@@ -390,10 +206,7 @@ public class LocalDB {
           op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
 
             final ResultSetMetaData rmeta = rs.getMetaData();
-          //final Set<String> nonEmptyFields = new HashSet<>();
             String fieldName;
-
-          //final boolean file = rs.getString("settings").equals("file");
 
             for (int i = 1; i <= rmeta.getColumnCount(); i++) {
                 fieldName = rmeta.getColumnName(i);
@@ -405,21 +218,15 @@ public class LocalDB {
                          "kitsUseData", //сохраняться будут только при изменении
                          "positions" //сохраняется всегда
                         -> {
-                      //if (!file && !rs.getString(fieldName).isBlank()) nonEmptyFields.add(fieldName);
                     }
                     case "inventory", "armor", "ender", "potion",
                          "settings" -> {//сохраняться будет только при playerDataSQL
-                      //if (!file && PLAYER_DATA_SQL && !rs.getString(fieldName).isBlank())
-                      //    nonEmptyFields.add(fieldName);
                     }
                     default -> op.mysqlData.put(rmeta.getColumnName(i), rs.getString(fieldName));
                 }
             }
 //Ostrov.log_warn("nonEmptyFields="+nonEmptyFields);
-            //подстраховка - бывает загружает уже когда дисконнектился, чтобы не было пусто в дате
-          //if (!op.mysqlData.containsKey("name")) op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
-          //if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", p.getUniqueId().toString());
-          //op.mysqRecordId = rs.getInt("id");
+          //подстраховка - бывает загружает уже когда дисконнектился, чтобы не было пусто в дате
           op.mysqlData.put("id", rs.getString("id"));
           op.mysqlDataState = MysqlDataState.LOADED;
 
@@ -443,8 +250,6 @@ public class LocalDB {
                 }
             }
 
-          //if (file) {
-          //Ostrov.log_warn("Данные " + op.nik + " уже подгружены из файла.");
                 Ostrov.sync(() -> {
                     if (PvPManager.no_damage_on_tp > 0) {
                         op.setNoDamage(PvPManager.no_damage_on_tp, true);
@@ -475,142 +280,6 @@ public class LocalDB {
                         MoveUtil.safeTP(p, e.getLogoutLocation());
                     }
                 }, 1);
-            /*} else {
-                String[] split;
-                int splitterIndex;
-
-                if (nonEmptyFields.contains("positions")) {//!rs.getString("positions").isEmpty()) {
-                    split = LINE.split(rs.getString("positions"));
-                    for (String positionInfo : split) {
-                        splitterIndex = WORD.index(positionInfo);
-                        if (splitterIndex > 0) {
-                            op.world_positions.put(positionInfo.substring(0, splitterIndex), positionInfo.substring(splitterIndex + 1));
-                        }
-                    }
-                }
-
-                if (nonEmptyFields.contains("homes")) {//!rs.getString("homes").isEmpty()) {
-                    split = LINE.split(rs.getString("homes"));
-                    for (String info : split) {
-                        splitterIndex = WORD.index(info);
-                        if (splitterIndex > 0) {
-                            op.homes.put(info.substring(0, splitterIndex), info.substring(splitterIndex + 1));
-                        }
-                    }
-                }
-
-                if (nonEmptyFields.contains("kitsUseData")) {//!rs.getString("kitsUseData").isEmpty()) {
-                    split = LINE.split(rs.getString("kitsUseData"));
-                    int stamp;
-                    for (String info : split) {
-                        splitterIndex = WORD.index(info);
-                        if (splitterIndex > 0) {
-                            stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
-                            if (stamp > 0) {
-                                op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
-                            }
-                        }
-                    }
-                }
-
-                final ItemStack[] inventory;
-                final ItemStack[] armor;
-                final ItemStack[] ender;
-                final Collection<PotionEffect> potion;
-
-                if (!nonEmptyFields.contains("inventory")) {//rs.getString("inventory").isEmpty() || !PLAYER_DATA_SQL) {
-                    inventory = null;
-                } else {
-                    if (rs.getString("inventory").equals("null")) {
-                        Ostrov.log_err("Ошибка сохранения инвентаря в предыдущей сессии для " + op.nik);
-                        inventory = null;
-                    } else {
-                        inventory = ItemUtil.deserialize(rs.getString("inventory"));
-                    }
-                }
-
-                if (!nonEmptyFields.contains("armor")) {//rs.getString("armor").isEmpty() || !PLAYER_DATA_SQL) {
-                    armor = null;
-                } else {
-                    if (rs.getString("armor").equals("error")) {
-                        Ostrov.log_err("Ошибка сохранения экипировки в предыдущей сессии для " + op.nik);
-                        armor = null;
-                    } else {
-                        armor = ItemUtil.deserialize(rs.getString("armor"));
-                    }
-                }
-
-                if (!nonEmptyFields.contains("ender")) {//rs.getString("ender").isEmpty() || !PLAYER_DATA_SQL) {
-                    ender = null;
-                } else {
-                    if (rs.getString("ender").equals("error")) {
-                        Ostrov.log_err("Ошибка сохранения enderChest в предыдущей сессии для " + op.nik);
-                        ender = null;
-                    } else {
-                        ender = ItemUtil.deserialize(rs.getString("ender"));
-                    }
-                }
-
-                if (!nonEmptyFields.contains("potion")) {//rs.getString("potion").isEmpty() || !PLAYER_DATA_SQL) {
-                    potion = null;
-                } else {
-                    if (rs.getString("potion").equals("error")) {
-                        Ostrov.log_err("Ошибка сохранения potionEffects в предыдущей сессии для " + op.nik);
-                        potion = null;
-                    } else {
-                        potion = ItemUtil.deseripotlize(rs.getString("potion"));
-                    }
-                }
-
-                final String[] settingsAray = rs.getString("settings").isEmpty() ? null : rs.getString("settings").split(",");
-                //p.sendMessage("load bedspawnLoc="+op.world_positions.get("bedspawnLoc"));
-                final Location logout = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
-                //p.sendMessage("load logout="+logout);
-                final Location bedspawnLoc = LocUtil.stringToLoc(op.world_positions.get("bedspawnLoc"), false, false);
-                Ostrov.sync(() -> {
-
-                    if (bedspawnLoc != null) {
-                        p.setRespawnLocation(bedspawnLoc, true);
-                        //p.sendMessage("load setBedSpawnLocation="+bedspawnLoc);
-                    }
-                    boolean update = false;
-                    if (inventory != null) {
-                        update = true;
-                        p.getInventory().setContents(inventory);
-                    }
-                    if (armor != null) {
-                        update = true;
-                        p.getInventory().setArmorContents(armor);
-                    }
-                    if (ender != null) {
-                        update = true;
-                        p.getEnderChest().setContents(ender);
-                    }
-                    if (potion != null) {
-                        p.addPotionEffects(potion);
-                    }
-                    if (update) p.updateInventory();
-
-                    //op.mysqldata_loaded = true;
-
-                    //возможно надо доработать смену logout при релоге пвп
-                    if (settingsAray != null) {
-                        applyLocalSettings(p, settingsAray);
-                    }
-
-                    if (PvPManager.no_damage_on_tp > 0) {
-                        op.setNoDamage(PvPManager.no_damage_on_tp, true);
-                    }
-
-                    final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
-                    Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
-                    if (e.getLogoutLocation() != null) { //плагины могут изменять
-                        MoveUtil.safeTP(p, e.getLogoutLocation());
-                    }
-
-                }, 1);
-            }*/
-
 
             rs.close();
 
@@ -672,6 +341,41 @@ public class LocalDB {
     final Player p = Bukkit.getPlayerExact(who);
     if (p != null) {
       p.sendMessage("§e" + name + " сейчас не на сервере, платёж будет выполнен при входе.");
+    }
+  }
+
+
+  public static Connection getConnection() {
+    return connection;
+  }
+
+  //вызывать ASYNC!!
+  protected static void connect() {
+    final long l = System.currentTimeMillis();
+    disconnect();
+    Ostrov.log_ok("§6MySQL - создаём local подключение..."); //не ставить log_err, или зацикливает!!!
+
+    try {
+      Class.forName("com.mysql.cj.jdbc.Driver");
+      connection = DriverManager.getConnection(url);
+      Ostrov.log_ok("§6MySQL - local подключение создано за " + (System.currentTimeMillis() - l) + "мс.");
+    } catch (SQLException | ClassNotFoundException e) {
+      Ostrov.log_warn("§cMySql: соединение с базой local  не удалось, " + (System.currentTimeMillis() - l) + "мс. -> " + e.getMessage()); //не ставить log_err, или зацикливает!!!
+      connection = null;
+    }
+  }
+
+  public static void disconnect() {
+    try {
+      if (connection != null && !connection.isClosed()) {
+        //if (connection != null) {
+        connection.close();
+      }
+      //connection = null;
+    } catch (SQLException e) {
+      Ostrov.log_warn("§cMySql: Disconnect local не удалось !" + e.getMessage());
+    } finally {
+      connection = null;
     }
   }
 
@@ -842,24 +546,20 @@ public class LocalDB {
   }
 
 
-  public static Connection getConnection() {
-    return connection;
-  }
-
-
-  public static void Disconnect() {
-    try {
-      if (connection != null && !connection.isClosed()) {
-        //if (connection != null) {
-        connection.close();
-      }
-      //connection = null;
-    } catch (SQLException e) {
-      Ostrov.log_warn("§cMySql: Disconnect local не удалось !" + e.getMessage());
-    } finally {
-      connection = null;
+  private static boolean addField(final String fieldName) {
+    try (final Statement stm = connection.createStatement()) {
+      //ALTER TABLE `playerData` ADD `ааа` VARCHAR(2) NOT NULL DEFAULT '' AFTER `validTo`;
+      //connection.createStatement().executeUpdate( "ALTER TABLE `playerData` ADD COLUMN `"+fieldName+"` text NOT NULL;" );
+      stm.executeUpdate("ALTER TABLE `playerData` ADD COLUMN `" + fieldName + "` VARCHAR(1024) NOT NULL DEFAULT '';");
+      fieldsExist.add(fieldName);
+      Ostrov.log_ok("§5Модификация таблицы `playerData` добавление столбца : " + fieldName);
+      return true;
+    } catch (SQLException ex) {
+      Ostrov.log_err("Модификация таблицы `playerData`, добавление столбца : " + fieldName + " : " + ex.getMessage());
+      return false;
     }
   }
+
 
 
 }
@@ -868,7 +568,277 @@ public class LocalDB {
 
 
 
+
+
+
+
+
+
+
 /*
+
+           //if (!op.mysqlData.containsKey("settings")) op.mysqlData.put("settings", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("homes")) op.mysqlData.put("homes", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("positions")) op.mysqlData.put("positions", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("inventory")) op.mysqlData.put("inventory", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("armor")) op.mysqlData.put("armor", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("ender")) op.mysqlData.put("ender", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("potion")) op.mysqlData.put("potion", ""); //нет дефолтного значения в табл.
+            //if (!op.mysqlData.containsKey("kitsUseData")) op.mysqlData.put("kitsUseData", ""); //нет дефолтного значения в табл.
+
+        //final String uuid = op.id.toString();
+        /*if (online != null) {
+            if (!online.contains(uuid)) {
+                Ostrov.log_err("Данные " + op.nik + " уже были сохранены!");
+                return;
+            }
+            online.removeKey(uuid);
+            online.saveConfig();
+        }
+
+
+        //StringBuilder build = new StringBuilder();
+
+      //if (!op.mysqlData.containsKey("name")) op.mysqlData.put("name", op.nik); //подстраховки - плагины могли очистить mysqlData
+      //if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", op.id.toString()); //подстраховки - плагины могли очистить mysqlData
+      //if (!op.mysqlData.containsKey("id") && op.mysqRecordId > Integer.MIN_VALUE) {
+      //     op.mysqlData.put("id", String.valueOf(op.mysqRecordId));
+      //}
+
+        /*if (GM.GAME.type != ServerType.ARENAS) {
+            if (p != null) {
+                if (!op.mysqlData.containsKey("uuid")) op.mysqlData.put("uuid", uuid);
+                if (op.spyOrigin == null) {
+                    op.world_positions.put("logoutLoc", LocUtil.toDirString(p.getLocation()));
+                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(p.getLocation()));
+                } else {
+                    op.world_positions.put("logoutLoc", LocUtil.toDirString(op.spyOrigin));
+                    op.world_positions.put(p.getWorld().getName(), LocUtil.toDirString(op.spyOrigin));
+                }
+                if (p.getRespawnLocation() != null) {
+                    op.world_positions.put("bedspawnLoc", LocUtil.toString(p.getRespawnLocation()));
+                }
+            }
+            for (String posName : op.world_positions.keySet()) {
+                build.append(LINE.get()).append(posName).append(WORD.get()).append(op.world_positions.get(posName));
+            }
+            op.mysqlData.put("positions", build.isEmpty() ? "" : build.substring(1));//final String positions = build.replaceFirst(bigSplit, "");
+        } else {
+            op.mysqlData.put("positions", "");
+        }
+
+        if (op.mysqlData.containsKey("homes")) { //при загрузке ключа не будат, добавляется пустой при изменении домов
+            build = new StringBuilder();
+            for (String home : op.homes.keySet()) { //только при изменении!
+                build.append(LINE.get()).append(home).append(WORD.get()).append(op.homes.get(home));
+            }
+            op.mysqlData.put("homes", build.isEmpty() ? "" : build.substring(1));//final String homes = build.replaceFirst(bigSplit, "");
+        }
+
+        if (op.mysqlData.containsKey("kitsUseData")) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
+            build = new StringBuilder();
+            for (String useTimeStamp : op.kits_use_timestamp.keySet()) {  //только при изменении!
+                build.append(LINE.get()).append(useTimeStamp).append(WORD.get()).append(op.kits_use_timestamp.get(useTimeStamp));
+            }
+            op.mysqlData.put("kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
+        }
+
+
+       /*if (p == null) {
+            op.mysqlData.put("settings", "");//settings = "";
+            op.mysqlData.put("inventory", "null");//inventory = "null";
+            op.mysqlData.put("armor", "null");//armor = "null";
+            op.mysqlData.put("ender", "null");//ender = "null";
+            op.mysqlData.put("potion", "null");//potion = "null";
+
+        } else if (PLAYER_DATA_SQL) {
+            if (PvPManager.getFlag(PvPManager.PvpFlag.drop_inv_inbattle) && PvPManager.getFlag(PvPManager.PvpFlag.antirelog) && op.pvp_time > 0) {
+                op.mysqlData.put("inventory", "");
+                op.mysqlData.put("armor", "");
+            } else {
+                op.mysqlData.put("inventory", ItemUtil.serialize(p.getInventory().getContents()));
+                op.mysqlData.put("armor", ItemUtil.serialize(p.getInventory().getArmorContents()));
+            }
+            op.mysqlData.put("ender", ItemUtil.serialize(p.getEnderChest().getContents()));
+            op.mysqlData.put("potion", ItemUtil.seripotlize(p.getActivePotionEffects()));
+            op.mysqlData.put("settings", getSettings(p, op));//settings = sb.toString();
+        }
+
+//if (PLAYER_DATA_SQL) {
+//   op.mysqlData.put("settings", "file"); //сохранение по новой схеме-данные в файле
+//} else {
+//   op.mysqlData.put("settings", ""); //в лобби нужен мускул но не нужен файл
+//}
+//op.mysqlData.put("homes", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("positions", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("inventory", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("armor", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("ender", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("potion", ""); //очистить старые данные, убрать когда всё мигрирует
+//op.mysqlData.put("kitsUseData", "");  //очистить старые данные, убрать когда всё мигрирует
+
+
+
+        /*if (online != null) {
+            if (online.contains(uuid)) {
+                op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
+                op.mysqlData.put("uuid", uuid);
+                op.dbError = Error.DESYNC;
+                ScreenUtil.sendTitleDirect(p, "<red>Ошибка Загрузки!", "<gold>Срочно сообщи об этом администрации!", 40, 1000, 100);
+                p.sendMessage(Ostrov.PREFIX + "§cНапиши нам об ошибке в /discord или /telegram");
+                Ostrov.sync(() -> {
+                    Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
+                }, 1);
+                Ostrov.log_err("Данные " + op.nik + " уже были загружены!");
+                return;
+            }
+            online.set(uuid, op.nik);
+            Bukkit.getConsoleSender().sendMessage("Ok the config should have\n" + online.getKeys());
+            online.saveConfig();
+        }
+
+            /*} else {
+                String[] split;
+                int splitterIndex;
+
+                if (nonEmptyFields.contains("positions")) {//!rs.getString("positions").isEmpty()) {
+                    split = LINE.split(rs.getString("positions"));
+                    for (String positionInfo : split) {
+                        splitterIndex = WORD.index(positionInfo);
+                        if (splitterIndex > 0) {
+                            op.world_positions.put(positionInfo.substring(0, splitterIndex), positionInfo.substring(splitterIndex + 1));
+                        }
+                    }
+                }
+
+                if (nonEmptyFields.contains("homes")) {//!rs.getString("homes").isEmpty()) {
+                    split = LINE.split(rs.getString("homes"));
+                    for (String info : split) {
+                        splitterIndex = WORD.index(info);
+                        if (splitterIndex > 0) {
+                            op.homes.put(info.substring(0, splitterIndex), info.substring(splitterIndex + 1));
+                        }
+                    }
+                }
+
+                if (nonEmptyFields.contains("kitsUseData")) {//!rs.getString("kitsUseData").isEmpty()) {
+                    split = LINE.split(rs.getString("kitsUseData"));
+                    int stamp;
+                    for (String info : split) {
+                        splitterIndex = WORD.index(info);
+                        if (splitterIndex > 0) {
+                            stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
+                            if (stamp > 0) {
+                                op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
+                            }
+                        }
+                    }
+                }
+
+                final ItemStack[] inventory;
+                final ItemStack[] armor;
+                final ItemStack[] ender;
+                final Collection<PotionEffect> potion;
+
+                if (!nonEmptyFields.contains("inventory")) {//rs.getString("inventory").isEmpty() || !PLAYER_DATA_SQL) {
+                    inventory = null;
+                } else {
+                    if (rs.getString("inventory").equals("null")) {
+                        Ostrov.log_err("Ошибка сохранения инвентаря в предыдущей сессии для " + op.nik);
+                        inventory = null;
+                    } else {
+                        inventory = ItemUtil.deserialize(rs.getString("inventory"));
+                    }
+                }
+
+                if (!nonEmptyFields.contains("armor")) {//rs.getString("armor").isEmpty() || !PLAYER_DATA_SQL) {
+                    armor = null;
+                } else {
+                    if (rs.getString("armor").equals("error")) {
+                        Ostrov.log_err("Ошибка сохранения экипировки в предыдущей сессии для " + op.nik);
+                        armor = null;
+                    } else {
+                        armor = ItemUtil.deserialize(rs.getString("armor"));
+                    }
+                }
+
+                if (!nonEmptyFields.contains("ender")) {//rs.getString("ender").isEmpty() || !PLAYER_DATA_SQL) {
+                    ender = null;
+                } else {
+                    if (rs.getString("ender").equals("error")) {
+                        Ostrov.log_err("Ошибка сохранения enderChest в предыдущей сессии для " + op.nik);
+                        ender = null;
+                    } else {
+                        ender = ItemUtil.deserialize(rs.getString("ender"));
+                    }
+                }
+
+                if (!nonEmptyFields.contains("potion")) {//rs.getString("potion").isEmpty() || !PLAYER_DATA_SQL) {
+                    potion = null;
+                } else {
+                    if (rs.getString("potion").equals("error")) {
+                        Ostrov.log_err("Ошибка сохранения potionEffects в предыдущей сессии для " + op.nik);
+                        potion = null;
+                    } else {
+                        potion = ItemUtil.deseripotlize(rs.getString("potion"));
+                    }
+                }
+
+                final String[] settingsAray = rs.getString("settings").isEmpty() ? null : rs.getString("settings").split(",");
+                //p.sendMessage("load bedspawnLoc="+op.world_positions.get("bedspawnLoc"));
+                final Location logout = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
+                //p.sendMessage("load logout="+logout);
+                final Location bedspawnLoc = LocUtil.stringToLoc(op.world_positions.get("bedspawnLoc"), false, false);
+                Ostrov.sync(() -> {
+
+                    if (bedspawnLoc != null) {
+                        p.setRespawnLocation(bedspawnLoc, true);
+                        //p.sendMessage("load setBedSpawnLocation="+bedspawnLoc);
+                    }
+                    boolean update = false;
+                    if (inventory != null) {
+                        update = true;
+                        p.getInventory().setContents(inventory);
+                    }
+                    if (armor != null) {
+                        update = true;
+                        p.getInventory().setArmorContents(armor);
+                    }
+                    if (ender != null) {
+                        update = true;
+                        p.getEnderChest().setContents(ender);
+                    }
+                    if (potion != null) {
+                        p.addPotionEffects(potion);
+                    }
+                    if (update) p.updateInventory();
+
+                    //op.mysqldata_loaded = true;
+
+                    //возможно надо доработать смену logout при релоге пвп
+                    if (settingsAray != null) {
+                        applyLocalSettings(p, settingsAray);
+                    }
+
+                    if (PvPManager.no_damage_on_tp > 0) {
+                        op.setNoDamage(PvPManager.no_damage_on_tp, true);
+                    }
+
+                    final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, logout);
+                    Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
+                    if (e.getLogoutLocation() != null) { //плагины могут изменять
+                        MoveUtil.safeTP(p, e.getLogoutLocation());
+                    }
+
+                }, 1);
+            }
+
+
+
+
+
+
+
     private static String getSettings(final Player p, final Oplayer op) {
         final StringBuilder sb = new StringBuilder();
         sb.append((int) (p.getHealth() * 100)).append(","); //0

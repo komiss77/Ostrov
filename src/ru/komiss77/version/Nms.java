@@ -1,15 +1,11 @@
 package ru.komiss77.version;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Predicate;
-import com.mojang.brigadier.tree.RootCommandNode;
-import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import io.netty.channel.Channel;
@@ -22,7 +18,6 @@ import io.papermc.paper.persistence.PaperPersistentDataContainerView;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -37,8 +32,6 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedPlayerList;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Abilities;
@@ -51,12 +44,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.*;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntityTypes;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -73,10 +64,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
-import org.spigotmc.SpigotConfig;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.bots.BotEntity;
-import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.items.PDC;
 import ru.komiss77.modules.player.Oplayer;
@@ -93,18 +82,13 @@ import ru.komiss77.utils.TCUtil;
 
 
 public class Nms {
-  public static final List<String> vanilaCommandToDisable;
+
   protected static final BlockPos.MutableBlockPos mutableBlockPosition; //не юзать при отправке пакетов напрямую! Пакет отправляется с задержкой, значение может уже измениться!
   private static final Key chatKey;
   private static final net.minecraft.world.level.block.state.BlockState sign;
   private static final String signId;
 
   static {
-    vanilaCommandToDisable = Arrays.asList("execute",
-        "bossbar", "defaultgamemode", "me", "help", "kick", "kill", "tell",
-        "say", "spreadplayers", "teammsg", "tellraw", "trigger",
-        "ban-ip", "banlist", "ban", "op", "pardon", "pardon-ip", "perf",
-        "save-all", "save-off", "save-on", "setidletimeout", "publish");
     chatKey = Key.key("ostrov_chat", "listener");
     mutableBlockPosition = new BlockPos.MutableBlockPos(0, 0, 0);
     sign = Craft.toNMS(Material.OAK_SIGN.createBlockData());
@@ -490,113 +474,6 @@ public class Nms {
   }
 
 
-  public static void pathServer() {
-    final MinecraftServer srv = MinecraftServer.getServer();
-    final com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher = srv.getCommands().getDispatcher();
-    final RootCommandNode<CommandSourceStack> root = dispatcher.getRoot();
-
-    try {
-      Field childrenField = root.getClass().getSuperclass().getDeclaredField("children");
-      childrenField.setAccessible(true);
-
-      Field literalsField = root.getClass().getSuperclass().getDeclaredField("literals");
-      literalsField.setAccessible(true);
-
-      Field argumentsField = root.getClass().getSuperclass().getDeclaredField("arguments");
-      argumentsField.setAccessible(true);
-
-      Map<?, ?> children = (Map<?, ?>) childrenField.get(root);
-      Map<?, ?> literals = (Map<?, ?>) literalsField.get(root);
-      Map<?, ?> arguments = (Map<?, ?>) argumentsField.get(root);
-
-      //Полученного экземпляра Field уже достаточно для доступа к изменяемым приватным полям.
-      vanilaCommandToDisable.forEach((name) -> {
-            children.remove(name);
-            literals.remove(name);
-            arguments.remove(name);
-          }
-      );
-
-    } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
-      Ostrov.log_warn("nms Server pathServer RootCommandNode : " + ex.getMessage());
-    }
-
-    SpigotConfig.belowZeroGenerationInExistingChunks = false;
-    SpigotConfig.restartOnCrash = false;
-    SpigotConfig.movedWronglyThreshold = 1.6;//Double.MAX_VALUE;
-    SpigotConfig.movedTooQuicklyMultiplier = 10;//Double.MAX_VALUE;
-    SpigotConfig.sendNamespaced = false;//Bukkit.spigot().getConfig().s
-    SpigotConfig.whitelistMessage = "§cНа сервере включен список доступа, и вас там нет!";
-    SpigotConfig.unknownCommandMessage = "§cКоманда не найдена. §a§l/menu §f-открыть меню.";
-    SpigotConfig.serverFullMessage = "Слишком много народу!";
-    SpigotConfig.outdatedClientMessage = "§cВаш клиент устарел! Пожалуйста, используйте §b{0}";
-    SpigotConfig.outdatedServerMessage = "§cСервер старой версии {0}, вход невозможен.";
-    SpigotConfig.restartMessage = "§4Перезагрузка...";
-
-    switch (GM.GAME) {
-      case DA, AR, MI, SK, OB, SE -> {
-        SpigotConfig.disableAdvancementSaving = false;
-        SpigotConfig.disabledAdvancements = Collections.emptyList();
-        SpigotConfig.disableStatSaving = false;
-        SpigotConfig.disablePlayerDataSaving = false;
-      }
-      case LOBBY -> {
-        SpigotConfig.disableAdvancementSaving = true;
-        SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");
-        SpigotConfig.disableStatSaving = true;
-        SpigotConfig.disablePlayerDataSaving = false;
-      }
-      default -> {
-        SpigotConfig.disableAdvancementSaving = true;
-        SpigotConfig.disabledAdvancements = Arrays.asList("*", "minecraft:story/disabled");
-        SpigotConfig.disableStatSaving = true;
-        SpigotConfig.disablePlayerDataSaving = true;
-      }
-    }
-
-    //отключить устаревшие тайминги
-    try {
-      final File cfg = new File(Bukkit.getWorldContainer().getPath() + "/config/paper-global.yml");
-      final YamlConfiguration yml = YamlConfiguration.loadConfiguration(cfg);
-      if (yml.getConfigurationSection("timings") != null) {
-        if (yml.getConfigurationSection("timings").getBoolean("enabled")) {
-          yml.getConfigurationSection("timings").set("enabled", false);
-          yml.save(cfg);
-        }
-      }
-    } catch (IOException | NullPointerException ex) {
-      Ostrov.log_err("не удалось изменить timings : " + ex.getMessage());
-    }
-
-    if (SpigotConfig.disablePlayerDataSaving == false) {
-      final DedicatedServer dedicatedServer = Craft.toNMS();
-      final DedicatedPlayerList dedicatedPlayerList = dedicatedServer.getPlayerList();
-      final PlayerDataStorage oldPds = dedicatedPlayerList.playerIo;
-      try {
-        final Field dataFixerField = oldPds.getClass().getDeclaredField("fixerUpper");
-        dataFixerField.setAccessible(true);
-        final DataFixer fixerUpper = (DataFixer) dataFixerField.get(oldPds);
-        dataFixerField.setAccessible(false);
-        //osPds.playerDir = oldPds.getPlayerDir();
-        final OsPlayerDataStorage osPds = new OsPlayerDataStorage(dedicatedServer.storageSource, fixerUpper);//dedicatedPlayerList.playerIo;
-        //dedicatedServer.playerDataStorage = osPds;
-        //dedicatedPlayerList.playerIo = osPds;
-        final Field playerIoField = dedicatedPlayerList.getClass().getField("playerIo"); //getDeclaredField-без наслодования
-        playerIoField.setAccessible(true);
-        playerIoField.set(dedicatedPlayerList, osPds);
-        playerIoField.setAccessible(false);
-        final Field playerDataStorageField = dedicatedServer.getClass().getField("playerDataStorage");
-        playerDataStorageField.setAccessible(true);
-        playerDataStorageField.set(dedicatedServer, osPds);
-        playerDataStorageField.setAccessible(false);
-      } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
-        Ostrov.log_warn("nms Server pathServer PlayerDataStorage : " + ex.getMessage());
-        ex.printStackTrace();
-      }
-    }
-
-    Ostrov.log_ok("§bСервер сконфигурирован, отключено ванильных команд: " + vanilaCommandToDisable.size());
-  }
 
   private static void makeStaticFinalFieldWritable(Field field) {
     try {

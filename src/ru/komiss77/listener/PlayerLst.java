@@ -56,6 +56,7 @@ import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.*;
 import ru.komiss77.version.Nms;
+import ru.komiss77.version.PathServer;
 
 
 public class PlayerLst implements Listener {
@@ -436,7 +437,7 @@ public class PlayerLst implements Listener {
             if (PvPManager.no_damage_on_tp > 0) {
                 op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
-            if (Game.storeWorldPosition()) {
+          if (PathServer.storeWorldPosition()) {
                 op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
             }
             // сохраняем точку выхода

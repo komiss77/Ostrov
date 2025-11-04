@@ -33,6 +33,7 @@ import ru.komiss77.modules.world.EmptyChunkGenerator;
 import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.utils.TCUtil;
 import ru.komiss77.version.Nms;
+import ru.komiss77.version.PathServer;
 
 
 public class Ostrov extends JavaPlugin {
@@ -86,7 +87,7 @@ public class Ostrov extends JavaPlugin {
         mgr = instance.getLifecycleManager();
         logger = getComponentLogger();
         //Cfg.init(); // 1 !  загрузится само при первом обращении
-        Nms.pathServer();
+        PathServer.path();
         Nms.chatFix();
       final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
       if (worldEndWipeAt > 0 && worldEndWipeAt < Timer.secTime()) { //удалять мир в onLoad, при WorldManager миры уже загружены!
@@ -176,7 +177,7 @@ public class Ostrov extends JavaPlugin {
         //}
         //}
         if (LocalDB.useLocalData) {
-            LocalDB.Disconnect();
+            LocalDB.disconnect();
         }
         if (RemoteDB.useOstrovData) {
             RemoteDB.Disconnect();

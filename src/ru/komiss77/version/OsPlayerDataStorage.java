@@ -60,9 +60,6 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
   static {
     //GSON = new GsonBuilder().create();
     if (GM.GAME == Game.SE) {
-      //Path parent = Bukkit.getWorldContainer().toPath().getParent();
-      //dataDir = new File(parent.toString() + File.separator + "sedna"+ File.separator + "playerdata");
-      //dataDir = new File(".."+File.separator+Bukkit.getWorldContainer().getPath() + File.separator + "sedna" + File.separator + "playerdata");
       dataDir = new File(".." + File.separator + Bukkit.getWorldContainer().getPath());
 //Ostrov.log_warn(GM.GAME+" parent ========== "+dataDir.getAbsolutePath());
       dataDir = new File(dataDir.getPath() + File.separator + "sedna");
@@ -103,8 +100,6 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     if (nmsPlayer instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
       org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer = serverPlayer.getBukkitEntity();
       final Oplayer op = PM.createOplayer(craftPlayer); //создать обязательно тут
-      if (!op.isGuest) op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
-
       try { //для гостей делайм файл-заглушку
         PlayerAdvancements adv = serverPlayer.getAdvancements();
         final String advFileName = op.isGuest ? "guest_adv.json" : nmsPlayer.getScoreboardName() + "_adv.json";
@@ -142,6 +137,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
         ex.printStackTrace();
       }
 
+      //файла для гостя не будет
       return this.load(nmsPlayer.getName().getString(), nmsPlayer.getStringUUID(), problemReporter).map((tag) -> {
         //return load(nmsPlayer.getName().getString(), nmsPlayer.getStringUUID()).map(tag -> {
         // Only update first played if it is older than the one we have
@@ -150,6 +146,9 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
         if (modified < craftPlayer.getFirstPlayed()) {
           craftPlayer.setFirstPlayed(modified);
         }
+
+        if (!op.isGuest) op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
+        Ostrov.log_warn("OsPlayerDataStorage load " + op.nik + " guest?" + op.isGuest + " firstJoin=" + op.firstJoin);
 
         //op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
         //op.mysqlData.put("uuid", nmsPlayer.getStringUUID());
@@ -252,10 +251,10 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 //Ostrov.log_warn("OsPlayerDataStorage save "+name+" makeToRemove="+op.makeToRemove);
     //if (org.spigotmc.SpigotConfig.disablePlayerDataSaving) return; // Spigot
     //if (!LocalDB.useLocalData || !LocalDB.PLAYER_DATA_SQL) return;
-    if (!LocalDB.useLocalData) return;
+    if (!LocalDB.useLocalData) return; //если в конфиге local_database.use=false то в файл точно не надо сохранять
 
     if (op.isGuest) {
-      Ostrov.log_warn("OsPlayerDataStorage Выход гостя " + op.nik + ", данные не сохраняем.");
+      Ostrov.log_warn("OsPlayerDataStorage : " + op.nik + " isGuest, данные не сохраняем.");
       return;
     }
 

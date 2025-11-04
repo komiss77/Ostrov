@@ -9,7 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
@@ -204,12 +203,12 @@ public class ServerLst implements Listener {
         Land.unload(e.getChunk());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onEntitySpawn(final EntitySpawnEvent e) {
-        if (Cfg.clear_old_ents) {
-            setClearable(e.getEntity(), true);
-        }
-    }
+   /* //@EventHandler(priority = EventPriority.LOWEST)
+    //public void onEntitySpawn(final EntitySpawnEvent e) {
+    //    if (Cfg.clear_old_ents) {
+   //         setClearable(e.getEntity(), true);
+   //     }
+   // }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitiesLoad(final EntitiesLoadEvent e) {
@@ -238,16 +237,16 @@ public class ServerLst implements Listener {
             default -> ent.isPersistent();
         };
     }
-
-    public void setClearable(final Entity ent, final boolean clear) {
-        switch (ent) {
-            case null: break;
-            case final Item ignored: break;
-            case final Projectile ignored: break;
-            case final LivingEntity le: le.setRemoveWhenFarAway(clear); break;
-            default: ent.setPersistent(clear); break;
-        };
-    }
+*/
+  //public void setClearable(final Entity ent, final boolean clear) {
+  //    switch (ent) {
+  //         case null: break;
+  //        case final Item ignored: break;
+  //        case final Projectile ignored: break;
+  //        case final LivingEntity le: le.setRemoveWhenFarAway(clear); break;
+  //        default: ent.setPersistent(clear); break;
+  //    };
+  //}
 
         
         

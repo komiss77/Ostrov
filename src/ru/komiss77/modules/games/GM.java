@@ -135,8 +135,15 @@ public final class GM {
                     continue; //или getGameInfo ругается на REG и прочие
 
                 game = Game.fromServerName(rs.getString("name"));
+                if (game == null) {
+                    Ostrov.log_warn("GM.loadArenaInfo game==null : " + game);
+                    continue;
+                }
                 gi = getGameInfo(game);
-
+                if (gi == null) {
+                    Ostrov.log_err("GM.loadArenaInfo GameInfo==null для " + game);
+                    continue;
+                }
                 //if (gi!=null) {
 
                 //   if (gi.game.type==ServerType.ONE_GAME) {

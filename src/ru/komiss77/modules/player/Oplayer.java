@@ -130,7 +130,7 @@ public class Oplayer {
     public Oplayer(final HumanEntity p) {
         nik = p.getName();
         id = p.getUniqueId();
-        firstJoin = (isGuest = nik.startsWith("guest_"));
+      isGuest = nik.startsWith("guest_");
     }
 
   public void postJoin(final Player p) {

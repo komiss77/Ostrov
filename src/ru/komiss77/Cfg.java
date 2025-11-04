@@ -27,16 +27,16 @@ public class Cfg {
     public static boolean afk;
 
     //для ServerListener
-    public static boolean clear_old_ents;
-    public static boolean block_nether_portal;
-    public static boolean disable_blockspread;
-    public static boolean disable_ice_melt;
+  //public static boolean clear_old_ents;
+  //public static boolean block_nether_portal;
+  //public static boolean disable_blockspread;
+  //public static boolean disable_ice_melt;
 
     //для PlayerListener
     public static boolean set_gm = false;
     public static GameMode gm_on_join = GameMode.ADVENTURE;
-    public static float walkspeed_on_join = 0.2F;
-    public static boolean clear_stats = false;
+  //public static float walkspeed_on_join = 0.2F;
+  //public static boolean clear_stats = false;
     public static boolean disable_void;
     public static boolean disable_damage;
     public static boolean disable_hungry;
@@ -51,20 +51,20 @@ public class Cfg {
     public static int tpr_command_delay;
     public static boolean back_command;
     public static boolean settings_command;
-    public static boolean get_command;
+  //public static boolean get_command;
     public static boolean world_command;
     public static boolean tppos_command;
     public static boolean tphere_command;
     public static boolean spawn_command;
     public static boolean gm_command;
-    public static boolean invsee_command;
+  //public static boolean invsee_command;
     public static boolean speed_command;
     public static boolean pweather_command;
     public static boolean ptime_command;
     public static boolean repair_command;
     public static boolean heal_command;
     public static boolean top_command;
-    public static boolean spy_command;
+  //public static boolean spy_command;
 
     public static boolean enchants;
     public static boolean crafts;
@@ -97,17 +97,17 @@ public class Cfg {
         tablist_header_footer = cfg.getBoolean("player.set_tab_list_header_footer");
         tablist_name = cfg.getBoolean("player.set_tab_list_name");
         scale_health = cfg.getBoolean("player.scale_health");
-        block_nether_portal = cfg.getBoolean("world.block_nether_portal");
-        disable_blockspread = cfg.getBoolean("world.disable_blockspread");
-        disable_ice_melt = cfg.getBoolean("world.disable_ice_melt");
-        clear_old_ents = cfg.getBoolean("world.clear_old_ents");
+      //block_nether_portal = cfg.getBoolean("world.block_nether_portal");
+      //disable_blockspread = cfg.getBoolean("world.disable_blockspread");
+      //disable_ice_melt = cfg.getBoolean("world.disable_ice_melt");
+      //clear_old_ents = cfg.getBoolean("world.clear_old_ents");
 
         afk_sec = cfg.getInt("player.afk_min") * 60;
         afk = afk_sec > 0 && GM.GAME.type.canAfk();
         set_gm = cfg.getBoolean("player.change_gamemode_on_join");
         gm_on_join = GameMode.valueOf(cfg.getString("player.gamemode_set_to"));
-        walkspeed_on_join = Float.parseFloat(cfg.getString("player.walkspeed_on_join"));
-        clear_stats = cfg.getBoolean("player.clear_stats");
+      //walkspeed_on_join = Float.parseFloat(cfg.getString("player.walkspeed_on_join"));
+      //clear_stats = cfg.getBoolean("player.clear_stats");
         disable_void = cfg.getBoolean("player.disable_void");
         disable_damage = cfg.getBoolean("player.disable_damage");
         disable_hungry = cfg.getBoolean("player.disable_hungry");
@@ -123,20 +123,20 @@ public class Cfg {
         tpr_command_delay = cfg.getInt("modules.command.tpr");
         back_command = cfg.getBoolean("modules.command.back");
         settings_command = cfg.getBoolean("modules.command.settings");
-        get_command = cfg.getBoolean("modules.command.get");
+      //get_command = cfg.getBoolean("modules.command.get");
         world_command = cfg.getBoolean("modules.command.world");
         tppos_command = cfg.getBoolean("modules.command.tppos");
         tphere_command = cfg.getBoolean("modules.command.tphere");
         spawn_command = cfg.getBoolean("modules.command.spawn");
         gm_command = cfg.getBoolean("modules.command.gm");
-        invsee_command = cfg.getBoolean("modules.command.invsee");
+      //invsee_command = cfg.getBoolean("modules.command.invsee");
         speed_command = cfg.getBoolean("modules.command.speed");
         pweather_command = cfg.getBoolean("modules.command.pweather");
         ptime_command = cfg.getBoolean("modules.command.ptime");
         repair_command = cfg.getBoolean("modules.command.repair");
         heal_command = cfg.getBoolean("modules.command.heal");
         top_command = cfg.getBoolean("modules.command.top");
-        spy_command = cfg.getBoolean("modules.command.top");
+      //spy_command = cfg.getBoolean("modules.command.top");
         //nameTag=config.getBoolean("modules.name_tag_manager");
 
         enchants = cfg.getBoolean("modules.enchants");
@@ -159,11 +159,17 @@ public class Cfg {
 
         //Remove
       //cfg.removeKey("");
-      cfg.set("ostrov_database.mysql_host", null);
-      cfg.set("ostrov_database.mysql_user", null);
-      cfg.set("ostrov_database.mysql_passw", null);
-      cfg.set("ostrov_database.games_info_for_server_menu_load", null);
-      cfg.set("ostrov_database.games_info_for_server_menu_send", null);
+      cfg.set("local_database.use", null);
+      cfg.set("local_database.player_data", null);
+      cfg.set("system.use_armor_equip_event", null);
+      cfg.set("world", null);
+      cfg.set("player.walkspeed_on_join", null);
+      cfg.set("player.clear_stats", null);
+      cfg.set("modules.command.get", null);
+      cfg.set("modules.command.get", null);
+      cfg.set("modules.command.invsee", null);
+      cfg.set("modules.command.spy", null);
+      //cfg.set("ostrov_database.games_info_for_server_menu_send", null);
 
 
 
@@ -171,9 +177,9 @@ public class Cfg {
             "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
         cfg.addDefault("player.change_gamemode_on_join", false, c0);
         cfg.addDefault("player.gamemode_set_to", "ADVENTURE");
-        cfg.addDefault("player.walkspeed_on_join", "0.1F");
+      //cfg.addDefault("player.walkspeed_on_join", "0.1F");
         cfg.addDefault("player.afk_min", -1);
-        cfg.addDefault("player.clear_stats", false);
+      //cfg.addDefault("player.clear_stats", false);
         cfg.addDefault("player.disable_void", false);
         cfg.addDefault("player.disable_damage", false);
         cfg.addDefault("player.disable_hungry", false);
@@ -216,19 +222,19 @@ public class Cfg {
         cfg.addDefault("modules.command.hat", true);
         cfg.addDefault("modules.command.back", false);
         cfg.addDefault("modules.command.settings", false);
-        cfg.addDefault("modules.command.get", false);
+      //cfg.addDefault("modules.command.get", false);
         cfg.addDefault("modules.command.world", false);
         cfg.addDefault("modules.command.tppos", false);
         cfg.addDefault("modules.command.tphere", false);
         cfg.addDefault("modules.command.spawn", false);
         cfg.addDefault("modules.command.gm", false);
-        cfg.addDefault("modules.command.invsee", false);
+      //cfg.addDefault("modules.command.invsee", false);
         cfg.addDefault("modules.command.speed", false);
         cfg.addDefault("modules.command.pweather", false);
         cfg.addDefault("modules.command.ptime", false);
         cfg.addDefault("modules.command.heal", false);
         cfg.addDefault("modules.command.repair", false);
-        cfg.addDefault("modules.command.spy", false);
+      //cfg.addDefault("modules.command.spy", false);
         cfg.addDefault("modules.command.top", false);
         cfg.addDefault("modules.teleport_to_region_in_settings_menu", false);
         cfg.addDefault("modules.command.kit", false);
@@ -237,11 +243,11 @@ public class Cfg {
         cfg.set("modules.command.warp.canSetPrivate", null);//config.addDefault("modules.command.warp.canSetPrivate", true);
 
 
-        String[] c2 = {"---------", "world managment", "---------"};
-        cfg.addDefault("world.disable_weather", false, c2);
-        cfg.addDefault("world.disable_blockspread", false);
-        cfg.addDefault("world.disable_ice_melt", false);
-        cfg.addDefault("world.clear_old_ents", false);
+      //String[] c2 = {"---------", "world managment", "---------"};
+      //cfg.addDefault("world.disable_weather", false, c2);
+      //cfg.addDefault("world.disable_blockspread", false);
+      //cfg.addDefault("world.disable_ice_melt", false);
+      //cfg.addDefault("world.clear_old_ents", false);
 
 
         String[] c3 = {"---------", "system settings", "---------"};
