@@ -547,6 +547,17 @@ public class PvPManager implements Initiable {
                             }
                         }, DHIT_CLD);
                     }
+
+                    if (damager instanceof Mob) {
+                        final ItemStack hand = damager.getEquipment().getItemInOffHand();
+                        final Weapon wpn = hand.getData(DataComponentTypes.WEAPON);
+                        if (wpn != null && wpn.disableBlockingForSeconds() != MELEE_BREAK_SEC) {
+                            hand.setData(DataComponentTypes.WEAPON, Weapon.weapon()
+                                .itemDamagePerAttack(wpn.itemDamagePerAttack())
+                                .disableBlockingForSeconds(MELEE_BREAK_SEC).build());
+                            damager.getEquipment().setItemInMainHand(hand);
+                        }
+                    }
                 }
 
                 @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -738,6 +749,7 @@ public class PvPManager implements Initiable {
                     if (!ItemUtil.is(blIt, ItemType.SHIELD)) return;
                     switch (e.getDamager()) {
                         case Player pl:
+//                            pl.sendMessage("getAttackCooldown() = " + pl.getAttackCooldown()); всегда обновляет
                             if (AXES.contains(pl.getInventory()
                                 .getItemInMainHand().getType().asItemType())) break;
                             if (ItemUtil.isBlank(pl.getInventory().getItemInOffHand(), false)

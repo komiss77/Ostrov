@@ -462,7 +462,7 @@ public class PlayerLst implements Listener {
 
     public static final double VEL_MUL = 0.025d;
     public static final double POP_MUL = 0.4d;
-    public static final double ANGLE = 20.45d;
+    public static final double ANGLE = 20d;
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBoost(final PlayerElytraBoostEvent e) {
         final Firework fw = e.getFirework();
