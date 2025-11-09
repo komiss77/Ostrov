@@ -30,7 +30,7 @@ public class Skins {
         final GameProfile gp = new GameProfile(pp.getId() == null
             ? UUID.randomUUID() : pp.getId(), pp.getName());
         for (final ProfileProperty pr : pp.getProperties()) {
-            gp.getProperties().put(pr.getName(),
+            gp.properties().put(pr.getName(),
                 new Property(pr.getName(), pr.getValue(), pr.getSignature()));
         }
         return gp;

@@ -3,7 +3,8 @@ package ru.komiss77.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,9 +14,10 @@ import org.bukkit.event.player.PlayerRegisterChannelEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
-import org.bukkit.event.world.*;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.Module;
@@ -150,7 +152,7 @@ public class ServerLst implements Listener {
         w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
 
         if (Ostrov.MOT_D.length() <= 4) {
-            w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 8);
+//            w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 8);
             w.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, true);
             w.setGameRule(GameRule.DISABLE_RAIDS, true);
             w.setGameRule(GameRule.KEEP_INVENTORY, false);

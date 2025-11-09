@@ -1,27 +1,24 @@
 package ru.komiss77.version;
 
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import net.minecraft.advancements.*;
-import net.minecraft.core.ClientAsset;
-import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
-import net.minecraft.resources.ResourceLocation;
-import io.papermc.paper.adventure.PaperAdventure;
-import net.kyori.adventure.text.format.ShadowColor;
-import net.kyori.adventure.text.Component;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.entity.Player;
-import eu.endercentral.crazy_advancements.advancement.Advancement;
+import java.util.*;
 import eu.endercentral.crazy_advancements.NameKey;
+import eu.endercentral.crazy_advancements.advancement.Advancement;
 import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.advancement.AdvancementFlag;
 import eu.endercentral.crazy_advancements.advancement.ToastNotification;
+import io.papermc.paper.adventure.PaperAdventure;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.core.ClientAsset;
+import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
+import net.minecraft.resources.ResourceLocation;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 
 //https://github.com/ZockerAxel/CrazyAdvancementsAPI
 //https://github.com/Romindous/AdvanceAPI/tree/master
@@ -66,8 +63,8 @@ public class CrazyAdv {
 
     final NameKey back = display.background();
 //Ostrov.log_warn("=========== back="+back);
-    final Optional<ClientAsset> backgroundTexture = back == null
-        ? Optional.empty() : Optional.of(new ClientAsset(back.getMinecraftKey()));
+    final Optional<ClientAsset.ResourceTexture> backgroundTexture = back == null
+        ? Optional.empty() : Optional.of(new ClientAsset.ResourceTexture(back.getMinecraftKey()));
 //if (back != null) Ostrov.log_warn("=========== backgroundTexture="+backgroundTexture.get());
 
     final Optional<ResourceLocation> parent = advancement.isRoot() ? Optional.empty()
@@ -154,8 +151,7 @@ class AdvancementsPacket {
     }
 
     //Create Packet
-    ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(isReset(), advancements, removedAdvancements, progress, true);
-    return packet;
+      return new ClientboundUpdateAdvancementsPacket(isReset(), advancements, removedAdvancements, progress, true);
   }
 
   protected net.minecraft.advancements.Advancement convertAdvancement(Advancement advancement) {
@@ -207,8 +203,7 @@ class ToastPacket {
     }
 
     //Create Packet
-    ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(false, advancements, removedAdvancements, progress, true);
-    return packet;
+      return new ClientboundUpdateAdvancementsPacket(false, advancements, removedAdvancements, progress, true);
   }
 
   public void send() {
@@ -217,35 +212,3 @@ class ToastPacket {
   }
 
 }
-
-
-/*
-   class VisibilityAdvancementsPacket extends AdvancementsPacket {
-
-    private static List<Advancement> stripInvisibleAdvancements(Player player, List<Advancement> advancements) {
-      Iterator<Advancement> advancementsIterator = advancements.iterator();
-
-      while(advancementsIterator.hasNext()) {
-        Advancement advancement = advancementsIterator.next();
-        AdvancementDisplay display = advancement.getDisplay();
-
-        boolean visible = display.isVisible(player, advancement);
-        advancement.saveVisibilityStatus(player, visible);
-        if(!visible) {
-          advancementsIterator.remove();
-        }
-      }
-
-      return advancements;
-    }
-
-    public VisibilityAdvancementsPacket(Player player, boolean reset, List<Advancement> advancements, List<NameKey> removedAdvancements) {
-      super(player, reset, stripInvisibleAdvancements(player, advancements), removedAdvancements);
-    }
-
-  }
-
-*/
-
-
-

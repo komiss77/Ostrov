@@ -6,6 +6,7 @@ import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Fireworks;
+import io.papermc.paper.event.player.AsyncPlayerSpawnLocationEvent;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
@@ -30,16 +31,17 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.spigotmc.SpigotConfig;
-import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
-import ru.komiss77.enums.*;
+import ru.komiss77.enums.Game;
+import ru.komiss77.enums.HistoryType;
+import ru.komiss77.enums.ServerType;
+import ru.komiss77.enums.Table;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.entities.PvPManager;
@@ -87,7 +89,7 @@ public class PlayerLst implements Listener {
     public void onGameMode(PlayerGameModeChangeEvent e) {
         final Player p = e.getPlayer();
         if (ApiOstrov.canBeBuilder(p)) return;
-      if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
+        if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
         final Oplayer op = PM.getOplayer(p);
         if (op == null || op.isStaff) return;
         //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
@@ -133,16 +135,14 @@ public class PlayerLst implements Listener {
         }
     }
 
-  @EventHandler(priority = EventPriority.HIGH)
-    public void onSpawnLocation(final PlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
-    if (SpigotConfig.disablePlayerDataSaving) return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
-        final Player p = e.getPlayer();
-        final Oplayer op = PM.getOplayer(p);
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onSpawnLocation(final AsyncPlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
+        if (SpigotConfig.disablePlayerDataSaving) return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
+        final Oplayer op = PM.getOplayer(e.getConnection().getProfile().getId());
         if (op.world_positions.containsKey("logoutLoc")) {
             final Location spawn = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
             if (spawn != null) { //если мир не загружен, то тоже выдаст null
                 e.setSpawnLocation(spawn);
-//Ostrov.log_warn("PlayerSpawnLocationEvent setSpawnLocation "+op.world_positions.get("logoutLoc"));
             }
         } else {
 //Ostrov.log_warn("PlayerSpawnLocationEvent logoutLoc = null");
@@ -194,22 +194,21 @@ public class PlayerLst implements Listener {
         }
 
         //player modifications
-        p.setShieldBlockingDelay(2);
         p.setNoDamageTicks(20);
-      if (Ostrov.USE_NETTY_QUERRY) {
-          OsQuery.send(QueryCode.PLAYER_SERVER_JOIN, p.getName());
-      }
+        if (Ostrov.USE_NETTY_QUERRY) {
+            OsQuery.send(QueryCode.PLAYER_SERVER_JOIN, p.getName());
+        }
     }
 
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void PlayerQuit(PlayerQuitEvent e) { //до OsPlayerDataStorage
 //Ostrov.log_warn("PlayerQuitEvent "+e.getPlayer().getName());
-      e.quitMessage(null);
-      PM.onLeave(e.getPlayer(), true);
+        e.quitMessage(null);
+        PM.onLeave(e.getPlayer(), true);
         if (Ostrov.USE_NETTY_QUERRY) {
-          OsQuery.send(QueryCode.PLAYER_SERVER_QUIT, e.getPlayer().getName());
-      }
+            OsQuery.send(QueryCode.PLAYER_SERVER_QUIT, e.getPlayer().getName());
+        }
     }
 
     //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable
@@ -437,7 +436,7 @@ public class PlayerLst implements Listener {
             if (PvPManager.no_damage_on_tp > 0) {
                 op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
-          if (PathServer.storeWorldPosition()) {
+            if (PathServer.storeWorldPosition()) {
                 op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
             }
             // сохраняем точку выхода
@@ -451,13 +450,13 @@ public class PlayerLst implements Listener {
         for (final Player pl : p.getWorld().getPlayers()) {
             PM.getOplayer(pl).tag.showTo(p);
         }
-      if (p.getWorld().getEnvironment() == World.Environment.THE_END && WorldManager.regenEnder()) {
-        int curr = Cfg.getVariable().getInt("worldEndMarkToWipe");
+        if (p.getWorld().getEnvironment() == World.Environment.THE_END && WorldManager.regenEnder()) {
+            int curr = Cfg.getVariable().getInt("worldEndMarkToWipe");
 //Ostrov.log_warn("curr="+curr+(curr > Timer.secTime()?"msg" : "no"));
-        if (curr > Timer.secTime()) {
-          p.sendMessage(TCUtil.form("Дракон пал, но он воскреснет " + TimeUtil.dateFromStamp(curr)));
+            if (curr > Timer.secTime()) {
+                p.sendMessage(TCUtil.form("Дракон пал, но он воскреснет " + TimeUtil.dateFromStamp(curr)));
+            }
         }
-      }
     }
 
 
@@ -507,7 +506,7 @@ public class PlayerLst implements Listener {
                         pl.launchProjectile(Firework.class, new Vector(),
                             f -> f.setFireworkMeta(fm)).detonate();
                         pl.setVelocity(pl.getVelocity().add(dir.rotateAroundNonUnitAxis(
-                            new Vector(-dir.getZ(), 0d, dir.getX()).normalize(), ANGLE)
+                                new Vector(-dir.getZ(), 0d, dir.getX()).normalize(), ANGLE)
                             .multiply((es + 1) * POP_MUL)));
                     }
                     cancel();
@@ -570,7 +569,6 @@ public class PlayerLst implements Listener {
                         e.getProjectile().remove();
                     } else {
                         Timer.add(p, "bow_teleport", 4);
-                        e.getProjectile().setMetadata("bowteleport", new FixedMetadataValue(Ostrov.instance, "ostrov"));
                     }
                 }
             }

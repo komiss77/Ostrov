@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
-import com.google.gson.*;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -21,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
@@ -31,10 +31,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.util.CraftLocation;
 import org.slf4j.Logger;
-import ru.komiss77.*;
+import ru.komiss77.LocalDB;
+import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.modules.games.GM;
@@ -113,7 +113,8 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
           }
         }
         playerSavePath.set(adv, advFile.toPath());
-        adv.reload(serverPlayer.getServer().getAdvancements());
+        final MinecraftServer server = serverPlayer.level().getServer();
+        adv.reload(server.getAdvancements());
         //Path path = (Path) playerSavePath.get(adv);
 //Ostrov.log_warn("OsPlayerDataStorage adv load : Path="+path.toString());
         final String statFileName = op.isGuest ? "guest_stat.json" : nmsPlayer.getScoreboardName() + "_stat.json";
@@ -121,7 +122,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
         if (!statFile.exists() && !op.isGuest) {
           final ServerStatsCounter oldStats = serverPlayer.getStats();
           if (oldStats != null) {
-            final File oldStatFolder = serverPlayer.getServer().getWorldPath(LevelResource.PLAYER_STATS_DIR).toFile();
+            final File oldStatFolder = server.getWorldPath(LevelResource.PLAYER_STATS_DIR).toFile();
             File oldStatFile = new File(oldStatFolder, serverPlayer.getUUID().toString() + ".json");
             if (oldStatFile.exists()) {
               Ostrov.log_warn("OsPlayerDataStorage stats load : копируем старый файл");
@@ -129,7 +130,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
             }
           }
         }
-        final ServerStatsCounter serverStatsCounter = new ServerStatsCounter(serverPlayer.getServer(), statFile);
+        final ServerStatsCounter serverStatsCounter = new ServerStatsCounter(server, statFile);
         statField.set(serverPlayer, serverStatsCounter);
 
       } catch (IOException | NullPointerException | IllegalAccessException | IllegalArgumentException ex) {
@@ -403,13 +404,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     if (file.exists() && file.isFile()) {
       try {
         CompoundTag tag = NbtIo.readCompressed(file.toPath(), NbtAccounter.unlimitedHeap());
-
-//Ostrov.log_warn("OsPlayerDataStorage load CompoundTag "+name);
-        Optional<CompoundTag> optional = Optional.of(tag);
-        //if (usingWrongFile) {
-        //file.renameTo(new File(file.getPath() + ".offline-read"));
-        //}
-        return optional;
+        return Optional.of(tag);
       } catch (Exception var5) {
         Ostrov.log_warn("OsPlayerDataStorageFailed to load player data for " + name); // CraftBukkit
       }

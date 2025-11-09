@@ -7,6 +7,8 @@ import io.papermc.paper.datacomponent.item.BlocksAttacks;
 import io.papermc.paper.datacomponent.item.Weapon;
 import io.papermc.paper.datacomponent.item.blocksattacks.DamageReduction;
 import io.papermc.paper.event.player.PlayerShieldDisableEvent;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.keys.DamageTypeKeys;
 import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.*;
@@ -21,14 +23,16 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.komiss77.*;
 import ru.komiss77.boot.OStrap;
-import ru.komiss77.boot.RegTag;
 import ru.komiss77.events.PlayerPVPEnterEvent;
 import ru.komiss77.modules.bots.BotManager;
 import ru.komiss77.modules.bots.Botter;
@@ -67,18 +71,22 @@ public class PvPManager implements Initiable {
 
     public static final Set<ItemType> AXES = OStrap.getAll(ItemTypeTagKeys.AXES);
     public static final Set<ItemType> DUAL_HIT = Set.of(ItemType.DIAMOND_SWORD,
-        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
+        ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD, ItemType.COPPER_SWORD,
         ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.TRIDENT);
     public static final Set<ItemType> CAN_BLOCK = Set.of(ItemType.DIAMOND_SWORD,
         ItemType.GOLDEN_SWORD, ItemType.IRON_SWORD, ItemType.WOODEN_SWORD,
-        ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD, ItemType.NETHERITE_AXE,
-        ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
-        ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
+        ItemType.COPPER_SWORD, ItemType.STONE_SWORD, ItemType.NETHERITE_SWORD,
+        ItemType.NETHERITE_AXE, ItemType.STONE_AXE, ItemType.WOODEN_AXE, ItemType.IRON_AXE,
+        ItemType.COPPER_AXE, ItemType.GOLDEN_AXE, ItemType.DIAMOND_AXE);
     public static final List<DamageReduction> BLOCK_REDS = ItemType.SHIELD
         .getDefaultData(DataComponentTypes.BLOCKS_ATTACKS).damageReductions();
+    public static final DamageReduction DMG_RED = DamageReduction.damageReduction().type(OStrap.regSetOf(Arrays.asList(DamageTypeKeys.MACE_SMASH,
+            DamageTypeKeys.MOB_ATTACK, DamageTypeKeys.MOB_ATTACK_NO_AGGRO, DamageTypeKeys.MOB_PROJECTILE, DamageTypeKeys.PLAYER_ATTACK,
+            DamageTypeKeys.THROWN, DamageTypeKeys.ARROW, DamageTypeKeys.WITHER_SKULL, DamageTypeKeys.WIND_CHARGE), RegistryKey.DAMAGE_TYPE))
+        .horizontalBlockingAngle(60).factor(1f).build();
     public static final BlocksAttacks MELEE_BLOCK = BlocksAttacks.blocksAttacks().blockDelaySeconds(0f)
         .disableSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_BREAK)).blockSound(OStrap.keyOf(Sound.BLOCK_COPPER_BULB_STEP))
-        .disableCooldownScale(1.5f).bypassedBy(RegTag.BYPASSES_WEAPON.tagKey()).damageReductions(BLOCK_REDS).build();
+        .disableCooldownScale(1.5f)/*.bypassedBy(RegTag.BYPASSES_WEAPON.tagKey())*/.addDamageReduction(DMG_RED).build();
     //List.of(DamageReduction.damageReduction().horizontalBlockingAngle(90f).base(0f).factor(1f).build())
     public static final float MELEE_BREAK_SEC = 2f;
     //weapons - disable shield if axe || (offhand empty && (run || crit || !shield))
@@ -772,11 +780,6 @@ public class PvPManager implements Initiable {
                     //попадание было в живчика
                     if (e.getHitEntity() instanceof final LivingEntity target)
                         target.setNoDamageTicks(0);
-                }
-
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-                public void onJoin(final PlayerJoinEvent e) {
-                    e.getPlayer().setShieldBlockingDelay(BLCK_CLD);
                 }
 
                 @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
