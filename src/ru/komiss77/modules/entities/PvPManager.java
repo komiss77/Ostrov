@@ -129,6 +129,7 @@ public class PvPManager implements Initiable {
 
     @Override
     public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
+
     }
 
     @Override
