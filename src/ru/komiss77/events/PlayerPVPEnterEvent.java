@@ -50,4 +50,8 @@ public class PlayerPVPEnterEvent extends PlayerEvent {
         return handlers;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
 }
