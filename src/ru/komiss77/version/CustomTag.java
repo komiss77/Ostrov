@@ -176,14 +176,13 @@ public class CustomTag {
         return new ClientboundSetEntityDataPacket(tagEntityId,
             List.of(ofData(DATA_TEXT_ID, name), ofData(DATA_LINE_WIDTH_ID, 1000),
                 ofData(DATA_STYLE_FLAGS_ID, seeThru ? FLAGS_STR : FLAGS_OCL),
-                ofData(DATA_TEXT_OPACITY_ID, (byte) (seeThru ? -80 : 0)), //было перепутано - появлялось с приседанием
+                ofData(DATA_TEXT_OPACITY_ID, (byte) (seeThru ? -1 : -80)), //было перепутано - появлялось с приседанием
                 //ofData(DATA_TEXT_OPACITY_ID, (byte)  -80),
                 ofData(DATA_BACKGROUND_COLOR_ID, 1))
         );
     }
 
     public ClientboundRemoveEntitiesPacket killPacket() {
-//Ostrov.log_warn("killPacket "+tagEntityId);
         return new ClientboundRemoveEntitiesPacket(tagEntityId);
     }
 
