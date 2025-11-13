@@ -2,6 +2,7 @@ package ru.komiss77.modules.items;
 
 import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,6 +25,7 @@ import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.player.Oplayer;
@@ -343,6 +345,8 @@ public class ItemManager implements Initiable, Listener {
         si.destroy();
     }
 
+    private static final Set<ItemType> BUNDLES = OStrap.getAll(ItemTypeTagKeys.BUNDLES);
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onClick(final InventoryClickEvent e) {
         if (e.getSlotType() == InventoryType.SlotType.RESULT) {
@@ -371,7 +375,7 @@ public class ItemManager implements Initiable, Listener {
         final ItemStack cr = e.getCursor();
         /*Ostrov.log_bools("try", e.getClick().isLeftClick(), ItemUtil.is(cr, ItemType.BUNDLE), ItemUtil.is(it, ItemType.BUNDLE),
             it != null, cr.hasData(DataComponentTypes.DAMAGE), it.hasData(DataComponentTypes.DAMAGE));*/
-        if (e.getClick().isLeftClick() && (ItemUtil.is(cr, ItemType.BUNDLE) || ItemUtil.is(it, ItemType.BUNDLE))
+        if (e.getClick().isLeftClick() && (BUNDLES.contains(cr.getType().asItemType()) || BUNDLES.contains(it.getType().asItemType()))
             && it != null && (cr.hasData(DataComponentTypes.DAMAGE) || it.hasData(DataComponentTypes.DAMAGE))) {
             he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Нельзя класть это в мешок!"));
             e.setResult(Event.Result.DENY);
