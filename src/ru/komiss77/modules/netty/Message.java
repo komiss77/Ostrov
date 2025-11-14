@@ -20,6 +20,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Data;
 import ru.komiss77.enums.Game;
@@ -342,16 +343,32 @@ public class Message {
 
                     .append(TCUtil.form("<dark_green><b><shadow:#000000FF>Отправитель:\n"))
                     .append(TCUtil.form("- <u>" + ChatLst.NIK_COLOR + name + "</u>\n\n")
-//                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gold>Клик <amber>- написать ЛС")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
+                        .hoverEvent(HoverEvent.showText(TCUtil.form("<gold>Клик <amber>- написать ЛС")))
+                        //.clickEvent(ClickEvent.suggestCommand("/msg " + name + " ")))
+                        .clickEvent(ClickEvent.callback(ClickCallback.widen(p -> PlayerInput.get(InputButton.InputType.ANVILL, p, msg -> {
+                            if (msg.isBlank()) {
+                                p.sendMessage("§6Пустое сообщение!");
+                                return;
+                            }
+                            ApiOstrov.executeBungeeCmd(p, "msg " + name + " " + msg);
+                        }, ""), Player.class)))
+                    )
 
                     .append(TCUtil.form("<dark_gray>› Игнорировать<reset>\n\n")
                         .hoverEvent(HoverEvent.showText(TCUtil.form("<pink>Клик <dark_purple>- добавить в ЧС")))
-                        .clickEvent(ClickEvent.runCommand("/ignore " + name)))
+                        .clickEvent(ClickEvent.runCommand("/ignore add " + name)))
 
                     .append(op.isStaff ? TCUtil.form("<stale><cardinal>› Замутить<reset>")
-                    .hoverEvent(HoverEvent.showText(TCUtil.form("<red>Клик <dark_red>- выдать мут")))
-                    .clickEvent(ClickEvent.suggestCommand("/mute " + name + " 10m "))
+                    .hoverEvent(HoverEvent.showText(TCUtil.form("<red>Клик <dark_red>- молчанка на 10 мин.")))
+                    //.clickEvent(ClickEvent.suggestCommand("/mute " + name + " 10m "))
+                    .clickEvent(ClickEvent.callback(ClickCallback.widen(p -> PlayerInput.get(InputButton.InputType.ANVILL, p, reason -> {
+                            if (reason.isBlank() || reason.equals("причина")) {
+                                p.sendMessage("§cУкажи причину");
+                                return;
+                            }
+                            ApiOstrov.executeBungeeCmd(p, "mute " + name + " 10m " + reason);
+                        }, "причина"), Player.class))
+                    )
 
                     : TCUtil.form("<stale><cardinal>› Пожаловаться<reset>")
                     .hoverEvent(HoverEvent.showText(TCUtil.form("<red>Клик <dark_red>- подать жалобу")))

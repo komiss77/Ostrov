@@ -16,6 +16,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.spigotmc.SpigotConfig;
 import ru.komiss77.boot.Registries;
 import ru.komiss77.commands.OCommand;
 import ru.komiss77.commands.REGISTER;
@@ -134,14 +135,19 @@ public class Ostrov extends JavaPlugin {
       Bukkit.getPluginManager().registerEvents(new ServerLst(), instance); //миры уже будут загружены!
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
-        Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
+        //Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
         Bukkit.getPluginManager().registerEvents(new GlobalBugFix(), instance);
+
+        if (getServer().getPort() == 6000) {//("home")) {
+            Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
+            log_warn(" === Подключен отладочный TestLst ===");
+        }
 
         if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
             Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);
         }
 
-        Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
+        PM.remake();//пересоздать Оплееров если остров перезагружался Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
 
         LocalDB.init();// выполнится синхронно, если нет коннекта-подвиснет! выше есть для auth
 
@@ -294,7 +300,7 @@ public class Ostrov extends JavaPlugin {
     }
 
     public static void log_err(String s) {
-        logger.warn(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
+        logger.error(TCUtil.form(s));//Bukkit.getLogger().log(Level.SEVERE, prefixERR+s);
         if (LocalDB.useLocalData && LocalDB.connection != null) {
             try (PreparedStatement pst1 = LocalDB.connection.prepareStatement("INSERT INTO `errors` (`msg`) VALUES (?);")) {
                 pst1.setString(1, s);

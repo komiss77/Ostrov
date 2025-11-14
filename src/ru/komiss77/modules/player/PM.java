@@ -13,7 +13,9 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.spigotmc.SpigotConfig;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
@@ -21,11 +23,14 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
+import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.player.profile.E_Pass;
 import ru.komiss77.modules.player.profile.Friends;
@@ -80,16 +85,29 @@ public class PM {
     public static void setOplayerFun(final Function<HumanEntity, ? extends Oplayer> opSup, final boolean remake) {
         PM.opSup = opSup;
         if (remake) {
-            oplayersByName.clear();
-            oplayersByUuid.clear();
-            Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
+            remake(); //Bukkit.getOnlinePlayers().forEach(PM::createOplayer);
         }
     }
 
+    public static void remake() {
+        oplayersByName.clear();
+        oplayersByUuid.clear();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Nms.removePlayerPacketSpy(p); //убрать старый обработчик, или добавит новый в цепочку и будет дубль
+            final Oplayer op = createOplayer(p);
+            op.postJoin(p); //там добавится новый addPlayerPacketSpy
+        }
+    }
+
+    //создаётся в OsPlayerDataStorage или в PlayerJoinEvent (если disablePlayerDataSaving), или при remake()
+    //public static Oplayer createOplayer(final String name, final UUID uuid) {//(final HumanEntity he) {
     public static Oplayer createOplayer(final HumanEntity he) {
-        final Oplayer op = opSup.apply(he);
-        oplayersByName.put(he.getName(), op);
-        oplayersByUuid.put(he.getUniqueId(), op);
+        final Oplayer op = opSup.apply(he);//opSup.apply(he);
+        //op.nik = name;
+        //op.id = uuid;
+        //op.isGuest = name.startsWith("guest_");
+        oplayersByName.put(op.nik, op);
+        oplayersByUuid.put(op.id, op);
         return op;
     }
 
@@ -351,15 +369,41 @@ public class PM {
 
 
     public static void onLeave(final Player p, final boolean async) {
-      final Oplayer op = SpigotConfig.disablePlayerDataSaving ? remove(p.getUniqueId()) : getOplayer(p); //при disablePlayerDataSaving не удалится оплеер
+        //final Oplayer op = SpigotConfig.disablePlayerDataSaving ? remove(p.getUniqueId()) : getOplayer(p); //при disablePlayerDataSaving не удалится оплеер
+        final Oplayer op = remove(p.getUniqueId()); //при disablePlayerDataSaving не удалится оплеер
         if (op == null) {
-            Ostrov.log_warn("PlayerQuitEvent : Oplayer == null!");
+            Ostrov.log_warn("PM.onLeave  : Oplayer == null!");
             return;
         }
         if (async) {
-            op.makeToRemove = true; //async только при PlayerQuitEvent
+            //op.makeToRemove = true; //async только при PlayerQuitEvent
+        }
+
+        if (GM.GAME.type != ServerType.ARENAS) {
+            if (op.spyOrigin != null) {
+                p.teleport(op.spyOrigin, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        }
+        StringBuilder build = new StringBuilder();
+        if (!op.homes.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении домов
+            build = new StringBuilder();
+            for (String home : op.homes.keySet()) { //только при изменении!
+                build.append(LocalDB.LINE.get()).append(home).append(LocalDB.WORD.get()).append(op.homes.get(home));
+            }
+            p.getPersistentDataContainer().set(PlayerLst.homes, PersistentDataType.STRING, build.isEmpty() ? "" : build.substring(1));
+            //tag.putString("os_homes", build.isEmpty() ? "" : build.substring(1));//final String homes = build.replaceFirst(bigSplit, "");
+        }
+
+        if (!op.kits_use_timestamp.isEmpty()) { //при загрузке ключа не будат, добавляется пустой при изменении наборов
+            build = new StringBuilder();
+            for (String useTimeStamp : op.kits_use_timestamp.keySet()) {  //только при изменении!
+                build.append(LocalDB.LINE.get()).append(useTimeStamp).append(LocalDB.WORD.get()).append(op.kits_use_timestamp.get(useTimeStamp));
+            }
+            p.getPersistentDataContainer().set(PlayerLst.kits, PersistentDataType.STRING, build.isEmpty() ? "" : build.substring(1));
+            //tag.putString("os_kitsUseData", build.isEmpty() ? "" : build.substring(1));//final String kitsUseData = build.replaceFirst(bigSplit, "");
         }
         op.preDataSave(p, async);
+
         ResourcePacksLst.preDisconnect(p);
         Nms.removePlayerPacketSpy(p);
         BuilderCmd.end(op);
@@ -372,11 +416,10 @@ public class PM {
                 if (MenuItemsManager.isSpecItem(is)) continue;
                 drop.add(is.clone());
             }
-
-
             for (ItemStack is : drop) {
                 p.getWorld().dropItemNaturally(p.getLocation(), is).setPickupDelay(40);
             }
+            p.getInventory().clear();
         }
         if (LocalDB.useLocalData) {
             if (async) {

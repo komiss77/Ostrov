@@ -34,6 +34,7 @@ public class REGISTER {
         new SpyCmd(); //+
         new ProtocolCmd(); //+
         new PvpCmd();
+      new PassportCmd();
         Ostrov.regCommand(new FlyCmd()); //+
         Ostrov.regCommand(new OpermCmd());//+
         Ostrov.regCommand(new TpposCMD());//+
@@ -43,7 +44,6 @@ public class REGISTER {
         Ostrov.regCommand(new TpaCmd()); //+
         Ostrov.regCommand(new KitCmd()); //+
         //Ostrov.regCommand(new EntityCmd()); //+
-        Ostrov.regCommand(new PassportCmd()); //+
         Ostrov.regCommand(new DonateCmd()); //+
         Ostrov.regCommand(new MissionCmd()); //+
         Ostrov.regCommand(new TprCmd()); //+
