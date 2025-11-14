@@ -4,7 +4,11 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 голосовой чат https://hangar.papermc.io/henkelmax/SimpleVoiceChat
 !!!!Генератор при создании мира пишет No key layers in Map Like[{}], в меню пишет генератор ноне
 
+!!! заглушка PlayerAdvancements в OsPlayerDataStorage
+
+диалоги с версии 1.21.8 https://docs.papermc.io/paper/dev/dialogs/
 логический баг аналитики: учитывает PLAY_TIME из статы, а оно могло прирасти за период
+вроде баг с квестом: если завершил накопительный, прогресс не ставит макс. и как бы незавершен остаётся
 
 миссии - примечание при создании заявки + при ошибке редактировать или написать сообщ.администрации
 

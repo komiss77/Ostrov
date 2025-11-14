@@ -172,10 +172,9 @@ public class Cfg {
       //cfg.set("ostrov_database.games_info_for_server_menu_send", null);
 
 
-
-        String[] c0 = {"---------", "player settings", "---------", "gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR",
-            "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
-        cfg.addDefault("player.change_gamemode_on_join", false, c0);
+      //String[] c0 = {"---------", "player settings", "---------", "gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR",
+      //    "walkspeed_on_join - from 0.1F to 0.9F ; -1 to disable", "item_lobby_mode - cancel move,drop,drag gived item", ""};
+      cfg.addDefault("player.change_gamemode_on_join", false);
         cfg.addDefault("player.gamemode_set_to", "ADVENTURE");
       //cfg.addDefault("player.walkspeed_on_join", "0.1F");
         cfg.addDefault("player.afk_min", -1);
@@ -195,9 +194,9 @@ public class Cfg {
         cfg.addDefault("player.show_ostrov_info_on_scoreboard", false);
 
 
-        String[] c1 = {"---------", "modules manager", "---------"};
+      //String[] c1 = {"---------", "modules manager", "---------"};
 //    config.addDefault("modules.name_tag_manager", false);
-        cfg.addDefault("modules.enable_jump_plate", false, c1);
+      cfg.addDefault("modules.enable_jump_plate", false);
         cfg.addDefault("modules.teleport_gui", false);
         cfg.addDefault("modules.nbt_checker", false);
 
@@ -250,8 +249,8 @@ public class Cfg {
       //cfg.addDefault("world.clear_old_ents", false);
 
 
-        String[] c3 = {"---------", "system settings", "---------"};
-        cfg.addDefault("system.autorestart.use", true, c3);
+      //String[] c3 = {"---------", "system settings", "---------"};
+      cfg.addDefault("system.autorestart.use", true);
         cfg.addDefault("system.autorestart.hour", 3, "час рестарта. ");
         cfg.addDefault("system.autorestart.min", NumUtil.randInt(1, 59), "минута рестарта (при создании конфига-рандомная)");
         cfg.addDefault("system.pipboy_material", "CLOCK");
@@ -266,17 +265,17 @@ public class Cfg {
 
 
         //работа с БД глобальной
-        String[] c4 = {"---------", "ostrov_database", "---------"};
-        cfg.addDefault("ostrov_database.connect", false, c4);
+      //String[] c4 = {"---------", "ostrov_database", "---------"};
+      cfg.addDefault("ostrov_database.connect", false);
         cfg.addDefault("ostrov_database.auto_reload_permissions", false);
         cfg.addDefault("ostrov_database.auto_reload_permissions_interval_min", 15);
 
-        String[] c5 = {"---------", "local database", "---------"};
-        cfg.addDefault("local_database.use", false, c5);
+      //String[] c5 = {"---------", "local database", "---------"};
+      cfg.addDefault("local_database.use_default", false);
         cfg.addDefault("local_database.mysql_host", "jdbc:mysql://localhost/server");
         cfg.addDefault("local_database.mysql_user", "user");
         cfg.addDefault("local_database.mysql_passw", "pass");
-        cfg.addDefault("local_database.player_data", false);
+      //cfg.addDefault("local_database.player_data", false);
 
         cfg.saveConfig();
 

@@ -31,11 +31,11 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.spigotmc.SpigotConfig;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.enums.Game;
@@ -58,14 +58,16 @@ import ru.komiss77.modules.world.WorldManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.*;
 import ru.komiss77.version.Nms;
-import ru.komiss77.version.PathServer;
+import ru.komiss77.version.OsPlayerDataStorage;
 
 
 public class PlayerLst implements Listener {
 
     private static final CaseInsensitiveMap<String> bungeeDataCache;
     public static boolean PREPARE_RESTART;
-
+    //ключи для загрузки/сохранения
+    public static final NamespacedKey homes = new NamespacedKey(Ostrov.instance, "os_homes");
+    public static final NamespacedKey kits = new NamespacedKey(Ostrov.instance, "os_kits");
     static {
         bungeeDataCache = new CaseInsensitiveMap<>();
     }
@@ -99,27 +101,7 @@ public class PlayerLst implements Listener {
             + "','old=" + (p.getPreviousGameMode() == null ? "" : p.getPreviousGameMode().name()) + "','" + Timer.secTime() + "','new=" + e.getNewGameMode().name() + "');");
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    public void Command(final PlayerCommandPreprocessEvent e) throws CommandException {
-        final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
-        final Player p = e.getPlayer();
 
-        if (ApiOstrov.isLocalBuilder(p, false)) {
-            final Oplayer op = PM.getOplayer(p);
-            if (op.setup == null) { //запоминаем только если не активен билдер!
-                op.lastCommand = e.getMessage().replaceFirst("/", "");
-            }
-            return;
-        }
-        if (Ostrov.wg) {
-            if (e.getMessage().startsWith("/rg") || e.getMessage().startsWith("/region")) {
-                if (e.getMessage().contains("claim") || e.getMessage().contains("define")) {
-                    e.setCancelled(true);
-                    PM.getOplayer(p).menu.openRegions(p);
-                }
-            }
-        }
-    }
 
     //вызывается из SpigotChanellMsg
     public static void onBungeeData(final String name, final String raw) {
@@ -135,18 +117,18 @@ public class PlayerLst implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    //@EventHandler(priority = EventPriority.HIGH) тут всё похерено, oplayer не взять - он в другом потоке
     public void onSpawnLocation(final AsyncPlayerSpawnLocationEvent e) { //после OsPlayerDataStorage, перед PlayerJoinEvent - определение точки появления в мире
-        if (SpigotConfig.disablePlayerDataSaving) return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
-        final Oplayer op = PM.getOplayer(e.getConnection().getProfile().getId());
-        if (op.world_positions.containsKey("logoutLoc")) {
-            final Location spawn = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
-            if (spawn != null) { //если мир не загружен, то тоже выдаст null
-                e.setSpawnLocation(spawn);
-            }
-        } else {
+        //if (SpigotConfig.disablePlayerDataSaving) return; //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
+        //final Oplayer op = PM.getOplayer(e.getConnection().getProfile().getId());
+        //if (op.world_positions.containsKey("logoutLoc")) {
+        //    final Location spawn = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
+        //    if (spawn != null) { //если мир не загружен, то тоже выдаст null
+        //        e.setSpawnLocation(spawn);
+        //    }
+        //} else {
 //Ostrov.log_warn("PlayerSpawnLocationEvent logoutLoc = null");
-        }
+        //}
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -154,8 +136,43 @@ public class PlayerLst implements Listener {
         e.joinMessage(null);
         final Player p = e.getPlayer();
         //LOCALE тут не получить!!! ловить PlayerLocaleChangeEvent
-        final Oplayer op = PM.exists(p) ? PM.getOplayer(p) : PM.createOplayer(p); //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
-
+        //final Oplayer op = PM.exists(p) ? PM.getOplayer(p) : PM.createOplayer(p.getName(), p.getUniqueId()); //при disablePlayerDataSaving нет обращения в OsPlayerDataStorage
+        final Oplayer op = PM.createOplayer(p);
+        OsPlayerDataStorage.patchStats(p); //пропатчить сохранение ачивок и статы
+        if (!op.isGuest) { //гости всегда входят впервые
+            op.firstJoin = !Nms.hasPlayedBefore(p); //false если есть запись в мускул ИЛИ файл с данными
+            //Ostrov.log_warn("PlayerJoinEvent "+op.nik+" firstJoin="+op.firstJoin+" + проверь стату!!!!");
+        }
+        String[] split;
+        int splitterIndex;
+        if (p.getPersistentDataContainer().has(homes)) {
+            split = LocalDB.LINE.split(p.getPersistentDataContainer().get(homes, PersistentDataType.STRING));
+            for (String info : split) {
+                splitterIndex = LocalDB.WORD.index(info);
+                if (splitterIndex > 0) {
+                    op.homes.put(info.substring(0, splitterIndex), info.substring(splitterIndex + 1));
+                }
+            }
+        }
+        if (p.getPersistentDataContainer().has(kits)) {
+            split = LocalDB.LINE.split(p.getPersistentDataContainer().get(kits, PersistentDataType.STRING));
+            int stamp;
+            for (String info : split) {
+                splitterIndex = LocalDB.WORD.index(info);
+                if (splitterIndex > 0) {
+                    stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
+                    if (stamp > 0) {
+                        op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
+                    }
+                }
+            }
+        }
+        //if (op.world_positions.containsKey("logoutLoc")) {
+        //    final Location spawn = LocUtil.stringToLoc(op.world_positions.get("logoutLoc"), false, true);
+        //    if (spawn != null) { //если мир не загружен, то тоже выдаст null
+        //        p.teleportAsync(spawn);//e.setSpawnLocation(spawn);
+        //    }
+        //}
         //if (PM.exists(p)) { //данные уже прогружены из файла
         //  if (LocalDB.useLocalData) {
         //    op.mysqlData.put("name", op.nik); //надо что-то добавить, или Timer будет думать, что не загрузилось
@@ -201,6 +218,7 @@ public class PlayerLst implements Listener {
     }
 
 
+    //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable
     @EventHandler(priority = EventPriority.MONITOR)
     public void PlayerQuit(PlayerQuitEvent e) { //до OsPlayerDataStorage
 //Ostrov.log_warn("PlayerQuitEvent "+e.getPlayer().getName());
@@ -211,8 +229,28 @@ public class PlayerLst implements Listener {
         }
     }
 
-    //отдельным методом, вызов при PlayerQuitEvent или при Plugin.Disable
 
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void Command(final PlayerCommandPreprocessEvent e) throws CommandException {
+        final String[] args = e.getMessage().replaceFirst("/", "").split(" ");
+        final Player p = e.getPlayer();
+
+        if (ApiOstrov.isLocalBuilder(p, false)) {
+            final Oplayer op = PM.getOplayer(p);
+            if (op.setup == null) { //запоминаем только если не активен билдер!
+                op.lastCommand = e.getMessage().replaceFirst("/", "");
+            }
+            return;
+        }
+        if (Ostrov.wg) {
+            if (e.getMessage().startsWith("/rg") || e.getMessage().startsWith("/region")) {
+                if (e.getMessage().contains("claim") || e.getMessage().contains("define")) {
+                    e.setCancelled(true);
+                    PM.getOplayer(p).menu.openRegions(p);
+                }
+            }
+        }
+    }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void toggleFly(final PlayerToggleFlightEvent e) {
         final Player p = e.getPlayer();
@@ -436,9 +474,9 @@ public class PlayerLst implements Listener {
             if (PvPManager.no_damage_on_tp > 0) {
                 op.setNoDamage(PvPManager.no_damage_on_tp, true);//no_damage=PvpCmd.no_damage_on_tp;
             }
-            if (PathServer.storeWorldPosition()) {
-                op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
-            }
+            //if (PathServer.storeWorldPosition()) {
+            //    op.world_positions.put(world_from, LocUtil.toDirString(p.getLocation()));//op.PM.OP_Set_world_position(e.getPlayer(), world_from);
+            //}
             // сохраняем точку выхода
         }
     }

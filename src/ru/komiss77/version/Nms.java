@@ -50,6 +50,7 @@ import org.bukkit.block.BlockType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftEntityTypes;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
@@ -568,6 +569,13 @@ public class Nms {
 
   public static void noFallDmg(final Player pl) {
     Craft.toNMS(pl).setIgnoreFallDamageFromCurrentImpulse(true);
+  }
+
+  public static boolean hasPlayedBefore(final Player pl) {
+    //CraftPlayer cp = (CraftPlayer) pl;
+    //Ostrov.log_warn("NMS hasPlayedBefore?"+cp.hasPlayedBefore()+" getFirstPlayed="+cp.getFirstPlayed()+" getLastPlayed="+cp.getLastPlayed()
+    //     +" getLastLogin="+cp.getLastLogin()+" getLastSeen="+cp.getLastSeen());
+    return ((CraftPlayer) pl).hasPlayedBefore();
   }
 
   public static boolean hasFallDmg(final Player pl) {

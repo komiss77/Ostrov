@@ -2,24 +2,120 @@ package ru.komiss77.listener;
 
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.world.damagesource.CombatEntry;
+import io.papermc.paper.world.damagesource.CombatTracker;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.MusicInstrument;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 
 
 public class TestLst implements Listener {
+
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final EntityDamageEvent e) { //extends EntityEvent
+    //Ostrov.log_warn("EntityDamageEvent "+e.getEntityType()+" cause="+e.getCause()+" src="+e.getDamageSource()+" dmg="+e.getDamage());
+    if (e instanceof EntityDamageByEntityEvent edbe) {
+      Ostrov.log_warn("cast EntityDamageByEntityEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+      if (e.getEntity() instanceof LivingEntity le) {
+        CombatTracker ct = le.getCombatTracker();
+        Ostrov.log_warn(e.getEntityType() + " cause=" + e.getCause() + " InCombat?" + ct.isInCombat() + " TakingDamage?" + ct.isTakingDamage() + " dur=" + ct.getCombatDuration());
+        for (CombatEntry ce : ct.getCombatEntries()) {
+          DamageSource ds = ce.getDamageSource();
+          if (ds.getDamageType() == DamageType.ARROW) {  //getDirectEntity = arrow
+            //Ostrov.log_warn("ds=ARROW by="+  ds.getCausingEntity().getName()+" dir="+ds.getDirectEntity());
+            Arrow ar = (Arrow) ds.getDirectEntity();
+            ProjectileSource ps = ar.getShooter();
+            if (ps instanceof Player p) {
+              Ostrov.log_warn("ds=ARROW shoter=player " + p.getName());
+            } else {
+              Ostrov.log_warn("ds=ARROW shoter=" + ds.getCausingEntity().getName());
+            }
+          } else if (ds.getDamageType() == DamageType.PLAYER_ATTACK) { //getDirectEntity = player
+            Ostrov.log_warn("ds=PLAYER_ATTACK by=" + ds.getCausingEntity().getName());
+          } else {
+            Ostrov.log_warn("ds=" + ds.getDamageType().getKey().getKey() + " CausingEntity=" + (ds.getCausingEntity() == null ? "null" : ds.getCausingEntity().getType()));
+          }
+        }
+        Ostrov.log_warn("");
+        //Ostrov.log_warn(e.getEntityType()+" cause="+e.getCause()+" InCombat?"+ct.isInCombat()+" TakingDamage?"+ct.isTakingDamage()
+        //    +" CombatEntries="+ct.getCombatEntries());
+      }
+    } else if (e instanceof EntityDamageByBlockEvent edbb) {
+      Ostrov.log_warn("cast EntityDamageByBlockEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+    } else {
+      Ostrov.log_warn("EntityDamageEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+    }
+  }
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final EntityDamageByEntityEvent e) { //extends EntityDamageEvent
+    if (e.getDamager() instanceof Player) {
+      Ostrov.log_warn("EntityDamageByEntityEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+    }
+  }
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final EntityDamageByBlockEvent e) { //extends EntityDamageEvent
+    Ostrov.log_warn("EntityDamageByBlockEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+  }
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final ProjectileLaunchEvent e) { //extends EntitySpawnEvent
+    ProjectileSource ps = e.getEntity().getShooter();
+    if (ps != null && ps instanceof Player p) {
+      Ostrov.log_warn("ProjectileLaunchEvent " + e.getEntityType());
+    }
+  }
+
+  // @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final EntityShootBowEvent e) { //extends EntityEvent
+    ProjectileSource ps = ((Projectile) e.getProjectile()).getShooter();
+    if (ps != null && ps instanceof Player p) {
+      Ostrov.log_warn("EntityShootBowEvent " + e.getEntityType() + " getHitEntity=" + e.getBow());
+    }
+  }
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final LingeringPotionSplashEvent e) { //extends ProjectileHitEvent
+    Ostrov.log_warn("LingeringPotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
+  }
+
+
+  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  public void test(final ProjectileHitEvent e) { //extends EntityEvent
+    Ostrov.log_warn("ProjectileHitEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
+  }
+
+  // @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+  public static void onPot(final PotionSplashEvent e) { //extends ProjectileHitEvent
+    Ostrov.log_warn("PotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
+  }
+
+  //@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+  public static void onPot(final CreatureSpawnEvent e) { //extends ProjectileHitEvent
+    if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) e.setCancelled(true);
+  }
 
     /*public static boolean canSee(final Player shoter, final LivingEntity target) {
         final Vector line = shoter.getEyeLocation().toVector().clone().subtract(target.getLocation().toVector()).normalize();

@@ -118,7 +118,10 @@ public class PvPManager implements Initiable {
     }
 
     public enum PvpFlag {
-        enable, allow_pvp_command, antirelog, drop_inv_inbattle, display_pvp_tag, block_fly_on_pvp_mode, advanced_pvp, disable_self_hit,
+      enable, allow_pvp_command,
+      antirelog,
+      drop_inv_inbattle,
+      display_pvp_tag, block_fly_on_pvp_mode, advanced_pvp, disable_self_hit,
         block_elytra_on_pvp_mode, block_command_on_pvp_mode, disable_creative_attack_to_mobs, disable_creative_attack_to_player, armor_trim_buffs
     }
 
@@ -202,7 +205,7 @@ public class PvPManager implements Initiable {
 
             damageListener = new Listener() {
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
                 public void PlayerDeath(final PlayerDeathEvent e) {
                     final Player p = e.getEntity();
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
@@ -561,19 +564,20 @@ public class PvPManager implements Initiable {
                     }
                 }
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+              @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
                 public static void onPot(final PotionSplashEvent e) {
                     final ThrownPotion pot = e.getPotion();
                     if (e.getAffectedEntities().isEmpty()
                         || !(pot.getShooter() instanceof final Player pl)) return;
 
                     pot.getEffects().forEach(effect -> {
-                        if (!potion_pvp_type.contains(effect.getType())) return;
+                      if (potion_pvp_type.contains(effect.getType())) {
                         e.getAffectedEntities().forEach(target -> {
-                            if (target.getType().isAlive() && disablePvpDamage(pl,
-                                target, EntityDamageEvent.DamageCause.MAGIC) == TriState.TRUE)
-                                e.setIntensity(target, 0d);
+                          if (target.getType().isAlive() && disablePvpDamage(pl,
+                              target, EntityDamageEvent.DamageCause.MAGIC) == TriState.TRUE)
+                            e.setIntensity(target, 0d);
                         });
+                      }
                     });
                 }
 
@@ -583,7 +587,7 @@ public class PvPManager implements Initiable {
 
         if (flags.get(PvpFlag.block_fly_on_pvp_mode)) {
             flyListener = new Listener() {
-                @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+              @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
                 public void onFly(PlayerToggleFlightEvent e) {
                     final Player p = e.getPlayer();
                     if (battle_time > 1 && PM.inBattle(p.getName())
@@ -600,7 +604,7 @@ public class PvPManager implements Initiable {
 
         if (Boolean.TRUE.equals(flags.get(PvpFlag.block_elytra_on_pvp_mode))) {
             elytraListener = new Listener() {
-                @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+              @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
                 public void onElytra(EntityToggleGlideEvent e) {
                     if (!e.isGliding() || e.getEntity().getType() != EntityType.PLAYER) {
                         return;
@@ -769,7 +773,7 @@ public class PvPManager implements Initiable {
                     }
                 }
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
                 public static void onClick(final PlayerInteractEvent e) {
                     if (!e.getAction().isRightClick()) return;
                     final ItemStack it = e.getItem();
@@ -788,7 +792,7 @@ public class PvPManager implements Initiable {
                     inv.setItem(hand, it);
                 }
 
-                @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
                 public static void onProj(final ProjectileHitEvent e) {
                     //попадание было в живчика
                     if (e.getHitEntity() instanceof final LivingEntity target)

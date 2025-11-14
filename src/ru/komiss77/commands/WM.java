@@ -585,14 +585,14 @@ class WorldSelectMenu implements InventoryProvider {
 
       menuEntry.add(ClickableItem.of(new ItemBuilder(getWorldMat(world))
           .name(world.getName())
-          .lore(op.world_positions.containsKey(world.getName()) ? "§7ЛКМ - ТП на точку выхода" : "")
+          //.lore(op.world_positions.containsKey(world.getName()) ? "§7ЛКМ - ТП на точку выхода" : "")
           .lore("§7ПКМ - ТП на точку спавна мира")
           .lore("")
           .build(), e -> {
-        if (e.isLeftClick() && op.world_positions.containsKey(world.getName())) {
-          final Location exit = LocUtil.stringToLoc(op.world_positions.get(world.getName()), false, false);
-          ApiOstrov.teleportSave(p, exit, true);//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-        } else {
+        if (e.isLeftClick()) {// && op.world_positions.containsKey(world.getName())) {
+          //final Location exit = LocUtil.stringToLoc(op.world_positions.get(world.getName()), false, false);
+          //ApiOstrov.teleportSave(p, exit, true);//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+          //} else {
           ApiOstrov.teleportSave(p, world.getSpawnLocation(), true);//p.teleport( world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         }
       }));

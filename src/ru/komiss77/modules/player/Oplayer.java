@@ -50,7 +50,7 @@ public class Oplayer {
     public boolean eng; //true - english; false - russian
     public int karmaCalc, reputationCalc; //просчитывается в
     private final int loginTime = Timer.secTime();
-  public boolean makeToRemove; //метка для OsPlayerDataStorage, чтобы отличить выход и автосохранение
+  //public boolean makeToRemove; //метка для OsPlayerDataStorage, чтобы отличить выход и автосохранение
     private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
     public int onlineSecond; //счётчик секунд после входа
     public int tick; //каждые 20 тиков будет вызов secondTick из таймера
@@ -70,7 +70,7 @@ public class Oplayer {
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
-    public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
+  //public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
     public final CaseInsensitiveMap<Integer> kits_use_timestamp = new CaseInsensitiveMap<>();
     public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
 
@@ -127,22 +127,23 @@ public class Oplayer {
   //public WeakReference<Entity> boat; //для лимитера
   public EnumMap<EntityType, WeakReference<Entity>> limiter = new EnumMap<>(EntityType.class);
 
-    public Oplayer(final HumanEntity p) {
-        nik = p.getName();
-        id = p.getUniqueId();
-      isGuest = nik.startsWith("guest_");
-    }
+  public Oplayer(final HumanEntity p) { //заглушка - тут будет null. Да, тупо выглядит, но совместимость вроде не ломается.
+    nik = p.getName();
+    id = p.getUniqueId();
+    isGuest = nik.startsWith("guest_");
+  }
 
+  //добивка нужных данных после создания экземпляра Player 1) при PlayerJoinEvent 2)при PM.remake()
   public void postJoin(final Player p) {
     menu = new ProfileManager(this);
     score = new CustomScore(p);
-        tag = new CustomTag(p);
-        tag.visible(true);
-        tag.seeThru(true);
-        tag(tagPreffix, tagSuffix);
-        beforeName(ChatLst.NIK_COLOR, (Player) p);
-        Nms.addPlayerPacketSpy((Player) p, Oplayer.this);
-    }
+    tag = new CustomTag(p);
+    tag.visible(true);
+    tag.seeThru(true);
+    tag(tagPreffix, tagSuffix);
+    beforeName(ChatLst.NIK_COLOR, (Player) p);
+    Nms.addPlayerPacketSpy((Player) p, Oplayer.this);
+  }
 
 
     public void secondTick() {

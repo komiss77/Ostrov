@@ -11,7 +11,7 @@ public enum Game {
     //слот в меню статы  : страница в меню режимов : слот в меню режимов
     GLOBAL("", 4, 0, 0, "", "", ServerType.NONE, "NAUTILUS_SHELL", "§eОстров", Arrays.asList(""), 0, 0),
 
-    LOBBY("§6☣1 ", 0, 0, 49, "Hub", "lobby", ServerType.LOBBY, "HONEYCOMB", "§6<obf>0<!obf> §e§lЛобби §6<obf>0<!obf>", Arrays.asList(""), 0, -99),
+    LOBBY("§6☣1 ", 0, 0, 49, "Hub", "lobby", ServerType.LOBBY, "HONEYCOMB", "§e§l--Лобби--", Arrays.asList(""), 0, -99),
 
     DA("§a❂ ", 1, 0, 3, "Daaria", "daaria",
         ServerType.ONE_GAME, "DIAMOND_SWORD", "§a§lДаария",

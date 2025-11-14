@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.PlayerDataStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.spigotmc.SpigotConfig;
+import ru.komiss77.Cfg;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
@@ -79,6 +80,10 @@ public class PathServer {
         LocalDB.useLocalData = false;
       }
       default -> {
+
+        //if (Ostrov.MOT_D.equals("loll")) {
+        LocalDB.useLocalData = Cfg.getConfig().getBoolean("local_database.use_default");
+        //}
         //SpigotConfig.disableAdvancementSaving = true;
         //SpigotConfig.disableStatSaving = true;
         //SpigotConfig.disablePlayerDataSaving = true;
@@ -163,12 +168,12 @@ public class PathServer {
   }
 
 
-  public static boolean storeWorldPosition() {
-    return switch (GM.GAME) {
-      case AR, DA, MI, SE -> true;
-      default -> false;
-    };
-  }
+  //public static boolean storeWorldPosition() { //серв сохраняет сам
+  //  return switch (GM.GAME) {
+  //    case AR, DA, MI, SE -> true;
+  //    default -> false;
+  //  };
+  //}
 
 
 }

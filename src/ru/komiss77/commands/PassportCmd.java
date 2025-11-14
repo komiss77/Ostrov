@@ -12,32 +12,40 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.BookMeta;
+import ru.komiss77.ApiOstrov;
+import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
+import ru.komiss77.commands.tools.OCmdBuilder;
+import ru.komiss77.commands.tools.Resolver;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.E_Pass;
+import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.TimeUtil;
 
-public class PassportCmd implements OCommand {
+public class PassportCmd {
 
-    @Override
-    public LiteralCommandNode<CommandSourceStack> command() {
-//        final String tgt = "ник";
-        return Commands.literal("passport").executes(cntx -> {
+  public PassportCmd() {
+
+    final String action = "action";
+
+    new OCmdBuilder("passport", "/passport [действие]")
+        .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
                 if (!(cs instanceof final Player pl)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-
                 final Oplayer op = PM.getOplayer(pl);
                 if (op.isGuest) {
                     cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
@@ -46,41 +54,37 @@ public class PassportCmd implements OCommand {
                 op.menu.openPassport(op.getPlayer());
                 return Command.SINGLE_SUCCESS;
             })
-            /*.then(Resolver.player(tgt).executes(cntx -> {
+
+
+        .then(Resolver.string(action))
+        .suggest(cntx -> {
+          return Set.of("get", "edit");
+        }, true)
+
+        .run(cntx -> {
                 final CommandSender cs = cntx.getSource().getSender();
-                if (!(cs instanceof final Player pl)) {
+          if (!(cs instanceof final Player p)) {
                     cs.sendMessage("§eНе консольная команда!");
                     return 0;
                 }
-
-                final Oplayer op = PM.getOplayer(pl);
-                final Player tpl = Resolver.player(cntx, tgt);
-                if (tpl == null) {
-                    pl.sendMessage(Ostrov.PREFIX + "§cТакой игрок не онлайн");
+          final Oplayer op = PM.getOplayer(p);
+          if (op.isGuest) {
+            cs.sendMessage(Ostrov.PREFIX + "§cГостям паспорт не выдавался! Зарегайтесь!");
                     return 0;
                 }
-
-                if (ApiOstrov.isStaff(pl) || op.getStat(Stat.PLAY_TIME) > 18000) {
-                    //PassportHandler.showPasport(p,arg[1]);
-                    //ApiOstrov.sendMessage(p, Action.SHOW_PASSPORT, 0, 0, arg[1], "");
-                    pl.sendMessage("не готово");
-                    return 0;
+          switch (Resolver.string(cntx, action)) {
+            case "get" -> {
+            }
+            case "edit" -> op.menu.openPassport(op.getPlayer());
                 }
-                cs.sendMessage(Ostrov.PREFIX + "§cПросматривать чужой паспорт может персонал или люди наигравшие боьлее 5 часов!");
                 return Command.SINGLE_SUCCESS;
-            }))*/
-            .build();
+        })
+        .description("Меняет режим игры")
+        .register(Ostrov.mgr);
     }
 
-    @Override
-    public Set<String> aliases() {
-        return Set.of("пасспорт");
-    }
 
-    @Override
-    public String description() {
-        return "Присмотр паспорта";
-    }
+
 
   /*private void help(final Player p) {
     p.sendMessage(Component.text("§3/passport see <ник> - §7посмотреть паспорт игрока §8<<клик")
