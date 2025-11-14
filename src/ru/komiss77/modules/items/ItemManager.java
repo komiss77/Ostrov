@@ -214,6 +214,7 @@ public class ItemManager implements Initiable, Listener {
             si.info("PICK: Uncrafted item removed!");
             return;
         }
+
         if (!si.dropped()) {
             drop.remove();
             e.setCancelled(true);
