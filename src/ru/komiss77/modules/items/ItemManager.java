@@ -322,7 +322,7 @@ public class ItemManager implements Initiable, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntity(final PlayerInteractEntityEvent e) {
         switch (e.getRightClicked().getType()) {
-            case GLOW_ITEM_FRAME, ITEM_FRAME: break;
+            case GLOW_ITEM_FRAME, ITEM_FRAME, ARMOR_STAND, ALLAY, COPPER_GOLEM: break;
             default: return;
         }
         final SpecialItem si = SpecialItem.get(e.getPlayer()
