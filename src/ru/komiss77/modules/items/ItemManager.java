@@ -14,10 +14,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.*;
@@ -320,7 +317,12 @@ public class ItemManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onAtEntity(final PlayerInteractAtEntityEvent e) {
+        onEntity(e);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onEntity(final PlayerInteractEntityEvent e) {
         switch (e.getRightClicked().getType()) {
             case GLOW_ITEM_FRAME, ITEM_FRAME, ARMOR_STAND, ALLAY, COPPER_GOLEM: break;
@@ -332,14 +334,14 @@ public class ItemManager implements Initiable, Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onHopper(final InventoryPickupItemEvent e) {
         final SpecialItem si = SpecialItem.get(e.getItem().getItemStack());
         if (si == null) return;
         e.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onIBreak(final PlayerItemBreakEvent e) {
         final SpecialItem si = SpecialItem.get(e.getBrokenItem());
         if (si == null) return;
