@@ -378,8 +378,8 @@ public class ItemManager implements Initiable, Listener {
         final ItemStack cr = e.getCursor();
         /*Ostrov.log_bools("try", e.getClick().isLeftClick(), ItemUtil.is(cr, ItemType.BUNDLE), ItemUtil.is(it, ItemType.BUNDLE),
             it != null, cr.hasData(DataComponentTypes.DAMAGE), it.hasData(DataComponentTypes.DAMAGE));*/
-        if (e.getClick().isLeftClick() && (BUNDLES.contains(cr.getType().asItemType()) || BUNDLES.contains(it.getType().asItemType()))
-            && it != null && (cr.hasData(DataComponentTypes.DAMAGE) || it.hasData(DataComponentTypes.DAMAGE))) {
+        if (e.getClick().isLeftClick() && it != null && (cr.hasData(DataComponentTypes.DAMAGE) || it.hasData(DataComponentTypes.DAMAGE))
+            && (BUNDLES.contains(cr.getType().asItemType()) || BUNDLES.contains(it.getType().asItemType()))) {
             he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Нельзя класть это в мешок!"));
             e.setResult(Event.Result.DENY);
             return;

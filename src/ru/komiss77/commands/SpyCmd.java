@@ -85,7 +85,8 @@ public class SpyCmd {
                 op.spyOrigin = loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
                 ScreenUtil.sendActionBarDirect(p, "§bПрисесть - закончить наблюдение");
             }, 5);
-            //tgt.sendMessage(Ostrov.PREFIX + "§7За тобой наблюдает Персонал."); это как вору прошептать: за тобой следят через камеру
+            tgt.sendMessage(Ostrov.PREFIX + "§7За тобой наблюдает Персонал.");
+            //это как вору прошептать: за тобой следят через камеру - да, сори Паша, но мы честный сервер
             op.tag.visible(false);
 
             return Command.SINGLE_SUCCESS;
