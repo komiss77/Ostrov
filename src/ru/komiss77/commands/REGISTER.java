@@ -31,6 +31,7 @@ public class REGISTER {
         new GmCmd(); //++
         new IGroupCmd();//++
         new ISpecCmd();//++
+        new SaveCmd();//++
         new SpyCmd(); //+
         new ProtocolCmd(); //+
         new PvpCmd();
