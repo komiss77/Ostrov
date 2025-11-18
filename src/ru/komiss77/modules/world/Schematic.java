@@ -2,6 +2,7 @@ package ru.komiss77.modules.world;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
@@ -45,6 +46,7 @@ public class Schematic {
     
     public static final String DEF_PATH = Ostrov.instance.getDataPath() + "/schematics";
     public static final String DEF_EXT = ".schem";
+    public static final FileFilter FILTER = (final File file) -> file.isFile() && file.getName().endsWith(DEF_EXT);
 
     public Schematic(final CommandSender cs, final String name, final String param, final Location min, final Location max, final boolean save) {
         this.name = name;

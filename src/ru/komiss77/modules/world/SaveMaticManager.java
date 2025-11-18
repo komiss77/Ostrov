@@ -38,7 +38,7 @@ public class SaveMaticManager implements Initiable {
         });
     }
 
-    public static int save(final Cuboid cb, final World w) {
+    public static int save(final Cuboid cb, final World w, final Runnable onDone) {
         if (!Cfg.savematics || sId < 0) {
             Ostrov.log_warn("§6SaveMatics havent loaded yet!");
             return -1;
@@ -50,6 +50,7 @@ public class SaveMaticManager implements Initiable {
             final OConfig irc = Cfg.manager.config(CON_NAME, false);
             irc.set(sch.getName(), BVec.of(w, cb.minX, cb.minY, cb.minZ).toString());
             irc.saveConfig();
+            Ostrov.sync(onDone);
         });
         return id;
     }
@@ -82,12 +83,12 @@ public class SaveMaticManager implements Initiable {
     @Override
     public void reload() {
         if (!Cfg.savematics) return;
-        Ostrov.log_ok("§2Сохранения включены!");
+        Ostrov.log_ok("§2Сохраматики включены!");
     }
 
     @Override
     public void onDisable() {
         if (!Cfg.savematics) return;
-        Ostrov.log_ok("§6Сохранения выключены!");
+        Ostrov.log_ok("§6Сохраматики выключены!");
     }
 }

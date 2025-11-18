@@ -39,7 +39,7 @@ public class HatCmd {
                 final ItemStack is = pl.getInventory().getItemInMainHand();
 
               if (is.isEmpty()) {
-                    pl.sendMessage("§6Возьмите одеваемый блок в руку!");
+                    pl.sendMessage("§6Возьми одеваемый блок в руку!");
                     return 0;
                 }
 
@@ -53,11 +53,10 @@ public class HatCmd {
                     return 0;
                 }
 
-
                 pl.getInventory().setHelmet(is);
                 pl.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 
-              pl.sendMessage(TCUtil.form("§aВы надели ").append(Lang.t(is.getType(), pl)).append(TCUtil.form(" на голову!")));
+              pl.sendMessage(TCUtil.form("§aШляпа ").append(Lang.t(is.getType(), pl)).append(TCUtil.form(" надета!")));
 
                 return Command.SINGLE_SUCCESS;
             })

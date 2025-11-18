@@ -1,7 +1,6 @@
 package ru.komiss77.modules.world;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -20,7 +19,6 @@ import ru.komiss77.utils.inventory.*;
 
 public class SchemMainMenu implements InventoryProvider {
 
-
     @Override
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
@@ -34,15 +32,12 @@ public class SchemMainMenu implements InventoryProvider {
 
         final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
-        final FileFilter schemFilter = (final File file) -> file.isFile() && file.getName().endsWith(".schem");
+        final File folder = new File(Schematic.DEF_PATH);
 
-        final File schemFolder = new File(Ostrov.instance.getDataFolder() + "/schematics");
+        if (folder.exists() && folder.isDirectory()) {
+            for (final File schemFile : folder.listFiles(Schematic.FILTER)) {
 
-
-        if (schemFolder.exists() && schemFolder.isDirectory()) {
-            for (final File schemFile : schemFolder.listFiles(schemFilter)) {
-
-                final String schemName = schemFile.getName().replaceFirst(".schem", "");
+                final String schemName = schemFile.getName().replaceFirst(Schematic.DEF_EXT, "");
 
                 menuEntry.add(ClickableItem.of(new ItemBuilder(Material.BOOKSHELF)
                     .name(schemName)

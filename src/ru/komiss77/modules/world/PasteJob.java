@@ -20,7 +20,7 @@ import ru.komiss77.modules.world.Schematic.Rotate;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.ScreenUtil;
 
-class PasteJob implements Runnable {
+public class PasteJob implements Runnable {
 
     protected final CommandSender cs;
     private final Schematic schem;

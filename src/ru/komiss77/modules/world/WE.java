@@ -1,5 +1,6 @@
 package ru.komiss77.modules.world;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import org.bukkit.*;
@@ -82,15 +83,15 @@ public class WE implements Initiable {
     }
 
 
-    public static Schematic getSchematic(final CommandSender cs, final String schemName, final boolean deleteFile) {
+    public static @Nullable Schematic getSchematic(final CommandSender cs, final String schemName, final boolean deleteFile) {
         if (schematics.containsKey(schemName)) {
             if (deleteFile) { //не удаляет файл если есть в буфере!!
-                final File file = new File(Ostrov.instance.getDataFolder() + "/schematics", schemName + ".schem");
+                final File file = new File(Schematic.DEF_PATH, schemName + Schematic.DEF_EXT);
                 if (file.exists()) file.delete();
             }
             return schematics.get(schemName);
         }
-        final File file = new File(Ostrov.instance.getDataFolder() + "/schematics", schemName + ".schem");
+        final File file = new File(Schematic.DEF_PATH, schemName + Schematic.DEF_EXT);
         if (!file.exists()) {
             if (cs != null) cs.sendMessage("§cНет файла схематика " + schemName);
             return null;
@@ -100,7 +101,7 @@ public class WE implements Initiable {
         return sh;
     }
 
-    public static Schematic getSchematic(final CommandSender cs, final String schemName) {
+    public static @Nullable Schematic getSchematic(final CommandSender cs, final String schemName) {
         return getSchematic(cs, schemName, false);
     }
 
