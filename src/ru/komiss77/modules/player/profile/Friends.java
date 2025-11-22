@@ -171,20 +171,14 @@ public class Friends {
             try (Statement stmt = RemoteDB.getConnection().createStatement();
                  ResultSet rs = stmt.executeQuery("select * from `fr_messages` WHERE `reciever`='" + op.nik + "';")) {
                 while (rs.next()) {
-                    mails.add(new ItemBuilder(Material.PAPER)
+                    mails.add(new ItemBuilder(Material.GUSTER_BANNER_PATTERN)
                         .name("§7Письмо от §f" + rs.getString("sender"))
-                        .lore("")
-                        .lore("§7Отправлено:")
-                        .lore("§7" + TimeUtil.dateFromStamp(rs.getInt("time")))
                         .lore("")
                         .lore(ItemUtil.genLore(null, rs.getString("message"), "§6"))
                         .lore("")
+                        .lore("§8Отправлено: " + TimeUtil.dateFromStamp(rs.getInt("time")))
                         .build()
                     );
-                    //time=rs.getInt("time");
-                    //msg=new TextComponent("§6Сообщение от §e"+rs.getString("sender")+" §e: §f"+rs.getString("message")+" §8<клик-следущее");
-                    //msg.setHoverEvent(new HoverEvent( HoverEvent.Action.SHOW_TEXT, new Text("§5§oКлик - читать следущее \n§7Отправлено: §f"+time ) ));
-                    //msg.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/fr mread" ) );
                 }
                 rs.close();
                 stmt.close();
@@ -260,8 +254,8 @@ public class Friends {
         to.sendMessage(TCUtil.form(FRIENDS_PREFIX + "<olive><u>" + name + "</u> <white>предлагает дружить!"));
         to.sendMessage(TCUtil.form("<green><obf>K</obf> ")
             .append(Component.text().content("Принять").color(CustomTextColor.APPLE)
-            .hoverEvent(TCUtil.form(TCUtil.sided("<dark_green>Клик")))
-            .clickEvent(ClickEvent.callback(ClickCallback.widen(pl -> add(pl, toOp, name), Player.class))))
+                .hoverEvent(TCUtil.form(TCUtil.sided("<dark_green>Клик")))
+                .clickEvent(ClickEvent.callback(ClickCallback.widen(pl -> add(pl, toOp, name), Player.class))))
             .append(TCUtil.form(" <gold><obf>K</obf> "))
             .append(Component.text().content("Отклонить").color(CustomTextColor.APPLE)
                 .hoverEvent(TCUtil.form(TCUtil.sided("<dark_red>Клик")))
@@ -276,60 +270,60 @@ public class Friends {
 
     //согласие на инвайт
     public static void add(final Player adder, final Oplayer adderOp, final String name) {
-      adder.closeInventory();
+        adder.closeInventory();
         final Player to = Bukkit.getPlayerExact(name);
         if (to == null) {
-          adder.sendMessage(Ostrov.PREFIX + "§c" + name + " уже не на сервере!");
+            adder.sendMessage(Ostrov.PREFIX + "§c" + name + " уже не на сервере!");
             return;
         }
-      if (!adderOp.friendInvite.remove(name)) return;
+        if (!adderOp.friendInvite.remove(name)) return;
 
         final Oplayer toOp = PM.getOplayer(name);
 
-      RemoteDB.executePstAsync(adder, "INSERT INTO `fr_friends` (`f1`, `f2`) values ('" + adderOp.nik + "', '" + toOp.nik + "') ");
+        RemoteDB.executePstAsync(adder, "INSERT INTO `fr_friends` (`f1`, `f2`) values ('" + adderOp.nik + "', '" + toOp.nik + "') ");
 
-      adderOp.friends.add(name);
-      toOp.friends.add(adderOp.nik);
-      SpigotChanellMsg.sendMessage(adder, Operation.FRIEND_ADD, adderOp.nik, toOp.nik);
-      SpigotChanellMsg.sendMessage(to, Operation.FRIEND_ADD, toOp.nik, adderOp.nik);
+        adderOp.friends.add(name);
+        toOp.friends.add(adderOp.nik);
+        SpigotChanellMsg.sendMessage(adder, Operation.FRIEND_ADD, adderOp.nik, toOp.nik);
+        SpigotChanellMsg.sendMessage(to, Operation.FRIEND_ADD, toOp.nik, adderOp.nik);
 
-      adder.sendMessage(TCUtil.form(FRIENDS_PREFIX + "§2Теперь ты друг §a" + toOp.nik + "§2! §8«Клик - ЛС")
+        adder.sendMessage(TCUtil.form(FRIENDS_PREFIX + "§2Теперь ты друг §a" + toOp.nik + "§2! §8«Клик - ЛС")
             .hoverEvent(HoverEvent.showText(TCUtil.form("<green>Клик <apple>- написать ЛС!")))
             .clickEvent(ClickEvent.suggestCommand("/friend mail " + toOp.nik + " ")));
 
-      to.sendMessage(TCUtil.form(FRIENDS_PREFIX + "§2Теперь ты друг §a" + adderOp.nik + "§2! §8«Клик - ЛС")
+        to.sendMessage(TCUtil.form(FRIENDS_PREFIX + "§2Теперь ты друг §a" + adderOp.nik + "§2! §8«Клик - ЛС")
             .hoverEvent(HoverEvent.showText(TCUtil.form("<green>Клик <apple>- написать ЛС!")))
-          .clickEvent(ClickEvent.suggestCommand("/friend mail " + adderOp.nik + " ")));
+            .clickEvent(ClickEvent.suggestCommand("/friend mail " + adderOp.nik + " ")));
 
-      adder.getWorld().playSound(adder.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f);
+        adder.getWorld().playSound(adder.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1f);
 
-      //Принятие Друга - делаем запись только для принимающего
-      RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
-          " (`action`,`sender`,`target`,`data`) VALUES ('"
-          + HistoryType.FRIEND_ADD.name() + "','" + name + "','" + adderOp.nik + "','" + Timer.secTime() + "');");
+        //Принятие Друга - делаем запись только для принимающего
+        RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
+            " (`action`,`sender`,`target`,`data`) VALUES ('"
+            + HistoryType.FRIEND_ADD.name() + "','" + name + "','" + adderOp.nik + "','" + Timer.secTime() + "');");
     }
 
-  public static void delete(final Player deleter, final Oplayer deleterOp, final String name) {
+    public static void delete(final Player deleter, final Oplayer deleterOp, final String name) {
 
-    RemoteDB.executePstAsync(deleter, "DELETE FROM `fr_friends` WHERE (f1 = '"
-        + deleterOp.nik + "' AND f2='" + name + "') OR (f1 = '" + name + "' AND f2='" + deleterOp.nik + "') ");
+        RemoteDB.executePstAsync(deleter, "DELETE FROM `fr_friends` WHERE (f1 = '"
+            + deleterOp.nik + "' AND f2='" + name + "') OR (f1 = '" + name + "' AND f2='" + deleterOp.nik + "') ");
 
-    deleterOp.friends.remove(name);
-    deleter.sendMessage(FRIENDS_PREFIX + "§7Убран игрок §4" + name);
-    SpigotChanellMsg.sendMessage(deleter, Operation.FRIEND_DELETE, deleterOp.nik, name);
-    deleter.playSound(deleter, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1f, 2f);
+        deleterOp.friends.remove(name);
+        deleter.sendMessage(FRIENDS_PREFIX + "§7Убран игрок §4" + name);
+        SpigotChanellMsg.sendMessage(deleter, Operation.FRIEND_DELETE, deleterOp.nik, name);
+        deleter.playSound(deleter, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1f, 2f);
 
         final Player to = Bukkit.getPlayerExact(name);
         if (to != null) {
             final Oplayer toOp = PM.getOplayer(name);
-          toOp.friends.remove(deleterOp.nik);
-          SpigotChanellMsg.sendMessage(to, Operation.FRIEND_DELETE, toOp.nik, deleterOp.nik);
-          to.sendMessage(FRIENDS_PREFIX + "§7Дружба с §4" + deleterOp.nik + " §7разорвана!");
+            toOp.friends.remove(deleterOp.nik);
+            SpigotChanellMsg.sendMessage(to, Operation.FRIEND_DELETE, toOp.nik, deleterOp.nik);
+            to.sendMessage(FRIENDS_PREFIX + "§7Дружба с §4" + deleterOp.nik + " §7разорвана!");
             to.playSound(to, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1f, 2f);
         }
-    //Удаление Друга - делаем запись только для удаляющего
-    RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
-        " (`action`,`sender`,`target`,`data`) VALUES ('"
-        + HistoryType.FRIEND_DEL.name() + "','" + deleterOp.nik + "','" + name + "','" + Timer.secTime() + "');");
+        //Удаление Друга - делаем запись только для удаляющего
+        RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
+            " (`action`,`sender`,`target`,`data`) VALUES ('"
+            + HistoryType.FRIEND_DEL.name() + "','" + deleterOp.nik + "','" + name + "','" + Timer.secTime() + "');");
     }
 }
