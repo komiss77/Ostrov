@@ -1,18 +1,18 @@
 package ru.komiss77.modules.world;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
-import ru.komiss77.OConfig;
 import ru.komiss77.Ostrov;
 
 public class SaveMaticManager implements Initiable {
 
     private static final Path SAVE_PATH = Path.of(Schematic.DEF_PATH, "saves");
-    private static final String CON_NAME = "saves.yml";
     public static final String PRFX = "save-";
 
     private static int sId = -1;
@@ -25,15 +25,15 @@ public class SaveMaticManager implements Initiable {
     public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
         if (!Cfg.savematics) return;
         Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME, false);
-            for (final String svs : irc.getKeys()) {
-                final Path svp = Path.of(SAVE_PATH.toString(), svs + Schematic.DEF_EXT);
-                if (!Files.exists(svp) || !Files.isRegularFile(svp)) return;
-                final Schematic sv = new Schematic(Bukkit.getConsoleSender(), svp.toFile(), true);
-                sv.paste(Bukkit.getConsoleSender(), BVec.parse(irc.getString(svs)), true);
-                irc.set(svs, null);
+            try (final Stream<Path> saves = Files.walk(SAVE_PATH)) {
+                saves.filter(Files::isRegularFile).forEach(svp -> {
+                    if (!Files.isRegularFile(svp) || !svp.endsWith(Schematic.DEF_EXT)) return;
+                    final Schematic sv = new Schematic(Bukkit.getConsoleSender(), svp.toFile(), true);
+                    sv.paste(Bukkit.getConsoleSender(), BVec.parse(sv.getParam()), true);
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            irc.saveConfig();
             sId = 0;
         });
     }
@@ -44,12 +44,10 @@ public class SaveMaticManager implements Initiable {
             return -1;
         }
         final int id = sId++;
-        final Schematic sch = new Schematic(Bukkit.getConsoleSender(), PRFX + id, "", cb, w, false);
+        final Schematic sch = new Schematic(Bukkit.getConsoleSender(), PRFX + id, BVec.of(w, cb.minX + cb.spawnAddX,
+            cb.minY + cb.spawnAddY, cb.minZ + cb.spawnAddZ).toString(), cb, w, false);
         Ostrov.async(() -> {
             sch.save(Bukkit.getConsoleSender(), SAVE_PATH.toString());
-            final OConfig irc = Cfg.manager.config(CON_NAME, false);
-            irc.set(sch.getName(), BVec.of(w, cb.minX, cb.minY, cb.minZ).toString());
-            irc.saveConfig();
             Ostrov.sync(onDone);
         });
         return id;
@@ -61,22 +59,13 @@ public class SaveMaticManager implements Initiable {
             return;
         }
         Ostrov.async(() -> {
-            final OConfig irc = Cfg.manager.config(CON_NAME, false);
-            final String name = PRFX + id;
-            final String loc = irc.getString(name);
-            if (loc == null || loc.isEmpty()) {
-                Ostrov.log_warn("§6No save spawn with id " + id + "!");
-                return;
-            }
-            final Path svp = Path.of(SAVE_PATH.toString(), name + Schematic.DEF_EXT);
+            final Path svp = Path.of(SAVE_PATH.toString(), PRFX + id + Schematic.DEF_EXT);
             if (!Files.exists(svp) || !Files.isRegularFile(svp)) {
                 Ostrov.log_warn("§6No save file with id " + id + "!");
                 return;
             }
             final Schematic sv = new Schematic(Bukkit.getConsoleSender(), svp.toFile(), true);
-            sv.paste(Bukkit.getConsoleSender(), BVec.parse(loc), true);
-            irc.set(name, null);
-            irc.saveConfig();
+            sv.paste(Bukkit.getConsoleSender(), BVec.parse(sv.getParam()), true);
         });
     }
 
