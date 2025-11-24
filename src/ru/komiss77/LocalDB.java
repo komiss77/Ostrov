@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.komiss77.events.LocalDataLoadEvent;
@@ -14,27 +15,29 @@ import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
-import ru.komiss77.utils.*;
+import ru.komiss77.utils.MoveUtil;
+import ru.komiss77.utils.NumUtil;
+import ru.komiss77.utils.StringUtil;
 
 
 public class LocalDB {
 
-  public static boolean useLocalData = false; //ставится в PathServer, раньше было из конфига local_database.use
+    public static boolean useLocalData = false; //ставится в PathServer, раньше было из конфига local_database.use
     private static String url;
-  public static final StringUtil.Split WORD = StringUtil.Split.SMALL;
+    public static final StringUtil.Split WORD = StringUtil.Split.SMALL;
     public static final StringUtil.Split LINE = StringUtil.Split.MEDIUM;
-  private static final Set<String> fieldsExist = new HashSet<>();
-  ;
+    private static final Set<String> fieldsExist = new HashSet<>();
+    ;
     protected static Connection connection;
     private static boolean tabbleSetupDone;
 
-  public enum MysqlDataState {NONE, NEW_RECORD, LOADED, ERROR}
+    public enum MysqlDataState {NONE, NEW_RECORD, LOADED, ERROR}
 
-  //может когда-то потом переделать, пока слишком удобно и быстро
-  public static final char L_SPLIT = '∬';
-  public static final char W_SPLIT = '∫';
-  public static final String LINE_SPLIT = "∬";
-  public static final String WORD_SPLIT = "∫";
+    //может когда-то потом переделать, пока слишком удобно и быстро
+    public static final char L_SPLIT = '∬';
+    public static final char W_SPLIT = '∫';
+    public static final String LINE_SPLIT = "∬";
+    public static final String WORD_SPLIT = "∫";
 
 
     //при загрузке делаем синхронно, если нет локального соединения - будет подвисать!
@@ -45,7 +48,7 @@ public class LocalDB {
         String passw = Cfg.getConfig().getString("local_database.mysql_passw");
         url = host + "?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&user=" + user + "&password=" + passw;
         if (useLocalData) {
-          connect();
+            connect();
             if (connection != null) {
                 setupTable();
             }
@@ -84,8 +87,8 @@ public class LocalDB {
             return;
         }
 
-      if (op.mysqlDataState == MysqlDataState.ERROR) {//op.dbError != null) {
-        Ostrov.log_err("У " + op.nik + " была ошибка загрузки данных, не сохраняем.");
+        if (op.mysqlDataState == MysqlDataState.ERROR) {//op.dbError != null) {
+            Ostrov.log_err("У " + op.nik + " была ошибка загрузки данных, не сохраняем.");
             return;
         }
 
@@ -125,8 +128,8 @@ public class LocalDB {
 //Ostrov.log_warn("UPDATE! UserId="+id+" query="+query);
 
         } else { //создаём новую запись
-          op.mysqlData.put("name", op.nik);
-          op.mysqlData.put("uuid", op.id.toString());
+            op.mysqlData.put("name", op.nik);
+            op.mysqlData.put("uuid", op.id.toString());
             sb = new StringBuilder("INSERT INTO `playerData` (");
             final StringBuilder values = new StringBuilder(" VALUES (");
 
@@ -192,18 +195,18 @@ public class LocalDB {
             rs = stmt.executeQuery("SELECT * FROM `playerData` WHERE `name` = '" + op.nik + "' LIMIT 1");
 
             if (!rs.next()) { //нет записи в БД - уходим на эвент
-              //op.firstJoin = true;
-              op.mysqlDataState = MysqlDataState.NEW_RECORD;
+                //op.firstJoin = true;
+                op.mysqlDataState = MysqlDataState.NEW_RECORD;
                 Ostrov.sync(() -> {
                     Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //записи не было
                 }, 1);
-              if (op.firstJoin) { //мог быть файл с данными, тогда firstJoin поставится false в OsPlayerDataStorage
-                Ostrov.log_ok(op.nik + " : первый вход (firstJoin)");
-              }
+                if (op.firstJoin) { //мог быть файл с данными, тогда firstJoin поставится false в OsPlayerDataStorage
+                    Ostrov.log_ok(op.nik + " : первый вход (firstJoin)");
+                }
                 return;
             }
 
-          op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
+            op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
 
             final ResultSetMetaData rmeta = rs.getMetaData();
             String fieldName;
@@ -211,9 +214,9 @@ public class LocalDB {
             for (int i = 1; i <= rmeta.getColumnCount(); i++) {
                 fieldName = rmeta.getColumnName(i);
                 switch (fieldName) {
-                  case "name", "uuid" -> {
-                    //пропускаем, впихиваются выше
-                  }
+                    case "name", "uuid" -> {
+                        //пропускаем, впихиваются выше
+                    }
                     case "homes",  //сохраняться будут только при изменении
                          "kitsUseData", //сохраняться будут только при изменении
                          "positions" //сохраняется всегда
@@ -226,9 +229,9 @@ public class LocalDB {
                 }
             }
 //Ostrov.log_warn("nonEmptyFields="+nonEmptyFields);
-          //подстраховка - бывает загружает уже когда дисконнектился, чтобы не было пусто в дате
-          op.mysqlData.put("id", rs.getString("id"));
-          op.mysqlDataState = MysqlDataState.LOADED;
+            //подстраховка - бывает загружает уже когда дисконнектился, чтобы не было пусто в дате
+            op.mysqlData.put("id", rs.getString("id"));
+            op.mysqlDataState = MysqlDataState.LOADED;
 
             final String qss = op.mysqlData.get("quests");
 //Ostrov.log_warn("==quests="+qss);
@@ -250,36 +253,36 @@ public class LocalDB {
                 }
             }
 
-                Ostrov.sync(() -> {
-                    if (PvPManager.no_damage_on_tp > 0) {
-                        op.setNoDamage(PvPManager.no_damage_on_tp, true);
+            Ostrov.sync(() -> {
+                if (PvPManager.no_damage_on_tp > 0) {
+                    op.setNoDamage(PvPManager.no_damage_on_tp, true);
+                }
+                //пермишены наверняка уже будут - загрузка локал начинается через 10 тиков после входа
+                if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
+                    if (p.isFlying() && (!Cfg.fly_command || !p.hasPermission("ostrov.fly"))) {
+                        p.setFlying(false);
+                        p.setAllowFlight(false);
                     }
-                    //пермишены наверняка уже будут - загрузка локал начинается через 10 тиков после входа
-                    if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
-                        if (p.isFlying() && (!Cfg.fly_command || !p.hasPermission("ostrov.fly"))) {
-                            p.setFlying(false);
-                            p.setAllowFlight(false);
-                        }
-                    }
+                }
 
-                    if (Cfg.set_gm) { //на многих минииграх ставится ГМ из конфига
-                        p.setGameMode(Cfg.gm_on_join);
-                    }
-                    if (p.getGameMode() == GameMode.SPECTATOR) { //SPECTATOR был поставлен при входе и не убрался, т.к. не было сохранения -
-                        p.setGameMode(GameMode.SURVIVAL); //поставить выживание
-                    }
-                    if (p.getFlySpeed() > 0.1f && (!Cfg.fly_command || !Cfg.speed_command || !p.hasPermission("ostrov.flyspeed"))) {
-                        p.setFlySpeed(0.1F);
-                    }
-                    if (p.getWalkSpeed() > 0.2f && (!Cfg.speed_command || !p.hasPermission("ostrov.walkspeed"))) {
-                        p.setWalkSpeed(0.2F);
-                    }
-                    final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, null);
-                    Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
-                    if (e.getLogoutLocation() != null) { //плагины могут изменять
-                        MoveUtil.safeTP(p, e.getLogoutLocation());
-                    }
-                }, 1);
+                if (Cfg.set_gm) { //на многих минииграх ставится ГМ из конфига
+                    p.setGameMode(Cfg.gm_on_join);
+                }
+                if (p.getGameMode() == GameMode.SPECTATOR) { //SPECTATOR был поставлен при входе и не убрался, т.к. не было сохранения -
+                    p.setGameMode(GameMode.SURVIVAL); //поставить выживание
+                }
+                if (p.getFlySpeed() > 0.1f && (!Cfg.fly_command || !Cfg.speed_command || !p.hasPermission("ostrov.flyspeed"))) {
+                    p.setFlySpeed(0.1F);
+                }
+                if (p.getWalkSpeed() > 0.2f && (!Cfg.speed_command || !p.hasPermission("ostrov.walkspeed"))) {
+                    p.setWalkSpeed(0.2F);
+                }
+                final LocalDataLoadEvent e = new LocalDataLoadEvent(p, op, null);
+                Bukkit.getPluginManager().callEvent(e); //нормальный вызов с данными
+                if (e.getLogoutLocation() != null) { //плагины могут изменять
+                    MoveUtil.safeTP(p, e.getLogoutLocation());
+                }
+            }, 1);
 
             rs.close();
 
@@ -314,8 +317,8 @@ public class LocalDB {
         } catch (SQLException ex) {
 
             Ostrov.log_err("loadLocalData error  " + op.nik + " -> " + ex.getMessage());
-          op.mysqlDataState = MysqlDataState.ERROR;
-          //op.dbError = Error.PARSE; //op.mysqlData = null; //c null не будет сохранять при выходе!
+            op.mysqlDataState = MysqlDataState.ERROR;
+            //op.dbError = Error.PARSE; //op.mysqlData = null; //c null не будет сохранять при выходе!
             Ostrov.sync(() -> {
                 op.updTabListName(p);
                 Bukkit.getPluginManager().callEvent(new LocalDataLoadEvent(p, op, null)); //при ошибке вызов с пустыми данными
@@ -332,233 +335,233 @@ public class LocalDB {
     }
 
 
-  public static void moneyOffline(final String name, final int value, final String who) {
-    if (!useLocalData || connection == null) {
-      Ostrov.log_err("Оффлайн-перевод для " + name + " на сумму " + value + ", но локальная БД отключена!");
-      return;
-    }
-    executePstAsync(Bukkit.getConsoleSender(), "INSERT INTO `moneyOffline` (name,value,who) VALUES ('" + name + "', '" + value + "', '" + who + "' );");
-    final Player p = Bukkit.getPlayerExact(who);
-    if (p != null) {
-      p.sendMessage("§e" + name + " сейчас не на сервере, платёж будет выполнен при входе.");
-    }
-  }
-
-
-  public static Connection getConnection() {
-    return connection;
-  }
-
-  //вызывать ASYNC!!
-  protected static void connect() {
-    final long l = System.currentTimeMillis();
-    disconnect();
-    Ostrov.log_ok("§6MySQL - создаём local подключение..."); //не ставить log_err, или зацикливает!!!
-
-    try {
-      Class.forName("com.mysql.cj.jdbc.Driver");
-      connection = DriverManager.getConnection(url);
-      Ostrov.log_ok("§6MySQL - local подключение создано за " + (System.currentTimeMillis() - l) + "мс.");
-    } catch (SQLException | ClassNotFoundException e) {
-      Ostrov.log_warn("§cMySql: соединение с базой local  не удалось, " + (System.currentTimeMillis() - l) + "мс. -> " + e.getMessage()); //не ставить log_err, или зацикливает!!!
-      connection = null;
-    }
-  }
-
-  public static void disconnect() {
-    try {
-      if (connection != null && !connection.isClosed()) {
-        //if (connection != null) {
-        connection.close();
-      }
-      //connection = null;
-    } catch (SQLException e) {
-      Ostrov.log_warn("§cMySql: Disconnect local не удалось !" + e.getMessage());
-    } finally {
-      connection = null;
-    }
-  }
-
-
-  private static void setupTable() {
-    if (tabbleSetupDone) return;
-    Statement stmt;
-    try {
-      stmt = connection.createStatement();
-    } catch (SQLException e) {
-      Ostrov.log_err("§4 setupTable: Ошибка инициализации БД -> " + e.getMessage());
-      return;
-    }
-
-    final Set<String> tableExist = new HashSet<>();
-
-    ResultSet rs;
-    try {
-      rs = stmt.executeQuery("SHOW TABLES;");
-      while (rs.next()) {
-        tableExist.add(rs.getString("Tables_in_" + connection.getCatalog()));
-      }
-      rs.close();
-    } catch (SQLException ex) {
-      Ostrov.log_err("§4 setupTable: Ошибка получения списка таблиц БД -> " + ex.getMessage());
-    }
-
-
-    if (tableExist.contains("data")) {
-      try (final Statement stm = connection.createStatement()) {
-        stm.executeUpdate(
-            "DROP TABLE `data` ; "
-        );
-      } catch (SQLException e) {
-        Ostrov.log_err("§4 setupTable: Не удалось удалить таблицу data -> " + e.getMessage());
-      }
-    }
-
-
-    if (useLocalData) {
-
-      if (!tableExist.contains("playerData")) {
-        try {
-          stmt.executeUpdate(
-              "CREATE TABLE IF NOT EXISTS `playerData` (" +
-                  " `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                  " `name` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci UNIQUE KEY NOT NULL," +
-                  " `uuid` text NOT NULL," +
-                  //" `settings` text NOT NULL," +
-                  //" `homes` text NOT NULL," +
-                  //" `positions` text NOT NULL," +
-                  //" `inventory` mediumtext NOT NULL," +
-                  //" `armor` text NOT NULL," +
-                  //" `ender` mediumtext NOT NULL," +
-                  //" `potion` text NOT NULL," +
-                  //" `kitsUseData` text NOT NULL," +
-                  " `lastActivity` int NOT NULL," +
-                  " `validTo` int NOT NULL" +
-                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;"
-          );
-        } catch (SQLException ex) {
-          Ostrov.log_err("§4 setupTable: Не удалось создать таблицу playerData -> " + ex.getMessage());
+    public static void moneyOffline(final String name, final int value, final String who) {
+        if (!useLocalData || connection == null) {
+            Ostrov.log_err("Оффлайн-перевод для " + name + " на сумму " + value + ", но локальная БД отключена!");
+            return;
         }
-      } else {
+        executePstAsync(Bukkit.getConsoleSender(), "INSERT INTO `moneyOffline` (name,value,who) VALUES ('" + name + "', '" + value + "', '" + who + "' );");
+        final Player p = Bukkit.getPlayerExact(who);
+        if (p != null) {
+            p.sendMessage("§e" + name + " сейчас не на сервере, платёж будет выполнен при входе.");
+        }
+    }
+
+
+    public static Connection getConnection() {
+        return connection;
+    }
+
+    //вызывать ASYNC!!
+    protected static void connect() {
+        final long l = System.currentTimeMillis();
+        disconnect();
+        Ostrov.log_ok("§6MySQL - создаём local подключение..."); //не ставить log_err, или зацикливает!!!
+
         try {
-          rs = stmt.executeQuery("SELECT * FROM `playerData` LIMIT 1");
-          final ResultSetMetaData rmeta = rs.getMetaData();
-          String fieldName;
-          boolean wipe = false;
-          for (int i = 1; i <= rmeta.getColumnCount(); i++) {
-            fieldName = rmeta.getColumnName(i);
-            switch (fieldName) {
-              case "homes", "kitsUseData", "positions",
-                   "inventory", "armor", "ender", "potion",
-                   "settings" -> {
-                wipe = true;
-                break;
-              }
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(url);
+            Ostrov.log_ok("§6MySQL - local подключение создано за " + (System.currentTimeMillis() - l) + "мс.");
+        } catch (SQLException | ClassNotFoundException e) {
+            Ostrov.log_warn("§cMySql: соединение с базой local  не удалось, " + (System.currentTimeMillis() - l) + "мс. -> " + e.getMessage()); //не ставить log_err, или зацикливает!!!
+            connection = null;
+        }
+    }
+
+    public static void disconnect() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                //if (connection != null) {
+                connection.close();
             }
-          }
-          if (wipe) {
-            stmt.executeUpdate(
-                "ALTER TABLE `playerData` DROP `settings`, DROP `homes`, DROP `kitsUseData`, DROP `positions`," +
-                    "DROP `inventory`, DROP `armor`, DROP `ender`, DROP `potion`;"
-            );
-          }
-        } catch (SQLException ex) {
-          Ostrov.log_err("§4 setupTable: Не удалось удалить старые поля playerData -> " + ex.getMessage());
+            //connection = null;
+        } catch (SQLException e) {
+            Ostrov.log_warn("§cMySql: Disconnect local не удалось !" + e.getMessage());
+        } finally {
+            connection = null;
         }
-
-      }
-
-      try {//SHOW COLUMNS FROM `playerData`
-        rs = stmt.executeQuery("SHOW COLUMNS FROM `playerData`");
-        while (rs.next()) {
-          fieldsExist.add(rs.getString("Field"));
-        }
-        rs.close();
-//Ostrov.log_warn("fieldsExist="+fieldsExist);
-      } catch (SQLException ex) {
-        Ostrov.log_err("§4 setupTable: Не удалось получить список полей playerData -> " + ex.getMessage());
-        fieldsExist.addAll(Arrays.asList("id", "name", "uuid", "settings", "homes", "positions", "inventory", "armor", "ender", "potion", "kitsUseData", "lastActivity", "validTo"));
-      }
+    }
 
 
-      if (!tableExist.contains("moneyOffline")) {
+    private static void setupTable() {
+        if (tabbleSetupDone) return;
+        Statement stmt;
         try {
-          stmt.executeUpdate(
-              " CREATE TABLE IF NOT EXISTS `moneyOffline` ( " +
-                  " `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                  "  `name` varchar(16) NOT NULL," +
-                  "  `value` int NOT NULL," +
-                  "  `who` varchar(256) NOT NULL" +
-                  ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
-
-        } catch (SQLException ex) {
-          Ostrov.log_err("§4 setupTable: Не удалось создать таблицу moneyOffline -> " + ex.getMessage());
+            stmt = connection.createStatement();
+        } catch (SQLException e) {
+            Ostrov.log_err("§4 setupTable: Ошибка инициализации БД -> " + e.getMessage());
+            return;
         }
-      }
 
+        final Set<String> tableExist = new HashSet<>();
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SHOW TABLES;");
+            while (rs.next()) {
+                tableExist.add(rs.getString("Tables_in_" + connection.getCatalog()));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            Ostrov.log_err("§4 setupTable: Ошибка получения списка таблиц БД -> " + ex.getMessage());
+        }
+
+
+        if (tableExist.contains("data")) {
+            try (final Statement stm = connection.createStatement()) {
+                stm.executeUpdate(
+                    "DROP TABLE `data` ; "
+                );
+            } catch (SQLException e) {
+                Ostrov.log_err("§4 setupTable: Не удалось удалить таблицу data -> " + e.getMessage());
+            }
+        }
+
+
+        if (useLocalData) {
+
+            if (!tableExist.contains("playerData")) {
+                try {
+                    stmt.executeUpdate(
+                        "CREATE TABLE IF NOT EXISTS `playerData` (" +
+                            " `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            " `name` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci UNIQUE KEY NOT NULL," +
+                            " `uuid` text NOT NULL," +
+                            //" `settings` text NOT NULL," +
+                            //" `homes` text NOT NULL," +
+                            //" `positions` text NOT NULL," +
+                            //" `inventory` mediumtext NOT NULL," +
+                            //" `armor` text NOT NULL," +
+                            //" `ender` mediumtext NOT NULL," +
+                            //" `potion` text NOT NULL," +
+                            //" `kitsUseData` text NOT NULL," +
+                            " `lastActivity` int NOT NULL," +
+                            " `validTo` int NOT NULL" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;"
+                    );
+                } catch (SQLException ex) {
+                    Ostrov.log_err("§4 setupTable: Не удалось создать таблицу playerData -> " + ex.getMessage());
+                }
+            } else {
+                try {
+                    rs = stmt.executeQuery("SELECT * FROM `playerData` LIMIT 1");
+                    final ResultSetMetaData rmeta = rs.getMetaData();
+                    String fieldName;
+                    boolean wipe = false;
+                    for (int i = 1; i <= rmeta.getColumnCount(); i++) {
+                        fieldName = rmeta.getColumnName(i);
+                        switch (fieldName) {
+                            case "homes", "kitsUseData", "positions",
+                                 "inventory", "armor", "ender", "potion",
+                                 "settings" -> {
+                                wipe = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (wipe) {
+                        stmt.executeUpdate(
+                            "ALTER TABLE `playerData` DROP `settings`, DROP `homes`, DROP `kitsUseData`, DROP `positions`," +
+                                "DROP `inventory`, DROP `armor`, DROP `ender`, DROP `potion`;"
+                        );
+                    }
+                } catch (SQLException ex) {
+                    Ostrov.log_err("§4 setupTable: Не удалось удалить старые поля playerData -> " + ex.getMessage());
+                }
+
+            }
+
+            try {//SHOW COLUMNS FROM `playerData`
+                rs = stmt.executeQuery("SHOW COLUMNS FROM `playerData`");
+                while (rs.next()) {
+                    fieldsExist.add(rs.getString("Field"));
+                }
+                rs.close();
+//Ostrov.log_warn("fieldsExist="+fieldsExist);
+            } catch (SQLException ex) {
+                Ostrov.log_err("§4 setupTable: Не удалось получить список полей playerData -> " + ex.getMessage());
+                fieldsExist.addAll(Arrays.asList("id", "name", "uuid", "settings", "homes", "positions", "inventory", "armor", "ender", "potion", "kitsUseData", "lastActivity", "validTo"));
+            }
+
+
+            if (!tableExist.contains("moneyOffline")) {
+                try {
+                    stmt.executeUpdate(
+                        " CREATE TABLE IF NOT EXISTS `moneyOffline` ( " +
+                            " `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "  `name` varchar(16) NOT NULL," +
+                            "  `value` int NOT NULL," +
+                            "  `who` varchar(256) NOT NULL" +
+                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+
+                } catch (SQLException ex) {
+                    Ostrov.log_err("§4 setupTable: Не удалось создать таблицу moneyOffline -> " + ex.getMessage());
+                }
+            }
+
+        }
+
+
+        if (!tableExist.contains("warps")) {
+            try {
+                stmt.executeUpdate(
+                    " CREATE TABLE IF NOT EXISTS `warps` ( " +
+                        "  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                        "  `name` varchar(16) NOT NULL, " +
+                        "  `dispalyMat` varchar(32) NOT NULL DEFAULT '', " +
+                        "  `owner` varchar(16) NOT NULL DEFAULT '', " +
+                        "  `descr` varchar(128) NOT NULL DEFAULT '', " +
+                        "  `loc` varchar(64) NOT NULL DEFAULT '', " +
+                        "  `system` tinyint(1) NOT NULL DEFAULT '1', " +
+                        "  `open` tinyint(1) NOT NULL DEFAULT '1', " +
+                        "  `need_perm` tinyint(1) NOT NULL DEFAULT '0', " +
+                        "  `use_cost` int NOT NULL DEFAULT '0', " +
+                        "  `use_counter` int NOT NULL DEFAULT '0', " +
+                        "  `create_time` int NOT NULL DEFAULT '0' " +
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+
+            } catch (SQLException ex) {
+                Ostrov.log_err("§4 setupTable: Не удалось создать таблицу warps -> " + ex.getMessage());
+            }
+        }
+
+        if (!tableExist.contains("errors")) {
+            try {
+                stmt.executeUpdate(
+                    " CREATE TABLE IF NOT EXISTS `errors` ( " +
+                        "`id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                        "`msg` varchar(512) NOT NULL," +
+                        "`stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP " +
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+
+            } catch (SQLException ex) {
+                Ostrov.log_err("§4 setupTable: Не удалось создать таблицу errors -> " + ex.getMessage());
+            }
+        }
+
+
+        try {
+            stmt.close();
+        } catch (SQLException ex) {
+            Ostrov.log_err("§4 setupTable: Ошибка закрытия Statement -> " + ex.getMessage());
+        }
+        tabbleSetupDone = true;
     }
 
 
-    if (!tableExist.contains("warps")) {
-      try {
-        stmt.executeUpdate(
-            " CREATE TABLE IF NOT EXISTS `warps` ( " +
-                "  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
-                "  `name` varchar(16) NOT NULL, " +
-                "  `dispalyMat` varchar(32) NOT NULL DEFAULT '', " +
-                "  `owner` varchar(16) NOT NULL DEFAULT '', " +
-                "  `descr` varchar(128) NOT NULL DEFAULT '', " +
-                "  `loc` varchar(64) NOT NULL DEFAULT '', " +
-                "  `system` tinyint(1) NOT NULL DEFAULT '1', " +
-                "  `open` tinyint(1) NOT NULL DEFAULT '1', " +
-                "  `need_perm` tinyint(1) NOT NULL DEFAULT '0', " +
-                "  `use_cost` int NOT NULL DEFAULT '0', " +
-                "  `use_counter` int NOT NULL DEFAULT '0', " +
-                "  `create_time` int NOT NULL DEFAULT '0' " +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
-
-      } catch (SQLException ex) {
-        Ostrov.log_err("§4 setupTable: Не удалось создать таблицу warps -> " + ex.getMessage());
-      }
+    private static boolean addField(final String fieldName) {
+        try (final Statement stm = connection.createStatement()) {
+            //ALTER TABLE `playerData` ADD `ааа` VARCHAR(2) NOT NULL DEFAULT '' AFTER `validTo`;
+            //connection.createStatement().executeUpdate( "ALTER TABLE `playerData` ADD COLUMN `"+fieldName+"` text NOT NULL;" );
+            stm.executeUpdate("ALTER TABLE `playerData` ADD COLUMN `" + fieldName + "` VARCHAR(1024) NOT NULL DEFAULT '';");
+            fieldsExist.add(fieldName);
+            Ostrov.log_ok("§5Модификация таблицы `playerData` добавление столбца : " + fieldName);
+            return true;
+        } catch (SQLException ex) {
+            Ostrov.log_err("Модификация таблицы `playerData`, добавление столбца : " + fieldName + " : " + ex.getMessage());
+            return false;
+        }
     }
-
-    if (!tableExist.contains("errors")) {
-      try {
-        stmt.executeUpdate(
-            " CREATE TABLE IF NOT EXISTS `errors` ( " +
-                "`id` int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                "`msg` varchar(512) NOT NULL," +
-                "`stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP " +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
-
-      } catch (SQLException ex) {
-        Ostrov.log_err("§4 setupTable: Не удалось создать таблицу errors -> " + ex.getMessage());
-      }
-    }
-
-
-    try {
-      stmt.close();
-    } catch (SQLException ex) {
-      Ostrov.log_err("§4 setupTable: Ошибка закрытия Statement -> " + ex.getMessage());
-    }
-    tabbleSetupDone = true;
-  }
-
-
-  private static boolean addField(final String fieldName) {
-    try (final Statement stm = connection.createStatement()) {
-      //ALTER TABLE `playerData` ADD `ааа` VARCHAR(2) NOT NULL DEFAULT '' AFTER `validTo`;
-      //connection.createStatement().executeUpdate( "ALTER TABLE `playerData` ADD COLUMN `"+fieldName+"` text NOT NULL;" );
-      stm.executeUpdate("ALTER TABLE `playerData` ADD COLUMN `" + fieldName + "` VARCHAR(1024) NOT NULL DEFAULT '';");
-      fieldsExist.add(fieldName);
-      Ostrov.log_ok("§5Модификация таблицы `playerData` добавление столбца : " + fieldName);
-      return true;
-    } catch (SQLException ex) {
-      Ostrov.log_err("Модификация таблицы `playerData`, добавление столбца : " + fieldName + " : " + ex.getMessage());
-      return false;
-    }
-  }
 
 
 

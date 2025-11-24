@@ -200,8 +200,8 @@ public class PvPManager implements Initiable {
         }
 
         final boolean advanced = flags.get(PvpFlag.advanced_pvp);
-        if (battle_time > 0 || no_damage_on_tp > 0 || flags.get(PvpFlag.disable_creative_attack_to_mobs)
-            || flags.get(PvpFlag.disable_creative_attack_to_player) || advanced) {
+        if (battle_time > 0 || no_damage_on_tp > 0 || advanced || flags.get(PvpFlag.disable_creative_attack_to_mobs)
+            || flags.get(PvpFlag.disable_creative_attack_to_player) || flags.get(PvpFlag.allow_pvp_command)) {
 
             damageListener = new Listener() {
 
