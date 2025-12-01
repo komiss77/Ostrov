@@ -121,7 +121,8 @@ public class ProfileSection implements InventoryProvider {
             switch (e.getClick()) {
                 case LEFT:
                     p.closeInventory();
-                    ApiOstrov.executeBungeeCmd(p, "money add");
+                    //ApiOstrov.executeBungeeCmd(p, "money add");
+                    p.performCommand("donate");
                     break;
                 case RIGHT:
                     if (op.globalInt(Data.RIL) >= MissionManager.getMin(op)) {

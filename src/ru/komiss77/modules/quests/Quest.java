@@ -22,6 +22,8 @@ import ru.komiss77.utils.ItemUtil;
 
 public class Quest {
 
+  //QuestFrame-внешний вид иконки - TASK квадрат GOAL закругление CHALLENGE зведа
+
     //смещения работают относительно parent
     protected static final Map<Character, Quest> codeMap = new HashMap<>();
     protected static final Map<String, Quest> nameMap = new CaseInsensitiveMap<>();
@@ -77,6 +79,7 @@ public class Quest {
         codeMap.put(code, this);
         nameMap.put(displayName, this);
         loreMap.put(this, ItemUtil.genLore(null, description));
+//Ostrov.log_warn("new Quest "+displayName);
     }
 
     @OverrideMe

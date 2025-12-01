@@ -91,7 +91,7 @@ public class Donate implements InventoryProvider {
             .lore("§fКлик §6- Открыть офф. магазин")
             .build();
 
-        content.set(8, ClickableItem.of(add
+      content.set(7, ClickableItem.of(add
                 , e -> {
                     p.performCommand("donate");
                     //p.closeInventory();

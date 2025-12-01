@@ -170,6 +170,7 @@ public class Cfg {
       cfg.set("modules.command.invsee", null);
       cfg.set("modules.command.spy", null);
       //cfg.set("ostrov_database.games_info_for_server_menu_send", null);
+      cfg.addDefault("system.use_netty_querry", true);
 
 
       //String[] c0 = {"---------", "player settings", "---------", "gamemode_set_to - SURVIVAL ADVENTURE CREATIVE SPECTATOR",
