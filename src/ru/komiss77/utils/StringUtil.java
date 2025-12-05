@@ -13,6 +13,7 @@ import java.util.stream.StreamSupport;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.World;
+import ru.komiss77.Ostrov;
 
 public class StringUtil {
 
@@ -34,6 +35,10 @@ public class StringUtil {
 
     public static final char CHAR_NA = '○';
     public static final String NA = String.valueOf(CHAR_NA);
+
+    public static final String UPPERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String LOWERS = "abcdefghijklmnopqrstuvwxyz";
+    public static final String NUMBERS = "0123456789";
 
     public enum Split {
         LARGE("<!>", "‹¦›", "«︙»", "»¦«"),
@@ -181,6 +186,11 @@ public class StringUtil {
         // Whatever is left in line is short enough to just pass through
         wrappedLine.append(str, offset, str.length());
         return wrappedLine.toString();
+    }
+
+    public static char rndChar(final String str) {
+        return str == null || str.isEmpty() ? ' '
+            : str.charAt(Ostrov.random.nextInt(str.length()));
     }
 
     public static boolean checkString(String message, final boolean allowNumbers, final boolean allowRussian) {

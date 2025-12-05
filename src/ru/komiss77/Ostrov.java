@@ -134,13 +134,8 @@ public class Ostrov extends JavaPlugin {
       Bukkit.getPluginManager().registerEvents(new ServerLst(), instance); //миры уже будут загружены!
         Bukkit.getPluginManager().registerEvents(new PlayerLst(), instance);
         Bukkit.getPluginManager().registerEvents(new InteractLst(), instance);
-        //Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
         Bukkit.getPluginManager().registerEvents(new GlobalBugFix(), instance);
-
-        if (getServer().getPort() == 6000) {//("home")) {
-            Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
-            log_warn(" === Подключен отладочный TestLst ===");
-        }
+        Bukkit.getPluginManager().registerEvents(new TestLst(), instance);
 
         if (Cfg.getConfig().getBoolean("system.use_armor_equip_event")) {
             Bukkit.getPluginManager().registerEvents(new ArmorEquipLst(), instance);

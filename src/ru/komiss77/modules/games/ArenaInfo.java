@@ -10,10 +10,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.GameState;
-import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.enums.Stat;
-import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.netty.OsQuery;
+import ru.komiss77.modules.netty.QueryCode;
+import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.translate.Lang;
 
 public final class ArenaInfo {
@@ -47,7 +47,7 @@ public final class ArenaInfo {
 
 
     public void sendData() {
-        final StringBuffer sb = new StringBuffer(gameInfo.game.name()).append(LocalDB.W_SPLIT)
+        final StringBuilder sb = new StringBuilder(gameInfo.game.name()).append(LocalDB.W_SPLIT)
             .append(Ostrov.MOT_D).append(LocalDB.W_SPLIT)
             .append(arenaName).append(LocalDB.W_SPLIT)
             .append(state.name()).append(LocalDB.W_SPLIT)
@@ -99,7 +99,7 @@ public final class ArenaInfo {
     }
 
 
-    protected void update(final GameState state, final int players, final String line0, final String line1, final String line2, final String line3) {
+    void update(final GameState state, final int players, final String line0, final String line1, final String line2, final String line3) {
         this.players = players;
         this.state = state == null ? GameState.НЕОПРЕДЕЛЕНО : state;
         this.line0 = line0.trim();

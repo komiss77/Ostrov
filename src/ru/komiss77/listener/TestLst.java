@@ -1,287 +1,277 @@
 package ru.komiss77.listener;
 
 
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.registry.data.dialog.ActionButton;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import io.papermc.paper.registry.data.dialog.input.DialogInput;
+import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
+import io.papermc.paper.registry.data.dialog.type.DialogType;
 import io.papermc.paper.world.damagesource.CombatEntry;
 import io.papermc.paper.world.damagesource.CombatTracker;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import net.kyori.adventure.text.event.ClickCallback;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.util.Vector;
-import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
-import ru.komiss77.utils.ItemUtil;
+import ru.komiss77.Timer;
+import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.utils.ClassUtil;
+import ru.komiss77.utils.StringUtil;
+import ru.komiss77.utils.TCUtil;
 
 
 public class TestLst implements Listener {
 
+    private enum Condition {
+        NUM_SUM("<mithril>Сумма <gold>цифр <mithril>в коде более <gold>20ти"),
+//        END_UPPER("<mithril>Код кончается на <gold>большую <mithril>букву"),
+        HAS_UPPER("<mithril>В коде есть <gold>'C' <mithril>и <gold>'S'"),
+//        HAS_LOWER("<mithril>В коде есть <gold>'a'<mithril>, <gold>'w'<mithril>, и <gold>'p'"),
+        IS_LARGE("<mithril>Код имеет <gold>более 25 <mithril>символов"),
+        MORE_LOWER("<mithril>Более <gold>половины <mithril>букв кода <gold>малые");
 
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final EntityDamageEvent e) { //extends EntityEvent
-    //Ostrov.log_warn("EntityDamageEvent "+e.getEntityType()+" cause="+e.getCause()+" src="+e.getDamageSource()+" dmg="+e.getDamage());
-    if (e instanceof EntityDamageByEntityEvent edbe) {
-      Ostrov.log_warn("cast EntityDamageByEntityEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
-      if (e.getEntity() instanceof LivingEntity le) {
-        CombatTracker ct = le.getCombatTracker();
-        Ostrov.log_warn(e.getEntityType() + " cause=" + e.getCause() + " InCombat?" + ct.isInCombat() + " TakingDamage?" + ct.isTakingDamage() + " dur=" + ct.getCombatDuration());
-        for (CombatEntry ce : ct.getCombatEntries()) {
-          DamageSource ds = ce.getDamageSource();
-          if (ds.getDamageType() == DamageType.ARROW) {  //getDirectEntity = arrow
-            //Ostrov.log_warn("ds=ARROW by="+  ds.getCausingEntity().getName()+" dir="+ds.getDirectEntity());
-            Arrow ar = (Arrow) ds.getDirectEntity();
-            ProjectileSource ps = ar.getShooter();
-            if (ps instanceof Player p) {
-              Ostrov.log_warn("ds=ARROW shoter=player " + p.getName());
-            } else {
-              Ostrov.log_warn("ds=ARROW shoter=" + ds.getCausingEntity().getName());
+        private static final Map<String, Condition> names;
+
+        private final SingleOptionDialogInput.OptionEntry entry;
+
+        Condition(final String text) {
+            entry = SingleOptionDialogInput.OptionEntry
+                .create(name().toLowerCase(Locale.ROOT), TCUtil.form(text), false);
+        }
+
+        static {
+            final Map<String, Condition> sm = new ConcurrentHashMap<>();
+            for (final Condition cnd : Condition.values()) {
+                sm.put(cnd.name().toLowerCase(Locale.ROOT), cnd);
             }
-          } else if (ds.getDamageType() == DamageType.PLAYER_ATTACK) { //getDirectEntity = player
-            Ostrov.log_warn("ds=PLAYER_ATTACK by=" + ds.getCausingEntity().getName());
-          } else {
-            Ostrov.log_warn("ds=" + ds.getDamageType().getKey().getKey() + " CausingEntity=" + (ds.getCausingEntity() == null ? "null" : ds.getCausingEntity().getType()));
-          }
+            names = Collections.unmodifiableMap(sm);
         }
-        Ostrov.log_warn("");
-        //Ostrov.log_warn(e.getEntityType()+" cause="+e.getCause()+" InCombat?"+ct.isInCombat()+" TakingDamage?"+ct.isTakingDamage()
-        //    +" CombatEntries="+ct.getCombatEntries());
-      }
-    } else if (e instanceof EntityDamageByBlockEvent edbb) {
-      Ostrov.log_warn("cast EntityDamageByBlockEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
-    } else {
-      Ostrov.log_warn("EntityDamageEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+
+        private SingleOptionDialogInput.OptionEntry entry() {
+            return entry;
+        }
+
+        public static Condition parse(final String name) {
+            return names.get(name);
+        }
     }
-  }
 
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final EntityDamageByEntityEvent e) { //extends EntityDamageEvent
-    if (e.getDamager() instanceof Player) {
-      Ostrov.log_warn("EntityDamageByEntityEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+    private enum WColor {RED, YELLOW, GREEN, BLUE}
+
+    private static final Condition[] OPTIONS_LONG = {Condition.NUM_SUM/*, Condition.END_UPPER*/,
+        Condition.HAS_UPPER/*, Condition.HAS_LOWER*/, Condition.IS_LARGE, Condition.MORE_LOWER};
+    private static final List<SingleOptionDialogInput.OptionEntry> LIST_LONG =
+        Arrays.stream(OPTIONS_LONG).map(Condition::entry).toList();
+
+    private static final char[] WIRES = {'⎱', '⎛', '⎜', '⎝', '⎨', '⎫', '⎬', '⎭', '⎰', '⎱'};
+    private static final String[] CODES = {"v9FcO1nV4YePiM2ud3Rl", "1Fo5PlecJvqK7pU3s2En", "Fl1Trn8PoYdMf5oI2Vu3", "G4mQeD5oFx7laP2jWtM1"};
+
+    private static final int MAX_VOLTS = 500;
+    private static final int MAX_WIRES  = 9;
+    private static final WColor[] COLORS = WColor.values();
+
+    private static final String CODE = "code", VOLTS = "volts", CHECK = "check";
+
+//    @EventHandler
+    public void test(final PlayerInteractEvent e) { //extends EntityEvent
+        if (e.getAction() != Action.LEFT_CLICK_AIR) return;
+        final Player pl = e.getPlayer();
+        final int time = Timer.secTime();
+        final int volts = Ostrov.random.nextInt(MAX_VOLTS);
+        final boolean check = Ostrov.random.nextBoolean();
+        final WColor color = ClassUtil.rndElmt(COLORS);
+        ClassUtil.shuffle(OPTIONS_LONG);
+        final Condition cond = ClassUtil.rndElmt(OPTIONS_LONG);
+        final String code = genCode(ClassUtil.rndElmt(CODES), cond);
+        final Dialog dg = Dialog.create(builder -> builder.empty()
+            .base(DialogBase.builder(TCUtil.form("<gradient:light_purple:aqua><bold>Меню Разминировки")).body(List.of(DialogBody.item(new ItemBuilder(ItemType.SHEARS).glint(true).build(),
+                    DialogBody.plainMessage(TCUtil.form("<mint>=> <beige>Для Разминировки")), true, false, 16, 16),
+                    DialogBody.plainMessage(TCUtil.form("<gold>Поставь правильные настройки и разрежь провода!\n\n<beige><bold>Серийный Код Бомбы:</bold>\n<pink><u>" + code)),
+                    DialogBody.plainMessage(TCUtil.form("\n<beige>Выбери Параметр:"))))
+                .inputs(List.of(
+//                    DialogInput.bool("bool1", TCUtil.form("Bool1"), false, "Tru", "Falc"),
+                    DialogInput.singleOption(CODE, 200, LIST_LONG, TCUtil.form("<sky>Код Бомбы"), false),
+                    DialogInput.numberRange(VOLTS, 250, TCUtil.form("<white>Настрой кусачки на [<aqua>"
+                        + volts + " V<white>]"), "%s, сейчас: %s V", 0f, MAX_VOLTS, (float) (MAX_VOLTS >> 1), 1f),
+                    DialogInput.bool(CHECK, TCUtil.form("\n<beige>> " + (check ? "<green>Поставь Галочку" : "<red>Убери Галочку") + "\n")).initial(Ostrov.random.nextBoolean()).build(),
+                    DialogInput.text("text", 1, TCUtil.form("<beige>Разрежь <mithril>цвет проводов<beige>, которых <gold>" + (check ? "больше" : "меньше") + " <beige>всего!"),
+                        true, "", 1, TextDialogInput.MultilineOptions.create(1, 1)),
+                    DialogInput.singleOption("wires", 160, List.of(SingleOptionDialogInput.OptionEntry.create("wires", TCUtil.form(genWires(color, check)), false)
+                    ), TCUtil.form("<beige>Провода"), false)
+                )).build())
+            .type(DialogType.multiAction(List.of(
+                ActionButton.builder(TCUtil.form("<red>⎨ <u>Красный</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.RED, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<yellow>⎨ <u>Желтый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.YELLOW, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<green>⎨ <u>Зеленый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.GREEN, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<blue>⎨ <u>Синий</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.BLUE, color, cond, check, volts, time)).build()
+            ), null, 2))
+        );
+        pl.showDialog(dg);
     }
-  }
 
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final EntityDamageByBlockEvent e) { //extends EntityDamageEvent
-    Ostrov.log_warn("EntityDamageByBlockEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
-  }
-
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final ProjectileLaunchEvent e) { //extends EntitySpawnEvent
-    ProjectileSource ps = e.getEntity().getShooter();
-    if (ps != null && ps instanceof Player p) {
-      Ostrov.log_warn("ProjectileLaunchEvent " + e.getEntityType());
-    }
-  }
-
-  // @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final EntityShootBowEvent e) { //extends EntityEvent
-    ProjectileSource ps = ((Projectile) e.getProjectile()).getShooter();
-    if (ps != null && ps instanceof Player p) {
-      Ostrov.log_warn("EntityShootBowEvent " + e.getEntityType() + " getHitEntity=" + e.getBow());
-    }
-  }
-
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final LingeringPotionSplashEvent e) { //extends ProjectileHitEvent
-    Ostrov.log_warn("LingeringPotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
-  }
-
-
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-  public void test(final ProjectileHitEvent e) { //extends EntityEvent
-    Ostrov.log_warn("ProjectileHitEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
-  }
-
-  // @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-  public static void onPot(final PotionSplashEvent e) { //extends ProjectileHitEvent
-    Ostrov.log_warn("PotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
-  }
-
-  //@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-  public static void onPot(final CreatureSpawnEvent e) { //extends ProjectileHitEvent
-    if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) e.setCancelled(true);
-  }
-
-    /*public static boolean canSee(final Player shoter, final LivingEntity target) {
-        final Vector line = shoter.getEyeLocation().toVector().clone().subtract(target.getLocation().toVector()).normalize();
-        final Vector dirFacing = target.getEyeLocation().getDirection().clone().normalize();
-        double angle = Math.acos(line.dot(dirFacing));  //Angle in radians
-        return angle <= 0.785398163;
-
-        Location l = shoter.getLocation();
-        int[] entityVector = getVectorForPoints(startPos[0], startPos[1], l.getBlockX(), l.getBlockY());
-
-        double angle = getAngleBetweenVectors(endA, entityVector);
-        if(Math.toDegrees(angle) < degrees && Math.toDegrees(angle) > 0)
-            return true;//newEntities.add(e);
-    }
-    public static int[] getVectorForPoints(int x1, int y1, int x2, int y2) {
-        return new int[] { x2 - x1, y2 - y1 };
-    }
-    public static double getAngleBetweenVectors(int[] vector1, int[] vector2) {
-        return Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]);
-    }*/
-
-    /*private static final Quest qs = new Quest('a', ItemType.ACACIA_BOAT, 0, null, null, "<dark_green>First Advancement",
-        "<gradient:cardinal:apple>Nice description", "block/flowering_azalea_leaves", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
-
-    private static final Quest qs1 = new Quest('b', ItemType.ACACIA_DOOR, 2, null, qs, "<dark_green>Second Advancement",
-        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.HIDDEN, Quest.QuestFrame.CHALLENGE, 0);
-
-    private static final Quest qs2 = new Quest('c', ItemType.ACACIA_FENCE_GATE, 0, null, qs, "<dark_green>3rd Advancement",
-        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.PARENT, Quest.QuestFrame.TASK, 0);
-
-    private static final Quest qs3 = new Quest('d', ItemType.ACACIA_PRESSURE_PLATE, 20, null, qs2, "<dark_green>4th Advancement",
-        "<gradient:cardinal:apple>Nice description", "block/dirt", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
-
-
-
-    private static final Quest qs4 = new Quest('e', ItemType.ACACIA_SLAB, 0, null, null, "<dark_green>5th Advancement",
-        "<gradient:cardinal:apple>Nice description", "block/bedrock", Quest.QuestVis.ALWAYS, Quest.QuestFrame.TASK, 0);
-
-    private static final Quest qs5 = new Quest('f', ItemType.ACACIA_LEAVES, 2, null, qs4, "<dark_green>6th Advancement",
-        "<gradient:cardinal:apple>Nice description", "", Quest.QuestVis.ALWAYS, Quest.QuestFrame.CHALLENGE, 0);*/
-
-  //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void test(final PlayerInteractEvent e) {
-        final Player p = e.getPlayer();
-        if (!ApiOstrov.canBeBuilder(p)) return;
-        final ItemStack inHand = e.getItem();
-        if (inHand == null) return;
-
-        if (inHand.getType() == Material.WOODEN_PICKAXE) {
-            e.setCancelled(true);
-            p.sendMessage("§8TestListener - interact cancel! " + e.getAction());
-          //ItemStack is = new ItemBuilder(ItemType.GOAT_HORN).set(
-          //    DataComponentTypes.INSTRUMENT, MusicInstrument.DREAM_GOAT_HORN).build();
-          // p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
-            //final Player semen = Bukkit.getPlayerExact("semen");
-            //if (semen!=null) {
-            //     p.sendMessage("canSee?"+canSee(p, semen));
-            //    return;
-            //}
-
-            if (e.getAction() == Action.RIGHT_CLICK_AIR) {
-              ItemStack is = ItemUtil.parse("enchanted_book:1 <> enchant:mending:1");
-              p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
-              p.sendMessage("parse");
-                if (p.isSneaking()) {
-//                    QuestManager.loadQuests();
-                    //MoveUtil.safeTP(p, p.getLocation().clone().add(0, -200, 0));
-                    //p.sendMessage("safeTP down");
-                } else {
-                    /*qs.complete(p, PM.getOplayer(p), false);
-                    qs1.addProg(p, PM.getOplayer(p), 5);
-                    qs3.addProg(p, PM.getOplayer(p), 5);
-                    qs5.addProg(p, PM.getOplayer(p), 5);*/
-                    //MoveUtil.safeTP(p, p.getLocation().clone().add(0, 200, 0));
-                    //p.sendMessage("safeTP up");
-                }
-            } else if (e.getAction() == Action.LEFT_CLICK_AIR) {
-              ItemStack is = ItemUtil.parseItem("enchanted_book:1 <> enchant:mending:1", "<>");
-              p.getWorld().dropItemNaturally(p.getEyeLocation(), is);
-              p.sendMessage("parseItem");
-                if (p.isSneaking()) {
-                  // p.sendMessage("§3teleportSave DOWN");
-                    //final Location loc = p.getLocation().clone().add(0, -200, 0);
-                    //MoveUtil.teleportSave(p, loc, true);
-                } else {
-                  //p.sendMessage("§3teleportSave UP");
-                    //final Location loc = p.getLocation().clone().add(0, -200, 0);
-                    //MoveUtil.teleportSave(p, loc, true);
-                }
-            } else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                //Nms.zoom(p, p.isSneaking() ? 10f : 11f);
-            } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-
+    private static DialogAction.CustomClickAction genAction(final Player pl, final WColor choice, final WColor color, final Condition cond, final boolean check, final int volts, final int sec) {
+        return DialogAction.customClick((res, au) -> {
+            if (color != choice) {
+                pl.sendMessage("KABOOM! color " + color.name());
+                return;
             }
-        }
-
-        if (inHand.getType() == Material.ENCHANTED_BOOK) {
-            //CustomEnchant.CHANNELING.level(inHand, 1, false);
-            p.getInventory().setItemInMainHand(inHand);
-            return;
-        }
-
-        if (inHand.getType() == Material.DRAGON_BREATH) {
-            final Location loc = p.getEyeLocation();
-            final Vector dir = loc.getDirection();
-            final Vector nd = new Vector(-dir.getZ(), 0d, dir.getX()).normalize();
-            loc.setDirection(dir.rotateAroundNonUnitAxis(nd, 10));
-            p.setRotation(loc.getYaw(), loc.getPitch());
-            p.sendMessage("§8TestListener - interact cancel!");
-            if (e.getClickedBlock() != null) {
-                e.setCancelled(true);
+            final String code = res.getText(CODE);
+            if (code == null || cond != Condition.parse(code)) {
+                pl.sendMessage("KABOOM! cond " + cond.name());
+                return;
             }
-              /*if (e.getClickedBlock() == null) {
-                if (bt != null) {
-                  bt.remove();
-                  bt = null;
-                }
-                bt = BotManager.createBot("Botus", AfkBot.class, nm -> new AfkBot(nm, new WXYZ(p.getLocation())));
-              } else {
-                p.sendMessage(ApiOstrov.toSigFigs((float) e.getClickedBlock().getBoundingBox().getVolume(), (byte) 2));
-              }
+            final Boolean chb = res.getBoolean(CHECK);
+            if (chb == null || check != chb) {
+                pl.sendMessage("KABOOM! check " + check);
+                return;
+            }
+            final Float fvl = res.getFloat(VOLTS);
+            if (fvl == null || volts != fvl.intValue()) {
+                pl.sendMessage("KABOOM! volts " + volts);
+                return;
+            }
+            pl.sendMessage("Ты разминировал бiмбу! Заняло " + (Timer.secTime() - sec) + "сек");
+        }, ClickCallback.Options.builder().uses(1).lifetime(Duration.ofDays(1)).build());
+    }
 
-              p.setGlowing(true);
-              PM.getOplayer(p).color(switch (Ostrov.random.nextInt(5)) {
-                case 1 -> NamedTextColor.YELLOW;
-                case 2 -> NamedTextColor.GREEN;
-                case 3 -> NamedTextColor.RED;
-                case 4 -> NamedTextColor.BLUE;
-                default -> NamedTextColor.WHITE;
-              });*/
+    private String genCode(final String code, final Condition cnd) {
+        return switch (cnd) {
+            case NUM_SUM -> new StringBuilder(code).insert(Ostrov.random.nextInt(code.length()),
+                StringUtil.rndChar(StringUtil.NUMBERS.substring(StringUtil.NUMBERS.length() >> 1))).toString();
+            case HAS_UPPER -> new StringBuilder(code).insert(Ostrov.random.nextInt(code.length()), 'C')
+                .insert(Ostrov.random.nextInt(code.length()), 'S').toString();
+            /*case END_UPPER -> code + StringUtil.rndChar(StringUtil.UPPERS);
+            case HAS_LOWER -> new StringBuilder(code).insert(Ostrov.random.nextInt(code.length()), 'a')
+                .insert(Ostrov.random.nextInt(code.length()), 'w').insert(Ostrov.random.nextInt(code.length()), 'p').toString();*/
+            case IS_LARGE -> new StringBuilder(code).insert(Ostrov.random.nextInt(code.length()), 'U')
+                .insert(Ostrov.random.nextInt(code.length()), 'R').insert(Ostrov.random.nextInt(code.length()), 'L')
+                .insert(Ostrov.random.nextInt(code.length()), 't').insert(Ostrov.random.nextInt(code.length()), 'a')
+                .insert(Ostrov.random.nextInt(code.length()), 'r').insert(Ostrov.random.nextInt(code.length()), 'o').toString();
+            case MORE_LOWER -> new StringBuilder(code).insert(Ostrov.random.nextInt(code.length()), 'k')
+                .insert(Ostrov.random.nextInt(code.length()), 'r').insert(Ostrov.random.nextInt(code.length()), 'l').toString();
+        };
+    }
+
+    private String genWires(final WColor clr, final boolean add) {
+        final StringBuilder sb = new StringBuilder(MAX_WIRES << 2);
+        final List<WColor> cls = new ArrayList<>(Arrays.asList(COLORS));
+        final int[] counts = new int[COLORS.length];
+        for (int i = 0; i != counts.length; i++) {
+            counts[i] = MAX_WIRES + Ostrov.random.nextInt(2);
         }
+        if (add) counts[clr.ordinal()]+=4;
+        else counts[clr.ordinal()]-=4;
+        while (!cls.isEmpty()) {
+            final int ix = Ostrov.random.nextInt(cls.size());
+            final WColor wc = cls.get(ix);
+            sb.append(switch (wc) {
+                case RED -> "<red>";
+                case YELLOW -> "<yellow>";
+                case GREEN -> "<green>";
+                case BLUE -> "<blue>";
+            }).append(WIRES[Ostrov.random.nextInt(WIRES.length)]);
+            if (counts[wc.ordinal()]-- == 0) cls.remove(ix);
+        }
+        return sb.toString();
+    }
 
+    public void test(final EntityDamageEvent e) { //extends EntityEvent
+        //Ostrov.log_warn("EntityDamageEvent "+e.getEntityType()+" cause="+e.getCause()+" src="+e.getDamageSource()+" dmg="+e.getDamage());
+        if (e instanceof EntityDamageByEntityEvent edbe) {
+            Ostrov.log_warn("cast EntityDamageByEntityEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+            if (e.getEntity() instanceof LivingEntity le) {
+                CombatTracker ct = le.getCombatTracker();
+                Ostrov.log_warn(e.getEntityType() + " cause=" + e.getCause() + " InCombat?" + ct.isInCombat() + " TakingDamage?" + ct.isTakingDamage() + " dur=" + ct.getCombatDuration());
+                for (CombatEntry ce : ct.getCombatEntries()) {
+                    DamageSource ds = ce.getDamageSource();
+                    if (ds.getDamageType() == DamageType.ARROW) {  //getDirectEntity = arrow
+                        //Ostrov.log_warn("ds=ARROW by="+  ds.getCausingEntity().getName()+" dir="+ds.getDirectEntity());
+                        Arrow ar = (Arrow) ds.getDirectEntity();
+                        ProjectileSource ps = ar.getShooter();
+                        if (ps instanceof Player p) {
+                            Ostrov.log_warn("ds=ARROW shoter=player " + p.getName());
+                        } else {
+                            Ostrov.log_warn("ds=ARROW shoter=" + ds.getCausingEntity().getName());
+                        }
+                    } else if (ds.getDamageType() == DamageType.PLAYER_ATTACK) { //getDirectEntity = player
+                        Ostrov.log_warn("ds=PLAYER_ATTACK by=" + ds.getCausingEntity().getName());
+                    } else {
+                        Ostrov.log_warn("ds=" + ds.getDamageType().getKey().getKey() + " CausingEntity=" + (ds.getCausingEntity() == null ? "null" : ds.getCausingEntity().getType()));
+                    }
+                }
+                Ostrov.log_warn("");
+                //Ostrov.log_warn(e.getEntityType()+" cause="+e.getCause()+" InCombat?"+ct.isInCombat()+" TakingDamage?"+ct.isTakingDamage()
+                //    +" CombatEntries="+ct.getCombatEntries());
+            }
+        } else if (e instanceof EntityDamageByBlockEvent edbb) {
+            Ostrov.log_warn("cast EntityDamageByBlockEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+        } else {
+            Ostrov.log_warn("EntityDamageEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+        }
+    }
 
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final EntityDamageByEntityEvent e) { //extends EntityDamageEvent
+        if (e.getDamager() instanceof Player) {
+            Ostrov.log_warn("EntityDamageByEntityEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+        }
+    }
+
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final EntityDamageByBlockEvent e) { //extends EntityDamageEvent
+        Ostrov.log_warn("EntityDamageByBlockEvent " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());
+    }
+
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final ProjectileLaunchEvent e) { //extends EntitySpawnEvent
+        ProjectileSource ps = e.getEntity().getShooter();
+        if (ps != null && ps instanceof Player p) {
+            Ostrov.log_warn("ProjectileLaunchEvent " + e.getEntityType());
+        }
+    }
+
+    // @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final EntityShootBowEvent e) { //extends EntityEvent
+        ProjectileSource ps = ((Projectile) e.getProjectile()).getShooter();
+        if (ps != null && ps instanceof Player p) {
+            Ostrov.log_warn("EntityShootBowEvent " + e.getEntityType() + " getHitEntity=" + e.getBow());
+        }
+    }
+
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final LingeringPotionSplashEvent e) { //extends ProjectileHitEvent
+        Ostrov.log_warn("LingeringPotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
     }
 
 
-
-    
-    
-    
-    
-    
-    
-/*
-    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void testHIGHEST(PlayerInteractEvent e) {
-        System.out.println("Interac HIGHEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }  
-    @EventHandler (priority = EventPriority.HIGH, ignoreCancelled = false)
-    public void testHIGH(PlayerInteractEvent e) {
-        System.out.println("Interac HIGH canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.NORMAL, ignoreCancelled = false)
-    public void testNORMAL(PlayerInteractEvent e) {
-        System.out.println("Interac NORMAL canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.LOW, ignoreCancelled = false)
-    public void testLOW(PlayerInteractEvent e) {
-        System.out.println("Interac LOW canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.LOWEST, ignoreCancelled = false)
-    public void testLOWEST(PlayerInteractEvent e) {
-        System.out.println("Interac LOWEST canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
-    }
-    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
-    public void testMONITOR(PlayerInteractEvent e) {
-        System.out.println("Interac MONITOR canceled?"+e.isCancelled()+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+    //@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void test(final ProjectileHitEvent e) { //extends EntityEvent
+        Ostrov.log_warn("ProjectileHitEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
     }
 
-*/
+    // @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public static void onPot(final PotionSplashEvent e) { //extends ProjectileHitEvent
+        Ostrov.log_warn("PotionSplashEvent " + e.getEntityType() + " getHitEntity=" + e.getHitEntity() + " getHitBlock=" + e.getHitBlock());
+    }
 
-
+    //@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public static void onPot(final CreatureSpawnEvent e) { //extends ProjectileHitEvent
+        if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) e.setCancelled(true);
+    }
 }

@@ -25,7 +25,6 @@ import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
-import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.translate.Lang;
@@ -136,7 +135,7 @@ public final class GM {
 
                 game = Game.fromServerName(rs.getString("name"));
                 if (game == null) {
-                    Ostrov.log_warn("GM.loadArenaInfo game==null : " + game);
+                    Ostrov.log_warn("GM.loadArenaInfo game==null : " + null);
                     continue;
                 }
                 gi = getGameInfo(game);
@@ -438,13 +437,14 @@ public final class GM {
 //    public static FastGame fg;
 
     public static void randomPlay(final Player p, final Game game, @Nullable final String serverName) {
+        //хз зачем это сделано так, мне + другим игрокам вообще ненрав. когда закидывает на рандом карты, а не просто в лобби
         if (Timer.has(p, "randomPlay")) return;
         Timer.add(p, "randomPlay", 2);
-        final GameInfo gi = getGameInfo(game);
+//        final GameInfo gi = getGameInfo(game);
         String serv = game.defaultServer;
         String arenaName = "";
 
-        if (gi == null) {
+        /*if (gi == null) {
             p.sendMessage("§cНет данных для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             serv = game.defaultServer;
         } else {
@@ -453,7 +453,7 @@ public final class GM {
             } else {
                 ArenaInfo arenaInfo = null;
                 int max = -1;
-                for (ArenaInfo ai : gi.arenas()) {
+                for (final ArenaInfo ai : gi.arenas()) {
                     if (serverName != null && !ai.server.equalsIgnoreCase(serverName))
                         continue; //указан желаемый сервер - пропускаем арены на других
                     if (ai.state == GameState.СТАРТ) {
@@ -471,12 +471,12 @@ public final class GM {
                 if (arenaInfo == null) arenaInfo = gi.arenas().stream().findAny().orElse(null);
                 if (arenaInfo != null) arenaName = arenaInfo.arenaName;
             }
-        }
+        }*/
 
         if (serv.equalsIgnoreCase(Ostrov.MOT_D)) {
-            if (!arenaName.isEmpty()) {
+            /*if (!arenaName.isEmpty()) {
                 Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(p, arenaName));
-            }
+            }*/
         } else {
             ApiOstrov.sendToServer(p, serv, arenaName);
         }

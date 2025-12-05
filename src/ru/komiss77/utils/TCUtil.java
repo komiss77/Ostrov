@@ -17,7 +17,9 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
+import org.bukkit.Keyed;
 import org.bukkit.Material;
+import org.bukkit.block.BlockType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -245,24 +247,34 @@ public class TCUtil {
     }
 
     public static ItemType changeColor(final ItemType source, final DyeColor color) {
-        if (source == null) return ItemType.BEDROCK; //заглушки от NullPoint  в плагинах
+        if (source == null) return ItemType.BEDROCK; //заглушки от NullPoint в плагинах
         if (color == null) return source; //заглушки от NullPoint  в плагинах
         final String stripName = stripMaterialName(source.key().value());
         final ItemType newMat = OStrap.get(Key.key(color.name().toLowerCase() + "_" + stripName), source);
         return newMat == null ? source : newMat;
     }
 
+    public static BlockType changeColor(final BlockType source, final DyeColor color) {
+        if (source == null) return BlockType.BEDROCK; //заглушки от NullPoint в плагинах
+        if (color == null) return source; //заглушки от NullPoint  в плагинах
+        final String stripName = stripMaterialName(source.key().value());
+        final BlockType newMat = OStrap.get(Key.key(color.name().toLowerCase() + "_" + stripName), source);
+        return newMat == null ? source : newMat;
+    }
+
+    public static boolean canChangeColor(final Keyed mat) {
+        if (mat == null) return false; //заглушки от NullPoint  в плагинах
+        final String name = mat.key().value();
+        return stripMaterialName(name).length() != name.length();
+    }
+
+    @Deprecated
     public static boolean canChangeColor(final Material mat) {
-        if (mat == null) {
-            return false; //заглушки от NullPoint  в плагинах
-        }
-        return stripMaterialName(mat.name()).length() != mat.name().length();
+        return mat != null && stripMaterialName(mat.name()).length() != mat.name().length();
     }
 
     public static String stripMaterialName(final String materialName) {
-        if (materialName == null) {
-            return Material.BEDROCK.name(); //заглушки от NullPoint  в плагинах
-        }
+        if (materialName == null) return BlockType.BEDROCK.key().value(); //заглушки от NullPoint  в плагинах
         final String clr = materialName.split("_")[0].toLowerCase();
         return switch (clr) {
             case "red", "magenta", "orange", "purple", "yellow", "black", "brown", "white", "green",

@@ -554,19 +554,10 @@ class EntityTypeView implements InventoryProvider {
                         continue;
                     }
 
-                    menuEntry.add(ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+                    menuEntry.add(ClickableItem.empty(new ItemBuilder(Material.ENDER_EYE)
                         .name("§f" + entity.getLocation().getBlockX() + " §7: §f" + entity.getLocation().getBlockY() + " §7: §f" + entity.getLocation().getBlockZ())
                         .lore("§7Дистанция: " + (entitys.get(entity) == -1 ? "§8другой мир" : "§b" + entitys.get(entity)))
-                        .lore("§7")
-                        .lore("§7ЛКМ - ТП к сущности")
-                        .build(), e -> {
-//Ostrov.log("CLICK="+e.getClick());
-                        if (e.getClick() == ClickType.LEFT) {
-                            p.teleport(entity);
-                            return;
-                        }
-                        reopen(p, contents);
-                    }));
+                        .build()));
                 }
             }
         }
