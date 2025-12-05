@@ -22,7 +22,7 @@ public class EasyPaymentsHook {
   public static BukkitTask shopTask;
 
   public static void hook(Plugin ep) {
-    HandlerList.unregisterAll(ep);  //не откл. листенеров - пишет не играл на сервере
+    //HandlerList.unregisterAll(ep);  //не откл. листенеров - пишет не играл на сервере
     /*Listener ls;
     for (RegisteredListener rl : HandlerList.getRegisteredListeners(ep)) {
       ls = rl.getListener();
@@ -30,10 +30,10 @@ public class EasyPaymentsHook {
         HandlerList.unregisterAll(ls);
       }
     }*/
-    Ostrov.log_warn("§eОбнаружен EasyPayments, отключен от эвентов.");
+    //Ostrov.log_warn("§eОбнаружен EasyPayments, отключен от эвентов.");
 
     //чистить только при старте, или потом не распознаёт ник
-    RemoteDB.executePstAsync(Bukkit.getConsoleSender(), "TRUNCATE `lobby`.`easypayments_customers`");
+  /*  RemoteDB.executePstAsync(Bukkit.getConsoleSender(), "TRUNCATE `lobby`.`easypayments_customers`");
     RemoteDB.executePstAsync(Bukkit.getConsoleSender(), "TRUNCATE `lobby`.`easypayments_payments`");
 
     if (shopTask != null) {
@@ -123,7 +123,7 @@ public class EasyPaymentsHook {
 
         }
       }
-    }.runTaskTimerAsynchronously(Ostrov.instance, 100, 20 * 5);
+    }.runTaskTimerAsynchronously(Ostrov.instance, 100, 20 * 5);*/
 
   }
 

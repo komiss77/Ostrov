@@ -105,6 +105,7 @@ public class Ostrov extends JavaPlugin {
     @Override
     public void onEnable() {
         registries = new Registries();
+      USE_NETTY_QUERRY = Cfg.getConfig().getBoolean("system.use_netty_querry");
         if (USE_NETTY_QUERRY) new OsQuery();
         //первый инит синхронно, или плагины пишут состояние, когда еще нет соединения!!
         RemoteDB.init(MOT_D.length() > 3 && !MOT_D.startsWith("nb"), false); //pay, авторизация - права не грузим. если ставить в onLoad то не может запустить async task!

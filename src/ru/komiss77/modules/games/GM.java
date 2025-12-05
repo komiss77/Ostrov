@@ -138,6 +138,7 @@ public final class GM {
                     Ostrov.log_warn("GM.loadArenaInfo game==null : " + null);
                     continue;
                 }
+              if (game == Game.GLOBAL) continue;
                 gi = getGameInfo(game);
                 if (gi == null) {
                     Ostrov.log_err("GM.loadArenaInfo GameInfo==null для " + game);

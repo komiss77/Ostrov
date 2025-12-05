@@ -1,7 +1,10 @@
 package ru.komiss77.version;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.ChatFormatting;
@@ -14,19 +17,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.ValueInput;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -37,10 +46,46 @@ import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import ru.komiss77.Ostrov;
 import ru.komiss77.modules.world.WXYZ;
 
 
 public class GameApi {
+
+  public static org.bukkit.entity.LivingEntity getLastHurtMob(final Player p) {
+    final ServerPlayer sp = Craft.toNMS(p);
+    net.minecraft.world.entity.LivingEntity nmsLe = sp.getLastHurtMob();
+    return nmsLe == null ? null : (org.bukkit.entity.LivingEntity) nmsLe.getBukkitEntity();
+  }
+
+  //bukkit : 0-8 hotbar 9-35 inventory, 39 helmet, 38 chestplate, 37 leggings, 36 boots, 40 offhand
+  //nms ARMOR_SLOT_START 5-8, INV_SLOT_START 9-35,  hotbar 36-44, SHIELD_SLOT 45
+ /* public static void hideArmor(final Player from, final Player to) {
+Ostrov.log_warn("hideArmor " + from.getName() + " to " + to.getName());
+//Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
+    final List<Pair<EquipmentSlot, net.minecraft.world.item.ItemStack>> list =  new ArrayList<>();
+    for (EquipmentSlot es : EquipmentSlot.values()) {
+      list.add(Pair.of(es, net.minecraft.world.item.ItemStack.EMPTY));
+    }
+    final ServerPlayer sp = Craft.toNMS(to);
+    ClientboundSetEquipmentPacket packet = new ClientboundSetEquipmentPacket(from.getEntityId(), list, false);
+    sp.connection.send(packet);
+  }*/
+
+  /*public static void showArmor(final Player from, final Player to) {
+Ostrov.log_warn("showArmor " + from.getName() + " to " + to.getName());
+    final ServerPlayer nmsFrom = Craft.toNMS(to);
+    final List<Pair<EquipmentSlot, net.minecraft.world.item.ItemStack>> list =  new ArrayList<>();
+    for (int i = 36; i <= 40; i++) {  //(EquipmentSlot es : EquipmentSlot.values()) {
+      list.add(Pair.of(Inventory.EQUIPMENT_SLOT_MAPPING.get(i), nmsFrom.getInventory().getItem(i)));
+    }
+    final ServerPlayer sp = Craft.toNMS(to);
+    ClientboundSetEquipmentPacket packet = new ClientboundSetEquipmentPacket(from.getEntityId(), list, false);
+    sp.connection.send(packet);
+  }*/
+
+
+
 
 /*
   public static void resetTargetGoals(final org.bukkit.entity.Mob mob) {

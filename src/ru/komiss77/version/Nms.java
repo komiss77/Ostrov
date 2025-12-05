@@ -540,16 +540,14 @@ public class Nms {
     p.sendBlockDamage(bl.getCenterLoc(), state);
   }
 
-  /*
-  Slots 0-8 are as follows: 0 crafting output, 1-4 crafting input,
-  5 helmet, 6 chestplate, 7 leggings, and 8 boots. Then, 9-35 work exactly the same as setItem(). The hotbar
-  for PacketPlayOutSetSlot starts at index 36, and continues to index 44. Items placed where index is < 0 or > 44 have no action.
-   */
-  public static void sendFakeEquip(final Player p, final int playerInventorySlot, final ItemStack item) {
+
+  //bukkit : 0-8 hotbar 9-35 inventory, 39 helmet, 38 chestplate, 37 leggings, 36 boots, 40 offhand
+  //nms ARMOR_SLOT_START 5-8, INV_SLOT_START 9-35,  hotbar 36-44, SHIELD_SLOT 45
+  public static void sendFakeEquip(final Player p, final int nmsInventorySlot, final ItemStack item) {
 //Ostrov.log_warn("sendFakeEquip " + playerInventorySlot + " " + item.getType());
     final ServerPlayer sp = Craft.toNMS(p); //5-шлем
     sp.connection.send(new ClientboundContainerSetSlotPacket(sp.inventoryMenu.containerId,
-        sp.inventoryMenu.getStateId(), playerInventorySlot, net.minecraft.world.item.ItemStack.fromBukkitCopy(item)));
+        sp.inventoryMenu.getStateId(), nmsInventorySlot, net.minecraft.world.item.ItemStack.fromBukkitCopy(item)));
   }
 
   public static void sendChunkChange(final Player p, final Chunk chunk) {

@@ -6,6 +6,7 @@ import java.util.List;
 import com.destroystokyo.paper.ParticleBuilder;
 import io.papermc.paper.math.Position;
 import org.bukkit.*;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +31,20 @@ public class EntityUtil {
     }
 
     public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
-        if (e.getDamageSource().getCausingEntity() instanceof final LivingEntity le) {
+      final DamageSource ds = e.getDamageSource();
+      if (ds.getCausingEntity() instanceof final LivingEntity le) {
             if (le instanceof final Tameable tm && owner) {
                 return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
-            } else return le;
+            } else {
+              return le;
+            }
+      } else if (ds instanceof Projectile prj) {
+        final ProjectileSource ps = prj.getShooter();
+        if (ps != null) {
+          if (ps instanceof LivingEntity le) {
+            return le;
+          }
+        }
         }
         return null;
     }
