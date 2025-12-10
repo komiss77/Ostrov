@@ -140,16 +140,14 @@ public class InteractLst implements Listener {
                 } else if (GM.GAME == Game.AR) {
                     p.performCommand("menu");
                     return;
-                }//else {
-                //p.performCommand("menu"); может перекрыть в минииграх
-                //}
+                }
             }
         }
         final ItemStack inHand = e.getItem();
 
         //фикс для NAME_TAG
         if (inHand != null && inHand.getType() == Material.NAME_TAG
-                && e.getAction().isRightClick() && GM.GAME.type == ServerType.ONE_GAME) {  //отловил баг на змейке, походу на минииграх это не надо
+                && e.getAction().isRightClick() && GM.GAME.type != ServerType.ARENAS) {  //отловил баг на змейке, походу на минииграх это не надо
             final ItemMeta im = inHand.getItemMeta();
             new InputButton(InputButton.InputType.ANVILL, inHand, im.hasDisplayName() ? TCUtil.deform(im.displayName()).replace('§', '&') : "Название", nm -> {
                 im.displayName(TCUtil.form(nm.replace('&', '§')));

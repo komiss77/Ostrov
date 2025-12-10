@@ -14,6 +14,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
@@ -348,6 +349,18 @@ public class ItemManager implements Initiable, Listener {
         si.destroy();
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onIGrind(final PrepareGrindstoneEvent e) {
+        final GrindstoneInventory inv = e.getInventory();
+        final ItemStack upi = inv.getUpperItem();
+        final ItemStack lwi = inv.getLowerItem();
+        final SpecialItem upsi = SpecialItem.get(upi);
+        final SpecialItem lwsi = SpecialItem.get(lwi);
+        if (upsi == null && lwsi == null) return;
+        if (!ItemUtil.compare(upi, lwi, ItemUtil.Stat.TYPE)) return;
+        e.setResult(ItemUtil.air);
+    }
+
     private static final Set<ItemType> BUNDLES = OStrap.getAll(ItemTypeTagKeys.BUNDLES);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
@@ -386,7 +399,7 @@ public class ItemManager implements Initiable, Listener {
         }
         final Inventory inv = e.getView().getTopInventory();
         switch (inv.getType()) {
-            case PLAYER, CREATIVE, CRAFTING, ENCHANTING, ANVIL: return;
+            case PLAYER, CREATIVE, CRAFTING, ENCHANTING, ANVIL, GRINDSTONE: return;
         }
         if (SpecialItem.get(it) != null) {
             he.sendMessage(TCUtil
