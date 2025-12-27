@@ -3,7 +3,7 @@ package ru.komiss77.hook;
 import java.util.HashMap;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -26,7 +26,7 @@ public class DynmapNms {
     for (BlockState bs : bsids) {//while (iter.hasNext()) {
       baseb = bs.getBlock();
       //ResourceKey id = BuiltInRegistries.BLOCK.getResourceKey(baseb).get();
-      ResourceLocation id = BuiltInRegistries.BLOCK.getKey(baseb);
+      Identifier id = BuiltInRegistries.BLOCK.getKey(baseb);
       String minecraftName = id.toString();
 
       DynmapBlockState lastbs = lastBlockState.get(minecraftName);  // See if we have seen this one
@@ -52,11 +52,11 @@ public class DynmapNms {
           .setStateName(sb)
           .setAttenuatesLight(lightAtten);
 
-      if (bs.isSolid()) bld.setSolid(); // isSolid
+      if (bs.isSolidRender()) bld.setSolid(); // isSolid
       if (bs.isAir()) bld.setAir(); // isAir
       if (bs.is(BlockTags.OVERWORLD_NATURAL_LOGS)) bld.setLog(); // is(OVERWORLD_NATURAL_LOGS)
       if (bs.is(BlockTags.LEAVES)) bld.setLeaves(); // is(LEAVES)
-      if (!bs.getFluidState().isEmpty() && ((baseb instanceof SimpleWaterloggedBlock) == false)) {  // getFluidState.isEmpty(), getBlock
+      if (!bs.getFluidState().isEmpty() && !(baseb instanceof SimpleWaterloggedBlock)) {  // getFluidState.isEmpty(), getBlock
         bld.setWaterlogged(); //Log.info("statename=" + bname + "[" + sb + "] = waterlogged");
       }
 

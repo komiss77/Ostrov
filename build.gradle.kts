@@ -15,7 +15,7 @@ plugins {
 
 
 dependencies {
-    paperweight.paperDevBundle("1.21.10-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
   compileOnly(fileTree("libs"))
   compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
   annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")

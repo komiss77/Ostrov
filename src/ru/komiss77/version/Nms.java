@@ -414,14 +414,14 @@ public class Nms {
   public static String getBiomeKey(final World w, int x, int y, int z) {
     final BiomeManager bm = Craft.toNMS(w).getBiomeManager();
     final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(x, y, z)).unwrapKey();
-    return opk.map(bk -> bk.location().getPath()).orElse("void");
+    return opk.map(bk -> bk.identifier().getPath()).orElse("void");
   }
 
   @Deprecated
   public static String getBiomeKey(final WXYZ loc) {
     final BiomeManager bm = Craft.toNMS(loc.w).getBiomeManager();
     final Optional<ResourceKey<Biome>> opk = bm.getNoiseBiomeAtPosition(new BlockPos(loc.x, loc.y, loc.z)).unwrapKey();
-    return opk.map(bk -> bk.location().getPath()).orElse("void");
+    return opk.map(bk -> bk.identifier().getPath()).orElse("void");
   }
 
   //упрощенный вид

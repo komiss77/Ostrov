@@ -7,11 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -22,8 +20,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.*;
+import net.minecraft.world.level.storage.FileNameDateFormatter;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.PlayerDataStorage;
+import net.minecraft.world.level.storage.TagValueOutput;
 import org.bukkit.Bukkit;
 import org.slf4j.Logger;
 import ru.komiss77.Ostrov;
@@ -40,10 +42,8 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 
   public static OsPlayerDataStorage instance;
   public static File dataDir;
-  private static Method toJsonMethod;
-  private static Field playerSavePath;
+    private static Field playerSavePath;
   private static Field statField;
-  private static final DateTimeFormatter FORMATTER = FileNameDateFormatter.create();
   private static final Logger LOGGER = LogUtils.getLogger();
 
   static {
@@ -64,7 +64,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
       dataDir.mkdir();
     }
     try {
-      toJsonMethod = ServerStatsCounter.class.getDeclaredMethod("toJson");
+      final Method toJsonMethod = ServerStatsCounter.class.getDeclaredMethod("toJson");
       toJsonMethod.setAccessible(true);
       //codec = PlayerAdvancements.class.getDeclaredField("codec");
       //codec.setAccessible(true);
@@ -97,7 +97,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 //Ostrov.log_warn("OsPlayerDataStorage adv load : Path="+path.toString());
       final String statFileName = op.isGuest ? "guest_stat.json" : nmsPlayer.getScoreboardName() + "_stat.json";
       final File statFile = new File(dataDir, statFileName);
-      final ServerStatsCounter serverStatsCounter = new ServerStatsCounter(server, statFile);
+      final ServerStatsCounter serverStatsCounter = new ServerStatsCounter(server, statFile.toPath());
       statField.set(nmsPlayer, serverStatsCounter);
 
     } catch (NullPointerException | IllegalAccessException | IllegalArgumentException ex) {
@@ -118,56 +118,6 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
       try {
         // Spigot start
         Optional<CompoundTag> optional = Optional.of(NbtIo.readCompressed(file.toPath(), NbtAccounter.unlimitedHeap()));
-        if (!optional.isPresent()) return optional;
-
-        //final CompoundTag tag = optional.get();
-        //if (!op.isGuest) op.firstJoin = false; //false если есть запись в мускул ИЛИ файл с данными
-        //Ostrov.log_warn("OsPlayerDataStorage load " + op.nik + " guest?" + op.isGuest + " firstJoin=" + op.firstJoin);
-
-       /* String[] split;
-        int splitterIndex;
-        for (String key : tag.keySet()) {
-//Ostrov.log_warn("key= "+key);
-          //if (key.startsWith("os_")) {
-          //  op.mysqlData.put(key.substring(3), tag.getString(key).get());
-          //}
-          switch (key) {
-            case "os_positions" -> {
-              split = LocalDB.LINE.split(tag.getString("os_positions").get());
-              for (String positionInfo : split) {
-                splitterIndex = LocalDB.WORD.index(positionInfo);
-                if (splitterIndex > 0) {
-                  op.world_positions.put(positionInfo.substring(0, splitterIndex), positionInfo.substring(splitterIndex + 1));
-                }
-              }
-            }
-            case "os_homes" -> {
-              split = LocalDB.LINE.split(tag.getString("os_homes").get());
-              for (String info : split) {
-                splitterIndex = LocalDB.WORD.index(info);
-                if (splitterIndex > 0) {
-                  op.homes.put(info.substring(0, splitterIndex), info.substring(splitterIndex + 1));
-                }
-              }
-            }
-            case "os_kitsUseData" -> {
-              split = LocalDB.LINE.split(tag.getString("os_kitsUseData").get());
-              int stamp;
-              for (String info : split) {
-                splitterIndex = LocalDB.WORD.index(info);
-                if (splitterIndex > 0) {
-                  stamp = NumUtil.intOf(info.substring(splitterIndex + 1), 0);
-                  if (stamp > 0) {
-                    op.kits_use_timestamp.put(info.substring(0, splitterIndex), stamp);
-                  }
-                }
-              }
-            }
-            //case "os_quests" -> {
-            //  op.mysqlData.put("quests", tag.getString("os_quests").get());
-            //}
-          }
-        }*/
         Ostrov.log_ok("§2file данные " + nameAndId.name() + " загружны");
         return optional;
 
@@ -352,7 +302,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     final String name = nameAndId.name();
     Path path1 = path.resolve(name + suffix); //path.resolve(stringUuid + suffix); // CraftBukkit
     //Path path2 = path.resolve(stringUuid + "_corrupted_" + LocalDateTime.now().format(FORMATTER) + suffix); // CraftBukkit
-    Path path2 = path.resolve(name + "_corrupted_" + LocalDateTime.now().format(FORMATTER) + suffix); // CraftBukkit
+    Path path2 = path.resolve(name + "_corrupted_" + LocalDateTime.now().format(FileNameDateFormatter.FORMATTER) + suffix); // CraftBukkit
     if (Files.isRegularFile(path1)) {
       try {
         Files.copy(path1, path2, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
@@ -392,7 +342,7 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
 
 /*
   private Data asData(PlayerAdvancements playerAdvancements) {
-    Map<ResourceLocation, AdvancementProgress> map = new LinkedHashMap<>();
+    Map<Identifier, AdvancementProgress> map = new LinkedHashMap<>();
     playerAdvancements.progress.forEach((advancementHolder, progress) -> {
       if (progress.hasProgress()) {
         map.put(advancementHolder.id(), progress);
@@ -401,11 +351,11 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
     return new Data(map);
   }
 
-  record Data(Map<ResourceLocation, AdvancementProgress> map) {
-    public static final Codec<Data> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, AdvancementProgress.CODEC)
+  record Data(Map<Identifier, AdvancementProgress> map) {
+    public static final Codec<Data> CODEC = Codec.unboundedMap(Identifier.CODEC, AdvancementProgress.CODEC)
         .xmap(Data::new, Data::map);
 
-    public void forEach(BiConsumer<ResourceLocation, AdvancementProgress> action) {
+    public void forEach(BiConsumer<Identifier, AdvancementProgress> action) {
       this.map.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> action.accept(entry.getKey(), entry.getValue()));
     }
   }

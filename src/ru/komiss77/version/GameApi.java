@@ -1,10 +1,7 @@
 package ru.komiss77.version;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.adventure.PaperAdventure;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.ChatFormatting;
@@ -17,25 +14,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.PlainTextContents;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.storage.ValueInput;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -46,8 +38,9 @@ import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.komiss77.Ostrov;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WXYZ;
+import ru.komiss77.utils.TCUtil;
 
 
 public class GameApi {
@@ -161,16 +154,13 @@ Ostrov.log_warn("stop!");
       }
     }
 
-//Ostrov.log_warn("§a++source Mod ATTACK_DAMAGE result="+source.getAttribute(Attribute.ATTACK_DAMAGE).getValue());
-
-    LivingEntity attacker = Craft.toNMS(source);
-    ServerLevel level = attacker.level().getMinecraftWorld();//Craft.toNMS(p.getWorld());
+    final LivingEntity attacker = Craft.toNMS(source);
+    final ServerLevel level = attacker.level().getMinecraftWorld();//Craft.toNMS(p.getWorld());
     final float base_damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
     net.minecraft.world.item.ItemStack weaponItem = attacker.getWeaponItem();//Craft.toNMS(it);
 
-    DamageSource damageSource = (DamageSource) Optional.ofNullable(weaponItem.getItem().getDamageSource(attacker))
-        .orElse(attacker.damageSources().mobAttack(attacker));
-//Ostrov.log_warn("DamageSource type="+damageSource.getEntity().getType()+" Weapon="+damageSource.getWeaponItem().asBukkitCopy().getType());
+    DamageSource damageSource = weaponItem.getItem() instanceof MaceItem
+        && canSmashAttack(attacker) ? attacker.damageSources().mace(attacker) : attacker.damageSources().mobAttack(attacker);
     net.minecraft.world.entity.Entity target;
     for (org.bukkit.entity.Entity entity : entitys) {
       target = Craft.toNMS(entity);
@@ -179,8 +169,7 @@ Ostrov.log_warn("stop!");
       boolean succes = target.hurtServer(level, damageSource, damage);
 
       if (succes) {
-//Ostrov.log_warn("GameApi.attack "+source.getType()+"->"+entity.getType()+" final damage="+damage+" knockback="+knockback);
-        if (target instanceof LivingEntity livingEntity) {
+        if (target instanceof final LivingEntity livingEntity) {
           if (knockback > 0) {
             livingEntity.knockback(
                 knockback * 0.5F,
@@ -189,27 +178,22 @@ Ostrov.log_warn("stop!");
                 attacker, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.ENTITY_ATTACK // CraftBukkit // Paper - knockback events
             );
           }
-          //EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(level, target, damageSource, weaponItem, null);
           EnchantmentHelper.doPostAttackEffects(level, target, damageSource);
-          weaponItem.hurtEnemy((LivingEntity) target, attacker);
-          weaponItem.getItem().hurtEnemy(weaponItem, (LivingEntity) target, attacker);
+          weaponItem.hurtEnemy(livingEntity, attacker);
+          weaponItem.getItem().hurtEnemy(weaponItem, livingEntity, attacker);
         }
-
-        //if (source instanceof LivingEntity livingEntity) {
-        //  weaponItem.hurtEnemy(livingEntity, attacker);
-        //}
-
-        //this.setLastHurtMob(source);
-        //this.playAttackSound();
       }
     }
+  }
 
+  public static boolean canSmashAttack(final LivingEntity entity) {
+    return entity.fallDistance > 1.5d && !entity.isFallFlying();
   }
 
   //также этим можно обновить видимый скин. Пока в стадии разработки, мучения не чистить!!
   public static void sendFakeDimension(final Player p, final World.Environment environment) {
     //Level.RESOURCE_KEY_CODEC.parse()
-    //ResourceLocation.withDefaultNamespace("overworld")
+    //Identifier.withDefaultNamespace("overworld")
     final ServerPlayer sp = Craft.toNMS(p);
 
 
@@ -266,12 +250,12 @@ Ostrov.log_warn("stop!");
 
   }
 
+  @Deprecated
   public static String fromComponent(net.kyori.adventure.text.Component paperComponent) {
     if (paperComponent == null) return "";
     net.minecraft.network.chat.Component component = PaperAdventure.asVanilla(paperComponent);
     if (component instanceof io.papermc.paper.adventure.AdventureComponent)
       component = ((io.papermc.paper.adventure.AdventureComponent) component).deepConverted();
-    component = (net.minecraft.network.chat.Component) component;
     StringBuilder out = new StringBuilder();
 
     boolean hadFormat = false;
@@ -283,9 +267,9 @@ Ostrov.log_warn("stop!");
           if (color.format != null) {
             out.append(color.format);
           } else {
-            out.append(ChatColor.COLOR_CHAR).append("x");
+            out.append(TCUtil.STYLE).append("x");
             for (char magic : color.serialize().substring(1).toCharArray()) {
-              out.append(ChatColor.COLOR_CHAR).append(magic);
+              out.append(TCUtil.STYLE).append(magic);
             }
           }
           hadFormat = true;
@@ -324,8 +308,25 @@ Ostrov.log_warn("stop!");
 
 
   //для избавления твиста от НМС.
+  @Deprecated
   public static void setFastMat(final WXYZ wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
     final ServerLevel sl = Craft.toNMS(wxyz.w);
+    final net.minecraft.world.level.block.state.BlockState bs = ((CraftBlockData) mat.createBlockData()).getState();
+    for (int x_ = 0; x_ != sizeX; x_++) {
+      for (int z_ = 0; z_ != sizeZ; z_++) {
+        for (int y_ = 0; y_ != sizeY; y_++) {
+          Nms.mutableBlockPosition.set(wxyz.x + x_, wxyz.y + y_, wxyz.z + z_);
+          //CraftBlock.setTypeAndData(sl, Nms.mutableBlockPosition, sl.getBlockState(Nms.mutableBlockPosition), bs, false);
+          Nms.setNmsData(sl, sl.getBlockState(Nms.mutableBlockPosition), bs);
+          //sl.setBlock(mutableBlockPosition, bs,)
+        }
+      }
+    }
+  }
+
+  public static void setFastMat(final BVec wxyz, final int sizeX, final int sizeY, final int sizeZ, final Material mat) {
+    if (wxyz.w() == null) return;
+    final ServerLevel sl = Craft.toNMS(wxyz.w());
     final net.minecraft.world.level.block.state.BlockState bs = ((CraftBlockData) mat.createBlockData()).getState();
     for (int x_ = 0; x_ != sizeX; x_++) {
       for (int z_ = 0; z_ != sizeZ; z_++) {

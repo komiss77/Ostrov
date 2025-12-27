@@ -15,7 +15,7 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -67,7 +67,7 @@ public class CrazyAdv {
         ? Optional.empty() : Optional.of(new ClientAsset.ResourceTexture(back.getMinecraftKey()));
 //if (back != null) Ostrov.log_warn("=========== backgroundTexture="+backgroundTexture.get());
 
-    final Optional<ResourceLocation> parent = advancement.isRoot() ? Optional.empty()
+    final Optional<Identifier> parent = advancement.isRoot() ? Optional.empty()
         : Optional.of(advancement.getParent().getName().getMinecraftKey());
 
     float x = generateX(advancement.getTab(), display.generateX());
@@ -137,8 +137,8 @@ class AdvancementsPacket {
   public ClientboundUpdateAdvancementsPacket build() {
     //Create Lists
     List<net.minecraft.advancements.AdvancementHolder> advancements = new ArrayList<>();
-    Set<ResourceLocation> removedAdvancements = new HashSet<>();
-    Map<ResourceLocation, AdvancementProgress> progress = new HashMap<>();
+    Set<Identifier> removedAdvancements = new HashSet<>();
+    Map<Identifier, AdvancementProgress> progress = new HashMap<>();
 
     //Populate Lists
     for (Advancement advancement : this.advancements) {
@@ -191,8 +191,8 @@ class ToastPacket {
   public ClientboundUpdateAdvancementsPacket build() {
     //Create Lists
     List<AdvancementHolder> advancements = new ArrayList<>();
-    Set<ResourceLocation> removedAdvancements = new HashSet<>();
-    Map<ResourceLocation, AdvancementProgress> progress = new HashMap<>();
+    Set<Identifier> removedAdvancements = new HashSet<>();
+    Map<Identifier, AdvancementProgress> progress = new HashMap<>();
 
     //Populate Lists
     if (add) {

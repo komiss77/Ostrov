@@ -1,7 +1,7 @@
 package ru.komiss77.listener;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
+import org.bukkit.GameRules;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -149,24 +149,24 @@ public class ServerLst implements Listener {
             Nms.pathWorld(w);
         }
 
-        w.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
+        w.setGameRule(GameRules.SPECTATORS_GENERATE_CHUNKS, false);
 
         if (Ostrov.MOT_D.length() <= 4) {
 //            w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 8);
-            w.setGameRule(GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK, true);
-            w.setGameRule(GameRule.DISABLE_RAIDS, true);
-            w.setGameRule(GameRule.KEEP_INVENTORY, false);
-            w.setGameRule(GameRule.DO_ENTITY_DROPS, false);
-            w.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true); //- сразу респавн, возможен косяк с spigot.respawn?
-            w.setGameRule(GameRule.DO_INSOMNIA, false);
-            w.setGameRule(GameRule.DO_MOB_LOOT, false);
-            w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-            w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-            w.setGameRule(GameRule.FORGIVE_DEAD_PLAYERS, true);
-            w.setGameRule(GameRule.MOB_GRIEFING, false);
-            w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            w.setGameRule(GameRule.SPAWN_RADIUS, 0);
-            w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+            w.setGameRule(GameRules.ELYTRA_MOVEMENT_CHECK, false);
+            w.setGameRule(GameRules.RAIDS, false);
+            w.setGameRule(GameRules.KEEP_INVENTORY, false);
+            w.setGameRule(GameRules.ENTITY_DROPS, false);
+            w.setGameRule(GameRules.IMMEDIATE_RESPAWN, true); //- сразу респавн, возможен косяк с spigot.respawn?
+            w.setGameRule(GameRules.SPAWN_PHANTOMS, false);
+            w.setGameRule(GameRules.MOB_DROPS, false);
+            w.setGameRule(GameRules.SPAWN_PATROLS, false);
+            w.setGameRule(GameRules.SPAWN_WANDERING_TRADERS, false);
+            w.setGameRule(GameRules.FORGIVE_DEAD_PLAYERS, true);
+            w.setGameRule(GameRules.MOB_GRIEFING, false);
+            w.setGameRule(GameRules.ADVANCE_WEATHER, false);
+            w.setGameRule(GameRules.RESPAWN_RADIUS, 0);
+            w.setGameRule(GameRules.SHOW_DEATH_MESSAGES, false);
             Ostrov.log_ok("Настройки мира " + w.getName() + " инициализированы для лобби или миниигры");
           return;
         }

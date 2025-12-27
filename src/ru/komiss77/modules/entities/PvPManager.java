@@ -212,7 +212,7 @@ public class PvPManager implements Initiable {
                     if (op == null) return;
                     //дроп инвентаря
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0
-                        && p.getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
+                        && p.getWorld().getGameRuleValue(GameRules.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
                         for (final ItemStack is : p.getInventory().getContents()) e.getDrops().add(is);
                         p.getInventory().clear(); p.updateInventory();
                         p.sendMessage("§c" + Lang.t(p, "Твой лут достался победителю!"));

@@ -1,13 +1,17 @@
 package ru.komiss77.builder.menu;
 
+import java.util.List;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.GameRule;
-import org.bukkit.Material;
+import org.bukkit.GameRules;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Ostrov;
+import ru.komiss77.boot.OStrap;
+import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -19,14 +23,12 @@ import ru.komiss77.utils.inventory.InventoryProvider;
 public class WorldSettings implements InventoryProvider {
 
 
-    //private static final ItemStack fill = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name("§8.").build();;
+    private static final List<GameRule<?>> RULES = OStrap.getAll(RegistryKey.GAME_RULE);
     private final World world;
-
-
+    
     public WorldSettings(final World world) {
         this.world = world;
     }
-
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -40,14 +42,14 @@ public class WorldSettings implements InventoryProvider {
 
         //p.teleport( Bukkit.getWorld(itemname).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-        for (final GameRule rule : GameRule.values()) {
+        for (final GameRule rule : RULES) {
           try {
             if (rule.getType() == Boolean.class) {
 
               final boolean on = (boolean) world.getGameRuleValue(rule);
 
               contents.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
-                        .name(rule.getName())
+                        .name(rule.getKey().value())
                         .lore("")
                         .lore(on ? "§7сейчас §aвключено" : "§7сейчас §cвыключено")
                         .lore("")
@@ -79,8 +81,8 @@ public class WorldSettings implements InventoryProvider {
 
               final int value = (int) world.getGameRuleValue(rule);
 
-              contents.set(1, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.NAME_TAG)
-                        .name(rule.getName())
+              contents.set(1, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
+                        .name(rule.getKey().value())
                         .lore("")
                         .lore("§7сейчас: " + value)
                         .lore("")
@@ -109,13 +111,13 @@ public class WorldSettings implements InventoryProvider {
 
             }
           } catch (IllegalArgumentException ex) { //.IllegalArgumentException: Tried to access invalid game rule
-            Ostrov.log_warn("GameRule " + rule.getName() + " is @MinecraftExperimental");
+            Ostrov.log_warn("GameRule " + rule.getKey().value() + " is @MinecraftExperimental");
             }
 
         }
 
 
-        contents.set(5, 0, ClickableItem.of(new ItemBuilder(Material.ENDER_EYE)
+        contents.set(5, 0, ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
                 .name("Точка СПАВНА мира")
                 .lore("")
                 .lore("§7сейчас: " + LocUtil.toString(world.getSpawnLocation()))
@@ -134,7 +136,7 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 1, ClickableItem.of(new ItemBuilder(Material.CAKE)
+        contents.set(5, 1, ClickableItem.of(new ItemBuilder(ItemType.CAKE)
                 .name("Центр ГРАНИЦЫ мира")
                 .lore("")
                 .lore("§7сейчас: " + LocUtil.toString(world.getWorldBorder().getCenter()))
@@ -150,7 +152,7 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(Material.BEACON)
+        contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.BEACON)
                 .name("§6Размер §eГРАНИЦЫ §6мира")
                 .lore("§7")
                 .lore("§7сейчас: " + world.getWorldBorder().getSize())
@@ -164,7 +166,7 @@ public class WorldSettings implements InventoryProvider {
                 p.sendMessage("§cДолжно быть число!");
                 return;
             }
-            final int r = Integer.valueOf(imput);
+            final int r = Integer.parseInt(imput);
             if (r < 0 || r > 100000) {
                 p.sendMessage("§cот 0 до 100000!");
                 return;
@@ -174,30 +176,30 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.OAK_DOOR).name("назад").build(), e ->
+        contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
                 p.performCommand("world")//WorldManagerCmd.openWorldMenu(p)
         ));
 
 
     }
 
-    private Material getRuleMat(final GameRule<?> rule, final boolean on) {
-        if (rule == GameRule.ANNOUNCE_ADVANCEMENTS) {
-            return Material.FLOWER_BANNER_PATTERN;
-        } else if (rule == GameRule.COMMAND_BLOCK_OUTPUT) {
-            return Material.COMMAND_BLOCK;
-        } else if (rule == GameRule.DISABLE_ELYTRA_MOVEMENT_CHECK) {
-            return Material.ELYTRA;
-        } else if (rule == GameRule.DISABLE_RAIDS) {
-            return Material.IRON_HORSE_ARMOR;
-        } else if (rule == GameRule.DO_DAYLIGHT_CYCLE) {
-            return Material.SUNFLOWER;
-        } else if (rule == GameRule.DO_ENTITY_DROPS) {
-            return Material.HOPPER;
-        } else if (rule == GameRule.DO_FIRE_TICK) {
-            return Material.BLAZE_POWDER;
+    private ItemType getRuleMat(final GameRule<?> rule, final boolean on) {
+        if (rule == GameRules.SHOW_ADVANCEMENT_MESSAGES) {
+            return ItemType.FLOWER_BANNER_PATTERN;
+        } else if (rule == GameRules.COMMAND_BLOCK_OUTPUT) {
+            return ItemType.COMMAND_BLOCK;
+        } else if (rule == GameRules.ELYTRA_MOVEMENT_CHECK) {
+            return ItemType.ELYTRA;
+        } else if (rule == GameRules.RAIDS) {
+            return ItemType.IRON_HORSE_ARMOR;
+        } else if (rule == GameRules.ADVANCE_TIME) {
+            return ItemType.SUNFLOWER;
+        } else if (rule == GameRules.ENTITY_DROPS) {
+            return ItemType.HOPPER;
+        } else if (rule == GameRules.FIRE_DAMAGE) {
+            return ItemType.BLAZE_POWDER;
         }
-        return on ? Material.REDSTONE_TORCH : Material.LEVER;
+        return on ? ItemType.REDSTONE_TORCH : ItemType.LEVER;
     }
 
 

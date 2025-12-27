@@ -1,7 +1,9 @@
 package ru.komiss77.hook;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import net.minecraft.nbt.CompoundTag;
@@ -11,7 +13,6 @@ import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
-import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.chunk.storage.SerializableChunkData;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.bukkit.Bukkit;
@@ -20,7 +21,10 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.dynmap.DynmapChunk;
 import org.dynmap.DynmapWorld;
 import org.dynmap.common.BiomeMap;
-import org.dynmap.common.chunk.*;
+import org.dynmap.common.chunk.GenericChunk;
+import org.dynmap.common.chunk.GenericChunkCache;
+import org.dynmap.common.chunk.GenericChunkSection;
+import org.dynmap.common.chunk.GenericMapChunkCache;
 import org.dynmap.renderer.DynmapBlockState;
 import org.dynmap.utils.DataBitsPacked;
 import ru.komiss77.version.Craft;
@@ -91,7 +95,7 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
     if (chunkStatus == ChunkStatus.LIGHT || chunkStatus == ChunkStatus.SPAWN || chunkStatus == ChunkStatus.FULL) {
       hasLitState = true;//hasLitState = litStates.contains(status); "light", "spawn", "heightmaps", "full"
     }
-    int version = ChunkStorage.getVersion(chunkData);//+ chunkData.getIntOr("DataVersion", 0);
+    int version = 0;//ChunkStorage.getVersion(chunkData); //+ chunkData.getIntOr("DataVersion", 0);
     boolean isLightOn = chunkData.getBooleanOr("isLightOn", false); //+
     boolean hasLight = false; // pessimistic: only has light if we see it, due to WB and other flawed chunk generation hasLitState;	// Assume good light in a isLightOn state
     // Assume skylight is only trustworthy in a isLightOn state
@@ -124,7 +128,7 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
           old3d = new ArrayList<BiomeMap[]>();
           // Get 4 x 4 x 4 list for each section
           for (int sect = 0; sect < (bb.length / 64); sect++) {
-            BiomeMap smap[] = new BiomeMap[64];
+            BiomeMap[] smap = new BiomeMap[64];
             for (int i = 0; i < 64; i++) {
               smap[i] = BiomeMap.byBiomeID(bb[sect * 64 + i]);
             }
@@ -152,10 +156,9 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
       if (optional.isEmpty()) {
         continue;
       }
-      CompoundTag compoundTag = optional.get();
-      final CompoundTag sectionData = compoundTag;
-      //GenericNBTCompound sec = sect.getCompound(i);
-      int secnum = compoundTag.getByteOr("Y", (byte) 0);//sec.getByte("Y");
+      CompoundTag sectionData = optional.get();
+        //GenericNBTCompound sec = sect.getCompound(i);
+      int secnum = sectionData.getByteOr("Y", (byte) 0);//sec.getByte("Y");
 
 //Ostrov.log("sectionBuilder "+x+":"+z+" sect="+secnum+" block_states?"+sectionData.contains("block_states")
 //    +" BlockLight?"+sectionData.contains("BlockLight")
@@ -265,11 +268,11 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
         }
         for (int j = 0; j < 64; j++) {
           int b = bdata != null ? bdata.get(j) : 0;
-          sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, BiomeMap.byBiomeResourceLocation(bpalette.getStringOr(b, "")));
+          sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, BiomeMap.byBiomeName(bpalette.getStringOr(b, "")));
         }
       } else {  // Else, apply legacy biomes
         if (old3d != null) {
-          BiomeMap m[] = old3d.get((secnum > 0) ? ((secnum < old3d.size()) ? secnum : old3d.size() - 1) : 0);
+          BiomeMap[] m = old3d.get((secnum > 0) ? ((secnum < old3d.size()) ? secnum : old3d.size() - 1) : 0);
           if (m != null) {
             for (int j = 0; j < 64; j++) {
               sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, m[j]);
