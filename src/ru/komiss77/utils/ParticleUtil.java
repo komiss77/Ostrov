@@ -366,7 +366,7 @@ public class ParticleUtil {
 
         if (epic) {
             player.getWorld().playSound(player.getLocation(), "quake.random.meat", 1, 1);
-            final Firework firework = (Firework) loc.getWorld().spawn(loc, (Class) Firework.class);
+            final Firework firework = loc.getWorld().spawn(loc, Firework.class);
             final FireworkMeta fireworkMeta = firework.getFireworkMeta();
             fireworkMeta.addEffect(FireworkEffect.builder().flicker(NumUtil.rndBool()).withColor(Color.RED).withFade(Color.MAROON).with(FireworkEffect.Type.BURST).trail(NumUtil.rndBool()).build());
             fireworkMeta.setPower(0);
