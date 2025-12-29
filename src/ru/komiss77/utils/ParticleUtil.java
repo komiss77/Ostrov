@@ -16,6 +16,7 @@ import ru.komiss77.modules.world.XYZ;
 
 
 //https://www.spigotmc.org/resources/playerparticles.40261/
+@Deprecated //use PartUtil
 public class ParticleUtil {
 
 
