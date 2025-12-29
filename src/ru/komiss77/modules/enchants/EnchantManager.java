@@ -166,7 +166,9 @@ public class EnchantManager implements Initiable, Listener {
     public void onAnvil (final PrepareAnvilEvent e) {
         final ItemStack it = e.getResult();
         if (ItemUtil.isBlank(it, false)) return;
+        if (!it.hasData(DataComponentTypes.REPAIR_COST)) return;
         it.resetData(DataComponentTypes.REPAIR_COST);
+        e.setResult(it);
     }
 
   /*@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

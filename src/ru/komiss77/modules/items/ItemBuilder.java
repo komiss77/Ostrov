@@ -558,7 +558,6 @@ public class ItemBuilder {
         final ItemStack item = type.createItemStack(amount);
         if (data != null) data.addTo(item);
         if (pdcs != null) {
-            Nms.setCustomData(item, pdcs);
             item.editPersistentDataContainer(pdc -> pdcs.copyTo(pdc, true));
         }
         return item;
