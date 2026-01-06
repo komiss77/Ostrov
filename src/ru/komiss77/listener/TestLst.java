@@ -4,6 +4,8 @@ package ru.komiss77.listener;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -16,82 +18,111 @@ import io.papermc.paper.registry.data.dialog.type.DialogType;
 import io.papermc.paper.world.damagesource.CombatEntry;
 import io.papermc.paper.world.damagesource.CombatTracker;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.BlockType;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemType;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import ru.komiss77.events.PlayerDisguiseEvent;
 import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtil;
+import ru.komiss77.version.Craft;
 
 
 public class TestLst implements Listener {
 
-    private enum Condition {
-        NUM_SUM("<mithril>Сумма <gold>цифр <mithril>в коде более <gold>20ти"),
-//        END_UPPER("<mithril>Код кончается на <gold>большую <mithril>букву"),
-        HAS_UPPER("<mithril>В коде есть <gold>'C' <mithril>и <gold>'S'"),
-//        HAS_LOWER("<mithril>В коде есть <gold>'a'<mithril>, <gold>'w'<mithril>, и <gold>'p'"),
-        IS_LARGE("<mithril>Код имеет <gold>более 25 <mithril>символов"),
-        MORE_LOWER("<mithril>Более <gold>половины <mithril>букв кода <gold>малые");
 
-        private static final Map<String, Condition> names;
+  public static final NamespacedKey test = new NamespacedKey("os", "test");//Key.key("faction", "perk");
 
-        private final SingleOptionDialogInput.OptionEntry entry;
+  @EventHandler(ignoreCancelled = false)
+  public void test(final PlayerDisguiseEvent e) {
+    switch (e.action) {
+      case LeashEvent, DamageEvent, MountEvent, DismountEvent, PickupEvent, SpectateEvent -> {
+        ((Cancellable) e.event).setCancelled(false);
+      }
+    }
+  }
 
-        Condition(final String text) {
-            entry = SingleOptionDialogInput.OptionEntry
-                .create(name().toLowerCase(Locale.ROOT), TCUtil.form(text), false);
-        }
+  @EventHandler(ignoreCancelled = false)
+  public void test(final PlayerInteractEvent e) {
+    final Player p = e.getPlayer();
+    if (!ApiOstrov.isLocalBuilder(p)) return;
+    final Oplayer op = PM.getOplayer(p);
 
-        static {
-            final Map<String, Condition> sm = new ConcurrentHashMap<>();
-            for (final Condition cnd : Condition.values()) {
-                sm.put(cnd.name().toLowerCase(Locale.ROOT), cnd);
+    if (e.getItem() == null) return;
+    if (p.getCooldown(e.getItem()) > 0) return;
+    p.setCooldown(e.getItem(), 5);//в креативе делает двойной интеракт!
+
+       /*if (p.getGameMode() == GameMode.SPECTATOR) {
+            p.sendMessage("§8SPECTATOR "+e.getAction());
+            if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+            } else if (e.getAction() == Action.LEFT_CLICK_AIR) {
+                p.sendMessage("");
             }
-            names = Collections.unmodifiableMap(sm);
-        }
+            return;
+        }*/
 
-        private SingleOptionDialogInput.OptionEntry entry() {
-            return entry;
-        }
+    if (e.getItem().getType() == Material.WOODEN_PICKAXE) {
+      p.sendMessage("§8TestLst onInteract cancel");
+      e.setCancelled(true);
 
-        public static Condition parse(final String name) {
-            return names.get(name);
+      if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+        //p.sendMessage("undis");
+        //op.disguise.unDisguise();
+        if (p.isSneaking()) {
+          //p.sendMessage("LEFT_CLICK_BLOCK");
+        } else {
+
         }
+        return;
+      }
+
+      if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (p.isSneaking()) {
+
+        } else {
+          p.sendMessage("");
+
+//Ostrov.log_warn("nmsLe="+op.disguise.nmsLe);
+        }
+        return;
+      }
+      return;
     }
 
-    private enum WColor {RED, YELLOW, GREEN, BLUE}
 
-    private static final Condition[] OPTIONS_LONG = {Condition.NUM_SUM/*, Condition.END_UPPER*/,
-        Condition.HAS_UPPER/*, Condition.HAS_LOWER*/, Condition.IS_LARGE, Condition.MORE_LOWER};
-    private static final List<SingleOptionDialogInput.OptionEntry> LIST_LONG =
-        Arrays.stream(OPTIONS_LONG).map(Condition::entry).toList();
+    if (true) return;
 
-    private static final char[] WIRES = {'⎱', '⎛', '⎜', '⎝', '⎨', '⎫', '⎬', '⎭', '⎰', '⎱'};
-    private static final String[] CODES = {"v9FcO1nV4YePiM2ud3Rl", "1Fo5PlecJvqK7pU3s2En", "Fl1Trn8PoYdMf5oI2Vu3", "G4mQeD5oFx7laP2jWtM1"};
-
-    private static final int MAX_VOLTS = 500;
-    private static final int MAX_WIRES  = 9;
-    private static final WColor[] COLORS = WColor.values();
-
-    private static final String CODE = "code", VOLTS = "volts", CHECK = "check";
-
-//    @EventHandler
-    public void test(final PlayerInteractEvent e) { //extends EntityEvent
-        if (e.getAction() != Action.LEFT_CLICK_AIR) return;
-        final Player pl = e.getPlayer();
         final int time = Timer.secTime();
         final int volts = Ostrov.random.nextInt(MAX_VOLTS);
         final boolean check = Ostrov.random.nextBoolean();
@@ -116,14 +147,15 @@ public class TestLst implements Listener {
                     ), TCUtil.form("<beige>Провода"), false)
                 )).build())
             .type(DialogType.multiAction(List.of(
-                ActionButton.builder(TCUtil.form("<red>⎨ <u>Красный</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.RED, color, cond, check, volts, time)).build(),
-                ActionButton.builder(TCUtil.form("<yellow>⎨ <u>Желтый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.YELLOW, color, cond, check, volts, time)).build(),
-                ActionButton.builder(TCUtil.form("<green>⎨ <u>Зеленый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.GREEN, color, cond, check, volts, time)).build(),
-                ActionButton.builder(TCUtil.form("<blue>⎨ <u>Синий</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(pl, WColor.BLUE, color, cond, check, volts, time)).build()
+                ActionButton.builder(TCUtil.form("<red>⎨ <u>Красный</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(p, WColor.RED, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<yellow>⎨ <u>Желтый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(p, WColor.YELLOW, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<green>⎨ <u>Зеленый</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(p, WColor.GREEN, color, cond, check, volts, time)).build(),
+                ActionButton.builder(TCUtil.form("<blue>⎨ <u>Синий</u> ⎬")).tooltip(TCUtil.form("<beige>Клик - Разрезать")).action(genAction(p, WColor.BLUE, color, cond, check, volts, time)).build()
             ), null, 2))
         );
-        pl.showDialog(dg);
+    p.showDialog(dg);
     }
+
 
     private static DialogAction.CustomClickAction genAction(final Player pl, final WColor choice, final WColor color, final Condition cond, final boolean check, final int volts, final int sec) {
         return DialogAction.customClick((res, au) -> {
@@ -190,6 +222,92 @@ public class TestLst implements Listener {
         }
         return sb.toString();
     }
+
+
+  private enum Condition {
+    NUM_SUM("<mithril>Сумма <gold>цифр <mithril>в коде более <gold>20ти"),
+    //        END_UPPER("<mithril>Код кончается на <gold>большую <mithril>букву"),
+    HAS_UPPER("<mithril>В коде есть <gold>'C' <mithril>и <gold>'S'"),
+    //        HAS_LOWER("<mithril>В коде есть <gold>'a'<mithril>, <gold>'w'<mithril>, и <gold>'p'"),
+    IS_LARGE("<mithril>Код имеет <gold>более 25 <mithril>символов"),
+    MORE_LOWER("<mithril>Более <gold>половины <mithril>букв кода <gold>малые");
+
+    private static final Map<String, Condition> names;
+
+    private final SingleOptionDialogInput.OptionEntry entry;
+
+    Condition(final String text) {
+      entry = SingleOptionDialogInput.OptionEntry
+          .create(name().toLowerCase(Locale.ROOT), TCUtil.form(text), false);
+    }
+
+    static {
+      final Map<String, Condition> sm = new ConcurrentHashMap<>();
+      for (final Condition cnd : Condition.values()) {
+        sm.put(cnd.name().toLowerCase(Locale.ROOT), cnd);
+      }
+      names = Collections.unmodifiableMap(sm);
+    }
+
+    private SingleOptionDialogInput.OptionEntry entry() {
+      return entry;
+    }
+
+    public static Condition parse(final String name) {
+      return names.get(name);
+    }
+  }
+
+  private enum WColor {RED, YELLOW, GREEN, BLUE}
+
+  private static final Condition[] OPTIONS_LONG = {Condition.NUM_SUM/*, Condition.END_UPPER*/,
+      Condition.HAS_UPPER/*, Condition.HAS_LOWER*/, Condition.IS_LARGE, Condition.MORE_LOWER};
+  private static final List<SingleOptionDialogInput.OptionEntry> LIST_LONG =
+      Arrays.stream(OPTIONS_LONG).map(Condition::entry).toList();
+
+  private static final char[] WIRES = {'⎱', '⎛', '⎜', '⎝', '⎨', '⎫', '⎬', '⎭', '⎰', '⎱'};
+  private static final String[] CODES = {"v9FcO1nV4YePiM2ud3Rl", "1Fo5PlecJvqK7pU3s2En", "Fl1Trn8PoYdMf5oI2Vu3", "G4mQeD5oFx7laP2jWtM1"};
+
+  private static final int MAX_VOLTS = 500;
+  private static final int MAX_WIRES = 9;
+  private static final WColor[] COLORS = WColor.values();
+
+  private static final String CODE = "code", VOLTS = "volts", CHECK = "check";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void test(final EntityDamageEvent e) { //extends EntityEvent
         //Ostrov.log_warn("EntityDamageEvent "+e.getEntityType()+" cause="+e.getCause()+" src="+e.getDamageSource()+" dmg="+e.getDamage());

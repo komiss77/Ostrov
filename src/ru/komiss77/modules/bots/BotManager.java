@@ -35,7 +35,7 @@ import ru.komiss77.objects.IntHashMap;
 public class BotManager implements Initiable, Listener {
 
     public static final NamespacedKey KEY = OStrap.key("bot");
-    public static final IntHashMap<Botter> botById = new IntHashMap<>();
+  public static final IntHashMap<Botter> botById = new IntHashMap<>();//по id Vindicator
     protected static final CaseInsensitiveMap<Botter> botByName = new CaseInsensitiveMap<>();
 
     public BotManager() {

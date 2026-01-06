@@ -266,7 +266,7 @@ public class StringUtil {
         final double percent = (double) current / max * 100;
         int p10 = (int) (percent * 10);
         final double percent1d = ((double) p10 / 10); //чтобы не показывало 100
-        int pos = p10 / 40;
+        int pos = p10 / 37;
         if (pos < 2) pos = 2;
         else if (pos > 26) pos = 26;
         if (withPercent)

@@ -266,10 +266,22 @@ public class PlayerLst implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void startTrack(final PlayerTrackEntityEvent e) {
-        if (!e.getEntity().getType().isAlive()) return;
-        final Player p = e.getPlayer();
-        final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //UpperName cn = nameStorage.get(event.getEntity().getUniqueId());
-        if (targetOp != null) Ostrov.sync(() -> targetOp.tag.showTo(p), 1);
+      //if (!e.getEntity().getType().isAlive()) return;
+      //final Player p = e.getPlayer();
+      //final Oplayer targetOp = PM.getOplayer(e.getEntity().getUniqueId()); //UpperName cn = nameStorage.get(event.getEntity().getUniqueId());
+      //if (targetOp != null) Ostrov.sync(() -> targetOp.tag.showTo(p), 1);
+      if (e.getEntity() instanceof Player tracked) {
+        final Player p = e.getPlayer(); //начавший треккинг
+        final Oplayer trackedOp = PM.getOplayer(tracked); //кого увидели
+        if (trackedOp != null) {
+          Ostrov.sync(() -> {
+            trackedOp.tag.showTo(p);
+            //if (trackedOp.disguise.type != null) {
+            //    trackedOp.disguise.showTo(p, tracked);
+            //}
+          }, 1);
+        }
+      }
     }
 
     //после респавне не меняется

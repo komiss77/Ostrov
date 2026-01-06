@@ -6,6 +6,9 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 
 !!! заглушка PlayerAdvancements в OsPlayerDataStorage
 
+маскировка: удаляется моб (паук), удалять при загрузке, обработчик телепорта, использовать способности мобов, подбирать предметы
+
+
 иногда приходят в чат сообщения Нечто
 диалоги с версии 1.21.8 https://docs.papermc.io/paper/dev/dialogs/
 логический баг аналитики: учитывает PLAY_TIME из статы, а оно могло прирасти за период

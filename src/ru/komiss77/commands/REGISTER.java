@@ -43,6 +43,7 @@ public class REGISTER {
         Ostrov.regCommand(new SeenCmd()); //+
         Ostrov.regCommand(new WarpCmd()); //+
         Ostrov.regCommand(new TpaCmd()); //+
+      Ostrov.regCommand(new DisguiseCmd()); //+
         Ostrov.regCommand(new KitCmd()); //+
         //Ostrov.regCommand(new EntityCmd()); //+
         Ostrov.regCommand(new DonateCmd()); //+

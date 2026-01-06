@@ -29,6 +29,7 @@ import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
+import ru.komiss77.version.Disguise;
 
 
 public class ItemManager implements Initiable, Listener {
@@ -246,6 +247,7 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onLoad(final EntitiesLoadEvent e) {
+      Disguise.onEntitiesLoadEvent(e);
         for (final Entity en : e.getEntities()) {
             if (!(en instanceof final Item it)) continue;
             final SpecialItem si = SpecialItem.get(it.getItemStack());

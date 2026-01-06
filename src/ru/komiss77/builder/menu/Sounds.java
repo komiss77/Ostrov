@@ -52,14 +52,14 @@ public class Sounds implements InventoryProvider {
         }
 
         for (int i = from; i != to; i++) {
-            final String snm = sounds.get(i);
-            final Sound sound = OStrap.get(Key.key(snm), Sound.BLOCK_COMPARATOR_CLICK);
+          final String soundName = sounds.get(i);
+          final Sound sound = OStrap.get(Key.key(soundName), Sound.BLOCK_COMPARATOR_CLICK);
             if (sound == null) continue;
             final String tpn;
-            final int sp1 = snm.indexOf('.');
-            if (sp1 < 0) tpn = snm;
+          final int sp1 = soundName.indexOf('.');
+          if (sp1 < 0) tpn = soundName;
             else {
-                final String snm1 = snm.substring(sp1 + 1);
+            final String snm1 = soundName.substring(sp1 + 1);
                 final int sp2 = snm1.lastIndexOf('.');
                 if (sp2 < 0) tpn = snm1;
                 else tpn = snm1.substring(0, sp2);
@@ -75,7 +75,7 @@ public class Sounds implements InventoryProvider {
             if (tp == ItemType.AIR) tp = ItemType.FLOW_BANNER_PATTERN;
 
             content.add(ClickableItem.of(new ItemBuilder(tp)
-                .name("§f" + sound)
+                .name("§f" + soundName)
                 .lore("§7")
                 .lore("§7ЛКМ - играть")
                 .lore("§7Шифт + ЛКМ - играть ускоренно")

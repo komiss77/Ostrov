@@ -95,7 +95,7 @@ public class FigureManager implements Initiable {
 
     public static void init() { //из острова postWorld
 
-        config = Cfg.manager.getNewConfig("figure.yml");
+      //config = Cfg.manager.getNewConfig("figure.yml");
         figures.clear();
         ids.clear();
 

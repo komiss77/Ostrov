@@ -62,7 +62,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     //private final PlayerInventory inv;
     private final PlayerInventory inv;
 
-    private int rid;
+  private int rid; //Vindicator id
     private boolean isDead;
     private GameType currMode;
     private WeakReference<LivingEntity> rplc;
@@ -109,7 +109,7 @@ public class BotEntity extends ServerPlayer implements Botter {
     }*/
 
     public int rid() {
-        return rid;
+      return rid; //Vindicator id
     }
 
     public World world() {

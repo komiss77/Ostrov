@@ -26,6 +26,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.HandlerNames;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
@@ -171,12 +172,31 @@ public class Nms {
 
   }
 
-
+  /*
+   HandlerNames
+      public static final String DECOMPRESS = "decompress";
+      public static final String COMPRESS = "compress";
+      public static final String DECODER = "decoder";
+      public static final String ENCODER = "encoder";
+      public static final String INBOUND_CONFIG = "inbound_config";
+      public static final String OUTBOUND_CONFIG = "outbound_config";
+      public static final String SPLITTER = "splitter";
+      public static final String PREPENDER = "prepender";
+      public static final String DECRYPT = "decrypt";
+      public static final String ENCRYPT = "encrypt";
+      public static final String UNBUNDLER = "unbundler";
+      public static final String BUNDLER = "bundler";
+      public static final String PACKET_HANDLER = "packet_handler";
+      public static final String TIMEOUT = "timeout";
+      public static final String LEGACY_QUERY = "legacy_query";
+      public static final String LATENCY = "latency";
+   */
   public static void addPlayerPacketSpy(final Player p, final Oplayer op) {
     final PlayerPacketHandler packetSpy = new PlayerPacketHandler(op);
     final ChannelPipeline pipeline = Craft.toNMS(p).connection.connection.channel.pipeline();////EntityPlayer->PlayerConnection->NetworkManager->Chanell->ChannelPipeli
     try {
-      pipeline.addBefore("packet_handler", "ostrov_" + p.getName(), packetSpy);
+      pipeline.addBefore(HandlerNames.PACKET_HANDLER, "ostrov_" + p.getName(), packetSpy);
+      //pipeline.addBefore("packet_handler", "ostrov_" + p.getName(), packetSpy);
     } catch (NoSuchElementException e) {
       //p.kick(TCUtil.form("<gold>Остров <apple>все еще загружается!")); //такого не должно быть, ищем ошибку
       Ostrov.log_err("addPlayerPacketSpy " + p.getName() + " : " + e.getMessage());

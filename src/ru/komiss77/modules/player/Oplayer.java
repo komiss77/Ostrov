@@ -39,6 +39,7 @@ import ru.komiss77.objects.Group;
 import ru.komiss77.scoreboard.CustomScore;
 import ru.komiss77.utils.*;
 import ru.komiss77.version.CustomTag;
+import ru.komiss77.version.Disguise;
 import ru.komiss77.version.Nms;
 
 
@@ -67,6 +68,7 @@ public class Oplayer {
     public final HashMap<Long, BlockData> fakeBlock = new HashMap<>();
   public CustomScore score;
   public CustomTag tag;
+  public Disguise disguise;
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
@@ -141,6 +143,7 @@ public class Oplayer {
     tag.visible(true);
     tag.seeThru(true);
     tag(tagPreffix, tagSuffix);
+    disguise = new Disguise(p, this);
     beforeName(ChatLst.NIK_COLOR, (Player) p);
     Nms.addPlayerPacketSpy((Player) p, Oplayer.this);
   }
