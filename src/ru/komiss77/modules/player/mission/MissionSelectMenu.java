@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.Timer;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.modules.player.Oplayer;
@@ -228,13 +229,20 @@ public class MissionSelectMenu implements InventoryProvider {
 
         pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
-        content.set(4, 4, ClickableItem.of(new ItemBuilder(showCompleted ? Material.LIME_DYE : Material.GRAY_DYE)
+      content.set(4, 2, ClickableItem.of(new ItemBuilder(showCompleted ? Material.LIME_DYE : Material.GRAY_DYE)
             .name(showCompleted ? "§7Скрыть завершенные" : "§7Показать завершенные")
             .build(), e -> {
             showCompleted = !showCompleted;
             reopen(p, content);
         }));
 
+
+      content.set(4, 6, ClickableItem.of(new ru.komiss77.modules.items.ItemBuilder(ItemType.OAK_DOOR)
+          //.headTexture(ItemUtil.Texture.previosPage)
+          .name("§7назад")
+          .build(), e -> {
+        MissionMainMenu.open(p);
+      }));
     }
 
 

@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.ClickType;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.games.GameInfo;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.objects.Figure;
 import ru.komiss77.objects.Figure.FigureType;
 import ru.komiss77.utils.ItemBuilder;
@@ -158,6 +159,11 @@ public class MenuSetup implements InventoryProvider {
                 .lore("§7консоли.")
                 .lore("§7")
                 .build(), figure.leftclickcommand, msg -> {
+              if (msg.startsWith("@c") && !player.isOp()) {
+                PM.soundDeny(player);
+                player.sendMessage("§6От имени консоли могут назначать только операторы!");
+                return;
+              }
                 if (msg.contains("bossbar ") || msg.contains("op ")) {
                     player.kick(TCUtil.form("В следующий раз вылет с должности"));
                     Ostrov.log_err("Попытка ОП через фигуру: " + player.getName());

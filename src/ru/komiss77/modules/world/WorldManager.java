@@ -1,8 +1,11 @@
 package ru.komiss77.modules.world;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -309,7 +312,23 @@ public class WorldManager implements Initiable {
         //Please delete the uid.dat file from auth-ru's world directory if you want to be able to load the duplicate world.
         final File uid = new File(worldFoldersDirectory, "uid.dat");
         if (uid.exists() && !uid.isDirectory()) {
-            uid.delete();
+          //uid.delete(); не удалять, в новой версии при загрузке данных игрока по uuid определяет мир выхода!
+          UUID id = null;
+          try (DataInputStream inputStream = new DataInputStream(new FileInputStream(uid))) {
+            id = new UUID(inputStream.readLong(), inputStream.readLong());
+          } catch (IOException ex) {
+            Ostrov.log_warn("Worldmanager.create : ошибка чтения UUID из uid.dat " + ex.getMessage());
+          }
+          if (id != null) {
+            for (World w : Bukkit.getWorlds()) {
+//Ostrov.log_warn("id="+id+" w="+w.getUID()+" ==?"+(w.getUID().equals(id)));
+              if (w.getUID().equals(id)) {
+                Ostrov.log_warn("Worldmanager.create : мир с таким uuid уже есть, ужаляем uid.dat");
+                uid.delete();
+                break;
+              }
+            }
+          }
         }
 
         if (!valid_level_dat) {
@@ -333,20 +352,54 @@ public class WorldManager implements Initiable {
         }
         final long currentTimeMillis5 = System.currentTimeMillis();
 
-        final WorldCreator wc = new WorldCreator(world_name)
+      WorldCreator wc = new WorldCreator(world_name)
             .environment(environment)
             .seed(Ostrov.random.nextLong());
 
         applyGenerator(wc, generator);
 
         //world = wc.createWorld();
+      //java.lang.IllegalStateException: Overworld settings missing - мир был сгенерирован датапаком!
+      //World auth-ru is a duplicate of another world and has been prevented from loading.
         try {
             world = wc.createWorld();
-        } catch (IllegalStateException ex) { //как-то кинуло java.lang.IllegalStateException: Overworld settings missing
+        } catch (IllegalStateException ex) {
             Ostrov.log_err("WorldManager load->create world : " + ex.getMessage());
-            return null;
         }
 
+       /* if (world==null) {
+          Ostrov.log_warn("Мир не загрузился, пробуем удалить UUID");
+          final File uid = new File(worldFoldersDirectory, "uid.dat");
+          if (uid.exists() && !uid.isDirectory()) {
+            try(RandomAccessFile raf = new RandomAccessFile(uid, "rw")){
+              raf.setLength(0);
+            }  catch (IOException e) {
+              e.printStackTrace();
+            }
+            //final File uid_old = new File(worldFoldersDirectory, "uid_old.dat");
+            //try {
+            //  Files.move(uid.toPath(), uid_old.toPath(), StandardCopyOption.REPLACE_EXISTING);
+           // } catch (IOException e) {
+            //  Ostrov.log_warn("не удалось переименовать uid.dat");
+           // }
+            //uid.delete();
+          //try {
+            //  Thread.sleep(100l);
+           //} catch (InterruptedException e) {
+            //  throw new RuntimeException(e);
+           // }
+            try {
+              world = wc.createWorld();
+            } catch (IllegalStateException ex) {
+              Ostrov.log_err("WorldManager load->create world 2 : " + ex.getMessage());
+            }
+          }
+        }*/
+
+
+      if (world == null) {
+        sender.sendMessage(Ostrov.PREFIX + "Мир " + world_name + " не был загружен... ");
+      } else {
         if (sender instanceof ConsoleCommandSender) {
             Ostrov.log_ok("§2Мир загружен за " + (System.currentTimeMillis() - currentTimeMillis5) + "ms");
         } else {
@@ -355,6 +408,7 @@ public class WorldManager implements Initiable {
                 .hoverEvent(HoverEvent.showText(Component.text("клик-ТП")))
                 .clickEvent(ClickEvent.runCommand("/wm tp " + world_name))
                 .build());
+        }
         }
 
 
@@ -637,6 +691,7 @@ public class WorldManager implements Initiable {
     public static String possibleEnvironment() {
         String res = "";
         for (World.Environment g : World.Environment.values()) {
+          if (g == Environment.CUSTOM) continue;
             res = res + ", " + g.toString();
         }
         res = res.replaceFirst(", ", "");

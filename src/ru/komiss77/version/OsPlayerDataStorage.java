@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -22,11 +23,9 @@ import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.FileNameDateFormatter;
-import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.PlayerDataStorage;
-import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.*;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.slf4j.Logger;
 import ru.komiss77.Ostrov;
 import ru.komiss77.enums.Game;
@@ -118,6 +117,14 @@ public class OsPlayerDataStorage extends PlayerDataStorage {
       try {
         // Spigot start
         Optional<CompoundTag> optional = Optional.of(NbtIo.readCompressed(file.toPath(), NbtAccounter.unlimitedHeap()));
+//проблема с определением мира выхода - не удалять uuid в паке мира !!!
+//CompoundTag t = optional.get();
+//UUID id = new java.util.UUID (t.getLong("WorldUUIDMost").get(),t.getLong("WorldUUIDLeast").get());
+//World w = org.bukkit.Bukkit.getServer().getWorld(id);
+//Ostrov.log_warn("load "+id+" w="+w);
+        //ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(LOGGER);
+        //Optional<ValueInput> vi = TagValueInput.create(scopedCollector, this.server.registryAccess(), t);
+
         Ostrov.log_ok("§2file данные " + nameAndId.name() + " загружны");
         return optional;
 

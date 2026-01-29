@@ -253,7 +253,7 @@ public class PartUtil {
         firework.setFireworkMeta(fireworkMeta);
     }
 
-    @Deprecated
+  //@Deprecated
     public static void BorderDisplay(final Player p, final XYZ minPoint, final XYZ maxPoint, final boolean tpToCenter) {
         final Oplayer op = PM.getOplayer(p);
         final Cuboid cuboid = new Cuboid(minPoint, maxPoint);

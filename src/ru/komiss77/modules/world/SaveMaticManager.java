@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import ru.komiss77.Cfg;
@@ -29,6 +31,7 @@ public class SaveMaticManager implements Initiable {
                 saves.filter(Files::isRegularFile).forEach(svp -> {
                     if (!Files.isRegularFile(svp) || !svp.endsWith(Schematic.DEF_EXT)) return;
                     final Schematic sv = new Schematic(Bukkit.getConsoleSender(), svp.toFile(), true);
+//Ostrov.log_warn("SaveMaticManager postWorld BVec.parse param="+sv.getParam());
                     sv.paste(Bukkit.getConsoleSender(), BVec.parse(sv.getParam()), true);
                 });
             } catch (IOException e) {
@@ -38,7 +41,7 @@ public class SaveMaticManager implements Initiable {
         });
     }
 
-    public static int save(final Cuboid cb, final World w, final Runnable onDone) {
+  public static int save(final @Nonnull Cuboid cb, final @Nonnull World w, final @Nullable Runnable onDone) {
         if (!Cfg.savematics || sId < 0) {
             Ostrov.log_warn("§6SaveMatics havent loaded yet!");
             return -1;
@@ -48,7 +51,7 @@ public class SaveMaticManager implements Initiable {
             cb.minY + cb.spawnAddY, cb.minZ + cb.spawnAddZ).toString(), cb, w, false);
         Ostrov.async(() -> {
             sch.save(Bukkit.getConsoleSender(), SAVE_PATH.toString());
-            Ostrov.sync(onDone);
+          if (onDone != null) Ostrov.sync(onDone);
         });
         return id;
     }
@@ -65,6 +68,7 @@ public class SaveMaticManager implements Initiable {
                 return;
             }
             final Schematic sv = new Schematic(Bukkit.getConsoleSender(), svp.toFile(), true);
+//Ostrov.log_warn("SaveMaticManager load BVec.parse param="+sv.getParam());
             sv.paste(Bukkit.getConsoleSender(), BVec.parse(sv.getParam()), true);
         });
     }

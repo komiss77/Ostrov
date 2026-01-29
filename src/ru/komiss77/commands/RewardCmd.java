@@ -126,10 +126,10 @@ public class RewardCmd implements OCommand {
       }
 
       final CommandSender cs = cntx.getSource().getSender();
-      //if (!ApiOstrov.isLocalBuilder(cs)) { уже проверяется в начале
-      //  cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
-      //  return 0;
-      //}
+      if (!ApiOstrov.isLocalBuilder(cs) && cs.getName().equalsIgnoreCase("@EasyPayments")) {
+        cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
+        return 0;
+      }
 
       final String tgt = Resolver.string(cntx, player);
       final String typeName = Resolver.string(cntx, item);

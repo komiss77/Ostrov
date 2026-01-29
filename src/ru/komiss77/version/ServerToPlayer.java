@@ -27,6 +27,9 @@ public class ServerToPlayer extends ChannelDuplexHandler {
   static {
     try {
       //утилитка поиска номера поля - не удалять!!
+      //for (Field f : ClientboundMoveEntityPacket.class.getDeclaredFields()) {
+      //  Ostrov.log_warn("ServerToPlayer f="+f);
+      //}
       moveIdField = ClientboundMoveEntityPacket.class.getDeclaredFields()[0];
       moveIdField.setAccessible(true);
     } catch (ArrayIndexOutOfBoundsException ex) {

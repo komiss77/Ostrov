@@ -57,9 +57,9 @@ public class EntityGroupMenu implements InventoryProvider {
     public static IntHashMap<Chunk> getChunks(final Location loc, final int radius) {
         final IntHashMap<Chunk> chunks = new IntHashMap<>();
         if (radius > 0) {
-            final Cuboid c = new Cuboid(loc, radius * 2, 1, radius * 2);
-            c.allign(loc);
-            for (Chunk ch : c.getChunks(loc.getWorld())) {
+          final Cuboid cuboid = new Cuboid(loc, radius * 2, 1, radius * 2);
+          cuboid.allign(loc);
+          for (Chunk ch : cuboid.getChunks(loc.getWorld())) {
                 chunks.put(LocUtil.cLoc(ch), ch);
             }
         } else {

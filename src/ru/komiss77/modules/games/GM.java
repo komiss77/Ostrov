@@ -25,6 +25,7 @@ import ru.komiss77.enums.Game;
 import ru.komiss77.enums.GameState;
 import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Table;
+import ru.komiss77.events.BsignLocalArenaClick;
 import ru.komiss77.modules.netty.OsQuery;
 import ru.komiss77.modules.netty.QueryCode;
 import ru.komiss77.modules.translate.Lang;
@@ -439,15 +440,16 @@ public final class GM {
 
     public static void randomPlay(final Player p, final Game game, @Nullable final String serverName) {
         //хз зачем это сделано так, мне + другим игрокам вообще ненрав. когда закидывает на рандом карты, а не просто в лобби
+      //на змейте, твист при подходе к фигуре отправляет на карту где можно сразу сыграть
         if (Timer.has(p, "randomPlay")) return;
         Timer.add(p, "randomPlay", 2);
-//        final GameInfo gi = getGameInfo(game);
+      final GameInfo gi = getGameInfo(game);
         String serv = game.defaultServer;
         String arenaName = "";
 
-        /*if (gi == null) {
+      if (gi == null) {
             p.sendMessage("§cНет данных для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
-            serv = game.defaultServer;
+        //serv = game.defaultServer;
         } else {
             if (gi.count() == 0) {
                 p.sendMessage("§cНе найдено арен для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
@@ -469,17 +471,23 @@ public final class GM {
                     }
                 }
                 //p.sendMessage("§cНе найдено арены, подходящей для быстрой игры, попробуйте найти на табличке!");
-                if (arenaInfo == null) arenaInfo = gi.arenas().stream().findAny().orElse(null);
-                if (arenaInfo != null) arenaName = arenaInfo.arenaName;
+              if (arenaInfo == null) {
+                arenaInfo = gi.arenas().stream().findAny().orElse(null);
+              }
+              if (arenaInfo != null) {
+                arenaName = arenaInfo.arenaName;
+                serv = arenaInfo.server;
+              }
             }
-        }*/
+      }
 
         if (serv.equalsIgnoreCase(Ostrov.MOT_D)) {
-            /*if (!arenaName.isEmpty()) {
+          if (!arenaName.isEmpty()) {
                 Bukkit.getPluginManager().callEvent(new BsignLocalArenaClick(p, arenaName));
-            }*/
+          }
         } else {
-            ApiOstrov.sendToServer(p, serv, arenaName);
+          //ApiOstrov.sendToServer(p, serv, arenaName);
+          ApiOstrov.sendToServer(p, serv, ""); //при смене сервера не указывать арену-многим не нравится когда сразу кидает в игру
         }
 
     }

@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.RemoteDB;
@@ -16,6 +17,7 @@ import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
 import ru.komiss77.utils.inventory.InputButton;
@@ -223,7 +225,15 @@ public class MissionWithdrawCreateMenu implements InventoryProvider {
 
             }));
 
+
         }
+
+      content.set(4, 4, ClickableItem.of(new ru.komiss77.modules.items.ItemBuilder(ItemType.OAK_DOOR)
+          //.headTexture(ItemUtil.Texture.previosPage)
+          .name("§7назад")
+          .build(), e -> {
+        MissionMainMenu.open(p);
+      }));
 
 
     }

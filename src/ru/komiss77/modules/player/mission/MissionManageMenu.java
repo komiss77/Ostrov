@@ -5,6 +5,9 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemType;
+import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ItemBuilder;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.inventory.ClickableItem;
@@ -32,8 +35,21 @@ public class MissionManageMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent content) {
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 5, 5);
         content.fillRect(0, 0, 4, 8, fill);
+      final Oplayer op = PM.getOplayer(p);
 
-        if ((buttonsCurrent == null || buttonsCurrent.isEmpty()) && (buttonsDone == null || buttonsDone.isEmpty())) {
+      if (op.isGuest) {
+
+        content.set(0, 4, ClickableItem.empty(new ru.komiss77.modules.items.ItemBuilder(ItemType.BARRIER)
+            .name("§7Миссия невыполнима")
+            .lore("")
+            .lore("")
+            .lore("§6Гости не могут")
+            .lore("§6выполнять миссии!")
+            .lore("§6Вам нужно зарегаться!")
+            .build()
+        ));
+
+      } else if ((buttonsCurrent == null || buttonsCurrent.isEmpty()) && (buttonsDone == null || buttonsDone.isEmpty())) {
 
             content.set(1, 4, ClickableItem.empty(new ItemBuilder(Material.GLASS_BOTTLE)
                 .name("§7Миссия невыполнима")
@@ -67,6 +83,12 @@ public class MissionManageMenu implements InventoryProvider {
                     content.getHost().open(p, pagination.previous().getPage());
                 }));
             }
+        content.set(4, 4, ClickableItem.of(new ru.komiss77.modules.items.ItemBuilder(ItemType.OAK_DOOR)
+            //.headTexture(ItemUtil.Texture.previosPage)
+            .name("§7назад")
+            .build(), e -> {
+          MissionMainMenu.open(p);
+        }));
 
             pagination.addToIterator(content.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 

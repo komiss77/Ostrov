@@ -23,6 +23,7 @@ import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.modules.player.profile.Section;
+import ru.komiss77.modules.player.profile.StatManager;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.ScreenUtil;
@@ -164,6 +165,8 @@ public class MissionManager {
     //без флага добавить к предыдущему значению
     public static void onCustomStat(final Oplayer op, final String customStatName, final int value, final boolean reach) {
 //Bukkit.broadcastMessage("onCustomStat "+op.nik+" "+customStatName+" "+value+" ids="+op.missionIds.toString()+ " reach?"+reach);
+      if (StatManager.DEBUG)
+        Ostrov.log("MissionManager onCustomStat " + op.nik + " " + customStatName + "," + value + " reach?" + reach + " db=" + RemoteDB.useOstrovData + " ids=" + op.missionIds);
         if (!RemoteDB.useOstrovData) {
             //op.getPlayer().sendMessage("§cБД острова отключена!");
             return;

@@ -41,7 +41,7 @@ public class Sedna implements InventoryProvider {
         final ProfileManager pm = op.menu;
 
         //линия - разделитель
-        content.fillRow(4, fill);
+      content.fillRow(1, fill);
 
         //выставить иконки внизу
         for (Section section : Section.values()) {
@@ -54,7 +54,7 @@ public class Sedna implements InventoryProvider {
         //в точках дома - показывать приваты, если есть
         //работы, рынок,аукцион?
 
-        content.set(1, 1, ClickableItem.of(new ItemBuilder(Material.FIRE_CHARGE)
+      content.set(0, 0, ClickableItem.of(new ItemBuilder(Material.FIRE_CHARGE)
                 .name("§7Спавн")
                 .lore("")
                 .lore("")
@@ -66,7 +66,7 @@ public class Sedna implements InventoryProvider {
         }));
 
 
-        content.set(1, 2, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
+      /*  content.set(0, 1, ClickableItem.of(new ItemBuilder(Material.GRASS_BLOCK)
                 .name("§7Миры")
                 .lore("")
                 .lore("§7ЛКМ- перемещение в миры")
@@ -79,10 +79,10 @@ public class Sedna implements InventoryProvider {
                 .build(), e -> {
             pm.current = null;
             p.performCommand("world");
-        }));
+        }));*/
 
 
-        content.set(1, 3, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
+      content.set(0, 1, ClickableItem.of(new ItemBuilder(Material.ENDER_PEARL)
                 .name("§7Места")
                 .lore("")
                 .lore("")
@@ -94,7 +94,7 @@ public class Sedna implements InventoryProvider {
         }));
 
 
-        if (Cfg.home_command) {
+        /*if (Cfg.home_command) {
             content.set(1, 4, ClickableItem.of(new ItemBuilder(Material.LIME_BED)
                     .name("§7Точки дома")
                     .lore("")
@@ -113,11 +113,11 @@ public class Sedna implements InventoryProvider {
                     .lore("")
                     .build()
             ));
-        }
+        }*/
 
 
         final boolean moderTPO = p.hasPermission("ostrov.tpo");
-        content.set(1, 5, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
+      content.set(0, 2, ClickableItem.of(new ItemBuilder(Material.PLAYER_HEAD)
                 .name(moderTPO ? "§7Перемещение к игрокам" : "§7Запрос на телепорт")
                 .lore("")
                 .lore("")
@@ -128,7 +128,7 @@ public class Sedna implements InventoryProvider {
         }));
 
 
-        content.set(1, 6, ClickableItem.of(new ItemBuilder(Material.COMPASS)
+      content.set(0, 3, ClickableItem.of(new ItemBuilder(Material.COMPASS)
                 .name("§7Случайный телепорт")
                 .lore("")
                 .lore("")
@@ -141,7 +141,7 @@ public class Sedna implements InventoryProvider {
 
 
         // "§7Информация и управление приватами" ,"§6Левый клик - §bВ этом мире + управление", "§6Правый клик - §6Во всех мирах (только просмотр)"
-        if (Ostrov.wg) {
+      /*  if (Ostrov.wg) {
             content.set(1, 7, ClickableItem.of(new ItemBuilder(Material.OAK_FENCE_GATE)
                 .name("§7Приваты")
                 .lore("")
@@ -166,10 +166,10 @@ public class Sedna implements InventoryProvider {
                 .lore("§cна данном сервере.")
                 .build()
             ));
-        }
+        }*/
 
 
-        content.set(2, 1, ClickableItem.of(new ItemBuilder(Material.GOLDEN_SWORD)
+      content.set(0, 4, ClickableItem.of(new ItemBuilder(Material.GOLDEN_SWORD)
                 .name("§6Наборы")
                 .lore("")
                 .lore(Cfg.getConfig().getBoolean("modules.command.kit") ? "§7ЛКМ - получение" : "§cОтключено на данном сервере")

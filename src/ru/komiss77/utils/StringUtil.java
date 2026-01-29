@@ -219,7 +219,7 @@ public class StringUtil {
         return sb.toString();*/
         return StreamSupport.stream(array.spliterator(), true)
             .map(Object::toString)
-            .reduce((t, u) -> t + "," + u)
+            .reduce((t, u) -> t + splitter + u)
             .orElse("");
     }
 

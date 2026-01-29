@@ -11,8 +11,11 @@ import java.util.function.Consumer;
 import com.destroystokyo.paper.profile.CraftPlayerProfile;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
@@ -27,12 +30,16 @@ public class Skins {
     private static final HashMap<UUID, PlayerProfile> uided = new HashMap<>();
 
     public static GameProfile game(final PlayerProfile pp) {
-        final GameProfile gp = new GameProfile(pp.getId() == null
-            ? UUID.randomUUID() : pp.getId(), pp.getName());
+      //final GameProfile gp = new GameProfile(pp.getId() == null ? UUID.randomUUID() : pp.getId(), pp.getName());
+      // UnsupportedOperationException at com.google.common.collect.ImmutableMultimap.put(I
+      UUID id = pp.getId() == null ? UUID.randomUUID() : pp.getId();
+      final HashMultimap<String, Property> properties = HashMultimap.create();
         for (final ProfileProperty pr : pp.getProperties()) {
-            gp.properties().put(pr.getName(),
-                new Property(pr.getName(), pr.getValue(), pr.getSignature()));
+          //gp.properties().put(pr.getName(), new Property(pr.getName(), pr.getValue(), pr.getSignature()));
+          properties.put(pr.getName(), new Property(pr.getName(), pr.getValue(), pr.getSignature()));
         }
+      PropertyMap pm = new PropertyMap(properties); //делает  ImmutableMultimap.copyOf, потом ничего не добавить!!
+      final GameProfile gp = new GameProfile(id, pp.getName(), pm);
         return gp;
     }
 

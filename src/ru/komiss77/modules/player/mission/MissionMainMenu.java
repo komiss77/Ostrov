@@ -18,6 +18,17 @@ public class MissionMainMenu implements InventoryProvider {
 
     private static final ClickableItem fill, guestDeny, empty, select, my, withdraw, journal;
 
+  public static void open(Player p) {
+    SmartInventory
+        .builder()
+        .provider(new MissionMainMenu())
+        .size(5, 9)
+        .title("§a§lМиссии")
+        .build()
+        .open(p);
+  }
+
+
     static {
         fill = ClickableItem.empty(new ItemBuilder(ItemType.SCULK_VEIN).name("§8.").build());
         guestDeny = ClickableItem.empty(new ItemBuilder(ItemType.BARRIER)
@@ -37,11 +48,11 @@ public class MissionMainMenu implements InventoryProvider {
             .lore("")
             .build()
         );
-        select = ClickableItem.of(new ItemBuilder(ItemType.COAST_ARMOR_TRIM_SMITHING_TEMPLATE)
+      select = ClickableItem.of(new ItemBuilder(ItemType.SCRAPE_POTTERY_SHERD)
                 .name("§b§lМиссионария")
                 .lore("")
-                .hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
-                    DataComponentTypes.PROVIDES_TRIM_MATERIAL)
+          //.hide(DataComponentTypes.TRIM, DataComponentTypes.ATTRIBUTE_MODIFIERS,
+          //    DataComponentTypes.PROVIDES_TRIM_MATERIAL)
                 .lore("§fОткрыть меню")
                 .lore("§fвыбора §bМиссий")
                 .build(), e -> {
@@ -100,7 +111,7 @@ public class MissionMainMenu implements InventoryProvider {
     }
 
 
-    @Override
+  @Override
     public void init(final Player p, final InventoryContent content) {
         p.playSound(p.getLocation(), Sound.ENTITY_SHULKER_OPEN, 1, 1);
         content.fillRect(0, 0, 4, 8, fill);

@@ -22,13 +22,13 @@ public class Figure {
     public String lastName;
 
     public final EntityType entityType;
-    public FigureType type = FigureType.COMMAND;
+  public FigureType type = FigureType.EVENT;
     public Game game = null;
     public String leftclickcommand = "@c say @p левый клик";
     public String rightclickcommand = "@c say @p правый клик";
 
     public String worldName;
-    public int x, y, z, yaw, pitch;
+  public int x, cx, y, z, cz, yaw, pitch;
 
     public int spawn_try = 0;
     public Entity entity;
@@ -43,8 +43,10 @@ public class Figure {
         worldName = entity.getWorld().getName();
         this.entity = entity;
         x = entity.getLocation().getBlockX();
+      cx = x >> 4;
         y = entity.getLocation().getBlockY();
         z = entity.getLocation().getBlockZ();
+      cz = z >> 4;
         yaw = (int) entity.getLocation().getYaw();
         pitch = (int) entity.getLocation().getPitch();
         spawnLoc = entity.getLocation();
@@ -65,11 +67,16 @@ public class Figure {
         String[] split = locString.split(locString.contains(":") ? ":" : "<>");
         worldName = split[0];
         x = NumUtil.intOf(split[1], 0);
+      cx = x >> 4;
         y = NumUtil.intOf(split[2], 0);
         z = NumUtil.intOf(split[3], 0);
+      cz = z >> 4;
         yaw = NumUtil.intOf(split[4], 0);
         pitch = NumUtil.intOf(split[5], 0);
-        spawnLoc = LocUtil.stringToLoc(locString, false, false).toCenterLocation();
+      final Location l = LocUtil.stringToLoc(locString, false, false);
+      if (l != null) {
+        spawnLoc = l.toCenterLocation();
+      }
     }
 
     public static int generateId() {

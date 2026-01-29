@@ -8,6 +8,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.block.Biome;
 import org.dynmap.renderer.DynmapBlockState;
 
 public class DynmapNms {
@@ -19,14 +20,14 @@ public class DynmapNms {
     HashMap<String, DynmapBlockState> lastBlockState = new HashMap<>();
     //Registry<IBlockData> bsids = Block.q;
     IdMapper<BlockState> bsids = Block.BLOCK_STATE_REGISTRY;
-    Block baseb;
+    Block baseBlock;
     //ArrayList<String> names = new ArrayList<String>();
     DynmapBlockState.Builder bld = new DynmapBlockState.Builder();
 
     for (BlockState bs : bsids) {//while (iter.hasNext()) {
-      baseb = bs.getBlock();
-      //ResourceKey id = BuiltInRegistries.BLOCK.getResourceKey(baseb).get();
-      Identifier id = BuiltInRegistries.BLOCK.getKey(baseb);
+      baseBlock = bs.getBlock();
+      //ResourceKey id = BuiltInRegistries.BLOCK.getResourceKey(baseBlock).get();
+      Identifier id = BuiltInRegistries.BLOCK.getKey(baseBlock);
       String minecraftName = id.toString();
 
       DynmapBlockState lastbs = lastBlockState.get(minecraftName);  // See if we have seen this one
@@ -56,7 +57,7 @@ public class DynmapNms {
       if (bs.isAir()) bld.setAir(); // isAir
       if (bs.is(BlockTags.OVERWORLD_NATURAL_LOGS)) bld.setLog(); // is(OVERWORLD_NATURAL_LOGS)
       if (bs.is(BlockTags.LEAVES)) bld.setLeaves(); // is(LEAVES)
-      if (!bs.getFluidState().isEmpty() && !(baseb instanceof SimpleWaterloggedBlock)) {  // getFluidState.isEmpty(), getBlock
+      if (!bs.getFluidState().isEmpty() && !(baseBlock instanceof SimpleWaterloggedBlock)) {  // getFluidState.isEmpty(), getBlock
         bld.setWaterlogged(); //Log.info("statename=" + bname + "[" + sb + "] = waterlogged");
       }
 

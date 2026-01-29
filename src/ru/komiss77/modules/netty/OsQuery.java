@@ -87,6 +87,7 @@ public class OsQuery {
   }
 
   private static void connect() {
+    if (!Ostrov.USE_NETTY_QUERRY) return;
     if (channel != null) {
       if (channel.isOpen()) {
         channel.close();
@@ -116,6 +117,7 @@ public class OsQuery {
 
   public static void heartBeat(final int secondCounter) {
 //if (channel!=null) Ostrov.log_warn("isOpen?" + channel.isOpen() + " isActive?" + channel.isActive() + " isWritable?" + channel.isWritable()); else Ostrov.log_warn("channel=null");
+    if (!Ostrov.USE_NETTY_QUERRY) return;
     if (channel != null && channel.isOpen()) {
       if (secondCounter % 15 == 0) { //раз в 15сек-подробно
         short memTot = (short) (Runtime.getRuntime().totalMemory() >> 20);

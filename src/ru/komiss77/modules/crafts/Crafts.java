@@ -115,40 +115,40 @@ public final class Crafts implements Initiable, Listener {
     public static void readCraft(final ConfigurationSection cs) {
         //ConfigurationSection cs = craftConfig.getConfigurationSection("crafts");
         final ItemStack resultItem = ItemUtil.parse(cs.getString("result"));
-        final NamespacedKey nsk = new NamespacedKey(OStrap.space, cs.getName());
+      final NamespacedKey key = new NamespacedKey(OStrap.space, cs.getName());
         //cs = craftConfig.getConfigurationSection("crafts." + c + ".recipe");
         final Recipe recipe;
         final ItemStack it;
         switch (cs.getString("type")) {//(craftConfig.getString("crafts." + c + ".type")) {
             case "smoker":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new SmokingRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 100);
+              recipe = new SmokingRecipe(key, resultItem, IdChoice.of(it), 0.5f, 100);
                 break;
             case "blaster":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new BlastingRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 100);
+              recipe = new BlastingRecipe(key, resultItem, IdChoice.of(it), 0.5f, 100);
                 break;
             case "campfire":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new CampfireRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 500);
+              recipe = new CampfireRecipe(key, resultItem, IdChoice.of(it), 0.5f, 500);
                 break;
             case "furnace":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new FurnaceRecipe(nsk, resultItem, IdChoice.of(it), 0.5f, 200);
+              recipe = new FurnaceRecipe(key, resultItem, IdChoice.of(it), 0.5f, 200);
                 break;
             case "cutter":
                 if (ItemUtil.isBlank((it = ItemUtil.parse(cs.getString("recipe.a"))), false)) return;
-                recipe = new StonecuttingRecipe(nsk, resultItem, IdChoice.of(it));
+              recipe = new StonecuttingRecipe(key, resultItem, IdChoice.of(it));
                 break;
             case "smith":
                 it = ItemUtil.parse(cs.getString("recipe.a"));
                 final ItemStack scd = ItemUtil.parse(cs.getString("recipe.b"));
                 if (ItemUtil.isBlank(it, false) || ItemUtil.isBlank(scd, false)) return;
-                recipe = new SmithingTransformRecipe(nsk, resultItem, IdChoice.of(ItemUtil.parse(cs.getString("recipe.c"))),
+              recipe = new SmithingTransformRecipe(key, resultItem, IdChoice.of(ItemUtil.parse(cs.getString("recipe.c"))),
                     IdChoice.of(it), IdChoice.of(scd), !it.hasData(DataComponentTypes.DAMAGE));
                 break;
             case "noshape":
-                recipe = new ShapelessRecipe(nsk, resultItem);
+              recipe = new ShapelessRecipe(key, resultItem);
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
                     final ItemStack ii = ItemUtil.parse(cs.getString("recipe." + s));
                     if (!ii.getType().isAir()) {
@@ -158,17 +158,30 @@ public final class Crafts implements Initiable, Listener {
                 break;
             case "shaped":
             default:
-                recipe = new ShapedRecipe(nsk, resultItem);
-                final String shp = cs.getString("shape");
-                ((ShapedRecipe) recipe).shape(shp == null ? new String[]{"abc", "def", "ghi"} : shp.split(":"));
+              recipe = new ShapedRecipe(key, resultItem);
+              final String shapeStr = cs.getString("shapeStr");
+              ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
+              if (shapeStr == null) {
+                shapedRecipe.shape(new String[]{"abc", "def", "ghi"});
+              } else {
+                shapedRecipe.shape(shapeStr.split(":"));
+              }
+              //((ShapedRecipe) recipe).shape(shapeStr == null ? new String[]{"abc", "def", "ghi"} : shapeStr.split(":"));
                 for (final String s : cs.getConfigurationSection("recipe").getKeys(false)) {
-                    ((ShapedRecipe) recipe).setIngredient(s.charAt(0), IdChoice.of(ItemUtil.parse(cs.getString("recipe." + s))));
+                  final ItemStack is = ItemUtil.parse(cs.getString("recipe." + s));
+                  if (ItemUtil.isBlank(is, false)) {
+                    Ostrov.log_warn("Craft is isBlank : " + s);
+                    continue;
+                  }
+                  //Caused by: java.lang.IllegalArgumentException: empty RecipeChoice isn't allowed here
+                  RecipeChoice recipeChoice = IdChoice.of(is);
+                  shapedRecipe.setIngredient(s.charAt(0), recipeChoice);
                 }
                 break;
         }
         Bukkit.addRecipe(recipe);
         //final SubServer sv = SubServer.parseSubServer(cs.getString("world"));
-        crafts.put(nsk, new Craft(recipe, p -> true));
+      crafts.put(key, new Craft(recipe, p -> true));
 
     }
 

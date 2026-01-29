@@ -11,6 +11,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.storage.SerializableChunkData;
@@ -27,6 +29,7 @@ import org.dynmap.common.chunk.GenericChunkSection;
 import org.dynmap.common.chunk.GenericMapChunkCache;
 import org.dynmap.renderer.DynmapBlockState;
 import org.dynmap.utils.DataBitsPacked;
+import ru.komiss77.Ostrov;
 import ru.komiss77.version.Craft;
 
 //https://github.com/webbukkit/dynmap
@@ -89,6 +92,7 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
   }
 
 
+  //net.minecraft.world.level.chunk.storage.SerializableChunkData
   public GenericChunk parseChunkFromNBT(final CompoundTag chunkData) {
     boolean hasLitState = false;
     ChunkStatus chunkStatus = chunkData.read("Status", ChunkStatus.CODEC).orElse(ChunkStatus.EMPTY);
@@ -117,38 +121,10 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
       chunkBuilder.inhabitedTicks(chunkData.getLongOr("InhabitedTime", 0)); //+
     }
 
-    // Check for 2D or old 3D biome data from chunk level: need these when we build old sections
-    List<BiomeMap[]> old3d = null;  // By section, then YZX list
-    BiomeMap[] old2d = null;
-    if (chunkData.contains("Biomes")) {
-      int[] bb = chunkData.getIntArray("Biomes").get();
-      if (bb != null) {
-        // If v1.15+ format
-        if (bb.length > 256) {
-          old3d = new ArrayList<BiomeMap[]>();
-          // Get 4 x 4 x 4 list for each section
-          for (int sect = 0; sect < (bb.length / 64); sect++) {
-            BiomeMap[] smap = new BiomeMap[64];
-            for (int i = 0; i < 64; i++) {
-              smap[i] = BiomeMap.byBiomeID(bb[sect * 64 + i]);
-            }
-            old3d.add(smap);
-          }
-        } else { // Else, older chunks
-          old2d = new BiomeMap[256];
-          for (int i = 0; i < bb.length; i++) {
-            old2d[i] = BiomeMap.byBiomeID(bb[i]);
-          }
-        }
-      }
-    }
     // Start section builder
     GenericChunkSection.Builder sectionBuilder = new GenericChunkSection.Builder();
-    /* Get sections */
-    //GenericNBTList sect = chunkData.contains("sections") ? chunkData.getList("sections", 10) : chunkData.getList("Sections", 10);
     ListTag sections = chunkData.getListOrEmpty(SerializableChunkData.SECTIONS_TAG);//chunkData.getListOrEmpty("Sections");
 //Ostrov.log_warn(x+":"+z+" stat="+chunkStatus.getName().toLowerCase()+" sections="+sections.size()+" hasLitState="+hasLitState+" hasLitState="+isLightOn+(hasLight?" hasLight":" generateSky"));
-    //List<SerializableChunkData.SectionData> sectData = new ArrayList<>(sect.size());
     // And process sections
     for (int i = 0; i < sections.size(); i++) {
       Optional<CompoundTag> optional = sections.getCompound(i);
@@ -157,7 +133,6 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
         continue;
       }
       CompoundTag sectionData = optional.get();
-        //GenericNBTCompound sec = sect.getCompound(i);
       int secnum = sectionData.getByteOr("Y", (byte) 0);//sec.getByte("Y");
 
 //Ostrov.log("sectionBuilder "+x+":"+z+" sect="+secnum+" block_states?"+sectionData.contains("block_states")
@@ -247,42 +222,57 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
         hasLight = true;
       }
 
-      // If section biome palette
 //t.append(", biomes=").append(sectionData.contains("biomes"));
       if (sectionData.contains("biomes")) {
         CompoundTag nbtbiomes = sectionData.getCompound("biomes").get();
-        //GenericNBTCompound nbtbiomes = sec.getCompound("biomes");
+
         long[] bdataPacked;// = nbtbiomes.getLongArray("data").get();
-        if (nbtbiomes.contains("data")) {
+        if (nbtbiomes.contains("data")) { //скорее всего датапак??
           bdataPacked = nbtbiomes.getLongArray("data").get();
+//Ostrov.log_warn("bdataPacked "+bdataPacked);
         } else {
           bdataPacked = new long[0];
+//Ostrov.log_warn("bdataPacked new long");
         }
+
         ListTag bpalette = nbtbiomes.getListOrEmpty("palette");
-        //GenericNBTList bpalette = nbtbiomes.getList("palette", 8);
-        SimpleBitStorage bdata = null;//GenericBitStorage db = null;GenericBitStorage bdata = null;
+        String biomeName;
+        SimpleBitStorage simpleBitStorage = null;//GenericBitStorage db = null;GenericBitStorage simpleBitStorage = null;
+
         if (bdataPacked.length > 0) {
+//Ostrov.log_warn("bdataPacked="+bdataPacked);
           int valsPerLong = (64 / bdataPacked.length);
-          bdata = new SimpleBitStorage((64 + valsPerLong - 1) / valsPerLong, 64, bdataPacked);//
-          //bdata = chunkData.makeBitStorage((64 + valsPerLong - 1) / valsPerLong, 64, bdataPacked);
-        }
-        for (int j = 0; j < 64; j++) {
-          int b = bdata != null ? bdata.get(j) : 0;
-          sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, BiomeMap.byBiomeName(bpalette.getStringOr(b, "")));
-        }
-      } else {  // Else, apply legacy biomes
-        if (old3d != null) {
-          BiomeMap[] m = old3d.get((secnum > 0) ? ((secnum < old3d.size()) ? secnum : old3d.size() - 1) : 0);
-          if (m != null) {
-            for (int j = 0; j < 64; j++) {
-              sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, m[j]);
-            }
+          simpleBitStorage = new SimpleBitStorage((64 + valsPerLong - 1) / valsPerLong, 64, bdataPacked);//
+          for (int j = 0; j < 64; j++) {
+            int b = simpleBitStorage.get(j);
+            biomeName = bpalette.getStringOr(b, "");
+            BiomeMap bm = BiomeMap.byBiomeName(biomeName);
+            if (bm == BiomeMap.NULL) bm = BiomeMap.byBiomeResourceLocation(biomeName);
+//Ostrov.log_warn( "bdataPacked biomeName="+biomeName+" bm "+bm);
+            sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, bm);
+//Ostrov.log_warn("palette "+bm);
           }
-        } else if (old2d != null) {
-          for (int j = 0; j < 256; j++) {
-            sectionBuilder.xzBiome(j & 0xF, (j & 0xF0) >> 4, old2d[j]);
+        } else {
+          //!!! на карте рисовало серую траву и воду - не определяло биом, byBiomeName выдавал BiomeMap.NULL а не null !!!
+          biomeName = bpalette.getStringOr(0, "");
+          BiomeMap bm = BiomeMap.byBiomeName(biomeName);
+          if (bm == BiomeMap.NULL) bm = BiomeMap.byBiomeResourceLocation(biomeName);
+//Ostrov.log_warn( "secnum="+secnum+" biomeName="+biomeName+" bm "+bm);
+          for (int j = 0; j < 64; j++) {
+            sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, bm);
+//Ostrov.log_warn("palette "+bm);
           }
         }
+
+//Ostrov.log_warn( "simpleBitStorage="+simpleBitStorage+" bpalette "+bpalette);
+        //  for (int j = 0; j < 64; j++) {
+        //    int b = simpleBitStorage != null ? simpleBitStorage.get(j) : 0;
+        //    biomeName = bpalette.getStringOr(b, "");
+        //    BiomeMap bm = BiomeMap.byBiomeName(biomeName);
+//Ostrov.log_warn( "biomeName="+biomeName+" bm "+bm);
+        //   sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, bm);
+//Ostrov.log_warn("palette "+bm);
+        // }
       }
 //Ostrov.log(t.toString());
       // Finish and add section
@@ -303,21 +293,109 @@ public class MapChunkCacheNms extends GenericMapChunkCache {
     super.setChunks(dw, chunks);
   }
 
+  /*
+for (Biome b : Ostrov.registries.BIOMES) {
+if (b.key().value().equalsIgnoreCase(lines.get(line))) {
+createdBiome = b; //line11
+}
+}
+ */
+
+
+  @Override
+  public int getWaterColor(BiomeMap bm) {
+    final net.minecraft.world.level.biome.Biome nmsBiome = (net.minecraft.world.level.biome.Biome) bm.getBiomeObject().get();
+    //int i = nmsBiome.getFoliageColor();
+    final BiomeSpecialEffects se = nmsBiome.getSpecialEffects();
+//Ostrov.log_warn("getWaterColor bm="+bm+" ="+se.waterColor());
+    return se.waterColor();
+    //return colormap[bm.biomeLookup()];
+    //bm.<BiomeBase>getBiomeObject().map(BiomeBase::h).flatMap(BiomeFog::e).orElse(colormap[bm.biomeLookup()]); // BiomeBase::getSpecialEffects, BiomeFog::skyColor
+    //  return i;
+  }
+
   @Override
   public int getFoliageColor(BiomeMap bm, int[] colormap, int x, int z) {
-    return colormap[bm.biomeLookup()];//bm.<BiomeBase>getBiomeObject().map(BiomeBase::h).flatMap(BiomeFog::e).orElse(colormap[bm.biomeLookup()]); // BiomeBase::getSpecialEffects, BiomeFog::skyColor
+    final net.minecraft.world.level.biome.Biome nmsBiome = (net.minecraft.world.level.biome.Biome) bm.getBiomeObject().get();
+    //int i = nmsBiome.getFoliageColor();
+    final BiomeSpecialEffects se = nmsBiome.getSpecialEffects();
+    return se.foliageColorOverride().orElse(colormap[bm.biomeLookup()]);
+    //return colormap[bm.biomeLookup()];
+    //bm.<BiomeBase>getBiomeObject().map(BiomeBase::h).flatMap(BiomeFog::e).orElse(colormap[bm.biomeLookup()]); // BiomeBase::getSpecialEffects, BiomeFog::skyColor
+//Ostrov.log_warn("getFoliageColor bm="+bm+" i="+i);
+    //  return i;
   }
 
   @Override
   public int getGrassColor(BiomeMap bm, int[] colormap, int x, int z) {
+
+    // Biome b; b.getFoliageColor()
     //BiomeFog fog = bm.<BiomeBase>getBiomeObject().map(BiomeBase::h).orElse(null); // BiomeBase::getSpecialEffects
     //if (fog == null)
-    return colormap[bm.biomeLookup()];
+    final net.minecraft.world.level.biome.Biome nmsBiome = (net.minecraft.world.level.biome.Biome) bm.getBiomeObject().get();
+    final BiomeSpecialEffects se = nmsBiome.getSpecialEffects();
+    return se.grassColorModifier().modifyColor(x, z, se.grassColorOverride().orElse(colormap[bm.biomeLookup()]));
+    //int i = nmsBiome.getGrassColor(x, z);
+//Ostrov.log_warn("getGrassColor "+x+","+z+"  bm="+bm+" grass="+i+" foll="+nmsBiome.getFoliageColor()+" "+nmsBiome.getWaterColor() +" obj="+nmsBiome);
+    //return colormap[bm.biomeLookup()];
     //return fog.g().a(x, z, fog.f().orElse(colormap[bm.biomeLookup()])); // BiomeFog.getGrassColorModifier, BiomeFog.getGrassColorOverride
+    //i=-7306931;
+    //return i;
   }
 
 
 }
+
+/*
+    // Check for 2D or old 3D biome data from chunk level: need these when we build old sections
+    List<BiomeMap[]> old3d = null;  // By section, then YZX list
+    BiomeMap[] old2d = null;
+    if (chunkData.contains("Biomes")) {
+      int[] bb = chunkData.getIntArray("Biomes").get();
+      if (bb != null) {
+        // If v1.15+ format
+        if (bb.length > 256) {
+          old3d = new ArrayList<BiomeMap[]>();
+          // Get 4 x 4 x 4 list for each section
+          for (int sect = 0; sect < (bb.length / 64); sect++) {
+            BiomeMap[] smap = new BiomeMap[64];
+            for (int i = 0; i < 64; i++) {
+              BiomeMap bm = BiomeMap.byBiomeID(bb[sect * 64 + i]);
+              smap[i] = bm;
+//Ostrov.log_warn("old3d "+bm);
+            }
+            old3d.add(smap);
+          }
+        } else { // Else, older chunks
+          old2d = new BiomeMap[256];
+          for (int i = 0; i < bb.length; i++) {
+            BiomeMap bm = BiomeMap.byBiomeID(bb[i]);
+            old2d[i] = bm;
+//Ostrov.log_warn("old2d "+bm);
+          }
+        }
+      }
+    }
+
+
+    else {  // Else, apply legacy biomes
+        if (old3d != null) {
+          BiomeMap[] m = old3d.get((secnum > 0) ? ((secnum < old3d.size()) ? secnum : old3d.size() - 1) : 0);
+          if (m != null) {
+            for (int j = 0; j < 64; j++) {
+              sectionBuilder.xyzBiome(j & 0x3, (j & 0x30) >> 4, (j & 0xC) >> 2, m[j]);
+            }
+          }
+        } else if (old2d != null) {
+          for (int j = 0; j < 256; j++) {
+            sectionBuilder.xzBiome(j & 0xF, (j & 0xF0) >> 4, old2d[j]);
+          }
+        }
+      }
+
+
+ */
+
 
 
 // If we've got palette and block states list, process non-empty section

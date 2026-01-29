@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -40,7 +36,7 @@ public class FigureManager implements Initiable {
     private static final List<Integer> ids;
     private static OConfig config;
     public static ItemStack stick;
-    private static final NamespacedKey key;
+  protected static final NamespacedKey key;
     private static BukkitTask task;
 
     static { //класс прогружается до загрузки миров, поэтому активируем в init после загрузки миров
@@ -127,10 +123,10 @@ public class FigureManager implements Initiable {
             //ex.printStackTrace();
         }
 
-
         if (task != null) {
             task.cancel();
         }
+
         task = new BukkitRunnable() {
 
             Figure f;
@@ -161,20 +157,42 @@ public class FigureManager implements Initiable {
                     return;
                 }
 
+              final World w = Bukkit.getWorld(f.worldName);
+              if (w == null) {
+//Ostrov.log_warn("фигуры " + f.name + ":" + f.type + " - мир выгружен.");
+                return;
+              }
                 //chunk = Bukkit.getWorld(f.worldName).getChunkAt(f.x>>4, f.z>>4);
 
 //System.out.println(""+f.name+" chunk isLoaded?"+chunk.isLoaded()+" isEntitiesLoaded?"+chunk.isEntitiesLoaded()); 
+
+              if (!w.isChunkLoaded(f.cx, f.cz)) {
+//Ostrov.log_warn("figure check - чанк не загружен, пропуск ");
+                return;
+              }
+              if (!w.getChunkAt(f.cx, f.cz).isEntitiesLoaded()) {
+//Ostrov.log_warn("figure check - энтити не загружены, пропуск ");
+                return;
+              }
+              boolean near = false;
+              for (Player p : w.getPlayers()) {
+                if (Math.abs(f.cx - p.getChunk().getX()) < 2 && Math.abs(f.cz - p.getChunk().getZ()) < 2) {
+                  near = true;
+                  break;
+                }
+              }
+              if (!near) {
+//Ostrov.log_warn("figure check - нет игроков рядом, пропуск ");
+                return;
+              }
+//Ostrov.log_warn("figure check "+f.getEntityType()+":"+f.figureId+" chunk?"+spawnLoc.getChunk().isLoaded()+" ent?"+spawnLoc.getChunk().isEntitiesLoaded()+" near?"+hasNearbyPlayers(w, f));
+
                 spawnLoc = f.getSpawnLocation();
                 if (spawnLoc == null) {
                     Ostrov.log_err("локация фигуры " + f.name + ":" + f.type + " недоступна.");
                     f.spawn_try++;
                     return;
                 }
-
-                if (!spawnLoc.getChunk().isLoaded() || !spawnLoc.getChunk().isEntitiesLoaded() || !hasNearbyPlayers(spawnLoc)) { //пока чанк неактивен, ничего не пытаемся делать
-                    return;
-                }
-
                 //if (!hasNearbyPlayers(spawnLoc)) { //пока чанк неактивен, ничего не пытаемся делать
 //System.out.println(""+f.name+"!hasNearbyPlayers"); 
                 //    return;
@@ -187,65 +205,7 @@ public class FigureManager implements Initiable {
                     return;
                 }
 
-
-                if (f.entity == null) { //энтити не была определена - так будет только при первой проверке после загрузки!
-
-                    boolean found = false; //искать до первой, остальных удалять
-
-                    for (final Entity e : spawnLoc.getChunk().getEntities()) {
-                        if (e.getType() == f.getEntityType()) {
-                            final Integer id = e.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
-                            if (id != null && id == f.figureId) {
-                                if (!found) { //привязать только первую, остальных удалить
-                                    found = true;
-                                    f.entity = e;
-                                    //uuid.put(e.getUniqueId(), f.figureId);
-                                    if (f.lastName != null) {
-                                        f.setName(f.lastName);
-                                        f.lastName = null;
-                                    }
-                                    if (e instanceof LivingEntity) {
-                                        LivingEntity le = (LivingEntity) e;
-                                        le.getActivePotionEffects().stream().forEach(eff -> le.removePotionEffect(eff.getType()));
-                                    }
-                                    Bukkit.getPluginManager().callEvent(new FigureActivateEntityEvent(f));
-                                } else {
-                                    e.remove();
-                                }
-
-                            } else if (e.getLocation().getBlockX() == f.x && e.getLocation().getBlockY() == f.y && e.getLocation().getBlockZ() == f.z) {
-                                e.remove(); //очистить дубли на той же координате
-                            }
-
-                        }
-                    }
-                }
-
-                //если чанк и энтити загружены, но энтити дохлая - пытаться переспавнить
-                if (f.entity == null || f.entity.isDead()) { //энтити не найдена - удалить активный ид и создать новую
-
-                    f.entity = spawnLoc.getWorld().spawnEntity(spawnLoc, f.getEntityType(), false);
-
-                    if (f.lastName != null) {
-                        f.setName(f.lastName);
-                        f.lastName = null;
-                    }
-                    equipFigure(f, f.entity, f.figureId); //в конфиге уже всё будет, сохраняется при создании! prepare(this);-выполнится в equipFigure
-                    f.setDisplayName(f.name);
-
-                    f.spawn_try++;
-                    if (f.spawn_try == 10) {
-                        Ostrov.log_err("10 неудачных спавнов фигуры " + f.name + ":" + f.type + ", отключаем.");
-                    }
-                    Bukkit.getPluginManager().callEvent(new FigureActivateEntityEvent(f));
-
-                } else {
-
-                    if (f.entity.getLocation().getBlockX() != f.x || f.entity.getLocation().getBlockY() != f.y || f.entity.getLocation().getBlockZ() != f.z) {
-                        f.teleport(spawnLoc); //вернуть на место, если переместилась
-                    }
-
-                }
+              checkEntity(f);
 
 
             }
@@ -253,19 +213,93 @@ public class FigureManager implements Initiable {
 
     }
 
+  protected static void checkEntity(final Figure f) {
+//Ostrov.log_warn("figure check entity="+(f.entity==null ? "null":f.entity.getType()));
+    //энтити не была определена
+    // 1 при первой проверке после загрузки
+    // 2 после сброса при выгрузке чанка
+    if (f.entity == null) {
+
+      boolean found = false; //искать до первой, остальных удалять
+
+      for (final Entity e : f.spawnLoc.getChunk().getEntities()) {
+        if (e.getType() == f.getEntityType()) {
+          final Integer id = e.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+          if (id != null && id == f.figureId) {
+            if (!found) { //привязать только первую, остальных удалить
+              found = true;
+              f.entity = e;
+              //uuid.put(e.getUniqueId(), f.figureId);
+              if (f.lastName != null) {
+                f.setName(f.lastName);
+                f.lastName = null;
+              }
+              if (e instanceof LivingEntity) {
+                LivingEntity le = (LivingEntity) e;
+                le.getActivePotionEffects().stream().forEach(eff -> le.removePotionEffect(eff.getType()));
+              }
+              Bukkit.getPluginManager().callEvent(new FigureActivateEntityEvent(f));
+            } else {
+              e.remove();
+//Ostrov.log_warn("удаление дубля фигуры "+id+" : "+f.getEntityType());
+            }
+
+          } else if (e.getLocation().getBlockX() == f.x && e.getLocation().getBlockY() == f.y && e.getLocation().getBlockZ() == f.z) {
+            e.remove(); //очистить дубли на той же координате
+//Ostrov.log_warn("удаление фигуры в том же блоке "+id+" : "+f.getEntityType());
+          }
+
+        }
+      }
+    }
+
+    //если чанк и энтити загружены, но энтити дохлая - пытаться переспавнить
+    if (f.entity == null || f.entity.isDead()) { //энтити не найдена - удалить активный ид и создать новую
+//if (f.entity == null) Ostrov.log_warn("figure entity="+f.entity);
+//else Ostrov.log_warn("figure entity="+f.entity+" dead?"+f.entity.isDead()+" valid?"+f.entity.isValid()
+//+" chunk?"+f.spawnLoc.getChunk().isLoaded()+" entities?"+f.spawnLoc.getChunk().isEntitiesLoaded());
+      f.entity = f.spawnLoc.getWorld().spawnEntity(f.spawnLoc, f.getEntityType(), false);
+      //f.entity.setPersistent(true);
+      //if (f.entity instanceof LivingEntity le) {
+      //    le.setRemoveWhenFarAway(false);
+      //}
+
+      if (f.lastName != null) {
+        f.setName(f.lastName);
+        f.lastName = null;
+      }
+      equipFigure(f, f.entity, f.figureId); //в конфиге уже всё будет, сохраняется при создании! prepare(this);-выполнится в equipFigure
+      f.setDisplayName(f.name);
+
+      f.spawn_try++;
+      if (f.spawn_try == 10) {
+        Ostrov.log_err("10 неудачных спавнов фигуры " + f.name + ":" + f.type + ", отключаем.");
+      }
+      Bukkit.getPluginManager().callEvent(new FigureActivateEntityEvent(f));
+
+    } else {
+
+      if (f.entity.getLocation().getBlockX() != f.x || f.entity.getLocation().getBlockY() != f.y || f.entity.getLocation().getBlockZ() != f.z) {
+        f.teleport(f.spawnLoc); //вернуть на место, если переместилась
+      }
+
+    }
+  }
+
+
     @Override
     public void onDisable() {
     }
 
 
-    private static boolean hasNearbyPlayers(final Location loc) {
-        for (Player p : loc.getWorld().getPlayers()) {
-            if (Math.abs(loc.getChunk().getX() - p.getChunk().getX()) < 2 && Math.abs(loc.getChunk().getZ() - p.getChunk().getZ()) < 2) {
+    /*private static boolean hasNearbyPlayers(final World w, final Figure f) {
+        for (Player p : w.getPlayers()) {
+            if (Math.abs(f.cx - p.getChunk().getX()) < 2 && Math.abs(f.cz - p.getChunk().getZ()) < 2) {
                 return true;
             }
         }
         return false;
-    }
+    }*/
 
 
     protected static boolean isFigure(final Entity e) {

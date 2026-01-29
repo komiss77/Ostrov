@@ -20,6 +20,7 @@ import org.spigotmc.SpigotConfig;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.LocalDB;
 import ru.komiss77.Ostrov;
+import ru.komiss77.RemoteDB;
 import ru.komiss77.builder.BuilderCmd;
 import ru.komiss77.commands.TprCmd;
 import ru.komiss77.enums.Data;
@@ -235,14 +236,16 @@ public class PM {
         if (op.dataString.containsKey(Data.FRIENDS) && !op.dataString.get(Data.FRIENDS).isEmpty()) { //друг:сервер, список
             op.friends.addAll(Arrays.asList(op.dataString.get(Data.FRIENDS).split(","))); //info = name:server:settings
         }
+      if (StatManager.DEBUG) Ostrov.log("PM Data.MISSIONS=" + op.dataString.get(Data.MISSIONS));
         if (op.dataString.containsKey(Data.MISSIONS)) {
             for (String id : op.dataString.get(Data.MISSIONS).split(";")) {
               try {
-                    op.missionIds.put(Integer.valueOf(id), false);
+                op.missionIds.put(Integer.valueOf(id), false);
               } catch (NumberFormatException ex) {
                 Ostrov.log_warn("PM bungeeDataHandle missions " + id + " is not int!");
-                }
+              }
             }
+          if (StatManager.DEBUG) Ostrov.log("PM missionIds=" + op.missionIds);
         }
         if (op.dataString.containsKey(Data.BLACK_LIST) && !op.dataString.get(Data.BLACK_LIST).isEmpty()) {
             op.blackList.addAll(Arrays.asList(op.dataString.get(Data.BLACK_LIST).split(",")));

@@ -5,6 +5,7 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!!!Генератор при создании мира пишет No key layers in Map Like[{}], в меню пишет генератор ноне
 
 !!! заглушка PlayerAdvancements в OsPlayerDataStorage
+не юзать chunk.isLoaded() - пытается подгрузить
 
 маскировка: удаляется моб (паук), удалять при загрузке, обработчик телепорта, использовать способности мобов, подбирать предметы
 

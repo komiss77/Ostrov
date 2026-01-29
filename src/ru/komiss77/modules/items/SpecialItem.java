@@ -20,6 +20,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.OConfig;
+import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.world.BVec;
@@ -47,13 +48,14 @@ public abstract class SpecialItem implements Keyed {
     }
 
     private static BVec getSpawnLoc() {
-        final OConfig irc = config();
-        if (irc.contains("spawn")) {
-            final BVec spawn = BVec.parse(irc.getString("spawn"));
+      final OConfig config = config();
+      if (config.contains("spawn")) {
+//Ostrov.log_warn("SpecialItem getSpawnLoc BVec.parse "+config.getString("spawn"));
+        final BVec spawn = BVec.parse(config.getString("spawn"));
             if (spawn != null) return spawn;
         }
-        irc.set("spawn", DEF_SPAWN.toString());
-        irc.saveConfig();
+      config.set("spawn", DEF_SPAWN.toString());
+      config.saveConfig();
         return DEF_SPAWN;
     }
 
@@ -71,14 +73,15 @@ public abstract class SpecialItem implements Keyed {
         this.key = OStrap.key(name);
 
         own = new WeakReference<>(null);
-        final OConfig irc = config();
-        crafted = irc.getBoolean(name + ".crafted", false);
-        dropped = irc.getBoolean(name + ".dropped", false);
-        if (irc.contains(name)) {
-            this.item = irc.load() ? ItemUtil.parse(irc.getString(name + ".org")) : it;
-            final ItemStack curr = ItemUtil.parse(irc.getString(name + ".curr"));
-            lastLoc = BVec.parse(irc.getString(name + ".loc"));
-            if (lastLoc != null) {
+      final OConfig config = config();
+      crafted = config.getBoolean(name + ".crafted", false);
+      dropped = config.getBoolean(name + ".dropped", false);
+      if (config.contains(name)) {
+        this.item = config.load() ? ItemUtil.parse(config.getString(name + ".org")) : it;
+        final ItemStack curr = ItemUtil.parse(config.getString(name + ".curr"));
+//Ostrov.log_warn("SpecialItem new BVec.parse="+config.getString(name + ".loc"));
+        if (!config.getString(name + ".loc", "").isBlank()) {//(lastLoc != null) {
+          lastLoc = BVec.parse(config.getString(name + ".loc"));
                 Timer.task(() -> {
                     if (lastLoc == null || own() != null) return true;
                     final World w = lastLoc.w();

@@ -89,11 +89,11 @@ public class Ostrov extends JavaPlugin {
         //Cfg.init(); // 1 !  загрузится само при первом обращении
         PathServer.path();
         Nms.chatFix();
+
       final int worldEndWipeAt = Cfg.getVariable().getInt("worldEndMarkToWipe", 0);
       if (worldEndWipeAt > 0 && worldEndWipeAt < Timer.secTime()) { //удалять мир в onLoad, при WorldManager миры уже загружены!
         Cfg.getVariable().set("worldEndMarkToWipe", 0);
         Cfg.getVariable().saveConfig();
-
         final File endWorldFolder = new File(Bukkit.getWorldContainer().getPath() + "/world_the_end");
         WM.deleteFile(endWorldFolder);
         //seed ??

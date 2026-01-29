@@ -135,7 +135,7 @@ public class BuilderMain implements InventoryProvider {
             .name("§7Редактор миссий")
             .lore("§7ЛКМ - редактор")
             //.addLore("§7ПКМ - debug addCustomStat")
-            .lore(StatManager.DEBUG ? "§7ПКМ - §cdisable §7addCustomStat debug" : "§7ПКМ - §aenable §7addCustomStat debug")
+            .lore(StatManager.DEBUG ? "§7ПКМ - §cвыкл.отладки" : "§7ПКМ - §aвкл.отладки")
             .build(), e -> {
             if (e.isLeftClick()) {
                 MissionManager.openMissionsEditMenu(p);

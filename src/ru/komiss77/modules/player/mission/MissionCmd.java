@@ -160,13 +160,7 @@ public class MissionCmd implements OCommand {
 
 
       if (arg.length == 0) {
-        SmartInventory
-            .builder()
-            .provider(new MissionMainMenu())
-            .size(5, 9)
-            .title("§a§lМиссии")
-            .build()
-            .open(p);
+        MissionMainMenu.open(p);
         return 0;
       }
 

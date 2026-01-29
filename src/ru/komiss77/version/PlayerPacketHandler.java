@@ -1,14 +1,17 @@
 package ru.komiss77.version;
 
-import java.util.function.Function;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.komiss77.Cfg;
@@ -22,7 +25,23 @@ import ru.komiss77.utils.inventory.InputButton;
 
 
 public class PlayerPacketHandler extends ServerToPlayer {
+  private static Constructor<ClientboundRotateHeadPacket> constructor;// = ClientboundRotateHeadPacket.class.getDeclaredConstructor();
+  private static Field entityIdField;
 
+  static {
+    try {
+      constructor = ClientboundRotateHeadPacket.class.getDeclaredConstructor(FriendlyByteBuf.class);
+      constructor.setAccessible(true);
+      //утилитка поиска номера поля - не удалять!!
+      //for (Field f : ServerboundInteractPacket.class.getDeclaredFields()) {
+      //  Ostrov.log_warn("PlayerPacketHandler f="+f);
+      //}
+      entityIdField = ServerboundInteractPacket.class.getDeclaredFields()[1];
+      entityIdField.setAccessible(true);
+    } catch (ArrayIndexOutOfBoundsException | NoSuchMethodException ex) {
+      Ostrov.log_err("PlayerPacketHandler constructor : " + ex.getMessage());
+    }
+  }
 
   public PlayerPacketHandler(Oplayer op) {
     super(op);
@@ -41,77 +60,125 @@ public class PlayerPacketHandler extends ServerToPlayer {
 
         switch (packet) {
 
-          case
-              final ServerboundInteractPacket interactPacket: //лкм пкм с пустой рукой. Если в руке что-то есть, то ServerboundUseItemOnPacket
-                if (Cfg.bots) { //if (useEntityPacket.getActionType() == PacketPlayInUseEntity.b.b) {}
-                  final int id = interactPacket.getEntityId();
-                    for (final Botter bot : BotManager.botById.values()) {
-                        if (bot.hashCode() == id) {
-                            final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                          ServerboundInteractPacket.STREAM_CODEC.encode(buf, interactPacket);
-                            super.channelRead(chc, reId(buf, bot.rid()));
-                            return;
-                        }
-                    }
-                }  // Paper start - PlayerUseUnknownEntityEvent
-            if (op.disguise.type != null) {
-//Ostrov.log_warn("p-> interactPacket type="+op.disguise.type+" getEntityId="+interactPacket.getEntityId());
-              if (op.disguise.nmsEnt != null) {
-                if (interactPacket.getEntityId() == op.disguise.nmsEnt.getId()) {
-                  //Ostrov.log_warn("disguise p-> InteractPacket selfDisguiseId");
-                  //op.disguise.action(PlayerDisguiseEvent.DisguiseAction.InteractSelfPacket);
-                  return;
-                } else {
-//Ostrov.log_warn("disguise p-> interactPacket isAttack?"+interactPacket.isAttack());
-                  //для зрителя только лкп/пкм на энтити
-                  Ostrov.sync(() -> {
-                    op.disguise.intercatAtEntity(interactPacket.getEntityId(), interactPacket.isAttack());
-                  });
-                  return;
+          //лкм пкм с пустой рукой. Если в руке что-то есть, то ServerboundUseItemOnPacket
+          //с версии 1.21.11 spectator отправляет пакеты только пкм блок(useItemOnPacket), лкм/пкм энтити(interactPacket), swing больше нет!
+          case final ServerboundInteractPacket interactPacket:
+            final int id = interactPacket.getEntityId();
+            if (Cfg.bots) {
+              for (final Botter bot : BotManager.botById.values()) {
+                if (bot.hashCode() == id) {
+                  //final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                  //ServerboundInteractPacket.STREAM_CODEC.encode(buf, interactPacket);
+                  //super.channelRead(chc, reId(buf, bot.rid()));
+                  //return;
+                  entityIdField.set(interactPacket, bot.rid());  //подмена ид бота
+                  break;
                 }
               }
+            }  // Paper start - PlayerUseUnknownEntityEvent
+//Ostrov.log_warn("p-> interactPacket "+interactPacket.getEntityId()+":"+op.disguise.fakeTargetId+" isAttack?"+interactPacket.isAttack());
 
-              // else if (!interactPacket.isAttack() && op.disguise.type == EntityType.WOLF) { //LibsDisguised: If its an interaction that we should cancel, such as right clicking a wolf..
-              //     Ostrov.log_warn("channelRead InteractPacket WOLF");
-              //    return;
-              // }
-              //LibsDisguised PacketListenerClientInteract есть действия при пкм
-            }
-            break;
+            if (op.disguise.fakeTargetId > 0) { //зрителю не даём контачить ни с чем, кроме fakeTarget!
+//Ostrov.log_warn("p-> InteractPacket tick="+op.tick+" last="+op.disguise.lastInteractTick+" d="+(op.disguise.lastInteractTick - op.tick));
+              if (op.disguise.lastInteractTick - op.tick > 0) return;
+              op.disguise.lastInteractTick = op.tick + 5;
 
-
-          case final ServerboundUseItemOnPacket useItemOnPacket://блокировка клика на фэйковый блок
-            if (op.hasFakeBlock && op.fakeBlock.containsKey(useItemOnPacket.getHitResult().getBlockPos().asLong())) {
-              return;
-            }
-            if (op.disguise.type != null) {
-//Ostrov.log_warn("disguise p-> useItemOnPacket type="+op.disguise.type);
-              //op.disguise.action(PlayerDisguiseEvent.DisguiseAction.UseItemOnPacket);
+              //клик не в режиме маскировки
+              if (op.disguise.nmsEnt == null) {
+                //смотрим результат rt на предыдущем тике - луч упирался в энтити
+                if (op.disguise.rt != null && op.disguise.rt.getHitEntity() != null) {
+//int oldid = interactPacket.getEntityId();
+                  entityIdField.set(interactPacket, op.disguise.rt.getHitEntity().getEntityId());  //подмена ид слама на ид результата rt
+//Ostrov.log_warn("p-> InteractPacket relace id "+oldid+"->"+interactPacket.getEntityId());
+                  break;
+                }
+              }
               Ostrov.sync(() -> {
-                op.disguise.intercatAtBlock(useItemOnPacket.getHitResult());
+                op.disguise.fakeTargetInteract(interactPacket.isAttack());
               });
               return;
             }
             break;
 
+
+          //с версии 1.21.11 spectator отправляет пакеты только пкм блок(useItemOnPacket), лкм/пкм энтити(interactPacket), swing больше нет!
+          case final ServerboundUseItemOnPacket useItemOnPacket://блокировка клика на фэйковый блок
+            if (op.hasFakeBlock && op.fakeBlock.containsKey(useItemOnPacket.getHitResult().getBlockPos().asLong())) {
+              return;
+            }
+//Ostrov.log_warn("disguise p-> useItemOnPacket ");
+            if (op.disguise.fakeTargetId > 0) {//зрителю не даём контачить ни с чем, кроме fakeTarget!
+//Ostrov.log_warn("disguise p-> useItemOnPacket type="+op.disguise.type);
+              return;
+            }
+            break;
+
           case final ServerboundPlayerActionPacket actionPacket://блокировка ломания фэйкогого блока
-//Ostrov.log_warn("p-> actionPacket "+actionPacket.getAction());
             if (actionPacket.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
               if (op.hasFakeBlock && op.fakeBlock.containsKey(actionPacket.getPos().asLong())) {
                 return;
               }
             }
-            if (op.disguise.type != null) {
-              Ostrov.log_warn("disguise p-> actionPacket " + actionPacket.getAction());
+//Ostrov.log_warn("disguise p-> actionPacket " + actionPacket.getAction());
+            if (op.disguise.fakeTargetId > 0) {//зрителю не даём контачить ни с чем, кроме fakeTarget!
               return;
             }
             break;
 
+          case final ServerboundMovePlayerPacket move:
+//Ostrov.log_warn("p-> move ");
+            //когда пассажир на маскировке, move от игрока не приходят, только rot
+            if (op.disguise.fakeTargetId > 0 || op.disguise.nmsEnt != null) {
+              boolean pos = move instanceof ServerboundMovePlayerPacket.Pos || move instanceof ServerboundMovePlayerPacket.PosRot;
+              boolean rot = move instanceof ServerboundMovePlayerPacket.Rot || move instanceof ServerboundMovePlayerPacket.PosRot;
+              if (rot) {
+//Ostrov.log_warn("p-> rot Packet ");
+                Ostrov.sync(() -> {
+                  if (op.disguise.fakeTargetId > 0) {
+                    final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                    buf.writeVarInt(op.disguise.fakeTargetId);
+                    byte degress = Mth.packDegrees(move.yRot - 180);
+                    buf.writeByte(degress);
+                    try { //слим разворачивать задом чтобы не просвечивали глаза
+                      ClientboundRotateHeadPacket rotateHeadPacket = constructor.newInstance(buf);
+//Ostrov.log_warn("rot "+move.yRot+" -180="+(move.yRot-180)+" degress="+degress+" res="+rotateHeadPacket.getYHeadRot());
+                      op.disguise.sp.connection.send(rotateHeadPacket);
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+                      Ostrov.log_warn("PlayerPacketHandler ServerboundMovePlayerPacket constructor : " + ex.getMessage());
+                    }
+                  }
+                  if (op.disguise.nmsEnt != null) {
+                    if (op.disguise.type == EntityType.ENDER_DRAGON) { //на драконе задом наперёд
+                      op.disguise.nmsEnt.forceSetRotation(move.yRot - 180, false, move.xRot, false);
+                    } else {
+                      op.disguise.nmsEnt.forceSetRotation(move.yRot, false, move.xRot, false);
+                    }
+                  }
+                });
+              }
+              if (pos) {
+//Ostrov.log_warn("p-> pos Packet ");
+                //когда пассажир на маскировке, move от игрока не приходят, только rot
+                op.disguise.syncPosition();
+              }
+              //return;
+            }
+            break;
+
+          case final ServerboundPlayerInputPacket playerInput:
+//Ostrov.log_warn("p-> playerInput");
+            if (op.disguise.type != null) {
+              op.disguise.lastInput = playerInput.input();
+              return;
+            }
+            break;
 
           case final ServerboundPickItemFromEntityPacket pickItemFromEntityPacket: //колёсико мыши на энтити
             if (op.disguise.type != null) {
 //Ostrov.log_warn("disguise p-> PickItemFromEntity ");
-              op.disguise.action(PlayerDisguiseEvent.DisguiseAction.PickItemFromEntityPacket);
+              Ostrov.sync(() -> {
+                op.disguise.action(PlayerDisguiseEvent.DisguiseAction.PICK_ITEM_FROM_ENTITY_PACKET);
+              });
               return;
             }
             break;
@@ -119,71 +186,12 @@ public class PlayerPacketHandler extends ServerToPlayer {
           case final ServerboundPickItemFromBlockPacket pickItemFromBlockPacket: //колёсико мыши на блок
             if (op.disguise.type != null) {
 //Ostrov.log_warn("disguise p-> PickItemFromBlock ");
-              op.disguise.action(PlayerDisguiseEvent.DisguiseAction.PickItemFromBlockPacket);
-              return;
-            }
-            break;
-
-          case final ServerboundSwingPacket swingPacket:
-            if (op.disguise.type != null) {
-//Ostrov.log_warn("disguise p-> Swing");
-              //op.disguise.nmsMob.animateHurt(op.disguise.nmsMob.getYRot());
-//Ostrov.log_warn("disguise p-> useItemOnPacket type="+op.disguise.type);
-              //op.disguise.action(PlayerDisguiseEvent.DisguiseAction.UseItemOnPacket);
               Ostrov.sync(() -> {
-                op.disguise.swing(swingPacket.getHand());
+                op.disguise.action(PlayerDisguiseEvent.DisguiseAction.PICK_ITEM_FROM_BLOCK_PACKET);
               });
               return;
-              //action(PlayerDisguiseEvent.DisguiseAction.SwingPacket);
-              //if (op.disguise.nmsEnt != null && op.disguise.nmsEnt instanceof LivingEntity nmsLe) {
-              //  nmsLe.swing(swingPacket.getHand(), true);
-              //}
             }
             break;
-
-
-          case final ServerboundMovePlayerPacket move:
-//Ostrov.log_warn("p-> lookPacket ");
-            if (op.disguise.type != null) {
-              // boolean pos = move instanceof ServerboundMovePlayerPacket.Pos || move instanceof ServerboundMovePlayerPacket.PosRot;
-              boolean rot = move instanceof ServerboundMovePlayerPacket.Rot || move instanceof ServerboundMovePlayerPacket.PosRot;
-              //ServerPlayer sp = op.disguise.sp;
-              //if (pos) {
-//Ostrov.log_warn("p-> pos Packet ");
-              // if (op.disguise.nmsEnt != null) {
-              //sp.connection.send(new ClientboundPlayerAbilitiesPacket(op.disguise.sp.getAbilities())); //обнулить скорость клиента (меняет колёсиком)
-              // }
-              //}
-              if (rot) {
-//Ostrov.log_warn("p-> rot Packet ");
-                Ostrov.sync(() -> {
-                  if (op.disguise.nmsEnt != null && op.disguise.nmsEnt instanceof LivingEntity) {
-                    op.disguise.nmsEnt.forceSetRotation(move.yRot, false, move.xRot, false);
-                  } //else if (op.disguise.nmsVehicle != null) {
-                  //  op.disguise.nmsVehicle.forceSetRotation(move.yRot, false, move.xRot, false);
-                  // }
-                });
-              }
-              //return;
-            }
-            break;
-
-          case final ServerboundPlayerInputPacket playerInput:
-            if (op.disguise.type != null) {
-//Ostrov.log_warn("p-> playerInput");
-              op.disguise.lastInput = playerInput.input();
-              return;
-            }
-                break;
-
-
-          //case final ServerboundChangeGameModePacket changeGameMode:
-//Ostrov.log_warn("p-> changeGameMode");
-          // break;
-
-          //case final ServerboundSetCarriedItemPacket setCarriedItem: //крутить колёсико
-//Ostrov.log_warn("p-> setCarriedItem");
-          //     break;
 
           case final ServerboundSignUpdatePacket sup://пакет ввода с таблички - не отдаём в сервер!
             Player p = op.getPlayer();
@@ -193,6 +201,53 @@ public class PlayerPacketHandler extends ServerToPlayer {
               return;
             }
             break;
+
+          case final ServerboundSetCreativeModeSlotPacket creativeModeSlotPacket:
+            if (nbtCheck.get()) { //не пропускаем в сервер хакнутые предметы от клиента
+              //https://github.com/ds58/Panilla
+              //PacketPlayInWindowClick = ServerboundContainerClickPacket
+              //PacketPlayInSetCreativeSlot = ServerboundSetCreativeModeSlotPacket
+              net.minecraft.world.item.ItemStack is;
+            /*if (packet instanceof ServerboundContainerClickPacket p) {
+                is = p.getCarriedItem(); //TODO fix
+                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                    if (hacked(is, p.slotNum())) {
+//                        containerClickItem.set(p, ItemStack.EMPTY);
+                        super.channelRead(chc, new ServerboundContainerClickPacket(p.containerId(), p.stateId(),
+                            p.slotNum(), p.buttonNum(), p.clickType(), ItemStack.EMPTY, p.carriedItem()));
+                        return;
+                    }
+                }
+            } else */
+              is = creativeModeSlotPacket.itemStack();
+                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
+                  if (hacked(is, creativeModeSlotPacket.slotNum())) {
+//                        creativeSlotItem.set(p, ItemStack.EMPTY);
+                    super.channelRead(chc, new ServerboundSetCreativeModeSlotPacket(creativeModeSlotPacket.slotNum(), ItemStack.EMPTY));
+                    return;
+                  }
+                }
+            }
+            break;
+
+          //с версии 1.21.11 spectator отправляет пакеты только пкм блок(useItemOnPacket), лкм/пкм энтити(interactPacket), swing больше нет!
+          //case final ServerboundSwingPacket swingPacket:
+//Ostrov.log_warn("disguise p-> Swing");
+          //if (op.disguise.type != null) {
+          //Ostrov.sync(() -> {
+          //  op.disguise.swing(swingPacket.getHand());
+          // });
+          // return;
+          //}
+          //break;
+
+          //case final ServerboundChangeGameModePacket changeGameMode:
+//Ostrov.log_warn("p-> changeGameMode");
+          // break;
+
+          //case final ServerboundSetCarriedItemPacket setCarriedItem: //крутить колёсико
+//Ostrov.log_warn("p-> setCarriedItem");
+          //     break;
 
           default:
                /* final String name = packet.getClass().getSimpleName();
@@ -208,39 +263,9 @@ public class PlayerPacketHandler extends ServerToPlayer {
                         break;
                     }
                 }*/
-                break;
+            break;
         }
 
-
-      if (nbtCheck.get()) { //не пропускаем в сервер хакнутые предметы от клиента
-            //https://github.com/ds58/Panilla
-            //PacketPlayInWindowClick = ServerboundContainerClickPacket
-            //PacketPlayInSetCreativeSlot = ServerboundSetCreativeModeSlotPacket
-            net.minecraft.world.item.ItemStack is;
-
-            /*if (packet instanceof ServerboundContainerClickPacket p) {
-                is = p.getCarriedItem(); //TODO fix
-                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
-                    if (hacked(is, p.slotNum())) {
-//                        containerClickItem.set(p, ItemStack.EMPTY);
-                        super.channelRead(chc, new ServerboundContainerClickPacket(p.containerId(), p.stateId(),
-                            p.slotNum(), p.buttonNum(), p.clickType(), ItemStack.EMPTY, p.carriedItem()));
-                        return;
-                    }
-                }
-            } else */
-        if (packet instanceof ServerboundSetCreativeModeSlotPacket creativeModeSlotPacket) {
-          is = creativeModeSlotPacket.itemStack();
-                if (!is.getComponents().isEmpty()) {//if (is != null && is.hasTag()) {
-                  if (hacked(is, creativeModeSlotPacket.slotNum())) {
-//                        creativeSlotItem.set(p, ItemStack.EMPTY);
-                    super.channelRead(chc, new ServerboundSetCreativeModeSlotPacket(creativeModeSlotPacket.slotNum(), ItemStack.EMPTY));
-                        return;
-                    }
-                }
-            }
-
-        }
 
         super.channelRead(chc, packet);
     }
@@ -256,7 +281,7 @@ public class PlayerPacketHandler extends ServerToPlayer {
 
 
 
-    private static ServerboundInteractPacket reId(final FriendlyByteBuf buf, final int id) {
+   /* private static ServerboundInteractPacket reId(final FriendlyByteBuf buf, final int id) {
         final FriendlyByteBuf reBuf = new FriendlyByteBuf(Unpooled.buffer());
         buf.readVarInt();
         reBuf.writeVarInt(id);
@@ -362,11 +387,40 @@ public class PlayerPacketHandler extends ServerToPlayer {
             buf.writeFloat((float)this.location.z);
             buf.writeEnum(this.hand);
         }
-    }
+    }*/
 
 
 
 
+            /*if (op.disguise.fakeTargetId > 0 || op.disguise.nmsEnt != null) {
+              if (op.tick - op.disguise.lastInteractTick < 5) return;
+              op.disguise.lastInteractTick = op.tick;
+
+//Ostrov.log_warn("p-> interactPacket "+interactPacket.getEntityId()+":"+op.disguise.fakeTargetId+" isAttack?"+interactPacket.isAttack());
+
+                if (op.disguise.fakeTargetId > 0) {
+//Ostrov.log_warn("p-> InteractPacket fakeTarget isAttack?"+interactPacket.isAttack());
+                  Ostrov.sync(() -> {
+                    op.disguise.fakeTargetInteract(interactPacket.isAttack());
+                  });
+                } else if (interactPacket.getEntityId() == op.disguise.nmsEnt.getId()) {
+//Ostrov.log_warn("disguise p-> InteractPacket nmsEnt isAttack?"+interactPacket.isAttack());
+                  //op.disguise.action(PlayerDisguiseEvent.DisguiseAction.InteractSelfPacket);
+                } else {
+//Ostrov.log_warn("disguise p-> interactPacket isAttack?"+interactPacket.isAttack());
+                  //для зрителя только лкп/пкм на энтити
+                  Ostrov.sync(() -> {
+                    op.disguise.intercatAtEntity(interactPacket.getEntityId(), interactPacket.isAttack());
+                  });
+                }
+
+              // else if (!interactPacket.isAttack() && op.disguise.type == EntityType.WOLF) { //LibsDisguised: If its an interaction that we should cancel, such as right clicking a wolf..
+              //     Ostrov.log_warn("channelRead InteractPacket WOLF");
+              //    return;
+              // }
+              //LibsDisguised PacketListenerClientInteract есть действия при пкм
+              return;
+            }*/
 
     /*protected static Vec3 getInputVector(Vec3 relative, float motionScaler, float facing) {
         double d = relative.lengthSqr();

@@ -112,15 +112,19 @@ public class MenuFinded implements InventoryProvider {
             builder.lore("§7Сущность: §5" + figure.getEntityType());
 
             final Location loc = figure.getSpawnLocation();
+          final boolean loaded = loc.getWorld().isChunkLoaded(figure.cx, figure.cz);
 
             if (loc == null) {
 
                 builder.lore("§cЛокация недоступна!");
 
-            } else if (!loc.getChunk().isLoaded() || !loc.getChunk().isEntitiesLoaded()) {
+            } else if (!loaded || !loc.getChunk().isEntitiesLoaded()) {
 
-                builder.lore(loc.getChunk().isLoaded() ? "" : "§cЧанк фигуры выгружен");
-                builder.lore(loc.getChunk().isEntitiesLoaded() ? "" : "§cЭнтити чанка выгружены");
+              if (!loaded) {
+                builder.lore("§cЧанк фигуры выгружен");
+              } else if (!loc.getChunk().isEntitiesLoaded()) {
+                builder.lore("§cЭнтити чанка выгружены");
+              }
                 builder.lore("§eфигура неактивна.");
                 builder.lore("§7ЛКМ - ТП к в локацию (чанк загрузится)");
 

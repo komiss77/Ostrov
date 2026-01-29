@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,6 +13,8 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.world.ChunkPopulateEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.Merchant;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
@@ -31,6 +34,38 @@ import ru.komiss77.utils.inventory.SmartInventory;
 
 
 public class FigureListener implements Listener {
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onRemove(final EntityRemoveEvent e) {
+    if (e.getCause() != EntityRemoveEvent.Cause.UNLOAD) return;
+    //при отгрузке чанка обнулить энтити - всё равно пытается бесконечно её удалить
+    final Figure f = FigureManager.getFigure(e.getEntity());
+    if (f != null) {
+//Ostrov.log_warn("figure remove "+f.getEntityType()+":"+f.figureId+" "+e.getCause());
+      //  if (f.entity != null) {
+      //f.entity.getPersistentDataContainer().remove(FigureManager.key);
+//удалить после регена фигур
+//f.entity.setPersistent(false);
+//if (f.entity instanceof LivingEntity le) {
+//    le.setRemoveWhenFarAway(true);
+//}
+      f.entity = null;
+      //  }
+    }
+  }
+
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntitiesLoad(final EntitiesLoadEvent e) {
+    //при загрузке чанка чекнуть фигуры.Перебирать именно фигуры!!
+    for (Figure f : FigureManager.getFigures()) {
+      if (f.cx == e.getChunk().getX() && f.cz == e.getChunk().getZ()) {
+//Ostrov.log_warn("figure populate "+f.getEntityType()+":"+f.figureId);
+        FigureManager.checkEntity(f);
+      }
+    }
+
+  }
 
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -344,6 +379,14 @@ public class FigureListener implements Listener {
             e.setDamage(0);
         }
     }
+
+  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+  public void onDamage(EntityTransformEvent e) {
+//System.out.println("EntityDamageEvent getEntity "+e.getEntity());
+    if (FigureManager.isFigure(e.getEntity())) {
+      e.setCancelled(true);
+    }
+  }
 
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)

@@ -3,6 +3,7 @@ package ru.komiss77.listener;
 import java.lang.ref.WeakReference;
 import com.destroystokyo.paper.ParticleBuilder;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Fireworks;
@@ -90,9 +91,16 @@ public class PlayerLst implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onGameMode(PlayerGameModeChangeEvent e) {
         final Player p = e.getPlayer();
+        final Oplayer op = PM.getOplayer(p);
+        if (e.getNewGameMode() == GameMode.SPECTATOR) {
+            op.tag.visible(false);
+            op.disguise.makeTarget();
+        } else if (e.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            op.disguise.resetTarget();
+            op.tag.visible(true);
+        }
         if (ApiOstrov.canBeBuilder(p)) return;
         if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
-        final Oplayer op = PM.getOplayer(p);
         if (op == null || op.isStaff) return;
         //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
         RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
@@ -100,6 +108,34 @@ public class PlayerLst implements Listener {
             + HistoryType.GAMEMODE.name() + "','" + Ostrov.MOT_D + "','" + op.nik
             + "','old=" + (p.getPreviousGameMode() == null ? "" : p.getPreviousGameMode().name()) + "','" + Timer.secTime() + "','new=" + e.getNewGameMode().name() + "');");
     }
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
+    public void onGameMode(PlayerStartSpectatingEntityEvent e) {
+        final Player p = e.getPlayer();
+        final Oplayer op = PM.getOplayer(p);
+        op.disguise.resetTarget();
+    }
+
+
+    @EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
+    public void onSpectateEnd(final PlayerStopSpectatingEntityEvent e) {
+        final Player p = e.getPlayer();
+        final Oplayer op = PM.getOplayer(p);
+        if (op == null) return;
+        op.disguise.makeTarget();
+        if (e.isCancelled()) return;
+        if (op.spyOrigin != null && e.getSpectatorTarget().getType() == EntityType.PLAYER) {
+            p.setGameMode(op.spyOldGm);
+            final Location loc = op.spyOrigin;
+            op.spyOrigin = null; //обнулить до ТП или не даст в PlayerTeleportEvent
+            p.teleport(loc);
+            final Player target = (Player) e.getSpectatorTarget();
+            target.showPlayer(Ostrov.instance, p);
+            op.tag.visible(true);
+            p.sendMessage("§6Наблюдение закончено");
+        }
+    }
+
 
 
 
@@ -214,6 +250,10 @@ public class PlayerLst implements Listener {
         p.setNoDamageTicks(20);
         if (Ostrov.USE_NETTY_QUERRY) {
             OsQuery.send(QueryCode.PLAYER_SERVER_JOIN, p.getName());
+        }
+        if (p.getGameMode() == GameMode.SPECTATOR) {
+            op.tag.visible(false);
+            op.disguise.makeTarget();
         }
     }
 
@@ -445,22 +485,6 @@ public class PlayerLst implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-    public void onSpectateEnd(final PlayerStopSpectatingEntityEvent e) {
-        final Player p = e.getPlayer();
-        final Oplayer op = PM.getOplayer(p);
-        if (op == null) return;
-        if (op.spyOrigin != null && e.getSpectatorTarget().getType() == EntityType.PLAYER) {
-            p.setGameMode(op.spyOldGm);
-            final Location loc = op.spyOrigin;
-            op.spyOrigin = null; //обнулить до ТП или не даст в PlayerTeleportEvent
-            p.teleport(loc);
-            final Player target = (Player) e.getSpectatorTarget();
-            target.showPlayer(Ostrov.instance, p);
-            op.tag.visible(true);
-            p.sendMessage("§6Наблюдение закончено");
-        }
-    }
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onTeleport(final PlayerTeleportEvent e) {//перед тп в другой мир
         if (GM.GAME.type == ServerType.ARENAS || GM.GAME.type == ServerType.LOBBY) return;
 
@@ -497,8 +521,16 @@ public class PlayerLst implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onChangeWorld(final PlayerChangedWorldEvent e) {//после тп в другой мир
         final Player p = e.getPlayer();
+        for (final Player pl : e.getFrom().getPlayers()) {
+            PM.getOplayer(pl).tag.hideTo(p);
+        }
         for (final Player pl : p.getWorld().getPlayers()) {
             PM.getOplayer(pl).tag.showTo(p);
+        }
+        final Oplayer op = PM.getOplayer(p);
+        if (p.getGameMode() == GameMode.SPECTATOR) {
+            op.disguise.rt = null;
+            op.disguise.makeTarget();
         }
         if (p.getWorld().getEnvironment() == World.Environment.THE_END && WorldManager.regenEnder()) {
             int curr = Cfg.getVariable().getInt("worldEndMarkToWipe");

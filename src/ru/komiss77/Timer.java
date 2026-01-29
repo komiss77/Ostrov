@@ -245,9 +245,9 @@ public class Timer {
 
                 if (!authMode) {
                     PM.getOplayers().forEach(op -> {
-                        op.tick++;
-                      if (op.tick == 20) { //return не ставить!!!! пропустит остальное
-                        op.tick = 0;
+                      op.tick++;
+                      if (op.tick % 20 == 0) { //return не ставить!!!! пропустит остальное
+                        //op.tick = 0;
                         op.secondTick();
                         if (jailMode && !op.isStaff) {//return;
                           //op.getPlayer().sendMessage("BAN_TO="+op.getDataInt(Data.BAN_TO));

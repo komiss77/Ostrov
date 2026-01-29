@@ -90,7 +90,8 @@ public class DisguiseCmd implements OCommand {
               final Oplayer op = PM.getOplayer(p);
               if (typeName.equalsIgnoreCase("off") || typeName.equalsIgnoreCase("cancel")) {
                 op.disguise.unDisguise();
-                p.sendMessage("unDisguise ");
+                p.closeInventory();
+                p.sendMessage("§6Маскировка снята");
                 return 0;
               } else if (typeName.equalsIgnoreCase("block")) {
                 DisguiseBlockSelect.open(p);
@@ -123,7 +124,7 @@ public class DisguiseCmd implements OCommand {
 
   @Override
   public Set<String> aliases() {
-    return Set.of("d");
+    return Set.of("");
   }
 
   @Override

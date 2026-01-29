@@ -46,3 +46,7 @@ dependencies:
       load: AFTER
       required: false
       join-classpath: true
+    GrimAC: # Add a required "RequiredPlugin" dependency, which will load AFTER your plugin.
+      load: AFTER
+      required: false
+      join-classpath: true

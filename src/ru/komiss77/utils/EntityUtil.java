@@ -254,6 +254,7 @@ public class EntityUtil {
             case BREEZE:
             case BOGGED:
             case CREAKING:
+          case ZOMBIE_NAUTILUS:
                 return EntityGroup.MONSTER;
 
 
@@ -278,6 +279,7 @@ public class EntityUtil {
             case WANDERING_TRADER:
             case IRON_GOLEM:
             case SNOW_GOLEM:
+          case COPPER_GOLEM:
             case DONKEY:
             case MULE:
             case SKELETON_HORSE:
@@ -291,6 +293,7 @@ public class EntityUtil {
             case ALLAY:
             case STRIDER:
             case ARMADILLO:
+          case CAMEL_HUSK:
                 return EntityGroup.CREATURE;
 
 
@@ -304,6 +307,7 @@ public class EntityUtil {
             case AXOLOTL:
             case FROG:
             case TADPOLE:
+          case NAUTILUS:
                 return EntityGroup.WATER_CREATURE;
 
 

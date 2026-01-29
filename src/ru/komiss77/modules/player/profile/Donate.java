@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemType;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.enums.Data;
+import ru.komiss77.enums.ServerType;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -58,6 +60,10 @@ public class Donate implements InventoryProvider {
                 .lore(group.lore)
                 .build(), "15-180 дней", ammount -> {
                 p.closeInventory();
+              if (GM.GAME.type != ServerType.LOBBY) {
+                p.sendMessage("§cДля покупки группы перейдите в Лобби!");
+                return;
+              }
                 if (!NumUtil.isInt(ammount)) {
                     p.sendMessage("§cДолжно быть число!");
                     return;

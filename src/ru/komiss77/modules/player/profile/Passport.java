@@ -102,8 +102,9 @@ public class Passport {
                                     break;
                                 case PHONE:
                                     final String digits = stv.replaceAll("\\D+", "");
-                                    if (digits.length() != 10) {
-                                        p.sendMessage(Ostrov.PREFIX + "§cНомер должен быть похож на (911) 777-7777");
+                                  if (digits.length() < 8 || digits.length() > 16) {
+                                    //p.sendMessage(Ostrov.PREFIX + "§cНомер должен быть похож на (911) 777-7777");
+                                    p.sendMessage(Ostrov.PREFIX + "§cВ номере телефона должно быть от 8 до 16 цифр!");
                                         return;// "пример: (911) 777-7777";
                                     }
                                     op.globalStr(dt, "(" + digits.substring(0, 3) + ") "
@@ -166,8 +167,10 @@ public class Passport {
         catch (IllegalArgumentException | MalformedURLException e) {return false;}
     }
 
-    private static final Pattern MAIL_PAT = Pattern.compile(
-        "^([\\w-.]+){1,64}@(\\w&&[^_]+){2,255}.[a-z]{2,}$", Pattern.CASE_INSENSITIVE);
+  //private static final Pattern MAIL_PAT = Pattern.compile(
+  //    "^([\\w-.]+){1,64}@(\\w&&[^_]+){2,255}.[a-z]{2,}$", Pattern.CASE_INSENSITIVE);
+  public static final Pattern MAIL_PAT =
+      Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     public static boolean parseMail(final String email) {
         return MAIL_PAT.matcher(email).find();
     }

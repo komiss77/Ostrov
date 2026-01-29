@@ -211,14 +211,30 @@ public class PvPManager implements Initiable {
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
                     if (op == null) return;
                     //дроп инвентаря
+                //была проблема с NullPointerException, переделал через отдельный ArrayList
+                //	at io.papermc.paper.util.TransformingRandomAccessList.lambda$removeIf$0(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
+                //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
+                //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1743) ~[?:?]
+                //	at io.papermc.paper.util.TransformingRandomAccessList.removeIf(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
+                //	at Ostrov.jar//ru.komiss77.modules.entities.PvPManager$1.PlayerDeath(PvPManager.java:221) ~[?:?]
+                List<ItemStack> drop = new ArrayList<>();
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0
                         && p.getWorld().getGameRuleValue(GameRules.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
-                        for (final ItemStack is : p.getInventory().getContents()) e.getDrops().add(is);
-                        p.getInventory().clear(); p.updateInventory();
+                      //for (final ItemStack is : p.getInventory().getContents()) {
+                      //    e.getDrops().add(is);
+                      //}
+                      Collections.addAll(drop, p.getInventory().getContents());
+                      p.getInventory().clear();
+                      p.updateInventory();
                         p.sendMessage("§c" + Lang.t(p, "Твой лут достался победителю!"));
+                    } else {
+                      drop.addAll(e.getDrops());
                     }
                     //ничего не надо, выпадет само!
-                    e.getDrops().removeIf(ii -> {
+//Ostrov.log_warn("PlayerDeath getDrops="+e.getDrops());
+                drop.removeIf(ii -> {//e.getDrops().removeIf(ii -> {
+//Ostrov.log_warn("ii="+ii);
+                  //if (ii == null) return false; //NullPointerException at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
                         if (ItemUtil.isBlank(ii, false)) return false;
                         if (MenuItemsManager.isSpecItem(ii)) return true;
                         final SpecialItem si = SpecialItem.get(ii);
@@ -230,6 +246,9 @@ public class PvPManager implements Initiable {
                         }
                         return false;
                     });
+
+                e.getDrops().clear(); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
+                e.getDrops().addAll(drop); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
 
                     pvpEndFor(op, p);
                 }

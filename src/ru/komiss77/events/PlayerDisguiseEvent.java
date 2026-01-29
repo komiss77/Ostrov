@@ -16,7 +16,7 @@ public class PlayerDisguiseEvent extends Event implements Cancellable {
   private static final HandlerList handlers = new HandlerList();
   public final @Nonnull Player owner;
   public final @Nonnull Disguise disguise;
-  public final @Nonnull DisguiseAction action;
+  public @Nonnull DisguiseAction action;
   public @Nullable Event event;
   public @Nullable Entity target;
   public @Nullable Block block;
@@ -39,24 +39,30 @@ public class PlayerDisguiseEvent extends Event implements Cancellable {
   }
 
   public enum DisguiseAction {
-    //InteractSelfPacket,
-    PickItemFromBlockPacket,
-    UseItemOnPacket, //ServerboundUseItemOnPacket
-    PickItemFromEntityPacket,
-    //SwingPacket, //
-    Shift,
-    DamageEvent,
-    PickupEvent,
-    InteractAtDisguiseEvent, //кто-то PlayerInteractAtEntityEvent на моба маскировки
-    MountEvent,
-    DismountEvent,
-    SpectateEvent,
-    LeashEvent,
-    LeftClickOnEntity, //ServerboundInteractPacket для зрителя только лкп/пкм на энтити
-    RightClickOnEntity, //ServerboundInteractPacket для зрителя только лкп/пкм на энтити
-    RightClickOnBlock, //ServerboundUseItemOnPacket пкм
-    LeftClickOnBlock,
-    LeftClickOnAir,
+    NONE,
+
+    //пакеты
+    PICK_ITEM_FROM_BLOCK_PACKET,
+    PICK_ITEM_FROM_ENTITY_PACKET,
+
+    //действия зрителя
+    LEFT_CLICK_ENTITY,
+    RIGHT_CLICK_ENTITY,
+    RIGHT_CLICK_BLOCK,
+    LEFT_CLICK_BLOCK,
+    RIGHT_CLICK_AIR,
+    LEFT_CLICK_AIR,
+    SHIFT, //короткое нажатие шифта
+    LONG_SHIFT, //нажатие шифта больше chargeTime (50тиков)
+
+    //на основе событий с маскировкой
+    DAMAGE_EVENT,
+    PICKUP_EVENT,
+    INTERACT_AT_DISGUISE_EVENT, //кто-то PlayerInteractAtEntityEvent на моба маскировки
+    MOUNT_EVENT,
+    DISMOUNT_EVENT,
+    SPECTATE_EVENT,
+    LEASH_EVENT,
   }
 
 

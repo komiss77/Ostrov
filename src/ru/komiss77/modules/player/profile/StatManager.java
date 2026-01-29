@@ -26,7 +26,8 @@ public class StatManager {
 
 
     public static void addStat(final Player p, final Stat stat, int ammount) {
-        if (DEBUG) Ostrov.log("addStat " + (p == null ? "null" : p.getName()) + " stat=" + stat + " amm=" + ammount);
+      if (DEBUG)
+        Ostrov.log("StatManager addStat " + (p == null ? "null" : p.getName()) + " stat=" + stat + " amm=" + ammount);
         if (p == null || ammount < 0) {
             Ostrov.log_warn("addStat ammount<0 для " + (p == null ? "null" : p.getName()) + ", stat=" + stat.name() + ", ammount=" + ammount);
             return;

@@ -122,6 +122,7 @@ public class WM implements OCommand {
                       switch (subCmd) {
                         case "create", "load", "import":
                           for (final World.Environment en : World.Environment.values()) {
+                            if (en == World.Environment.CUSTOM) continue;
                             sb.suggest(en.name());
                           }
                       }
@@ -187,6 +188,7 @@ public class WM implements OCommand {
 
         boolean valid = false;
         for (World.Environment env : World.Environment.values()) {
+          if (env == World.Environment.CUSTOM) continue;
           if (env.toString().equalsIgnoreCase(arg[2])) {
             valid = true;
             break;
@@ -327,9 +329,9 @@ public class WM implements OCommand {
         final WorldManager.Generator gen = WorldManager.Generator.fromString(genString);
 //Ostrov.log_warn("WM genString="+genString+" gen="+gen);
         final World nw = WorldManager.load(cs, arg[1], env, gen);
-        if (nw == null) {
-          cs.sendMessage(Ostrov.PREFIX + "Мир " + arg[1] + " не был загружен... ");
-        }
+        //if (nw == null) {
+        //  cs.sendMessage(Ostrov.PREFIX + "Мир " + arg[1] + " не был загружен... ");
+        //}
         //else wnames.put(arg[1], nw.getName());
         return 0;
 

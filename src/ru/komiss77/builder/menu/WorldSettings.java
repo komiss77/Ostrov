@@ -1,5 +1,6 @@
 package ru.komiss77.builder.menu;
 
+import java.util.ArrayList;
 import java.util.List;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.GameRule;
@@ -12,12 +13,10 @@ import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.PM;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.NumUtil;
-import ru.komiss77.utils.inventory.ClickableItem;
-import ru.komiss77.utils.inventory.InputButton;
-import ru.komiss77.utils.inventory.InventoryContent;
-import ru.komiss77.utils.inventory.InventoryProvider;
+import ru.komiss77.utils.inventory.*;
 
 
 public class WorldSettings implements InventoryProvider {
@@ -35,7 +34,8 @@ public class WorldSettings implements InventoryProvider {
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
         //contents.fillRect(0,0,  2,8, ClickableItem.empty(fill));
-
+      final Pagination pagination = contents.pagination();
+      final ArrayList<ClickableItem> menuEntry = new ArrayList<>();
 
         //"setwordspawn", "delete", "backup", "restore"
 
@@ -48,7 +48,7 @@ public class WorldSettings implements InventoryProvider {
 
               final boolean on = (boolean) world.getGameRuleValue(rule);
 
-              contents.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
+              menuEntry.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
                         .name(rule.getKey().value())
                         .lore("")
                         .lore(on ? "§7сейчас §aвключено" : "§7сейчас §cвыключено")
@@ -81,7 +81,7 @@ public class WorldSettings implements InventoryProvider {
 
               final int value = (int) world.getGameRuleValue(rule);
 
-              contents.set(1, 4, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
+              menuEntry.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
                         .name(rule.getKey().value())
                         .lore("")
                         .lore("§7сейчас: " + value)
@@ -117,7 +117,7 @@ public class WorldSettings implements InventoryProvider {
         }
 
 
-        contents.set(5, 0, ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
+      contents.set(5, 1, ClickableItem.of(new ItemBuilder(ItemType.ENDER_EYE)
                 .name("Точка СПАВНА мира")
                 .lore("")
                 .lore("§7сейчас: " + LocUtil.toString(world.getSpawnLocation()))
@@ -136,7 +136,7 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 1, ClickableItem.of(new ItemBuilder(ItemType.CAKE)
+      contents.set(5, 2, ClickableItem.of(new ItemBuilder(ItemType.CAKE)
                 .name("Центр ГРАНИЦЫ мира")
                 .lore("")
                 .lore("§7сейчас: " + LocUtil.toString(world.getWorldBorder().getCenter()))
@@ -152,7 +152,7 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 2, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.BEACON)
+      contents.set(5, 3, new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.BEACON)
                 .name("§6Размер §eГРАНИЦЫ §6мира")
                 .lore("§7")
                 .lore("§7сейчас: " + world.getWorldBorder().getSize())
@@ -176,9 +176,29 @@ public class WorldSettings implements InventoryProvider {
         }));
 
 
-        contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
-                p.performCommand("world")//WorldManagerCmd.openWorldMenu(p)
-        ));
+      pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
+      pagination.setItemsPerPage(45);
+
+
+      contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
+          p.performCommand("world")//WorldManagerCmd.openWorldMenu(p)
+      ));
+
+
+      if (!pagination.isLast()) {
+        contents.set(5, 8, ClickableItem.of(ItemUtil.nextPage, e
+            -> contents.getHost().open(p, pagination.next().getPage()))
+        );
+      }
+
+      if (!pagination.isFirst()) {
+        contents.set(5, 0, ClickableItem.of(ItemUtil.previosPage, e
+            -> contents.getHost().open(p, pagination.previous().getPage()))
+        );
+      }
+
+
+      pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
 
     }

@@ -4,8 +4,6 @@ package ru.komiss77.listener;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
-import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -18,33 +16,19 @@ import io.papermc.paper.registry.data.dialog.type.DialogType;
 import io.papermc.paper.world.damagesource.CombatEntry;
 import io.papermc.paper.world.damagesource.CombatTracker;
 import net.kyori.adventure.text.event.ClickCallback;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Input;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.BlockType;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemType;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.util.Vector;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
@@ -55,29 +39,34 @@ import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.ClassUtil;
 import ru.komiss77.utils.StringUtil;
 import ru.komiss77.utils.TCUtil;
-import ru.komiss77.version.Craft;
 
 
 public class TestLst implements Listener {
 
-
   public static final NamespacedKey test = new NamespacedKey("os", "test");//Key.key("faction", "perk");
+  //EnderDragon d;
+
+
 
   @EventHandler(ignoreCancelled = false)
   public void test(final PlayerDisguiseEvent e) {
     switch (e.action) {
-      case LeashEvent, DamageEvent, MountEvent, DismountEvent, PickupEvent, SpectateEvent -> {
+      case LEASH_EVENT, DAMAGE_EVENT, MOUNT_EVENT, DISMOUNT_EVENT, PICKUP_EVENT, SPECTATE_EVENT -> {
         ((Cancellable) e.event).setCancelled(false);
       }
     }
   }
 
+
   @EventHandler(ignoreCancelled = false)
   public void test(final PlayerInteractEvent e) {
     final Player p = e.getPlayer();
+
+    //Ostrov.log_warn(" Interact"+e.getAction());
+
+
     if (!ApiOstrov.isLocalBuilder(p)) return;
     final Oplayer op = PM.getOplayer(p);
-
     if (e.getItem() == null) return;
     if (p.getCooldown(e.getItem()) > 0) return;
     p.setCooldown(e.getItem(), 5);//в креативе делает двойной интеракт!
@@ -97,7 +86,8 @@ public class TestLst implements Listener {
       e.setCancelled(true);
 
       if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-        //p.sendMessage("undis");
+        p.sendMessage("undis");
+
         //op.disguise.unDisguise();
         if (p.isSneaking()) {
           //p.sendMessage("LEFT_CLICK_BLOCK");
@@ -107,7 +97,25 @@ public class TestLst implements Listener {
         return;
       }
 
+      if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+
+        if (p.getVehicle() instanceof EnderDragon d) {
+          p.sendMessage("ai?" + d.hasAI() + " phase=" + d.getPhase().name());
+        }
+        return;
+      }
+
       if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        p.sendMessage("dis");
+        /*if (d == null) {
+          d = p.getWorld().spawn(p.getLocation().add(0, 20, 0), EnderDragon.class, CreatureSpawnEvent.SpawnReason.CUSTOM);
+          d.setAI(false);
+          d.setPhase(EnderDragon.Phase.CIRCLING);
+          //d.getScheduler().runAtFixedRate(Ostrov.instance);
+        } else {
+          p.sendMessage("phase="+d.getPhase().name());
+        }*/
+
         if (p.isSneaking()) {
 
         } else {

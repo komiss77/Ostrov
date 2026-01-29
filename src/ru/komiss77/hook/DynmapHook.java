@@ -6,9 +6,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.biome.Biomes;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
+import org.bukkit.craftbukkit.CraftRegistry;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapCore;
@@ -16,11 +23,15 @@ import org.dynmap.DynmapWorld;
 import org.dynmap.MapManager;
 import org.dynmap.MarkersComponent;
 import org.dynmap.bukkit.DynmapPlugin;
+import org.dynmap.common.BiomeMap;
 import org.dynmap.storage.MapStorage;
 import org.dynmap.storage.MySQLMapStorage;
 import ru.komiss77.Ostrov;
 import ru.komiss77.modules.games.GM;
 
+//https://bluemap.bluecolored.de/wiki/configs/Maps.html
+//https://github.com/NeumimTo/Pl3xMap
+//https://github.com/jpenilla/squaremap
 
 //https://github.com/webbukkit/dynmap
 //https://www.spigotmc.org/resources/dynmap.274/
@@ -32,7 +43,7 @@ import ru.komiss77.modules.games.GM;
 // на островке зум карты побольше
 // название мира показывать как ник
 // убрать пещерный вид
-
+//фон вместо черного  background:'rgba(255,0,255,0.0)'
 public class DynmapHook {
 
   //private static final Set<String> purged;
@@ -48,13 +59,13 @@ public class DynmapHook {
         Ostrov.dynmap = true;
 
       switch (GM.GAME) {
-        case DA, MI, AR, OB, SK -> {
+        case DA, MI, AR, OB, SK, PA, SE -> {
           for (World w : Bukkit.getWorlds()) {
             onWorldLoad(w);
           }
         }
         default -> {
-          if (Ostrov.MOT_D.equals("home")) {
+          if (Ostrov.instance.getServer().getPort() == 6000) { //home test
             for (World w : Bukkit.getWorlds()) {
               onWorldLoad(w);
             }
@@ -63,6 +74,28 @@ public class DynmapHook {
       }
 
 
+      BiomeMap.NULL.setBiomeObject(CraftRegistry.bukkitToMinecraftHolder(Biome.THE_VOID).value());
+      for (Biome b : Ostrov.registries.BIOMES) {
+        String name = b.getKey().asString();
+        BiomeMap bm = BiomeMap.byBiomeResourceLocation(name);
+        //if (bm==null) bm = BiomeMap.byBiomeName(name);
+        if (bm != BiomeMap.NULL) {
+          //MinecraftServer.getServer().registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
+          net.minecraft.world.level.biome.Biome nmsBiome = (net.minecraft.world.level.biome.Biome) CraftRegistry.bukkitToMinecraftHolder(b).value();
+          //((net.minecraft.world.level.biome.Biome) b).get
+          //RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).getOrThrow(b.getKey());
+
+          bm.setBiomeObject(nmsBiome);
+//Ostrov.log_warn("b="+name+" bm="+ bm+" obj="+bm.getBiomeObject()+" grass="+nmsBiome.getGrassColor(0,0)+" foll="+nmsBiome.getFoliageColor());
+        } else {
+          // Ostrov.log_warn("b="+name+" -----------------");
+
+        }
+        //for (BiomeMap.)
+      }
+      //for (BiomeMap bm : BiomeMap.values()) {
+      // Ostrov.log_warn("bm="+bm.resourcelocation);
+      // }
 
         Ostrov.log_ok("§bНайден и пропатчен Dynmap!");
 
@@ -72,14 +105,14 @@ public class DynmapHook {
   //ServerLst-onWorldLoaded
   public static void onWorldLoad(World w) {
     switch (GM.GAME) {
-      case MI, DA -> show(w, w.getName());
+      case MI, DA, PA, SE -> show(w, w.getName());
       case AR, OB, SK -> {
         if (w.getName().equals("world")) {
           show(w, w.getName());
         }
       }
       default -> {
-        if (Ostrov.MOT_D.equals("home")) {
+        if (Ostrov.instance.getServer().getPort() == 6000) { //home test
           show(w, w.getName());
         }
       }
@@ -87,7 +120,7 @@ public class DynmapHook {
     }
 
   public static void show(final World w, final String displayName) {
-//Ostrov.log_ok(" ========= showWorld "+world.name());
+//Ostrov.log_ok(" ========= showWorld "+w.getName());
     w.getPersistentDataContainer().set(MAP, PersistentDataType.BOOLEAN, true);
 
     DynmapWorld dw = DynmapPlugin.dw(w);
