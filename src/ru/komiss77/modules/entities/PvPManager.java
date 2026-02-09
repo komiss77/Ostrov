@@ -118,10 +118,10 @@ public class PvPManager implements Initiable {
     }
 
     public enum PvpFlag {
-      enable, allow_pvp_command,
-      antirelog,
-      drop_inv_inbattle,
-      display_pvp_tag, block_fly_on_pvp_mode, advanced_pvp, disable_self_hit,
+        enable, allow_pvp_command,
+        antirelog,
+        drop_inv_inbattle,
+        display_pvp_tag, block_fly_on_pvp_mode, advanced_pvp, disable_self_hit,
         block_elytra_on_pvp_mode, block_command_on_pvp_mode, disable_creative_attack_to_mobs, disable_creative_attack_to_player, armor_trim_buffs
     }
 
@@ -205,36 +205,36 @@ public class PvPManager implements Initiable {
 
             damageListener = new Listener() {
 
-              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+                @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
                 public void PlayerDeath(final PlayerDeathEvent e) {
                     final Player p = e.getEntity();
                     final Oplayer op = PM.getOplayer(p.getUniqueId());
                     if (op == null) return;
                     //дроп инвентаря
-                //была проблема с NullPointerException, переделал через отдельный ArrayList
-                //	at io.papermc.paper.util.TransformingRandomAccessList.lambda$removeIf$0(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
-                //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
-                //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1743) ~[?:?]
-                //	at io.papermc.paper.util.TransformingRandomAccessList.removeIf(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
-                //	at Ostrov.jar//ru.komiss77.modules.entities.PvPManager$1.PlayerDeath(PvPManager.java:221) ~[?:?]
-                List<ItemStack> drop = new ArrayList<>();
+                    //была проблема с NullPointerException, переделал через отдельный ArrayList
+                    //	at io.papermc.paper.util.TransformingRandomAccessList.lambda$removeIf$0(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
+                    //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
+                    //	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1743) ~[?:?]
+                    //	at io.papermc.paper.util.TransformingRandomAccessList.removeIf(TransformingRandomAccessList.java:84) ~[paper-api-1.21.11-R0.1-SNAPSHOT.jar:1.21.11-88-8556cb4]
+                    //	at Ostrov.jar//ru.komiss77.modules.entities.PvPManager$1.PlayerDeath(PvPManager.java:221) ~[?:?]
+                    List<ItemStack> drop = new ArrayList<>();
                     if (flags.get(PvpFlag.drop_inv_inbattle) && op.pvp_time > 0
                         && p.getWorld().getGameRuleValue(GameRules.KEEP_INVENTORY)) { //если сохранение вкл, то дроп в эвенте не образуется, нужно кидать вручную
-                      //for (final ItemStack is : p.getInventory().getContents()) {
-                      //    e.getDrops().add(is);
-                      //}
-                      Collections.addAll(drop, p.getInventory().getContents());
-                      p.getInventory().clear();
-                      p.updateInventory();
+                        //for (final ItemStack is : p.getInventory().getContents()) {
+                        //    e.getDrops().add(is);
+                        //}
+                        Collections.addAll(drop, p.getInventory().getContents());
+                        p.getInventory().clear();
+                        p.updateInventory();
                         p.sendMessage("§c" + Lang.t(p, "Твой лут достался победителю!"));
                     } else {
-                      drop.addAll(e.getDrops());
+                        drop.addAll(e.getDrops());
                     }
                     //ничего не надо, выпадет само!
 //Ostrov.log_warn("PlayerDeath getDrops="+e.getDrops());
-                drop.removeIf(ii -> {//e.getDrops().removeIf(ii -> {
+                    drop.removeIf(ii -> {//e.getDrops().removeIf(ii -> {
 //Ostrov.log_warn("ii="+ii);
-                  //if (ii == null) return false; //NullPointerException at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
+                        //if (ii == null) return false; //NullPointerException at java.base/java.util.ArrayList.removeIf(ArrayList.java:1755) ~[?:?]
                         if (ItemUtil.isBlank(ii, false)) return false;
                         if (MenuItemsManager.isSpecItem(ii)) return true;
                         final SpecialItem si = SpecialItem.get(ii);
@@ -247,8 +247,8 @@ public class PvPManager implements Initiable {
                         return false;
                     });
 
-                e.getDrops().clear(); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
-                e.getDrops().addAll(drop); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
+                    e.getDrops().clear(); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
+                    e.getDrops().addAll(drop); //очищать и вкидывать залпом, итераторы дают ошибку TransformingRandomAccessList
 
                     pvpEndFor(op, p);
                 }
@@ -583,20 +583,20 @@ public class PvPManager implements Initiable {
                     }
                 }
 
-              @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+                @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
                 public static void onPot(final PotionSplashEvent e) {
                     final ThrownPotion pot = e.getPotion();
                     if (e.getAffectedEntities().isEmpty()
                         || !(pot.getShooter() instanceof final Player pl)) return;
 
                     pot.getEffects().forEach(effect -> {
-                      if (potion_pvp_type.contains(effect.getType())) {
-                        e.getAffectedEntities().forEach(target -> {
-                          if (target.getType().isAlive() && disablePvpDamage(pl,
-                              target, EntityDamageEvent.DamageCause.MAGIC) == TriState.TRUE)
-                            e.setIntensity(target, 0d);
-                        });
-                      }
+                        if (potion_pvp_type.contains(effect.getType())) {
+                            e.getAffectedEntities().forEach(target -> {
+                                if (target.getType().isAlive() && disablePvpDamage(pl,
+                                    target, EntityDamageEvent.DamageCause.MAGIC) == TriState.TRUE)
+                                    e.setIntensity(target, 0d);
+                            });
+                        }
                     });
                 }
 
@@ -606,7 +606,7 @@ public class PvPManager implements Initiable {
 
         if (flags.get(PvpFlag.block_fly_on_pvp_mode)) {
             flyListener = new Listener() {
-              @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+                @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
                 public void onFly(PlayerToggleFlightEvent e) {
                     final Player p = e.getPlayer();
                     if (battle_time > 1 && PM.inBattle(p.getName())
@@ -623,7 +623,7 @@ public class PvPManager implements Initiable {
 
         if (Boolean.TRUE.equals(flags.get(PvpFlag.block_elytra_on_pvp_mode))) {
             elytraListener = new Listener() {
-              @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+                @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
                 public void onElytra(EntityToggleGlideEvent e) {
                     if (!e.isGliding() || e.getEntity().getType() != EntityType.PLAYER) {
                         return;
@@ -792,7 +792,7 @@ public class PvPManager implements Initiable {
                     }
                 }
 
-              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+                @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
                 public static void onClick(final PlayerInteractEvent e) {
                     if (!e.getAction().isRightClick()) return;
                     final ItemStack it = e.getItem();
@@ -811,7 +811,7 @@ public class PvPManager implements Initiable {
                     inv.setItem(hand, it);
                 }
 
-              @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+                @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
                 public static void onProj(final ProjectileHitEvent e) {
                     //попадание было в живчика
                     if (e.getHitEntity() instanceof final LivingEntity target)

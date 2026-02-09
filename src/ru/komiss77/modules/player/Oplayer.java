@@ -31,7 +31,6 @@ import ru.komiss77.modules.player.mission.MissionManager;
 import ru.komiss77.modules.player.profile.ProfileManager;
 import ru.komiss77.modules.quests.Quest;
 import ru.komiss77.modules.quests.progs.IProgress;
-import ru.komiss77.modules.trade.TradeSession;
 import ru.komiss77.modules.translate.Lang;
 import ru.komiss77.objects.CaseInsensitiveMap;
 import ru.komiss77.objects.CaseInsensitiveSet;
@@ -70,7 +69,7 @@ public class Oplayer {
   public CustomScore score;
   public CustomTag tag;
   public Disguise disguise;
-  public TradeSession trade;
+//  public TradeSession trade;
 
     //подгружается с локальной ЮД
     public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();

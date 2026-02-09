@@ -19,7 +19,6 @@ import ru.komiss77.modules.menuItem.MenuItemsManager;
 import ru.komiss77.modules.quests.QuestManager;
 import ru.komiss77.modules.scores.ScoreManager;
 import ru.komiss77.modules.signProtect.SignProtectLst;
-import ru.komiss77.modules.trade.TradeLst;
 import ru.komiss77.modules.warp.WarpManager;
 import ru.komiss77.modules.world.SaveMaticManager;
 import ru.komiss77.modules.world.WE;
@@ -51,7 +50,7 @@ public enum Module {
     pvp(PvPManager.class),
     effects(EffectManager.class),
     savematics(SaveMaticManager.class),
-  trade(TradeLst.class),
+//  trade(TradeLst.class),
     ;
 
     public final Class<? extends Initiable> clazz;
