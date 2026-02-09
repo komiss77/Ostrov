@@ -17,6 +17,7 @@ import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.util.Vector;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
@@ -247,6 +248,7 @@ public class ItemManager implements Initiable, Listener {
         }
 
         si.obtain(e.getEntity(), it);
+      ApiOstrov.addCustomStat((Player) e.getEntity(), "si_pickup", 1);
         si.info("PICK: " + e.getEntity().getName() + " picked up item!");
     }
 

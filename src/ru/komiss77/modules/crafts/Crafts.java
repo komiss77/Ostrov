@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.RecipeChoice.ExactChoice;
 import org.bukkit.persistence.PersistentDataType;
+import ru.komiss77.ApiOstrov;
 import ru.komiss77.Cfg;
 import ru.komiss77.Initiable;
 import ru.komiss77.Ostrov;
@@ -432,6 +433,7 @@ public final class Crafts implements Initiable, Listener {
           }
         } else {
           si.obtain(e.getWhoClicked(), result);
+          ApiOstrov.addCustomStat((Player) e.getWhoClicked(), "si_craft", 1);
         }
 
       }

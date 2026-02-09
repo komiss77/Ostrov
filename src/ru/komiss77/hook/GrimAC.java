@@ -2,10 +2,13 @@ package ru.komiss77.hook;
 
 import java.util.List;
 import ac.grim.grimac.api.GrimAbstractAPI;
+import ac.grim.grimac.api.event.events.CompletePredictionEvent;
 import ac.grim.grimac.api.event.events.FlagEvent;
+import ac.grim.grimac.api.event.events.GrimVerboseCheckEvent;
 import ac.grim.grimac.api.plugin.BasicGrimPlugin;
 import ac.grim.grimac.api.plugin.GrimPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,12 +42,37 @@ public class GrimAC implements Listener {
             List.of("komiss77", "romindous")//this.getDescription().getAuthors()
         );
         api = provider.getProvider();
+
         // use the event bus to subscribe to FlagEvent
-        api.getEventBus().subscribe(plugin, FlagEvent.class, event -> {
+        api.getEventBus().subscribe(plugin, FlagEvent.class, e -> {
+          final Oplayer opl = PM.getOplayer(e.getUser().getUniqueId());
+          if (opl.disguise.type != null || opl.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+            e.setCancelled(true);
+            return;
+          }
           // broadcast to all players when a player flags a check
-          Ostrov.log_warn("GrimAc " + event.getPlayer().getName() + " flagged " + event.getCheck().getCheckName());
+          final String msg = "§8Античит: " + e.getPlayer().getName() + " подозрение на " + e.getCheck().getCheckName();
+          Ostrov.log_warn(msg);
+          for (Oplayer op : PM.getOplayers()) {
+            if (op.isStaff) {
+              op.getPlayer().sendMessage(msg);
+            }
+          }
           ;
         });
+        // api.getEventBus().subscribe(plugin, CompletePredictionEvent.class, e -> {
+        //    Ostrov.log_warn("grimAC CompletePrediction "+e.getCheck().getCheckName());
+        ;
+        // });
+
+        //  api.getEventBus().subscribe(plugin, GrimVerboseCheckEvent.class, e -> {
+        //    Ostrov.log_warn("grimAC GrimVerbose "+e.getCheck().getCheckName());
+          ;
+        //   });
+
+
+
+
       }
     }
 

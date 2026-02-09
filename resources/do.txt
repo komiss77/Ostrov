@@ -7,7 +7,6 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!! заглушка PlayerAdvancements в OsPlayerDataStorage
 не юзать chunk.isLoaded() - пытается подгрузить
 
-public final class IdChoice extends MaterialChoice - error: class is not allowed to extend sealed class: (as it is not listed in its 'permits' clause) public class
 
 маскировка: удаляется моб (паук), удалять при загрузке, обработчик телепорта, использовать способности мобов, подбирать предметы
 

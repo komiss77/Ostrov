@@ -197,6 +197,7 @@ public abstract class SpecialItem implements Keyed {
         return it;
     }
 
+  //скрафтил, поднял или выдал командой
     public void obtain(final LivingEntity le, final ItemStack it) {
         crafted = true;
         dropped = false;

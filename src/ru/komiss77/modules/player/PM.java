@@ -382,6 +382,9 @@ public class PM {
             //op.makeToRemove = true; //async только при PlayerQuitEvent
         }
 
+        if (op.disguise.type != null) {
+            op.disguise.unDisguise();
+        }
         if (GM.GAME.type != ServerType.ARENAS) {
             if (op.spyOrigin != null) {
                 p.teleport(op.spyOrigin, PlayerTeleportEvent.TeleportCause.PLUGIN);
