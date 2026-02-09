@@ -35,7 +35,7 @@ public abstract class SpecialItem implements Keyed {
     public static final CaseInsensitiveMap<SpecialItem> VALUES = new CaseInsensitiveMap<>();
 
     private static final String CON_NAME = "specials.yml";
-    private static final NamespacedKey DATA = OStrap.key("special");
+  public static final NamespacedKey DATA = OStrap.key("special");
     private static final BVec DEF_SPAWN = BVec.of(Bukkit.getWorlds().getFirst(), 0, 100, 0);
 
     public static final BVec SPAWN = getSpawnLoc();
@@ -43,7 +43,9 @@ public abstract class SpecialItem implements Keyed {
     public static boolean exist = false;
     private static OConfig config = null;
     public static OConfig config() {
-        if (config == null) config = Cfg.manager.config(CON_NAME, true);
+      if (config == null) {
+        config = Cfg.manager.config(CON_NAME, true);
+      }
         return config;
     }
 
@@ -68,7 +70,13 @@ public abstract class SpecialItem implements Keyed {
     private boolean dropped;
     private @Nullable BVec lastLoc;
 
+  //создаётся в другом плагине
+  //public final AreaPick AREA_PICK = new AreaPick(new ItemBuilder(ItemType.DIAMOND_PICKAXE).glint(true).unbreak(true)
+  //        .name("<stale>Кирка Троицы").lore("").lore(TCUtil.N + "Копает блоки площадью в 3x3").build());
     public SpecialItem(final ItemStack it) {
+      if (Cfg.items == false) {
+        Ostrov.log_warn("SpecialItem : добавляется предмет, но ItemManager выключен! (modules.items=false)");
+      }
         this.name = this.getClass().getSimpleName().toLowerCase();
         this.key = OStrap.key(name);
 
@@ -133,14 +141,14 @@ public abstract class SpecialItem implements Keyed {
     }
 
     protected void destroy() {
-        if (!crafted) return;
-        info("Destroyed item");
+      //if (!crafted) return;
         dropped = false;
         crafted = false;
         switch (own.get()) {
             case null: break;
             case final Item le:
-                le.remove();
+              //if (!le.isDead()) le.remove();
+              le.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN)
                 break;
             case final Player le:
                 for (final ItemStack it : le.getInventory()) {
@@ -153,11 +161,15 @@ public abstract class SpecialItem implements Keyed {
         }
         lastLoc = null;
         own = new WeakReference<>(null);
+      info("DESTROY");
         save(item);
     }
 
+  //при выходе игрока - если в привате то в центр привата
+  //при загрузке specials.yml если указана координата
+  //при EntitiesLoadEvent
+  //при бросании onDrop
     public void spawn(final Location loc, final ItemStack it) {
-        info("Spawning item");
         loc.getWorld().getChunkAtAsync(loc).thenAccept(ch -> {
             for (final Entity e : ch.getEntities()) {
                 if (e instanceof final Item ie
@@ -165,11 +177,13 @@ public abstract class SpecialItem implements Keyed {
             }
 
             loc.getWorld().dropItem(loc, it, this::apply);
+          info("SPAWN");
         });
     }
 
     public Item apply(final Item it) {
-        crafted = true; dropped = true;
+      crafted = true;
+      dropped = true;
         it.setGlowing(true);
         it.setWillAge(false);
         it.setGravity(false);
@@ -179,6 +193,7 @@ public abstract class SpecialItem implements Keyed {
         own = new WeakReference<>(it);
         loc(it.getLocation());
         save(it.getItemStack());
+      info("APPLY");
         return it;
     }
 
@@ -187,9 +202,11 @@ public abstract class SpecialItem implements Keyed {
         dropped = false;
         own = new WeakReference<>(le);
         loc(le.getLocation());
+      info("OBTAIN");
         save(it);
     }
 
+  //сохранить текущее состояние спец.предмета, созданного в плагине
     public void save(final ItemStack curr) {
         final OConfig irc = config();
         if (irc.getString(name + ".org").isEmpty()) {
@@ -205,8 +222,7 @@ public abstract class SpecialItem implements Keyed {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger("OS-SI");
     public void info(final String msg) {
-        LOGGER.info(TCUtil.form(msg + "\n" + name + ": craft="
-            + crafted + " drop=" + dropped + " loc=" + loc()));
+      LOGGER.info(TCUtil.form("SpecialItem " + msg + " " + name + ": crafted?=" + crafted + " dropped?" + dropped + " loc=" + loc()));
     }
 
     protected abstract void onAttack(final EquipmentSlot es, final EntityDamageByEntityEvent e);

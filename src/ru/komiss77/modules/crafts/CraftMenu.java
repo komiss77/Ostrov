@@ -30,7 +30,7 @@ public class CraftMenu implements InventoryProvider {
     private static final ItemStack[] invIts;
     private static final int rad = 3;
 
-    private final String key;
+  private final String name;
     private final boolean view;
 
     private ItemType tp;
@@ -53,10 +53,10 @@ public class CraftMenu implements InventoryProvider {
     }
 
 
-    public CraftMenu(final String key, final boolean view) {
-        this.key = key;
+  public CraftMenu(final String name, final boolean view) {
+    this.name = name;
         this.view = view;
-        final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
+    final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, name), Recipe.class);
         tp = switch (rc) {
             case ShapelessRecipe ignored -> ItemType.ENDER_CHEST;
             case FurnaceRecipe ignored -> ItemType.FURNACE;
@@ -73,7 +73,7 @@ public class CraftMenu implements InventoryProvider {
     public void init(final Player p, final InventoryContent its) {
         final Inventory inv = its.getInventory();
         if (inv != null) inv.setContents(invIts);
-        final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, key), Recipe.class);
+      final Recipe rc = Crafts.getRecipe(new NamespacedKey(OStrap.space, name), Recipe.class);
 //        p.sendMessage("k=" + new NamespacedKey(Crafts.space, key) + ", f=" + rc + ", " + Crafts.crafts.write());
         its.set(9, rc == null ? ClickableItem.of(makeIcon(tp), e -> {
             if (ItemType.ENDER_CHEST.equals(tp)) {
@@ -108,12 +108,12 @@ public class CraftMenu implements InventoryProvider {
 
                 //запоминание крафта
                 final YamlConfiguration craftConfig = YamlConfiguration.loadConfiguration(new File(Ostrov.instance.getDataFolder().getAbsolutePath() + "/crafts/craft.yml"));
-                craftConfig.set(key, null);
-                craftConfig.set(key + ".result", ItemUtil.write(rst));
+              craftConfig.set(name, null);
+              craftConfig.set(name + ".result", ItemUtil.write(rst));
                 //craftConfig.set(key + ".world", Ostrov.subServer.write());
-                craftConfig.set(key + ".type", getRecType(tp));
-                final ConfigurationSection cs = craftConfig.getConfigurationSection(key);
-                final NamespacedKey nKey = new NamespacedKey(OStrap.space, key);
+              craftConfig.set(name + ".type", getRecType(tp));
+              final ConfigurationSection cs = craftConfig.getConfigurationSection(name);
+              final NamespacedKey nKey = new NamespacedKey(OStrap.space, name);
                 final Recipe nrc;
                 final ItemStack it;
                 final String[] shp;
@@ -124,7 +124,7 @@ public class CraftMenu implements InventoryProvider {
                         return;
                     }
                     cs.set("recipe.a", ItemUtil.write(it));
-                    nrc = new FurnaceRecipe(nKey, rst, IdChoice.of(it), 0.5f, 200);
+                  nrc = new FurnaceRecipe(nKey, rst, Crafts.of(it, name), 0.5f, 200);
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.SMOKER.equals(tp)) {
@@ -134,7 +134,7 @@ public class CraftMenu implements InventoryProvider {
                         return;
                     }
                     cs.set("recipe.a", ItemUtil.write(it));
-                    nrc = new SmokingRecipe(nKey, rst, IdChoice.of(it), 0.5f, 100);
+                  nrc = new SmokingRecipe(nKey, rst, Crafts.of(it, name), 0.5f, 100);
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.BLAST_FURNACE.equals(tp)) {
@@ -144,7 +144,7 @@ public class CraftMenu implements InventoryProvider {
                         return;
                     }
                     cs.set("recipe.a", ItemUtil.write(it));
-                    nrc = new BlastingRecipe(nKey, rst, IdChoice.of(it), 0.5f, 100);
+                  nrc = new BlastingRecipe(nKey, rst, Crafts.of(it, name), 0.5f, 100);
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.CAMPFIRE.equals(tp)) {
@@ -154,7 +154,7 @@ public class CraftMenu implements InventoryProvider {
                         return;
                     }
                     cs.set("recipe.a", ItemUtil.write(it));
-                    nrc = new CampfireRecipe(nKey, rst, IdChoice.of(it), 0.5f, 500);
+                  nrc = new CampfireRecipe(nKey, rst, Crafts.of(it, name), 0.5f, 500);
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.SMITHING_TABLE.equals(tp)) {
@@ -168,8 +168,8 @@ public class CraftMenu implements InventoryProvider {
                     cs.set("recipe.a", ItemUtil.write(it));
                     cs.set("recipe.b", ItemUtil.write(scd));
                     cs.set("recipe.c", ItemUtil.write(tpl));
-                    nrc = new SmithingTransformRecipe(nKey, rst, IdChoice.of(tpl), IdChoice.of(it),
-                        IdChoice.of(scd), !it.hasData(DataComponentTypes.DAMAGE));
+                  nrc = new SmithingTransformRecipe(nKey, rst, Crafts.of(tpl, name), Crafts.of(it, name),
+                      Crafts.of(scd, name), !it.hasData(DataComponentTypes.DAMAGE));
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.STONECUTTER.equals(tp)) {
@@ -179,7 +179,7 @@ public class CraftMenu implements InventoryProvider {
                         return;
                     }
                     cs.set("recipe.a", ItemUtil.write(it));
-                    nrc = new StonecuttingRecipe(nKey, rst, IdChoice.of(it));
+                  nrc = new StonecuttingRecipe(nKey, rst, Crafts.of(it, name));
                     Bukkit.removeRecipe(nKey);
                     Bukkit.addRecipe(nrc);
                 } else if (ItemType.ENDER_CHEST.equals(tp)) {
@@ -189,7 +189,7 @@ public class CraftMenu implements InventoryProvider {
                         for (byte cx = 1; cx < 4; cx++) {
                             final ItemStack ti = inv.getItem(cy * 9 + cx);
                             if (!ItemUtil.isBlank(ti, false)) {
-                                lrs.addIngredient(IdChoice.of(ti));
+                              lrs.addIngredient(Crafts.of(ti, name));
                                 cs.set("recipe." + shp[cy].charAt(cx - 1), ItemUtil.write(ti));
                             }
                         }
@@ -229,7 +229,7 @@ public class CraftMenu implements InventoryProvider {
                         for (int cy = yMax; cy >= yMin; cy--) {
                             final ItemStack ti = rcs[cy * rad + cx];
                             if (!ItemUtil.isBlank(ti, false)) {
-                                srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), IdChoice.of(ti));
+                              srs.setIngredient(shp[cy - yMin].charAt(cx - xMin), Crafts.of(ti, name));
                                 cs.set("recipe." + shp[cy - yMin].charAt(cx - xMin), ItemUtil.write(ti));
                             }
                         }
@@ -247,7 +247,7 @@ public class CraftMenu implements InventoryProvider {
                     ex.printStackTrace();
                 }
 
-                p.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7Крафт §к" + key + " §7завершен!"));
+              p.sendMessage(TCUtil.form(Ostrov.PREFIX + "§7Крафт §к" + name + " §7завершен!"));
                 p.closeInventory();
             }));
         //final ClickableItem cl = ClickableItem.from(ItemUtil.air, e -> e.setCurrentItem(e.getCursor().asOne()));
@@ -338,7 +338,8 @@ public class CraftMenu implements InventoryProvider {
                     final String sr = shp.length > r ? shp[r] : "";
                     for (int c = 0; c < rad; c++) {
                         final RecipeChoice chs = rcm.get(sr.length() > c ? sr.charAt(c) : 'w');
-                        setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((IdChoice) chs).getItemStack(), its, canEdit);
+                      //setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : ((IdChoice) chs).getItemStack(), its, canEdit);
+                      setEditSlot(SlotPos.of(r, c + 1), chs == null ? ItemUtil.air : chs.getItemStack(), its, canEdit);
                     }
                 }
 
@@ -348,7 +349,14 @@ public class CraftMenu implements InventoryProvider {
     }
 
     private static @Nullable ItemStack choiceIt(final RecipeChoice rc) {
-        return rc instanceof final IdChoice idc ? idc.getItemStack() : null;
+      //return rc instanceof final IdChoice idc ? idc.getItemStack() : null;
+      if (rc instanceof RecipeChoice.ExactChoice exactChoice) {
+        final ItemStack is = exactChoice.getItemStack();
+        if (is.hasItemMeta() && is.getItemMeta().getPersistentDataContainer().has(Crafts.RECIPE_KEY)) {
+          return is;
+        }
+      }
+      return null;
     }
 
     private static final String dsp = "abcdefghi";

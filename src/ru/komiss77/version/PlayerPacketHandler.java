@@ -107,7 +107,7 @@ public class PlayerPacketHandler extends ServerToPlayer {
               return;
             }
 //Ostrov.log_warn("disguise p-> useItemOnPacket ");
-            if (op.disguise.fakeTargetId > 0) {//зрителю не даём контачить ни с чем, кроме fakeTarget!
+            if (op.disguise.fakeTargetId > 0) { //зрителю не даём контачить ни с чем, кроме fakeTarget!
 //Ostrov.log_warn("disguise p-> useItemOnPacket type="+op.disguise.type);
               return;
             }

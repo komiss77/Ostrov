@@ -146,6 +146,7 @@ public class Disguise {
 
 
   public void makeTarget() {
+//Ostrov.log_warn("makeTarget "+op.nik);
     if (fakeTargetId > 0) resetTarget(); //перестраховка
     //sp.level().getChunkSource().sendToTrackingPlayers();
     //ClientboundSetEntityMotionPacket
@@ -212,8 +213,10 @@ public class Disguise {
   }
 
   public void resetTarget() {
-    sp.connection.send(new ClientboundRemoveEntitiesPacket(fakeTargetId));
-    fakeTargetId = 0;
+    if (fakeTargetId > 0) {
+      sp.connection.send(new ClientboundRemoveEntitiesPacket(fakeTargetId));
+      fakeTargetId = 0;
+    }
     if (fakeTargetTask != null) {
       fakeTargetTask.cancel();
       fakeTargetTask = null;
@@ -237,83 +240,9 @@ public class Disguise {
 //Ostrov.log_warn("p-> InteractPacket fakeTarget isAttack?"+attack);
     //в режиме маскировки
     if (nmsEnt != null) {
-      PlayerDisguiseEvent.DisguiseAction action = PlayerDisguiseEvent.DisguiseAction.NONE;
-      PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(op.getPlayer(), this, action);
-//Ostrov.log_warn("p-> InteractPacket on disguise, isAttack?" + attack);
-      if (rt == null) {
-        if (attack) {
-          action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_AIR;
-        } else {
-          action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_AIR;
-        }
-      } else if (rt.getHitEntity() != null) {
-        if (attack) {
-          action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_ENTITY;
-        } else {
-          action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_ENTITY;
-          disguiseEvent.target = rt.getHitEntity();
-        }
-      } else if (rt.getHitBlock() != null) {
-        if (attack) {
-          action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_BLOCK;
-        } else {
-          action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_BLOCK;
-        }
-        disguiseEvent.block = rt.getHitBlock();
-      }
-      disguiseEvent.action = action;
-      Bukkit.getPluginManager().callEvent(disguiseEvent);
-      Ostrov.log_warn("p-> InteractPacket on disguise action=" + action);
-
-      if (!disguiseEvent.isCanceled()) {
-        if (nmsEnt instanceof LivingEntity le) {
-          InteractionHand hand = attack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-          le.swing(hand, true);
-          Level level = nmsEnt.level();
-          switch (action) {
-            case LEFT_CLICK_ENTITY -> {
-              switch (type) {
-                case ENDER_DRAGON -> {
-                }
-                default -> {
-                  le.doHurtTarget((ServerLevel) le.level(), Craft.toNMS(rt.getHitEntity()));
-                }
-              }
-            }
-            case RIGHT_CLICK_ENTITY -> {
-            }
-            case LEFT_CLICK_BLOCK -> {
-              switch (type) {
-                case ZOMBIE -> {
-                  //Zombie zombie = (Zombie) nmsEnt;
-                  //zombie.;
-                }
-              }
-            }
-            case RIGHT_CLICK_BLOCK -> {
-              BlockPos blockPos = new BlockPos(rt.getHitBlock().getX(), rt.getHitBlock().getY(), rt.getHitBlock().getZ());
-              BlockState blockState = level.getBlockState(blockPos);
-              switch (type) {
-                case ENDERMAN -> {
-                  EnderMan enderman = (EnderMan) nmsEnt;
-                  if (enderman.getCarriedBlock() == null) {
-                    if (blockState.is(BlockTags.ENDERMAN_HOLDABLE)) {
-                      level.removeBlock(blockPos, false);
-                      level.gameEvent(GameEvent.BLOCK_DESTROY, blockPos, GameEvent.Context.of(enderman, blockState));
-                      enderman.setCarriedBlock(blockState.getBlock().defaultBlockState());
-                    }
-                  } else {
-                    enderman.tick(); //там только постановка блока
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      onDisguiseInteract(attack);
       return;
     }
-
     if (rt == null) { //ЛКМ в воздух
       if (attack) {
         Ostrov.log_warn("ЛКМ в воздух");
@@ -346,6 +275,142 @@ public class Disguise {
       PlayerInteractEvent interactEvent = new PlayerInteractEvent(sp.getBukkitEntity(), attack ? Action.LEFT_CLICK_AIR : Action.RIGHT_CLICK_AIR, null, null, null);
       interactEvent.setCancelled(true);
       Bukkit.getPluginManager().callEvent(interactEvent);
+    }
+
+  }
+
+  private void onDisguiseInteract(boolean attack) {
+    PlayerDisguiseEvent.DisguiseAction action = PlayerDisguiseEvent.DisguiseAction.NONE;
+    PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(op.getPlayer(), this, action);
+//Ostrov.log_warn("p-> InteractPacket on disguise, isAttack?" + attack);
+    if (rt == null) {
+      if (attack) {
+        action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_AIR;
+      } else {
+        action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_AIR;
+      }
+    } else if (rt.getHitEntity() != null) {
+      if (attack) {
+        action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_ENTITY;
+      } else {
+        action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_ENTITY;
+        disguiseEvent.target = rt.getHitEntity();
+      }
+    } else if (rt.getHitBlock() != null) {
+      if (attack) {
+        action = PlayerDisguiseEvent.DisguiseAction.LEFT_CLICK_BLOCK;
+      } else {
+        action = PlayerDisguiseEvent.DisguiseAction.RIGHT_CLICK_BLOCK;
+      }
+      disguiseEvent.block = rt.getHitBlock();
+    }
+    disguiseEvent.action = action;
+    Bukkit.getPluginManager().callEvent(disguiseEvent);
+    Ostrov.log_warn("p-> InteractPacket on disguise action=" + action);
+
+    if (!disguiseEvent.isCanceled()) {
+      if (nmsEnt instanceof LivingEntity le) {
+        InteractionHand hand = attack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        le.swing(hand, true);
+        Level level = nmsEnt.level();
+
+        switch (action) {
+
+          case LEFT_CLICK_ENTITY -> {
+            switch (type) {
+              case ENDER_DRAGON -> {
+              }
+              default -> {
+                le.doHurtTarget((ServerLevel) le.level(), Craft.toNMS(rt.getHitEntity()));
+              }
+            }
+          }
+
+          case RIGHT_CLICK_ENTITY -> {
+          }
+
+          case LEFT_CLICK_BLOCK -> {
+            switch (type) {
+              case ZOMBIE -> {
+                //Zombie zombie = (Zombie) nmsEnt;
+                //zombie.;
+              }
+            }
+          }
+
+          case RIGHT_CLICK_BLOCK -> {
+            BlockPos blockPos = new BlockPos(rt.getHitBlock().getX(), rt.getHitBlock().getY(), rt.getHitBlock().getZ());
+            BlockState blockState = level.getBlockState(blockPos);
+            switch (type) {
+              case ENDERMAN -> {
+                EnderMan enderman = (EnderMan) nmsEnt;
+                if (enderman.getCarriedBlock() == null) {
+                  if (blockState.is(BlockTags.ENDERMAN_HOLDABLE)) {
+                    level.removeBlock(blockPos, false);
+                    level.gameEvent(GameEvent.BLOCK_DESTROY, blockPos, GameEvent.Context.of(enderman, blockState));
+                    enderman.setCarriedBlock(blockState.getBlock().defaultBlockState());
+                  }
+                } else {
+                  enderman.tick(); //там только постановка блока
+                }
+              }
+            }
+          }
+
+        }
+      }
+    }
+  }
+
+  //удержание шифта в процессе маскировки
+  private void charge(int charge) {
+//Ostrov.log_warn("charge "+charge);
+    switch (type) {
+      case CREEPER -> {
+        Creeper creeper = (Creeper) nmsEnt;
+        if (charge == 0) {
+          creeper.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
+          creeper.setIgnited(true);
+        }
+        creeper.swell = 0;
+      }
+    }
+  }
+
+  //удержание шифта достигло chargeTime
+  private void charged() {
+    //Ostrov.log_warn("BOOM");
+    //Vec3 eyePos = sp.position().add(0, eyeHeight, 0);
+    Vec3 view = nmsEnt.calculateViewVector(nmsEnt.getXRot(), nmsEnt.getYRot()).normalize();
+    Level level = nmsEnt.level();
+    //Vec3 bbWidthV = view.multiply(bbWidth, bbWidth, bbWidth);
+    switch (type) {
+      case ENDER_DRAGON -> {
+        EnderDragon enderDragon = (EnderDragon) nmsEnt;
+        //enderDragon.;
+      }
+      case ENDERMAN -> {
+        EnderMan enderman = (EnderMan) nmsEnt;
+        enderman.teleport();
+      }
+      case BLAZE -> {
+        Blaze blaze = (Blaze) nmsEnt;
+        level.levelEvent(null, LevelEvent.SOUND_BLAZE_FIREBALL, blaze.blockPosition(), 0);
+        SmallFireball smallFireball = new SmallFireball(level, blaze, view);
+        smallFireball.setPos(smallFireball.getX(), blaze.getY(0.5) + 0.5, smallFireball.getZ());
+        level.addFreshEntity(smallFireball);
+      }
+      case CREEPER -> {
+        Creeper creeper = (Creeper) nmsEnt;
+        creeper.explodeCreeper();
+      }
+      case GHAST -> {
+        Ghast ghast = (Ghast) nmsEnt;
+        LargeFireball largeFireball = new LargeFireball(level, ghast, view, ghast.getExplosionPower());
+        largeFireball.bukkitYield = (float) (largeFireball.explosionPower = ghast.getExplosionPower());
+        largeFireball.setPos(ghast.getX() + view.x * 4.0, ghast.getY(0.5) + 0.5, largeFireball.getZ() + view.z * 4.0);
+        level.addFreshEntity(largeFireball);
+      }
     }
 
   }
@@ -407,6 +472,8 @@ public class Disguise {
         if (nmsEnt instanceof Mob mb) {
           mb.setNoAi(true);
           mb.setCanPickUpLoot(true);
+          mb.setPersistenceRequired(true);
+          mb.persist = true;
           MoveControl mc = mb.getMoveControl();
           if (mc != null && mc instanceof FlyingMoveControl) {
 //Ostrov.log_warn("FlyingMoveControl");
@@ -458,7 +525,10 @@ public class Disguise {
       public void onRemove(final EntityRemoveEvent e) {
         if (e.getEntity().getPersistentDataContainer().has(DISG)) {
           final String owner = e.getEntity().getPersistentDataContainer().get(DISG, PersistentDataType.STRING);
-          Ostrov.log_warn("disguise onRemove " + owner);
+          Ostrov.log_warn("disguise EntityRemove " + owner + " cause=" + e.getCause());
+          //switch (e.getCause()) {
+          //  case DESPAWN -> e.
+          //}
           //e.setCancelled(true);
         }
       }
@@ -923,21 +993,6 @@ public class Disguise {
     }.runTaskTimer(Ostrov.instance, 1, 1);
   }
 
-  //удержание шифта в процессе маскировки
-  private void charge(int charge) {
-//Ostrov.log_warn("charge "+charge);
-    switch (type) {
-      case CREEPER -> {
-        Creeper creeper = (Creeper) nmsEnt;
-        if (charge == 0) {
-          creeper.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
-          creeper.setIgnited(true);
-        }
-        creeper.swell = 0;
-      }
-    }
-  }
-
   //Shift, LongShift, PickItemFromEntityPacket, PickItemFromBlockPacket
   public void action(PlayerDisguiseEvent.DisguiseAction action) {
     Ostrov.log_warn("action=" + action);
@@ -956,45 +1011,6 @@ public class Disguise {
       charged();
     }
   }
-
-  //удержание шифта достигло chargeTime
-  private void charged() {
-    //Ostrov.log_warn("BOOM");
-    //Vec3 eyePos = sp.position().add(0, eyeHeight, 0);
-    Vec3 view = nmsEnt.calculateViewVector(nmsEnt.getXRot(), nmsEnt.getYRot()).normalize();
-    Level level = nmsEnt.level();
-    //Vec3 bbWidthV = view.multiply(bbWidth, bbWidth, bbWidth);
-    switch (type) {
-      case ENDER_DRAGON -> {
-        EnderDragon enderDragon = (EnderDragon) nmsEnt;
-        //enderDragon.;
-      }
-      case ENDERMAN -> {
-        EnderMan enderman = (EnderMan) nmsEnt;
-        enderman.teleport();
-      }
-      case BLAZE -> {
-        Blaze blaze = (Blaze) nmsEnt;
-        level.levelEvent(null, LevelEvent.SOUND_BLAZE_FIREBALL, blaze.blockPosition(), 0);
-        SmallFireball smallFireball = new SmallFireball(level, blaze, view);
-        smallFireball.setPos(smallFireball.getX(), blaze.getY(0.5) + 0.5, smallFireball.getZ());
-        level.addFreshEntity(smallFireball);
-      }
-      case CREEPER -> {
-        Creeper creeper = (Creeper) nmsEnt;
-        creeper.explodeCreeper();
-      }
-      case GHAST -> {
-        Ghast ghast = (Ghast) nmsEnt;
-        LargeFireball largeFireball = new LargeFireball(level, ghast, view, ghast.getExplosionPower());
-        largeFireball.bukkitYield = (float) (largeFireball.explosionPower = ghast.getExplosionPower());
-        largeFireball.setPos(ghast.getX() + view.x * 4.0, ghast.getY(0.5) + 0.5, largeFireball.getZ() + view.z * 4.0);
-        level.addFreshEntity(largeFireball);
-      }
-    }
-
-  }
-
 
   public static void onEntitiesLoadEvent(final EntitiesLoadEvent e) {
     for (final org.bukkit.entity.Entity ent : e.getWorld().getEntities()) {

@@ -836,8 +836,12 @@ public class Oplayer {
             si.info("OP: Dropped item!");
             if (ItemManager.isInPrivateWG(loc)) {
                 final World sw = SpecialItem.SPAWN.w();
-                if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it);
-            } else si.apply(p.getWorld().dropItem(loc, it, si::apply));
+              if (sw != null) {
+                si.spawn(SpecialItem.SPAWN.center(sw), it);
+              }
+            } else {
+              si.apply(p.getWorld().dropItem(loc, it, si::apply));
+            }
             it.setAmount(0);
         }
     }

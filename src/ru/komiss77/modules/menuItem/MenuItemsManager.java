@@ -267,12 +267,12 @@ public final class MenuItemsManager implements Initiable, Listener {
         }
         //e.setUseItemInHand(Event.Result.DENY);
 
-        if (!menuItem.can_interact && (menuItem.on_right_click != null || menuItem.on_right_sneak_click != null)) {
+      if (!menuItem.can_interact && (menuItem.on_right_click != null || menuItem.on_right_sneak_click != null || menuItem.on_interact != null)) {
             e.setUseItemInHand(Event.Result.DENY); //отменять ПКМ только для командных. или не работает лук-телепортер
         }// else {
         //    e.setUseItemInHand(Event.Result.DENY); //отменять ПКМ только для командных. или не работает лук-телепортер
         //}
-//Ostrov.log(" can_interact?"+menuItem.can_interact+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
+//Ostrov.log("MenuItemsManager can_interact?"+menuItem.can_interact+" useInteractedBlock="+e.useInteractedBlock()+" useItemInHand="+e.useItemInHand());
 
         if (Timer.has(p.getEntityId())) return;
 

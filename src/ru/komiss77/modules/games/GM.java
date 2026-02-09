@@ -452,7 +452,7 @@ public final class GM {
         //serv = game.defaultServer;
         } else {
             if (gi.count() == 0) {
-                p.sendMessage("§cНе найдено арен для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
+              //p.sendMessage("§cНе найдено арен для игры " + game.displayName + "§r§c, пробуем подключиться наугад...");
             } else {
                 ArenaInfo arenaInfo = null;
                 int max = -1;

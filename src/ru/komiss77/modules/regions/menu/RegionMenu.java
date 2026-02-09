@@ -143,8 +143,8 @@ public class RegionMenu implements InventoryProvider {
 
     if (GM.GAME == Game.DA) {
       final Location spl = p.getWorld().getSpawnLocation();
-      final int dst = Math.max(Math.abs(bv.x() - spl.getBlockX()), Math.abs(bv.y() - spl.getBlockZ()));
-      if (dst > RM.NO_CLAIM_AREA && !ApiOstrov.isLocalBuilder(p, true)) {
+      final int dst = Math.max(Math.abs(bv.x() - spl.getBlockX()), Math.abs(bv.z() - spl.getBlockZ()));
+      if (dst < RM.NO_CLAIM_AREA && !ApiOstrov.isLocalBuilder(p, true)) {
         problems.add("§cОтойдите на §6" + RM.NO_CLAIM_AREA + " §cм. от спавна! §7(сейчас:§6" + dst + "§7)");
         problems.add("");
       }

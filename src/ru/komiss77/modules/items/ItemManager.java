@@ -11,10 +11,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareGrindstoneEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
@@ -70,12 +67,25 @@ public class ItemManager implements Initiable, Listener {
     private static final Set<DamageType> DESTROY = Set.of(DamageType.OUT_OF_WORLD, DamageType.OUTSIDE_BORDER);
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onRemove(final EntityRemoveEvent e) {
-        if (e.getEntity() instanceof final Item ie
-            && ie.getLocation().getBlockY() < ie.getWorld().getMinHeight()) {
+      //if (e.getEntity() instanceof final Item ie && ie.getLocation().getBlockY() < ie.getWorld().getMinHeight()) {
+      if (e.getEntity() instanceof final Item ie) {
+        final SpecialItem si = SpecialItem.get(ie.getItemStack());
+        if (si != null && e.getCause() != EntityRemoveEvent.Cause.PLUGIN) si.destroy();
+      }
+    }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onDespawn(final ItemDespawnEvent e) {
+    if (e.getEntity() instanceof final Item ie) {
             final SpecialItem si = SpecialItem.get(ie.getItemStack());
             if (si != null) si.destroy();
         }
     }
+
+  //@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onCreativeClick(final InventoryCreativeEvent e) {
+    Ostrov.log_warn("onCreativeClick Click=" + e.getClick() + " Action=" + e.getAction() + " RawSlot=" + e.getRawSlot());
+  }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
@@ -196,7 +206,9 @@ public class ItemManager implements Initiable, Listener {
         si.info("DROP: Dropped item!");
         if (isInPrivateWG(drop.getLocation())) {
             final World sw = SpecialItem.SPAWN.w();
-            if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), drop.getItemStack());
+          if (sw != null) {
+            si.spawn(SpecialItem.SPAWN.center(sw), drop.getItemStack());
+          }
             drop.remove();
         } else si.apply(drop);
     }
@@ -227,8 +239,7 @@ public class ItemManager implements Initiable, Listener {
             return;
         }
 
-        if (si.own() instanceof final Item ii
-            && ii.getEntityId() != drop.getEntityId()) {
+      if (si.own() instanceof final Item ii && ii.getEntityId() != drop.getEntityId()) {
             drop.remove();
             e.setCancelled(true);
             si.info("PICK: Duplicate item removed!");
@@ -367,7 +378,7 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onClick(final InventoryClickEvent e) {
-        if (e.getSlotType() == InventoryType.SlotType.RESULT) {
+       /* if (e.getSlotType() == InventoryType.SlotType.RESULT) {
             if (!(e.getClickedInventory() instanceof CraftingInventory)) return;
             final ItemStack fin = e.getCurrentItem();
             final SpecialItem si = SpecialItem.get(fin);
@@ -383,7 +394,7 @@ public class ItemManager implements Initiable, Listener {
             si.info("CRAFT: " + e.getWhoClicked().getName() + " crafted item!");
             si.obtain(e.getWhoClicked(), fin);
             return;
-        }
+        }*/
         final HumanEntity he = e.getWhoClicked();
         final ItemStack it = switch (e.getClick()) {
             case NUMBER_KEY -> he.getInventory().getItem(e.getHotbarButton());
@@ -399,15 +410,14 @@ public class ItemManager implements Initiable, Listener {
             e.setResult(Event.Result.DENY);
             return;
         }
-        final Inventory inv = e.getView().getTopInventory();
+       /* final Inventory inv = e.getView().getTopInventory();
         switch (inv.getType()) {
             case PLAYER, CREATIVE, CRAFTING, ENCHANTING, ANVIL, GRINDSTONE: return;
         }
         if (SpecialItem.get(it) != null) {
-            he.sendMessage(TCUtil
-                .form(Ostrov.PREFIX + "<red>Нельзя передвигать реликвии!"));
+            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Нельзя передвигать реликвии!"));
             e.setResult(Event.Result.DENY);
-        }
+        }*/
     }
 
     protected interface Processor extends GroupProc, SpecProc {}
