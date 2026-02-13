@@ -22,10 +22,11 @@ public class PlayerDisguiseEvent extends Event implements Cancellable {
   public @Nullable Block block;
   private boolean canceled;
 
-  public PlayerDisguiseEvent(final Player p, final Disguise disguise, final DisguiseAction action) {
+  public PlayerDisguiseEvent(final Player p, final Disguise disguise, final DisguiseAction action, final Event event) {
     this.owner = p;
     this.disguise = disguise;
     this.action = action;
+    this.event = event;
   }
 
   @Override
@@ -40,6 +41,10 @@ public class PlayerDisguiseEvent extends Event implements Cancellable {
 
   public enum DisguiseAction {
     NONE,
+    UNDISGUISE_COMMAND,
+    UNDISGUISE_REPLACE,
+    UNDISGUISE_OWNER_BAD,
+    UNDISGUISE_ENTITY_BAD,
 
     //пакеты
     PICK_ITEM_FROM_BLOCK_PACKET,
@@ -63,6 +68,7 @@ public class PlayerDisguiseEvent extends Event implements Cancellable {
     DISMOUNT_EVENT,
     SPECTATE_EVENT,
     LEASH_EVENT,
+    DEATH_EVENT,
   }
 
 

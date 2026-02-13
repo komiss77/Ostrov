@@ -25,6 +25,7 @@ import ru.komiss77.Timer;
 import ru.komiss77.boot.OStrap;
 import ru.komiss77.builder.menu.EntitySetup;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.events.PlayerDisguiseEvent;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
 import ru.komiss77.utils.*;
@@ -89,9 +90,9 @@ public class DisguiseCmd implements OCommand {
               final String typeName = Resolver.string(cntx, type);
               final Oplayer op = PM.getOplayer(p);
               if (typeName.equalsIgnoreCase("off") || typeName.equalsIgnoreCase("cancel")) {
-                op.disguise.unDisguise();
+                op.disguise.unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_COMMAND);
                 p.closeInventory();
-                p.sendMessage("§6Маскировка снята");
+                //p.sendMessage("§6Маскировка снята");
                 return 0;
               } else if (typeName.equalsIgnoreCase("block")) {
                 DisguiseBlockSelect.open(p);
@@ -182,7 +183,7 @@ class DisguiseEntitySelect implements InventoryProvider {
       contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.REDSTONE)
               .name("Убрать маскировку")
               .build(), e -> {
-            op.disguise.unDisguise();
+        op.disguise.unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_COMMAND);
             p.closeInventory();
           }
       ));
@@ -247,7 +248,7 @@ class DisguiseBlockSelect implements InventoryProvider {
       contents.set(5, 4, ClickableItem.of(new ItemBuilder(Material.REDSTONE)
               .name("Убрать маскировку")
               .build(), e -> {
-            op.disguise.unDisguise();
+        op.disguise.unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_COMMAND);
             p.closeInventory();
           }
       ));

@@ -2,6 +2,7 @@ package ru.komiss77.commands;
 
 import ru.komiss77.Ostrov;
 import ru.komiss77.builder.BuilderCmd;
+import ru.komiss77.modules.items.ISpecCmd;
 import ru.komiss77.modules.kits.KitCmd;
 import ru.komiss77.modules.netty.RemoteCmd;
 import ru.komiss77.modules.player.mission.MissionCmd;

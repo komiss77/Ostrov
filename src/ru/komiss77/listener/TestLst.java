@@ -52,7 +52,7 @@ public class TestLst implements Listener {
   public void test(final PlayerDisguiseEvent e) {
     switch (e.action) {
       case LEASH_EVENT, DAMAGE_EVENT, MOUNT_EVENT, DISMOUNT_EVENT, PICKUP_EVENT, SPECTATE_EVENT -> {
-        ((Cancellable) e.event).setCancelled(false);
+        e.setCancelled(false);
       }
     }
   }

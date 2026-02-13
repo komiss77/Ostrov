@@ -3,9 +3,7 @@ package ru.komiss77.modules.items;
 import java.util.*;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
@@ -16,27 +14,42 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.util.Vector;
-import ru.komiss77.ApiOstrov;
-import ru.komiss77.Cfg;
-import ru.komiss77.Initiable;
-import ru.komiss77.Ostrov;
+import org.bukkit.persistence.PersistentDataType;
+import ru.komiss77.*;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.events.WorldsLoadCompleteEvent;
 import ru.komiss77.hook.WGhook;
 import ru.komiss77.modules.entities.PvPManager;
 import ru.komiss77.modules.player.Oplayer;
+import ru.komiss77.modules.world.BVec;
+import ru.komiss77.objects.CaseInsensitiveMap;
+import ru.komiss77.utils.EntityUtil;
 import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
-import ru.komiss77.version.Disguise;
 
 
 public class ItemManager implements Initiable, Listener {
+
+  protected static final CaseInsensitiveMap<SpecialItem> RELICS = new CaseInsensitiveMap<>();
+  protected static final String CON_NAME = "specials.yml";
+  public static final NamespacedKey DATA = OStrap.key("special");
+  protected static OConfig config = Cfg.manager.config(CON_NAME, true);
+  private static final Set<DamageType> DESTROY = Set.of(DamageType.OUT_OF_WORLD, DamageType.OUTSIDE_BORDER);
+
+  public enum State {
+    LOOCKUP, //отправить на проверку после первой загрузки. Этот статус не сохранять!
+    NOT_EXIST,
+    PLAYER_HAS,
+    AS_ITEM,
+    UNLOADED
+  }
 
     public ItemManager() {
         reload();
     }
 
-    @Override
+
+  @Override
     public void postWorld() { //обход модулей после загрузки миров, т.к. не всё можно сделать onEnable
     }
 
@@ -45,11 +58,18 @@ public class ItemManager implements Initiable, Listener {
         ItemRoll.loadAll();
         HandlerList.unregisterAll(this);
         if (!Cfg.items) return;
-
         Bukkit.getPluginManager().registerEvents(this, Ostrov.getInstance());
         PvPManager.addForce(new PvPManager.Force() {
             public boolean test(final Player pl, final Oplayer op) {
-                return !SpecialItem.getAll(pl).isEmpty();
+              if (!RELICS.isEmpty()) {
+                Entity own;
+                for (final SpecialItem si : RELICS.values()) {
+                  own = si.own();
+                  if (own != null && pl.getEntityId() == own.getEntityId())
+                    return true;
+                }
+              }
+              return false;//!SpecialItem.getAll(pl).isEmpty();
             }
             public String msg() {
                 return "§6Наличие реликвий не позволит откл. пвп!";
@@ -61,32 +81,477 @@ public class ItemManager implements Initiable, Listener {
     @Override
     public void onDisable() {
         if (!Cfg.items) return;
-
         Ostrov.log_ok("§6Предметы выключены!");
     }
 
-    private static final Set<DamageType> DESTROY = Set.of(DamageType.OUT_OF_WORLD, DamageType.OUTSIDE_BORDER);
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onRemove(final EntityRemoveEvent e) {
-      //if (e.getEntity() instanceof final Item ie && ie.getLocation().getBlockY() < ie.getWorld().getMinHeight()) {
-      if (e.getEntity() instanceof final Item ie) {
-        final SpecialItem si = SpecialItem.get(ie.getItemStack());
-        if (si != null && e.getCause() != EntityRemoveEvent.Cause.PLUGIN) si.destroy();
+  //загрузить текущее состояние спец.предмета при создании в плагине
+  public static ItemStack load(final SpecialItem si, final ItemStack def) {
+    ItemStack curr = null;
+    ItemStack orig = null;
+    final String name = si.name();
+    if (config.contains(name)) {
+      try {
+        si.state = State.valueOf(config.getString(name + ".state", ""));
+      } catch (IllegalArgumentException ex) {
+        //Ostrov.log_warn("ItemManager load "+ex.getMessage());
+        si.destroy(false, "LOAD new enum");
+      }
+      curr = ItemUtil.parse(config.getString(name + ".curr")); //последнее известное состояние
+      orig = ItemUtil.parse(config.getString(name + ".org"));
+      switch (si.state) {
+        case AS_ITEM, UNLOADED -> {
+          //спавнить предмет не надо - это же получится дюп. В этих статусах он должен быть на карте, подгрузится сам в EntitiesLoadEvent
+          //if (!config.getString(name + ".loc", "").isBlank()) {//(lastLoc != null) {
+          si.lastLoc = BVec.parse(config.getString(name + ".loc"));
+          if (si.loc() == null) { //не удалось восстановить координату
+            curr = null;
+            orig = null;
+            si.state = State.NOT_EXIST;
+            si.info("LOAD, but lastLoc=null, reset");
+          }
+          //if (si.state == State.AS_ITEM) {
+          //с предметом вроде всё ок, но отправим на проверку
+          si.state = State.LOOCKUP;
+          //}
+            /*Timer.task( () -> {
+              if (si.state == State.AS_ITEM && si.own() != null) return true;
+              //if (si.lastLoc == null || si.own() != null) return true;
+              final World w = si.lastLoc.w();
+              if (w == null) return false;
+              w.dropItem(si.lastLoc.center(w), si.item(), i -> si.attachToItem(i, "file"));
+              return true;
+            }, "spec", 5, 10);*/
+          //}
+        }
+        case PLAYER_HAS, LOOCKUP -> {
+          //после рестарта не может быть у игрока или в поиске, дестрой
+          curr = null;
+          orig = null;
+          si.info("LOAD, but state=" + si.state + ", reset");
+          si.state = State.NOT_EXIST;
+        }
+        case NOT_EXIST -> {
+          curr = null;
+          orig = null;
+        }
       }
     }
+
+    ItemStack result = null;
+    if (!ItemUtil.isBlank(curr, false)) {
+      result = curr;
+    } else if (!ItemUtil.isBlank(orig, false)) {
+      result = orig;
+    } else {
+      result = def;
+    }
+//Ostrov.log_warn("SpecialItem new BVec.parse="+config.getString(name + ".loc"));
+    result.editPersistentDataContainer(pdc -> pdc.set(ItemManager.DATA, PersistentDataType.STRING, name));
+    RELICS.put(name, si);
+    return result;
+  }
+
+  //сохранить текущее состояние спец.предмета, созданного в плагине
+  public static void save(final SpecialItem si, final ItemStack curr) {
+    final String name = si.name();
+    config.set(name + ".state", si.state.name());
+    if (config.getString(name + ".org").isEmpty()) {
+      config.set(name + ".org", ItemUtil.write(si.item()));
+    }
+    config.set(name + ".curr", ItemUtil.write(curr));
+    config.set(name + ".loc", si.loc() == null ? null : si.loc().toString());
+    config.removeKey(name + ".dropped");
+    config.removeKey(name + ".crafted");
+    config.saveConfig();
+  }
+
+  /* public static String validate(final SpecialItem si) {
+     if (!si.crafted()) {
+       return "VALIDATE: Uncrafted";
+     }
+     if (si.own() instanceof LivingEntity le && le.getUniqueId() != p.getUniqueId()) {
+       return "VALIDATE: Duplicate";
+     }
+     if (si.dropped()) {
+       if (!(si.own() instanceof final Item item)) {
+         return "VALIDATE: Undropped";
+       }
+       item.remove();
+     }
+   }*/
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onReady(final WorldsLoadCompleteEvent e) {
+    Ostrov.log_warn("WorldsLoadComplete, check RELICS");
+    for (final SpecialItem si : RELICS.values()) {
+      check(si);
+    }
+  }
+
+  public static void check(final SpecialItem si) {
+    if (si.state == State.LOOCKUP) {
+      final World w = si.lastLoc.w();
+      if (w == null) {
+        si.destroy(false, "WorldsLoadComplete world=null");
+      }
+      final int cx = si.lastLoc.x >> 4;
+      final int cz = si.lastLoc.z >> 4;
+      w.getChunkAtAsync(cx, cz).thenAccept(ch -> {
+        boolean found = false;
+        ItemStack is;
+        for (final Entity en : ch.getEntities()) {
+          if (en instanceof final Item item) {
+            is = item.getItemStack();
+            if (!is.getPersistentDataContainer().has(DATA)) continue;
+            final String name = item.getItemStack().getPersistentDataContainer().get(DATA, PersistentDataType.STRING);
+            if (si.name().equalsIgnoreCase(name)) {
+              if (!found) {
+                found = true;
+                si.attachToItem(item, "WorldsLoadComplete");
+              } else {
+                item.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+                si.info("WorldsLoadComplete: Duplicate item removed!");
+              }
+            }
+          }
+        }
+        if (!found) {
+          si.destroy(false, "WorldsLoadComplete item not found");
+        }
+      });
+    }
+  }
+
+  public static void onLogout(Player p) {
+    final Location loc = EntityUtil.center(p);
+    for (final ItemStack it : p.getInventory()) {
+      if (ItemUtil.isBlank(it, false)) continue;
+      final SpecialItem si = SpecialItem.get(it);
+      if (si == null) continue;
+      if (si.state == State.PLAYER_HAS) {
+        Entity owner = si.own();
+        //si.info("LOGOUT: Drop special item");
+        if (owner != null && owner.getEntityId() == p.getEntityId()) {
+          if (isInPrivateWG(loc)) {
+            for (Entity en : loc.getWorld().getEntities()) {
+              if (en instanceof LivingEntity le) {
+                if (!isInPrivateWG(le.getLocation()) && le.isOnGround()) {
+                  p.getWorld().dropItem(loc, it, i -> si.attachToItem(i, "LOGOUT Drop special item (random entity)")); //apply подтянет само через PlayerDropItemEvent
+                  break;
+                }
+              }
+            }
+          } else {
+            p.getWorld().dropItem(loc, it, i -> si.attachToItem(i, "LOGOUT Drop special item (logout location)")); //apply подтянет само через PlayerDropItemEvent
+          }
+        } else {
+          //при загрузке еще никого нет онлайн, незачем чекать инвентари
+          si.destroy(false, "LOGOUT not owner ID");
+        }
+      } else {
+        si.destroy(false, "LOGOUT not PLAYER_HAS");
+      }
+
+      it.setAmount(0);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onUnLoad(final EntitiesUnloadEvent e) {
+    for (final Entity en : e.getEntities()) {
+      if (!(en instanceof final Item unloadedItem)) continue;
+      final SpecialItem si = SpecialItem.get(unloadedItem.getItemStack());
+      if (si == null) continue;
+      si.info("EntitiesUnload: ");
+      switch (si.state) {
+        case AS_ITEM -> {
+          //при отгрузке должен быть перед этим AS_ITEM. все остальные варианты-ошибки
+          if (si.own() instanceof final Item lastItem) {
+            if (unloadedItem.getEntityId() == lastItem.getEntityId()) {
+              si.unload(unloadedItem); //сохранить только при совпадении
+              //continue; не удалять, должен отгрузиться с чанком
+            } else {
+              si.destroy(false, "EntitiesUnload: vrog getEntityId, remove");
+              //unloadedItem.remove();
+              unloadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+            }
+          } else {
+            si.destroy(false, "EntitiesUnload: not a item, remove");
+            //unloadedItem.remove();
+            unloadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          }
+        }
+        case NOT_EXIST, UNLOADED -> {
+          si.destroy(false, "EntitiesUnload: vrong state:" + si.state + ", remove");
+          unloadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          //unloadedItem.remove();
+        }
+        case PLAYER_HAS -> {
+          si.destroy(true, "EntitiesUnload: vrong state:" + si.state + ", remove");
+          unloadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          //unloadedItem.remove();
+        }
+
+      }
+      //unloadedItem.remove();
+     /* if (!si.crafted()) {
+        unloadedItem.remove();
+        si.info("EntitiesUnload: Uncrafted item removed!");
+        continue;
+      }
+      if (!si.dropped()) {
+        unloadedItem.remove();
+        si.info("EntitiesUnload: Undropped item removed!");
+        continue;
+      }
+      if (si.own() instanceof final Item lastItem) {
+        if (unloadedItem.getEntityId() != lastItem.getEntityId()) {
+          unloadedItem.remove();
+          si.info("EntitiesUnload: Duplicate item removed!");
+          continue;
+        }
+      }
+      si.unload(unloadedItem);*/
+    }
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onLoad(final EntitiesLoadEvent e) {
+    for (final Entity en : e.getEntities()) {
+      if (!(en instanceof final Item loadedItem)) continue;
+      final SpecialItem si = SpecialItem.get(loadedItem.getItemStack());
+      if (si == null) continue;
+      si.info("EntitiesLoad: ");
+      switch (si.state) {
+        case UNLOADED, LOOCKUP -> {
+          //при загрузке должен быть перед этим UNLOADED или LOOCKUP. все остальные варианты-ошибки
+          si.attachToItem(loadedItem, "EntitiesLoad");
+        }
+        case NOT_EXIST, AS_ITEM -> {
+          si.destroy(false, "EntitiesLoad: vrong state:" + si.state + ", remove");
+          loadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          //unloadedItem.remove();
+        }
+        case PLAYER_HAS -> {
+          si.destroy(true, "EntitiesLoad: vrong state:" + si.state + ", remove");
+          loadedItem.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          //unloadedItem.remove();
+        }
+      }
+
+      /*if (!si.crafted()) {
+        loadedItem.remove();
+        si.info("EntitiesLoad: Uncrafted item removed!");
+        continue;
+      }
+      if (!si.dropped()) {
+        loadedItem.remove();
+        si.info("EntitiesLoad: Undropped item removed!");
+        continue;
+      }
+      if (si.own() != null && si.own() instanceof final Item lastItem) {
+        if (lastItem.getEntityId() != loadedItem.getEntityId()) {
+          loadedItem.remove();
+          si.info("EntitiesLoad: Duplicate item removed!");
+          continue;
+        }
+      }
+      si.info("EntitiesLoad: Loaded in item!");*/
+      //раз предмет загружается, значит у него есть и мир, и локация, просто обновить статус
+      //  if (si.loc() == null) continue;
+      //  final World w = si.loc().w();
+      //  if (w == null) continue;
+      //   final Location loc = si.loc().center(w);
+      // if (isInPrivateWG(loc)) {
+      //   final World sw = SpecialItem.SPAWN.w();
+      //   if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
+      //   it.remove();
+      // } else {
+      //si.attachToItem(loadedItem, "EntitiesLoad");
+      // }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onDrop(final EntityDropItemEvent e) {
+    onDrop(e.getEntity(), e.getItemDrop());
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onDrop(final PlayerDropItemEvent e) {
+    onDrop(e.getPlayer(), e.getItemDrop());
+  }
+
+  //EntityDropItemEvent, PlayerDropItemEvent
+  private static void onDrop(final Entity dropper, final Item drop) {
+    final ItemStack it = drop.getItemStack();
+    final SpecialItem si = SpecialItem.get(it);
+    if (si == null) return;
+    si.info("onDrop: ");
+    switch (si.state) {
+      case NOT_EXIST, UNLOADED, AS_ITEM -> {
+        //состояния не соотвтетствуют ожидаемому при броске
+        si.destroy(false, "onDrop: vrong state:" + si.state + ", remove");
+        drop.remove();
+      }
+      case PLAYER_HAS -> {
+        if (si.own() instanceof LivingEntity le && le.getUniqueId() == dropper.getUniqueId()) {
+          si.attachToItem(drop, "onDrop");
+        } else {
+          drop.remove();
+          si.destroy(true, "onDrop: vrong state:" + si.state + ", remove");
+          si.info("DROP: Duplicate item removed!");
+        }
+      }
+    }
+  /*  if (!si.crafted()) {
+      drop.remove();
+      si.info("DROP: Uncrafted item removed!");
+      return;
+    }
+    if (si.own() instanceof LivingEntity le
+        && le.getUniqueId() != dropper.getUniqueId()) {
+      drop.remove();
+      si.info("DROP: Duplicate item removed!");
+      return;
+    }
+    if (si.dropped()) {
+      if (!(si.own() instanceof final Item ii)) {
+        drop.remove();
+        si.info("DROP: Undropped item removed!");
+        return;
+      }
+      ii.remove();
+      si.info("DROP: Duplicate item removed!");
+    }
+    si.info("DROP: Dropped item!");*/
+    //if (isInPrivateWG(drop.getLocation())) {
+    //     final World sw = SpecialItem.SPAWN.w();
+    //  if (sw != null) {
+    //    si.spawn(SpecialItem.SPAWN.center(sw), drop.getItemStack());
+    //  }
+    //    drop.remove();
+    //  } else {
+    //  si.attachToItem(drop, "onDrop");
+    // }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onPick(final EntityPickupItemEvent e) {
+    final Item drop = e.getItem();
+    final ItemStack it = drop.getItemStack();
+    final SpecialItem si = SpecialItem.get(it);
+    if (si == null) return;
+    if (e.getEntityType() != EntityType.PLAYER) {
+      drop.setPickupDelay(20);
+      e.setCancelled(true);
+      return;
+    }
+    si.info("PICKUP: ");
+    switch (si.state) {
+      case AS_ITEM -> {
+        //при поднятии должен быть перед этим AS_ITEM. все остальные варианты-ошибки
+        if (si.own() instanceof final Item lastItem) {
+          if (drop.getEntityId() == lastItem.getEntityId()) {
+            si.obtain(e.getEntity(), it);
+            ApiOstrov.addCustomStat((Player) e.getEntity(), "si_pickup", 1);
+          } else {
+            si.destroy(false, "PICKUP: vrog getEntityId, remove");
+            //unloadedItem.remove();
+            drop.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+          }
+        } else {
+          si.destroy(false, "PICKUP: not a item, remove");
+          //unloadedItem.remove();
+          drop.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+        }
+      }
+      case NOT_EXIST, UNLOADED -> {
+        si.destroy(false, "PICKUP: vrong state:" + si.state + ", remove");
+        drop.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+        //unloadedItem.remove();
+      }
+      case PLAYER_HAS -> {
+        si.destroy(true, "PICKUP: vrong state:" + si.state + ", remove");
+        drop.setHealth(0); //так сделает discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.PLUGIN) и не будет цеплять EntityRemoveEvent
+        //unloadedItem.remove();
+      }
+    }
+    /*if (!si.crafted()) {
+      drop.remove();
+      e.setCancelled(true);
+      si.info("PICK: Uncrafted item removed!");
+      return;
+    }
+    if (!si.dropped()) {
+      drop.remove();
+      e.setCancelled(true);
+      si.info("PICK: Undropped item removed!");
+      return;
+    }
+    if (e.getEntityType() != EntityType.PLAYER) {
+      drop.setPickupDelay(20);
+      e.setCancelled(true);
+      return;
+    }
+    if (si.own() instanceof final Item ii && ii.getEntityId() != drop.getEntityId()) {
+      drop.remove();
+      e.setCancelled(true);
+      si.info("PICK: Duplicate item removed!");
+      return;
+    }
+    si.obtain(e.getEntity(), it);
+    ApiOstrov.addCustomStat((Player) e.getEntity(), "si_pickup", 1);
+    si.info("PICK: " + e.getEntity().getName() + " picked up item!");*/
+  }
+
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void onRemove(final EntityRemoveEvent e) {
+    //if (e.getEntity() instanceof final Item ie && ie.getLocation().getBlockY() < ie.getWorld().getMinHeight()) {
+    if (e.getEntity() instanceof final Item ie) {
+      final SpecialItem si = SpecialItem.get(ie.getItemStack());
+      if (si != null) {
+        //if (e.getCause() != EntityRemoveEvent.Cause.PLUGIN) {
+        if (e.getCause() == EntityRemoveEvent.Cause.PLUGIN) {
+          //не уничтожать, обновить данные
+          si.destroy(true, "EntityRemoveEvent(PLUGIN)");
+        }
+      }
+    }
+  }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onDespawn(final ItemDespawnEvent e) {
     if (e.getEntity() instanceof final Item ie) {
-            final SpecialItem si = SpecialItem.get(ie.getItemStack());
-            if (si != null) si.destroy();
-        }
+      final SpecialItem si = SpecialItem.get(ie.getItemStack());
+      if (si != null) {
+        si.destroy(true, "ItemDespawnEvent");
+      }
     }
-
-  //@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onCreativeClick(final InventoryCreativeEvent e) {
-    Ostrov.log_warn("onCreativeClick Click=" + e.getClick() + " Action=" + e.getAction() + " RawSlot=" + e.getRawSlot());
   }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  public void onHopper(final InventoryPickupItemEvent e) {
+    final SpecialItem si = SpecialItem.get(e.getItem().getItemStack());
+    if (si == null) return;
+    e.setCancelled(true);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  public void onIBreak(final PlayerItemBreakEvent e) {
+    final SpecialItem si = SpecialItem.get(e.getBrokenItem());
+    if (si == null) return;
+    //предмет уже разрушился
+    si.destroy(false, "PlayerItemBreakEvent");
+  }
+
+
+
+
+
+
+
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(final EntityDamageEvent e) {
@@ -105,7 +570,7 @@ public class ItemManager implements Initiable, Listener {
             final SpecialItem si = SpecialItem.get(ie.getItemStack());
             if (si != null) {
                 if (DESTROY.contains(e.getDamageSource().getDamageType())) {
-                    si.destroy();
+                  si.destroy(true, "EntityDamageEvent");
                     return;
                 }
                 e.setDamage(0d);
@@ -142,7 +607,7 @@ public class ItemManager implements Initiable, Listener {
         for (final EquipmentSlot es : EquipmentSlot.values()) {
             if (!le.canUseEquipmentSlot(es)) continue;
             final ItemStack is = eq.getItem(es);
-            if (SpecialItem.exist) {
+          if (!RELICS.isEmpty()) {
                 final SpecialItem spi = SpecialItem.get(is);
                 if (spi != null) {
                     pc.onSpec(es, spi);
@@ -167,90 +632,6 @@ public class ItemManager implements Initiable, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDrop(final EntityDropItemEvent e) {
-        onDrop(e.getEntity(), e.getItemDrop());
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDrop(final PlayerDropItemEvent e) {
-        onDrop(e.getPlayer(), e.getItemDrop());
-    }
-
-    private static void onDrop(final Entity ent, final Item drop) {
-        final ItemStack it = drop.getItemStack();
-        final SpecialItem si = SpecialItem.get(it);
-        if (si == null) return;
-        if (!si.crafted()) {
-            drop.remove();
-            si.info("DROP: Uncrafted item removed!");
-            return;
-        }
-
-        if (si.own() instanceof LivingEntity le
-            && le.getUniqueId() != ent.getUniqueId()) {
-            drop.remove();
-            si.info("DROP: Duplicate item removed!");
-            return;
-        }
-
-        if (si.dropped()) {
-            if (!(si.own() instanceof final Item ii)) {
-                drop.remove();
-                si.info("DROP: Undropped item removed!");
-                return;
-            }
-            ii.remove();
-            si.info("DROP: Duplicate item removed!");
-        }
-
-        si.info("DROP: Dropped item!");
-        if (isInPrivateWG(drop.getLocation())) {
-            final World sw = SpecialItem.SPAWN.w();
-          if (sw != null) {
-            si.spawn(SpecialItem.SPAWN.center(sw), drop.getItemStack());
-          }
-            drop.remove();
-        } else si.apply(drop);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPick(final EntityPickupItemEvent e) {
-        final Item drop = e.getItem();
-        final ItemStack it = drop.getItemStack();
-        final SpecialItem si = SpecialItem.get(it);
-        if (si == null) return;
-        if (!si.crafted()) {
-            drop.remove();
-            e.setCancelled(true);
-            si.info("PICK: Uncrafted item removed!");
-            return;
-        }
-
-        if (!si.dropped()) {
-            drop.remove();
-            e.setCancelled(true);
-            si.info("PICK: Undropped item removed!");
-            return;
-        }
-
-        if (e.getEntityType() != EntityType.PLAYER) {
-            drop.setPickupDelay(20);
-            e.setCancelled(true);
-            return;
-        }
-
-      if (si.own() instanceof final Item ii && ii.getEntityId() != drop.getEntityId()) {
-            drop.remove();
-            e.setCancelled(true);
-            si.info("PICK: Duplicate item removed!");
-            return;
-        }
-
-        si.obtain(e.getEntity(), it);
-      ApiOstrov.addCustomStat((Player) e.getEntity(), "si_pickup", 1);
-        si.info("PICK: " + e.getEntity().getName() + " picked up item!");
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(final EntityTeleportEvent e) {
@@ -258,82 +639,7 @@ public class ItemManager implements Initiable, Listener {
         onLoad(new EntitiesLoadEvent(e.getTo().getChunk(), List.of(e.getEntity())));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onLoad(final EntitiesLoadEvent e) {
-      Disguise.onEntitiesLoadEvent(e);
-        for (final Entity en : e.getEntities()) {
-            if (!(en instanceof final Item it)) continue;
-            final SpecialItem si = SpecialItem.get(it.getItemStack());
-            if (si == null) continue;
-
-            if (!si.crafted()) {
-                it.remove();
-                si.info("LOAD: Uncrafted item removed!");
-                continue;
-            }
-
-            if (si.own() instanceof final Item ii) {
-                if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
-                    it.remove();
-                    si.info("LOAD: Duplicate item removed!");
-                    continue;
-                }
-            } else if (!si.dropped()) {
-                it.remove();
-                si.info("LOAD: Undropped item removed!");
-                continue;
-            }
-
-            si.info("LOAD: Loaded in item!");
-            if (si.loc() == null) continue;
-            final World w = si.loc().w();
-            if (w == null) continue;
-            final Location loc = si.loc().center(w);
-            if (isInPrivateWG(loc)) {
-                final World sw = SpecialItem.SPAWN.w();
-                if (sw != null) si.spawn(SpecialItem.SPAWN.center(sw), it.getItemStack());
-                it.remove();
-            } else si.apply(it);
-        }
-    }
-
-    public static boolean isInPrivateWG(final Location loc) {
-        return Ostrov.wg && WGhook.getRegionsOnLocation(loc).size() != 0;
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onUnLoad(final EntitiesUnloadEvent e) {
-        for (final Entity en : e.getEntities()) {
-            if (!(en instanceof final Item it)) continue;
-            final SpecialItem si = SpecialItem.get(it.getItemStack());
-            if (si == null) continue;
-
-            if (!si.crafted()) {
-                it.remove();
-                si.info("UNL: Uncrafted item removed!");
-                continue;
-            }
-
-            if (si.own() instanceof final Item ii) {
-                if (!si.dropped() || ii.getEntityId() != it.getEntityId()) {
-                    it.remove();
-                    si.info("UNL: Duplicate item removed!");
-                    continue;
-                }
-            } else if (!si.dropped()) {
-                it.remove();
-                si.info("UNL: Undropped item removed!");
-                continue;
-            }
-
-            it.setVelocity(new Vector());
-            si.loc(it.getLocation());
-            si.save(it.getItemStack());
-            si.info("UNL: Unloaded item out!");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onAtEntity(final PlayerInteractAtEntityEvent e) {
         onEntity(e);
     }
@@ -350,19 +656,7 @@ public class ItemManager implements Initiable, Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onHopper(final InventoryPickupItemEvent e) {
-        final SpecialItem si = SpecialItem.get(e.getItem().getItemStack());
-        if (si == null) return;
-        e.setCancelled(true);
-    }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onIBreak(final PlayerItemBreakEvent e) {
-        final SpecialItem si = SpecialItem.get(e.getBrokenItem());
-        if (si == null) return;
-        si.destroy();
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onIGrind(final PrepareGrindstoneEvent e) {
@@ -380,6 +674,52 @@ public class ItemManager implements Initiable, Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onClick(final InventoryClickEvent e) {
+      final HumanEntity he = e.getWhoClicked();
+
+      if (!(e.getClickedInventory() instanceof CraftingInventory)) {
+        final ItemStack curr = e.getCurrentItem();
+        final SpecialItem si = SpecialItem.get(curr);
+        if (si != null) {
+          switch (si.state) {
+            case NOT_EXIST, LOOCKUP -> {
+              si.obtain(he, curr);
+            }
+            case AS_ITEM, UNLOADED -> {
+              e.setCurrentItem(ItemUtil.air);
+              he.getWorld().playSound(he.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+              he.sendMessage("Подделка реликвии сломалась при касании...");
+            }
+            case PLAYER_HAS -> {
+              Entity owner = si.own();
+              if (owner != null && owner instanceof Player p && p.isOnline()) {
+                if (owner.getEntityId() == he.getEntityId()) return;
+                boolean inInv = false;
+                String name;
+                for (ItemStack is : p.getInventory()) {
+                  if (ItemUtil.isBlank(is, false)) continue;
+                  if (!is.getPersistentDataContainer().has(ItemManager.DATA)) continue;
+                  name = is.getPersistentDataContainer().get(ItemManager.DATA, PersistentDataType.STRING);
+                  if (si.name().equalsIgnoreCase(name)) {
+                    inInv = true;
+                    break;
+                  }
+                }
+                if (inInv) {
+                  e.setCurrentItem(ItemUtil.air);
+                  he.getWorld().playSound(he.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+                  he.sendMessage("Подделка реликвии сломалась при касании...");
+                } else {
+                  si.obtain(he, curr);
+                }
+              } else {
+                si.obtain(he, curr);
+              }
+            }
+          }
+          return;
+        }
+      }
+
        /* if (e.getSlotType() == InventoryType.SlotType.RESULT) {
             if (!(e.getClickedInventory() instanceof CraftingInventory)) return;
             final ItemStack fin = e.getCurrentItem();
@@ -397,7 +737,6 @@ public class ItemManager implements Initiable, Listener {
             si.obtain(e.getWhoClicked(), fin);
             return;
         }*/
-        final HumanEntity he = e.getWhoClicked();
         final ItemStack it = switch (e.getClick()) {
             case NUMBER_KEY -> he.getInventory().getItem(e.getHotbarButton());
             case SWAP_OFFHAND -> he.getInventory().getItemInOffHand();
@@ -412,7 +751,7 @@ public class ItemManager implements Initiable, Listener {
             e.setResult(Event.Result.DENY);
             return;
         }
-       /* final Inventory inv = e.getView().getTopInventory();
+        /*final Inventory inv = e.getView().getTopInventory();
         switch (inv.getType()) {
             case PLAYER, CREATIVE, CRAFTING, ENCHANTING, ANVIL, GRINDSTONE: return;
         }
@@ -432,6 +771,11 @@ public class ItemManager implements Initiable, Listener {
 
     public static boolean isCustom(final ItemStack it) {
         return it != null && ((ItemGroup.exist && ItemGroup.get(it) != null)
-            || (SpecialItem.exist && SpecialItem.get(it) != null));
+            || (!RELICS.isEmpty() && SpecialItem.get(it) != null));
     }
+
+  public static boolean isInPrivateWG(final Location loc) {
+    return Ostrov.wg && WGhook.getRegionsOnLocation(loc).size() != 0;
+  }
+
 }

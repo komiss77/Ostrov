@@ -18,18 +18,101 @@ import ru.komiss77.utils.LocUtil;
 import ru.komiss77.utils.NumUtil;
 import ru.komiss77.utils.inventory.*;
 
+//https://minecraft.wiki/w/Game_rule
 
 public class WorldSettings implements InventoryProvider {
-
-
     private static final List<GameRule<?>> RULES = OStrap.getAll(RegistryKey.GAME_RULE);
     private final World world;
-    
-    public WorldSettings(final World world) {
+
+  public WorldSettings(final World world) {
         this.world = world;
     }
 
-    @Override
+
+  private ItemType getRuleMat(final GameRule<?> rule, final boolean on) {
+
+    //GameRules.ADVANCE_TIME
+
+    return switch (rule.getKey().value().toUpperCase()) {
+      case "ADVANCE_TIME" -> ItemType.CLOCK;
+      case "ADVANCE_WEATHER" -> ItemType.WIND_CHARGE;
+      case "ALLOW_ENTERING_NETHER_USING_PORTALS" -> ItemType.NETHERRACK;
+      case "BLOCK_DROPS" -> ItemType.STONE_PICKAXE;
+      case "BLOCK_EXPLOSION_DROP_DECAY" ->
+          ItemType.TNT; //выпадает ли добыча из всех блоков или случайным образом в зависимости от расстояния блока до центра взрыва
+      case "COMMAND_BLOCK_OUTPUT" -> ItemType.COMMAND_BLOCK_MINECART;
+      case "COMMAND_BLOCKS_WORK" -> ItemType.COMMAND_BLOCK;
+      case "DROWNING_DAMAGE" -> ItemType.SALMON_BUCKET; //утопление
+      case "ELYTRA_MOVEMENT_CHECK" -> ItemType.ELYTRA;
+      case "ENDER_PEARLS_VANISH_ON_DEATH" ->
+          ItemType.ENDER_PEARL; //исчезают ли брошенные жемчужины Края после смерти игрока
+      case "ENTITY_DROPS" -> ItemType.SPIDER_EYE;
+      case "FALL_DAMAGE" -> ItemType.LADDER;
+      case "FIRE_DAMAGE" -> ItemType.BLAZE_POWDER;
+      case "FIRE_SPREAD_RADIUS_AROUND_PLAYER" -> ItemType.BLAZE_POWDER;
+      case "FORGIVE_DEAD_PLAYERS" ->
+          ItemType.PITCHER_PLANT; //Заставляет разгневанных нейтральных мобов в пределах 65 x 21 x 65 блоков, центрированных на целевом игроке, перестать злиться после смерти игрока.
+      case "FREEZE_DAMAGE" -> ItemType.PACKED_ICE;
+      case "GLOBAL_SOUND_EVENTS" ->
+          ItemType.GOAT_HORN; //Слышат ли все игроки, независимо от местоположения, звук появления иссушителя, звук смерти дракона Края и звук активации портала в Край.
+      case "IMMEDIATE_RESPAWN" ->
+          ItemType.TOTEM_OF_UNDYING; //Игроки мгновенно возрождаются, без отображения экрана смерти.
+      case "KEEP_INVENTORY" -> ItemType.BLACK_BUNDLE;
+      case "LAVA_SOURCE_CONVERSION" -> ItemType.LAVA_BUCKET; //Будет ли разрешено образование новых источников лавы.
+      case "LIMITED_CRAFTING" ->
+          ItemType.CRAFTING_TABLE; //Можно ли игрокам создавать только те предметы по разблокированным рецептам?
+      case "LOG_ADMIN_COMMANDS" -> ItemType.RECOVERY_COMPASS;
+      case "MAX_BLOCK_MODIFICATIONS" ->
+          ItemType.CHAIN_COMMAND_BLOCK; //Управляет максимальным количеством блоков, изменяемых при использовании команд /clone, /fill или /fillbiome.
+      case "MAX_COMMAND_FORKS" -> ItemType.REPEATING_COMMAND_BLOCK;
+      case "MAX_COMMAND_SEQUENCE_LENGTH" -> ItemType.CHAIN_COMMAND_BLOCK;
+      case "MAX_ENTITY_CRAMMING" ->
+          ItemType.STICKY_PISTON; //Максимальное количество объектов, которые может сдвинуть моб или игрок, прежде чем получить 6 единиц урона за полсекунды. Установка значения 0 отключает это правило. Урон действует на игроков в режиме выживания или приключений, а также на всех мобов, кроме летучих мышей. К сдвигаемым объектам относятся игроки, не находящиеся в режиме наблюдателя, любые мобы, кроме летучих мышей, а также лодки и вагонетки.
+      case "MAX_MINECART_SPEED" -> ItemType.MINECART;
+      case "MAX_SNOW_ACCUMULATION_HEIGHT" ->
+          ItemType.WHITE_CARPET; //Максимальное количество слоев снега, которое может накопиться на каждом блоке.
+      case "MOB_DROPS" -> ItemType.EXPERIENCE_BOTTLE;
+      case "MOB_GRIEFING" -> ItemType.CREEPER_SPAWN_EGG;
+      case "PLAYER_MOVEMENT_CHECK" -> ItemType.LEATHER_BOOTS;
+      case "PLAYERS_NETHER_PORTAL_CREATIVE_DELAY" -> ItemType.OBSIDIAN;
+      case "PLAYERS_NETHER_PORTAL_DEFAULT_DELAY" -> ItemType.OBSIDIAN;
+      case "PLAYERS_SLEEPING_PERCENTAGE" -> ItemType.RED_BED;
+      case "PROJECTILES_CAN_BREAK_BLOCKS" -> ItemType.SPECTRAL_ARROW;
+      case "PVP" -> ItemType.DIAMOND_SWORD;
+      case "RAIDS" -> ItemType.CROSSBOW;
+      case "RANDOM_TICK_SPEED" -> ItemType.WHEAT;
+      case "REDUCED_DEBUG_INFO" ->
+          ItemType.WRITABLE_BOOK; //Определяет, отображает ли отладочный экран всю или сокращенную информацию; и отображаются ли эффекты сочетаний клавиш F3+B (области попадания объектов) и F3+G (границы блоков).
+      case "RESPAWN_RADIUS" -> ItemType.ENDER_EYE;
+      case "SEND_COMMAND_FEEDBACK" ->
+          ItemType.COMMAND_BLOCK; //Определяет, должны ли в чате отображаться результаты выполнения команд игроком. Также влияет на поведение по умолчанию, определяющее, сохраняют ли командные блоки свой выводимый текст.
+      case "SHOW_ADVANCEMENT_MESSAGES" -> ItemType.FLOWER_BANNER_PATTERN;
+      case "SHOW_DEATH_MESSAGES" -> ItemType.BORDURE_INDENTED_BANNER_PATTERN;
+      case "SPAWN_MOBS" -> ItemType.COW_SPAWN_EGG;
+      case "SPAWN_MONSTERS" -> ItemType.ZOMBIE_SPAWN_EGG;
+      case "SPAWN_PATROLS" -> ItemType.CROSSBOW;
+      case "SPAWN_PHANTOMS" -> ItemType.PHANTOM_SPAWN_EGG;
+      case "SPAWN_WANDERING_TRADERS" -> ItemType.WANDERING_TRADER_SPAWN_EGG;
+      case "SPAWN_WARDENS" -> ItemType.WARDEN_SPAWN_EGG;
+      case "SPAWNER_BLOCKS_WORK" -> ItemType.SPAWNER; //Включить или отключить блоки спавнера монстров.
+      case "SPECTATORS_GENERATE_CHUNKS" -> ItemType.SPYGLASS;
+      case "SPREAD_VINES" -> ItemType.VINE;
+      case "TNT_EXPLODES" -> ItemType.TNT;
+      case "TNT_EXPLOSION_DROP_DECAY" ->
+          ItemType.TNT; //выпадает ли добыча из всех блоков или случайным образом в зависимости от расстояния блока до центра взрыва
+      case "UNIVERSAL_ANGER" ->
+          ItemType.PIGLIN_HEAD; //Заставляет разгневанных нейтральных мобов атаковать любого находящегося поблизости игрока, а не только того, кто их разозлил. Лучше всего работает, если параметр forgive_dead_players отключен.
+      case "WATER_SOURCE_CONVERSION" -> ItemType.WATER_BUCKET;
+
+
+      default -> rule.getType() == Integer.class ? ItemType.NAME_TAG : on ? ItemType.REDSTONE_TORCH : ItemType.LEVER;
+
+    };
+
+  }
+
+
+  @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void init(final Player p, final InventoryContent contents) {
         p.playSound(p.getLocation(), Sound.BLOCK_COMPARATOR_CLICK, 5, 5);
@@ -43,13 +126,16 @@ public class WorldSettings implements InventoryProvider {
         //p.teleport( Bukkit.getWorld(itemname).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
         for (final GameRule rule : RULES) {
+
           try {
             if (rule.getType() == Boolean.class) {
 
               final boolean on = (boolean) world.getGameRuleValue(rule);
+              ItemType it = getRuleMat(rule, on);
 
-              menuEntry.add(ClickableItem.of(new ItemBuilder(getRuleMat(rule, on))
+              menuEntry.add(ClickableItem.of(new ItemBuilder(it)
                         .name(rule.getKey().value())
+                  .glint(on && it != ItemType.REDSTONE_TORCH)
                         .lore("")
                         .lore(on ? "§7сейчас §aвключено" : "§7сейчас §cвыключено")
                         .lore("")
@@ -81,7 +167,7 @@ public class WorldSettings implements InventoryProvider {
 
               final int value = (int) world.getGameRuleValue(rule);
 
-              menuEntry.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(ItemType.NAME_TAG)
+              menuEntry.add(new InputButton(InputButton.InputType.ANVILL, new ItemBuilder(getRuleMat(rule, true))
                         .name(rule.getKey().value())
                         .lore("")
                         .lore("§7сейчас: " + value)
@@ -110,9 +196,10 @@ public class WorldSettings implements InventoryProvider {
 
 
             }
+
           } catch (IllegalArgumentException ex) { //.IllegalArgumentException: Tried to access invalid game rule
             Ostrov.log_warn("GameRule " + rule.getKey().value() + " is @MinecraftExperimental");
-            }
+          }
 
         }
 
@@ -177,7 +264,7 @@ public class WorldSettings implements InventoryProvider {
 
 
       pagination.setItems(menuEntry.toArray(new ClickableItem[0]));
-      pagination.setItemsPerPage(45);
+    pagination.setItemsPerPage(36);
 
 
       contents.set(5, 4, ClickableItem.of(new ItemBuilder(ItemType.OAK_DOOR).name("назад").build(), e ->
@@ -201,25 +288,6 @@ public class WorldSettings implements InventoryProvider {
       pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, SlotPos.of(0, 0)).allowOverride(false));
 
 
-    }
-
-    private ItemType getRuleMat(final GameRule<?> rule, final boolean on) {
-        if (rule == GameRules.SHOW_ADVANCEMENT_MESSAGES) {
-            return ItemType.FLOWER_BANNER_PATTERN;
-        } else if (rule == GameRules.COMMAND_BLOCK_OUTPUT) {
-            return ItemType.COMMAND_BLOCK;
-        } else if (rule == GameRules.ELYTRA_MOVEMENT_CHECK) {
-            return ItemType.ELYTRA;
-        } else if (rule == GameRules.RAIDS) {
-            return ItemType.IRON_HORSE_ARMOR;
-        } else if (rule == GameRules.ADVANCE_TIME) {
-            return ItemType.SUNFLOWER;
-        } else if (rule == GameRules.ENTITY_DROPS) {
-            return ItemType.HOPPER;
-        } else if (rule == GameRules.FIRE_DAMAGE) {
-            return ItemType.BLAZE_POWDER;
-        }
-        return on ? ItemType.REDSTONE_TORCH : ItemType.LEVER;
     }
 
 

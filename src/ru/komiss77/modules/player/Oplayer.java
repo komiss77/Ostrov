@@ -797,53 +797,7 @@ public class Oplayer {
      * Выполняется перед сохранением данных
      */
     public void preDataSave(final Player p, final boolean async) {
-        final Set<SpecialItem> sis = SpecialItem.getAll(p);
-        if (sis.isEmpty()) return;
-        final Location loc = EntityUtil.center(p);
-        for (final ItemStack it : p.getInventory()) {
-            if (ItemUtil.isBlank(it, false)) continue;
-            final SpecialItem si = SpecialItem.get(it);
-            if (si == null) continue;
-            if (!sis.remove(si)) {
-                it.setAmount(0);
-                si.info("OP: Inventory item removed!");
-                return;
-            }
-
-            if (!si.crafted()) {
-                it.setAmount(0);
-                si.info("OP: Uncrafted item removed!");
-                return;
-            }
-
-            if (si.own() instanceof LivingEntity le
-                && le.getUniqueId() != p.getUniqueId()) {
-                it.setAmount(0);
-                si.info("OP: Duplicate item removed!");
-                return;
-            }
-
-            if (si.dropped()) {
-                if (!(si.own() instanceof final Item ii)) {
-                    it.setAmount(0);
-                    si.info("OP: Undropped item removed!");
-                    return;
-                }
-                ii.remove();
-                si.info("OP: Duplicate item removed!");
-            }
-
-            si.info("OP: Dropped item!");
-            if (ItemManager.isInPrivateWG(loc)) {
-                final World sw = SpecialItem.SPAWN.w();
-              if (sw != null) {
-                si.spawn(SpecialItem.SPAWN.center(sw), it);
-              }
-            } else {
-              si.apply(p.getWorld().dropItem(loc, it, si::apply));
-            }
-            it.setAmount(0);
-        }
+      ItemManager.onLogout(p);
     }
 
     /**

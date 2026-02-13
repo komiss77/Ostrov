@@ -59,7 +59,7 @@ public class FigureListener implements Listener {
   public void onEntitiesLoad(final EntitiesLoadEvent e) {
     //при загрузке чанка чекнуть фигуры.Перебирать именно фигуры!!
     for (Figure f : FigureManager.getFigures()) {
-      if (f.cx == e.getChunk().getX() && f.cz == e.getChunk().getZ()) {
+      if (f.worldName.equalsIgnoreCase(e.getWorld().getName()) && f.cx == e.getChunk().getX() && f.cz == e.getChunk().getZ()) {
 //Ostrov.log_warn("figure populate "+f.getEntityType()+":"+f.figureId);
         FigureManager.checkEntity(f);
       }

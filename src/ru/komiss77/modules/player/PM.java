@@ -28,6 +28,7 @@ import ru.komiss77.enums.ServerType;
 import ru.komiss77.enums.Stat;
 import ru.komiss77.events.BungeeDataRecieved;
 import ru.komiss77.events.PartyUpdateEvent;
+import ru.komiss77.events.PlayerDisguiseEvent;
 import ru.komiss77.listener.PlayerLst;
 import ru.komiss77.listener.ResourcePacksLst;
 import ru.komiss77.modules.entities.PvPManager;
@@ -383,7 +384,7 @@ public class PM {
         }
 
         if (op.disguise.type != null) {
-            op.disguise.unDisguise();
+          op.disguise.unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_COMMAND);
         }
         if (GM.GAME.type != ServerType.ARENAS) {
             if (op.spyOrigin != null) {

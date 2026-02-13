@@ -10,10 +10,7 @@ import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.persistence.PersistentDataContainerView;
-import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Furnace;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -378,12 +375,56 @@ public final class Crafts implements Initiable, Listener {
 
       final ItemStack result = recipe.getResult();
       final PersistentDataContainerView pdc = result.getPersistentDataContainer();
-      if (!pdc.isEmpty() && pdc.has(SpecialItem.DATA)) {
+      if (!pdc.isEmpty() && pdc.has(ItemManager.DATA)) {
         final SpecialItem si = SpecialItem.get(result);
-        Ostrov.log_warn("Crafts PrepareItemCraftEvent SpecialItem=" + (si == null ? "null" : si.name() + " crafted?" + si.crafted()));
-            if (si != null && si.crafted()) {
+        if (si != null) {
+          Ostrov.log_warn("Crafts PrepareCraft SpecialItem=" + si.name() + " state=" + si.state);
+          String deny = null;
+          switch (si.state) {
+            case NOT_EXIST -> {
+              //ничего не делать, пусть крафтят
+            }
+            case UNLOADED -> {
+              BVec loc = si.loc();
+              deny = "§6Последний раз видели в мире " + loc.wname() + " на " + loc.x + "," + loc.y + "," + loc.z;
+              ItemManager.check(si); //отправить на уточнение
+            }
+            case AS_ITEM -> {
               Entity owner = si.own();
-              ItemBuilder ib = new ItemBuilder(ItemType.BARRIER).name("<red>Эта реликвия уже создана!");
+              if (owner != null && owner instanceof Item item) {
+                final Location loc = item.getLocation();
+                deny = "§6Валяется в мире " + loc.getWorld().getName() + " на " + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+              } else {
+                si.destroy(true, "PrepareCraft item invalid");
+              }
+            }
+            case PLAYER_HAS -> {
+              Entity owner = si.own();
+              if (owner != null && owner instanceof Player p && p.isOnline()) {
+                boolean inInv = false;
+                String name;
+                for (ItemStack is : p.getInventory()) {
+                  if (ItemUtil.isBlank(is, false)) continue;
+                  if (!is.getPersistentDataContainer().has(ItemManager.DATA)) continue;
+                  name = is.getPersistentDataContainer().get(ItemManager.DATA, PersistentDataType.STRING);
+                  if (si.name().equalsIgnoreCase(name)) {
+                    inInv = true;
+                    break;
+                  }
+                }
+                if (inInv) {
+                  deny = "§3Владелец " + owner.getName();
+                } else {
+                  p.sendMessage("§6Реликвия " + si.name() + " не в инвентаре, её могут перекрафтить!");
+                }
+              } else {
+                si.destroy(true, "PrepareCraft owned player invalid");
+              }
+            }
+          }
+
+
+             /* Entity owner = si.own();
               if (owner == null) {
                 ib.lore("§3Владелец и место не известны");
               } else if (owner instanceof Item item) {
@@ -395,11 +436,19 @@ public final class Crafts implements Initiable, Listener {
                 }
               } else if (owner instanceof Player player) {
                 ib.lore("§3Владелец " + owner.getName());
+              }*/
+          if (deny != null) {
+            ItemStack is = new ItemBuilder(ItemType.BARRIER)
+                .name("<red>Эта реликвия уже создана!")
+                .lore(deny)
+                .build();
+            e.getInventory().setResult(is);
               }
-              e.getInventory().setResult(ib.build());
               //for (final HumanEntity he : e.getViewers()) {
               //    he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
               //}
+        } else {
+          Ostrov.log_warn("Crafts PrepareItemCraftEvent SpecialItem=null");
             }
       }
 
@@ -422,18 +471,48 @@ public final class Crafts implements Initiable, Listener {
     }
     final ItemStack result = recipe.getResult();
     final PersistentDataContainerView pdc = result.getPersistentDataContainer();
-    if (!pdc.isEmpty() && pdc.has(SpecialItem.DATA)) {
+    if (!pdc.isEmpty() && pdc.has(ItemManager.DATA)) {
       final SpecialItem si = SpecialItem.get(result);
-      Ostrov.log_warn("Crafts CraftItemEvent SpecialItem=" + (si == null ? "null" : si.name() + " crafted?" + si.crafted()));
+      Ostrov.log_warn("Crafts CraftItemEvent SpecialItem=" + (si == null ? "null" : si.name() + " state=" + si.state));
       if (si != null) {
-        if (si.crafted()) {
-          e.getInventory().setResult(ItemUtil.air);
-          for (final HumanEntity he : e.getViewers()) {
-            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана!"));
+        boolean allow = true;
+        switch (si.state) {
+          case NOT_EXIST -> {
+            //ничего не делать, пусть крафтят
           }
-        } else {
+          case UNLOADED, AS_ITEM -> {
+            allow = false;
+          }
+          case PLAYER_HAS -> {
+            Entity owner = si.own();
+            if (owner != null && owner instanceof Player p && p.isOnline()) {
+              boolean inInv = false;
+              String name;
+              for (ItemStack is : p.getInventory()) {
+                if (ItemUtil.isBlank(is, false)) continue;
+                if (!is.getPersistentDataContainer().has(ItemManager.DATA)) continue;
+                name = is.getPersistentDataContainer().get(ItemManager.DATA, PersistentDataType.STRING);
+                if (si.name().equalsIgnoreCase(name)) {
+                  inInv = true;
+                  break;
+                }
+              }
+              if (inInv) {
+                allow = false;
+              } else {
+                p.sendMessage("§6Реликвия " + si.name() + " воссоздана, ваша теперь подделка.");
+              }
+            }
+          }
+        }
+        if (allow) {
           si.obtain(e.getWhoClicked(), result);
           ApiOstrov.addCustomStat((Player) e.getWhoClicked(), "si_craft", 1);
+        } else {
+          e.getInventory().setResult(ItemUtil.air);
+          for (final HumanEntity he : e.getViewers()) {
+            he.sendMessage(TCUtil.form(Ostrov.PREFIX + "<red>Эта реликвия уже создана и сейчас " + si.state));
+          }
         }
 
       }

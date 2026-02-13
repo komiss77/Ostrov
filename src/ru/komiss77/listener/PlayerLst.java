@@ -92,6 +92,7 @@ public class PlayerLst implements Listener {
     public void onGameMode(PlayerGameModeChangeEvent e) {
         final Player p = e.getPlayer();
         final Oplayer op = PM.getOplayer(p);
+      if (op == null) return;
         if (e.getNewGameMode() == GameMode.SPECTATOR) {
             op.tag.visible(false);
             op.disguise.makeTarget();
@@ -99,9 +100,8 @@ public class PlayerLst implements Listener {
             op.disguise.resetTarget();
             op.tag.visible(true);
         }
-        if (ApiOstrov.canBeBuilder(p)) return;
+      if (ApiOstrov.canBeBuilder(p) || op.isStaff) return;
         if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
-        if (op == null || op.isStaff) return;
         //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
         RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
             " (`action`,`sender`,`target`,`report`,`data`,`note`) VALUES ('"

@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
@@ -305,7 +306,7 @@ public class Disguise {
 
   private void onDisguiseInteract(boolean attack) {
     PlayerDisguiseEvent.DisguiseAction action = PlayerDisguiseEvent.DisguiseAction.NONE;
-    PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(op.getPlayer(), this, action);
+    PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(op.getPlayer(), this, action, null);
 //Ostrov.log_warn("p-> InteractPacket on disguise, isAttack?" + attack);
     if (rt == null) {
       if (attack) {
@@ -595,8 +596,8 @@ public class Disguise {
       return;
     }
     if (this.type != null) {
-      Ostrov.log_warn("disguise сейчас " + this.type.name() + ", замена на " + type);
-      unDisguise();
+      //Ostrov.log_warn("disguise сейчас " + this.type.name() + ", замена на " + type);
+      unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_REPLACE);
     }
     this.type = org.bukkit.entity.EntityType.FALLING_BLOCK;
     p.setGameMode(GameMode.SPECTATOR);
@@ -620,18 +621,22 @@ public class Disguise {
     makeTarget();//пересоздать слайм меньшего размера
   }
 
-  public void disguise(final Player p, final org.bukkit.entity.EntityType type) {
+  public void disguise(final Player p, org.bukkit.entity.EntityType type) {
     if (type == null) {
       Ostrov.log_warn("disguise type==null недопустим, отмена.");
       return;
+    }
+    if (type == org.bukkit.entity.EntityType.ENDER_DRAGON) {
+      Ostrov.log_warn("disguise type==ENDER_DRAGON недопустим, замена.");
+      type = org.bukkit.entity.EntityType.CHICKEN;
     }
     if (this.type != null) {
       if (this.type == type) {
         Ostrov.log_warn("disguise " + type + " уже используется, отмена.");
         return;
       } else {
-        Ostrov.log_warn("disguise сейчас " + this.type.name() + ", замена на " + type);
-        unDisguise();
+        //Ostrov.log_warn("disguise сейчас " + this.type.name() + ", замена на " + type);
+        unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_REPLACE);
       }
     }
     this.type = type;
@@ -669,7 +674,7 @@ public class Disguise {
         EnderDragon enderDragon = (EnderDragon) nmsEnt;
         enderDragon.setNoAi(false);
         enderDragon.noPhysics = false;
-        enderDragon.
+        //enderDragon.
             //enderDragon.
         //enderDragon.getPhaseManager().setPhase(EnderDragonPhase.HOVERING);
         isFlyingMob = true;
@@ -695,6 +700,18 @@ public class Disguise {
     //удаление при EntitiesLoadEvent прицепил в ItemManager.onLoad
     disgLst = new Listener() {
 
+      @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+      public void onLoad(final EntitiesLoadEvent e) {
+        for (final org.bukkit.entity.Entity ent : e.getEntities()) {
+          if (ent instanceof final org.bukkit.entity.LivingEntity le) {
+            if (le.getPersistentDataContainer().has(DISG)) {
+              Ostrov.log_warn("disg EntitiesLoad remove");
+              ent.remove();
+            }
+          }
+        }
+      }
+
       @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
       public void onRemove(final EntityRemoveEvent e) {
         if (e.getEntity().getPersistentDataContainer().has(DISG)) {
@@ -715,8 +732,7 @@ public class Disguise {
           e.setCancelled(true); //здесь, обработчик PlayerDisguiseEvent может разрешить
           final Player ownerPlayer = Bukkit.getPlayerExact(owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.SPECTATE_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.SPECTATE_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
           } else {
             e.getNewSpectatorTarget().remove();
@@ -732,7 +748,7 @@ public class Disguise {
           e.setCancelled(true); //здесь, обработчик PlayerDisguiseEvent может разрешить
           final Player ownerPlayer = Bukkit.getPlayerExact(owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.INTERACT_AT_DISGUISE_EVENT);
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.INTERACT_AT_DISGUISE_EVENT, e);
             disguiseEvent.event = e;
             Bukkit.getPluginManager().callEvent(disguiseEvent);
           } else {
@@ -749,12 +765,27 @@ public class Disguise {
           e.setCancelled(true); //здесь отмена, но обработчик PlayerDisguiseEvent может разрешить
           final Player ownerPlayer = Bukkit.getPlayerExact(owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.DAMAGE_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.DAMAGE_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
           } else {
             e.getEntity().remove();
             Ostrov.log_warn("disguise EntityDamage ownerPlayer=null, remove entity");
+          }
+        }
+      }
+
+      @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+      public void onDamage(final EntityDeathEvent e) {
+        if (e.getEntity().getPersistentDataContainer().has(DISG)) {
+          final String owner = e.getEntity().getPersistentDataContainer().get(DISG, PersistentDataType.STRING);
+//Ostrov.log_warn("disguise EntityDamage "+owner+" : "+e.getCause());
+          final Player ownerPlayer = Bukkit.getPlayerExact(owner);
+          if (ownerPlayer != null) {
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.DEATH_EVENT, e);
+            Bukkit.getPluginManager().callEvent(disguiseEvent);
+          } else {
+            //e.getEntity().remove();
+            Ostrov.log_warn("disguise EntityDeath ownerPlayer=null, remove entity");
           }
         }
       }
@@ -767,8 +798,7 @@ public class Disguise {
           final Player ownerPlayer = Bukkit.getPlayerExact(owner);
           Ostrov.log_warn("disguise EntityMount " + owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.MOUNT_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.MOUNT_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
             e.setCancelled(true);
           } else {
@@ -787,8 +817,7 @@ public class Disguise {
           e.setCancelled(true); //здесь, обработчик PlayerDisguiseEvent может разрешить
           Ostrov.log_warn("disguise EntityLeash " + owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.LEASH_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.LEASH_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
           } else {
             e.getEntity().remove();
@@ -804,8 +833,7 @@ public class Disguise {
           final Player ownerPlayer = owner == null ? null : Bukkit.getPlayerExact(owner);
           //владелец маскировки определён, его спешивание на пройдёт в пакетах, остальным давать спешиться
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.DISMOUNT_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.DISMOUNT_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
             //e.setCancelled(true); давать спешиться всегда
             Ostrov.log_warn("disguise EntityDismount разрешено");
@@ -825,8 +853,7 @@ public class Disguise {
           Ostrov.log_warn("disguise onPickup " + owner);
           final Player ownerPlayer = Bukkit.getPlayerExact(owner);
           if (ownerPlayer != null) {
-            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.PICKUP_EVENT);
-            disguiseEvent.event = e;
+            PlayerDisguiseEvent disguiseEvent = new PlayerDisguiseEvent(ownerPlayer, PM.getOplayer(ownerPlayer).disguise, PlayerDisguiseEvent.DisguiseAction.PICKUP_EVENT, e);
             Bukkit.getPluginManager().callEvent(disguiseEvent);
           } else {
             e.getEntity().remove();
@@ -859,17 +886,16 @@ public class Disguise {
     Bukkit.getPluginManager().registerEvents(disgLst, Ostrov.instance);
   }
 
-
-  public void unDisguise() {
+  public void unDisguise(@Nullable PlayerDisguiseEvent.DisguiseAction cause) {
     if (!Bukkit.isPrimaryThread()) {
-      Ostrov.sync(() -> unDisguise());
+      Ostrov.sync(() -> unDisguise(null));
       return;
     }
+    Ostrov.log_warn("unDisguise " + op.nik + " type=" + type + " cause=" + cause);
     if (type == null) {
       //Ostrov.log_warn("disguise не используется ");
       return;
     }
-    Ostrov.log_warn("unDisguise");
     calibrate = false;
     if (task != null && !task.isCancelled()) {
       task.cancel();
@@ -925,9 +951,17 @@ public class Disguise {
       @Override
       public void run() {
 //Ostrov.log_warn(" task="+this.getTaskId()+" nmsEnt="+nmsEnt);
-        if (!sp.getBukkitEntity().isOnline() || sp.gameMode() != GameType.SPECTATOR || nmsEnt == null || !nmsEnt.isAlive()) {
+        if (!sp.getBukkitEntity().isOnline() || sp.gameMode() != GameType.SPECTATOR) {
           this.cancel();
-          unDisguise();
+          unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_OWNER_BAD);
+          //sp.getBukkitEntity().sendMessage("§6Маскировка выключена.");
+          return;
+        }
+        if (nmsEnt == null || !nmsEnt.isAlive()) {
+          this.cancel();
+          unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_ENTITY_BAD);
+          //sp.getBukkitEntity().sendMessage("§6Маскировка прервалась.");
+          //Ostrov.log_warn("Маскировка прервалась " + (nmsEnt == null ? "nmsEnt==null" : "isAlive?" + nmsEnt.isAlive()));
           return;
         }
         if (lastInput.shift()) {
@@ -1011,15 +1045,15 @@ public class Disguise {
       public void run() {
         if (!sp.getBukkitEntity().isOnline() || sp.gameMode() != GameType.SPECTATOR) {
           this.cancel();
-          unDisguise();
-          sp.getBukkitEntity().sendMessage("§6Маскировка выключена.");
+          unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_OWNER_BAD);
+          //sp.getBukkitEntity().sendMessage("§6Маскировка выключена.");
           return;
         }
         if (nmsEnt == null || !nmsEnt.isAlive()) {
           this.cancel();
-          unDisguise();
-          sp.getBukkitEntity().sendMessage("§6Маскировка прервалась.");
-          Ostrov.log_warn("Маскировка прервалась " + (nmsEnt == null ? "nmsEnt==null" : "isAlive?" + nmsEnt.isAlive()));
+          unDisguise(PlayerDisguiseEvent.DisguiseAction.UNDISGUISE_ENTITY_BAD);
+          //sp.getBukkitEntity().sendMessage("§6Маскировка прервалась.");
+          //Ostrov.log_warn("Маскировка прервалась " + (nmsEnt == null ? "nmsEnt==null" : "isAlive?" + nmsEnt.isAlive()));
           return;
         }
 //Ostrov.log_warn("isAlive?"+nmsEnt.isAlive()+" tickCount="+nmsEnt.tickCount);
@@ -1187,7 +1221,7 @@ public class Disguise {
   public void action(PlayerDisguiseEvent.DisguiseAction action) {
     Ostrov.log_warn("action=" + action);
     final Player p = op.getPlayer();
-    PlayerDisguiseEvent event = new PlayerDisguiseEvent(p, this, action);
+    PlayerDisguiseEvent event = new PlayerDisguiseEvent(p, this, action, null);
     Bukkit.getPluginManager().callEvent(event);
     if (event.isCanceled()) return;
     if (action == PlayerDisguiseEvent.DisguiseAction.SHIFT) {
@@ -1202,16 +1236,6 @@ public class Disguise {
     }
   }
 
-  public static void onEntitiesLoadEvent(final EntitiesLoadEvent e) {
-    for (final org.bukkit.entity.Entity ent : e.getEntities()) {
-      if (ent instanceof final org.bukkit.entity.LivingEntity le) {
-        if (le.getPersistentDataContainer().has(DISG)) {
-          Ostrov.log_warn("disg EntitiesLoad remove");
-          ent.remove();
-        }
-      }
-    }
-  }
 
 
   public static class DisgMenu implements InventoryProvider {
