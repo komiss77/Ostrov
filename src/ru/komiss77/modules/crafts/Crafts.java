@@ -415,7 +415,11 @@ public final class Crafts implements Initiable, Listener {
                 if (inInv) {
                   deny = "§3Владелец " + owner.getName();
                 } else {
-                  p.sendMessage("§6Реликвия " + si.name() + " не в инвентаре, её могут перекрафтить!");
+                  if (p.getName().equalsIgnoreCase(owner.getName())) {
+                    p.sendMessage("§6Вы уже владеете релиекией " + si.name() + ", но можете её пересоздать.");
+                  } else {
+                    p.sendMessage("§6Реликвия " + si.name() + " не в инвентаре, её могут пересоздать!");
+                  }
                 }
               } else {
                 si.destroy(true, "PrepareCraft owned player invalid");
@@ -449,7 +453,7 @@ public final class Crafts implements Initiable, Listener {
               //}
         } else {
           Ostrov.log_warn("Crafts PrepareItemCraftEvent SpecialItem=null");
-            }
+        }
       }
 
     }
@@ -500,7 +504,7 @@ public final class Crafts implements Initiable, Listener {
               if (inInv) {
                 allow = false;
               } else {
-                p.sendMessage("§6Реликвия " + si.name() + " воссоздана, ваша теперь подделка.");
+                p.sendMessage("§6Реликвия " + si.name() + " воссоздана, все остальные преврратятся в тыкву.");
               }
             }
           }

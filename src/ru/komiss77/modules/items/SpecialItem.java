@@ -14,13 +14,16 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import ru.komiss77.Cfg;
 import ru.komiss77.Ostrov;
 import ru.komiss77.boot.OStrap;
+import ru.komiss77.hook.DynmapFeatures;
 import ru.komiss77.modules.world.BVec;
 import ru.komiss77.notes.OverrideMe;
+import ru.komiss77.utils.ItemUtil;
 import ru.komiss77.utils.TCUtil;
 
 public abstract class SpecialItem implements Keyed {
@@ -36,15 +39,23 @@ public abstract class SpecialItem implements Keyed {
   //создаётся в другом плагине
   //public final AreaPick AREA_PICK = new AreaPick(new ItemBuilder(ItemType.DIAMOND_PICKAXE).glint(true).unbreak(true)
   //        .name("<stale>Кирка Троицы").lore("").lore(TCUtil.N + "Копает блоки площадью в 3x3").build());
-  public SpecialItem(final ItemStack def) {
-      if (Cfg.items == false) {
-        Ostrov.log_warn("SpecialItem : добавляется предмет, но ItemManager выключен! (modules.items=false)");
-      }
+
+  public SpecialItem(ItemStack def) {
+    if (Cfg.items == false) {
+      Ostrov.log_warn("SpecialItem : добавляется предмет, но ItemManager выключен! (modules.items=false)");
+    }
     name = this.getClass().getSimpleName().toLowerCase();
     key = OStrap.key(name);
     own = new WeakReference<>(null);
+    //<#DDCCAA>Эта вещь - <#AA2266>РЕЛИКВИЯ∬<!italic><#DDCCAA>Только <#AA2266>1 <#DDCCAA>может существовать.∬<!italic><#DDCCAA>При выходе с сервера <#AA2266>выпадет <#DDCCAA>на землю.∬<!italic><#DDCCAA>Если ты в привате, выпадет в <#AA2266>случайном месте<!italic>
+    def = new ItemBuilder(def)
+        .lore(TCUtil.form("<#DDCCAA>Эта вещь - <#AA2266>РЕЛИКВИЯ"))
+        .lore(TCUtil.form("<!italic><#DDCCAA>Только <#AA2266>1 <#DDCCAA>может существовать."))
+        .lore(TCUtil.form("<!italic><#DDCCAA>При выходе с сервера <#AA2266>выпадет <#DDCCAA>на землю."))
+        .lore(TCUtil.form("<!italic><#DDCCAA>Если ты в привате, выпадет в <#AA2266>случайном месте<!italic>"))
+        .build();
     item = ItemManager.load(this, def);
-    }
+  }
 
 
   //прицепить к Item в мире. Условия:
@@ -65,6 +76,9 @@ public abstract class SpecialItem implements Keyed {
     lastLoc = BVec.of(i.getLocation());//loc(i.getLocation());
     save(i.getItemStack());
     info("ATTACH cause=" + cause);
+    if (Ostrov.dynmap) {
+      DynmapFeatures.drawRelictIcon(this, false);
+    }
     //return it;
   }
 
@@ -77,6 +91,9 @@ public abstract class SpecialItem implements Keyed {
     lastLoc = null;//loc(le.getLocation());
     save(it);
     info("OBTAIN");
+    if (Ostrov.dynmap) {
+      DynmapFeatures.drawRelictIcon(this, true);
+    }
   }
 
   //EntitiesUnloadEvent
@@ -110,6 +127,9 @@ public abstract class SpecialItem implements Keyed {
     own = new WeakReference<>(null);
     save(item);
     info("DESTROY cause=" + cause);
+    if (Ostrov.dynmap) {
+      DynmapFeatures.drawRelictIcon(this, true);
+    }
       /*switch (owner) {
             case null: break;
             case final Item le:
@@ -188,7 +208,7 @@ public abstract class SpecialItem implements Keyed {
   }
 
   public void info(final String msg) {
-    LOGGER.info(TCUtil.form("SpecialItem " + msg + " " + name + ": state=" + state + " loc=" + loc()));
+    LOGGER.info(TCUtil.form("§b" + msg + " " + name + ": state=" + state + " loc=" + loc()));
   }
 
   @Override

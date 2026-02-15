@@ -7,12 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
-import org.dynmap.markers.AreaMarker;
-import org.dynmap.markers.CircleMarker;
-import org.dynmap.markers.MarkerAPI;
-import org.dynmap.markers.MarkerSet;
+import org.dynmap.markers.*;
 import ru.komiss77.Ostrov;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.wordBorder.CoordXZ;
+import ru.komiss77.modules.world.BVec;
 import ru.komiss77.modules.world.WorldManager;
 
 public class DynmapFeatures {
@@ -20,6 +19,8 @@ public class DynmapFeatures {
     private static DynmapAPI api;
     private static MarkerAPI markApi;
     private static MarkerSet markSet;
+    private static MarkerSet relicts;
+    private static MarkerIcon relictIcon;
 //	private static int lineWeight = 3;
 //	private static double lineOpacity = 1.0;
 //	private static int lineColor = 0xFF0000;
@@ -62,13 +63,40 @@ public class DynmapFeatures {
             Ostrov.log_ok("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
             return;
         }
-
+        relicts = markApi.createMarkerSet("ostrov.relicts", "Реликвии", null, false);
+        relictIcon = markApi.getMarkerIcon("ruby");
         // go ahead and show borders for all worlds
         showAllBorders();
 
         Ostrov.log_ok("Successfully hooked into DynMap for the ability to display borders.");
     }
 
+    public static void drawRelictIcon(final SpecialItem si, boolean hide) {
+        if (relicts == null) return;
+        Marker marker = relicts.findMarker(si.name());
+
+        final String lbl = "реликвия " + si.name();
+
+        if (hide) {
+            if (marker != null) {
+                marker.deleteMarker();
+            }
+        } else {
+            BVec bv = si.loc();
+            if (bv == null) return;
+            if (marker == null) {
+                marker = relicts.createMarker(si.name(), lbl, bv.wname(), bv.x, bv.y, bv.z, relictIcon, false);
+            } else {
+                marker.setLocation(bv.wname(), bv.x, bv.y, bv.z);
+                marker.setLabel(lbl);   /* Update label */
+                marker.setMarkerIcon(relictIcon);
+            }
+            //if (marker != null) {
+            //    marker.setDescription(descr); /* Set popup */
+            //markers.put(f.factionId, marker);
+            //}
+        }
+    }
 
     /*
      * Re-rendering methods, used for updating trimmed chunks to show them as gone

@@ -672,47 +672,71 @@ public class ItemManager implements Initiable, Listener {
 
     private static final Set<ItemType> BUNDLES = OStrap.getAll(ItemTypeTagKeys.BUNDLES);
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onClick(final InventoryClickEvent e) {
       final HumanEntity he = e.getWhoClicked();
 
       if (!(e.getClickedInventory() instanceof CraftingInventory)) {
-        final ItemStack curr = e.getCurrentItem();
-        final SpecialItem si = SpecialItem.get(curr);
+//Ostrov.log_warn("ICE "+e.getClick()+" "+e.getAction()+" cursor="+(e.getCursor()==null?"null":e.getCursor().getType())+" current="+(e.getCurrentItem()==null?"null":e.getCurrentItem().getType()));
+        SpecialItem si = SpecialItem.get(e.getCurrentItem());
+        boolean cursor = false;
+        if (si == null) {
+          si = SpecialItem.get(e.getCursor());
+          cursor = true;
+        }
+
+//Ostrov.log_warn("InventoryClick si="+(si==null?"null":si.name()+" state="+si.state));
         if (si != null) {
           switch (si.state) {
             case NOT_EXIST, LOOCKUP -> {
-              si.obtain(he, curr);
+              si.obtain(he, cursor ? e.getCursor() : e.getCurrentItem());
             }
             case AS_ITEM, UNLOADED -> {
-              e.setCurrentItem(ItemUtil.air);
+              if (cursor) he.setItemOnCursor(ItemUtil.air);
+              else e.setCurrentItem(ItemType.PUMPKIN.createItemStack());
               he.getWorld().playSound(he.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
-              he.sendMessage("Подделка реликвии сломалась при касании...");
+              he.sendMessage("§cПодделка реликвии сломалась при касании...");
+              if (he instanceof final Player p) {
+                Ostrov.sync(() -> p.updateInventory());
+              }
             }
             case PLAYER_HAS -> {
               Entity owner = si.own();
               if (owner != null && owner instanceof Player p && p.isOnline()) {
-                if (owner.getEntityId() == he.getEntityId()) return;
-                boolean inInv = false;
+                //if (owner.getEntityId() == he.getEntityId()) return; у себя удалить дубли
+                int count = 0;
+                if (cursor) count++; //курсор как бы не в инвентаре
                 String name;
-                for (ItemStack is : p.getInventory()) {
+                for (ItemStack is : e.getView().getTopInventory()) {//просматривать верх и низ p.getInventory()) {
                   if (ItemUtil.isBlank(is, false)) continue;
                   if (!is.getPersistentDataContainer().has(ItemManager.DATA)) continue;
                   name = is.getPersistentDataContainer().get(ItemManager.DATA, PersistentDataType.STRING);
                   if (si.name().equalsIgnoreCase(name)) {
-                    inInv = true;
-                    break;
+                    count++;
+                    //break;
                   }
                 }
-                if (inInv) {
-                  e.setCurrentItem(ItemUtil.air);
+                for (ItemStack is : e.getView().getBottomInventory()) {//просматривать верх и низ p.getInventory()) {
+                  if (ItemUtil.isBlank(is, false)) continue;
+                  if (!is.getPersistentDataContainer().has(ItemManager.DATA)) continue;
+                  name = is.getPersistentDataContainer().get(ItemManager.DATA, PersistentDataType.STRING);
+                  if (si.name().equalsIgnoreCase(name)) {
+                    count++;
+                    //break;
+                  }
+                }
+                if ((count > 1 && owner.getEntityId() == he.getEntityId())
+                    || (count > 0 && owner.getEntityId() != he.getEntityId())) {//пропустить одну владельцу, остальные снести
+                  if (cursor) he.setItemOnCursor(ItemUtil.air);
+                  else e.setCurrentItem(ItemType.PUMPKIN.createItemStack());
                   he.getWorld().playSound(he.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
-                  he.sendMessage("Подделка реликвии сломалась при касании...");
+                  he.sendMessage("§cПодделка реликвии сломалась при касании...");
+                  Ostrov.sync(() -> p.updateInventory());
                 } else {
-                  si.obtain(he, curr);
+                  si.obtain(he, cursor ? e.getCursor() : e.getCurrentItem());
                 }
               } else {
-                si.obtain(he, curr);
+                si.obtain(he, cursor ? e.getCursor() : e.getCurrentItem());
               }
             }
           }
