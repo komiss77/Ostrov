@@ -1,8 +1,11 @@
 package ru.komiss77.enums;
 
-@Deprecated
 public enum GlobalLogType {
 
-  ADD_RIL, WITHDRAW_RIL, DONATE, WIPE_PLAYER_DATA;
+  ADD_RIL,
+  WITHDRAW_RIL,
+  DONATE,
+  WIPE_PLAYER_DATA,
+  MODER_ACTION;
 
 }

@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.modules.player.PM;
 
 
@@ -31,7 +32,8 @@ public class InvseeCmd implements OCommand {
             .then(Resolver.string(arg0)
                 .suggests((cntx, sb) -> {
                     final CommandSender cs = cntx.getSource().getSender();
-                    if ((cs instanceof Player && !CAN_CONSOLE) || !ApiOstrov.isStaff(cs)) {
+                  final Player p = (cs instanceof Player) ? (Player) cs : null;
+                  if (p == null) {
                         return sb.buildFuture();
                     }
 
@@ -46,7 +48,8 @@ public class InvseeCmd implements OCommand {
                 .then(Resolver.string(arg1)
                     .suggests((cntx, sb) -> {
                         final CommandSender cs = cntx.getSource().getSender();
-                        if ((cs instanceof Player && !CAN_CONSOLE) || !ApiOstrov.isStaff(cs)) {
+                      final Player p = (cs instanceof Player) ? (Player) cs : null;
+                      if (p == null) {
                             return sb.buildFuture();
                         }
                         sb.suggest("main");
@@ -94,7 +97,7 @@ public class InvseeCmd implements OCommand {
         return cntx -> {
             final CommandSender pl = cntx.getSource().getSender();
             final Player p = (pl instanceof Player) ? (Player) pl : null;
-            if (!CAN_CONSOLE && p == null) {
+          if (p == null) {
                 pl.sendMessage("§eНе консольная команда!");
                 return 0;
             }
@@ -123,14 +126,22 @@ public class InvseeCmd implements OCommand {
             if (arg.length >= 2) {
                 type = arg[1];
             }
+          //логирование действий делается в PlayerLst:watchInvSeeCmd
+          String log;
             switch (type) {
                 case "main":
                     p.openInventory(tgt.getInventory());
-                    tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой инвентарь.");
+                  //tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой инвентарь.");
+                  log = "INVSEE main " + p.getName() + " -> " + tgt.getName();
+                  Ostrov.globalLog(GlobalLogType.MODER_ACTION, "os", log);
+                  Ostrov.log_warn(log);
                     break;
                 case "ender":
                     p.openInventory(tgt.getEnderChest());
-                    tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой эндер-сундук.");
+                  log = "INVSEE ender " + p.getName() + " -> " + tgt.getName();
+                  Ostrov.globalLog(GlobalLogType.MODER_ACTION, "os", log);
+                  Ostrov.log_warn(log);
+                  //tgt.sendMessage(Ostrov.PREFIX + "§aПерсонал смотрит в твой эндер-сундук.");
                     break;
                 case "extra":
                 default:

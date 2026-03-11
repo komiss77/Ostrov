@@ -126,7 +126,7 @@ public class RewardCmd implements OCommand {
       }
 
       final CommandSender cs = cntx.getSource().getSender();
-      if (!ApiOstrov.isLocalBuilder(cs) && cs.getName().equalsIgnoreCase("@EasyPayments")) {
+      if (!ApiOstrov.isLocalBuilder(cs) && !cs.getName().equalsIgnoreCase("@EasyPayments")) {
         cs.sendMessage("§cКоманда исполняется от имени консоли/плагинов/оператора!");
         return 0;
       }

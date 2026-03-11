@@ -7,10 +7,19 @@ https://www.curseforge.com/minecraft/mc-mods/cmdcam?__cf_chl_jschl_tk__=pmd_r0uG
 !!! заглушка PlayerAdvancements в OsPlayerDataStorage
 не юзать chunk.isLoaded() - пытается подгрузить
 
+ UUID of player Juls_1471 is 74e95b6c-6e1b-30bc-8f47-35856d0a0122
+[14:06:01 ERROR]: Caught previously unhandled exception :
+[14:06:01 ERROR]: Paper Async Command Builder Thread Pool - 4
+java.lang.NullPointerException
+[14:06:01 INFO]: Juls_1471[/92.101.188.147:50466] logged in with entity id 18450 at ([world]-471.5, 64.0, -395.5)
 
-реликвии - показ на карте
-предупреждение - если не в инвентаре, могут скрафтить
-ставить лор подделка
+
+UUID of player guest_12 is aa1ca14d-d271-3bcd-92ad-39a2cd71ca27
+java.lang.NullPointerException: Cannot read field "user_perms" because the return value of "ru.komiss77.modules.player.PM.getOplayer(org.bukkit.entity.Player)" is null
+	at Vault-Ostrov.jar//net.milkbowl.vault.permission.OstrovPermission.playerHas(OstrovPermission.java:79) ~[?:?]
+[13:11:36] [Server thread/INFO]: guest_12[/5.102.157.87:60764] logged in with entity id 12434 at ([world]-467.5, 64.0, -378.5)
+[13:11:36] [Craft Scheduler Thread - 6 - Ostrov/WARN]: [Ostrov] Вход гостя guest_12, данные не загружаем.
+[13:11:59] [Server thread/INFO]: guest_12 was slain by Zombie
 
 
 иногда приходят в чат сообщения Нечто

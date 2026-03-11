@@ -16,9 +16,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import ru.komiss77.Ostrov;
 import ru.komiss77.utils.TCUtil;
 
 //https://github.com/Owen1212055/CustomNames
@@ -38,6 +42,8 @@ public class CustomTag {
     private Component name;
     private boolean visible = true;
     private boolean seeThru = true;
+  private boolean autoHide; //скрыть автоматически при ГМ3, невидимости или зельке
+
 
 
     private static final EntityDataAccessor<?> DATA_BILLBOARD_RENDER_CONSTRAINTS_ID, DATA_TEXT_ID,
@@ -64,6 +70,43 @@ public class CustomTag {
 //Ostrov.log("CustomTag tagEntityId="+tagEntityId);
     }
 
+  //проверочки на невидимость
+  public void secondTick(final Player p) {
+//Ostrov.log_warn("CustoTag secondTick visible="+visible);
+    if (visible) {
+      boolean hide = p.getGameMode() == GameMode.SPECTATOR || p.isInvisible();
+      if (!hide) {
+        for (PotionEffect pe : p.getActivePotionEffects()) {
+          if (pe.getType() == PotionEffectType.INVISIBILITY) {
+            hide = true;
+            break;
+          }
+        }
+      }
+//Ostrov.log_warn("CustoTag  hide="+hide);
+      if (hide) {
+        visible(false);
+        autoHide = true;
+//Ostrov.log_warn("CustoTag auto hide");
+      }
+    } else if (autoHide) {
+      boolean hide = p.getGameMode() == GameMode.SPECTATOR || p.isInvisible();
+      if (!hide) {
+        for (PotionEffect pe : p.getActivePotionEffects()) {
+          if (pe.getType() == PotionEffectType.INVISIBILITY) {
+            hide = true;
+            break;
+          }
+        }
+      }
+      if (!hide) {
+        visible(true);
+        //autoHide = false;
+//Ostrov.log_warn("CustoTag auto show");
+      }
+    }
+  }
+
     //Can contain \n for >1 lines
     public void content(final String name) {
 //Ostrov.log("CustomTag content="+name);
@@ -80,6 +123,7 @@ public class CustomTag {
     public void visible(final boolean visible) {
 //Ostrov.log_warn("visible "+visible);
         this.visible = visible;
+      autoHide = false;
         sendTrackersPacket(visible ? spawnPacket() : killPacket());
     }
 
@@ -190,6 +234,8 @@ public class CustomTag {
     private static SynchedEntityData.DataValue<?> ofData(EntityDataAccessor key, Object value) {
         return SynchedEntityData.DataValue.create(key, value);
     }
+
+
 
     /*private static class TagPassengerPacket extends ClientboundSetPassengersPacket {
 

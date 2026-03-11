@@ -14,6 +14,7 @@ import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.commands.tools.OCmdBuilder;
 import ru.komiss77.commands.tools.Resolver;
+import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.modules.items.ItemBuilder;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
@@ -85,9 +86,13 @@ public class SpyCmd {
                 op.spyOrigin = loc; //после вселения в цель, или не даст ТП в PlayerTeleportEvent
                 ScreenUtil.sendActionBarDirect(p, "§bПрисесть - закончить наблюдение");
             }, 5);
-            tgt.sendMessage(Ostrov.PREFIX + "§7За тобой наблюдает Персонал.");
+          //tgt.sendMessage(Ostrov.PREFIX + "§7За тобой наблюдает Персонал.");
             //это как вору прошептать: за тобой следят через камеру - да, сори Паша, но мы честный сервер
             op.tag.visible(false);
+
+          final String log = "SPY " + p.getName() + " за " + tgt.getName();
+          Ostrov.globalLog(GlobalLogType.MODER_ACTION, "os", log);
+          Ostrov.log_warn(log);
 
             return Command.SINGLE_SUCCESS;
         }).description("Слежка за игроками").register(Ostrov.mgr);

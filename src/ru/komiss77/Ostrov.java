@@ -318,7 +318,7 @@ public class Ostrov extends JavaPlugin {
         logger.warn(TCUtil.form(sb.toString()));
     }
 
-    @Deprecated //GlobalLogType желтенькая
+  //@Deprecated //GlobalLogType желтенькая
     public static void globalLog(final GlobalLogType type, final String sender, final String msg) {
         RemoteDB.executePstAsync(Bukkit.getConsoleSender(),
             "INSERT INTO globalLog (type,server,sender,msg,time) VALUES ('" + type.name() + "', '" + Ostrov.MOT_D + "', '" + sender + "', '" + msg + "', '" + Timer.secTime() + "'); ");

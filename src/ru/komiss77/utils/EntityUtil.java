@@ -30,15 +30,16 @@ public class EntityUtil {
         return getDamager(e, owner);
     }
 
-    public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean owner) {
+  public static @Nullable LivingEntity getDamager(final EntityDamageEvent e, final boolean checkTameableOwner) {
       final DamageSource ds = e.getDamageSource();
       if (ds.getCausingEntity() instanceof final LivingEntity le) {
-            if (le instanceof final Tameable tm && owner) {
+        if (le instanceof final Tameable tm && checkTameableOwner) {
                 return tm.getOwner() instanceof HumanEntity ? ((HumanEntity) tm.getOwner()) : null;
             } else {
               return le;
             }
-      } else if (ds instanceof Projectile prj) {
+      }
+    if (ds instanceof Projectile prj) {
         final ProjectileSource ps = prj.getShooter();
         if (ps != null) {
           if (ps instanceof LivingEntity le) {

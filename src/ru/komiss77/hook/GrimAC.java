@@ -45,19 +45,26 @@ public class GrimAC implements Listener {
 
         // use the event bus to subscribe to FlagEvent
         api.getEventBus().subscribe(plugin, FlagEvent.class, e -> {
-          final Oplayer opl = PM.getOplayer(e.getUser().getUniqueId());
-          if (opl.disguise.type != null || opl.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+          final Oplayer op = PM.getOplayer(e.getUser().getUniqueId());
+          if (op.disguise.type != null) {
             e.setCancelled(true);
             return;
           }
+          final Player p = op.getPlayer();
+          if (p == null || p.getGameMode() != GameMode.SURVIVAL || Timer.has(p, CHEAT)) return;
+          Timer.add(p, CHEAT, 5);
+
           // broadcast to all players when a player flags a check
-          final String msg = "§8Античит: " + e.getPlayer().getName() + " подозрение на " + e.getCheck().getCheckName();
+          final String msg = "§eАнтичит: " + op.nik + " подозрение на " + e.getCheck().getCheckName();
           Ostrov.log_warn(msg);
-          for (Oplayer op : PM.getOplayers()) {
-            if (op.isStaff) {
-              op.getPlayer().sendMessage(msg);
+          for (Oplayer opl : PM.getOplayers()) {
+            if (opl.isStaff) {
+              opl.getPlayer().sendMessage(msg);
             }
           }
+          p.sendMessage("§eАнтичит: подозреваем у вас использование " + e.getCheck().getCheckName() + ". Если это ошибка, сообщите администрации.");
+          SpigotChanellMsg.sendMessage(p, Operation.REPORT_SERVER, Ostrov.MOT_D, 0, 0, 0,
+              p.getName(), LocUtil.toString(p.getLocation()), "Обнаружен чит " + e.getCheck().getCheckName());
           ;
         });
         // api.getEventBus().subscribe(plugin, CompletePredictionEvent.class, e -> {

@@ -14,6 +14,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import ru.komiss77.enums.ServerType;
+import ru.komiss77.modules.games.GM;
 import ru.komiss77.utils.ItemBuilder;
 
 
@@ -56,7 +58,10 @@ public class DonateCmd implements OCommand {
                 cs.sendMessage("§eНе консольная команда!");
                 return 0;
             }
-
+          if (GM.GAME.type != ServerType.LOBBY) {
+            cs.sendMessage("§cДля пополнения счёта перейдите в Лобби!");
+            return Command.SINGLE_SUCCESS;
+          }
             pl.closeInventory();
             final String locale = pl.getClientOption(ClientOption.LOCALE);
             if (locale.equals("ru_ru")) {

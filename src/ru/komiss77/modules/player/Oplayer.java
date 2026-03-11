@@ -46,89 +46,79 @@ import ru.komiss77.version.Nms;
 
 public class Oplayer {
 
-    public static final int ACTION_BAR_INTERVAL = 3;
-    public final String nik;
-    public final UUID id;
-    public boolean eng; //true - english; false - russian
-    public int karmaCalc, reputationCalc; //просчитывается в
-    private final int loginTime = Timer.secTime();
-  //public boolean makeToRemove; //метка для OsPlayerDataStorage, чтобы отличить выход и автосохранение
-    private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
-    public int onlineSecond; //счётчик секунд после входа
-    public int tick; //каждые 20 тиков будет вызов secondTick из таймера
-    public final boolean isGuest;
-    public boolean isStaff; //флаг модератора
-    public final Map<String, String> mysqlData = new HashMap<>();
-  //public Integer mysqRecordId;// = Integer.MIN_VALUE;
-    protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранять не надо. сохраняются в банжи
-    protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
-    protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
-    protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
-    public final Map<Integer, Boolean> missionIds = new HashMap<>(); //true-обрабатывается (блокировать операции)
-    public boolean hasFakeBlock;
-    public final HashMap<Long, BlockData> fakeBlock = new HashMap<>();
+  public static final int ACTION_BAR_INTERVAL = 3;
+  public final String nik;
+  public final UUID id;
+  public boolean eng; //true - english; false - russian
+  public int karmaCalc, reputationCalc; //просчитывается в
+  private final int loginTime = Timer.secTime();
+  private int daylyLoginTime = loginTime;   //время входа для дневной статы, сброс в полночь
+  public int onlineSecond; //счётчик секунд после входа
+  public int tick; //каждые 20 тиков будет вызов secondTick из таймера
+  public final boolean isGuest;
+  public boolean isStaff; //флаг модератора
+  public final Map<String, String> mysqlData = new HashMap<>();
+  protected final EnumMap<Data, String> dataString = new EnumMap<>(Data.class); //локальные снимки,сохранять не надо. сохраняются в банжи
+  protected final EnumMap<Data, Integer> dataInt = new EnumMap<>(Data.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
+  protected final EnumMap<Stat, Integer> stat = new EnumMap<>(Stat.class);  //локальные снимки,сохранятьне надо. сохраняются в банжи
+  protected final EnumMap<Stat, Integer> dailyStat = new EnumMap<>(Stat.class);  //локальные снимки,сохранять не надо. сохраняются в банжи
+  public final Map<Integer, Boolean> missionIds = new HashMap<>(); //true-обрабатывается (блокировать операции)
+  public boolean hasFakeBlock;
+  public final HashMap<Long, BlockData> fakeBlock = new HashMap<>();
   public CustomScore score;
   public CustomTag tag;
   public Disguise disguise;
   public TradeSession trade;
 
-    //подгружается с локальной ЮД
-    public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
-  //public final CaseInsensitiveMap<String> world_positions = new CaseInsensitiveMap<>(); //сохранять или нет решает GAME.storeWorldPosition()
-    public final CaseInsensitiveMap<Integer> kits_use_timestamp = new CaseInsensitiveMap<>();
-    public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
+  //подгружается с локальной ЮД
+  public final CaseInsensitiveMap<String> homes = new CaseInsensitiveMap<>();
+  public final CaseInsensitiveMap<Integer> kits_use_timestamp = new CaseInsensitiveMap<>();
+  public final CaseInsensitiveMap<Integer> limits = new CaseInsensitiveMap<>();
 
-    //вычисляется из данных прокси
-//    public CaseInsensitiveSet groups = new CaseInsensitiveSet();
-    public CaseInsensitiveMap<Group> groupMap = new CaseInsensitiveMap<>();
-    public CaseInsensitiveSet user_perms = new CaseInsensitiveSet();
-    public final EnumMap<CheatType, Integer> cheats = new EnumMap<>(CheatType.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
+  //вычисляется из данных прокси
+  public CaseInsensitiveMap<Group> groupMap = new CaseInsensitiveMap<>();
+  public CaseInsensitiveSet user_perms = new CaseInsensitiveSet();
+  public final EnumMap<CheatType, Integer> cheats = new EnumMap<>(CheatType.class); //локальные снимки,сохранятьне надо. сохраняются в банжи
 
-    //Друзья
-    public final CaseInsensitiveSet friends = new CaseInsensitiveSet(); //друг,сервер
-    public final CaseInsensitiveSet friendInvite = new CaseInsensitiveSet(); //предложения дружить, до выхода
-    public String party_leader = ""; //ник лидера команды
-    public CaseInsensitiveMap<String> party_members = new CaseInsensitiveMap<>(); //ник, сервер всех членов команды
-    public final CaseInsensitiveSet partyInvite = new CaseInsensitiveSet(); //предложения в комманду, до выхода
-    protected final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
-    public final Map<Quest, IProgress> quests = new HashMap<>();
+  //Друзья
+  public final CaseInsensitiveSet friends = new CaseInsensitiveSet(); //друг,сервер
+  public final CaseInsensitiveSet friendInvite = new CaseInsensitiveSet(); //предложения дружить, до выхода
+  public String party_leader = ""; //ник лидера команды
+  public CaseInsensitiveMap<String> party_members = new CaseInsensitiveMap<>(); //ник, сервер всех членов команды
+  public final CaseInsensitiveSet partyInvite = new CaseInsensitiveSet(); //предложения в комманду, до выхода
+  protected final CaseInsensitiveSet blackList = new CaseInsensitiveSet(); //хранится на банжи до перезахода, синхронизируется
+  public final Map<Quest, IProgress> quests = new HashMap<>();
 
-    public PermissionAttachment permissionAttachmen = null;
-    public ProfileManager menu;
-    private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
+  public PermissionAttachment permissionAttachmen = null;
+  public ProfileManager menu;
+  private boolean hideScore = false; //для лобби-чтобы не конфликтовал показ онлайна и кастомные значения
 
-//    public Location last_death; //p.getLastDeathLocation()
+  public String chat_group = "----";
+  private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
+  private String tagPreffix = "", tagSuffix = "";
 
-    public String chat_group = "----";
-    private String tabPreffix = "§7", beforeName = ChatLst.NIK_COLOR, tabSuffix = "";
-    private String tagPreffix = "", tagSuffix = "";
-
-    public int pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
+  public int pvp_time, no_damage;//, bplace, bbreak, mobkill, monsterkill, pkill, dead;
   public boolean allow_fly, resourcepack_locked = true, pvp_allow = true;
   public boolean firstJoin = true; //false поставится если есть запись в мускул ИЛИ файл с данными
-  //@Deprecated
-  //public boolean mysqlError;
   public LocalDB.MysqlDataState mysqlDataState = LocalDB.MysqlDataState.NONE;
-    //служебные
-    public int lookSum = 0, afkLeft = Integer.MAX_VALUE;
-    public SetupMode setup; //для билдеров
-    public BukkitTask displayCube; //показ границы выделения
-    public Location spyOrigin;
-    public GameMode spyOldGm;
-    public Gender gender = Gender.NEUTRAL;
-    public String lastCommand; //последняя команда введёная билдером
-    public UUID tpRequestFrom; //от кого пришел запрос на ТП
+  //служебные
+  public int lookSum = 0, afkLeft = Integer.MAX_VALUE;
+  public SetupMode setup; //для билдеров
+  public BukkitTask displayCube; //показ границы выделения
+  public Location spyOrigin;
+  public GameMode spyOldGm;
+  public Gender gender = Gender.NEUTRAL;
+  public String lastCommand; //последняя команда введёная билдером
+  public UUID tpRequestFrom; //от кого пришел запрос на ТП
 
-    //Боссбар, титры, экшэнбар с задержками
-    public final List<String> delayActionbars = new ArrayList<>();
-    public final BossBar bossbar = BossBar.bossBar(Component.text(""), 0, BossBar.Color.WHITE, BossBar.Overlay.NOTCHED_12, Collections.emptySet());
-    public int barTime, barMaxTime, nextTitle, nextAb;
-    public boolean timeBar;
-    public float progress;
-    public final List<DelayBossBar> delayBossBars = new ArrayList<>();
-    public final List<Title> delayTitles = new ArrayList<>();
-  //public WeakReference<Entity> minecart;
-  //public WeakReference<Entity> boat; //для лимитера
+  //Боссбар, титры, экшэнбар с задержками
+  public final List<String> delayActionbars = new ArrayList<>();
+  public final BossBar bossbar = BossBar.bossBar(Component.text(""), 0, BossBar.Color.WHITE, BossBar.Overlay.NOTCHED_12, Collections.emptySet());
+  public int barTime, barMaxTime, nextTitle, nextAb;
+  public boolean timeBar;
+  public float progress;
+  public final List<DelayBossBar> delayBossBars = new ArrayList<>();
+  public final List<Title> delayTitles = new ArrayList<>();
   public EnumMap<EntityType, WeakReference<Entity>> limiter = new EnumMap<>(EntityType.class);
 
   public Oplayer(final HumanEntity p) { //заглушка - тут будет null. Да, тупо выглядит, но совместимость вроде не ломается.
@@ -257,7 +247,7 @@ public class Oplayer {
         if (onlineSecond == 4) {
             setData(Data.WANT_ARENA_JOIN, "");
         }
-
+      tag.secondTick(p); //проверочки на невидимость
         onlineSecond++;
     }
 

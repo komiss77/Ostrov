@@ -4,6 +4,7 @@ package ru.komiss77.listener;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -18,33 +19,43 @@ import io.papermc.paper.world.damagesource.CombatTracker;
 import net.kyori.adventure.text.event.ClickCallback;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
 import ru.komiss77.ApiOstrov;
 import ru.komiss77.Ostrov;
 import ru.komiss77.Timer;
+import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.events.PlayerDisguiseEvent;
 import ru.komiss77.modules.items.ItemBuilder;
+import ru.komiss77.modules.items.ItemManager;
+import ru.komiss77.modules.items.SpecialItem;
 import ru.komiss77.modules.player.Oplayer;
 import ru.komiss77.modules.player.PM;
-import ru.komiss77.utils.ClassUtil;
-import ru.komiss77.utils.StringUtil;
-import ru.komiss77.utils.TCUtil;
+import ru.komiss77.utils.*;
 
 
 public class TestLst implements Listener {
 
   public static final NamespacedKey test = new NamespacedKey("os", "test");//Key.key("faction", "perk");
   //EnderDragon d;
+
 
 
 
@@ -283,41 +294,7 @@ public class TestLst implements Listener {
   private static final String CODE = "code", VOLTS = "volts", CHECK = "check";
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public void test(final EntityDamageEvent e) { //extends EntityEvent
+  public void test1(final EntityDamageEvent e) { //extends EntityEvent
         //Ostrov.log_warn("EntityDamageEvent "+e.getEntityType()+" cause="+e.getCause()+" src="+e.getDamageSource()+" dmg="+e.getDamage());
         if (e instanceof EntityDamageByEntityEvent edbe) {
             Ostrov.log_warn("cast EntityDamageByEntityEvent  " + e.getEntityType() + " cause=" + e.getCause() + " src=" + e.getDamageSource() + " dmg=" + e.getDamage());

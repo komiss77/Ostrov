@@ -16,6 +16,8 @@ import ru.komiss77.RemoteDB;
 import ru.komiss77.enums.GlobalLogType;
 import ru.komiss77.utils.NumUtil;
 
+
+//https://easypayments.easydonate.ru/
 //ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginStateModel isPlayersSyncActive() возвращать false
 public class EasyPaymentsHook {
 

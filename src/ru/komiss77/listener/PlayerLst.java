@@ -28,6 +28,8 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -39,10 +41,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import ru.komiss77.*;
 import ru.komiss77.builder.menu.EntitySetup;
-import ru.komiss77.enums.Game;
-import ru.komiss77.enums.HistoryType;
-import ru.komiss77.enums.ServerType;
-import ru.komiss77.enums.Table;
+import ru.komiss77.enums.*;
 import ru.komiss77.events.FriendTeleportEvent;
 import ru.komiss77.events.LocalDataLoadEvent;
 import ru.komiss77.modules.entities.PvPManager;
@@ -101,7 +100,11 @@ public class PlayerLst implements Listener {
             op.tag.visible(true);
         }
       if (ApiOstrov.canBeBuilder(p) || op.isStaff) return;
-        if (GM.GAME == Game.AR || GM.GAME == Game.JL || GM.GAME == Game.LOBBY) return;
+      if (GM.GAME.type != ServerType.ONE_GAME) return;
+      switch (GM.GAME) {
+        case AR, JL, LOBBY:
+          return;
+      }
         //fix для гостя .NullPointerException: return value of "org.bukkit.entity.Player.getPreviousGameMode()" is null
         RemoteDB.executePstAsync(null, "INSERT INTO " + Table.HISTORY.table_name +
             " (`action`,`sender`,`target`,`report`,`data`,`note`) VALUES ('"
@@ -137,7 +140,23 @@ public class PlayerLst implements Listener {
     }
 
 
-
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  public void watchInvSeeCmd(final InventoryClickEvent e) {
+    if (e.getClickedInventory() == null) return;
+    if (e.getClickedInventory().getType() != InventoryType.PLAYER && e.getClickedInventory().getType() != InventoryType.ENDER_CHEST)
+      return;
+    if (e.getWhoClicked() instanceof final Player p
+        && e.getInventory().getHolder() instanceof final Player target
+        && p.getEntityId() != target.getEntityId()
+        && ApiOstrov.isStaff(p)) {
+      final String log = "клик модера " + p.getName() + " в инвентаре " + e.getClickedInventory().getType() + ":" + target.getName()
+          + " action=" + e.getAction() + " click=" + e.getClick() + " slotType=" + e.getSlotType() + " rawslot==" + e.getRawSlot()
+          + (e.getCurrentItem() == null ? "" : " item=" + e.getCurrentItem().getType())
+          + (e.getCursor() == null ? "" : " cursor=" + e.getCursor().getType());
+      Ostrov.globalLog(GlobalLogType.MODER_ACTION, "os", log);
+      Ostrov.log_warn(log);
+    }
+  }
 
     //вызывается из SpigotChanellMsg
     public static void onBungeeData(final String name, final String raw) {
